@@ -11,3 +11,7 @@ class MagazineIndexPage(Page):
     content_panels = Page.content_panels + [
         FieldPanel('intro')
     ]
+
+
+class MagazineIssue(Page):
+    pass
