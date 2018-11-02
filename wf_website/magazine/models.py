@@ -15,3 +15,7 @@ class MagazineIndexPage(Page):
 
 class MagazineIssue(Page):
     pass
+
+
+class MagazineArticle(Page):
+    body = RichTextField(blank=True)
