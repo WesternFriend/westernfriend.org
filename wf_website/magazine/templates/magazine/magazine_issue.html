@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block body_class %}template-issuepage{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ page.title }}
+    </h1>
+
+    <p>
+        <a href="{{ page.get_parent.url }}">
+            Return to Magazine
+        </a>
+    </p>
+{% endblock %}
