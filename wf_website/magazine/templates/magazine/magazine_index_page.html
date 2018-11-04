@@ -14,9 +14,6 @@
     </div>
 
     {% for issue in page.get_children %}
-        {% with issue.specfic as issue %}
-
-        {% endwith %}
         <h2>
             <a href="{% pageurl issue %}">
                 {{ issue.title }}

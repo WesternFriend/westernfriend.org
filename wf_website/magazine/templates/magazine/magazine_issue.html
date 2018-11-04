@@ -10,9 +10,6 @@
     </h1>
 
     {% for article in page.get_children %}
-        {% with article.specfic as article %}
-
-        {% endwith %}
         <h2>
             <a href="{% pageurl article %}">
                 {{ article.title }}
