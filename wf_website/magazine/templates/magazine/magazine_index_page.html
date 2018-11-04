@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-magazineindexpage{% endblock %}
 
@@ -19,6 +19,9 @@
                 {{ issue.title }}
             </a>
         </h2>
+
+        {% image issue.specific.cover_image max-320x200 %}
+
     {% endfor %}
 
 {% endblock %}
