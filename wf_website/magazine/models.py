@@ -14,6 +14,10 @@ class MagazineIndexPage(Page):
         FieldPanel('intro')
     ]
 
+    subpage_types = [
+        'MagazineIssue',
+    ]
+
 
 class MagazineIssue(Page):
     cover_image = models.ForeignKey(
@@ -27,6 +31,10 @@ class MagazineIssue(Page):
         ImageChooserPanel('cover_image'),
     ]
 
+    subpage_types = [
+        'MagazineArticle',
+    ]
+
 
 class MagazineArticle(Page):
     body = RichTextField(blank=True)
@@ -38,3 +46,5 @@ class MagazineArticle(Page):
     content_panels = Page.content_panels + [
         FieldPanel('body', classname="full")
     ]
+
+    subpage_types = []
