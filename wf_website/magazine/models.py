@@ -1,8 +1,9 @@
 from django.db import models
 
+from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
-from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
 
 
@@ -15,7 +16,16 @@ class MagazineIndexPage(Page):
 
 
 class MagazineIssue(Page):
-    pass
+    cover_image = models.ForeignKey(
+        'wagtailimages.Image',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='+',
+    )
+
+    content_panels = Page.content_panels + [
+        ImageChooserPanel('cover_image'),
+    ]
 
 
 class MagazineArticle(Page):
