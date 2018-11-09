@@ -37,6 +37,13 @@ class MagazineIssue(Page):
         'MagazineArticle',
     ]
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+
+        context['articles_by_department'] = MagazineArticle.objects.child_of(self).live().order_by('department__name')
+
+        return context
+
 
 class MagazineArticle(Page):
     body = RichTextField(blank=True)
