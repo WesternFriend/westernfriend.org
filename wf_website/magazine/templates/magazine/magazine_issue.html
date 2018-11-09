@@ -11,15 +11,21 @@
 
     {% image page.cover_image max-320x200 %}
 
-    {% for article in page.get_children %}
+    {% regroup page.get_children by specific.department as departments %}
+
+    {% for department in departments %}
         <h2>
-            <a href="{% pageurl article %}">
-                {{ article.title }}
-            </a>
+        {{ department.grouper }}
         </h2>
-        <p>
-            {{ article.specific.department }}
-        </p>
+        <ul>
+            {% for article in  department.list %}
+            <li>
+                <a href="{% pageurl article %}">
+                    {{ article.title }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
     {% endfor %}
 
     <p>
