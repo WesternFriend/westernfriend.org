@@ -5,6 +5,8 @@ from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
+from wagtail.snippets.edit_handlers import SnippetChooserPanel
+from wagtail.snippets.models import register_snippet
 
 
 class MagazineIndexPage(Page):
@@ -38,13 +40,33 @@ class MagazineIssue(Page):
 
 class MagazineArticle(Page):
     body = RichTextField(blank=True)
+    department = models.ForeignKey(
+        'MagazineDepartment',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+    )
 
     search_fields = Page.search_fields + [
         index.SearchField('body'),
     ]
 
     content_panels = Page.content_panels + [
-        FieldPanel('body', classname="full")
+        FieldPanel('body', classname="full"),
+        SnippetChooserPanel('department'),
     ]
 
     subpage_types = []
+
+
+@register_snippet
+class MagazineDepartment(models.Model):
+    name = models.CharField(max_length=200)
+
+    panels = [
+        FieldPanel('name')
+    ]
+
+    def __str__(self):
+        return self.name
