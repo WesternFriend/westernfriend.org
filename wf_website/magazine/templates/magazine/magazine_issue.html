@@ -11,7 +11,7 @@
 
     {% image page.cover_image max-320x200 %}
 
-    {% regroup page.get_children by specific.department as departments %}
+    {% regroup articles_by_department by specific.department as departments %}
 
     {% for department in departments %}
         <h2>
