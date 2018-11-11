@@ -28,8 +28,12 @@ class MagazineIssue(Page):
         null=True,
         related_name='+',
     )
+    publication_date = models.DateField(
+        null=True,
+    )
 
     content_panels = Page.content_panels + [
+        FieldPanel('publication_date'),
         ImageChooserPanel('cover_image'),
     ]
 
