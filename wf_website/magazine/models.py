@@ -32,6 +32,7 @@ class MagazineIssue(Page):
     )
     publication_date = models.DateField(
         null=True,
+        help_text="Please select the first day of the publication month",
     )
 
     @property
