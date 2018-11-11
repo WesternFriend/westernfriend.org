@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 
 from wagtail.admin.edit_handlers import FieldPanel
@@ -31,6 +33,13 @@ class MagazineIssue(Page):
     publication_date = models.DateField(
         null=True,
     )
+
+    @property
+    def publication_end_date(self):
+        if self.publication_date:
+            # TODO: try to find a cleaner way to add a month to the publication date
+            # I.e. the 'add a month' approach may be flawed altogether.
+            return self.publication_date + timedelta(days=+31)
 
     content_panels = Page.content_panels + [
         FieldPanel('publication_date'),
