@@ -22,10 +22,13 @@
 
         {% image issue.specific.cover_image max-320x200 %}
 
-        <p>
-            {{ issue.specific.publication_date | date:"F o" }}
-        </p>
-
+        {% if issue.specific.publication_date %}
+            <p>
+                {{ issue.specific.publication_date | date:"F o" }}
+                /
+                {{ issue.specific.publication_end_date | date:"F o" }}
+            </p>
+        {% endif %}
     {% endfor %}
 
 {% endblock %}
