@@ -17,6 +17,21 @@
         {{ page.publication_end_date | date:"F Y" }}
     </p>
 
+    {% if page.featured_articles.count %}
+        <h2>Featured articles</h2>
+
+        <ul>
+            {% for featured_article in page.featured_articles.all %}
+                <li>
+                    <a href="{% pageurl featured_article.article %}">
+                        {{ featured_article.article.title }}
+                    </a>
+                </li>
+            {% endfor %}
+
+        </ul>
+    {% endif %}
+
     {% regroup articles_by_department by specific.department as departments %}
 
     {% for department in departments %}
