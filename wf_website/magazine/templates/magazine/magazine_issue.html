@@ -11,11 +11,13 @@
 
     {% image page.cover_image max-320x200 %}
 
-    <p>
-        {{ page.publication_date | date:"F Y" }}
-        /
-        {{ page.publication_end_date | date:"F Y" }}
-    </p>
+    {% if page.publication_date %}
+        <p>
+            {{ page.publication_date | date:"F Y" }}
+            /
+            {{ page.publication_end_date | date:"F Y" }}
+        </p>
+    {% endif %}
 
     {% if page.featured_articles.count %}
         <h2>Featured articles</h2>
