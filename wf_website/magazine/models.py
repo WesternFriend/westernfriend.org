@@ -2,8 +2,10 @@ from datetime import timedelta
 
 from django.db import models
 
-from wagtail.admin.edit_handlers import FieldPanel
-from wagtail.core.models import Page
+from modelcluster.fields import ParentalKey
+
+from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, PageChooserPanel
+from wagtail.core.models import Page, Orderable
 from wagtail.core.fields import RichTextField
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
@@ -45,6 +47,11 @@ class MagazineIssue(Page):
     content_panels = Page.content_panels + [
         FieldPanel('publication_date'),
         ImageChooserPanel('cover_image'),
+        InlinePanel(
+            'featured_articles',
+            heading="Featured articles",
+            help_text="Select one or more featured articles, from this issue",
+        ),
     ]
 
     subpage_types = [
@@ -91,3 +98,22 @@ class MagazineDepartment(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class MagazineIssueFeaturedArticle(Orderable):
+    issue = ParentalKey(
+        'magazine.MagazineIssue',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='featured_articles',
+    )
+    article = models.ForeignKey(
+        MagazineArticle,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='+',
+    )
+
+    panels = [
+        PageChooserPanel('article')
+    ]
