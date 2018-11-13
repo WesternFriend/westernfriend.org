@@ -54,6 +54,9 @@ class MagazineIssue(Page):
         ),
     ]
 
+    parent_page_types = [
+        'MagazineIndexPage',
+    ]
     subpage_types = [
         'MagazineArticle',
     ]
@@ -85,6 +88,9 @@ class MagazineArticle(Page):
         SnippetChooserPanel('department'),
     ]
 
+    parent_page_types = [
+        'MagazineIssue',
+    ]
     subpage_types = []
 
 
