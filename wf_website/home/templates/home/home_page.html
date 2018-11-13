@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-homepage{% endblock %}
 
 {% block content %}
     {{ page.body|richtext }}
+
+
+    {% if current_issue %}
+        <h2>Current Issue</h2>
+        {{ current_issue.title }}
+        <br />
+        {% image current_issue.cover_image max-320x200 %}
+    {% endif %}
 {% endblock %}
