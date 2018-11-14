@@ -24,7 +24,7 @@
 
         {% if issue.specific.publication_date %}
             <p>
-                {{ issue.specific.publication_date | date:"F Y" }}
+                {{ issue.specific.publication_date | date:"F" }}
                 /
                 {{ issue.specific.publication_end_date | date:"F Y" }}
             </p>
