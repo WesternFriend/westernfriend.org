@@ -13,4 +13,15 @@
         <br />
         {% image current_issue.cover_image max-320x200 %}
     {% endif %}
+
+    {% if page.featured_articles.count %}
+        <h2>Featured articles</h2>
+        {% for featured_article in page.featured_articles.all %}
+            <h3>
+                <a href="{% pageurl featured_article.article %}">
+                    {{ featured_article.title }}
+                </a>
+            </h3>
+        {% endfor %}
+    {% endif %}
 {% endblock %}
