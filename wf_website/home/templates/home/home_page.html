@@ -22,6 +22,8 @@
                     {{ featured_article.title }}
                 </a>
             </h3>
+
+            {{ featured_article.body | richtext | truncatewords_html:30 }}
         {% endfor %}
     {% endif %}
 {% endblock %}
