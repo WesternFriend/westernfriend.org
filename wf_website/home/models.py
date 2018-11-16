@@ -50,3 +50,7 @@ class HomePageFeaturedArticle(Orderable):
     panels = [
         FieldPanel('article')
     ]
+
+    @property
+    def title(self):
+        return self.article.title
