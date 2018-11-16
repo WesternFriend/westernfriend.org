@@ -54,3 +54,7 @@ class HomePageFeaturedArticle(Orderable):
     @property
     def title(self):
         return self.article.title
+
+    @property
+    def body(self):
+        return self.article.body
