@@ -5,25 +5,35 @@
 {% block body_class %}template-homepage{% endblock %}
 
 {% block content %}
-    {{ page.body|richtext }}
+    <div class="row">
+        {{ page.body|richtext }}
+    </div>
 
-    {% if current_issue %}
-        <h2>Current Issue</h2>
-        {{ current_issue.title }}
-        <br />
-        {% image current_issue.cover_image max-320x200 %}
-    {% endif %}
+    <div class="row">
+        <div class="col-sm">
+            {% if page.featured_articles.count %}
+                <h2>Featured articles</h2>
+                {% for featured_article in page.featured_articles.all %}
+                    <h3>
+                        <a href="{% pageurl featured_article.article %}">
+                            {{ featured_article.title }}
+                        </a>
+                    </h3>
 
-    {% if page.featured_articles.count %}
-        <h2>Featured articles</h2>
-        {% for featured_article in page.featured_articles.all %}
-            <h3>
-                <a href="{% pageurl featured_article.article %}">
-                    {{ featured_article.title }}
-                </a>
-            </h3>
+                    {{ featured_article.body | richtext | truncatewords_html:30 }}
+                {% endfor %}
+            {% endif %}
+        </div>
 
-            {{ featured_article.body | richtext | truncatewords_html:30 }}
-        {% endfor %}
-    {% endif %}
+        <div class="col-sm">
+            {% if current_issue %}
+                <h2>Current Issue</h2>
+                <h3>
+                    {{ current_issue.title }}
+                </h3>
+                <br />
+                {% image current_issue.cover_image max-320x200 %}
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
