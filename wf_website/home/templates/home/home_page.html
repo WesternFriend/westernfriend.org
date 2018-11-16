@@ -28,11 +28,14 @@
         <div class="col-sm">
             {% if current_issue %}
                 <h2>Current Issue</h2>
-                <h3>
-                    {{ current_issue.title }}
-                </h3>
-                <br />
-                {% image current_issue.cover_image max-320x200 %}
+
+                <a href="{% pageurl current_issue %}">
+                    <h3>
+                        {{ current_issue.title }}
+                    </h3>
+                    <br />
+                    {% image current_issue.cover_image max-320x200 %}
+                </a>
             {% endif %}
         </div>
     </div>
