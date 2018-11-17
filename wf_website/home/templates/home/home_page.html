@@ -10,7 +10,7 @@
     </div>
 
     <div class="row">
-        <div class="col-sm">
+        <div class="col-sm-7">
             {% if page.featured_articles.count %}
                 <h2>Featured articles</h2>
                 {% for featured_article in page.featured_articles.all %}
@@ -25,7 +25,7 @@
             {% endif %}
         </div>
 
-        <div class="col-sm">
+        <div class="col-sm-5">
             {% if current_issue %}
                 <h2>Current Issue</h2>
 
