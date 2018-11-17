@@ -26,7 +26,7 @@ class MagazineIndexPage(Page):
     ]
 
     def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)k
+        context = super().get_context(request)
 
         # number of days for archive threshold
         archive_days_ago = 180
