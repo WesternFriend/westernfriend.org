@@ -13,22 +13,25 @@
         {{ page.intro | richtext }}
     </div>
 
-    {% for issue in page.get_children %}
-        <h2>
-            <a href="{% pageurl issue %}">
-                {{ issue.title }}
-            </a>
-        </h2>
+    <div class="row">
+        {% for issue in page.get_children %}
+            <div class="col-sm-4">
+                <h2>
+                    <a href="{% pageurl issue %}">
+                        {{ issue.title }}
+                    </a>
+                </h2>
 
-        {% image issue.specific.cover_image max-320x200 %}
+                {% image issue.specific.cover_image max-320x200 %}
 
-        {% if issue.specific.publication_date %}
-            <p>
-                {{ issue.specific.publication_date | date:"F" }}
-                /
-                {{ issue.specific.publication_end_date | date:"F Y" }}
-            </p>
-        {% endif %}
-    {% endfor %}
-
+                {% if issue.specific.publication_date %}
+                    <p>
+                        {{ issue.specific.publication_date | date:"F" }}
+                        /
+                        {{ issue.specific.publication_end_date | date:"F Y" }}
+                    </p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
