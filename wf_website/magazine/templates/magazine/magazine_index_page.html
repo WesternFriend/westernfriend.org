@@ -13,25 +13,65 @@
         {{ page.intro | richtext }}
     </div>
 
-    <div class="row">
-        {% for issue in page.get_children %}
-            <div class="col-sm-4">
-                <h2>
+    <h2>Recent issues</h2>
+
+    <div class="row mb-4">
+        {% for issue in recent_issues %}
+            <div class="col-sm-4 col-lg-3 mt-4">
+                <div class="card">
                     <a href="{% pageurl issue %}">
-                        {{ issue.title }}
+                        {% image issue.specific.cover_image max-300x800 class="card-img-top h-100" %}
                     </a>
-                </h2>
 
-                {% image issue.specific.cover_image max-320x200 %}
+                    <div class="card-body">
+                        <h3 class="panel-title">
+                            <a href="{% pageurl issue %}">
+                                {{ issue.title }}
+                            </a>
+                        </h3>
 
-                {% if issue.specific.publication_date %}
-                    <p>
-                        {{ issue.specific.publication_date | date:"F" }}
-                        /
-                        {{ issue.specific.publication_end_date | date:"F Y" }}
-                    </p>
-                {% endif %}
+                        {% if issue.specific.publication_date %}
+                            <p class="card-text">
+                                {{ issue.specific.publication_date | date:"M" }}
+                                /
+                                {{ issue.specific.publication_end_date | date:"M Y" }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
+
+        {% endfor %}
+    </div>
+
+    <h2>Archive issues</h2>
+
+    <div class="row">
+        {% for issue in archive_issues %}
+            <div class="col-sm-4 col-lg-3 mt-4">
+                <div class="card">
+                    <a href="{% pageurl issue %}">
+                        {% image issue.specific.cover_image max-286x300 class="card-img-top h-100" %}
+                    </a>
+
+                    <div class="card-body">
+                        <h3 class="panel-title">
+                            <a href="{% pageurl issue %}">
+                                {{ issue.title }}
+                            </a>
+                        </h3>
+
+                        {% if issue.specific.publication_date %}
+                            <p class="card-text">
+                                {{ issue.specific.publication_date | date:"M" }}
+                                /
+                                {{ issue.specific.publication_end_date | date:"M Y" }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
         {% endfor %}
     </div>
 {% endblock %}
