@@ -1,3 +1,4 @@
+import datetime
 from datetime import timedelta
 
 from django.db import models
@@ -23,6 +24,28 @@ class MagazineIndexPage(Page):
     subpage_types = [
         'MagazineIssue',
     ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)k
+
+        # number of days for archive threshold
+        archive_days_ago = 180
+
+        # TODO: see if there is a better way to deal with
+        # irregular month lengths for archive threshold
+        archive_threshold = datetime.date.today() - timedelta(days=archive_days_ago)
+
+        published_issues = MagazineIssue.objects.live().order_by('-publication_date')
+
+        # recent issues are published after the archive threshold
+        context['recent_issues'] = published_issues.filter(
+            publication_date__gte=archive_threshold)
+
+        # archive issues are published before the archive threshold
+        context['archive_issues'] = published_issues.filter(
+            publication_date__lt=archive_threshold)
+
+        return context
 
 
 class MagazineIssue(Page):
