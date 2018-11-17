@@ -5,9 +5,9 @@
 {% block body_class %}template-homepage{% endblock %}
 
 {% block content %}
-    <div class="row">
-        {{ page.body|richtext }}
-    </div>
+    <h1>{{ page.title }}</h1>
+
+    {{ page.body|richtext }}
 
     <div class="row">
         <div class="col-sm-7">
