@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags %}
 
 {% block body_class %}template-magazineindexpage{% endblock %}
 
@@ -17,30 +17,7 @@
 
     <div class="row mb-4">
         {% for issue in recent_issues %}
-            <div class="col-sm-4 col-lg-3 mt-4">
-                <div class="card">
-                    <a href="{% pageurl issue %}">
-                        {% image issue.specific.cover_image max-300x800 class="card-img-top h-100" %}
-                    </a>
-
-                    <div class="card-body">
-                        <h3 class="panel-title">
-                            <a href="{% pageurl issue %}">
-                                {{ issue.title }}
-                            </a>
-                        </h3>
-
-                        {% if issue.specific.publication_date %}
-                            <p class="card-text">
-                                {{ issue.specific.publication_date | date:"M" }}
-                                /
-                                {{ issue.specific.publication_end_date | date:"M Y" }}
-                            </p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
+            {% include "magazine/magazine_issue_card.html" %}
         {% endfor %}
     </div>
 
@@ -48,30 +25,7 @@
 
     <div class="row">
         {% for issue in archive_issues %}
-            <div class="col-sm-4 col-lg-3 mt-4">
-                <div class="card">
-                    <a href="{% pageurl issue %}">
-                        {% image issue.specific.cover_image max-286x300 class="card-img-top h-100" %}
-                    </a>
-
-                    <div class="card-body">
-                        <h3 class="panel-title">
-                            <a href="{% pageurl issue %}">
-                                {{ issue.title }}
-                            </a>
-                        </h3>
-
-                        {% if issue.specific.publication_date %}
-                            <p class="card-text">
-                                {{ issue.specific.publication_date | date:"M" }}
-                                /
-                                {{ issue.specific.publication_end_date | date:"M Y" }}
-                            </p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
+            {% include "magazine/magazine_issue_card.html" %}
         {% endfor %}
     </div>
 {% endblock %}
