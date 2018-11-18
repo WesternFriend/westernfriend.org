@@ -27,5 +27,19 @@
         {% for issue in archive_issues %}
             {% include "magazine/magazine_issue_card.html" %}
         {% endfor %}
+
+        <span class="step-links ml-3 mb-5">
+            {% if archive_issues.has_previous %}
+                <a href="?page={{ archive_issues.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ archive_issues.number }} of {{ archive_issues.paginator.num_pages }}.
+            </span>
+
+            {% if archive_issues.has_next %}
+                <a href="?page={{ archive_issues.next_page_number }}">next</a>
+            {% endif %}
+        </span>
     </div>
 {% endblock %}
