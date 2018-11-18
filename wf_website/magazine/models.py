@@ -1,6 +1,7 @@
 import datetime
 from datetime import timedelta
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 
 from modelcluster.fields import ParentalKey
@@ -41,9 +42,25 @@ class MagazineIndexPage(Page):
         context['recent_issues'] = published_issues.filter(
             publication_date__gte=archive_threshold)
 
-        # archive issues are published before the archive threshold
-        context['archive_issues'] = published_issues.filter(
+        archive_issues = published_issues.filter(
             publication_date__lt=archive_threshold)
+
+        # Show three archive issues per page
+        paginator = Paginator(archive_issues, 3)
+
+        archive_issues_page = request.GET.get('archive-issues-page')
+
+        try:
+            paginated_archive_issues = paginator.page(archive_issues_page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            paginated_archive_issues = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            paginated_archive_issues = paginator.page(paginator.num_pages)
+
+        # archive issues are published before the archive threshold
+        context['archive_issues'] = paginated_archive_issues
 
         return context
 
