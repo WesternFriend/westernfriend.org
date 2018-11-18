@@ -9,10 +9,10 @@ from magazine.models import MagazineIssue, MagazineArticle
 
 
 class HomePage(Page):
-    body = RichTextField(blank=True)
+    intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [
-        FieldPanel('body', classname="full"),
+        FieldPanel('intro', classname="full"),
         InlinePanel(
             'featured_articles',
             heading="Featured articles",
