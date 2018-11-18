@@ -13,7 +13,7 @@
         {{ page.intro | richtext }}
     </div>
 
-    <h2>Recent issues</h2>
+    <h2 id="recent-issues">Recent issues</h2>
 
     <div class="row mb-4">
         {% for issue in recent_issues %}
@@ -21,7 +21,7 @@
         {% endfor %}
     </div>
 
-    <h2>Archive issues</h2>
+    <h2 id="archive-issues">Archive issues</h2>
 
     <div class="row">
         {% for issue in archive_issues %}
