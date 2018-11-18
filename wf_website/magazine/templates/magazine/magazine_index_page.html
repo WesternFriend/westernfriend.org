@@ -30,7 +30,7 @@
 
         <span class="step-links ml-3 mb-5">
             {% if archive_issues.has_previous %}
-                <a href="?page={{ archive_issues.previous_page_number }}">previous</a>
+                <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues" class="btn btn-link">previous</a>
             {% endif %}
 
             <span class="current">
@@ -38,7 +38,7 @@
             </span>
 
             {% if archive_issues.has_next %}
-                <a href="?page={{ archive_issues.next_page_number }}">next</a>
+                <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues" class="btn btn-link">next</a>
             {% endif %}
         </span>
     </div>
