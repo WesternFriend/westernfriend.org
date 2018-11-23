@@ -19,6 +19,21 @@
             <li class="nav-item">
                 <a href="/magazine" class="nav-link">Magazine</a>
             </li>
+            <li class="ml-3">
+                {% if user.is_authenticated %}
+                    <span class="navbar-text">
+                        Welcome {{ user.get_username }}
+                    </span>
+                    <a href="{% url 'logout' %}?next={{ request.path }}" class="btn btn-outline-success">
+                        Logout
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-success">
+                        Login
+                    </a>
+                {% endif %}
+
+            </li>
         </ul>
     </div>
 </nav>
