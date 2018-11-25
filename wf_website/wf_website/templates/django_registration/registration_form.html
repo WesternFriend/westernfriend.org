@@ -5,13 +5,17 @@
     <h1>Register</h1>
     <div class="row">
         <div class="col-md-6">
-            <form method="post" action="">
-                {% csrf_token %}
-                {{ form|crispy }}
+            {% if user.is_authenticated %}
+                <p>You are already registered.</p>
+            {% else %}
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {{ form|crispy }}
 
-                <input type="submit" value="register" class="btn btn-primary">
-            </form>
-            <a href="{% url 'login' %}">Already registered?</a>
+                    <input type="submit" value="register" class="btn btn-primary">
+                </form>
+                <a href="{% url 'login' %}">Already registered?</a>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}
