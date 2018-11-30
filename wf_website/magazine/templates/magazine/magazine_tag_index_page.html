@@ -4,7 +4,7 @@
 
 {% block content %}
     {% if request.GET.tag|length %}
-        <h1>Articles tagged "{{ request.GET.tag }}</h1>
+        <h1>Articles tagged "{{ request.GET.tag }}"</h1>
 
         {% if articles.all.count %}
             {% for article in articles %}
@@ -24,7 +24,7 @@
                 </p>
             {% endfor %}
         {% else %}
-            <p>No articles found with the tag {{ tag }}.</p>
+            <p>No articles found with the tag "{{ request.GET.tag }}".</p>
         {% endif %}
     {% else %}
         <h1>{{ page.title }}</h1>
