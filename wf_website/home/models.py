@@ -22,6 +22,7 @@ class HomePage(Page):
 
     subpage_types = [
         'magazine.MagazineIndexPage',
+        'magazine.MagazineTagIndexPage',
     ]
 
     def get_context(self, request, *args, **kwargs):
