@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    {% if request.GET.tag|length %}
+        <h1>Articles tagged "{{ request.GET.tag }}</h1>
+
+        {% if articles.all.count %}
+            {% for article in articles %}
+                <h2>{{ article.title }}</h2>
+            {% endfor %}
+        {% else %}
+            <p>No articles found with the tag {{ tag }}.</p>
+        {% endif %}
+    {% else %}
+        <h1>{{ page.title }}</h1>
+        <p>No tag provided.</p>
+    {% endif %}
+{% endblock content %}
