@@ -4,9 +4,11 @@ from datetime import timedelta
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 
+from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
+from taggit.models import TaggedItemBase
 
-from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, PageChooserPanel
+from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, PageChooserPanel, MultiFieldPanel
 from wagtail.core.models import Page, Orderable
 from wagtail.core.fields import RichTextField
 from wagtail.images.edit_handlers import ImageChooserPanel
@@ -109,6 +111,25 @@ class MagazineIssue(Page):
         return context
 
 
+class MagazineArticleTag(TaggedItemBase):
+    content_object = ParentalKey(
+        to='MagazineArticle',
+        related_name='tagged_items',
+        on_delete=models.CASCADE,
+    )
+
+
+class MagazineTagIndexPage(Page):
+    def get_context(self, request, *args, **kwargs):
+        tag = request.GET.get('tag')
+        articles = MagazineArticle.objects.filter(tags__name=tag)
+
+        context = super().get_context(request)
+        context['articles'] = articles
+
+        return context
+
+
 class MagazineArticle(Page):
     body = RichTextField(blank=True)
     department = models.ForeignKey(
@@ -118,6 +139,7 @@ class MagazineArticle(Page):
         on_delete=models.SET_NULL,
         related_name='+',
     )
+    tags = ClusterTaggableManager(through=MagazineArticleTag, blank=True)
 
     search_fields = Page.search_fields + [
         index.SearchField('body'),
@@ -125,7 +147,10 @@ class MagazineArticle(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel('body', classname="full"),
-        SnippetChooserPanel('department'),
+        MultiFieldPanel([
+            SnippetChooserPanel('department'),
+            FieldPanel('tags'),
+        ], heading="Article information")
     ]
 
     parent_page_types = [
