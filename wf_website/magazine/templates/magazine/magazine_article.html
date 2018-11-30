@@ -9,6 +9,19 @@
         {{ page.title }}
     </h1>
 
+    {% if page.tags.all.count %}
+        <div class="tags">
+            {% for tag in page.tags.all %}
+                <a
+                    href="{% slugurl 'tags' %}?tag={{ tag }}"
+                    class="btn btn-outline-primary btn-sm">
+                    {{ tag }}
+                </a>
+            {% endfor %}
+
+        </div>
+    {% endif %}
+
     {{ page.body | richtext }}
 
     <p>
