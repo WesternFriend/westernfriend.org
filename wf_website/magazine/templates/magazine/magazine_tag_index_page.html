@@ -8,7 +8,20 @@
 
         {% if articles.all.count %}
             {% for article in articles %}
-                <h2>{{ article.title }}</h2>
+                <h2>
+                    <a href="{% pageurl article %}">
+                        {{ article.title }}
+                    </a>
+                </h2>
+
+                {{ article.body | richtext| truncatewords_html:30 }}
+
+                <p>
+                    Related issue:&nbsp;
+                    <a href="{{ article.get_parent.url }}">
+                        "{{ article.get_parent.title }}"
+                    </a>
+                </p>
             {% endfor %}
         {% else %}
             <p>No articles found with the tag {{ tag }}.</p>
