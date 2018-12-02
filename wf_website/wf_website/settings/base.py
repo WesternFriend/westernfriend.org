@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'magazine',
 
     'wagtail.contrib.forms',
+    'wagtail.contrib.modeladmin',
     'wagtail.contrib.redirects',
     'wagtail.embeds',
     'wagtail.sites',
