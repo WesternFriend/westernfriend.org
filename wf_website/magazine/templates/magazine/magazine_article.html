@@ -9,6 +9,17 @@
         {{ page.title }}
     </h1>
 
+    {% if page.related_authors.count %}
+        By:
+        <ul class="list-inline">
+            {% for author in page.related_authors.all %}
+                <li class="list-inline-item">
+                    {{ author.author }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     {% if page.tags.all.count %}
         <div class="tags">
             {% for tag in page.tags.all %}
