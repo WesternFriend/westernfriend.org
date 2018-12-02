@@ -155,6 +155,10 @@ class MagazineArticle(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel('body', classname="full"),
+        InlinePanel(
+            'related_authors',
+            label="Related Author(s)",
+        ),
         MultiFieldPanel([
             SnippetChooserPanel('department'),
             FieldPanel('tags'),
@@ -205,3 +209,48 @@ class MagazineIssueFeaturedArticle(Orderable):
     panels = [
         PageChooserPanel('article')
     ]
+
+
+class Author(index.Indexed, models.Model):
+    given_name = models.CharField(
+        max_length=255,
+        default='',
+    )
+    family_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+    )
+
+    def __str__(self):
+        if self.family_name and self.given_name:
+            return f"{self.family_name}, {self.given_name}"
+        else:
+            return self.given_name
+
+    class Meta:
+        db_table = 'author'
+
+    search_fields = [
+        index.SearchField('given_name', partial_match=True),
+        index.SearchField('family_name', partial_match=True),
+    ]
+
+
+class ArticleAuthor(Orderable):
+    article = ParentalKey(
+        'MagazineArticle',
+        related_name='related_authors',
+        on_delete=models.CASCADE,
+    )
+
+    author = models.ForeignKey(
+        'Author',
+        related_name='+',
+        on_delete=models.CASCADE,
+    )
+
+    panels = [
+        FieldPanel('author'),
+    ]
+
