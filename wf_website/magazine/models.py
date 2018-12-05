@@ -5,7 +5,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 
 from modelcluster.contrib.taggit import ClusterTaggableManager
-from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
+from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from taggit.models import TaggedItemBase
 
 from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, PageChooserPanel, MultiFieldPanel
@@ -15,6 +16,8 @@ from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtail.snippets.models import register_snippet
+
+from wagtailautocomplete.edit_handlers import AutocompletePanel
 
 
 class MagazineIndexPage(Page):
@@ -139,6 +142,10 @@ class MagazineTagIndexPage(Page):
 
 
 class MagazineArticle(Page):
+    authored_by = ParentalManyToManyField(
+        'Author',
+        related_name='articles',
+    )
     body = RichTextField(blank=True)
     department = models.ForeignKey(
         'MagazineDepartment',
@@ -155,9 +162,10 @@ class MagazineArticle(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel('body', classname="full"),
-        InlinePanel(
-            'related_authors',
-            label="Related Author(s)",
+        AutocompletePanel(
+            'authored_by',
+            page_type='magazine.Author',
+            is_single=False,
         ),
         MultiFieldPanel([
             SnippetChooserPanel('department'),
@@ -211,7 +219,7 @@ class MagazineIssueFeaturedArticle(Orderable):
     ]
 
 
-class Author(index.Indexed, models.Model):
+class Author(index.Indexed, ClusterableModel):
     given_name = models.CharField(
         max_length=255,
         default='',
@@ -221,6 +229,11 @@ class Author(index.Indexed, models.Model):
         blank=True,
         default='',
     )
+
+    autocomplete_search_field = 'given_name'
+
+    def autocomplete_label(self):
+        return self.__str__()
 
     def __str__(self):
         if self.family_name and self.given_name:
@@ -235,22 +248,3 @@ class Author(index.Indexed, models.Model):
         index.SearchField('given_name', partial_match=True),
         index.SearchField('family_name', partial_match=True),
     ]
-
-
-class ArticleAuthor(Orderable):
-    article = ParentalKey(
-        'MagazineArticle',
-        related_name='related_authors',
-        on_delete=models.CASCADE,
-    )
-
-    author = models.ForeignKey(
-        'Author',
-        related_name='+',
-        on_delete=models.CASCADE,
-    )
-
-    panels = [
-        FieldPanel('author'),
-    ]
-
