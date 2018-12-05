@@ -237,10 +237,7 @@ class Author(index.Indexed, ClusterableModel):
         return self.__str__()
 
     def __str__(self):
-        if self.family_name and self.given_name:
-            return f"{self.family_name}, {self.given_name}"
-        else:
-            return self.given_name
+        return f"{self.given_name} {self.family_name}"
 
     class Meta:
         db_table = 'author'
