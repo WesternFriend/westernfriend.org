@@ -9,12 +9,12 @@
         {{ page.title }}
     </h1>
 
-    {% if page.related_authors.count %}
+    {% if page.authored_by.count %}
         By:
         <ul class="list-inline">
-            {% for author in page.related_authors.all %}
+            {% for author in page.authored_by.all %}
                 <li class="list-inline-item">
-                    {{ author.author }}
+                    {{ author }}
                 </li>
             {% endfor %}
         </ul>
