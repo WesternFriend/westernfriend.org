@@ -223,6 +223,7 @@ class Author(index.Indexed, ClusterableModel):
     given_name = models.CharField(
         max_length=255,
         default='',
+        help_text="Enter the given name for a person. This can also be used for an organization name."
     )
     family_name = models.CharField(
         max_length=255,
