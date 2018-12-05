@@ -19,5 +19,6 @@ six==1.11.0
 Unidecode==1.0.22
 urllib3==1.24.1
 wagtail==2.3
+wagtail-autocomplete==0.1.1
 webencodings==0.5.1
 Willow==1.1
