@@ -110,6 +110,14 @@ class MagazineIssue(Page):
 
         return context
 
+    def get_sitemap_urls(self):
+        return [
+            {
+                'location': self.full_url,
+                'lastmod': self.latest_revision_created_at
+            }
+        ]
+
 
 class MagazineArticleTag(TaggedItemBase):
     content_object = ParentalKey(
@@ -157,6 +165,15 @@ class MagazineArticle(Page):
         'MagazineIssue',
     ]
     subpage_types = []
+
+    def get_sitemap_urls(self):
+        return [
+            {
+                'location': self.full_url,
+                'lastmod': self.latest_revision_created_at,
+                'priority': 1
+            }
+        ]
 
 
 @register_snippet
