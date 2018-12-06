@@ -3,6 +3,8 @@ from datetime import timedelta
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
+from django.template.defaultfilters import slugify
+from django_extensions.db.fields import AutoSlugField
 
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.models import ClusterableModel
@@ -230,6 +232,14 @@ class Author(index.Indexed, ClusterableModel):
         blank=True,
         default='',
     )
+    slug = AutoSlugField(
+        null=True,
+        blank=True,
+        populate_from=[
+            'given_name',
+            'family_name',
+        ]
+    )
 
     autocomplete_search_field = 'given_name'
 
@@ -238,6 +248,10 @@ class Author(index.Indexed, ClusterableModel):
 
     def __str__(self):
         return f"{self.given_name} {self.family_name}"
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.__str__())
+        super(Author, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'author'
