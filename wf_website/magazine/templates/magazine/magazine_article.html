@@ -14,7 +14,7 @@
         <ul class="list-inline">
             {% for author in page.authored_by.all %}
                 <li class="list-inline-item">
-                    {{ author }}
+                    {{ author }}{% if not forloop.last %},{% endif %}
                 </li>
             {% endfor %}
         </ul>
