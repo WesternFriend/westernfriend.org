@@ -9,6 +9,7 @@ from wagtail.documents import urls as wagtaildocs_urls
 
 from wagtailautocomplete.urls.admin import urlpatterns as autocomplete_admin_urls
 
+from author import urls as author_urls
 from search import views as search_views
 
 urlpatterns = [
@@ -17,6 +18,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     url(r'^admin/autocomplete/', include(autocomplete_admin_urls)),
     url(r'^admin/', include(wagtailadmin_urls)),
+    path('authors/', include(author_urls), name='authors'),
     url(r'^documents/', include(wagtaildocs_urls)),
 
     url(r'^search/$', search_views.search, name='search'),
