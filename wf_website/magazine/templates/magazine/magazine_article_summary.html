@@ -1,0 +1,8 @@
+{% load wagtailcore_tags %}
+<h3>
+    <a href="{% pageurl article %}">
+        {{ article.title }}
+    </a>
+</h3>
+
+{{ article.body | richtext | truncatewords_html:30 }}
