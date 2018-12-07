@@ -1,9 +1,9 @@
 {% load wagtailcore_tags %}
-<h3>
-    <a href="{% pageurl article %}">
-        {{ article.title }}
-    </a>
-</h3>
+<div class="card mb-2">
+    <div class="card-body">
+        <a href="{% pageurl article %}" class="card-title lead">
+            {{ article.title }}
+        </a>
 
         {{ article.body | richtext | truncatewords_html:30 }}
 
