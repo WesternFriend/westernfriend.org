@@ -13,14 +13,8 @@
         <div class="col-sm-7">
             {% if page.featured_articles.count %}
                 <h2>Featured articles</h2>
-                {% for featured_article in page.featured_articles.all %}
-                    <h3>
-                        <a href="{% pageurl featured_article.article %}">
-                            {{ featured_article.title }}
-                        </a>
-                    </h3>
-
-                    {{ featured_article.body | richtext | truncatewords_html:30 }}
+                {% for article in page.featured_articles.all %}
+                    {% include "magazine/magazine_article_summary.html" with article=article.article %}
                 {% endfor %}
             {% endif %}
         </div>
