@@ -5,4 +5,11 @@
     </a>
 </h3>
 
-{{ article.body | richtext | truncatewords_html:30 }}
+        {{ article.body | richtext | truncatewords_html:30 }}
+
+        Issue:
+        <a href="{% pageurl article.get_parent %}" class="card-link">
+            {{ article.get_parent }}
+        </a>
+    </div>
+</div>
