@@ -32,6 +32,8 @@ class MagazineIndexPage(Page):
         'MagazineIssue',
     ]
 
+    max_count = 1
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
@@ -132,6 +134,8 @@ class MagazineArticleTag(TaggedItemBase):
 
 
 class MagazineTagIndexPage(Page):
+    max_count = 1
+
     def get_context(self, request, *args, **kwargs):
         tag = request.GET.get('tag')
         articles = MagazineArticle.objects.filter(tags__name=tag)

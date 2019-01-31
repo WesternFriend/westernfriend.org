@@ -25,6 +25,8 @@ class HomePage(Page):
         'magazine.MagazineTagIndexPage',
     ]
 
+    max_count = 1
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
