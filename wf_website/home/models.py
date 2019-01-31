@@ -1,9 +1,8 @@
 from django.db import models
 from modelcluster.fields import ParentalKey
-
-from wagtail.core.models import Page, Orderable
-from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
+from wagtail.core.fields import RichTextField
+from wagtail.core.models import Page, Orderable
 
 from magazine.models import MagazineIssue, MagazineArticle
 
@@ -16,6 +15,7 @@ class HomePage(Page):
         InlinePanel(
             'featured_articles',
             heading="Featured articles",
+            # pylint: disable=E501
             help_text="Select one or more articles to feature on the home page",
         )
     ]
@@ -25,9 +25,11 @@ class HomePage(Page):
         'magazine.MagazineTagIndexPage',
     ]
 
+    max_count = 1
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
-
+        # pylint: disable=E501
         context['current_issue'] = MagazineIssue.objects.live().order_by('-publication_date').first()
 
         return context
