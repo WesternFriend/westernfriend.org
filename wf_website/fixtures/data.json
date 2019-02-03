@@ -1,0 +1,1843 @@
+[
+  {
+    "model": "author.author",
+    "pk": 1,
+    "fields": {
+      "given_name": "Keith",
+      "family_name": "Dickerson",
+      "slug": "keith-dickerson"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 2,
+    "fields": {
+      "given_name": "Mary",
+      "family_name": "Klein",
+      "slug": "mary-klein"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 3,
+    "fields": {
+      "given_name": "James",
+      "family_name": "Summers",
+      "slug": "james-summers"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 4,
+    "fields": {
+      "given_name": "Mica",
+      "family_name": "Coffin",
+      "slug": "mica-coffin"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 5,
+    "fields": {
+      "given_name": "Brian",
+      "family_name": "Murphy",
+      "slug": "brian-murphy"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 6,
+    "fields": {
+      "given_name": "Carlos",
+      "family_name": "Valentin III",
+      "slug": "carlos-valentin-iii"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 7,
+    "fields": {
+      "given_name": "Val",
+      "family_name": "Liveoak",
+      "slug": "val-liveoak"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 8,
+    "fields": {
+      "given_name": "John",
+      "family_name": "Lindsay-Poland",
+      "slug": "john-lindsay-poland"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 9,
+    "fields": {
+      "given_name": "Timothy",
+      "family_name": "Jarvis",
+      "slug": "timothy-jarvis"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 10,
+    "fields": {
+      "given_name": "Doug",
+      "family_name": "Milholland",
+      "slug": "doug-milholland"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 11,
+    "fields": {
+      "given_name": "Natalie",
+      "family_name": "Ramsland",
+      "slug": "natalie-ramsland"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 12,
+    "fields": {
+      "given_name": "Carol",
+      "family_name": "Urner",
+      "slug": "carol-urner"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 13,
+    "fields": {
+      "given_name": "C. Wess",
+      "family_name": "Daniels",
+      "slug": "c-wess-daniels"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 14,
+    "fields": {
+      "given_name": "David",
+      "family_name": "Hartsough",
+      "slug": "david-hartsough"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 15,
+    "fields": {
+      "given_name": "Edward W.",
+      "family_name": "Wood, Jr.",
+      "slug": "edward-w-wood-jr"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 16,
+    "fields": {
+      "given_name": "David",
+      "family_name": "Brietzmann",
+      "slug": "david-brietzmann"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 17,
+    "fields": {
+      "given_name": "Sakre Kennington",
+      "family_name": "Edson",
+      "slug": "sakre-kennington-edson"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 18,
+    "fields": {
+      "given_name": "Marian",
+      "family_name": "Rhys",
+      "slug": "marian-rhys"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 19,
+    "fields": {
+      "given_name": "Maria",
+      "family_name": "Arrington",
+      "slug": "maria-arrington"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 20,
+    "fields": {
+      "given_name": "Emily",
+      "family_name": "Garrison",
+      "slug": "emily-garrison"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 21,
+    "fields": {
+      "given_name": "Rocky",
+      "family_name": "Garrison",
+      "slug": "rocky-garrison"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 22,
+    "fields": {
+      "given_name": "Eleanor",
+      "family_name": "Dart",
+      "slug": "eleanor-dart"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 23,
+    "fields": {
+      "given_name": "London Yearly Meeting",
+      "family_name": "",
+      "slug": "london-yearly-meeting"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 24,
+    "fields": {
+      "given_name": "Ruth",
+      "family_name": "Cutcher",
+      "slug": "ruth-cutcher"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 25,
+    "fields": {
+      "given_name": "Joe",
+      "family_name": "Morris",
+      "slug": "joe-morris"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 26,
+    "fields": {
+      "given_name": "Kary Joseph",
+      "family_name": "Shender",
+      "slug": "kary-joseph-shender"
+    }
+  },
+  {
+    "model": "author.author",
+    "pk": 27,
+    "fields": {
+      "given_name": "Timothy",
+      "family_name": "Clark",
+      "slug": "timothy-clark"
+    }
+  },
+  {
+    "model": "magazine.magazinearticletag",
+    "pk": 1,
+    "fields": {
+      "tag": 1,
+      "content_object": 8
+    }
+  },
+  {
+    "model": "magazine.magazinearticletag",
+    "pk": 2,
+    "fields": {
+      "tag": 2,
+      "content_object": 8
+    }
+  },
+  {
+    "model": "magazine.magazinearticletag",
+    "pk": 3,
+    "fields": {
+      "tag": 3,
+      "content_object": 8
+    }
+  },
+  {
+    "model": "magazine.magazinedepartment",
+    "pk": 1,
+    "fields": {
+      "name": "Inward Light"
+    }
+  },
+  {
+    "model": "magazine.magazinedepartment",
+    "pk": 2,
+    "fields": {
+      "name": "Healing the World"
+    }
+  },
+  {
+    "model": "magazine.magazinedepartment",
+    "pk": 3,
+    "fields": {
+      "name": "Today"
+    }
+  },
+  {
+    "model": "magazine.magazinedepartment",
+    "pk": 4,
+    "fields": {
+      "name": "Letters"
+    }
+  },
+  {
+    "model": "magazine.magazinedepartment",
+    "pk": 5,
+    "fields": {
+      "name": "Reviews"
+    }
+  },
+  {
+    "model": "magazine.magazinedepartment",
+    "pk": 6,
+    "fields": {
+      "name": "Pages for All Ages"
+    }
+  },
+  {
+    "model": "magazine.magazinedepartment",
+    "pk": 7,
+    "fields": {
+      "name": "Quaker Culture"
+    }
+  },
+  {
+    "model": "magazine.magazinedepartment",
+    "pk": 8,
+    "fields": {
+      "name": "Editorials"
+    }
+  },
+  {
+    "model": "magazine.magazineissuefeaturedarticle",
+    "pk": 1,
+    "fields": {
+      "sort_order": 0,
+      "issue": 6,
+      "article": 8
+    }
+  },
+  {
+    "model": "magazine.magazineissuefeaturedarticle",
+    "pk": 2,
+    "fields": {
+      "sort_order": 1,
+      "issue": 6,
+      "article": 9
+    }
+  },
+  {
+    "model": "wagtailimages.image",
+    "pk": 1,
+    "fields": {
+      "collection": 1,
+      "title": "Cover-78_JanFeb2019_small.jpg",
+      "file": "original_images/Cover-78_JanFeb2019_small.jpg",
+      "width": 366,
+      "height": 480,
+      "created_at": "2019-02-03T22:07:58.734Z",
+      "uploaded_by_user": 1,
+      "focal_point_x": null,
+      "focal_point_y": null,
+      "focal_point_width": null,
+      "focal_point_height": null,
+      "file_size": 73083,
+      "file_hash": "d7ee66f23541a07bc784ecb45fbe48353268b781"
+    }
+  },
+  {
+    "model": "wagtailimages.image",
+    "pk": 2,
+    "fields": {
+      "collection": 1,
+      "title": "Cover-77_NovDec2018_small.jpg",
+      "file": "original_images/Cover-77_NovDec2018_small.jpg",
+      "width": 168,
+      "height": 220,
+      "created_at": "2019-02-03T23:08:02.292Z",
+      "uploaded_by_user": 1,
+      "focal_point_x": null,
+      "focal_point_y": null,
+      "focal_point_width": null,
+      "focal_point_height": null,
+      "file_size": 15186,
+      "file_hash": "315ac3697aaa24239f8a50c7f982922ee8dfeeae"
+    }
+  },
+  {
+    "model": "wagtailimages.image",
+    "pk": 3,
+    "fields": {
+      "collection": 1,
+      "title": "Cover-76_SeptOct2018_small.jpg",
+      "file": "original_images/Cover-76_SeptOct2018_small.jpg",
+      "width": 168,
+      "height": 220,
+      "created_at": "2019-02-03T23:08:27.884Z",
+      "uploaded_by_user": 1,
+      "focal_point_x": null,
+      "focal_point_y": null,
+      "focal_point_width": null,
+      "focal_point_height": null,
+      "file_size": 14922,
+      "file_hash": "261ee04bd32dd420a3a821971c7b795a4b9c79cc"
+    }
+  },
+  {
+    "model": "wagtailimages.rendition",
+    "pk": 1,
+    "fields": {
+      "filter_spec": "max-165x165",
+      "file": "images/Cover-78_JanFeb2019_small.max-165x165.jpg",
+      "width": 125,
+      "height": 165,
+      "focal_point_key": "",
+      "image": 1
+    }
+  },
+  {
+    "model": "wagtailimages.rendition",
+    "pk": 2,
+    "fields": {
+      "filter_spec": "max-320x200",
+      "file": "images/Cover-78_JanFeb2019_small.max-320x200.jpg",
+      "width": 152,
+      "height": 200,
+      "focal_point_key": "",
+      "image": 1
+    }
+  },
+  {
+    "model": "wagtailimages.rendition",
+    "pk": 3,
+    "fields": {
+      "filter_spec": "max-165x165",
+      "file": "images/Cover-77_NovDec2018_small.max-165x165.jpg",
+      "width": 126,
+      "height": 165,
+      "focal_point_key": "",
+      "image": 2
+    }
+  },
+  {
+    "model": "wagtailimages.rendition",
+    "pk": 4,
+    "fields": {
+      "filter_spec": "max-165x165",
+      "file": "images/Cover-76_SeptOct2018_small.max-165x165.jpg",
+      "width": 126,
+      "height": 165,
+      "focal_point_key": "",
+      "image": 3
+    }
+  },
+  {
+    "model": "wagtailimages.rendition",
+    "pk": 5,
+    "fields": {
+      "filter_spec": "max-320x200",
+      "file": "images/Cover-77_NovDec2018_small.max-320x200.jpg",
+      "width": 152,
+      "height": 200,
+      "focal_point_key": "",
+      "image": 2
+    }
+  },
+  {
+    "model": "wagtailimages.rendition",
+    "pk": 6,
+    "fields": {
+      "filter_spec": "max-286x300",
+      "file": "images/Cover-78_JanFeb2019_small.max-286x300.jpg",
+      "width": 228,
+      "height": 300,
+      "focal_point_key": "",
+      "image": 1
+    }
+  },
+  {
+    "model": "wagtailimages.rendition",
+    "pk": 7,
+    "fields": {
+      "filter_spec": "max-286x300",
+      "file": "images/Cover-77_NovDec2018_small.max-286x300.jpg",
+      "width": 168,
+      "height": 220,
+      "focal_point_key": "",
+      "image": 2
+    }
+  },
+  {
+    "model": "wagtailimages.rendition",
+    "pk": 8,
+    "fields": {
+      "filter_spec": "max-286x300",
+      "file": "images/Cover-76_SeptOct2018_small.max-286x300.jpg",
+      "width": 168,
+      "height": 220,
+      "focal_point_key": "",
+      "image": 3
+    }
+  },
+  {
+    "model": "wagtailcore.site",
+    "pk": 2,
+    "fields": {
+      "hostname": "localhost",
+      "port": 80,
+      "site_name": null,
+      "root_page": 3,
+      "is_default_site": true
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 1,
+    "fields": {
+      "page": 4,
+      "submitted_for_moderation": false,
+      "created_at": "2019-01-31T17:56:48.409Z",
+      "user": 1,
+      "content_json": "{\"pk\": 4, \"path\": \"000100010001\", \"depth\": 3, \"numchild\": 0, \"title\": \"Magazine\", \"draft_title\": \"Magazine\", \"slug\": \"magazine\", \"content_type\": 8, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"intro\": \"<p>This is the magazine index page.</p>\"}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 2,
+    "fields": {
+      "page": 5,
+      "submitted_for_moderation": false,
+      "created_at": "2019-01-31T17:58:02.213Z",
+      "user": 1,
+      "content_json": "{\"pk\": 5, \"path\": \"000100010002\", \"depth\": 3, \"numchild\": 0, \"title\": \"Tags\", \"draft_title\": \"Tags\", \"slug\": \"tags\", \"content_type\": 14, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/tags/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 3,
+    "fields": {
+      "page": 6,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T22:08:03.961Z",
+      "user": 1,
+      "content_json": "{\"pk\": 6, \"path\": \"0001000100010001\", \"depth\": 4, \"numchild\": 0, \"title\": \"On Weapons\", \"draft_title\": \"On Weapons\", \"slug\": \"weapons\", \"content_type\": 9, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/weapons/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"cover_image\": 1, \"publication_date\": \"2019-01-01\", \"featured_articles\": []}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 4,
+    "fields": {
+      "page": 7,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T22:56:03.015Z",
+      "user": 1,
+      "content_json": "{\"pk\": 7, \"path\": \"00010001000100010001\", \"depth\": 5, \"numchild\": 0, \"title\": \"On Weapons\", \"draft_title\": \"On Weapons\", \"slug\": \"weapons\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/weapons/weapons/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>Dear Friends: Almost anything can serve as a weapon, even life-giving water. All living creatures on earth have evolved (are evolving) fortifications against attack. Cellular life is fortified by membranes, and human societies are fortified by lines in the sand. Nutrients and attractive ideas gain access through those fortifications. Poisons and slander are rebuffed. Inside our fortifications, ideally, scarcity and excess are minimized as we \\u201cgive us this day our daily bread;\\u201d but in actuality, scarcity and excess are the pumping pistons of empire, trampling our planet today.</p>\", \"department\": 8, \"tagged_items\": [], \"authored_by\": [2]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 5,
+    "fields": {
+      "page": 8,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T22:57:12.382Z",
+      "user": 1,
+      "content_json": "{\"pk\": 8, \"path\": \"00010001000100010002\", \"depth\": 5, \"numchild\": 0, \"title\": \"Amor Fati\", \"draft_title\": \"Amor Fati\", \"slug\": \"amor-fati\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/weapons/amor-fati/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>Paradox defined: \\u201cItems and situations that seem mutually exclusive, yet somehow reflect upon each other, often creating a deeper, more nuanced truth, perhaps in dynamic tension, or complementing each other.\\u201d Like a Quaker serving in the military. I lived that paradox intermittently for seven years while serving in the reserves during medical school and residency. Then I lived it full-time during four years of active duty, which started when I completed my medical training in 2000. My first year of active duty seemed pretty benign, then 9/11/2001 happened, and my situation instantly became truly \\u201cmilitary.\\u201d I faced impending deployment to \\u201cthe sandbox,\\u201d the Middle East.\\u00a0</p>\", \"department\": 1, \"tagged_items\": [{\"pk\": 1, \"tag\": 1, \"content_object\": 8}, {\"pk\": 2, \"tag\": 2, \"content_object\": 8}, {\"pk\": 3, \"tag\": 3, \"content_object\": 8}], \"authored_by\": [1]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 6,
+    "fields": {
+      "page": 9,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T22:58:18.243Z",
+      "user": 1,
+      "content_json": "{\"pk\": 9, \"path\": \"00010001000100010003\", \"depth\": 5, \"numchild\": 0, \"title\": \"Quakers and Gun Violence\", \"draft_title\": \"Quakers and Gun Violence\", \"slug\": \"quakers-and-gun-violence\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/weapons/quakers-and-gun-violence/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>In the United States, gun violence is not a mere veneer on the surface of an otherwise peaceful society, but something deep and dark, with roots in the colonization of the continent and the founding of the nation, in ethnic cleansing, enslavement and the seizure of land from Mexico. White settlers, armed to the teeth, faced the constant prospect of insurrection by Native peoples and enslaved populations, as well as violence on contested borders.</p>\", \"department\": 2, \"tagged_items\": [], \"authored_by\": [3]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 7,
+    "fields": {
+      "page": 10,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T22:59:31.280Z",
+      "user": 1,
+      "content_json": "{\"pk\": 10, \"path\": \"00010001000100010004\", \"depth\": 5, \"numchild\": 0, \"title\": \"A Little Plant of Goodness\", \"draft_title\": \"A Little Plant of Goodness\", \"slug\": \"little-plant-goodness\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/weapons/little-plant-goodness/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>As I sat in worship recently, I saw a little plant of goodness inside me. This plant is only a seedling, but it is tenacious. It is able to grow despite harsh conditions. But it shouldn\\u2019t have to struggle. I want to nourish it and water it and shine light on it. I want to help it grow strong and flourish.\\u00a0</p>\", \"department\": 1, \"tagged_items\": [], \"authored_by\": [4]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 8,
+    "fields": {
+      "page": 11,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T23:00:13.980Z",
+      "user": 1,
+      "content_json": "{\"pk\": 11, \"path\": \"00010001000100010005\", \"depth\": 5, \"numchild\": 0, \"title\": \"A Brief History of Friends Peace Teams\", \"draft_title\": \"A Brief History of Friends Peace Teams\", \"slug\": \"brief-history-friends-peace-teams\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/weapons/brief-history-friends-peace-teams/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>At the the Friends General Conference Gathering of 1993, David Hartsough (then with American Friends Service Committee) convened a group to consider Quaker responses to armed conflict. About forty of us came together to consider what Friends could do. We saw that the sort of \\u201cpeace keeping\\u201d actions conducted by the U.N. were only another kind of war. We met several times during that week to ponder possible responses to: \\u201cHow can Friends respond to the many crises in our world?\\u201d and \\u201cHow can we wage peace?\\u201d We determined to meet again and convened a consultative group in Philadelphia that November. As a result, in January 1994, Mary Lord and Elise Boulding undertook to be the founding co-clerks of the \\u201cFriends Peace Team Project.\\u201d</p>\", \"department\": 2, \"tagged_items\": [], \"authored_by\": [7]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 9,
+    "fields": {
+      "page": 6,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T23:00:54.439Z",
+      "user": 1,
+      "content_json": "{\"pk\": 6, \"path\": \"0001000100010001\", \"depth\": 4, \"numchild\": 5, \"title\": \"On Weapons\", \"draft_title\": \"On Weapons\", \"slug\": \"weapons\", \"content_type\": 9, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/weapons/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": \"2019-02-03T22:08:03.993Z\", \"last_published_at\": \"2019-02-03T22:08:03.993Z\", \"latest_revision_created_at\": \"2019-02-03T22:08:03.961Z\", \"live_revision\": 3, \"cover_image\": 1, \"publication_date\": \"2019-01-01\", \"featured_articles\": [{\"pk\": null, \"sort_order\": 0, \"issue\": 6, \"article\": 8}, {\"pk\": null, \"sort_order\": 1, \"issue\": 6, \"article\": 9}]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 10,
+    "fields": {
+      "page": 12,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T23:08:07.021Z",
+      "user": 1,
+      "content_json": "{\"pk\": 12, \"path\": \"0001000100010002\", \"depth\": 4, \"numchild\": 0, \"title\": \"On Mixture\", \"draft_title\": \"On Mixture\", \"slug\": \"mixture\", \"content_type\": 9, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/mixture/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"cover_image\": 2, \"publication_date\": \"2018-11-01\", \"featured_articles\": []}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 11,
+    "fields": {
+      "page": 13,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T23:08:30.630Z",
+      "user": 1,
+      "content_json": "{\"pk\": 13, \"path\": \"0001000100010003\", \"depth\": 4, \"numchild\": 0, \"title\": \"On Children\", \"draft_title\": \"On Children\", \"slug\": \"children\", \"content_type\": 9, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/children/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"cover_image\": 3, \"publication_date\": \"2018-09-01\", \"featured_articles\": []}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 12,
+    "fields": {
+      "page": 14,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T23:09:56.951Z",
+      "user": 1,
+      "content_json": "{\"pk\": 14, \"path\": \"00010001000100020001\", \"depth\": 5, \"numchild\": 0, \"title\": \"A Thousand Times, Come\", \"draft_title\": \"A Thousand Times, Come\", \"slug\": \"thousand-times-come\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/mixture/thousand-times-come/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>The room was dimly lit. I was one of fifty dancers standing in a circle, shoulder to shoulder, holding hands. Our leader, Johnathan, stood in the middle of the circle with his guitar. He said he was going to lead us in a practice to experience the aspect of God that existed before time began.</p>\", \"department\": 1, \"tagged_items\": [], \"authored_by\": [24]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 13,
+    "fields": {
+      "page": 15,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T23:10:23.761Z",
+      "user": 1,
+      "content_json": "{\"pk\": 15, \"path\": \"00010001000100020002\", \"depth\": 5, \"numchild\": 0, \"title\": \"On Mixture\", \"draft_title\": \"On Mixture\", \"slug\": \"mixture\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/mixture/mixture/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>Dear Friends: Our bodies cannot live outside of history, nor can we live outside of history\\u2019s cruelty, its \\u201cmixing memory and desire.\\u201d Rowing our boats with our backs towards the future, we despair at the carnage we watch flowing out from our wakes \\u2013 oceans choked by our poisons, lives crushed by our bigotry, truth and kindness twisted by our greed. Some bits of beauty bob along, too. But it\\u2019s easy to view the whole scene as basically grim.</p>\", \"department\": 8, \"tagged_items\": [], \"authored_by\": [2]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 14,
+    "fields": {
+      "page": 16,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T23:11:35.975Z",
+      "user": 1,
+      "content_json": "{\"pk\": 16, \"path\": \"00010001000100020003\", \"depth\": 5, \"numchild\": 0, \"title\": \"Self-Compassion and Quakers\", \"draft_title\": \"Self-Compassion and Quakers\", \"slug\": \"self-compassion-and-quakers\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/mixture/self-compassion-and-quakers/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>Like many others, I was drawn to the Religious Society of Friends by its compassionate work with people in need. As an undergraduate in the 1960s, I witnessed that compassion first-hand by participating in several AFSC projects, including visiting mental-hospital patients in the Bay Area and working with disadvantaged children during Freedom Summer in Memphis, Tennessee. Those experiences inspired my later career as a child psychologist. Yet almost from the beginning, I have found it difficult to live up to Friends\\u2019 idealism; and over the years, I have grown to perceive among Friends a hidden, unmet need \\u2013 for self-compassion.</p>\", \"department\": 1, \"tagged_items\": [], \"authored_by\": [25]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 15,
+    "fields": {
+      "page": 17,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T23:14:00.171Z",
+      "user": 1,
+      "content_json": "{\"pk\": 17, \"path\": \"00010001000100030001\", \"depth\": 5, \"numchild\": 0, \"title\": \"A Girl with Vision and Resolve\", \"draft_title\": \"A Girl with Vision and Resolve\", \"slug\": \"girl-vision-and-resolve\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/children/girl-vision-and-resolve/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>When Veronica Obodo-Eckblad is asked about her escape from war-torn Nigeria as a seven-year-old, she is cryptic. That\\u2019s because her emphasis \\u2013 actually, her life\\u2019s focus \\u2013 isn\\u2019t on herself. What drives her is her commitment to others and to a dream. That dream morphed into conviction and then into reality. But we are getting ahead of ourselves in this gripping story, so let\\u2019s settle down.</p>\", \"department\": 2, \"tagged_items\": [], \"authored_by\": [26]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 16,
+    "fields": {
+      "page": 18,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T23:14:46.925Z",
+      "user": 1,
+      "content_json": "{\"pk\": 18, \"path\": \"00010001000100030002\", \"depth\": 5, \"numchild\": 0, \"title\": \"Child Protective Services\", \"draft_title\": \"Child Protective Services\", \"slug\": \"child-protective-services\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/children/child-protective-services/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>When I was a young man, I worked two years for Child Protective Services (CPS). It\\u2019s a strange job, going to people\\u2019s homes to talk to them about complaints that other people have made about how they treat their children.</p>\", \"department\": 2, \"tagged_items\": [], \"authored_by\": [27]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.pagerevision",
+    "pk": 17,
+    "fields": {
+      "page": 19,
+      "submitted_for_moderation": false,
+      "created_at": "2019-02-03T23:15:23.628Z",
+      "user": 1,
+      "content_json": "{\"pk\": 19, \"path\": \"00010001000100030003\", \"depth\": 5, \"numchild\": 0, \"title\": \"On Children\", \"draft_title\": \"On Children\", \"slug\": \"children\", \"content_type\": 10, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/magazine/children/children/\", \"owner\": 1, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"body\": \"<p>In her autobiography, <i>Life on Two Levels</i> (1978), Quaker dynamo Josephine Duveneck tells of a year when she provided a foster home in Los Altos Hills, CA, to a seven-year-old Jewish boy from Germany, while Hitler was rising to power in Europe. \\u201cWhat a sweet little personality he was . . . He had been to school just before the time when Jewish children were banned, hence he was thoroughly indoctrinated with Nazi ideology. . . He told me that Adolph Hitler was the greatest man since Jesus Christ. I did not try to disillusion him. Soon, with the help of our horses, his hero worship was [redirected]. At Peninsula School, he learned English and also found out how to play games instead of how to march. I remember vividly the day when the portrait of Hitler that he had tacked up on his closet door had disappeared, and a poster with Franklin Roosevelt\\u2019s photograph on it took its place.\\u201d</p>\", \"department\": 8, \"tagged_items\": [], \"authored_by\": [2]}",
+      "approved_go_live_at": null
+    }
+  },
+  {
+    "model": "wagtailcore.grouppagepermission",
+    "pk": 1,
+    "fields": {
+      "group": 1,
+      "page": 1,
+      "permission_type": "add"
+    }
+  },
+  {
+    "model": "wagtailcore.grouppagepermission",
+    "pk": 2,
+    "fields": {
+      "group": 1,
+      "page": 1,
+      "permission_type": "edit"
+    }
+  },
+  {
+    "model": "wagtailcore.grouppagepermission",
+    "pk": 3,
+    "fields": {
+      "group": 1,
+      "page": 1,
+      "permission_type": "publish"
+    }
+  },
+  {
+    "model": "wagtailcore.grouppagepermission",
+    "pk": 4,
+    "fields": {
+      "group": 2,
+      "page": 1,
+      "permission_type": "add"
+    }
+  },
+  {
+    "model": "wagtailcore.grouppagepermission",
+    "pk": 5,
+    "fields": {
+      "group": 2,
+      "page": 1,
+      "permission_type": "edit"
+    }
+  },
+  {
+    "model": "wagtailcore.grouppagepermission",
+    "pk": 6,
+    "fields": {
+      "group": 1,
+      "page": 1,
+      "permission_type": "lock"
+    }
+  },
+  {
+    "model": "wagtailcore.collection",
+    "pk": 1,
+    "fields": {
+      "path": "0001",
+      "depth": 1,
+      "numchild": 0,
+      "name": "Root"
+    }
+  },
+  {
+    "model": "wagtailcore.groupcollectionpermission",
+    "pk": 1,
+    "fields": {
+      "group": 2,
+      "collection": 1,
+      "permission": 1
+    }
+  },
+  {
+    "model": "wagtailcore.groupcollectionpermission",
+    "pk": 2,
+    "fields": {
+      "group": 1,
+      "collection": 1,
+      "permission": 1
+    }
+  },
+  {
+    "model": "wagtailcore.groupcollectionpermission",
+    "pk": 3,
+    "fields": {
+      "group": 2,
+      "collection": 1,
+      "permission": 2
+    }
+  },
+  {
+    "model": "wagtailcore.groupcollectionpermission",
+    "pk": 4,
+    "fields": {
+      "group": 1,
+      "collection": 1,
+      "permission": 2
+    }
+  },
+  {
+    "model": "wagtailcore.groupcollectionpermission",
+    "pk": 5,
+    "fields": {
+      "group": 2,
+      "collection": 1,
+      "permission": 5
+    }
+  },
+  {
+    "model": "wagtailcore.groupcollectionpermission",
+    "pk": 6,
+    "fields": {
+      "group": 1,
+      "collection": 1,
+      "permission": 5
+    }
+  },
+  {
+    "model": "wagtailcore.groupcollectionpermission",
+    "pk": 7,
+    "fields": {
+      "group": 2,
+      "collection": 1,
+      "permission": 6
+    }
+  },
+  {
+    "model": "wagtailcore.groupcollectionpermission",
+    "pk": 8,
+    "fields": {
+      "group": 1,
+      "collection": 1,
+      "permission": 6
+    }
+  },
+  {
+    "model": "taggit.tag",
+    "pk": 1,
+    "fields": {
+      "name": "medicine",
+      "slug": "medicine"
+    }
+  },
+  {
+    "model": "taggit.tag",
+    "pk": 2,
+    "fields": {
+      "name": "military",
+      "slug": "military"
+    }
+  },
+  {
+    "model": "taggit.tag",
+    "pk": 3,
+    "fields": {
+      "name": "Middle East",
+      "slug": "middle-east"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 1,
+    "fields": {
+      "app_label": "wagtailcore",
+      "model": "page"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 2,
+    "fields": {
+      "app_label": "wagtailimages",
+      "model": "image"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 3,
+    "fields": {
+      "app_label": "home",
+      "model": "homepage"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 4,
+    "fields": {
+      "app_label": "wagtailadmin",
+      "model": "admin"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 5,
+    "fields": {
+      "app_label": "wagtaildocs",
+      "model": "document"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 6,
+    "fields": {
+      "app_label": "author",
+      "model": "author"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 7,
+    "fields": {
+      "app_label": "home",
+      "model": "homepagefeaturedarticle"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 8,
+    "fields": {
+      "app_label": "magazine",
+      "model": "magazineindexpage"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 9,
+    "fields": {
+      "app_label": "magazine",
+      "model": "magazineissue"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 10,
+    "fields": {
+      "app_label": "magazine",
+      "model": "magazinearticle"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 11,
+    "fields": {
+      "app_label": "magazine",
+      "model": "magazinedepartment"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 12,
+    "fields": {
+      "app_label": "magazine",
+      "model": "magazineissuefeaturedarticle"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 13,
+    "fields": {
+      "app_label": "magazine",
+      "model": "magazinearticletag"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 14,
+    "fields": {
+      "app_label": "magazine",
+      "model": "magazinetagindexpage"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 15,
+    "fields": {
+      "app_label": "wagtailforms",
+      "model": "formsubmission"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 16,
+    "fields": {
+      "app_label": "wagtailredirects",
+      "model": "redirect"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 17,
+    "fields": {
+      "app_label": "wagtailembeds",
+      "model": "embed"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 18,
+    "fields": {
+      "app_label": "wagtailusers",
+      "model": "userprofile"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 19,
+    "fields": {
+      "app_label": "wagtailimages",
+      "model": "rendition"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 20,
+    "fields": {
+      "app_label": "wagtailsearch",
+      "model": "query"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 21,
+    "fields": {
+      "app_label": "wagtailsearch",
+      "model": "querydailyhits"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 22,
+    "fields": {
+      "app_label": "wagtailcore",
+      "model": "grouppagepermission"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 23,
+    "fields": {
+      "app_label": "wagtailcore",
+      "model": "pagerevision"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 24,
+    "fields": {
+      "app_label": "wagtailcore",
+      "model": "pageviewrestriction"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 25,
+    "fields": {
+      "app_label": "wagtailcore",
+      "model": "site"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 26,
+    "fields": {
+      "app_label": "wagtailcore",
+      "model": "collection"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 27,
+    "fields": {
+      "app_label": "wagtailcore",
+      "model": "groupcollectionpermission"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 28,
+    "fields": {
+      "app_label": "wagtailcore",
+      "model": "collectionviewrestriction"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 29,
+    "fields": {
+      "app_label": "taggit",
+      "model": "tag"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 30,
+    "fields": {
+      "app_label": "taggit",
+      "model": "taggeditem"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 31,
+    "fields": {
+      "app_label": "admin",
+      "model": "logentry"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 32,
+    "fields": {
+      "app_label": "auth",
+      "model": "permission"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 33,
+    "fields": {
+      "app_label": "auth",
+      "model": "group"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 34,
+    "fields": {
+      "app_label": "auth",
+      "model": "user"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 35,
+    "fields": {
+      "app_label": "contenttypes",
+      "model": "contenttype"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 36,
+    "fields": {
+      "app_label": "sessions",
+      "model": "session"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "e4ico5fg24sapcc7u2x8i6zgk8wqcn85",
+    "fields": {
+      "session_data": "MDE3NWI5N2I4MmI1ZjkxZTAxZDU4ZGU5MmUwYjZiMmFlM2QyYjQzNDp7Il9hdXRoX3VzZXJfaWQiOiIxIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiI0M2MyYmY0NjJhMTQyZmNjM2Y1NWNjNDQwOTg1OTVmMmJkN2ZmMjBlIn0=",
+      "expire_date": "2019-02-14T17:45:49.171Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "fmtpegm9tygdqcdtfj6eotd3l5m8e38q",
+    "fields": {
+      "session_data": "MDE3NWI5N2I4MmI1ZjkxZTAxZDU4ZGU5MmUwYjZiMmFlM2QyYjQzNDp7Il9hdXRoX3VzZXJfaWQiOiIxIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiI0M2MyYmY0NjJhMTQyZmNjM2Y1NWNjNDQwOTg1OTVmMmJkN2ZmMjBlIn0=",
+      "expire_date": "2019-02-17T22:06:07.796Z"
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 1,
+    "fields": {
+      "path": "0001",
+      "depth": 1,
+      "numchild": 1,
+      "title": "Root",
+      "draft_title": "Root",
+      "slug": "root",
+      "content_type": 1,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/",
+      "owner": null,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": null,
+      "last_published_at": null,
+      "latest_revision_created_at": null,
+      "live_revision": null
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 3,
+    "fields": {
+      "path": "00010001",
+      "depth": 2,
+      "numchild": 2,
+      "title": "Home",
+      "draft_title": "Home",
+      "slug": "home",
+      "content_type": 3,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/",
+      "owner": null,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": null,
+      "last_published_at": null,
+      "latest_revision_created_at": null,
+      "live_revision": null
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 4,
+    "fields": {
+      "path": "000100010001",
+      "depth": 3,
+      "numchild": 3,
+      "title": "Magazine",
+      "draft_title": "Magazine",
+      "slug": "magazine",
+      "content_type": 8,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-01-31T17:56:48.455Z",
+      "last_published_at": "2019-01-31T17:56:48.455Z",
+      "latest_revision_created_at": "2019-01-31T17:56:48.409Z",
+      "live_revision": 1
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 5,
+    "fields": {
+      "path": "000100010002",
+      "depth": 3,
+      "numchild": 0,
+      "title": "Tags",
+      "draft_title": "Tags",
+      "slug": "tags",
+      "content_type": 14,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/tags/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-01-31T17:58:02.254Z",
+      "last_published_at": "2019-01-31T17:58:02.254Z",
+      "latest_revision_created_at": "2019-01-31T17:58:02.213Z",
+      "live_revision": 2
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 6,
+    "fields": {
+      "path": "0001000100010001",
+      "depth": 4,
+      "numchild": 5,
+      "title": "On Weapons",
+      "draft_title": "On Weapons",
+      "slug": "weapons",
+      "content_type": 9,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/weapons/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T22:08:03.993Z",
+      "last_published_at": "2019-02-03T23:00:54.495Z",
+      "latest_revision_created_at": "2019-02-03T23:00:54.439Z",
+      "live_revision": 9
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 7,
+    "fields": {
+      "path": "00010001000100010001",
+      "depth": 5,
+      "numchild": 0,
+      "title": "On Weapons",
+      "draft_title": "On Weapons",
+      "slug": "weapons",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/weapons/weapons/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T22:56:03.060Z",
+      "last_published_at": "2019-02-03T22:56:03.060Z",
+      "latest_revision_created_at": "2019-02-03T22:56:03.015Z",
+      "live_revision": 4
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 8,
+    "fields": {
+      "path": "00010001000100010002",
+      "depth": 5,
+      "numchild": 0,
+      "title": "Amor Fati",
+      "draft_title": "Amor Fati",
+      "slug": "amor-fati",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/weapons/amor-fati/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T22:57:12.427Z",
+      "last_published_at": "2019-02-03T22:57:12.427Z",
+      "latest_revision_created_at": "2019-02-03T22:57:12.382Z",
+      "live_revision": 5
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 9,
+    "fields": {
+      "path": "00010001000100010003",
+      "depth": 5,
+      "numchild": 0,
+      "title": "Quakers and Gun Violence",
+      "draft_title": "Quakers and Gun Violence",
+      "slug": "quakers-and-gun-violence",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/weapons/quakers-and-gun-violence/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T22:58:18.286Z",
+      "last_published_at": "2019-02-03T22:58:18.286Z",
+      "latest_revision_created_at": "2019-02-03T22:58:18.243Z",
+      "live_revision": 6
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 10,
+    "fields": {
+      "path": "00010001000100010004",
+      "depth": 5,
+      "numchild": 0,
+      "title": "A Little Plant of Goodness",
+      "draft_title": "A Little Plant of Goodness",
+      "slug": "little-plant-goodness",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/weapons/little-plant-goodness/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T22:59:31.312Z",
+      "last_published_at": "2019-02-03T22:59:31.312Z",
+      "latest_revision_created_at": "2019-02-03T22:59:31.280Z",
+      "live_revision": 7
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 11,
+    "fields": {
+      "path": "00010001000100010005",
+      "depth": 5,
+      "numchild": 0,
+      "title": "A Brief History of Friends Peace Teams",
+      "draft_title": "A Brief History of Friends Peace Teams",
+      "slug": "brief-history-friends-peace-teams",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/weapons/brief-history-friends-peace-teams/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T23:00:14.022Z",
+      "last_published_at": "2019-02-03T23:00:14.022Z",
+      "latest_revision_created_at": "2019-02-03T23:00:13.980Z",
+      "live_revision": 8
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 12,
+    "fields": {
+      "path": "0001000100010002",
+      "depth": 4,
+      "numchild": 3,
+      "title": "On Mixture",
+      "draft_title": "On Mixture",
+      "slug": "mixture",
+      "content_type": 9,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/mixture/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T23:08:07.078Z",
+      "last_published_at": "2019-02-03T23:08:07.078Z",
+      "latest_revision_created_at": "2019-02-03T23:08:07.021Z",
+      "live_revision": 10
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 13,
+    "fields": {
+      "path": "0001000100010003",
+      "depth": 4,
+      "numchild": 3,
+      "title": "On Children",
+      "draft_title": "On Children",
+      "slug": "children",
+      "content_type": 9,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/children/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T23:08:30.672Z",
+      "last_published_at": "2019-02-03T23:08:30.672Z",
+      "latest_revision_created_at": "2019-02-03T23:08:30.630Z",
+      "live_revision": 11
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 14,
+    "fields": {
+      "path": "00010001000100020001",
+      "depth": 5,
+      "numchild": 0,
+      "title": "A Thousand Times, Come",
+      "draft_title": "A Thousand Times, Come",
+      "slug": "thousand-times-come",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/mixture/thousand-times-come/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T23:09:57.001Z",
+      "last_published_at": "2019-02-03T23:09:57.001Z",
+      "latest_revision_created_at": "2019-02-03T23:09:56.951Z",
+      "live_revision": 12
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 15,
+    "fields": {
+      "path": "00010001000100020002",
+      "depth": 5,
+      "numchild": 0,
+      "title": "On Mixture",
+      "draft_title": "On Mixture",
+      "slug": "mixture",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/mixture/mixture/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T23:10:23.803Z",
+      "last_published_at": "2019-02-03T23:10:23.803Z",
+      "latest_revision_created_at": "2019-02-03T23:10:23.761Z",
+      "live_revision": 13
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 16,
+    "fields": {
+      "path": "00010001000100020003",
+      "depth": 5,
+      "numchild": 0,
+      "title": "Self-Compassion and Quakers",
+      "draft_title": "Self-Compassion and Quakers",
+      "slug": "self-compassion-and-quakers",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/mixture/self-compassion-and-quakers/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T23:11:36.003Z",
+      "last_published_at": "2019-02-03T23:11:36.003Z",
+      "latest_revision_created_at": "2019-02-03T23:11:35.975Z",
+      "live_revision": 14
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 17,
+    "fields": {
+      "path": "00010001000100030001",
+      "depth": 5,
+      "numchild": 0,
+      "title": "A Girl with Vision and Resolve",
+      "draft_title": "A Girl with Vision and Resolve",
+      "slug": "girl-vision-and-resolve",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/children/girl-vision-and-resolve/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T23:14:00.209Z",
+      "last_published_at": "2019-02-03T23:14:00.209Z",
+      "latest_revision_created_at": "2019-02-03T23:14:00.171Z",
+      "live_revision": 15
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 18,
+    "fields": {
+      "path": "00010001000100030002",
+      "depth": 5,
+      "numchild": 0,
+      "title": "Child Protective Services",
+      "draft_title": "Child Protective Services",
+      "slug": "child-protective-services",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/children/child-protective-services/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T23:14:46.974Z",
+      "last_published_at": "2019-02-03T23:14:46.974Z",
+      "latest_revision_created_at": "2019-02-03T23:14:46.925Z",
+      "live_revision": 16
+    }
+  },
+  {
+    "model": "wagtailcore.page",
+    "pk": 19,
+    "fields": {
+      "path": "00010001000100030003",
+      "depth": 5,
+      "numchild": 0,
+      "title": "On Children",
+      "draft_title": "On Children",
+      "slug": "children",
+      "content_type": 10,
+      "live": true,
+      "has_unpublished_changes": false,
+      "url_path": "/home/magazine/children/children/",
+      "owner": 1,
+      "seo_title": "",
+      "show_in_menus": false,
+      "search_description": "",
+      "go_live_at": null,
+      "expire_at": null,
+      "expired": false,
+      "locked": false,
+      "first_published_at": "2019-02-03T23:15:23.678Z",
+      "last_published_at": "2019-02-03T23:15:23.678Z",
+      "latest_revision_created_at": "2019-02-03T23:15:23.628Z",
+      "live_revision": 17
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 7,
+    "fields": {
+      "body": "<p>Dear Friends: Almost anything can serve as a weapon, even life-giving water. All living creatures on earth have evolved (are evolving) fortifications against attack. Cellular life is fortified by membranes, and human societies are fortified by lines in the sand. Nutrients and attractive ideas gain access through those fortifications. Poisons and slander are rebuffed. Inside our fortifications, ideally, scarcity and excess are minimized as we \u201cgive us this day our daily bread;\u201d but in actuality, scarcity and excess are the pumping pistons of empire, trampling our planet today.</p>",
+      "department": 8,
+      "authored_by": [
+        2
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 8,
+    "fields": {
+      "body": "<p>Paradox defined: \u201cItems and situations that seem mutually exclusive, yet somehow reflect upon each other, often creating a deeper, more nuanced truth, perhaps in dynamic tension, or complementing each other.\u201d Like a Quaker serving in the military. I lived that paradox intermittently for seven years while serving in the reserves during medical school and residency. Then I lived it full-time during four years of active duty, which started when I completed my medical training in 2000. My first year of active duty seemed pretty benign, then 9/11/2001 happened, and my situation instantly became truly \u201cmilitary.\u201d I faced impending deployment to \u201cthe sandbox,\u201d the Middle East.\u00a0</p>",
+      "department": 1,
+      "authored_by": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 9,
+    "fields": {
+      "body": "<p>In the United States, gun violence is not a mere veneer on the surface of an otherwise peaceful society, but something deep and dark, with roots in the colonization of the continent and the founding of the nation, in ethnic cleansing, enslavement and the seizure of land from Mexico. White settlers, armed to the teeth, faced the constant prospect of insurrection by Native peoples and enslaved populations, as well as violence on contested borders.</p>",
+      "department": 2,
+      "authored_by": [
+        3
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 10,
+    "fields": {
+      "body": "<p>As I sat in worship recently, I saw a little plant of goodness inside me. This plant is only a seedling, but it is tenacious. It is able to grow despite harsh conditions. But it shouldn\u2019t have to struggle. I want to nourish it and water it and shine light on it. I want to help it grow strong and flourish.\u00a0</p>",
+      "department": 1,
+      "authored_by": [
+        4
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 11,
+    "fields": {
+      "body": "<p>At the the Friends General Conference Gathering of 1993, David Hartsough (then with American Friends Service Committee) convened a group to consider Quaker responses to armed conflict. About forty of us came together to consider what Friends could do. We saw that the sort of \u201cpeace keeping\u201d actions conducted by the U.N. were only another kind of war. We met several times during that week to ponder possible responses to: \u201cHow can Friends respond to the many crises in our world?\u201d and \u201cHow can we wage peace?\u201d We determined to meet again and convened a consultative group in Philadelphia that November. As a result, in January 1994, Mary Lord and Elise Boulding undertook to be the founding co-clerks of the \u201cFriends Peace Team Project.\u201d</p>",
+      "department": 2,
+      "authored_by": [
+        7
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 14,
+    "fields": {
+      "body": "<p>The room was dimly lit. I was one of fifty dancers standing in a circle, shoulder to shoulder, holding hands. Our leader, Johnathan, stood in the middle of the circle with his guitar. He said he was going to lead us in a practice to experience the aspect of God that existed before time began.</p>",
+      "department": 1,
+      "authored_by": [
+        24
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 15,
+    "fields": {
+      "body": "<p>Dear Friends: Our bodies cannot live outside of history, nor can we live outside of history\u2019s cruelty, its \u201cmixing memory and desire.\u201d Rowing our boats with our backs towards the future, we despair at the carnage we watch flowing out from our wakes \u2013 oceans choked by our poisons, lives crushed by our bigotry, truth and kindness twisted by our greed. Some bits of beauty bob along, too. But it\u2019s easy to view the whole scene as basically grim.</p>",
+      "department": 8,
+      "authored_by": [
+        2
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 16,
+    "fields": {
+      "body": "<p>Like many others, I was drawn to the Religious Society of Friends by its compassionate work with people in need. As an undergraduate in the 1960s, I witnessed that compassion first-hand by participating in several AFSC projects, including visiting mental-hospital patients in the Bay Area and working with disadvantaged children during Freedom Summer in Memphis, Tennessee. Those experiences inspired my later career as a child psychologist. Yet almost from the beginning, I have found it difficult to live up to Friends\u2019 idealism; and over the years, I have grown to perceive among Friends a hidden, unmet need \u2013 for self-compassion.</p>",
+      "department": 1,
+      "authored_by": [
+        25
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 17,
+    "fields": {
+      "body": "<p>When Veronica Obodo-Eckblad is asked about her escape from war-torn Nigeria as a seven-year-old, she is cryptic. That\u2019s because her emphasis \u2013 actually, her life\u2019s focus \u2013 isn\u2019t on herself. What drives her is her commitment to others and to a dream. That dream morphed into conviction and then into reality. But we are getting ahead of ourselves in this gripping story, so let\u2019s settle down.</p>",
+      "department": 2,
+      "authored_by": [
+        26
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 18,
+    "fields": {
+      "body": "<p>When I was a young man, I worked two years for Child Protective Services (CPS). It\u2019s a strange job, going to people\u2019s homes to talk to them about complaints that other people have made about how they treat their children.</p>",
+      "department": 2,
+      "authored_by": [
+        27
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinearticle",
+    "pk": 19,
+    "fields": {
+      "body": "<p>In her autobiography, <i>Life on Two Levels</i> (1978), Quaker dynamo Josephine Duveneck tells of a year when she provided a foster home in Los Altos Hills, CA, to a seven-year-old Jewish boy from Germany, while Hitler was rising to power in Europe. \u201cWhat a sweet little personality he was . . . He had been to school just before the time when Jewish children were banned, hence he was thoroughly indoctrinated with Nazi ideology. . . He told me that Adolph Hitler was the greatest man since Jesus Christ. I did not try to disillusion him. Soon, with the help of our horses, his hero worship was [redirected]. At Peninsula School, he learned English and also found out how to play games instead of how to march. I remember vividly the day when the portrait of Hitler that he had tacked up on his closet door had disappeared, and a poster with Franklin Roosevelt\u2019s photograph on it took its place.\u201d</p>",
+      "department": 8,
+      "authored_by": [
+        2
+      ]
+    }
+  },
+  {
+    "model": "magazine.magazinetagindexpage",
+    "pk": 5,
+    "fields": {}
+  },
+  {
+    "model": "magazine.magazineissue",
+    "pk": 6,
+    "fields": {
+      "cover_image": 1,
+      "publication_date": "2019-01-01"
+    }
+  },
+  {
+    "model": "magazine.magazineissue",
+    "pk": 12,
+    "fields": {
+      "cover_image": 2,
+      "publication_date": "2018-11-01"
+    }
+  },
+  {
+    "model": "magazine.magazineissue",
+    "pk": 13,
+    "fields": {
+      "cover_image": 3,
+      "publication_date": "2018-09-01"
+    }
+  },
+  {
+    "model": "magazine.magazineindexpage",
+    "pk": 4,
+    "fields": {
+      "intro": "<p>This is the magazine index page.</p>"
+    }
+  },
+  {
+    "model": "home.homepage",
+    "pk": 3,
+    "fields": {
+      "intro": ""
+    }
+  }
+]
