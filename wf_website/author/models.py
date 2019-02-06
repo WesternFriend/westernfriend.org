@@ -26,7 +26,7 @@ class Author(index.Indexed, ClusterableModel):
     )
     full_name = models.CharField(max_length=255, editable=False, null=True)
 
-    autocomplete_search_field = 'given_name'
+    autocomplete_search_field = 'full_name'
 
     def autocomplete_label(self):
         return self.full_name
