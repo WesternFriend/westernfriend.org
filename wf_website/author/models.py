@@ -24,14 +24,20 @@ class Author(index.Indexed, ClusterableModel):
             'family_name',
         ]
     )
+    full_name = models.CharField(max_length=255, editable=False, null=True)
 
     autocomplete_search_field = 'given_name'
 
     def autocomplete_label(self):
-        return self.__str__()
+        return self.full_name
 
     def __str__(self):
         return f"{self.given_name} {self.family_name}"
+
+    def save(self, *args, **kwargs):
+        self.full_name = f"{self.given_name} {self.family_name}"
+
+        super(Author, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'author'
