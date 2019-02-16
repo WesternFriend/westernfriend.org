@@ -8,11 +8,15 @@
     {{ page.intro|richtext }}
 
     {% if departments.all.count %}
-        {% for department in departments %}
-            <a href="{% url 'department-detail' department.slug %}">
-                {{ department }}
-            </a>
-        {% endfor %}
+        <ul>
+            {% for department in departments %}
+                <li>
+                    <a href="{% url 'department-detail' department.slug %}">
+                        {{ department }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
     {% else %}
         <p>No departments found.</p>
     {% endif %}
