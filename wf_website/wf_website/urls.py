@@ -2,15 +2,14 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.urls import path
-
 from wagtail.admin import urls as wagtailadmin_urls
+from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.core import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
-from wagtail.contrib.sitemaps.views import sitemap
-
 from wagtailautocomplete.urls.admin import urlpatterns as autocomplete_admin_urls
 
 from author import urls as author_urls
+from magazine import urls as magazine_urls
 from search import views as search_views
 
 urlpatterns = [
@@ -20,6 +19,7 @@ urlpatterns = [
     url(r'^admin/autocomplete/', include(autocomplete_admin_urls)),
     url(r'^admin/', include(wagtailadmin_urls)),
     path('authors/', include(author_urls), name='authors'),
+    path('magazine/', include(magazine_urls), name='magazine'),
     url(r'^documents/', include(wagtaildocs_urls)),
 
     url(r'^search/$', search_views.search, name='search'),
