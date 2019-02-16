@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+{% block content %}
+    <h1>
+        {{ page.title }}
+    </h1>
+
+    {{ page.intro|richtext }}
+
+    {% if departments.all.count %}
+        {% for department in departments %}
+            <a href="{% url 'department-detail' department.slug %}">
+                {{ department }}
+            </a>
+        {% endfor %}
+    {% else %}
+        <p>No departments found.</p>
+    {% endif %}
+
+{% endblock content %}
