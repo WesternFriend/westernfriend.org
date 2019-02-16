@@ -23,6 +23,7 @@ class HomePage(Page):
     subpage_types = [
         'magazine.MagazineIndexPage',
         'magazine.MagazineTagIndexPage',
+        'magazine.MagazineDepartmentIndexPage',
     ]
 
     max_count = 1
