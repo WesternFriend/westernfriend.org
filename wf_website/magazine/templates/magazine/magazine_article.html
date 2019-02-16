@@ -21,6 +21,15 @@
         </ul>
     {% endif %}
 
+    {% if page.department %}
+        <div class="mb-2">
+            Department:&nbsp;
+            <a href="{% url 'department-detail' page.department.slug %}">
+                {{ page.department }}
+            </a>
+        </div>
+    {% endif %}
+
     {% if page.tags.all.count %}
         <div class="tags">
             {% for tag in page.tags.all %}
