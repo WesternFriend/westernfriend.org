@@ -5,3 +5,5 @@ from .models import MagazineDepartment
 
 class MagazineDepartmentDetail(DetailView):
     model = MagazineDepartment
+
+    template_name = "magazine/magazine_department_detail.html"
