@@ -1,8 +1,8 @@
-beautifulsoup4==4.7.1
+beautifulsoup4==4.6.0
 certifi==2018.11.29
 chardet==3.0.4
 confusable-homoglyphs==3.2.0
-Django==2.1.5
+Django==2.1.7
 django-crispy-forms==1.7.2
 django-extensions==2.1.5
 django-modelcluster==4.3
