@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
+from django_extensions.db.fields import AutoSlugField
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from taggit.models import TaggedItemBase
@@ -14,7 +15,6 @@ from wagtail.core.models import Page, Orderable
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
-from wagtail.snippets.models import register_snippet
 from wagtailautocomplete.edit_handlers import AutocompletePanel
 
 
@@ -191,9 +191,15 @@ class MagazineArticle(Page):
         ]
 
 
-@register_snippet
 class MagazineDepartment(models.Model):
     name = models.CharField(max_length=200)
+    slug = AutoSlugField(
+        null=True,
+        blank=True,
+        populate_from=[
+            'name',
+        ]
+    )
 
     panels = [
         FieldPanel('name')
