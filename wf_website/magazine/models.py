@@ -155,7 +155,7 @@ class MagazineArticle(Page):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='+',
+        related_name='articles',
     )
     tags = ClusterTaggableManager(through=MagazineArticleTag, blank=True)
 
