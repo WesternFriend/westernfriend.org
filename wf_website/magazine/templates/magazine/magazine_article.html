@@ -10,9 +10,8 @@
     </h1>
 
     {% if page.authored_by.count %}
-
-        <ul class="list-inline">
-            <li class="list-inline-item">Authored by</li>
+        <ul class="list-inline mb-1">
+            <li class="list-inline-item">Authored by:</li>
             {% for author in page.authored_by.all %}
                 <li class="list-inline-item">
                     <a href="{% url 'author-detail' author.slug %}">{{ author }}</a>{% if not forloop.last %},{% endif %}
