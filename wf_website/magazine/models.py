@@ -209,6 +209,25 @@ class MagazineDepartment(models.Model):
         return self.name
 
 
+class MagazineDepartmentIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro')
+    ]
+
+    subpage_types = []
+    max_count = 1
+
+    def get_context(self, request, *args, **kwargs):
+        departments = MagazineDepartment.objects.all()
+
+        context = super().get_context(request)
+        context['departments'] = departments
+
+        return context
+
+
 class MagazineIssueFeaturedArticle(Orderable):
     issue = ParentalKey(
         'magazine.MagazineIssue',
