@@ -5,6 +5,17 @@
             {{ article.title }}
         </a>
 
+        {% if article.authored_by.count %}
+            <ul class="list-inline mb-1">
+                <li class="list-inline-item">Authored by:</li>
+                {% for author in article.authored_by.all %}
+                    <li class="list-inline-item">
+                        <a href="{% url 'author-detail' author.slug %}">{{ author }}</a>{% if not forloop.last %},{% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
         {{ article.body | richtext | truncatewords_html:30 }}
 
         Issue:
