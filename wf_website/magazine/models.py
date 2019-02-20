@@ -110,7 +110,7 @@ class MagazineIssue(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
         # pylint: disable=E501
-        context['articles_by_department'] = MagazineArticle.objects.child_of(self).live().order_by('department__name')
+        context['articles_by_department'] = MagazineArticle.objects.child_of(self).live().order_by('department__title')
 
         return context
 
@@ -171,7 +171,9 @@ class MagazineArticle(Page):
             is_single=False,
         ),
         MultiFieldPanel([
-            SnippetChooserPanel('department'),
+            AutocompletePanel(
+                'department',
+                page_type='magazine.MagazineDepartment'),
             FieldPanel('tags'),
         ], heading="Article information")
     ]
@@ -191,24 +193,6 @@ class MagazineArticle(Page):
         ]
 
 
-class MagazineDepartment(models.Model):
-    name = models.CharField(max_length=200)
-    slug = AutoSlugField(
-        null=True,
-        blank=True,
-        populate_from=[
-            'name',
-        ]
-    )
-
-    panels = [
-        FieldPanel('name')
-    ]
-
-    def __str__(self):
-        return self.name
-
-
 class MagazineDepartmentIndexPage(Page):
     intro = RichTextField(blank=True)
 
@@ -216,7 +200,9 @@ class MagazineDepartmentIndexPage(Page):
         FieldPanel('intro')
     ]
 
-    subpage_types = []
+    subpage_types = [
+        'MagazineDepartment'
+    ]
     max_count = 1
 
     def get_context(self, request, *args, **kwargs):
@@ -226,6 +212,25 @@ class MagazineDepartmentIndexPage(Page):
         context['departments'] = departments
 
         return context
+
+
+class MagazineDepartment(Page):
+    panels = [
+        FieldPanel('title')
+    ]
+
+    parent_page_types = [
+        'MagazineDepartmentIndexPage',
+    ]
+    subpage_types = []
+
+    autocomplete_search_field = 'title'
+
+    def autocomplete_label(self):
+        return self.title
+
+    def __str__(self):
+        return self.title
 
 
 class MagazineIssueFeaturedArticle(Orderable):

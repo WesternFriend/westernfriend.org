@@ -15,10 +15,10 @@ class MagazineDepartmentModelAdmin(ModelAdmin):
     exclude_from_explorer = False
     list_per_page = 10
     list_display = (
-        'name',
+        'title',
     )
     search_fields = (
-        'name',
+        'title',
     )
 
 
