@@ -3,4 +3,5 @@ from wagtail.core.models import Page
 
 
 class Contact(Page):
-    pass
+    class Meta:
+        db_table = "contact"
