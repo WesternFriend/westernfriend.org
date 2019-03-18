@@ -21,6 +21,7 @@ class HomePage(Page):
     ]
 
     subpage_types = [
+        "contact.Contact",
         "magazine.MagazineIndexPage",
         "magazine.MagazineTagIndexPage",
         "magazine.MagazineDepartmentIndexPage",
