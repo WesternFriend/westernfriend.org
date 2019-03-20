@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ contact }}</h1>
+
+    {% if contact.articles.count %}
+    <h2>Articles</h2>
+        {% for article in contact.articles.all %}
+            {% include "magazine/magazine_article_summary.html" with article=article %}
+        {% endfor %}
+    {% endif %}
+{% endblock content %}
