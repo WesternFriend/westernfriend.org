@@ -14,7 +14,7 @@
             <li class="list-inline-item">Authored by:</li>
             {% for author in page.authored_by.all %}
                 <li class="list-inline-item">
-                    <a href="{% url 'author-detail' author.slug %}">{{ author }}</a>{% if not forloop.last %},{% endif %}
+                    <a href="{% url 'contact-detail' author.slug %}">{{ author }}</a>{% if not forloop.last %},{% endif %}
                 </li>
             {% endfor %}
         </ul>
