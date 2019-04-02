@@ -31,7 +31,10 @@ class Contact(index.Indexed, ClusterableModel):
     )
 
     slug = AutoSlugField(
-        null=True, blank=True, populate_from=["given_name", "family_name"]
+        null=True,
+        blank=True,
+        populate_from=["given_name", "family_name"],
+        overwrite=True,
     )
     full_name = models.CharField(max_length=255, editable=False, null=True)
 
