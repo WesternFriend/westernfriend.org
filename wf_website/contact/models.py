@@ -24,7 +24,11 @@ class Contact(index.Indexed, ClusterableModel):
     )
     full_name = models.CharField(max_length=255, editable=False, null=True)
 
-    content_panels = [FieldPanel("given_name"), FieldPanel("family_name")]
+    content_panels = [
+        FieldPanel("given_name"),
+        FieldPanel("family_name"),
+        FieldPanel("slug"),
+    ]
 
     autocomplete_search_field = "full_name"
 
