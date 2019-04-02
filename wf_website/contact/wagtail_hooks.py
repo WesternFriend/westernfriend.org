@@ -25,6 +25,7 @@ class ContactModelAdmin(ModelAdmin):
     list_display = ("given_name", "family_name", "full_name", "slug", "contact_type")
     empty_value_display = "-"
     search_fields = ("given_name", "family_name")
+    list_filter = ("contact_type",)
 
 
 modeladmin_register(ContactModelAdmin)
