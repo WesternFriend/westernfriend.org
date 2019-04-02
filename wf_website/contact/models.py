@@ -10,6 +10,13 @@ from wagtail.core.fields import RichTextField
 from wagtail.search import index
 
 
+class ContactType(models.Model):
+    title = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.title
+
+
 class Contact(index.Indexed, ClusterableModel):
     given_name = models.CharField(
         max_length=255,
