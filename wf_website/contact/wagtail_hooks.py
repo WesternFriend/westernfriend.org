@@ -22,7 +22,7 @@ class ContactModelAdmin(ModelAdmin):
     exclude_from_explorer = False
     list_per_page = 10
     ordering = ["family_name", "given_name"]
-    list_display = ("given_name", "family_name", "full_name", "slug", "contact_type")
+    list_display = ("given_name", "family_name", "full_name", "contact_type")
     empty_value_display = "-"
     search_fields = ("given_name", "family_name")
     list_filter = ("contact_type",)

@@ -41,7 +41,6 @@ class Contact(index.Indexed, ClusterableModel):
     content_panels = [
         FieldPanel("given_name"),
         FieldPanel("family_name"),
-        FieldPanel("slug"),
         FieldPanel("contact_type"),
     ]
 
