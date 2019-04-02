@@ -26,6 +26,10 @@ class Contact(index.Indexed, ClusterableModel):
 
     family_name = models.CharField(max_length=255, blank=True, default="")
 
+    contact_type = models.ForeignKey(
+        ContactType, on_delete=models.SET_NULL, blank=True, null=True
+    )
+
     slug = AutoSlugField(
         null=True, blank=True, populate_from=["given_name", "family_name"]
     )
@@ -35,6 +39,7 @@ class Contact(index.Indexed, ClusterableModel):
         FieldPanel("given_name"),
         FieldPanel("family_name"),
         FieldPanel("slug"),
+        FieldPanel("contact_type"),
     ]
 
     autocomplete_search_field = "full_name"
