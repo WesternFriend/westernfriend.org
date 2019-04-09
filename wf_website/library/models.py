@@ -2,7 +2,7 @@ from django.db import models
 
 from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
 from wagtail.core.models import Page
-from wagtail.core.fields import StreamField
+from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
@@ -30,3 +30,17 @@ class LibraryItem(Page):
         FieldPanel("publication_date"),
         StreamFieldPanel("body"),
     ]
+
+    parent_page_types = ["LibraryIndexPage"]
+    subpage_types = []
+
+
+class LibraryIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("intro")]
+
+    # parent_page_types = ["home.HomePage"]
+    subpage_types = ["LibraryItem"]
+
+    max_count = 1
