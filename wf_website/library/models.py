@@ -7,6 +7,7 @@ from wagtail.core import blocks
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
+from wagtailautocomplete.edit_handlers import AutocompletePanel
 
 from modelcluster.fields import ParentalManyToManyField
 
@@ -26,7 +27,7 @@ class LibraryItem(Page):
     )
 
     content_panels = Page.content_panels + [
-        FieldPanel("authored_by"),
+        AutocompletePanel("authored_by", page_type="contact.Contact", is_single=False),
         FieldPanel("publication_date"),
         StreamFieldPanel("body"),
     ]
