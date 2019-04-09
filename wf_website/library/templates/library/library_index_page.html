@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+{% block content %}
+    <h1>
+        {{ page.title }}
+    </h1>
+
+    {{ page.specific.intro|richtext }}
+
+    {% if page.get_children %}
+        <ul>
+            {% for media_item in page.get_children %}
+                <li>
+                    <a href="{% pageurl media_item %}">
+                        {{ media_item }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No media items found.</p>
+    {% endif %}
+
+{% endblock content %}
