@@ -8,15 +8,22 @@
     {{ page.specific.intro|richtext }}
 
     {% if page.get_children %}
-        <ul>
-            {% for media_item in page.get_children %}
-                <li>
+        {% for media_item in page.get_children %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <h3>
                     <a href="{% pageurl media_item %}">
                         {{ media_item }}
                     </a>
-                </li>
-            {% endfor %}
-        </ul>
+                </h3>
+                Authored by:
+                {% for author in media_item.specific.authored_by.all %}
+                    <a href="{% url 'contact-detail' author.slug %}">{{ author }}</a>{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
     {% else %}
         <p>No media items found.</p>
     {% endif %}
