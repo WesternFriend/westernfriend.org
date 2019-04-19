@@ -17,7 +17,9 @@
                 <div class="card" style="col-sm">
                     <div class="card-body">
                         <h5 class="card-title">
-                            {{ yearly_meeting.title }}
+                            <a href="{% pageurl yearly_meeting.yearly_meeting %}">
+                                {{ yearly_meeting.title }}
+                            </a>
                         </h5>
                         <p class="card-text">
                             {{ yearly_meeting.intro | richtext }}
