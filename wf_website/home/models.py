@@ -11,19 +11,20 @@ class HomePage(Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [
-        FieldPanel('intro', classname="full"),
+        FieldPanel("intro", classname="full"),
         InlinePanel(
-            'featured_articles',
+            "featured_articles",
             heading="Featured articles",
             # pylint: disable=E501
             help_text="Select one or more articles to feature on the home page",
-        )
+        ),
     ]
 
     subpage_types = [
-        'magazine.MagazineIndexPage',
-        'magazine.MagazineTagIndexPage',
-        'magazine.MagazineDepartmentIndexPage',
+        "community.CommunityPage",
+        "magazine.MagazineIndexPage",
+        "magazine.MagazineTagIndexPage",
+        "magazine.MagazineDepartmentIndexPage",
     ]
 
     max_count = 1
@@ -31,29 +32,26 @@ class HomePage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
         # pylint: disable=E501
-        context['current_issue'] = MagazineIssue.objects.live().order_by('-publication_date').first()
+        context["current_issue"] = (
+            MagazineIssue.objects.live().order_by("-publication_date").first()
+        )
 
         return context
 
 
 class HomePageFeaturedArticle(Orderable):
     home_page = ParentalKey(
-        'home.HomePage',
+        "home.HomePage",
         null=True,
         on_delete=models.CASCADE,
-        related_name='featured_articles',
+        related_name="featured_articles",
     )
 
     article = models.ForeignKey(
-        MagazineArticle,
-        null=True,
-        on_delete=models.CASCADE,
-        related_name='+',
+        MagazineArticle, null=True, on_delete=models.CASCADE, related_name="+"
     )
 
-    panels = [
-        FieldPanel('article')
-    ]
+    panels = [FieldPanel("article")]
 
     @property
     def title(self):
