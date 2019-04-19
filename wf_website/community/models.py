@@ -73,4 +73,4 @@ class CommunityPageYearlyMeeting(Orderable):
 
     @property
     def intro(self):
-        return self.article.intro
+        return self.yearly_meeting.intro
