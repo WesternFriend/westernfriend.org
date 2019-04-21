@@ -7,6 +7,8 @@ from wagtail.core.models import Page, Orderable
 from modelcluster.fields import ParentalKey
 from wagtailautocomplete.edit_handlers import AutocompletePanel
 
+from contact.models import Contact
+
 
 class CommunityPage(Page):
     intro = RichTextField(blank=True)
@@ -21,7 +23,7 @@ class CommunityPage(Page):
         ),
     ]
 
-    subpage_types = ["YearlyMeetingPage"]
+    subpage_types = []
 
     max_count = 1
 
@@ -34,25 +36,6 @@ class CommunityPage(Page):
     #     return context
 
 
-class YearlyMeetingPage(Page):
-    intro = RichTextField(blank=True)
-
-    yearly_meeting = models.ForeignKey(
-        "contact.Contact",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-    )
-
-    content_panels = Page.content_panels + [
-        FieldPanel("intro", classname="full"),
-        AutocompletePanel("yearly_meeting", page_type="contact.Contact"),
-    ]
-
-    subpage_types = []
-
-
 class CommunityPageYearlyMeeting(Orderable):
     community_page_instance = ParentalKey(
         "community.CommunityPage",
@@ -62,15 +45,12 @@ class CommunityPageYearlyMeeting(Orderable):
     )
 
     yearly_meeting = models.ForeignKey(
-        YearlyMeetingPage, null=True, on_delete=models.CASCADE, related_name="+"
+        Contact, null=True, on_delete=models.CASCADE, related_name="+"
     )
 
     panels = [FieldPanel("yearly_meeting")]
 
     @property
     def title(self):
-        return self.yearly_meeting.title
+        return self.yearly_meeting.given_name
 
-    @property
-    def intro(self):
-        return self.yearly_meeting.intro
