@@ -1,3 +1,5 @@
+from enum import Enum
+
 from django.db import models
 from django.utils.text import slugify
 from django_extensions.db.fields import AutoSlugField
@@ -9,12 +11,13 @@ from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
 from wagtail.search import index
 
-
-class ContactType(models.Model):
-    title = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.title
+CONTACT_TYPE_CHOICES = (
+    ("monthly_meeting", "Monthly Meeting"),
+    ("person", "Person"),
+    ("quaker_organization", "Quaker Organization"),
+    ("worship_group", "Worship Group"),
+    ("yearly_meeting", "Yearly Meeting"),
+)
 
 
 class Contact(index.Indexed, ClusterableModel):
@@ -26,9 +29,7 @@ class Contact(index.Indexed, ClusterableModel):
 
     family_name = models.CharField(max_length=255, blank=True, default="")
 
-    contact_type = models.ForeignKey(
-        ContactType, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    contact_type = models.CharField(max_length=255, choices=CONTACT_TYPE_CHOICES)
 
     slug = AutoSlugField(
         null=True,
@@ -62,5 +63,6 @@ class Contact(index.Indexed, ClusterableModel):
 
     search_fields = [
         index.SearchField("given_name", partial_match=True),
+        index.SearchField("family_name", partial_match=True),
         index.SearchField("family_name", partial_match=True),
     ]
