@@ -15,6 +15,7 @@ CONTACT_TYPE_CHOICES = (
     ("monthly_meeting", "Monthly Meeting"),
     ("person", "Person"),
     ("quaker_organization", "Quaker Organization"),
+    ("quarterly_meeting", "Quarterly Meeting"),
     ("worship_group", "Worship Group"),
     ("yearly_meeting", "Yearly Meeting"),
 )
@@ -66,3 +67,5 @@ class Contact(index.Indexed, ClusterableModel):
         index.SearchField("family_name", partial_match=True),
         index.SearchField("family_name", partial_match=True),
     ]
+
+    subpage_types = ["Contact"]
