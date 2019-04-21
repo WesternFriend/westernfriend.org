@@ -17,7 +17,7 @@
                 <div class="card" style="col-sm">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <a href="{% pageurl yearly_meeting.yearly_meeting %}">
+                            <a href="{% url 'contact-detail' yearly_meeting.slug %}">
                                 {{ yearly_meeting.title }}
                             </a>
                         </h5>
