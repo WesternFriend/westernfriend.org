@@ -50,9 +50,13 @@ class CommunityPageYearlyMeeting(Orderable):
 
     intro = models.CharField(max_length=255, null=True)
 
-    panels = [FieldPanel("yearly_meeting")]
+    panels = [FieldPanel("yearly_meeting"), FieldPanel("intro")]
 
     @property
     def title(self):
         return self.yearly_meeting.given_name
+
+    @property
+    def slug(self):
+        return self.yearly_meeting.slug
 
