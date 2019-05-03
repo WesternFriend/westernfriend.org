@@ -30,7 +30,10 @@ class Contact(index.Indexed, ClusterableModel):
 
     family_name = models.CharField(max_length=255, blank=True, default="")
 
-    contact_type = models.CharField(max_length=255, choices=CONTACT_TYPE_CHOICES)
+    contact_type = models.CharField(
+        max_length=255, choices=CONTACT_TYPE_CHOICES)
+
+    description = models.CharField(max_length=255, blank=True, null=True)
 
     slug = AutoSlugField(
         null=True,
