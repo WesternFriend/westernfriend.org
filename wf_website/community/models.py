@@ -25,7 +25,7 @@ class CommunityPage(Page):
         context = super().get_context(request)
         # pylint: disable=E501
         # TODO: get upcoming events
-        #context['upcoming_events'] = MagazineIssue.objects.live().order_by('-publication_date').first()
+        # context['upcoming_events'] = MagazineIssue.objects.live().order_by('-publication_date').first()
         context["yearly_meetings"] = Contact.objects.filter(
             contact_type="yearly_meeting")
 
