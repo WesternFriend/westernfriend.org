@@ -15,48 +15,18 @@ class CommunityPage(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("intro", classname="full"),
-        InlinePanel(
-            "yearly_meetings",
-            heading="Yearly Meetings",
-            # pylint: disable=E501
-            help_text="Select yearly meetings for the community directory",
-        ),
     ]
 
     subpage_types = []
 
     max_count = 1
 
-    # def get_context(self, request, *args, **kwargs):
-    #     context = super().get_context(request)
-    #     # pylint: disable=E501
-    #     # TODO: get upcoming events
-    #     context['upcoming_events'] = MagazineIssue.objects.live().order_by('-publication_date').first()
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+        # pylint: disable=E501
+        # TODO: get upcoming events
+        #context['upcoming_events'] = MagazineIssue.objects.live().order_by('-publication_date').first()
+        context["yearly_meetings"] = Contact.objects.filter(
+            contact_type="yearly_meeting")
 
-    #     return context
-
-
-class CommunityPageYearlyMeeting(Orderable):
-    community_page_instance = ParentalKey(
-        "community.CommunityPage",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="yearly_meetings",
-    )
-
-    yearly_meeting = models.ForeignKey(
-        Contact, null=True, on_delete=models.CASCADE, related_name="+"
-    )
-
-    intro = models.CharField(max_length=255, null=True)
-
-    panels = [FieldPanel("yearly_meeting"), FieldPanel("intro")]
-
-    @property
-    def title(self):
-        return self.yearly_meeting.given_name
-
-    @property
-    def slug(self):
-        return self.yearly_meeting.slug
-
+        return context
