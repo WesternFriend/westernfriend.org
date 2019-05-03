@@ -91,6 +91,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+wf_website/env
 
 # Spyder project settings
 .spyderproject
