@@ -13,7 +13,7 @@
             <h3>Yearly Meetings</h3>
             <div class="row">    
             {% for yearly_meeting in yearly_meetings %}
-                <div class="card mx-1" >
+                <div class="card col mx-1" >
                     <div class="card-body">
                         <p class="card-title">
                             <a href="{% url 'contact-detail' yearly_meeting.slug %}">
@@ -21,7 +21,7 @@
                             </a>
                         </p>
                         <p class="card-text">
-                            {{ yearly_meeting.intro | richtext }}
+                            {{ yearly_meeting.description }}
                         </p>
                     </div>
                 </div>
