@@ -9,18 +9,17 @@
 
     {{ page.intro|richtext }}
     
-        {% if page.yearly_meetings.count %}
+        {% if yearly_meetings %}
             <h3>Yearly Meetings</h3>
-
             <div class="row">    
-            {% for yearly_meeting in page.yearly_meetings.all %}
-                <div class="card" style="col-sm">
+            {% for yearly_meeting in yearly_meetings %}
+                <div class="card mx-1" >
                     <div class="card-body">
-                        <h5 class="card-title">
+                        <p class="card-title">
                             <a href="{% url 'contact-detail' yearly_meeting.slug %}">
-                                {{ yearly_meeting.title }}
+                                {{ yearly_meeting.given_name }}
                             </a>
-                        </h5>
+                        </p>
                         <p class="card-text">
                             {{ yearly_meeting.intro | richtext }}
                         </p>
