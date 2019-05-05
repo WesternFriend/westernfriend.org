@@ -134,15 +134,47 @@ class MagazineTagIndexPage(Page):
         return context
 
 
+class MagazineDepartmentIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("intro")]
+
+    subpage_types = ["MagazineDepartment"]
+    max_count = 1
+
+    def get_context(self, request, *args, **kwargs):
+        departments = MagazineDepartment.objects.all()
+
+        context = super().get_context(request)
+        context["departments"] = departments
+
+        return context
+
+
+class MagazineDepartment(Page):
+    panels = [FieldPanel("title")]
+
+    parent_page_types = ["MagazineDepartmentIndexPage"]
+    subpage_types = []
+
+    autocomplete_search_field = "title"
+
+    def autocomplete_label(self):
+        return self.title
+
+    def __str__(self):
+        return self.title
+
+
 class MagazineArticle(Page):
     body = RichTextField(blank=True)
 
     department = models.ForeignKey(
-        "MagazineDepartment",
+        MagazineDepartment,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="articles",
+        related_name="articles"
     )
 
     tags = ClusterTaggableManager(through=MagazineArticleTag, blank=True)
@@ -155,12 +187,13 @@ class MagazineArticle(Page):
             "authors",
             heading="Author(s)",
             # pylint: disable=E501
-            help_text="Select one or more articles to feature on the home page",
+            help_text="Select one or more authors who contributed to this article",
         ),
         MultiFieldPanel(
             [
-                AutocompletePanel(
-                    "department", page_type="magazine.MagazineDepartment"
+                PageChooserPanel(
+                    "department",
+                    "magazine.MagazineDepartment"
                 ),
                 FieldPanel("tags"),
             ],
@@ -201,38 +234,6 @@ class MagazineArticleAuthor(Orderable):
     @property
     def title(self):
         return self.author.title
-
-
-class MagazineDepartmentIndexPage(Page):
-    intro = RichTextField(blank=True)
-
-    content_panels = Page.content_panels + [FieldPanel("intro")]
-
-    subpage_types = ["MagazineDepartment"]
-    max_count = 1
-
-    def get_context(self, request, *args, **kwargs):
-        departments = MagazineDepartment.objects.all()
-
-        context = super().get_context(request)
-        context["departments"] = departments
-
-        return context
-
-
-class MagazineDepartment(Page):
-    panels = [FieldPanel("title")]
-
-    parent_page_types = ["MagazineDepartmentIndexPage"]
-    subpage_types = []
-
-    autocomplete_search_field = "title"
-
-    def autocomplete_label(self):
-        return self.title
-
-    def __str__(self):
-        return self.title
 
 
 class MagazineIssueFeaturedArticle(Orderable):
