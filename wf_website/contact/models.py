@@ -56,7 +56,7 @@ class Contact(Page):
 
     def save(self, *args, **kwargs):
         full_name = f"{self.given_name} {self.family_name}"
-        self.title = strip(full_name)
+        self.title = full_name.strip()
 
         super(Contact, self).save(*args, **kwargs)
 
