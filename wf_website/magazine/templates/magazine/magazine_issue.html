@@ -40,11 +40,12 @@
         <h2>
         {{ department.grouper }}
         </h2>
+        
         <ul>
-            {% for article in  department.list %}
+            {% for article in department.list %}
             <li>
                 <a href="{% pageurl article %}">
-                    {{ article.title }}
+                    {{ article }}
                 </a>
             </li>
             {% endfor %}

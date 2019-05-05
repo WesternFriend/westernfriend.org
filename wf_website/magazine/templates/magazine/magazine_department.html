@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ department.title }}</h1>
+    <h1>{{ page.title }}</h1>
 
+    
+    {% if page.articles.count %}
     <h2>Articles</h2>
-    {% if department.articles.count %}
-        {% for article in department.articles.all %}
+        {% for article in page.articles.all %}
             {% include "magazine/magazine_article_summary.html" with article=article %}
         {% endfor %}
     {% endif %}
