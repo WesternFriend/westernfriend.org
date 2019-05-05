@@ -40,19 +40,12 @@ class Contact(Page):
     content_panels = [
         FieldPanel("given_name"),
         FieldPanel("family_name"),
+        FieldPanel("description"),
         FieldPanel("contact_type"),
     ]
 
-    autocomplete_search_field = "full_name"
-
     class Meta:
         db_table = "contact"
-
-    # def __str__(self):
-    #     return f"{self.given_name} {self.family_name}"
-
-    def autocomplete_label(self):
-        return self.title
 
     def save(self, *args, **kwargs):
         full_name = f"{self.given_name} {self.family_name}"
@@ -63,7 +56,7 @@ class Contact(Page):
     search_fields = [
         index.SearchField("given_name", partial_match=True),
         index.SearchField("family_name", partial_match=True),
-        # index.SearchField("family_name", partial_match=True),
     ]
 
+    parent_page_types = ["community.CommunityPage", "Contact"]
     subpage_types = ["Contact"]
