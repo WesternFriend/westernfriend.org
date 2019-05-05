@@ -20,6 +20,8 @@ from wagtail.search import index
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtailautocomplete.edit_handlers import AutocompletePanel
 
+from contact.models import Contact
+
 
 class MagazineIndexPage(Page):
     intro = RichTextField(blank=True)
@@ -48,7 +50,8 @@ class MagazineIndexPage(Page):
             publication_date__gte=archive_threshold
         )
 
-        archive_issues = published_issues.filter(publication_date__lt=archive_threshold)
+        archive_issues = published_issues.filter(
+            publication_date__lt=archive_threshold)
 
         # Show three archive issues per page
         paginator = Paginator(archive_issues, 3)
@@ -102,7 +105,8 @@ class MagazineIssue(Page):
         context = super().get_context(request)
         # pylint: disable=E501
         context["articles_by_department"] = (
-            MagazineArticle.objects.child_of(self).live().order_by("department__title")
+            MagazineArticle.objects.child_of(
+                self).live().order_by("department__title")
         )
 
         return context
@@ -131,8 +135,8 @@ class MagazineTagIndexPage(Page):
 
 
 class MagazineArticle(Page):
-    authored_by = ParentalManyToManyField("contact.Contact", related_name="articles")
     body = RichTextField(blank=True)
+
     department = models.ForeignKey(
         "MagazineDepartment",
         null=True,
@@ -140,13 +144,19 @@ class MagazineArticle(Page):
         on_delete=models.SET_NULL,
         related_name="articles",
     )
+
     tags = ClusterTaggableManager(through=MagazineArticleTag, blank=True)
 
     search_fields = Page.search_fields + [index.SearchField("body")]
 
     content_panels = Page.content_panels + [
         FieldPanel("body", classname="full"),
-        AutocompletePanel("authored_by", page_type="contact.Contact", is_single=False),
+        InlinePanel(
+            "authors",
+            heading="Author(s)",
+            # pylint: disable=E501
+            help_text="Select one or more articles to feature on the home page",
+        ),
         MultiFieldPanel(
             [
                 AutocompletePanel(
@@ -169,6 +179,28 @@ class MagazineArticle(Page):
                 "priority": 1,
             }
         ]
+
+
+class MagazineArticleAuthor(Orderable):
+    magazine_article = ParentalKey(
+        "magazine.MagazineArticle",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="authors",
+    )
+
+    author = models.ForeignKey(
+        Contact,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="articles"
+    )
+
+    panels = [FieldPanel("author")]
+
+    @property
+    def title(self):
+        return self.author.title
 
 
 class MagazineDepartmentIndexPage(Page):
@@ -215,4 +247,3 @@ class MagazineIssueFeaturedArticle(Orderable):
     )
 
     panels = [PageChooserPanel("article")]
-
