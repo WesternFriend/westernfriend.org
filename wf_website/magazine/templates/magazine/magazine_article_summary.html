@@ -5,12 +5,12 @@
             {{ article.title }}
         </a>
 
-        {% if article.authored_by.count %}
+        {% if article.authors.count %}
             <ul class="list-inline mb-1">
                 <li class="list-inline-item">Authored by:</li>
-                {% for author in article.authored_by.all %}
+                {% for author in article.authors.all %}
                     <li class="list-inline-item">
-                        <a href="{% url 'contact-detail' author.slug %}">{{ author }}</a>{% if not forloop.last %},{% endif %}
+                        <a href="{% pageurl author.author %}">{{ author.title }}</a>{% if not forloop.last %},{% endif %}
                     </li>
                 {% endfor %}
             </ul>

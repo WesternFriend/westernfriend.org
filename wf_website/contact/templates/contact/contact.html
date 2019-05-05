@@ -10,7 +10,7 @@
     {% if page.articles.count %}
     <h2>Articles</h2>
         {% for article in page.articles.all %}
-            {% include "magazine/magazine_article_summary.html" with article=article %}
+            {% include "magazine/magazine_article_summary.html" with article=article.magazine_article %}
         {% endfor %}
     {% endif %}
 {% endblock content %}
