@@ -169,6 +169,11 @@ class MagazineDepartment(Page):
 class MagazineArticle(Page):
     body = RichTextField(blank=True)
 
+    authors = ParentalManyToManyField(
+        Contact,
+        related_name="authors",
+    )
+
     department = models.ForeignKey(
         MagazineDepartment,
         null=True,
@@ -183,11 +188,10 @@ class MagazineArticle(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("body", classname="full"),
-        InlinePanel(
+        AutocompletePanel(
             "authors",
-            heading="Author(s)",
-            # pylint: disable=E501
-            help_text="Select one or more authors who contributed to this article",
+            target_model="contact.Contact",
+            is_single=False
         ),
         MultiFieldPanel(
             [
@@ -212,28 +216,6 @@ class MagazineArticle(Page):
                 "priority": 1,
             }
         ]
-
-
-class MagazineArticleAuthor(Orderable):
-    magazine_article = ParentalKey(
-        "magazine.MagazineArticle",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="authors",
-    )
-
-    author = models.ForeignKey(
-        Contact,
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="articles"
-    )
-
-    panels = [FieldPanel("author")]
-
-    @property
-    def title(self):
-        return self.author.title
 
 
 class MagazineIssueFeaturedArticle(Orderable):
