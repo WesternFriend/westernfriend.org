@@ -21,7 +21,7 @@ CONTACT_TYPE_CHOICES = (
 )
 
 
-class Contact(index.Indexed, ClusterableModel):
+class Contact(Page):
     given_name = models.CharField(
         max_length=255,
         default="",
@@ -35,12 +35,6 @@ class Contact(index.Indexed, ClusterableModel):
 
     description = models.CharField(max_length=255, blank=True, null=True)
 
-    slug = AutoSlugField(
-        null=True,
-        blank=True,
-        populate_from=["given_name", "family_name"],
-        overwrite=True,
-    )
     full_name = models.CharField(max_length=255, editable=False, null=True)
 
     content_panels = [
@@ -54,21 +48,22 @@ class Contact(index.Indexed, ClusterableModel):
     class Meta:
         db_table = "contact"
 
-    def __str__(self):
-        return f"{self.given_name} {self.family_name}"
+    # def __str__(self):
+    #     return f"{self.given_name} {self.family_name}"
 
     def autocomplete_label(self):
-        return self.full_name
+        return self.title
 
     def save(self, *args, **kwargs):
-        self.full_name = f"{self.given_name} {self.family_name}"
+        full_name = f"{self.given_name} {self.family_name}"
+        self.title = strip(full_name)
 
         super(Contact, self).save(*args, **kwargs)
 
     search_fields = [
         index.SearchField("given_name", partial_match=True),
         index.SearchField("family_name", partial_match=True),
-        index.SearchField("family_name", partial_match=True),
+        # index.SearchField("family_name", partial_match=True),
     ]
 
     subpage_types = ["Contact"]
