@@ -1,4 +1,8 @@
+from django.utils.html import format_html_join
+from django.conf import settings
+
 from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
+from wagtail.core import hooks
 
 from .models import Contact
 
@@ -19,3 +23,15 @@ class ContactModelAdmin(ModelAdmin):
 
 
 modeladmin_register(ContactModelAdmin)
+
+
+@hooks.register('insert_editor_js')
+def editor_js():
+    js_files = [
+        'contact/js/contact_slug.js',
+    ]
+    js_includes = format_html_join('\n', '<script src="{0}{1}"></script>',
+                                   ((settings.STATIC_URL, filename)
+                                    for filename in js_files)
+                                   )
+    return js_includes
