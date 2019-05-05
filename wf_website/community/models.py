@@ -30,3 +30,5 @@ class CommunityPage(Page):
             contact_type="yearly_meeting")
 
         return context
+
+    subpage_types = ["contact.Contact"]
