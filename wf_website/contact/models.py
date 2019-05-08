@@ -53,6 +53,23 @@ class Contact(Page):
 
         super(Contact, self).save(*args, **kwargs)
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+        # pylint: disable=E501
+        # TODO: get upcoming events
+        # context['upcoming_events'] = MagazineIssue.objects.live().order_by('-publication_date').first()
+
+        context["quarterly_meetings"] = Contact.objects.child_of(
+            self).filter(contact_type="quarterly_meeting")
+
+        context["monthly_meetings"] = Contact.objects.descendant_of(
+            self).filter(contact_type="monthly_meeting")
+
+        context["worship_groups"] = Contact.objects.descendant_of(
+            self).filter(contact_type="worship_group")
+
+        return context
+
     search_fields = [
         index.SearchField("given_name", partial_match=True),
         index.SearchField("family_name", partial_match=True),
