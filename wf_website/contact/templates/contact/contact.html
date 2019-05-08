@@ -8,9 +8,48 @@
     {{ page.specific.description | richtext }}
 
     {% if page.articles.count %}
-    <h2>Articles</h2>
+        <h2>Articles</h2>
         {% for article in page.articles.all %}
             {% include "magazine/magazine_article_summary.html" with article=article.magazine_article %}
         {% endfor %}
+    {% endif %}
+
+    {% if quarterly_meetings %}
+        <div class="card mt-1" >
+            <div class="card-body">
+                <h3 class="card-title">Quarterly Meetings</h3> 
+                {% for meeting in quarterly_meetings %}
+                    <a href="{% pageurl meeting %}">
+                        {{ meeting.given_name }}
+                    </a>  
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if monthly_meetings %}
+        <div class="card mt-1" >
+            <div class="card-body">
+                <h3 class="card-title">Monthly Meetings</h3> 
+                {% for meeting in monthly_meetings %}
+                    <a href="{% pageurl meeting %}">
+                        {{ meeting.given_name }}
+                    </a>  
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if worship_groups %}
+        <div class="card mt-1" >
+            <div class="card-body">
+                <h3 class="card-title">Worship Groups</h3> 
+                {% for meeting in worship_groups %}
+                    <a href="{% pageurl meeting %}">
+                        {{ meeting.given_name }}
+                    </a>  
+                {% endfor %}
+            </div>
+        </div>
     {% endif %}
 {% endblock content %}
