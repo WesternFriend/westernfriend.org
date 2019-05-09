@@ -21,9 +21,11 @@
                             {{ yearly_meeting.given_name }}
                         </a>
                     </p>
-                    <p class="card-text">
-                        {{ yearly_meeting.description }}
-                    </p>
+                    {% if yearly_meeting.description %}
+                        <p class="card-text">
+                            {{ yearly_meeting.description }}
+                        </p>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}
