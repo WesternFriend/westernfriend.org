@@ -8,24 +8,40 @@
     <h1>{{ page.title }}</h1>
 
     {{ page.intro|richtext }}
+
+    <h2>Western Friend Directory</h2>
     
-        {% if yearly_meetings %}
-            <h3>Yearly Meetings</h3>
-            <div class="row">    
-            {% for yearly_meeting in yearly_meetings %}
-                <div class="card col mx-1" >
-                    <div class="card-body">
-                        <p class="card-title">
-                            <a href="{% pageurl yearly_meeting %}">
-                                {{ yearly_meeting.given_name }}
-                            </a>
-                        </p>
-                        <p class="card-text">
-                            {{ yearly_meeting.description }}
-                        </p>
-                    </div>
+    {% if yearly_meetings %}
+        <div class="row">    
+        {% for yearly_meeting in yearly_meetings %}
+            <div class="card col m-1" >
+                <div class="card-body">
+                    <p class="card-title">
+                        <a href="{% pageurl yearly_meeting %}">
+                            {{ yearly_meeting.given_name }}
+                        </a>
+                    </p>
+                    <p class="card-text">
+                        {{ yearly_meeting.description }}
+                    </p>
                 </div>
-            {% endfor %}
             </div>
-        {% endif %}
+        {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="card col m-1" >
+                <div class="card-body">
+                    <p class="card-title">
+                        <a href="{% url "quaker_organizations" %}">
+                            Quaker Organizations
+                        </a>
+                    </p>
+                    <p class="card-text">
+                        A listing of Quaker nonprofit organizations that serve the Western US.
+                    </p>
+                </div>
+            </div>
+    </div>
 {% endblock %}
