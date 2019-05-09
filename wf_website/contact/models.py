@@ -49,6 +49,7 @@ class Contact(Page):
 
     class Meta:
         db_table = "contact"
+        ordering = ["title"]
 
     def save(self, *args, **kwargs):
         full_name = f"{self.given_name} {self.family_name}"
