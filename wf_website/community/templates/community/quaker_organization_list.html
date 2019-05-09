@@ -8,23 +8,37 @@
     <h1>Quaker Organizations</h1>
     
         {% if organizations %}
-            <ul class="list-group">
+            <div class="list-group">
             {% for organization in organizations %}
-
-                <a 
-                    href="{% pageurl organization %}"
-                    class="list-group-item flex-column align-items-start"
-                >
-                    <p>
-                        {{ organization.given_name }}
-                    </p>
-                    {% if organization.description %}
+                {% if organization.website %}
+                    <a 
+                        href="{{ organization.website }}"
+                        class="list-group-item flex-column align-items-start"
+                    >
                         <p>
-                            {{ organization.description }}
+                            {{ organization.given_name }}
                         </p>
-                    {% endif %}
-                </a>
+                        {% if organization.description %}
+                            <p>
+                                {{ organization.description }}
+                            </p>
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <div 
+                        class="list-group-item flex-column align-items-start"
+                    >
+                        <p>
+                            {{ organization.given_name }}
+                        </p>
+                        {% if organization.description %}
+                            <p>
+                                {{ organization.description }}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endif %}
             {% endfor %}
-            </ul>
+            </div>
         {% endif %}
 {% endblock %}
