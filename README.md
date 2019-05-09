@@ -1,2 +1,2 @@
-# WF-website
-Website for Western Friend, part of the Religious Society of Friends
+# Western Friend website (prototype)
+Prototype website for [Western Friend](https://westernfriend.org), part of the Religious Society of Friends.
