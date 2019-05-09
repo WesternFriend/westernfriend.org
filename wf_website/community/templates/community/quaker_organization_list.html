@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-community-quaker-organizations{% endblock %}
+
+{% block content %}
+    <h1>Quaker Organizations</h1>
+    
+        {% if organizations %}
+            <ul class="list-group">
+            {% for organization in organizations %}
+
+                <a 
+                    href="{% pageurl organization %}"
+                    class="list-group-item flex-column align-items-start"
+                >
+                    <p>
+                        {{ organization.given_name }}
+                    </p>
+                    {% if organization.description %}
+                        <p>
+                            {{ organization.description }}
+                        </p>
+                    {% endif %}
+                </a>
+            {% endfor %}
+            </ul>
+        {% endif %}
+{% endblock %}
