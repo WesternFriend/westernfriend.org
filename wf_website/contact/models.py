@@ -37,10 +37,13 @@ class Contact(Page):
 
     full_name = models.CharField(max_length=255, editable=False, null=True)
 
+    website = models.URLField(null=True, blank=True)
+
     content_panels = [
         FieldPanel("given_name"),
         FieldPanel("family_name"),
         FieldPanel("description"),
+        FieldPanel("website"),
         FieldPanel("contact_type"),
     ]
 
