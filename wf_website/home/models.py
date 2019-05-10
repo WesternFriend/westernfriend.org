@@ -22,6 +22,8 @@ class HomePage(Page):
 
     subpage_types = [
         "community.CommunityPage",
+        "events.EventsIndexPage",
+        "library.LibraryIndexPage",
         "magazine.MagazineIndexPage",
         "magazine.MagazineTagIndexPage",
         "magazine.MagazineDepartmentIndexPage",
