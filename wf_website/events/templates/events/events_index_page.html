@@ -15,6 +15,7 @@
 
     {% if events %}
         <h2>Upcoming events</h2>
+
         <div class="list-group">
             {% for event in events %}
                 {% if event.website %}
@@ -44,6 +45,19 @@
                 {% endif %}
             {% endfor %}
          </div>
+         <span class="step-links ml-3 mb-5">
+            {% if events.has_previous %}
+                <a href="?page={{ events.previous_page_number }}" class="btn btn-outline-primary btn-sm">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ events.number }} of {{ events.paginator.num_pages }}
+            </span>
+
+            {% if events.has_next %}
+                <a href="?page={{ events.next_page_number }}" class="btn btn-outline-primary btn-sm">next</a>
+            {% endif %}
+        </span>
     {% else %}
         <p>There are no events events</p>
     {% endif %}
