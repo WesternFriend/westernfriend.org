@@ -30,7 +30,7 @@ class Event(Page):
 
     class Meta:
         db_table = "events"
-        ordering = ["-date"]
+        ordering = ["date"]
 
 
 class EventsIndexPage(Page):
