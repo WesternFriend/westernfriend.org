@@ -26,6 +26,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 INSTALLED_APPS = [
     "community",
     "contact",
+    "events",
     "home",
     "library",
     "search",
@@ -162,4 +163,3 @@ WAGTAIL_SITE_NAME = "wf_website"
 BASE_URL = "http://example.com"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
