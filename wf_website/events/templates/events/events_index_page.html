@@ -45,7 +45,8 @@
                 {% endif %}
             {% endfor %}
          </div>
-         <span class="step-links ml-3 mb-5">
+
+         <div class="step-links ml-3 mt-1 text-center">
             {% if events.has_previous %}
                 <a href="?page={{ events.previous_page_number }}" class="btn btn-outline-primary btn-sm">previous</a>
             {% endif %}
@@ -57,7 +58,7 @@
             {% if events.has_next %}
                 <a href="?page={{ events.next_page_number }}" class="btn btn-outline-primary btn-sm">next</a>
             {% endif %}
-        </span>
+        </div>
     {% else %}
         <p>There are no events events</p>
     {% endif %}
