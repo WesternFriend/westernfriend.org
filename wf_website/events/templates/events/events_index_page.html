@@ -25,9 +25,9 @@
                             <small>{{ event.date }}</small>
                         </div>
                         {% if event.description %}
-                            <p>
+                            <span>
                                 {{ event.description | richtext }}
-                            </p>
+                            </span>
                         {% endif %}
                     </a>
                 {% else %}
@@ -37,9 +37,9 @@
                             <small>{{ event.date }}</small>
                         </div>
                         {% if event.description %}
-                            <p>
+                            <span>
                                 {{ event.description | richtext }}
-                            </p>
+                            </span>
                         {% endif %}
                     </div>
                 {% endif %}
