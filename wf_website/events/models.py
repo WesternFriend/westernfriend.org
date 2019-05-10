@@ -7,7 +7,7 @@ from wagtail.core.models import Page
 # Create your models here.
 
 
-class event(Page):
+class Event(Page):
     description = RichTextField(blank=True)
 
     date = models.DateTimeField()
