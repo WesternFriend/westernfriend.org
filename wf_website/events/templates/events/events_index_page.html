@@ -14,21 +14,15 @@
     </div>
 
     {% if events %}
+        <h2>Upcoming events</h2>
         <div class="list-group">
             {% for event in events %}
                 {% if event.website %}
-                    <a 
-                        href="{{ event.website }}"
-                        class="list-group-item flex-column align-items-start"
-                    >
-                        <p>
-                            {{ event.title }}
-                        </p>
-
-                        <p>
-                            {{ event.date }}
-                        </p>
-
+                    <a href="{{ event.website }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h3 class="mb-1">{{ event.title }}</h3>
+                            <small>{{ event.date }}</small>
+                        </div>
                         {% if event.description %}
                             <p>
                                 {{ event.description | richtext }}
@@ -36,12 +30,11 @@
                         {% endif %}
                     </a>
                 {% else %}
-                    <div 
-                        class="list-group-item flex-column align-items-start"
-                    >
-                        <p>
-                            {{ event.title }}
-                        </p>
+                    <div class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h3 class="mb-1">{{ event.title }}</h3>
+                            <small>{{ event.date }}</small>
+                        </div>
                         {% if event.description %}
                             <p>
                                 {{ event.description | richtext }}
