@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block body_class %}template-magazineindexpage{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ page.title }}
+    </h1>
+
+    <div class="intro">
+        {{ page.intro | richtext }}
+    </div>
+
+    {% if events %}
+        <div class="list-group">
+            {% for event in events %}
+                {% if event.website %}
+                    <a 
+                        href="{{ event.website }}"
+                        class="list-group-item flex-column align-items-start"
+                    >
+                        <p>
+                            {{ event.title }}
+                        </p>
+
+                        <p>
+                            {{ event.date }}
+                        </p>
+
+                        {% if event.description %}
+                            <p>
+                                {{ event.description | richtext }}
+                            </p>
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <div 
+                        class="list-group-item flex-column align-items-start"
+                    >
+                        <p>
+                            {{ event.title }}
+                        </p>
+                        {% if event.description %}
+                            <p>
+                                {{ event.description | richtext }}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+         </div>
+    {% else %}
+        <p>There are no events events</p>
+    {% endif %}
+{% endblock %}
