@@ -1,4 +1,7 @@
+from datetime import date
+
 from django.db import models
+from django.db.models import Q
 
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.fields import RichTextField
@@ -45,6 +48,7 @@ class EventsIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        context["events"] = Event.objects.all()
+        context["events"] = Event.objects.all().filter(
+            Q(date__gt=date.today())).order_by('date')
 
         return context
