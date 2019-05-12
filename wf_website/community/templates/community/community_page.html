@@ -52,16 +52,42 @@
 
     <div class="row">
         <div class="card col m-1" >
-                <div class="card-body">
-                    <p class="card-title">
-                        <a href="{% url "quaker_organizations" %}">
-                            Quaker Organizations
-                        </a>
-                    </p>
-                    <p class="card-text">
-                        A listing of Quaker nonprofit organizations that serve the Western US.
-                    </p>
-                </div>
+            <div class="card-body">
+                <p class="card-title">
+                    <a href="{% url "quaker_organizations" %}">
+                        Quaker Organizations
+                    </a>
+                </p>
+                <p class="card-text">
+                    {{ page.quaker_organizations_intro | richtext }}
+                </p>
             </div>
+        </div>
+
+        <div class="card col m-1" >
+            <div class="card-body">
+                <p class="card-title">
+                    <a href="{% pageurl page.community_resources_index_page %}online-worship">
+                        Online Worship
+                    </a>
+                </p>
+                <p class="card-text">
+                    {{ page.online_worship_intro | richtext }}
+                </p>
+            </div>
+        </div>
+        
+        <div class="card col m-1" >
+            <div class="card-body">
+                <p class="card-title">
+                    <a href="{% pageurl page.community_resources_index_page %}community-directory">
+                        Friends Everywhere
+                    </a>
+                </p>
+                <p class="card-text">
+                   {{ page.community_directories_intro | richtext }}
+                </p>
+            </div>
+        </div>
     </div>
 {% endblock %}
