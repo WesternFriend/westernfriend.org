@@ -10,6 +10,7 @@ from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page, Orderable
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.models import Image
+from wagtail.search import index
 
 from modelcluster.fields import ParentalKey
 from wagtailautocomplete.edit_handlers import AutocompletePanel
