@@ -17,6 +17,12 @@ from wagtailautocomplete.edit_handlers import AutocompletePanel
 from contact.models import Contact
 
 
+RESOURCE_TYPE_CHOICES = [
+    ("online_worship", "Online Worship"),
+    ("community_directory", "Community Directory"),
+]
+
+
 class CommunityPage(Page):
     intro = RichTextField(blank=True)
 
@@ -68,3 +74,20 @@ class CommunityPage(Page):
         return context
 
     subpage_types = ["contact.Contact"]
+
+
+class CommunityResource(Page):
+    intro = RichTextField(blank=True)
+
+    website = models.URLField(null=True, blank=True)
+
+    resource_type = models.CharField(
+        max_length=255, choices=RESOURCE_TYPE_CHOICES)
+
+    parent_page_types = [
+        "community.CommunityPage",
+    ]
+
+    search_fields = [
+        index.SearchField("intro", partial_match=True),
+    ]
