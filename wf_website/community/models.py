@@ -3,6 +3,7 @@ from django.db import models
 from wagtail.admin.edit_handlers import (
     FieldPanel,
     InlinePanel,
+    MultiFieldPanel,
     PageChooserPanel,
 )
 from wagtail.core.fields import RichTextField
@@ -31,8 +32,13 @@ class CommunityPage(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("intro", classname="full"),
-        FieldPanel("events_intro", classname="full"),
-        ImageChooserPanel('events_image'),
+        MultiFieldPanel(
+            [
+                FieldPanel("events_intro", classname="full"),
+                ImageChooserPanel('events_image'),
+            ],
+            heading="Upcoming events"
+        )
     ]
 
     subpage_types = []
