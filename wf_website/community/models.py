@@ -1,4 +1,6 @@
 from django.db import models
+from django.http import Http404
+from django.shortcuts import render
 
 from wagtail.admin.edit_handlers import (
     FieldPanel,
@@ -8,6 +10,7 @@ from wagtail.admin.edit_handlers import (
 )
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page, Orderable
+from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.models import Image
 from wagtail.search import index
@@ -62,8 +65,6 @@ class CommunityPage(Page):
         )
     ]
 
-    subpage_types = []
-
     max_count = 1
 
     def get_context(self, request, *args, **kwargs):
@@ -76,8 +77,35 @@ class CommunityPage(Page):
 
     subpage_types = [
         "contact.Contact",
-        "community.CommunityResource",
+        "community.CommunityResourceIndexPage",
     ]
+
+
+class CommunityResourceIndexPage(RoutablePageMixin, Page):
+    parent_page_types = ["community.CommunityPage"]
+
+    @route(r'^([\w-]+)/$')
+    def events_for_year(self, request, resource_type=None):
+        """
+        View function for the community resources page
+
+        Takes a "resource_type" argument for queryset
+        """
+
+        # format to snake case, for query
+        resource_type = resource_type.replace("-", "_")
+
+        try:
+            resources = CommunityResource.objects.filter(
+                resource_type=resource_type)
+        except:
+            raise Http404("Could not find resources")
+
+        return render(
+            request,
+            "community/community_resource_index_page.html",
+            {"resources": resources}
+        )
 
 
 class CommunityResource(Page):
@@ -94,7 +122,8 @@ class CommunityResource(Page):
         FieldPanel("resource_type"),
     ]
 
-    parent_page_types = ["community.CommunityPage"]
+    parent_page_types = ["community.CommunityResourceIndexPage"]
+    subpage_types = []
 
     search_fields = [
         index.SearchField("description", partial_match=True),
