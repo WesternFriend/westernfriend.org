@@ -48,6 +48,14 @@ class CommunityPage(Page):
         related_name='+'
     )
 
+    community_resource_index_page = models.ForeignKey(
+        'wagtailcore.Page',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+    )
+
     content_panels = Page.content_panels + [
         MultiFieldPanel(
             [
@@ -62,7 +70,10 @@ class CommunityPage(Page):
                 ImageChooserPanel('events_image'),
             ],
             heading="Upcoming events"
-        )
+        ),
+        PageChooserPanel(
+            'community_resource_index_page',
+            'community.CommunityResourceIndexPage'),
     ]
 
     max_count = 1
@@ -83,6 +94,8 @@ class CommunityPage(Page):
 
 class CommunityResourceIndexPage(RoutablePageMixin, Page):
     parent_page_types = ["community.CommunityPage"]
+
+    max_count = 1
 
     @route(r'^([\w-]+)/$')
     def events_for_year(self, request, resource_type=None):
