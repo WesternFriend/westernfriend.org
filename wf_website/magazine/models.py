@@ -171,7 +171,7 @@ class MagazineArticle(Page):
 
     authors = ParentalManyToManyField(
         Contact,
-        related_name="authors",
+        related_name="articles",
     )
 
     department = models.ForeignKey(
