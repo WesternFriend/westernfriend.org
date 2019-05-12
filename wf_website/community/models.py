@@ -49,7 +49,7 @@ class CommunityPage(Page):
         context = super().get_context(request)
 
         context["yearly_meetings"] = Contact.objects.filter(
-            contact_type="yearly_meeting")
+            contact_type="yearly_meeting").order_by("title")
 
         return context
 
