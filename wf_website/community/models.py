@@ -20,6 +20,14 @@ from contact.models import Contact
 class CommunityPage(Page):
     intro = RichTextField(blank=True)
 
+    intro_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
+
     events_intro = RichTextField(blank=True)
 
     events_image = models.ForeignKey(
@@ -31,7 +39,13 @@ class CommunityPage(Page):
     )
 
     content_panels = Page.content_panels + [
-        FieldPanel("intro", classname="full"),
+        MultiFieldPanel(
+            [
+                FieldPanel("intro", classname="full"),
+                ImageChooserPanel('intro_image'),
+            ],
+            heading="Introduction"
+        ),
         MultiFieldPanel(
             [
                 FieldPanel("events_intro", classname="full"),
