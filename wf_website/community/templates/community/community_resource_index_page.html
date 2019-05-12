@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-community-resources{% endblock %}
+
+{% block content %}
+    <h1>Resources</h1>
+
+    {% for resource in resources %}
+        {{ resource.title }}
+    {% endfor %}
+{% endblock %}
