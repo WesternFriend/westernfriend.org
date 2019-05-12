@@ -13,8 +13,11 @@ from contact.models import Contact
 class CommunityPage(Page):
     intro = RichTextField(blank=True)
 
+    events_intro = RichTextField(blank=True)
+
     content_panels = Page.content_panels + [
         FieldPanel("intro", classname="full"),
+        FieldPanel("events_intro", classname="full"),
     ]
 
     subpage_types = []
