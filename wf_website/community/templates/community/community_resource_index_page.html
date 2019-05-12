@@ -7,7 +7,31 @@
 {% block content %}
     <h1>Resources</h1>
 
-    {% for resource in resources %}
-        {{ resource.title }}
-    {% endfor %}
+    <div class="list-group">
+            {% for resource in resources %}
+                {% if resource.website %}
+                    <a href="{{ resource.website }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h3 class="mb-1">{{ resource.title }}</h3>
+                        </div>
+                        {% if resource.description %}
+                            <span>
+                                {{ resource.description | richtext }}
+                            </span>
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <div class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h3 class="mb-1">{{ resource.title }}</h3>
+                        </div>
+                        {% if resource.description %}
+                            <span>
+                                {{ resource.description | richtext }}
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+         </div>
 {% endblock %}
