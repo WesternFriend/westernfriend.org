@@ -1,8 +1,14 @@
 from django.db import models
 
-from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, PageChooserPanel
+from wagtail.admin.edit_handlers import (
+    FieldPanel,
+    InlinePanel,
+    PageChooserPanel,
+)
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page, Orderable
+from wagtail.images.edit_handlers import ImageChooserPanel
+from wagtail.images.models import Image
 
 from modelcluster.fields import ParentalKey
 from wagtailautocomplete.edit_handlers import AutocompletePanel
@@ -15,9 +21,18 @@ class CommunityPage(Page):
 
     events_intro = RichTextField(blank=True)
 
+    events_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
+
     content_panels = Page.content_panels + [
         FieldPanel("intro", classname="full"),
         FieldPanel("events_intro", classname="full"),
+        ImageChooserPanel('events_image'),
     ]
 
     subpage_types = []
