@@ -38,26 +38,6 @@ class CommunityPage(Page):
         ("card", wf_blocks.CardBlock())
     ], null=True)
 
-    intro = RichTextField(blank=True)
-
-    intro_image = models.ForeignKey(
-        'wagtailimages.Image',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='+'
-    )
-
-    events_intro = RichTextField(blank=True)
-
-    events_image = models.ForeignKey(
-        'wagtailimages.Image',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='+'
-    )
-
     community_resources_index_page = models.ForeignKey(
         'wagtailcore.Page',
         null=True,
@@ -74,20 +54,6 @@ class CommunityPage(Page):
 
     content_panels = Page.content_panels + [
         StreamFieldPanel("body"),
-        MultiFieldPanel(
-            [
-                FieldPanel("intro", classname="full"),
-                ImageChooserPanel('intro_image'),
-            ],
-            heading="Introduction"
-        ),
-        MultiFieldPanel(
-            [
-                FieldPanel("events_intro", classname="full"),
-                ImageChooserPanel('events_image'),
-            ],
-            heading="Upcoming events"
-        ),
         PageChooserPanel(
             'community_resources_index_page',
             'community.CommunityResourceIndexPage'),
