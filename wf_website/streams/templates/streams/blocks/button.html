@@ -1,0 +1,9 @@
+<div class="text-center">
+    <a href="{{ value.page_link.url }}" class="card-link">
+        {% if value.button_text%}
+            {{ value.button_text }}
+        {% else %}
+            {{ value.page_link.title}}
+        {% endif %}
+    </a>
+</div>
