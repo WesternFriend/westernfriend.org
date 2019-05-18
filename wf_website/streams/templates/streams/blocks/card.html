@@ -10,7 +10,9 @@
             {{ value.title }}
         </h2>
         {{ value.text|richtext }}
-        {% include_block value.button %}
+        {% if value.button %}
+            {% include_block value.button %}
+        {% endif %}
     </div>
 
     {% if value.image_align == "right"%}
