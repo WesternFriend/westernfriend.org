@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "library",
     "search",
     "magazine",
+    "streams",
     "wagtail.contrib.forms",
     "wagtail.contrib.modeladmin",
     "wagtail.contrib.redirects",
