@@ -7,11 +7,14 @@ from wagtail.admin.edit_handlers import (
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
+    StreamFieldPanel,
 )
-from wagtail.core.fields import RichTextField
+from wagtail.core import blocks
+from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page, Orderable
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.images.edit_handlers import ImageChooserPanel
+from wagtail.images.blocks import ImageChooserBlock
 from wagtail.images.models import Image
 from wagtail.search import index
 
@@ -19,7 +22,7 @@ from modelcluster.fields import ParentalKey
 from wagtailautocomplete.edit_handlers import AutocompletePanel
 
 from contact.models import Contact
-
+from streams import blocks as wf_blocks
 
 RESOURCE_TYPE_CHOICES = [
     ("online_worship", "Online Worship"),
@@ -28,6 +31,13 @@ RESOURCE_TYPE_CHOICES = [
 
 
 class CommunityPage(Page):
+    body = StreamField([
+        ('heading', blocks.CharBlock(classname="full title")),
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+        ("card", wf_blocks.CardBlock())
+    ], null=True)
+
     intro = RichTextField(blank=True)
 
     intro_image = models.ForeignKey(
@@ -63,6 +73,7 @@ class CommunityPage(Page):
     community_directories_intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [
+        StreamFieldPanel("body"),
         MultiFieldPanel(
             [
                 FieldPanel("intro", classname="full"),
