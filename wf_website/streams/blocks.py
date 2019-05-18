@@ -7,6 +7,15 @@ IMAGE_ALIGN_CHOICES = [
 ]
 
 
+class ButtonBlock(blocks.StructBlock):
+    button_text = blocks.CharBlock(required=False)
+    page_link = blocks.PageChooserBlock(required=False)
+
+    class Meta:
+        icon = "placeholder"
+        template = "streams/blocks/button.html"
+
+
 class CardBlock(blocks.StructBlock):
     """Card with title, text, and image."""
     title = blocks.CharBlock(required=True, help_text="Add a title")
@@ -18,9 +27,8 @@ class CardBlock(blocks.StructBlock):
         default="left",
         help_text="Whether to align the image left or right on the block."
     )
-    button_text = blocks.CharBlock(required=False)
-    page_link = blocks.PageChooserBlock(requried=False)
+    button = ButtonBlock(required=False)
 
     class Meta:
         icon = "form"
-        template = 'streams/blocks/card.html'
+        template = "streams/blocks/card.html"
