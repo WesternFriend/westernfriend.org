@@ -1,7 +1,9 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 <div class="card mb-1 d-flex flex-row">
-    {% image value.image fill-200x200 class="img-fluid rounded" %}
+    {% if value.image_align == "left"%}
+        {% image value.image fill-200x200 class="img-fluid rounded" %}
+    {% endif %}
 
     <div class="card-body">
         <h2 class="card-title">
@@ -14,4 +16,8 @@
             </a>
         </div>
     </div>
+
+    {% if value.image_align == "right"%}
+        {% image value.image fill-200x200 class="img-fluid rounded" %}
+    {% endif %}
 </div>
