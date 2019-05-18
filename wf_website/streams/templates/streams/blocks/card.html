@@ -10,7 +10,7 @@
             {{ value.title }}
         </h2>
         {{ value.text|richtext }}
-        {% if value.button %}
+        {% if value.button.page_link %}
             {% include_block value.button %}
         {% endif %}
     </div>
