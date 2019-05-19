@@ -32,3 +32,12 @@ class CardBlock(blocks.StructBlock):
     class Meta:
         icon = "form"
         template = "streams/blocks/card.html"
+
+
+class PageCardBlock(blocks.StructBlock):
+    text = blocks.CharBlock(required=False)
+    page = blocks.PageChooserBlock(required=True)
+
+    class Meta:
+        icon = "link"
+        template = "streams/blocks/page_card.html"

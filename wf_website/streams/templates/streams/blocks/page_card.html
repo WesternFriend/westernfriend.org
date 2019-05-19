@@ -1,0 +1,16 @@
+{% load wagtailcore_tags %}
+
+<div class="card col m-1" >
+    <div class="card-body">
+        <p class="card-title">
+            <a href="{{ value.page.url }}">
+                {{ value.page.title }}
+            </a>
+        </p>
+        {% if value.text %}
+            <p class="card-text">
+                {{ value.text }}
+            </p>
+        {% endif %}
+    </div>
+</div>
