@@ -71,14 +71,6 @@ class CommunityPage(Page):
 
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
-
-        context["yearly_meetings"] = Contact.objects.filter(
-            contact_type="yearly_meeting").order_by("title")
-
-        return context
-
     subpage_types = [
         "contact.Contact",
         "community.CommunityResourceIndexPage",
