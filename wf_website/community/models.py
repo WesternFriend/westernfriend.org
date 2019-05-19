@@ -35,7 +35,9 @@ class CommunityPage(Page):
         ('heading', blocks.CharBlock(classname="full title")),
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
-        ("card", wf_blocks.CardBlock())
+        ("card", wf_blocks.CardBlock()),
+        ("card_row", blocks.ListBlock(wf_blocks.PageCardBlock(
+            label="Page"), template="streams/blocks/card_row.html")),
     ], null=True)
 
     community_resources_index_page = models.ForeignKey(
