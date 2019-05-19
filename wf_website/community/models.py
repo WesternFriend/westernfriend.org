@@ -56,16 +56,16 @@ class CommunityPage(Page):
 
     content_panels = Page.content_panels + [
         StreamFieldPanel("body"),
-        PageChooserPanel(
-            'community_resources_index_page',
-            'community.CommunityResourceIndexPage'),
         MultiFieldPanel(
             [
+                PageChooserPanel(
+                    'community_resources_index_page',
+                    'community.CommunityResourceIndexPage'),
                 FieldPanel("quaker_organizations_intro"),
                 FieldPanel("online_worship_intro"),
                 FieldPanel("community_directories_intro"),
             ],
-            heading="Intro texts"
+            heading="Community resources"
         )
     ]
 
