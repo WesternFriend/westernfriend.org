@@ -20,7 +20,7 @@
                 <h3 class="card-title">Quarterly Meetings</h3> 
                 {% for meeting in quarterly_meetings %}
                     <a href="{% pageurl meeting %}">
-                        {{ meeting.given_name }}
+                        {{ meeting.title }}
                     </a>  
                 {% endfor %}
             </div>
@@ -33,7 +33,7 @@
                 <h3 class="card-title">Monthly Meetings</h3> 
                 {% for meeting in monthly_meetings %}
                     <a href="{% pageurl meeting %}">
-                        {{ meeting.given_name }}
+                        {{ meeting.title }}
                     </a>  
                 {% endfor %}
             </div>
@@ -46,7 +46,7 @@
                 <h3 class="card-title">Worship Groups</h3> 
                 {% for meeting in worship_groups %}
                     <a href="{% pageurl meeting %}">
-                        {{ meeting.given_name }}
+                        {{ meeting.title }}
                     </a>  
                 {% endfor %}
             </div>
