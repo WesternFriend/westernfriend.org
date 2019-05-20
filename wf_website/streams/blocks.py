@@ -35,8 +35,8 @@ class CardBlock(blocks.StructBlock):
 
 
 class PageCardBlock(blocks.StructBlock):
-    text = blocks.CharBlock(required=False)
     page = blocks.PageChooserBlock(required=True)
+    text = blocks.CharBlock(required=False)
 
     class Meta:
         icon = "link"
