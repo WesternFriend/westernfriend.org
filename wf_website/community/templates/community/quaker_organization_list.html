@@ -13,10 +13,10 @@
                 {% if organization.website %}
                     <a 
                         href="{{ organization.website }}"
-                        class="list-group-item flex-column align-items-start"
+                        class="list-group-item flex-column align-items-start list-group-item-action"
                     >
                         <p>
-                            {{ organization.given_name }}
+                            {{ organization.title }}
                         </p>
                         {% if organization.description %}
                             <p>
@@ -29,7 +29,7 @@
                         class="list-group-item flex-column align-items-start"
                     >
                         <p>
-                            {{ organization.given_name }}
+                            {{ organization.title }}
                         </p>
                         {% if organization.description %}
                             <p>
