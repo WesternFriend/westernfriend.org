@@ -20,8 +20,6 @@ from wagtail.search import index
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtailautocomplete.edit_handlers import AutocompletePanel
 
-from contact.models import Contact
-
 
 class MagazineIndexPage(Page):
     intro = RichTextField(blank=True)
@@ -238,4 +236,13 @@ class MagazineArticleAuthor(Orderable):
         "wagtailcore.Page", null=True, on_delete=models.CASCADE, related_name="articles_authored"
     )
 
-    panels = [PageChooserPanel("author", ["contact.Contact"])]
+    panels = [
+        PageChooserPanel(
+            "author",
+            [
+                "contact.Person",
+                "contact.Meeting",
+                "contact.Organization",
+            ]
+        )
+    ]
