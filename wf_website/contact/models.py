@@ -33,6 +33,8 @@ class Person(Page):
         FieldPanel("family_name"),
     ]
 
+    template = "contact/contact.html"
+
     class Meta:
         db_table = "person"
         ordering = ["title"]
@@ -69,6 +71,8 @@ class Meeting(Page):
     parent_page_types = ["community.CommunityPage", "Meeting"]
     subpage_types = ["Meeting"]
 
+    template = "contact/contact.html"
+
     class Meta:
         db_table = "meeting"
         ordering = ["title"]
@@ -77,13 +81,13 @@ class Meeting(Page):
         context = super().get_context(request)
 
         context["quarterly_meetings"] = Meeting.objects.child_of(
-            self).filter(contact_type="quarterly_meeting")
+            self).filter(meeting_type="quarterly_meeting")
 
         context["monthly_meetings"] = Meeting.objects.descendant_of(
-            self).filter(contact_type="monthly_meeting")
+            self).filter(meeting_type="monthly_meeting")
 
         context["worship_groups"] = Meeting.objects.descendant_of(
-            self).filter(contact_type="worship_group")
+            self).filter(meeting_type="worship_group")
 
         return context
 
@@ -100,6 +104,8 @@ class Organization(Page):
 
     parent_page_types = ["community.CommunityPage"]
     subpage_types = []
+
+    template = "contact/contact.html"
 
     class Meta:
         db_table = "organization"
