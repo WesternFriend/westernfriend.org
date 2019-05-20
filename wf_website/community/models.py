@@ -21,7 +21,6 @@ from wagtail.search import index
 from modelcluster.fields import ParentalKey
 from wagtailautocomplete.edit_handlers import AutocompletePanel
 
-from contact.models import Contact
 from streams import blocks as wf_blocks
 
 RESOURCE_TYPE_CHOICES = [
@@ -32,9 +31,9 @@ RESOURCE_TYPE_CHOICES = [
 
 class CommunityPage(Page):
     body = StreamField([
-        ('heading', blocks.CharBlock(classname="full title")),
-        ('paragraph', blocks.RichTextBlock()),
-        ('image', ImageChooserBlock()),
+        ("heading", blocks.CharBlock(classname="full title")),
+        ("paragraph", blocks.RichTextBlock()),
+        ("image", ImageChooserBlock()),
         ("card", wf_blocks.CardBlock()),
         ("card_row", blocks.ListBlock(wf_blocks.PageCardBlock(
             label="Page"), template="streams/blocks/card_row.html")),
@@ -72,7 +71,9 @@ class CommunityPage(Page):
     max_count = 1
 
     subpage_types = [
-        "contact.Contact",
+        "contact.Person",
+        "contact.Meeting",
+        "contact.Organization",
         "community.CommunityResourceIndexPage",
     ]
 
