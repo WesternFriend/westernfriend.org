@@ -7,10 +7,10 @@
 
     {{ page.specific.description | richtext }}
 
-    {% if page.articles.count %}
+    {% if page.articles_authored.count %}
         <h2>Articles</h2>
-        {% for article in page.articles.all %}
-            {% include "magazine/magazine_article_summary.html" %}
+        {% for article in page.articles_authored.all %}
+            {% include "magazine/magazine_article_summary.html" with article=article.article %}
         {% endfor %}
     {% endif %}
 
