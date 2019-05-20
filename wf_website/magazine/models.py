@@ -169,11 +169,6 @@ class MagazineDepartment(Page):
 class MagazineArticle(Page):
     body = RichTextField(blank=True)
 
-    authors = ParentalManyToManyField(
-        Contact,
-        related_name="articles",
-    )
-
     department = models.ForeignKey(
         MagazineDepartment,
         null=True,
@@ -188,10 +183,10 @@ class MagazineArticle(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("body", classname="full"),
-        AutocompletePanel(
+        InlinePanel(
             "authors",
-            target_model="contact.Contact",
-            is_single=False
+            heading="Authors",
+            help_text="Select one or more authors, who contributed to this article",
         ),
         MultiFieldPanel(
             [
@@ -230,3 +225,17 @@ class MagazineIssueFeaturedArticle(Orderable):
     )
 
     panels = [PageChooserPanel("article")]
+
+
+class MagazineArticleAuthor(Orderable):
+    article = ParentalKey(
+        "magazine.MagazineArticle",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="authors",
+    )
+    author = models.ForeignKey(
+        "wagtailcore.Page", null=True, on_delete=models.CASCADE, related_name="articles_authored"
+    )
+
+    panels = [PageChooserPanel("author", ["contact.Contact"])]
