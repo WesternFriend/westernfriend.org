@@ -41,3 +41,19 @@ class PageCardBlock(blocks.StructBlock):
     class Meta:
         icon = "link"
         template = "streams/blocks/page_card.html"
+
+
+class OrganizationsBlock(blocks.StructBlock):
+
+    def get_context(self, value, parent_context=None):
+        # avoid circular imports
+        from contact.models import Organization
+
+        context = super().get_context(value, parent_context=parent_context)
+
+        context["organizations"] = Organization.objects.all()
+
+        return context
+
+    class Meta:
+        template = "streams/blocks/organizations_block.html"
