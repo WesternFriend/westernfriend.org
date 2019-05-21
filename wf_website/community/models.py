@@ -74,6 +74,7 @@ class CommunityPage(Page):
         "contact.Person",
         "contact.Meeting",
         "contact.Organization",
+        "contact.OrganizationIndexPage",
         "community.CommunityResourceIndexPage",
     ]
 
