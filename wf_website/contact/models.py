@@ -6,10 +6,17 @@ from django_extensions.db.fields import AutoSlugField
 
 
 from modelcluster.models import ClusterableModel
-from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.admin.edit_handlers import (
+    FieldPanel,
+    StreamFieldPanel,
+)
+from wagtail.core import blocks
 from wagtail.core.models import Page
-from wagtail.core.fields import RichTextField
+from wagtail.core.fields import RichTextField, StreamField
 from wagtail.search import index
+
+
+from streams.blocks import OrganizationsBlock
 
 MEETING_TYPE_CHOICES = (
     ("monthly_meeting", "Monthly Meeting"),
@@ -110,6 +117,24 @@ class Organization(Page):
     class Meta:
         db_table = "organization"
         ordering = ["title"]
+
+
+class OrganizationIndexPage(Page):
+
+    body = StreamField([
+        ("heading", blocks.CharBlock(classname="full title")),
+        ("paragraph", blocks.RichTextBlock()),
+        ("organizations", OrganizationsBlock())
+    ], null=True)
+
+    max_count = 1
+
+    parent_page_types = ["community.CommunityPage"]
+    subpage_types = ["contact.Organization"]
+
+    content_panels = Page.content_panels + [
+        StreamFieldPanel("body"),
+    ]
 
 
 class Contact(Page):
