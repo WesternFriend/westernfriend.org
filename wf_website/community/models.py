@@ -35,8 +35,12 @@ class CommunityPage(Page):
         ("paragraph", blocks.RichTextBlock()),
         ("image", ImageChooserBlock()),
         ("card", wf_blocks.CardBlock()),
-        ("card_row", blocks.ListBlock(wf_blocks.PageCardBlock(
-            label="Page"), template="streams/blocks/card_row.html")),
+        (
+            "card_row", blocks.ListBlock(
+                wf_blocks.PageCardBlock(label="Page"), 
+                template="streams/blocks/card_row.html"
+            )
+        ),
     ], null=True)
 
     community_resources_index_page = models.ForeignKey(
@@ -75,6 +79,7 @@ class CommunityPage(Page):
         "contact.Meeting",
         "contact.Organization",
         "contact.OrganizationIndexPage",
+        "community.OnlineWorshipIndexPage",
         "community.CommunityResourceIndexPage",
     ]
 
@@ -128,3 +133,38 @@ class CommunityResource(Page):
     search_fields = [
         index.SearchField("description", partial_match=True),
     ]
+
+
+class OnlineWorship(Page):
+    description = RichTextField(blank=True)
+
+    times_of_worship = RichTextField(blank=True)
+
+    website = models.URLField(null=True, blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel("description"),
+        FieldPanel("description"),
+        FieldPanel("website"),
+    ]
+
+    parent_page_types = [
+        "community.OnlineWorshipIndexPage",
+    ]
+    subpage_types = []
+
+    search_fields = [
+        index.SearchField("description", partial_match=True),
+    ]
+
+
+class OnlineWorshipIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("intro")]
+
+    subpage_types = ["community.OnlineWorship"]
+    
+    max_count = 1
+
+    template = "community/online_worship_index_page.html"
