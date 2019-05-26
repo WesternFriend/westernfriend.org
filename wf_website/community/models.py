@@ -79,6 +79,7 @@ class CommunityPage(Page):
         "contact.Meeting",
         "contact.Organization",
         "contact.OrganizationIndexPage",
+        "community.CommunityDirectoryIndexPage",
         "community.OnlineWorshipIndexPage",
         "community.CommunityResourceIndexPage",
     ]
@@ -168,3 +169,35 @@ class OnlineWorshipIndexPage(Page):
     max_count = 1
 
     template = "community/online_worship_index_page.html"
+
+
+class CommunityDirectory(Page):
+    description = RichTextField(blank=True)
+
+    website = models.URLField(null=True, blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel("description"),
+        FieldPanel("website"),
+    ]
+
+    parent_page_types = [
+        "community.CommunityDirectoryIndexPage",
+    ]
+    subpage_types = []
+
+    search_fields = [
+        index.SearchField("description", partial_match=True),
+    ]
+
+
+class CommunityDirectoryIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("intro")]
+
+    subpage_types = ["community.CommunityDirectory"]
+    
+    max_count = 1
+
+    template = "community/community_directory_index_page.html"
