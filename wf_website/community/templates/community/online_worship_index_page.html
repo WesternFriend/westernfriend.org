@@ -10,4 +10,46 @@
     </h1>
 
     {{ page.intro | richtext }}
+
+    <div class="list-group">
+        {% for online_worship in self.get_children %}
+            {% if online_worship.specific.website %}
+                <a href="{{ online_worship.specific.website }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h3 class="mb-1">{{ online_worship.title }}</h3>
+                    </div>
+
+                    {% if online_worship.specific.description %}
+                        <span>
+                            {{ online_worship.specific.description | richtext }}
+                        </span>
+                    {% endif %}
+
+                    {% if online_worship.specific.times_of_worship %}
+                        <span class="well">
+                            {{ online_worship.specific.times_of_worship | richtext }}
+                        </span>
+                    {% endif %}
+                </a>
+            {% else %}
+                <div class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h3 class="mb-1">{{ online_worship.title }}</h3>
+                    </div>
+
+                    {% if online_worship.specific.description %}
+                        <span>
+                            {{ online_worship.specific.description | richtext }}
+                        </span>
+                    {% endif %}
+
+                    {% if online_worship.specific.times_of_worship %}
+                        <span class="well">
+                            {{ online_worship.specific.times_of_worship | richtext }}
+                        </span>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
 {% endblock %}
