@@ -12,7 +12,7 @@ class CommunityDirectoryModelAdmin(ModelAdmin):
     menu_icon = "group"
     menu_label = "Community Directories"
     list_per_page = 10
-    ordering = ["title",]
+    ordering = ["title", ]
     list_display = ("title",)
     empty_value_display = "-"
     search_fields = ("title",)
@@ -23,7 +23,7 @@ class OnlineWorshipModelAdmin(ModelAdmin):
     menu_icon = "home"
     menu_label = "Online Worship"
     list_per_page = 10
-    ordering = ["title",]
+    ordering = ["title", ]
     list_display = ("title",)
     empty_value_display = "-"
     search_fields = ("title",)
