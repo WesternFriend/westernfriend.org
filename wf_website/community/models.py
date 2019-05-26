@@ -81,59 +81,15 @@ class CommunityPage(Page):
         "contact.OrganizationIndexPage",
         "community.CommunityDirectoryIndexPage",
         "community.OnlineWorshipIndexPage",
-        "community.CommunityResourceIndexPage",
     ]
 
 
 class CommunityResourceIndexPage(RoutablePageMixin, Page):
-    parent_page_types = ["community.CommunityPage"]
-
-    max_count = 1
-
-    @route(r'^([\w-]+)/$')
-    def events_for_year(self, request, resource_type=None):
-        """
-        View function for the community resources page
-
-        Takes a "resource_type" argument for queryset
-        """
-
-        # format to snake case, for query
-        resource_type = resource_type.replace("-", "_")
-
-        try:
-            resources = CommunityResource.objects.filter(
-                resource_type=resource_type)
-        except:
-            raise Http404("Could not find resources")
-
-        return render(
-            request,
-            "community/community_resource_index_page.html",
-            {"resources": resources}
-        )
+    pass
 
 
 class CommunityResource(Page):
-    description = RichTextField(blank=True)
-
-    website = models.URLField(null=True, blank=True)
-
-    resource_type = models.CharField(
-        max_length=255, choices=RESOURCE_TYPE_CHOICES)
-
-    content_panels = Page.content_panels + [
-        FieldPanel("description"),
-        FieldPanel("website"),
-        FieldPanel("resource_type"),
-    ]
-
-    parent_page_types = ["community.CommunityResourceIndexPage"]
-    subpage_types = []
-
-    search_fields = [
-        index.SearchField("description", partial_match=True),
-    ]
+    pass
 
 
 class OnlineWorship(Page):
