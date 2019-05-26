@@ -4,7 +4,8 @@ from django.conf import settings
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin,
     ModelAdminGroup,
-    modeladmin_register)
+    modeladmin_register
+)
 
 from wagtail.core import hooks
 
