@@ -23,11 +23,6 @@ from wagtailautocomplete.edit_handlers import AutocompletePanel
 
 from streams import blocks as wf_blocks
 
-RESOURCE_TYPE_CHOICES = [
-    ("online_worship", "Online Worship"),
-    ("community_directory", "Community Directory"),
-]
-
 
 class CommunityPage(Page):
     body = StreamField([
@@ -43,33 +38,8 @@ class CommunityPage(Page):
         ),
     ], null=True)
 
-    community_resources_index_page = models.ForeignKey(
-        'wagtailcore.Page',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='+',
-    )
-
-    quaker_organizations_intro = RichTextField(blank=True)
-
-    online_worship_intro = RichTextField(blank=True)
-
-    community_directories_intro = RichTextField(blank=True)
-
     content_panels = Page.content_panels + [
         StreamFieldPanel("body"),
-        MultiFieldPanel(
-            [
-                PageChooserPanel(
-                    'community_resources_index_page',
-                    'community.CommunityResourceIndexPage'),
-                FieldPanel("quaker_organizations_intro"),
-                FieldPanel("online_worship_intro"),
-                FieldPanel("community_directories_intro"),
-            ],
-            heading="Community resources"
-        )
     ]
 
     max_count = 1
