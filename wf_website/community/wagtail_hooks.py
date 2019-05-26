@@ -1,21 +1,39 @@
-from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
+from wagtail.contrib.modeladmin.options import (
+    ModelAdmin,
+    ModelAdminGroup,
+    modeladmin_register
+)
 
-from community.models import CommunityResource
+from community.models import CommunityDirectory, OnlineWorship
 
 
-class CommunityResourceModelAdmin(ModelAdmin):
-    model = CommunityResource
-    menu_icon = "link"
-    menu_label = "Resources"
-    menu_order = 300
-    add_to_settings_menu = False
-    exclude_from_explorer = False
+class CommunityDirectoryModelAdmin(ModelAdmin):
+    model = CommunityDirectory
+    menu_icon = "group"
+    menu_label = "Community Directories"
     list_per_page = 10
-    ordering = ["title"]
-    list_display = ("title", "resource_type")
+    ordering = ["title",]
+    list_display = ("title",)
     empty_value_display = "-"
-    search_fields = ("title")
-    list_filter = ("resource_type",)
+    search_fields = ("title",)
 
 
-modeladmin_register(CommunityResourceModelAdmin)
+class OnlineWorshipModelAdmin(ModelAdmin):
+    model = OnlineWorship
+    menu_icon = "home"
+    menu_label = "Online Worship"
+    list_per_page = 10
+    ordering = ["title",]
+    list_display = ("title",)
+    empty_value_display = "-"
+    search_fields = ("title",)
+
+
+class CommunityResourcesGroup(ModelAdminGroup):
+    menu_label = "Resources"
+    menu_icon = "site"
+    menu_order = 300
+    items = (CommunityDirectoryModelAdmin, OnlineWorshipModelAdmin)
+
+
+modeladmin_register(CommunityResourcesGroup)
