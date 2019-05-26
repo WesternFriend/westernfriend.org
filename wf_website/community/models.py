@@ -32,7 +32,7 @@ class CommunityPage(Page):
         ("card", wf_blocks.CardBlock()),
         (
             "card_row", blocks.ListBlock(
-                wf_blocks.PageCardBlock(label="Page"), 
+                wf_blocks.PageCardBlock(label="Page"),
                 template="streams/blocks/card_row.html"
             )
         ),
@@ -91,7 +91,7 @@ class OnlineWorshipIndexPage(Page):
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
     subpage_types = ["community.OnlineWorship"]
-    
+
     max_count = 1
 
     template = "community/online_worship_index_page.html"
@@ -123,7 +123,7 @@ class CommunityDirectoryIndexPage(Page):
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
     subpage_types = ["community.CommunityDirectory"]
-    
+
     max_count = 1
 
     template = "community/community_directory_index_page.html"
