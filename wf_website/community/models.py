@@ -144,7 +144,7 @@ class OnlineWorship(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
-        FieldPanel("description"),
+        FieldPanel("times_of_worship"),
         FieldPanel("website"),
     ]
 
