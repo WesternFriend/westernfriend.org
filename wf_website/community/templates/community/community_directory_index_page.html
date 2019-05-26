@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-community-resources{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ page.title }}
+    </h1>
+
+    {{ page.intro | richtext }}
+
+    <div class="list-group">
+        {% for community_directory in self.get_children %}
+            {% if community_directory.specific.website %}
+                <a href="{{ community_directory.specific.website }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h3 class="mb-1">{{ community_directory.title }}</h3>
+                    </div>
+
+                    {% if community_directory.specific.description %}
+                        <span>
+                            {{ community_directory.specific.description | richtext }}
+                        </span>
+                    {% endif %}
+                </a>
+            {% else %}
+                <div class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h3 class="mb-1">{{ community_directory.title }}</h3>
+                    </div>
+
+                    {% if community_directory.specific.description %}
+                        <span>
+                            {{ community_directory.specific.description | richtext }}
+                        </span>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
