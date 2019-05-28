@@ -1,8 +1,0 @@
-__pycache__/
-*~
-*.sqlite3
-*.db
-*.pyc
-/static
-env
-staticfiles
