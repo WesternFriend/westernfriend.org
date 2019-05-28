@@ -61,6 +61,15 @@ class Person(Page):
     subpage_types = []
 
 
+class PersonIndexPage(Page):
+    max_count = 1
+
+    parent_page_types = ["community.CommunityPage"]
+    subpage_types = ["contact.Person"]
+
+    template = "contact/person_index_page.html"
+
+
 class Meeting(Page):
     meeting_type = models.CharField(
         max_length=255, choices=MEETING_TYPE_CHOICES)
