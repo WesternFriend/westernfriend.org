@@ -113,23 +113,12 @@ class Meeting(Page):
 
 
 class MeetingIndexPage(Page):
-
-    body = StreamField([
-        ("heading", blocks.CharBlock(classname="full title")),
-        ("paragraph", blocks.RichTextBlock()),
-        ("organizations", OrganizationsBlock())
-    ], null=True)
-
     max_count = 1
 
     parent_page_types = ["community.CommunityPage"]
     subpage_types = ["contact.Meeting"]
 
     template = "contact/meeting_index_page.html"
-
-    content_panels = Page.content_panels + [
-        StreamFieldPanel("body"),
-    ]
 
 
 class Organization(Page):
