@@ -45,10 +45,9 @@ class CommunityPage(Page):
     max_count = 1
 
     subpage_types = [
-        "contact.Person",
-        "contact.Meeting",
-        "contact.Organization",
+        "contact.MeetingIndexPage",
         "contact.OrganizationIndexPage",
+        "contact.PersonIndexPage",
         "community.CommunityDirectoryIndexPage",
         "community.OnlineWorshipIndexPage",
     ]
