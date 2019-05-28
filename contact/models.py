@@ -57,7 +57,7 @@ class Person(Page):
         index.SearchField("family_name", partial_match=True),
     ]
 
-    parent_page_types = ["community.CommunityPage"]
+    parent_page_types = ["contact.PersonIndexPage"]
     subpage_types = []
 
 
@@ -85,7 +85,6 @@ class Meeting(Page):
     ]
 
     parent_page_types = [
-        "community.CommunityPage",
         "contact.MeetingIndexPage",
         "Meeting"
     ]
@@ -131,7 +130,7 @@ class Organization(Page):
         FieldPanel("website"),
     ]
 
-    parent_page_types = ["community.CommunityPage"]
+    parent_page_types = ["contact.OrganizationIndexPage"]
     subpage_types = []
 
     template = "contact/contact.html"
