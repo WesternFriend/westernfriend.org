@@ -53,14 +53,6 @@ class CommunityPage(Page):
     ]
 
 
-class CommunityResourceIndexPage(RoutablePageMixin, Page):
-    pass
-
-
-class CommunityResource(Page):
-    pass
-
-
 class OnlineWorship(Page):
     description = RichTextField(blank=True)
 
