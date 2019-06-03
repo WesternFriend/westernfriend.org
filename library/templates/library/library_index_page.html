@@ -17,8 +17,8 @@
                     </a>
                 </h3>
                 Authored by:
-                {% for author in media_item.specific.authored_by.all %}
-                    <a href="{% url 'contact-detail' author.slug %}">{{ author }}</a>{% if not forloop.last %},{% endif %}
+                {% for author in media_item.specific.authors.all %}
+                    <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
                 {% endfor %}
             </div>
         </div>
