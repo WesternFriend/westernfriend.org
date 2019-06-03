@@ -156,9 +156,3 @@ class OrganizationIndexPage(Page):
     content_panels = Page.content_panels + [
         StreamFieldPanel("body"),
     ]
-
-
-class Contact(Page):
-    # TODO: determine how to delete this model
-    class Meta:
-        db_table = "contact"
