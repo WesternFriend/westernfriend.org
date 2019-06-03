@@ -1,19 +1,24 @@
 from django.db import models
 
-from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
-from wagtail.core.models import Page
+from wagtail.admin.edit_handlers import (
+    FieldPanel,
+    InlinePanel,
+    PageChooserPanel,
+    StreamFieldPanel,
+)
+from wagtail.core.models import Orderable, Page
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
-from wagtailautocomplete.edit_handlers import AutocompletePanel
 
-from modelcluster.fields import ParentalManyToManyField
+from modelcluster.fields import (
+    ParentalKey,
+)
 
 
 class LibraryItem(Page):
-    authored_by = ParentalManyToManyField("contact.Contact", related_name="media_items")
     publication_date = models.DateField("Publication date")
     body = StreamField(
         [
@@ -27,13 +32,41 @@ class LibraryItem(Page):
     )
 
     content_panels = Page.content_panels + [
-        AutocompletePanel("authored_by", page_type="contact.Contact", is_single=False),
+        InlinePanel(
+            "authors",
+            heading="Authors",
+            help_text="Select one or more authors, who contributed to this article",
+        ),
         FieldPanel("publication_date"),
         StreamFieldPanel("body"),
     ]
 
     parent_page_types = ["LibraryIndexPage"]
     subpage_types = []
+
+
+class LibraryItemAuthor(Orderable):
+    library_item = ParentalKey(
+        "library.LibraryItem",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="authors",
+    )
+    author = models.ForeignKey(
+        "wagtailcore.Page", null=True, on_delete=models.CASCADE, related_name="library_items_authored"
+    )
+
+    panels = [
+        PageChooserPanel(
+            "author",
+            [
+                "contact.Person",
+                "contact.Meeting",
+                "contact.Organization",
+            ]
+        )
+    ]
+
 
 
 class LibraryIndexPage(Page):
