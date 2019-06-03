@@ -1,5 +1,3 @@
-from enum import Enum
-
 from django.db import models
 from django.utils.text import slugify
 from django_extensions.db.fields import AutoSlugField
