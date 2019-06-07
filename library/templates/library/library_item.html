@@ -17,49 +17,41 @@
     {% include_block page.body %}
 
     <dl>
-        {% if page.specific.audience %}
-            <dt>
-                Audience:
-            </dt>
-            <dd>
-                {{ page.specific.get_audience_display }}
-            </dd>
-        {% endif %}
 
-        {% if page.specific.genre %}
-            <dt>
-                Genre:
-            </dt>
-            <dd>
-                {{ page.specific.get_genre_display }}
-            </dd>
-        {% endif %}
+        <dt>
+            Audience:
+        </dt>
+        <dd>
+            {{ page.specific.item_audience }}
+        </dd>
 
-        {% if page.specific.medium %}
-            <dt>
-                Medium:
-            </dt>
-            <dd>
-                {{ page.specific.get_medium_display }}
-            </dd>
-        {% endif %}
 
-        {% if page.specific.time_period %}
-            <dt>
-                Time period:
-            </dt>
-            <dd>
-                {{ page.specific.get_time_period_display }}
-            </dd>
-        {% endif %}
 
-        {% if page.specific.topic %}
-            <dt>
-                Topic:
-            </dt>
-            <dd>
-                {{ page.specific.get_topic_display }}
-            </dd>
-        {% endif %}
-        </dl>
+        <dt>
+            Genre:
+        </dt>
+        <dd>
+            {{ page.specific.item_genre }}
+        </dd>
+
+
+        <dt>
+            Medium:
+        </dt>
+        <dd>
+            {{ page.specific.item_medium }}
+        </dd>
+
+
+        <dt>
+            Time period:
+        </dt>
+        <dd>
+            {{ page.specific.item_time_period }}
+        </dd>
+
+        {% for topic in page.specific.topics.all %}
+            {{ topic.topic }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    </dl>
 {% endblock %}
