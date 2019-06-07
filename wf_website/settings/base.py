@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "community",
     "contact",
     "events",
+    "facets",
     "home",
     "library",
     "search",
