@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    <h2>Library items</h2>
+    
+    {% for item in page.specific.related_library_items.all %}
+        <a href="{% pageurl item.library_item %}">
+            {{ item.library_item }}
+        </a>
+    {% endfor %}
+{% endblock %}
