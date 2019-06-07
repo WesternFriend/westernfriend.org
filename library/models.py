@@ -30,6 +30,26 @@ class LibraryItem(Page):
             ("quote", blocks.BlockQuoteBlock()),
         ]
     )
+    item_audience = models.ForeignKey(
+        "facets.Audience",
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    item_genre = models.ForeignKey(
+        "facets.Genre",
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    item_medium = models.ForeignKey(
+        "facets.Medium",
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    item_time_period = models.ForeignKey(
+        "facets.TimePeriod",
+        on_delete=models.SET_NULL,
+        null=True
+    )
 
     content_panels = Page.content_panels + [
         InlinePanel(
@@ -39,6 +59,19 @@ class LibraryItem(Page):
         ),
         FieldPanel("publication_date"),
         StreamFieldPanel("body"),
+        MultiFieldPanel(	
+            children=[	
+                FieldPanel("item_audience"),	
+                FieldPanel("item_genre"),	
+                FieldPanel("item_medium"),	
+                FieldPanel("item_time_period"),
+                InlinePanel(
+                    "topics",
+                    label="topics"
+                )
+            ],	
+            heading="Categorization",	
+        ),
     ]
 
     parent_page_types = ["LibraryIndexPage"]
@@ -67,6 +100,26 @@ class LibraryItemAuthor(Orderable):
         )
     ]
 
+
+class LibraryItemTopic(Orderable):
+    library_item = ParentalKey(
+        "library.LibraryItem",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="topics",
+    )
+    topic = models.ForeignKey(
+        "facets.Topic",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="related_library_items"
+    )
+
+    panels = [
+        PageChooserPanel(
+            "topic",
+        ),
+    ]
 
 
 class LibraryIndexPage(Page):
