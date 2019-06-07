@@ -17,12 +17,13 @@
     {% include_block page.body %}
 
     <dl>
-
         <dt>
             Audience:
         </dt>
         <dd>
-            {{ page.specific.item_audience }}
+            <a href="{% pageurl page.specific.item_audience %}">
+                {{ page.specific.item_audience }}
+            </a>
         </dd>
 
 
@@ -31,7 +32,9 @@
             Genre:
         </dt>
         <dd>
-            {{ page.specific.item_genre }}
+            <a href="{% pageurl page.specific.item_genre %}">
+                {{ page.specific.item_genre }}
+            </a>
         </dd>
 
 
@@ -39,7 +42,9 @@
             Medium:
         </dt>
         <dd>
-            {{ page.specific.item_medium }}
+            <a href="{% pageurl page.specific.item_medium %}">
+                {{ page.specific.item_medium }}
+            </a>
         </dd>
 
 
@@ -47,11 +52,22 @@
             Time period:
         </dt>
         <dd>
-            {{ page.specific.item_time_period }}
+            <a href="{% pageurl page.specific.item_time_period %}">
+                {{ page.specific.item_time_period }}
+            </a>
         </dd>
 
+        <dt>
+            Topic
+        </dt>
+        
+        <dd>
         {% for topic in page.specific.topics.all %}
-            {{ topic.topic }}{% if not forloop.last %},{% endif %}
+            
+                <a href="{% pageurl topic.topic %}">
+                    {{ topic.topic }}
+                </a>{% if not forloop.last %},{% endif %}
         {% endfor %}
+        </dd>
     </dl>
 {% endblock %}
