@@ -18,6 +18,7 @@ from modelcluster.fields import (
     ParentalKey,
 )
 
+
 class LibraryItem(Page):
     publication_date = models.DateField("Publication date")
     body = StreamField(
@@ -59,18 +60,18 @@ class LibraryItem(Page):
         ),
         FieldPanel("publication_date"),
         StreamFieldPanel("body"),
-        MultiFieldPanel(	
-            children=[	
-                FieldPanel("item_audience"),	
-                FieldPanel("item_genre"),	
-                FieldPanel("item_medium"),	
+        MultiFieldPanel(
+            children=[
+                FieldPanel("item_audience"),
+                FieldPanel("item_genre"),
+                FieldPanel("item_medium"),
                 FieldPanel("item_time_period"),
                 InlinePanel(
                     "topics",
                     label="topics"
                 )
-            ],	
-            heading="Categorization",	
+            ],
+            heading="Categorization",
         ),
     ]
 
