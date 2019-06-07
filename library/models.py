@@ -30,26 +30,6 @@ class LibraryItem(Page):
             ("quote", blocks.BlockQuoteBlock()),
         ]
     )
-    # audience = models.ForeignKey(
-    #     "facets.Audience",
-    #     on_delete=models.PROTECT,
-    #     null=True,
-    # ) 
-    # genre = models.ForeignKey(
-    #     "facets.Genre",
-    #     on_delete=models.PROTECT,
-    #     null=True,
-    # )
-    # medium = models.ForeignKey(
-    #     "facets.Medium",
-    #     on_delete=models.PROTECT,
-    #     null=True,
-    # )
-    # time_period = models.ForeignKey(
-    #     "facets.TimePeriod",
-    #     on_delete=models.PROTECT,
-    #     null=True,
-    # )
 
     content_panels = Page.content_panels + [
         InlinePanel(
