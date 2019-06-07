@@ -94,16 +94,6 @@ class LibraryItem(Page):
             ("quote", blocks.BlockQuoteBlock()),
         ]
     )
-    audience = models.CharField(
-        max_length=255, choices=AUDIENCE_CHOICES, null=True)
-    genre = models.CharField(
-        max_length=255, choices=GENRE_CHOICES, null=True)
-    medium = models.CharField(
-        max_length=255, choices=MEDIUM_CHOICES, null=True)
-    time_period = models.CharField(
-        max_length=255, choices=TIME_PERIOD_CHOICES, null=True)
-    topic = models.CharField(
-        max_length=255, choices=TOPIC_CHOICES, null=True)
 
     content_panels = Page.content_panels + [
         InlinePanel(
@@ -113,16 +103,6 @@ class LibraryItem(Page):
         ),
         FieldPanel("publication_date"),
         StreamFieldPanel("body"),
-        MultiFieldPanel(
-            children=[
-                FieldPanel("audience"),
-                FieldPanel("genre"),
-                FieldPanel("medium"),
-                FieldPanel("time_period"),
-                FieldPanel("topic"),
-            ],
-            heading="Categorization",
-        )
     ]
 
     parent_page_types = ["LibraryIndexPage"]
