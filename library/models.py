@@ -87,9 +87,9 @@ class LibraryItemAuthor(Orderable):
         related_name="authors",
     )
     author = models.ForeignKey(
-        "wagtailcore.Page", 
-        null=True, 
-        on_delete=models.CASCADE, 
+        "wagtailcore.Page",
+        null=True,
+        on_delete=models.CASCADE,
         related_name="library_items_authored"
     )
 
