@@ -14,6 +14,15 @@
         {% endfor %}
     {% endif %}
 
+    {% if page.specific.library_items_authored.count %}
+        <h2>Library items</h2>
+        {% for item in page.specific.library_items_authored.all %}
+            <a href="{% pageurl item.library_item %}">
+                {{ item.library_item }}
+            </a>
+        {% endfor %}
+    {% endif %}
+
     {% if quarterly_meetings %}
         <div class="card mt-1" >
             <div class="card-body">
