@@ -19,6 +19,7 @@ django-taggit==0.23.0
 django-treebeard==4.3
 djangorestframework==3.9.1
 draftjs-exporter==2.1.5
+fontawesome==5.7.2.post1
 gunicorn==19.9.0
 html5lib==1.0.1
 idna==2.8
@@ -42,6 +43,7 @@ Unidecode==1.0.23
 urllib3==1.25.3
 wagtail==2.5.1
 wagtail-autocomplete==0.3.1
+wagtailfontawesome==1.1.4
 webencodings==0.5.1
 whitenoise==4.1.2
 Willow==1.1

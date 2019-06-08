@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
     "crispy_forms",
     "django_extensions",
+    "wagtailfontawesome",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
