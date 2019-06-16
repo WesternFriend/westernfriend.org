@@ -147,10 +147,29 @@ class LibraryIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
+        # Populate faceted search fields
         context["audiences"] = Audience.objects.all()
         context["genres"] = Genre.objects.all()
         context["mediums"] = Medium.objects.all()
         context["time_periods"] = TimePeriod.objects.all()
         context["topics"] = Topic.objects.all()
+
+        query = request.GET.dict()
+
+        # Filter out any facet that isn't a model field
+        allowed_keys = [
+            "item_audience__title",
+            "item_genre__title",
+            "item_medium__title",
+            "item_time_period__title",
+            "item_topic__title",
+        ]
+        facets = {key: query[key] for key in query if key in allowed_keys}
+
+        # Filter library items using facets from GET request
+        library_items = LibraryItem.objects.filter(**facets)
+
+        # Provide filtered library items
+        context["library_items"] = library_items
 
         return context
