@@ -18,6 +18,14 @@ from modelcluster.fields import (
     ParentalKey,
 )
 
+from facets.models import (
+    Audience,
+    Genre,
+    Medium,
+    TimePeriod,
+    Topic,
+)
+
 
 class LibraryItem(Page):
     publication_date = models.DateField("Publication date")
@@ -135,3 +143,14 @@ class LibraryIndexPage(Page):
     subpage_types = ["LibraryItem"]
 
     max_count = 1
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+
+        context["audiences"] = Audience.objects.all()
+        context["genres"] = Genre.objects.all()
+        context["mediums"] = Medium.objects.all()
+        context["time_periods"] = TimePeriod.objects.all()
+        context["topics"] = Topic.objects.all()
+
+        return context

@@ -6,26 +6,109 @@
     </h1>
 
     {{ page.specific.intro|richtext }}
-
-    {% if page.get_children %}
-        {% for media_item in page.get_children %}
-        <div class="card mb-2">
-            <div class="card-body">
-                <h3>
-                    <a href="{% pageurl media_item %}">
-                        {{ media_item }}
-                    </a>
-                </h3>
-                Authored by:
-                {% for author in media_item.specific.authors.all %}
-                    <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                {% endfor %}
+    <div class="row">
+        <div class="col-4">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h2 class="card-title">Facets</h2>
+                </div>
+                <form class="mx-2">
+                    <div class="form-group">
+                        <label for="audience">
+                            Audience
+                        </label>
+                        <select class="form-control" name="audience" id="audience" onchange="this.form.submit()">
+                            <option selected disabled hidden>Select...</option>
+                            {% for audience in audiences %}
+                                <option>{{ audience }}</option>
+                            {% endfor %}
+                        </select>
+                        <hr />
+                        <label for="genre">
+                            Genre
+                        </label>
+                        <select class="form-control" name="genre" id="genre" onchange="this.form.submit()">
+                            <option disabled selected>Select...</option>
+                            {% for genre in genres %}
+                                <option>{{ genre }}</option>
+                            {% endfor %}
+                        </select>
+                        <hr />
+                        <label for="medium">
+                            Medium
+                        </label>
+                        <select class="form-control" name="medium" id="medium" onchange="this.form.submit()">
+                            <option disabled selected>Select...</option>
+                            {% for medium in mediums %}
+                                <option>{{ medium }}</option>
+                            {% endfor %}
+                        </select>
+                        <hr />
+                        <label for="time_period">
+                            Time Period
+                        </label>
+                        <select class="form-control" name="time_period" id="time_period" onchange="this.form.submit()">
+                            <option disabled selected>Select...</option>
+                            {% for time_period in time_periods %}
+                                <option>{{ time_period }}</option>
+                            {% endfor %}
+                        </select>
+                        <hr />
+                        <label for="topic">
+                            Topic
+                        </label>
+                        <select class="form-control" name="topic" id="topic" onchange="this.form.submit()">
+                            <option disabled selected>Select...</option>
+                            {% for topic in topics %}
+                                <option>{{ topic }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
             </div>
         </div>
-        {% endfor %}
+        <div class="col" id="app">
+            {% if page.get_children %}
+                {% for media_item in page.get_children %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h3>
+                            <a href="{% pageurl media_item %}">
+                                {{ media_item }}
+                            </a>
+                        </h3>
+                        Authored by:
+                        {% for author in media_item.specific.authors.all %}
+                            <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
 
-    {% else %}
-        <p>No media items found.</p>
-    {% endif %}
-
+            {% else %}
+                <p>No media items found.</p>
+            {% endif %}
+        </div>
+    </div>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+    var urlParams = new URLSearchParams(window.location.search);
+
+    // get facet url params
+    var facets = {
+        audience: urlParams.get('audience'),
+        genre: urlParams.get('genre'),
+        medium: urlParams.get('medium'),
+        time_period: urlParams.get('time_period'),
+        topic: urlParams.get('topic'),
+    };
+
+    // check whether each facet is contained in URL querystring
+    // if so, update corresponding select element
+    for (var facet in facets) {
+        if (facets[facet]) document.getElementById(facet).value=facets[facet];
+    }
+</script>
+{% endblock %}
