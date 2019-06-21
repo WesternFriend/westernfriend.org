@@ -1,0 +1,23 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="card my-1">
+    <div class="card-body">
+        <h3 class="panel-title">
+            <a href="{% pageurl entity %}">
+                {{ entity.title }}
+            </a>
+        </h3>
+
+        {% if entity.specific.date %}
+            <p class="card-text">
+                {{ entity.specific.date }}
+            </p>
+        {% endif %}
+
+        {% if entity.specific.description %}
+            <p class="card-text">
+                {{ entity.specific.description | truncatewords_html:10 | richtext }}
+            </p>
+        {% endif %}
+    </div>
+</div>
