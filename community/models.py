@@ -103,9 +103,7 @@ class CommunityDirectory(Page):
     ]
     subpage_types = []
 
-    @property
-    def search_template(self):
-        return "search/community_directory.html"
+    search_template = "search/community_directory.html"
 
     search_fields = [
         index.SearchField("description", partial_match=True),
