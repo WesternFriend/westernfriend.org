@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags %}
 
 <div class="card my-1">
     <div class="card-body">
@@ -9,15 +9,11 @@
         </h3>
 
         {% if entity.specific.date %}
-            <p class="card-text">
-                {{ entity.specific.date }}
-            </p>
+            {{ entity.specific.date }}
         {% endif %}
 
         {% if entity.specific.description %}
-            <p class="card-text">
-                {{ entity.specific.description | truncatewords_html:10 | richtext }}
-            </p>
+            {{ entity.specific.description | truncatewords_html:10 | richtext }}
         {% endif %}
     </div>
 </div>
