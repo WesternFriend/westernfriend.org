@@ -12,12 +12,22 @@
                 <div class="card-body">
                     <h2 class="card-title">Facets</h2>
                 </div>
-                <form class="mx-2">
+                <form id="facetForm" class="mx-2">
                     <div class="form-group">
+                        <label for="audience">
+                            Author
+                        </label>
+                        <select class="form-control" name="authors__author__title" id="author">
+                            <option selected disabled hidden>Select...</option>
+                            {% for author in authors %}
+                                <option>{{ author }}</option>
+                            {% endfor %}
+                        </select>
+                        <hr />
                         <label for="audience">
                             Audience
                         </label>
-                        <select class="form-control" name="item_audience__title" id="audience" onchange="this.form.submit()">
+                        <select class="form-control" name="item_audience__title" id="audience">
                             <option selected disabled hidden>Select...</option>
                             {% for audience in audiences %}
                                 <option>{{ audience }}</option>
@@ -27,7 +37,7 @@
                         <label for="genre">
                             Genre
                         </label>
-                        <select class="form-control" name="item_genre__title" id="genre" onchange="this.form.submit()">
+                        <select class="form-control" name="item_genre__title" id="genre">
                             <option disabled selected>Select...</option>
                             {% for genre in genres %}
                                 <option>{{ genre }}</option>
@@ -37,7 +47,7 @@
                         <label for="medium">
                             Medium
                         </label>
-                        <select class="form-control" name="item_medium__title" id="medium" onchange="this.form.submit()">
+                        <select class="form-control" name="item_medium__title" id="medium">
                             <option disabled selected>Select...</option>
                             {% for medium in mediums %}
                                 <option>{{ medium }}</option>
@@ -47,7 +57,7 @@
                         <label for="time_period">
                             Time Period
                         </label>
-                        <select class="form-control" name="item_time_period__title" id="time_period" onchange="this.form.submit()">
+                        <select class="form-control" name="item_time_period__title" id="time_period">
                             <option disabled selected>Select...</option>
                             {% for time_period in time_periods %}
                                 <option>{{ time_period }}</option>
@@ -57,7 +67,7 @@
                         <label for="topic">
                             Topic
                         </label>
-                        <select class="form-control" name="topic" id="topic" onchange="this.form.submit()">
+                        <select class="form-control" name="topic" id="topic">
                             <option disabled selected>Select...</option>
                             {% for topic in topics %}
                                 <option>{{ topic }}</option>
@@ -94,10 +104,17 @@
 
 {% block extra_js %}
 <script>
+    // Submit form when any option is selected
+    document.getElementById("facetForm").addEventListener("change", function () {
+        this.submit();
+    });
+
+    // Keep search facets in-sync with url parameters
     var urlParams = new URLSearchParams(window.location.search);
 
     // get facet url params
     var facets = {
+        author: urlParams.get('authors__author__title'),
         audience: urlParams.get('item_audience__title'),
         genre: urlParams.get('item_genre__title'),
         medium: urlParams.get('item_medium__title'),
