@@ -10,11 +10,28 @@
         data-target="#navbarCollapse"
         aria-controls="navbarCollapse"
         aria-expanded="false"
-        aria-label="Toggle navigation">
+        aria-label="Toggle navigation"
+    >
         <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarCollapse">
+        <form action="{% url 'search' %}" method="get" class="form-inline">
+            <div class="input-group mb-3">
+                <input
+                    name="query"
+                    type="text"
+                    class="form-control"
+                    placeholder="Search"
+                    aria-label="Search"
+                />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        Go
+                    </button>
+                </div>
+            </div>
+        </form>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
                 <a href="/magazine" class="nav-link">Magazine</a>
@@ -27,21 +44,26 @@
             </li>
             <li class="ml-3">
                 {% if user.is_authenticated %}
-                    <span class="navbar-text">
-                        Welcome {{ user.get_username }}
-                    </span>
-                    <a href="{% url 'logout' %}?next={{ request.path }}" class="btn btn-outline-success">
-                        Logout
-                    </a>
+                <a
+                    href="{% url 'logout' %}?next={{ request.path }}"
+                    class="btn btn-outline-success"
+                >
+                    Logout
+                </a>
                 {% else %}
-                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-success">
-                        Login
-                    </a>
-                    <a href="{% url 'django_registration_register' %}" class="btn btn-outline-primary">
-                        Register
-                    </a>
+                <a
+                    href="{% url 'login' %}?next={{ request.path }}"
+                    class="btn btn-outline-success"
+                >
+                    Login
+                </a>
+                <a
+                    href="{% url 'django_registration_register' %}"
+                    class="btn btn-outline-primary"
+                >
+                    Register
+                </a>
                 {% endif %}
-
             </li>
         </ul>
     </div>
