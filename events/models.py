@@ -25,6 +25,10 @@ class Event(Page):
         FieldPanel("website")
     ]
 
+    @property
+    def search_template(self):
+        return "search/event.html"
+
     search_fields = [
         index.SearchField("description", partial_match=True),
     ]
