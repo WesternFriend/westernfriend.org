@@ -71,6 +71,8 @@ class OnlineWorship(Page):
     ]
     subpage_types = []
 
+    search_template = "search/online_worship.html"
+
     search_fields = [
         index.SearchField("description", partial_match=True),
     ]
