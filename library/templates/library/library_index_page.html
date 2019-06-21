@@ -130,15 +130,15 @@
         topic: urlParams.get('item_topic__title'),
     };
 
-    // Render select widget and populate values
+    // Render select widgets and populate values
     for (var facet in facets) {
-        // Render advanced select widget on author select
-        var facetWidget = new SlimSelect({
+        // Render advanced select widget on facet select
+        var facetSelect = new SlimSelect({
             select: '#' + facet
         });
 
-        // populate the widget with value, if one exists
-        if (facets[facet]) facetWidget.set(facets[facet]);
+        // populate the select with value, if one exists
+        if (facets[facet]) facetSelect.set(facets[facet]);
     }
 
     // Submit form when any option is selected
