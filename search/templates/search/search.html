@@ -22,7 +22,9 @@
                 <div class="card my-1">
                     <div class="card-body">
                         <h2 class="card-title">
-                            {{result}} ({{ result.content_type.name }})
+                            <a href="{% pageurl result %}">
+                                {{result}} ({{ result.content_type.name }})
+                            </a>
                         </h2>
                     </div>
                 </div>
