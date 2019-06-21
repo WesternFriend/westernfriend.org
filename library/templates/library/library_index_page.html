@@ -11,11 +11,17 @@
     </h1>
 
     {{ page.specific.intro|richtext }}
+
     <div class="row">
         <div class="col-4">
             <div class="card mb-2">
                 <div class="card-body">
-                    <h2 class="card-title">Facets</h2>
+                    <h2 class="card-title">
+                        Facets
+                        <a href="/library" class="btn btn-sm btn-outline-primary">
+                            clear
+                        </a>
+                    </h2>
                 </div>
                 <form id="facetForm" class="mx-2">
                     <div class="form-group">
