@@ -90,6 +90,12 @@ class Meeting(Page):
 
     template = "contact/contact.html"
 
+    search_template = "search/meeting.html"
+
+    search_fields = [
+        index.SearchField("description", partial_match=True),
+    ]
+
     class Meta:
         db_table = "meeting"
         ordering = ["title"]
