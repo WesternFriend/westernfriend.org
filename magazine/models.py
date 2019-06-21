@@ -177,6 +177,10 @@ class MagazineArticle(Page):
 
     tags = ClusterTaggableManager(through=MagazineArticleTag, blank=True)
 
+    @property
+    def search_template(self):
+        return "search/magazine_article.html"
+
     search_fields = Page.search_fields + [index.SearchField("body")]
 
     content_panels = Page.content_panels + [
