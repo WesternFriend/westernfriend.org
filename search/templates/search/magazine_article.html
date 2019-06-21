@@ -5,10 +5,10 @@
             {{ entity.title }}
         </a>
 
-        {% if entity.authors.count %}
+        {% if entity.specific.authors.count %}
             <ul class="list-inline mb-1">
                 <li class="list-inline-item">Authored by:</li>
-                {% for author in entity.authors.all %}
+                {% for author in entity.specific.authors.all %}
                     <li class="list-inline-item">
                         <a href="{% pageurl author.author %}">{{ author.author.title }}</a>{% if not forloop.last %},{% endif %}
                     </li>
@@ -16,7 +16,7 @@
             </ul>
         {% endif %}
 
-        {{ entity.body | richtext | truncatewords_html:30 }}
+        {{ entity.specific.body | richtext | truncatewords_html:30 }}
 
         Issue:
         <a href="{% pageurl entity.get_parent %}" class="card-link">
