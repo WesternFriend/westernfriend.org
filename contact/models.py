@@ -139,6 +139,12 @@ class Organization(Page):
 
     template = "contact/contact.html"
 
+    search_template = "search/organization.html"
+
+    search_fields = [
+        index.SearchField("description", partial_match=True),
+    ]
+
     class Meta:
         db_table = "organization"
         ordering = ["title"]
