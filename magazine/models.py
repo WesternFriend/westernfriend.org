@@ -86,6 +86,10 @@ class MagazineIssue(Page):
             # I.e. the 'add a month' approach may be flawed altogether.
             return self.publication_date + timedelta(days=+31)
 
+    @property
+    def search_template(self):
+        return "search/magazine_issue.html"
+
     content_panels = Page.content_panels + [
         FieldPanel("publication_date"),
         ImageChooserPanel("cover_image"),
