@@ -11,5 +11,10 @@
         {% if entity.specific.description %}
             {{ entity.specific.description | truncatewords_html:10 | richtext }}
         {% endif %}
+
+        {% if entity.specific.times_of_worship %}
+            <strong>Times of worship:</strong>
+            {{ entity.specific.times_of_worship | richtext }}
+        {% endif %}
     </div>
 </div>
