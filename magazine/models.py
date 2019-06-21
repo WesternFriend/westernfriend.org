@@ -86,9 +86,7 @@ class MagazineIssue(Page):
             # I.e. the 'add a month' approach may be flawed altogether.
             return self.publication_date + timedelta(days=+31)
 
-    @property
-    def search_template(self):
-        return "search/magazine_issue.html"
+    search_template = "search/magazine_issue.html"
 
     content_panels = Page.content_panels + [
         FieldPanel("publication_date"),
@@ -181,9 +179,7 @@ class MagazineArticle(Page):
 
     tags = ClusterTaggableManager(through=MagazineArticleTag, blank=True)
 
-    @property
-    def search_template(self):
-        return "search/magazine_article.html"
+    search_template = "search/magazine_article.html"
 
     search_fields = Page.search_fields + [index.SearchField("body")]
 
