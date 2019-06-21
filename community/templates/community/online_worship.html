@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags %}
+
+{% block body_class %}template-online_worship{% endblock %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    {% if page.specific.description %}
+        {{ page.specific.description | richtext }}
+    {% endif %}
+
+    {% if page.specific.times_of_worship %}
+        <strong>Times of worship:</strong>
+        {{ page.specific.times_of_worship | richtext }}
+    {% endif %}
+
+    {% if page.specific.website %}
+        <a 
+            href="{{ page.specific.website }}"
+            class="btn btn-primary"
+        >
+            More information
+        </a>
+    {% endif %}
+{% endblock %}
