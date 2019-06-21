@@ -14,16 +14,21 @@
     </form>
 
     {% if search_results %}
-        <ul>
-            {% for result in search_results %}
-                <li>
-                    <h4><a href="{% pageurl result %}">{{ result }}</a></h4>
-                    {% if result.search_description %}
-                        {{ result.search_description }}
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
+
+        {% for result in search_results %}
+            {% if result.specific.search_template %}
+                {% include result.specific.search_template with entity=result %}             
+            {% else %}
+                <div class="card my-1">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            {{result}} ({{ result.content_type.name }})
+                        </h2>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+
 
         {% if search_results.has_previous %}
             <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.previous_page_number }}">Previous</a>
