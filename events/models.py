@@ -15,13 +15,13 @@ from wagtail.search import index
 class Event(Page):
     description = RichTextField(blank=True)
 
-    date = models.DateTimeField()
+    start_date = models.DateTimeField()
 
     website = models.URLField(blank=True, null=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
-        FieldPanel("date"),
+        FieldPanel("start_date"),
         FieldPanel("website")
     ]
 
@@ -36,7 +36,7 @@ class Event(Page):
 
     class Meta:
         db_table = "events"
-        ordering = ["date"]
+        ordering = ["start_date"]
 
 
 class EventsIndexPage(Page):
