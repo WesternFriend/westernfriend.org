@@ -16,12 +16,14 @@ class Event(Page):
     description = RichTextField(blank=True)
 
     start_date = models.DateTimeField()
+    end_date = models.DateTimeField(blank=True, null=True)
 
     website = models.URLField(blank=True, null=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
         FieldPanel("start_date"),
+        FieldPanel("end_date"),
         FieldPanel("website")
     ]
 
