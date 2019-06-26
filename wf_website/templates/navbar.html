@@ -16,22 +16,6 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarCollapse">
-        <form action="{% url 'search' %}" method="get" class="form-inline">
-            <div class="input-group mb-3">
-                <input
-                    name="query"
-                    type="text"
-                    class="form-control"
-                    placeholder="Search"
-                    aria-label="Search"
-                />
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="submit">
-                        Go
-                    </button>
-                </div>
-            </div>
-        </form>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
                 <a href="/magazine" class="nav-link">Magazine</a>
@@ -42,6 +26,22 @@
             <li class="nav-item">
                 <a href="/community" class="nav-link">Community</a>
             </li>
+            <form action="{% url 'search' %}" method="get" class="form-inline mr-3">
+                <div class="input-group mb-3">
+                    <input
+                        name="query"
+                        type="text"
+                        class="form-control"
+                        placeholder="Search"
+                        aria-label="Search"
+                    />
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            Go
+                        </button>
+                    </div>
+                </div>
+            </form>
             <li class="ml-3">
                 {% if user.is_authenticated %}
                 <a
