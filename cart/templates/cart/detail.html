@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block title %}
+  Western Friend cart
+{% endblock %}
+
+{% block content %}
+  <h1>Your shopping cart</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Image</th>
+        <th scope="col">Product</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Remove</th>
+        <th scope="col">Unit price</th>
+        <th scope="col">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in cart %}
+        {% with product=item.product %}
+          <tr>
+            <td>
+              <a href="{% pageurl product %}">
+                {% image product.image max-100x100 %}
+              </a>
+            </td>
+            <td>
+              <a href="{% pageurl product %}">
+                {{ product.title }}
+              </a>
+            </td>
+            <td>
+              <form 
+                action="{% url "cart:add" product.id %}" 
+                method="post"
+                class="form-inline"
+                >
+
+                {% csrf_token %}
+
+                {{ item.update_quantity_form.update }}
+
+                <div class="input-group">
+                  <input 
+                    type="number"
+                    name="quantity"
+                    required=""
+                    id="quantity"
+                    aria-label="quantity"
+                    class="form-control"
+                    value="{{ item.quantity }}"
+                    style="max-width: 10em"
+                    >
+                  
+                  <div class="input-group-append">
+                    <input 
+                    type="submit"
+                    value="Update"
+                    aria-label="update quantity"
+                    class="btn btn-outline-primary btn-sm">
+                  </div>
+                </div>
+              </form>
+            </td>
+            <td>
+                <a 
+                  href="{% url "cart:remove" product.id %}"
+                  class="btn btn-outline-danger"
+                  >
+                    <i class="fa fa-trash"></i>
+                </a>
+            </td>
+            <td class="num">
+                ${{ item.price }}
+            </td>
+            <td class="num">
+                ${{ item.total_price }}
+            </td>
+          </tr>
+        {% endwith %}
+      {% endfor %}
+      <tr class="total">
+        <td>Total</td>
+        <td colspan="4"></td>
+        <td class="num">
+            ${{ cart.get_total_price }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="text-right">
+    <a href="#" class="btn btn-primary">Checkout</a>
+  </p>
+{% endblock %}
