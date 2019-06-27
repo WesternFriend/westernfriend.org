@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+    {{ page.intro | richtext }}
+
+    {% if products.count %}
+        <h2>Products</h2>
+
+        {% for product in products.all %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <h3>
+                    <a href="{% pageurl product %}">
+                        {{ product }}
+                    </a>
+                </h3>
+
+                {{ product.specific.description | richtext | truncatewords_html:30 }}
+
+                <p>
+                    Price ${{ product.specific.price }}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No products available</p>
+    {% endif %}
+{% endblock %}
