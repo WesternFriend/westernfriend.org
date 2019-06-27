@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "home",
     "library",
     "search",
+    "store",
     "magazine",
     "streams",
     "wagtail.contrib.forms",
