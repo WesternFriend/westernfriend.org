@@ -28,6 +28,7 @@ class HomePage(Page):
         "magazine.MagazineIndexPage",
         "magazine.MagazineTagIndexPage",
         "magazine.MagazineDepartmentIndexPage",
+        "store.StoreIndexPage",
     ]
 
     max_count = 1
