@@ -4,8 +4,6 @@ from wagtail.contrib.modeladmin.options import (
     modeladmin_register
 )
 
-from wagtail.core import hooks
-
 from facets.models import (
     Audience,
     Genre,
