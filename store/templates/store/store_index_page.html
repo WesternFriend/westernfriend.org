@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
     <h1>{{ page.title }}</h1>
@@ -17,6 +17,8 @@
                         {{ product }}
                     </a>
                 </h3>
+
+                {% image product.image max-150x150 class="float-left mr-2" %}
 
                 {{ product.specific.description | richtext | truncatewords_html:30 }}
 
