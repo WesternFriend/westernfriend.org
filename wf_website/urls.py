@@ -17,6 +17,7 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     url(r"^admin/autocomplete/", include(autocomplete_admin_urls)),
     url(r"^admin/", include(wagtailadmin_urls)),
+    path('cart/', include('cart.urls', namespace='cart')),
     path("magazine/", include(magazine_urls), name="magazine"),
     url(r"^documents/", include(wagtaildocs_urls)),
     url(r"^search/$", search_views.search, name="search"),
