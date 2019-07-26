@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    {{ page.description | richtext }}
+
+    {% image page.image max-320x200 %}
+
+    <p>
+        Price: ${{ page.price }}
+    </p>
+
+    <form 
+        action="{% url "cart:add" page.id %}"
+        method="post"
+        class="form-inline">
+
+        {% csrf_token %}
+        <div class="form-group">
+            <label 
+                for="quantity"
+                id="quantityLabel"
+                >
+                Quantity:
+            </label>
+
+            <input 
+                type="number"
+                name="quantity"
+                required=""
+                value="1"
+                id="quantity"
+                aria-describedby="quantityLabel"
+                class="form-control ml-2">
+            
+            <input
+                type="hidden"
+                name="update"
+                value="False"
+                id="update">
+
+            <input 
+                type="submit"
+                value="Add to cart"
+                class="btn btn-primary ml-2"
+            >
+        </div>
+    </form>
+{% endblock %}
