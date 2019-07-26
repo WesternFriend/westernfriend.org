@@ -1,8 +1,16 @@
 from django.db import models
 from wagtail.core.fields import RichTextField
-from wagtail.core.models import Page
-from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.core.models import Orderable, Page
+from wagtail.admin.edit_handlers import (
+    FieldPanel,
+    InlinePanel,
+    PageChooserPanel
+)
 from wagtail.images.edit_handlers import ImageChooserPanel
+
+from modelcluster.fields import (
+    ParentalKey,
+)
 
 from cart.forms import CartAddProductForm
 
@@ -58,3 +66,39 @@ class Product(Page):
         context["cart_add_product_form"] = CartAddProductForm
 
         return context
+
+
+class Book(Product):
+    content_panels = Product.content_panels + [
+        InlinePanel(
+            "authors",
+            heading="Authors",
+            help_text="Select one or more authors, who contributed to this article",
+        ),
+    ]
+
+
+class BookAuthor(Orderable):
+    book = ParentalKey(
+        "store.Book",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="authors",
+    )
+    author = models.ForeignKey(
+        "wagtailcore.Page",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="books_authored"
+    )
+
+    panels = [
+        PageChooserPanel(
+            "author",
+            [
+                "contact.Person",
+                "contact.Meeting",
+                "contact.Organization",
+            ]
+        )
+    ]
