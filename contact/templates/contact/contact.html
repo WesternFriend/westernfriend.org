@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
     <h1>{{ page.title }}</h1>
@@ -11,6 +11,38 @@
         <h2>Articles</h2>
         {% for article in page.articles_authored.all %}
             {% include "magazine/magazine_article_summary.html" with article=article.article %}
+        {% endfor %}
+    {% endif %}
+
+    {% if page.books_authored.count %}
+        <h2>Books</h2>
+        {% for book_author in page.books_authored.all %}
+            {% with book_author.book as book %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div>
+                        <a href="{% pageurl book %}" class="card-title lead">
+                            {{ book }}
+                        </a>
+                    </div>
+
+                    {% image book.image max-150x150 class="float-left mr-2" %}
+
+                    {% if book.authors.count %}
+                        <ul class="list-inline mb-1">
+                            <li class="list-inline-item">Authored by:</li>
+                            {% for author in book.authors.all %}
+                                <li class="list-inline-item">
+                                    <a href="{% pageurl author.author %}">{{ author.author.title }}</a>{% if not forloop.last %},{% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {{ book.description | richtext | truncatewords_html:30 }}
+                </div>
+            </div>
+        {% endwith %}
         {% endfor %}
     {% endif %}
 
