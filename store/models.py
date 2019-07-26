@@ -39,9 +39,11 @@ class StoreIndexPage(Page):
 class ProductIndexPage(Page):
 
     max_count = 1
-
+    parent_page_types = [
+        "store.StoreIndexPage",
+    ]
     subpage_types = [
-        "store.Product",
+        "store.Book",
     ]
 
 
@@ -76,6 +78,10 @@ class Book(Product):
             help_text="Select one or more authors, who contributed to this article",
         ),
     ]
+    parent_page_types = [
+        "store.ProductIndexPage",
+    ]
+    subpage_types = []
 
 
 class BookAuthor(Orderable):
