@@ -15,7 +15,6 @@ class StoreIndexPage(Page):
     ]
 
     subpage_types = [
-        "store.CategoryIndexPage",
         "store.ProductIndexPage",
     ]
 
@@ -29,24 +28,6 @@ class StoreIndexPage(Page):
         return context
 
 
-class CategoryIndexPage(Page):
-
-    max_count = 1
-
-    subpage_types = [
-        "store.Category",
-    ]
-
-
-class Category(Page):
-
-    subpage_types = []
-
-    class Meta:
-        verbose_name = "category"
-        verbose_name_plural = "categories"
-
-
 class ProductIndexPage(Page):
 
     max_count = 1
@@ -57,11 +38,6 @@ class ProductIndexPage(Page):
 
 
 class Product(Page):
-    product_category = models.ForeignKey(
-        to="store.Category",
-        related_name="products",
-        on_delete=models.PROTECT,
-    )
     image = models.ForeignKey(
         "wagtailimages.Image", on_delete=models.SET_NULL, null=True, related_name="+"
     )
@@ -71,7 +47,6 @@ class Product(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("description", classname="full"),
-        FieldPanel("product_category"),
         FieldPanel("price"),
         FieldPanel("available"),
         ImageChooserPanel("image"),
