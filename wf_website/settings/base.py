@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "facets",
     "home",
     "library",
+    "orders",
     "search",
     "store",
     "magazine",
