@@ -26,7 +26,7 @@ class OrderModelAdmin(ModelAdmin):
     add_to_settings_menu = False
     exclude_from_explorer = False
     list_display = ("email", "full_name", "paid",)
-    search_fields = ("email", "full_name",)
+    search_fields = ("email", "given_name", "family_name")
     list_filter = ("paid",)
 
 
