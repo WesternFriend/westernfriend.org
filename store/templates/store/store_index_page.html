@@ -20,13 +20,11 @@
 
                 {% image product.image max-150x150 class="float-left mr-2" %}
 
-                {{ product.description | richtext | truncatewords_html:30 }}
+                {{ product.specific.description | richtext | truncatewords_html:30 }}
 
                 <p>
-                    Price ${{ product.price }}
+                    Price ${{ product.specific.price }}
                 </p>
-
-                {% include "store/add_to_cart.html" %}
             </div>
         </div>
         {% endfor %}
