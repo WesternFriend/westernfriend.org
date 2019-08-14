@@ -4,7 +4,15 @@ from wagtail.contrib.modeladmin.options import (
     modeladmin_register
 )
 
-from store.models import Product
+from store.models import Category, Product
+
+
+class CategoryModelAdmin(ModelAdmin):
+    model = Category
+    menu_icon = "fa-clone"
+    menu_label = "Categories"
+    list_per_page = 10
+    list_display = ("title",)
 
 
 class ProductModelAdmin(ModelAdmin):
@@ -20,6 +28,7 @@ class StoreGroup(ModelAdminGroup):
     menu_icon = "fa-money"
     menu_order = 300
     items = (
+        CategoryModelAdmin,
         ProductModelAdmin,
     )
 
