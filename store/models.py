@@ -4,8 +4,6 @@ from wagtail.core.models import Page
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.images.edit_handlers import ImageChooserPanel
 
-from cart.forms import CartAddProductForm
-
 
 class StoreIndexPage(Page):
     intro = RichTextField(blank=True)
@@ -76,10 +74,3 @@ class Product(Page):
         FieldPanel("available"),
         ImageChooserPanel("image"),
     ]
-
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
-
-        context["cart_add_product_form"] = CartAddProductForm
-
-        return context
