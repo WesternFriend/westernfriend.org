@@ -21,13 +21,15 @@ class OrderModelAdmin(ModelAdmin):
 
     model = Order
     menu_label = "Orders"
-    menu_icon = "placeholder"
+    menu_icon = "fa-shopping-cart"
     menu_order = 290
     add_to_settings_menu = False
     exclude_from_explorer = False
     list_display = ("email", "full_name", "paid",)
     search_fields = ("email", "given_name", "family_name")
     list_filter = ("paid",)
+    inspect_view_enabled = True
+    inspect_view_fields = ["given_name", "family_name", "items", ]
 
 
 class StoreGroup(ModelAdminGroup):
