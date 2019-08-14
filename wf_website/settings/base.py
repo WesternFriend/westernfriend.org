@@ -18,7 +18,6 @@ import django_heroku
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
-CART_SESSION_ID = 'cart'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -27,7 +26,6 @@ CART_SESSION_ID = 'cart'
 # Application definition
 
 INSTALLED_APPS = [
-    "cart",
     "community",
     "contact",
     "events",
