@@ -32,7 +32,6 @@ class StoreIndexPage(Page):
         context = super().get_context(request)
 
         context["products"] = Product.objects.all()
-        context["cart_add_product_form"] = CartAddProductForm
 
         return context
 
