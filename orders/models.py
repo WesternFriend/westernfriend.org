@@ -12,7 +12,6 @@ from modelcluster.fields import (
 from modelcluster.models import ClusterableModel
 
 
-@register_snippet
 class Order(ClusterableModel):
     given_name = models.CharField(
         max_length=255,
