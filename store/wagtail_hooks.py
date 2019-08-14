@@ -4,13 +4,13 @@ from wagtail.contrib.modeladmin.options import (
     modeladmin_register
 )
 
-from store.models import Book
+from store.models import Product
 
 
 class ProductModelAdmin(ModelAdmin):
-    model = Book
-    menu_icon = "fa-book"
-    menu_label = "Books"
+    model = Product
+    menu_icon = "fa-gift"
+    menu_label = "Products"
     list_per_page = 10
     list_display = ("title",)
 
