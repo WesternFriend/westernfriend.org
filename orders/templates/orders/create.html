@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}
+    Create order
+{% endblock title %}
+{% block content %}
+<h1>
+    Create order
+</h1>
+
+<ul>
+    {% for item in cart %}
+    <li>
+        {{ item.quantity }}x {{ item.product }}
+        <span> ${{ item.total_price }} </span>
+    </li>
+    {% endfor %}
+</ul>
+
+<p>Total: ${{ cart.get_total_price }}</p>
+
+<form action="#" method="post">
+    {{ form.as_p }}
+
+    <p>
+        <input type="submit" value="Create order" class="btn btn-primary" />
+    </p>
+
+    {% csrf_token %}
+</form>
+{% endblock content %}
