@@ -95,6 +95,8 @@
     </tbody>
   </table>
   <p class="text-right">
-    <a href="#" class="btn btn-primary">Checkout</a>
+    <a 
+      href="{% url "orders:order_create" %}" 
+      class="btn btn-primary">Checkout</a>
   </p>
 {% endblock %}
