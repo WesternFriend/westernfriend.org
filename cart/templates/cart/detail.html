@@ -95,9 +95,16 @@
       </tr>
     </tbody>
   </table>
-  <p class="text-right">
-    <a 
-      href="{% url "orders:order_create" %}" 
-      class="btn btn-primary">Checkout</a>
-  </p>
+
+  <div class="text-right">
+    <div class="btn-group" role="group" aria-label="Cart navigation">
+      <a 
+        href="/store"
+        type="button" 
+        class="btn btn-default">Back to bookstore</a>
+      <a 
+        href="{% url "orders:order_create" %}" 
+        class="btn btn-primary">Checkout</a>
+    </div>
+  </div>
 {% endblock %}
