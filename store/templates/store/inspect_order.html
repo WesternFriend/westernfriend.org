@@ -1,0 +1,19 @@
+{% extends "modeladmin/inspect.html" %}
+
+{% block fields_output %}
+    {% for field in fields %}
+        <dt class="{{ field.type|lower }}">{{ field.label }}</dt>
+        
+        {% if field.label == "Items"%}
+            <ul>
+            {% for order_item in instance.items.all %}
+                <li>
+                    {{ order_item }}
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <dd>{{ field.value }}</dd>
+        {% endif %}
+    {% endfor %}
+{% endblock fields_output %}
