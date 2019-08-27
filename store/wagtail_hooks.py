@@ -29,7 +29,8 @@ class OrderModelAdmin(ModelAdmin):
     search_fields = ("email", "given_name", "family_name")
     list_filter = ("paid",)
     inspect_view_enabled = True
-    inspect_view_fields = ["given_name", "family_name", "items", ]
+    inspect_view_fields = ["id", "given_name", "family_name", "items", ]
+    inspect_template_name = "store/inspect_order.html"
 
 
 class StoreGroup(ModelAdminGroup):
