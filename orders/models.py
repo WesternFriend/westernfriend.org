@@ -20,14 +20,24 @@ class Order(ClusterableModel):
     )
     family_name = models.CharField(max_length=255, blank=True, default="")
     email = models.EmailField()
-    postal_address = models.TextField()
+    street_address = models.CharField(max_length=255, blank=True, default="")
+    postal_code = models.CharField(max_length=16)
+    po_box_number = models.CharField(max_length=32, blank=True, default="")
+    address_locality = models.CharField(max_length=32)
+    address_region = models.CharField(max_length=32)
+    address_country = models.CharField(max_length=32)
     paid = models.BooleanField(default=False)
 
     panels = [
         FieldPanel("given_name"),
         FieldPanel("family_name"),
         FieldPanel("email"),
-        FieldPanel("postal_address"),
+        FieldPanel("street_address"),
+        FieldPanel("po_box_number"),
+        FieldPanel("postal_code"),
+        FieldPanel("address_locality"),
+        FieldPanel("address_region"),
+        FieldPanel("address_country"),
         FieldPanel("paid"),
         InlinePanel("items", label="Order items"),
     ]

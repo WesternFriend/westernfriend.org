@@ -9,5 +9,10 @@ class OrderCreateForm(forms.ModelForm):
             "given_name",
             "family_name",
             "email",
-            "postal_address",
+            "street_address",
+            "po_box_number",
+            "postal_code",
+            "address_locality",
+            "address_region",
+            "address_country",
         ]
