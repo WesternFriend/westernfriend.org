@@ -25,12 +25,12 @@
       {% for item in cart %}
         {% with product=item.product %}
           <tr>
-            <td>
+            <td class="align-middle">
               <a href="{% pageurl product %}">
                 {% image product.image max-100x100 %}
               </a>
             </td>
-            <td>
+            <td class="align-middle">
               <a href="{% pageurl product %}">
                 {{ product.title }}
               </a>
@@ -69,7 +69,7 @@
                 </div>
               </form>
             </td>
-            <td>
+            <td class="align-middle">
                 <a 
                   href="{% url "cart:remove" product.id %}"
                   class="btn btn-outline-danger"
@@ -77,16 +77,16 @@
                     <i class="fa fa-trash"></i>
                 </a>
             </td>
-            <td class="num">
+            <td class="num align-middle">
                 ${{ item.price }}
             </td>
-            <td class="num">
+            <td class="num align-middle">
                 ${{ item.total_price }}
             </td>
           </tr>
         {% endwith %}
       {% endfor %}
-      <tr class="total">
+      <tr class="font-weight-bold">
         <td>Total</td>
         <td colspan="4"></td>
         <td class="num">
@@ -100,11 +100,16 @@
     <div class="btn-group" role="group" aria-label="Cart navigation">
       <a 
         href="/store"
-        type="button" 
-        class="btn btn-default">Back to bookstore</a>
+        class="btn btn-outline-secondary">
+          <i class="fa fa-arrow-left"></i>
+          Back to bookstore
+        </a>
       <a 
         href="{% url "orders:order_create" %}" 
-        class="btn btn-primary">Checkout</a>
+        class="btn btn-outline-primary">
+          Checkout
+          <i class="fa fa-arrow-right"></i>
+        </a>
     </div>
   </div>
 {% endblock %}
