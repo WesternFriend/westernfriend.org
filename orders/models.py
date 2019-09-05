@@ -16,16 +16,46 @@ class Order(ClusterableModel):
     given_name = models.CharField(
         max_length=255,
         default="",
-        help_text="Enter the given name for a person.",
+        help_text="Enter the given name for the recipient.",
     )
-    family_name = models.CharField(max_length=255, blank=True, default="")
-    email = models.EmailField()
-    street_address = models.CharField(max_length=255, blank=True, default="")
-    postal_code = models.CharField(max_length=16)
-    po_box_number = models.CharField(max_length=32, blank=True, default="")
-    address_locality = models.CharField(max_length=32)
-    address_region = models.CharField(max_length=32)
-    address_country = models.CharField(max_length=32)
+    family_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Enter the family name for the recipient.",
+    )
+    email = models.EmailField(
+        help_text="Provide an email, so we can communicate any issues regarding this order.",
+    )
+    street_address = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="The street address where this order should be shipped."
+    )
+    postal_code = models.CharField(
+        max_length=16,
+        help_text="Postal code for the shipping address."
+    )
+    po_box_number = models.CharField(
+        max_length=32,
+        blank=True,
+        default="",
+        help_text="P.O. Box, if relevant.",
+    )
+    address_locality = models.CharField(
+        max_length=255,
+        help_text="City for the shipping address.",
+    )
+    address_region = models.CharField(
+        max_length=255,
+        help_text="State for the shipping address."
+    )
+    address_country = models.CharField(
+        max_length=255,
+        default="United States",
+        help_text="Country for shipping.",
+    )
     paid = models.BooleanField(default=False)
 
     panels = [
