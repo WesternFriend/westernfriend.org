@@ -16,3 +16,9 @@ class OrderCreateForm(forms.ModelForm):
             "address_region",
             "address_country",
         ]
+
+        labels = {
+            "address_locality": "City",
+            "address_region": "State",
+            "address_country": "Country",
+        }
