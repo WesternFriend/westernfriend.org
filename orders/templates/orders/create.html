@@ -25,8 +25,23 @@
     {{ form | crispy }}
 
     <p>
-        <input type="submit" value="Create order" class="btn btn-primary" />
+        
     </p>
+
+    <div class="text-right">
+        <div class="btn-group" role="group" aria-label="Cart navigation">
+            <a 
+                href="/cart"
+                class="btn btn-outline-secondary">
+                <i class="fa fa-arrow-left"></i>
+                Back to cart
+            </a>
+            <button type="submit" class="btn btn-outline-primary">
+                Create order
+                <i class="fa fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+    </div>
 
     {% csrf_token %}
 </form>
