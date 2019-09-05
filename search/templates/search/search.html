@@ -9,13 +9,19 @@
     <h1>Search</h1>
 
     <form action="{% url 'search' %}" method="get" class="form-inline">
-        <input 
-            type="text"
-            name="query"{% if search_query %}
-            value="{{ search_query }}"{% endif %}
-            class="form-control form-control-sm mr-1" 
-        >
-        <input type="submit" value="Search" class="btn btn-primary btn-sm">
+        <div class="input-group mb-3">
+            <input 
+                type="text"
+                name="query"{% if search_query %}
+                value="{{ search_query }}"{% endif %}
+                class="form-control form-control-sm mr-1" 
+                aria-label="Search query"
+                aria-describedby="search-button"
+            >
+            <div class="input-group-append">
+                <input type="submit" value="Search" class="btn btn-outline-primary btn-sm" id="search-button">
+            </div>
+        </div>
     </form>
 
     {% if search_results %}
