@@ -24,6 +24,13 @@
         class="form-inline">
 
         {% csrf_token %}
+
+        <input
+                type="hidden"
+                name="update"
+                value="False"
+                id="update">
+
         <div class="form-group">
             <label 
                 for="quantity"
@@ -32,26 +39,25 @@
                 Quantity:
             </label>
 
-            <input 
+            <div class="input-group">
+                <input 
                 type="number"
                 name="quantity"
                 required=""
                 value="1"
+                min="1"
                 id="quantity"
                 aria-describedby="quantityLabel"
                 class="form-control ml-2">
             
-            <input
-                type="hidden"
-                name="update"
-                value="False"
-                id="update">
-
-            <input 
-                type="submit"
-                value="Add to cart"
-                class="btn btn-primary ml-2"
-            >
+                <div class="input-group-append">
+                    <input 
+                        type="submit"
+                        value="Add to cart"
+                        class="btn btn-outline-primary ml-2"
+                    >
+                </div>
+            </div>
         </div>
     </form>
 {% endblock %}
