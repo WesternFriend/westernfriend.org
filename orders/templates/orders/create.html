@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
 {% block title %}
     Create order
 {% endblock title %}
@@ -19,7 +22,7 @@
 <p>Total: ${{ cart.get_total_price }}</p>
 
 <form action="#" method="post">
-    {{ form.as_p }}
+    {{ form | crispy }}
 
     <p>
         <input type="submit" value="Create order" class="btn btn-primary" />
