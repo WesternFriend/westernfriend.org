@@ -4,6 +4,8 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+black = "*"
+pylint = "*"
 
 [packages]
 appdirs = "==1.4.3"
@@ -55,6 +57,10 @@ Django = "==2.2.4"
 Pillow = "==5.4.1"
 Unidecode = "==1.0.23"
 Willow = "==1.1"
+braintree = "*"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
