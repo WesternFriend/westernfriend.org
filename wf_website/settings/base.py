@@ -12,13 +12,28 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
+from braintree import Configuration as BraintreeConfiguration
+from braintree import Environment as BraintreeEnvironment
 import django_heroku
 
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
-CART_SESSION_ID = 'cart'
+CART_SESSION_ID = "cart"
+
+# Braintree settings
+BRAINTREE_MERCHANT_ID = os.getenv("BRAINTREE_MERCHANT_ID")
+BRAINTREE_PUBLIC_KEY = os.getenv("BRAINTREE_PUBLIC_KEY")
+BRAINTREE_PRIVATE_KEY = os.getenv("BRAINTREE_PRIVATE_KEY")
+
+BraintreeConfiguration.configure(
+    BraintreeEnvironment.Sandbox,
+    BRAINTREE_MERCHANT_ID,
+    BRAINTREE_PUBLIC_KEY,
+    BRAINTREE_PRIVATE_KEY,
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -35,6 +50,7 @@ INSTALLED_APPS = [
     "home",
     "library",
     "orders",
+    "payment.apps.PaymentConfig",
     "search",
     "store",
     "magazine",
