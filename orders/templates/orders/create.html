@@ -19,6 +19,10 @@
     {% endfor %}
 </ul>
 
+<p>Subtotal: ${{ cart.get_subtotal_price }}</p>
+
+<p>Shipping: ${{ cart.get_shipping_cost }}</p>
+
 <p>Total: ${{ cart.get_total_price }}</p>
 
 <form action="#" method="post">
