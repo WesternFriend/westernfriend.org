@@ -82,7 +82,7 @@ class OrderItem(Orderable):
     order = ParentalKey(
         Order, related_name="items", on_delete=models.CASCADE, blank=False
     )
-    product = models.CharField(max_length=255)
+    product_title = models.CharField(max_length=255)
     product_id = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
@@ -90,7 +90,7 @@ class OrderItem(Orderable):
     panels = [FieldPanel("product"), FieldPanel("price"), FieldPanel("quantity")]
 
     def __str__(self):
-        return f"{self.quantity}x {self.product} @ { self.price}"
+        return f"{self.quantity}x {self.product_title} @ { self.price}"
 
     def get_cost(self):
         return self.price * self.quantity
