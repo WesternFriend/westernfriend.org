@@ -86,9 +86,20 @@
           </tr>
         {% endwith %}
       {% endfor %}
+      <tr>
+        <td colspan="5" class="text-right font-italic">Subtotal</td>
+        <td class="num">
+            ${{ cart.get_subtotal_price }}
+        </td>
+      </tr>
+      <tr>
+        <td colspan="5" class="text-right font-italic">Shipping</td>
+        <td class="num">
+            ${{ cart.get_shipping_cost }}
+        </td>
+      </tr>
       <tr class="font-weight-bold">
-        <td>Total</td>
-        <td colspan="4"></td>
+        <td colspan="5" class="text-right">Total</td>
         <td class="num">
             ${{ cart.get_total_price }}
         </td>
