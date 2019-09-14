@@ -9,6 +9,8 @@ from wagtail.snippets.models import register_snippet
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 
+from shipping.calculator import get_book_shipping_cost
+
 
 class Order(ClusterableModel):
     given_name = models.CharField(
@@ -68,6 +70,9 @@ class Order(ClusterableModel):
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
 
+    def get_shipping_cost(self):
+        return get_book_shipping_cost(self.items)
+
     @property
     def full_name(self):
         return f"{self.given_name} {self.family_name}"
@@ -78,6 +83,7 @@ class OrderItem(Orderable):
         Order, related_name="items", on_delete=models.CASCADE, blank=False
     )
     product = models.CharField(max_length=255)
+    product_id = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 
