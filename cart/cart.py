@@ -1,10 +1,10 @@
 from decimal import Decimal
 from django.conf import settings
+from shipping.calculator import get_book_shipping_cost
 from store.models import Product
 
 
 class Cart(object):
-
     def __init__(self, request):
         """
         Initialize the cart.
@@ -26,14 +26,11 @@ class Cart(object):
         product_id = str(product.id)
 
         if product_id not in self.cart:
-            self.cart[product_id] = {
-                "quantity": 0,
-                "price": str(product.price)
-            }
+            self.cart[product_id] = {"quantity": 0, "price": str(product.price)}
         if update_quantity:
-            self.cart[product_id]['quantity'] = quantity
+            self.cart[product_id]["quantity"] = quantity
         else:
-            self.cart[product_id]['quantity'] += quantity
+            self.cart[product_id]["quantity"] += quantity
 
         self.save()
 
@@ -54,8 +51,24 @@ class Cart(object):
 
             self.save()
 
+    def get_cart_products(self):
+        product_ids = self.cart.keys()
+
+        # get the product objects and add them to the cart
+        return Product.objects.filter(id__in=product_ids)
+
     def get_total_price(self):
-        return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
+        return sum([self.get_subtotal_price(), self.get_shipping_cost()])
+
+    def get_subtotal_price(self):
+        return sum(
+            Decimal(item["price"]) * item["quantity"] for item in self.cart.values()
+        )
+
+    def get_shipping_cost(self):
+        products = self.get_cart_products()
+
+        return get_book_shipping_cost(products)
 
     def clear(self):
         # remove cart from session
@@ -67,25 +80,23 @@ class Cart(object):
         """
         Get cart products from the database.
         """
-        product_ids = self.cart.keys()
-
         # get the product objects and add them to the cart
-        products = Product.objects.filter(id__in=product_ids)
+        products = self.get_cart_products()
 
         cart = self.cart.copy()
 
         for product in products:
-            cart[str(product.id)]['product'] = product
+            cart[str(product.id)]["product"] = product
 
         for item in cart.values():
-            item['price'] = Decimal(item['price'])
-            item['total_price'] = item['price'] * item['quantity']
+            item["price"] = Decimal(item["price"])
+            item["total_price"] = item["price"] * item["quantity"]
             yield item
 
     def __len__(self):
         """
         Count all items in the cart.
         """
-        item_quantities = [item['quantity'] for item in self.cart.values()]
+        item_quantities = [item["quantity"] for item in self.cart.values()]
 
         return sum(item_quantities)
