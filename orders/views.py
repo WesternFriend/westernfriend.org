@@ -17,6 +17,7 @@ def order_create(request):
                 OrderItem.objects.create(
                     order=order,
                     product=item["product"],
+                    product_id=item["product_id"],
                     price=item["price"],
                     quantity=item["quantity"],
                 )
