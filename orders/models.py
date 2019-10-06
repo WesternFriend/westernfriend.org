@@ -46,6 +46,7 @@ class Order(ClusterableModel):
     address_country = models.CharField(
         max_length=255, default="United States", help_text="Country for shipping."
     )
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
     paid = models.BooleanField(default=False)
 
     braintree_id = models.CharField(max_length=255, blank=True)
@@ -60,6 +61,7 @@ class Order(ClusterableModel):
         FieldPanel("address_locality"),
         FieldPanel("address_region"),
         FieldPanel("address_country"),
+        FieldPanel("shipping_cost"),
         FieldPanel("paid"),
         InlinePanel("items", label="Order items"),
     ]
@@ -69,9 +71,6 @@ class Order(ClusterableModel):
 
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
-
-    def get_shipping_cost(self):
-        return get_book_shipping_cost(self.items)
 
     @property
     def full_name(self):
