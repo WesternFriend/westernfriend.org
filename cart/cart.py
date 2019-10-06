@@ -1,7 +1,7 @@
 from decimal import Decimal
 from django.conf import settings
 from shipping.calculator import get_book_shipping_cost
-from store.models import Product
+from store.models import Product, Book
 
 
 class Cart(object):
@@ -71,9 +71,9 @@ class Cart(object):
         )
 
     def get_shipping_cost(self):
-        products = self.get_cart_products()
+        book_quantity = sum([item["quantity"] for item in self.cart.values()])
 
-        return get_book_shipping_cost(products)
+        return get_book_shipping_cost(book_quantity)
 
     def clear(self):
         # remove cart from session
