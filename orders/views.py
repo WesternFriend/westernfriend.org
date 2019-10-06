@@ -16,7 +16,7 @@ def order_create(request):
             for item in cart:
                 OrderItem.objects.create(
                     order=order,
-                    product=item["product"],
+                    product_title=item["product_title"],
                     product_id=item["product_id"],
                     price=item["price"],
                     quantity=item["quantity"],
