@@ -1,14 +1,24 @@
+from decimal import Decimal
 from django.shortcuts import redirect, render, reverse
 from .models import OrderItem
 from .forms import OrderCreateForm
 from cart.cart import Cart
+from shipping.calculator import get_book_shipping_cost
 
 
 def order_create(request):
     cart = Cart(request)
 
     if request.method == "POST":
-        form = OrderCreateForm(request.POST)
+        # Create copy of cart,
+        # so we can modify shipping cost
+        cart_order = request.POST.copy()
+
+        # Calculate shipping cost, to prevent users from changing value
+        cart_order["shipping_cost"] = cart.get_shipping_cost()
+
+        # Instantiate form with updated cart order (incl. shipping cost)
+        form = OrderCreateForm(cart_order)
 
         if form.is_valid():
             order = form.save()
