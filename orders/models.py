@@ -87,7 +87,7 @@ class OrderItem(Orderable):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 
-    panels = [FieldPanel("product"), FieldPanel("price"), FieldPanel("quantity")]
+    panels = [FieldPanel("product_title"), FieldPanel("price"), FieldPanel("quantity")]
 
     def __str__(self):
         return f"{self.quantity}x {self.product_title} @ { self.price}"
