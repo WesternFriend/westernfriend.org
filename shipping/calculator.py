@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 
-def get_book_shipping_cost(order=None):
+def get_book_shipping_cost(book_quantity=1):
     """
     Calculate shipping costs for books in a cart/order.
 
@@ -12,15 +12,25 @@ def get_book_shipping_cost(order=None):
     so this function should only consider the quantity of books.
     """
 
-    # Get products
+    # Get base shipping cost
+    base_shipping_rate = 3
 
-    # if products not None
-
-    # Check whether each of products is a Book
-    # and count the total number of books
+    base_shipping_cost = book_quantity * base_shipping_rate
 
     # Apply shipping rules based on total number of books
+    if book_quantity >= 16:
+        discount_multiplier = 0
+    elif book_quantity in range(11, 16):
+        discount_multiplier = 0.25
+    elif book_quantity in range(5, 11):
+        discount_multiplier = 0.5
+    elif book_quantity in range(2, 5):
+        discount_multiplier = 0.75
+    else:
+        discount_multiplier = 1
 
     # returning a dummy value for now
     # make sure to include two decimal places
-    return Decimal(10).quantize(Decimal("0.00"))
+    discounted_shipping_cost = base_shipping_cost * discount_multiplier
+
+    return Decimal(discounted_shipping_cost).quantize(Decimal("0.00"))
