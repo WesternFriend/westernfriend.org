@@ -10,23 +10,84 @@
     Create order
 </h1>
 
-<ul>
+<table class="table table-striped table-sm">
+    <thead>
+        <th>Quantity</th>
+        <th>Product</th>
+        <th>Line total</th>
+    </thead>
     {% for item in cart %}
-    <li>
-        {{ item.quantity }}x {{ item.product_title }}
-        <span> ${{ item.total_price }} </span>
-    </li>
+    <tr>
+        <td>
+            {{ item.quantity }}
+        </td>
+        <td>
+            {{ item.product_title }}
+        </td>
+        <td>
+            ${{ item.total_price }} 
+        </td>
+    </tr>
     {% endfor %}
-</ul>
+</table>
 
-<p>Subtotal: ${{ cart.get_subtotal_price }}</p>
-
-<p>Shipping: ${{ cart.get_shipping_cost }}</p>
-
-<p>Total: ${{ cart.get_total_price }}</p>
+<table class="table-sm">
+    <tr>
+        <th scope="row">Subtotal</th>
+        <td>${{ cart.get_subtotal_price }}</td>
+    </tr>
+    <tr>
+        <th scope="row">Shipping</th>
+        <td>${{ cart.get_shipping_cost }}</td>
+    </tr>
+    <tr>
+        <th scope="row">Total</th>
+        <td>${{ cart.get_total_price }}</td>
+    </tr>
+</table>
 
 <form action="#" method="post">
-    {{ form | crispy }}
+    <h2>Purchaser</h2>
+
+    <div class="form-row">
+        <div class="col-md-5 mr-3">
+            {{ form.purchaser_given_name | as_crispy_field }}
+        </div>
+        <div class="col-md-5">
+            {{ form.purchaser_family_name | as_crispy_field }}
+        </div>   
+    </div>
+    <div class="form-row">
+        <div class="col-md-5">
+            {{ form.purchaser_email | as_crispy_field }}
+        </div>
+    </div>
+
+    <h2>Recipient</h2>
+
+    <div class="form-row">
+        <div class="col-md-5 mr-3">
+            {{ form.recipient_given_name | as_crispy_field }}
+        </div>
+        <div class="col-md-5">
+            {{ form.recipient_family_name | as_crispy_field }}
+        </div>   
+    </div>
+
+    {{ form.recipient_street_address | as_crispy_field }}
+    {{ form.recipient_po_box_number | as_crispy_field }}
+
+    <div class="form-row">
+        <div class="form-group col-md-6 mb-0">
+            {{ form.recipient_address_locality | as_crispy_field }}
+        </div>
+        <div class="form-group col-md-4 mb-0">
+            {{ form.recipient_address_region | as_crispy_field }}
+        </div>
+        <div class="form-group col-md-2 mb-0">
+            {{ form.recipient_postal_code | as_crispy_field }}
+        </div>
+    </div>
 
     <div class="text-right">
         <div class="btn-group" role="group" aria-label="Cart navigation">
