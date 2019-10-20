@@ -10,20 +10,22 @@ class OrderCreateForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = [
-            "given_name",
-            "family_name",
-            "email",
-            "street_address",
-            "po_box_number",
-            "postal_code",
-            "address_locality",
-            "address_region",
-            "address_country",
+            "purchaser_given_name",
+            "purchaser_family_name",
+            "purchaser_email",
+            "recipient_given_name",
+            "recipient_family_name",
+            "recipient_street_address",
+            "recipient_po_box_number",
+            "recipient_postal_code",
+            "recipient_address_locality",
+            "recipient_address_region",
+            "recipient_address_country",
             "shipping_cost",
         ]
 
         labels = {
-            "address_locality": "City",
-            "address_region": "State",
-            "address_country": "Country",
+            "recipient_address_locality": "City",
+            "recipient_address_region": "State",
+            "recipient_address_country": "Country",
         }
