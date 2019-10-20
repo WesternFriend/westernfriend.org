@@ -84,8 +84,12 @@ class Order(ClusterableModel):
         return sum(item.get_cost() for item in self.items.all())
 
     @property
-    def full_name(self):
-        return f"{self.given_name} {self.family_name}"
+    def recipient_full_name(self):
+        return f"{self.recipient_given_name} {self.recipient_family_name}"
+    
+    @property
+    def purchaser_full_name(self):
+        return f"{self.purchaser_given_name} {self.purchaser_family_name}"
 
 
 class OrderItem(Orderable):
