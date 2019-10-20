@@ -78,16 +78,17 @@
     {{ form.recipient_po_box_number | as_crispy_field }}
 
     <div class="form-row">
-        <div class="form-group col-md-6 mb-0">
+        <div class="form-group col-md-4 mb-0">
             {{ form.recipient_address_locality | as_crispy_field }}
         </div>
         <div class="form-group col-md-4 mb-0">
             {{ form.recipient_address_region | as_crispy_field }}
         </div>
-        <div class="form-group col-md-2 mb-0">
+        <div class="form-group col-md-4 mb-0">
             {{ form.recipient_postal_code | as_crispy_field }}
         </div>
     </div>
+    {{ form.recipient_address_country | as_crispy_field }}
 
     <div class="text-right">
         <div class="btn-group" role="group" aria-label="Cart navigation">
