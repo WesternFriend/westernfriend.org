@@ -13,37 +13,46 @@ from shipping.calculator import get_book_shipping_cost
 
 
 class Order(ClusterableModel):
-    given_name = models.CharField(
+    purchaser_given_name = models.CharField(
+        max_length=255, default="", help_text="Enter the given name for the purchaser."
+    )
+    purchaser_family_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Enter the family name for the purchaser.",
+    )
+    purchaser_email = models.EmailField(
+        help_text="Provide an email, so we can communicate any issues regarding this order."
+    )
+    recipient_given_name = models.CharField(
         max_length=255, default="", help_text="Enter the given name for the recipient."
     )
-    family_name = models.CharField(
+    recipient_family_name = models.CharField(
         max_length=255,
         blank=True,
         default="",
         help_text="Enter the family name for the recipient.",
     )
-    email = models.EmailField(
-        help_text="Provide an email, so we can communicate any issues regarding this order."
-    )
-    street_address = models.CharField(
+    recipient_street_address = models.CharField(
         max_length=255,
         blank=True,
         default="",
         help_text="The street address where this order should be shipped.",
     )
-    postal_code = models.CharField(
+    recipient_postal_code = models.CharField(
         max_length=16, help_text="Postal code for the shipping address."
     )
-    po_box_number = models.CharField(
+    recipient_po_box_number = models.CharField(
         max_length=32, blank=True, default="", help_text="P.O. Box, if relevant."
     )
-    address_locality = models.CharField(
+    recipient_address_locality = models.CharField(
         max_length=255, help_text="City for the shipping address."
     )
-    address_region = models.CharField(
+    recipient_address_region = models.CharField(
         max_length=255, help_text="State for the shipping address."
     )
-    address_country = models.CharField(
+    recipient_address_country = models.CharField(
         max_length=255, default="United States", help_text="Country for shipping."
     )
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
@@ -52,15 +61,17 @@ class Order(ClusterableModel):
     braintree_id = models.CharField(max_length=255, blank=True)
 
     panels = [
-        FieldPanel("given_name"),
-        FieldPanel("family_name"),
-        FieldPanel("email"),
-        FieldPanel("street_address"),
-        FieldPanel("po_box_number"),
-        FieldPanel("postal_code"),
-        FieldPanel("address_locality"),
-        FieldPanel("address_region"),
-        FieldPanel("address_country"),
+        FieldPanel("purchaser_given_name"),
+        FieldPanel("purchaser_family_name"),
+        FieldPanel("purchaser_email"),
+        FieldPanel("recipient_given_name"),
+        FieldPanel("recipient_family_name"),
+        FieldPanel("recipient_street_address"),
+        FieldPanel("recipient_po_box_number"),
+        FieldPanel("recipient_postal_code"),
+        FieldPanel("recipient_address_locality"),
+        FieldPanel("recipient_address_region"),
+        FieldPanel("recipient_address_country"),
         FieldPanel("shipping_cost"),
         FieldPanel("paid"),
         InlinePanel("items", label="Order items"),
