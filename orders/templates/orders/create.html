@@ -24,22 +24,22 @@
         <td>
             {{ item.product_title }}
         </td>
-        <td>
+        <td class="text-right">
             ${{ item.total_price }} 
         </td>
     </tr>
     {% endfor %}
     <tr>
         <th scope="row" colspan="2" class="text-right">Subtotal</th>
-        <td>${{ cart.get_subtotal_price }}</td>
+        <td class="text-right">${{ cart.get_subtotal_price }}</td>
     </tr>
     <tr>
         <th scope="row" colspan="2" class="text-right">Shipping</th>
-        <td>${{ cart.get_shipping_cost }}</td>
+        <td class="text-right">${{ cart.get_shipping_cost }}</td>
     </tr>
     <tr>
         <th scope="row" colspan="2" class="text-right">Total</th>
-        <td>${{ cart.get_total_price }}</td>
+        <td class="text-right">${{ cart.get_total_price }}</td>
     </tr>
 </table>
 
