@@ -25,11 +25,11 @@ class OrderModelAdmin(ModelAdmin):
     menu_order = 290
     add_to_settings_menu = False
     exclude_from_explorer = False
-    list_display = ("email", "full_name", "paid",)
-    search_fields = ("email", "given_name", "family_name")
+    list_display = ("purchaser_email", "purchaser_full_name", "recipient_full_name","paid",)
+    search_fields = ("purchaser_email", "purchaser_given_name", "purchaser_family_name","recipient_given_name", "recipient_family_name",)
     list_filter = ("paid",)
     inspect_view_enabled = True
-    inspect_view_fields = ["id", "given_name", "family_name", "items", ]
+    inspect_view_fields = ["id", "purchaser_given_name", "purchaser_family_name", "recipient_given_name", "recipient_family_name", "items", ]
     inspect_template_name = "store/inspect_order.html"
 
 
