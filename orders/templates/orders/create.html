@@ -50,45 +50,63 @@
     <h2>Purchaser</h2>
 
     <div class="form-row">
-        <div class="col-md-5 mr-3">
+        <div class="col-md-3">
             {{ form.purchaser_given_name | as_crispy_field }}
         </div>
-        <div class="col-md-5">
+        <div class="col-md-3">
             {{ form.purchaser_family_name | as_crispy_field }}
         </div>   
     </div>
+
     <div class="form-row">
-        <div class="col-md-5">
+        <div class="col-md-6">
+            {{ form.purchaser_meeting_or_organization | as_crispy_field }}
+        </div>
+    </div>
+
+    
+    <div class="form-row">
+        <div class="col-md-6">
             {{ form.purchaser_email | as_crispy_field }}
         </div>
     </div>
 
     <h2>Recipient</h2>
-
     <div class="form-row">
-        <div class="col-md-5 mr-3">
-            {{ form.recipient_given_name | as_crispy_field }}
+        <div class="col-md-6">
+            {{ form.recipient_name | as_crispy_field }}
         </div>
-        <div class="col-md-5">
-            {{ form.recipient_family_name | as_crispy_field }}
-        </div>   
     </div>
 
-    {{ form.recipient_street_address | as_crispy_field }}
-    {{ form.recipient_po_box_number | as_crispy_field }}
+    <div class="form-row">
+        <div class="col-md-6">
+            {{ form.recipient_street_address | as_crispy_field }}
+        </div>
+    </div>
 
     <div class="form-row">
-        <div class="form-group col-md-4 mb-0">
+        <div class="col-md-6">
+            {{ form.recipient_po_box_number | as_crispy_field }}
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-2 mb-0">
             {{ form.recipient_address_locality | as_crispy_field }}
         </div>
-        <div class="form-group col-md-4 mb-0">
+        <div class="form-group col-md-2 mb-0">
             {{ form.recipient_address_region | as_crispy_field }}
         </div>
-        <div class="form-group col-md-4 mb-0">
+        <div class="form-group col-md-2 mb-0">
             {{ form.recipient_postal_code | as_crispy_field }}
         </div>
     </div>
-    {{ form.recipient_address_country | as_crispy_field }}
+
+    <div class="form-row">
+        <div class="col-md-6">
+            {{ form.recipient_address_country | as_crispy_field }}
+        </div>
+    </div>
 
     <div class="text-right">
         <div class="btn-group" role="group" aria-label="Cart navigation">
