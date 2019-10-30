@@ -14,7 +14,7 @@ from shipping.calculator import get_book_shipping_cost
 
 class Order(ClusterableModel):
     purchaser_given_name = models.CharField(
-        max_length=255, default="", help_text="Enter the given name for the purchaser."
+        max_length=255, default="", help_text="Enter the given name for the purchaser.", blank=True,
     )
     purchaser_family_name = models.CharField(
         max_length=255,
@@ -22,17 +22,17 @@ class Order(ClusterableModel):
         default="",
         help_text="Enter the family name for the purchaser.",
     )
-    purchaser_email = models.EmailField(
-        help_text="Provide an email, so we can communicate any issues regarding this order."
-    )
-    recipient_given_name = models.CharField(
-        max_length=255, default="", help_text="Enter the given name for the recipient."
-    )
-    recipient_family_name = models.CharField(
+    purchaser_meeting_or_organization = models.CharField(
         max_length=255,
         blank=True,
         default="",
-        help_text="Enter the family name for the recipient.",
+        help_text="Enter the meeting or organization name, if this purchaser is a meeting or organization.",
+    )
+    purchaser_email = models.EmailField(
+        help_text="Provide an email, so we can communicate any issues regarding this order."
+    )
+    recipient_name = models.CharField(
+        max_length=255, default="", help_text="Enter the recipient name (as it should appear on shipping label)."
     )
     recipient_street_address = models.CharField(
         max_length=255,
@@ -50,7 +50,7 @@ class Order(ClusterableModel):
         max_length=255, help_text="City for the shipping address."
     )
     recipient_address_region = models.CharField(
-        max_length=255, help_text="State for the shipping address."
+        max_length=255, help_text="State for the shipping address.", blank=True, default=""
     )
     recipient_address_country = models.CharField(
         max_length=255, default="United States", help_text="Country for shipping."
@@ -63,9 +63,9 @@ class Order(ClusterableModel):
     panels = [
         FieldPanel("purchaser_given_name"),
         FieldPanel("purchaser_family_name"),
+        FieldPanel("purchaser_meeting_or_organization"),
         FieldPanel("purchaser_email"),
-        FieldPanel("recipient_given_name"),
-        FieldPanel("recipient_family_name"),
+        FieldPanel("recipient_name"),
         FieldPanel("recipient_street_address"),
         FieldPanel("recipient_po_box_number"),
         FieldPanel("recipient_postal_code"),
@@ -82,14 +82,19 @@ class Order(ClusterableModel):
 
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
-
-    @property
-    def recipient_full_name(self):
-        return f"{self.recipient_given_name} {self.recipient_family_name}"
     
     @property
     def purchaser_full_name(self):
-        return f"{self.purchaser_given_name} {self.purchaser_family_name}"
+        full_name = ""
+
+        if self.purchaser_given_name:
+            full_name += self.purchaser_given_name + " "
+        if self.purchaser_family_name:
+            full_name += self.purchaser_family_name + " "
+        if self.purchaser_meeting_or_organization:
+            full_name += self.purchaser_meeting_or_organization
+        # Combine any available name data, removing leading or trailing whitespace
+        return full_name.rstrip()
 
 
 class OrderItem(Orderable):

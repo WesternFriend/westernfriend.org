@@ -12,9 +12,9 @@ class OrderCreateForm(forms.ModelForm):
         fields = [
             "purchaser_given_name",
             "purchaser_family_name",
+            "purchaser_meeting_or_organization",
             "purchaser_email",
-            "recipient_given_name",
-            "recipient_family_name",
+            "recipient_name",
             "recipient_street_address",
             "recipient_po_box_number",
             "recipient_postal_code",

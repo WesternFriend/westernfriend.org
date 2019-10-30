@@ -7,8 +7,6 @@
     {{ page.intro | richtext }}
 
     {% if products.count %}
-        <h2>Products</h2>
-
         {% for product in products.all %}
         <div class="card mb-2">
             <div class="card-body">

@@ -12,25 +12,24 @@ def get_book_shipping_cost(book_quantity=1):
     so this function should only consider the quantity of books.
     """
 
-    # Get base shipping cost
-    base_shipping_rate = 3
-
-    base_shipping_cost = book_quantity * base_shipping_rate
 
     # Apply shipping rules based on total number of books
+    # one book is four dollars
+    # two to four books are three dollars each
+    # five to ten books are two dollars each
+    # eleven to fifteen books are one dollar each
+    # sixteen or more books have free shipping
     if book_quantity >= 16:
-        discount_multiplier = 0
+        shipping_rate = 0
     elif book_quantity in range(11, 16):
-        discount_multiplier = 0.25
+        shipping_rate = 1
     elif book_quantity in range(5, 11):
-        discount_multiplier = 0.5
+        shipping_rate = 2
     elif book_quantity in range(2, 5):
-        discount_multiplier = 0.75
+        shipping_rate = 3
     else:
-        discount_multiplier = 1
+        shipping_rate = 4
 
-    # returning a dummy value for now
-    # make sure to include two decimal places
-    discounted_shipping_cost = base_shipping_cost * discount_multiplier
+    shipping_cost = book_quantity * shipping_rate
 
-    return Decimal(discounted_shipping_cost).quantize(Decimal("0.00"))
+    return Decimal(shipping_cost).quantize(Decimal("0.00"))
