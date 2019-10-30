@@ -63,9 +63,9 @@ class Order(ClusterableModel):
     panels = [
         FieldPanel("purchaser_given_name"),
         FieldPanel("purchaser_family_name"),
+        FieldPanel("purchaser_meeting_or_organization"),
         FieldPanel("purchaser_email"),
-        FieldPanel("recipient_given_name"),
-        FieldPanel("recipient_family_name"),
+        FieldPanel("recipient_name"),
         FieldPanel("recipient_street_address"),
         FieldPanel("recipient_po_box_number"),
         FieldPanel("recipient_postal_code"),
@@ -82,14 +82,19 @@ class Order(ClusterableModel):
 
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
-
-    @property
-    def recipient_full_name(self):
-        return f"{self.recipient_given_name} {self.recipient_family_name}"
     
     @property
     def purchaser_full_name(self):
-        return f"{self.purchaser_given_name} {self.purchaser_family_name}"
+        full_name = ""
+
+        if self.purchaser_given_name:
+            full_name += self.purchaser_given_name + " "
+        if self.purchaser_family_name:
+            full_name += self.purchaser_family_name + " "
+        if self.purchaser_meeting_or_organization:
+            full_name += self.purchaser_meeting_or_organization
+        # Combine any available name data, removing leading or trailing whitespace
+        return full_name.rstrip()
 
 
 class OrderItem(Orderable):
