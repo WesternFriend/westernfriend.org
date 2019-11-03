@@ -35,12 +35,17 @@ SUBSCRIPTION_TYPES_AND_PRICES = [
     },
 ]
 
+def get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES):
+    matching_subscription_option = next(filter(lambda option: option["slug"] == slug, SUBSCRIPTION_TYPES_AND_PRICES))
+
+    return matching_subscription_option["price"]
+
 def create_subscription_type_choices(SUBSCRIPTION_TYPES_AND_PRICES):
     subscription_type_choices = []
 
     for subscription in SUBSCRIPTION_TYPES_AND_PRICES:
-        choice_label = f"{subscription['name']} - ${subscription['price']}" 
-        
+        choice_label = f"{subscription['name']} - ${subscription['price']}"
+
         choice = (
             subscription['slug'],
             choice_label,
@@ -50,7 +55,9 @@ def create_subscription_type_choices(SUBSCRIPTION_TYPES_AND_PRICES):
 
     return subscription_type_choices
 
-subscription_type_choices = create_subscription_type_choices(SUBSCRIPTION_TYPES_AND_PRICES)
+
+subscription_type_choices = create_subscription_type_choices(
+    SUBSCRIPTION_TYPES_AND_PRICES)
 
 SUBSCRIPTION_DURATIONS_AND_DISCOUNTS = [
     {
@@ -70,6 +77,7 @@ SUBSCRIPTION_DURATIONS_AND_DISCOUNTS = [
     },
 ]
 
+
 def create_duration_choices(SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
     duration_choices = []
 
@@ -87,7 +95,17 @@ def create_duration_choices(SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
 
     return duration_choices
 
-duration_choices = create_duration_choices(SUBSCRIPTION_DURATIONS_AND_DISCOUNTS)
+
+duration_choices = create_duration_choices(
+    SUBSCRIPTION_DURATIONS_AND_DISCOUNTS)
+
+
+def get_subscription_option(duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
+    matching_option = filter(
+        lambda option: option["duration"] == duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS)
+
+    return next(matching_option)
+
 
 class Subscription(models.Model):
     subscription_type = models.CharField(
@@ -132,7 +150,7 @@ class Subscription(models.Model):
     subscriber_address_country = models.CharField(
         max_length=255, default="United States", help_text="Country for shipping."
     )
-
+    
     paid = models.BooleanField(default=False)
 
     braintree_id = models.CharField(max_length=255, blank=True)
@@ -154,7 +172,7 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"subscription {self.id}"
-    
+
     @property
     def subscriber_full_name(self):
         full_name = ""
@@ -165,3 +183,15 @@ class Subscription(models.Model):
             full_name += self.subscriber_family_name + " "
 
         return full_name.rstrip()
+
+    @property
+    def price(self):
+        slug = self.subscription_type
+        price = get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES)
+
+        duration = self.duration
+        subscription_option = get_subscription_option(
+            duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS)
+        discount = subscription_option["discount"]
+
+        return (price * duration) - discount
