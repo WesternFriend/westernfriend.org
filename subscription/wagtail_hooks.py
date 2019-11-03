@@ -10,7 +10,7 @@ class SubscriptionModelAdmin(ModelAdmin):
 
     model = Subscription
     menu_label = "Subscriptions"
-    menu_icon = "fa-newspaper"
+    menu_icon = "fa-newspaper-o"
     menu_order = 290
     add_to_settings_menu = False
     exclude_from_explorer = False
