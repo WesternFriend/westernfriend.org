@@ -132,7 +132,7 @@ class Subscription(models.Model):
     subscriber_address_country = models.CharField(
         max_length=255, default="United States", help_text="Country for shipping."
     )
-    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
+
     paid = models.BooleanField(default=False)
 
     braintree_id = models.CharField(max_length=255, blank=True)
