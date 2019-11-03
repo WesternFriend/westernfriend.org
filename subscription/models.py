@@ -49,14 +49,55 @@ def create_subscription_type_choices(SUBSCRIPTION_TYPES_AND_PRICES):
         subscription_type_choices.append(choice)
 
     return subscription_type_choices
-    
+
 subscription_type_choices = create_subscription_type_choices(SUBSCRIPTION_TYPES_AND_PRICES)
+
+SUBSCRIPTION_DURATIONS_AND_DISCOUNTS = [
+    {
+        "duration": 1,
+        "label": "One year",
+        "discount": 0,
+    },
+    {
+        "duration": 2,
+        "label": "Two years",
+        "discount": 10,
+    },
+    {
+        "duration": 3,
+        "label": "Three years",
+        "discount": 25,
+    },
+]
+
+def create_duration_choices(SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
+    duration_choices = []
+
+    for option in SUBSCRIPTION_DURATIONS_AND_DISCOUNTS:
+        choice_key = option["duration"]
+
+        if option["discount"] > 0:
+            choice_label = f"{option['label']} (${option['discount']} discount)"
+        else:
+            choice_label = option["label"]
+
+        choice = (choice_key, choice_label)
+
+        duration_choices.append(choice)
+
+    return duration_choices
+
+duration_choices = create_duration_choices(SUBSCRIPTION_DURATIONS_AND_DISCOUNTS)
 
 class Subscription(models.Model):
     subscription_type = models.CharField(
         max_length=255,
         help_text="Choose the subscription type you would like to receive.",
         choices=subscription_type_choices,
+    )
+    duration = models.IntegerField(
+        help_text="Number of years this subscription is active.",
+        choices=duration_choices,
     )
     subscriber_given_name = models.CharField(
         max_length=255, default="", help_text="Enter the given name for the subscriber.", blank=True,
@@ -98,6 +139,7 @@ class Subscription(models.Model):
 
     panels = [
         FieldPanel("subscription_type"),
+        FieldPanel("duration"),
         FieldPanel("subscriber_given_name"),
         FieldPanel("subscriber_family_name"),
         FieldPanel("subscriber_email"),
