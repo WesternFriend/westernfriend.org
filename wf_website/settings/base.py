@@ -42,6 +42,7 @@ BraintreeConfiguration.configure(
 # Application definition
 
 INSTALLED_APPS = [
+    "address",
     "cart",
     "community",
     "contact",
