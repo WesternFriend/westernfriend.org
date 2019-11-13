@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
     "crispy_forms",
     "django_extensions",
+    "instance_selector",
     "wagtailfontawesome",
 ]
 
