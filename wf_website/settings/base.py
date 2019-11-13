@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "payment.apps.PaymentConfig",
     "search",
     "store",
+    "subscription",
     "magazine",
     "streams",
     "wagtail.contrib.forms",
