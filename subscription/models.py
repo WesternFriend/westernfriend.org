@@ -1,5 +1,7 @@
 from django.db import models
 
+from address.models import Address
+
 from wagtail.admin.edit_handlers import FieldPanel
 
 SUBSCRIPTION_TYPES_AND_PRICES = [
@@ -129,26 +131,10 @@ class Subscription(models.Model):
     subscriber_email = models.EmailField(
         help_text="Provide an email, so we can communicate any issues regarding this subscription."
     )
-    subscriber_street_address = models.CharField(
-        max_length=255,
-        blank=True,
-        default="",
-        help_text="The street address where this subscription should be shipped.",
-    )
-    subscriber_postal_code = models.CharField(
-        max_length=16, help_text="Postal code for the shipping address."
-    )
-    subscriber_po_box_number = models.CharField(
-        max_length=32, blank=True, default="", help_text="P.O. Box, if relevant."
-    )
-    subscriber_address_locality = models.CharField(
-        max_length=255, help_text="City for the shipping address."
-    )
-    subscriber_address_region = models.CharField(
-        max_length=255, help_text="State for the shipping address.", blank=True, default=""
-    )
-    subscriber_address_country = models.CharField(
-        max_length=255, default="United States", help_text="Country for shipping."
+    subscriber_address = models.ForeignKey(
+        Address,
+        on_delete=models.SET_NULL,
+        null=True
     )
     
     paid = models.BooleanField(default=False)
