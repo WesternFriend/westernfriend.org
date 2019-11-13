@@ -1,8 +1,8 @@
 from django.db import models
+from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
+from instance_selector.edit_handlers import InstanceSelectorPanel
 
 from address.models import Address
-
-from wagtail.admin.edit_handlers import FieldPanel
 
 SUBSCRIPTION_TYPES_AND_PRICES = [
     {
@@ -131,10 +131,11 @@ class Subscription(models.Model):
     subscriber_email = models.EmailField(
         help_text="Provide an email, so we can communicate any issues regarding this subscription."
     )
-    subscriber_address = models.ForeignKey(
+    subscriber_address = models.OneToOneField(
         Address,
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        related_name='related_entity'
     )
     
     paid = models.BooleanField(default=False)
@@ -147,12 +148,7 @@ class Subscription(models.Model):
         FieldPanel("subscriber_given_name"),
         FieldPanel("subscriber_family_name"),
         FieldPanel("subscriber_email"),
-        FieldPanel("subscriber_street_address"),
-        FieldPanel("subscriber_po_box_number"),
-        FieldPanel("subscriber_postal_code"),
-        FieldPanel("subscriber_address_locality"),
-        FieldPanel("subscriber_address_region"),
-        FieldPanel("subscriber_address_country"),
+        InstanceSelectorPanel("subscriber_address"),
         FieldPanel("paid"),
     ]
 
