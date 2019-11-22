@@ -1,4 +1,6 @@
 from django.db import models
+from django.shortcuts import redirect
+from django.urls import reverse
 
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.fields import RichTextField
@@ -154,7 +156,7 @@ class Subscription(models.Model):
     
     paid = models.BooleanField(default=False)
 
-    braintree_id = models.CharField(max_length=255, blank=True)
+    braintree_id = models.CharField(max_length=255, blank=True, help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.")
 
     panels = [
         FieldPanel("subscription_type"),
@@ -169,6 +171,7 @@ class Subscription(models.Model):
         FieldPanel("subscriber_address_region"),
         FieldPanel("subscriber_address_country"),
         FieldPanel("paid"),
+        FieldPanel("braintree_id")
     ]
 
     def __str__(self):
@@ -197,6 +200,9 @@ class Subscription(models.Model):
 
         return (price * duration) - discount
 
+    def get_total_cost(self):
+        return self.price
+
 
 class SubscriptionIndexPage(Page):
     intro = RichTextField(blank=True)
@@ -218,3 +224,23 @@ class SubscriptionIndexPage(Page):
         context["form"] = SubscriptionCreateForm
 
         return context
+
+    def serve(self, request, *args, **kwargs):
+        # avoid circular dependency
+        from .forms import SubscriptionCreateForm
+
+        if request.method == "POST":
+            subscription_data = request.POST
+
+            form = SubscriptionCreateForm(subscription_data)
+
+            if form.is_valid():
+                subscription = form.save()
+
+                # set the order in the session
+                request.session["subscription_id"] = subscription.id
+
+                # redirect for payment
+                return redirect(reverse("payment:process"))
+        else:
+            return super().serve(request)
