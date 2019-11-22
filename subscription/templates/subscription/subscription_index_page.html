@@ -1,8 +1,78 @@
 {% extends "base.html" %}
 
 {% load wagtailcore_tags %}
+{% load crispy_forms_tags %}
 
 {% block content %}
     <h1>{{ page.title }}</h1>
     {{ page.intro | richtext }}
+
+    <form action="#" method="post">
+        <div class="form-row">
+            <div class="col-md-5">
+                {{ form.subscription_type | as_crispy_field }}
+            </div>
+            <div class="col-md-5">
+                {{ form.duration | as_crispy_field }}
+            </div>   
+        </div>
+
+        <div class="form-row">
+            <div class="col-md-5">
+                {{ form.subscriber_given_name | as_crispy_field }}
+            </div>
+            <div class="col-md-5">
+                {{ form.subscriber_family_name | as_crispy_field }}
+            </div>   
+        </div>
+    
+        
+        <div class="form-row">
+            <div class="col-md-8">
+                {{ form.subscriber_email | as_crispy_field }}
+            </div>
+        </div>
+    
+        <div class="form-row">
+            <div class="col-md-10">
+                {{ form.subscriber_street_address | as_crispy_field }}
+            </div>
+        </div>
+    
+        <div class="form-row">
+            <div class="col-md-10">
+                {{ form.subscriber_po_box_number | as_crispy_field }}
+            </div>
+        </div>
+    
+        <div class="form-row">
+            <div class="form-group col-md-3 mb-0">
+                {{ form.subscriber_address_locality | as_crispy_field }}
+            </div>
+            <div class="form-group col-md-3 mb-0">
+                {{ form.subscriber_address_region | as_crispy_field }}
+            </div>
+            <div class="form-group col-md-3 mb-0">
+                {{ form.subscriber_postal_code | as_crispy_field }}
+            </div>
+        </div>
+    
+        <div class="form-row">
+            <div class="col-md-9">
+                {{ form.subscriber_address_country | as_crispy_field }}
+            </div>
+        </div>
+    
+        <div class="text-right">
+            <div class="btn-group" role="group" aria-label="Cart navigation">
+                <button type="submit" class="btn btn-outline-primary">
+                    Subscribe
+                    <i class="fa fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    
+        {% csrf_token %}
+    </form>
+
 {% endblock %}
