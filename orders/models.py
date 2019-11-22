@@ -1,6 +1,6 @@
 from django.db import models
 
-from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
+from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, RichTextField
 from wagtail.core import blocks
 from wagtail.core.fields import StreamField
 from wagtail.core.models import Orderable, Page
@@ -58,7 +58,7 @@ class Order(ClusterableModel):
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
     paid = models.BooleanField(default=False)
 
-    braintree_id = models.CharField(max_length=255, blank=True)
+    braintree_id = models.CharField(max_length=255, blank=True, help_text="DO NOT EDIT. Used to cross-reference orders with Braintree payments.")
 
     panels = [
         FieldPanel("purchaser_given_name"),
@@ -74,6 +74,7 @@ class Order(ClusterableModel):
         FieldPanel("recipient_address_country"),
         FieldPanel("shipping_cost"),
         FieldPanel("paid"),
+        FieldPanel("braintree_id"),
         InlinePanel("items", label="Order items"),
     ]
 
