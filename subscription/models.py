@@ -120,11 +120,10 @@ class Subscription(models.Model):
         choices=duration_choices,
     )
     subscriber_given_name = models.CharField(
-        max_length=255, default="", help_text="Enter the given name for the subscriber.", blank=True,
+        max_length=255, default="", help_text="Enter the given name for the subscriber.",
     )
     subscriber_family_name = models.CharField(
         max_length=255,
-        blank=True,
         default="",
         help_text="Enter the family name for the subscriber.",
     )
@@ -138,19 +137,19 @@ class Subscription(models.Model):
         help_text="The street address where this subscription should be shipped.",
     )
     subscriber_postal_code = models.CharField(
-        max_length=16, help_text="Postal code for the shipping address."
+        max_length=16, help_text="Postal code for the shipping address.", blank=True,
     )
     subscriber_po_box_number = models.CharField(
         max_length=32, blank=True, default="", help_text="P.O. Box, if relevant."
     )
     subscriber_address_locality = models.CharField(
-        max_length=255, help_text="City for the shipping address."
+        max_length=255, help_text="City for the shipping address.", blank=True,
     )
     subscriber_address_region = models.CharField(
         max_length=255, help_text="State for the shipping address.", blank=True, default=""
     )
     subscriber_address_country = models.CharField(
-        max_length=255, default="United States", help_text="Country for shipping."
+        max_length=255, default="United States", help_text="Country for shipping.", blank=True,
     )
     
     paid = models.BooleanField(default=False)
@@ -209,3 +208,13 @@ class SubscriptionIndexPage(Page):
     subpage_types = []
 
     max_count = 1
+
+    def get_context(self, request, *args, **kwargs):
+        # avoid circular dependency
+        from .forms import SubscriptionCreateForm
+
+        context = super().get_context(request)
+
+        context["form"] = SubscriptionCreateForm
+
+        return context
