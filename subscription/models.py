@@ -1,6 +1,8 @@
 from django.db import models
 
 from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.core.fields import RichTextField
+from wagtail.core.models import Page
 
 SUBSCRIPTION_TYPES_AND_PRICES = [
     {
@@ -195,3 +197,15 @@ class Subscription(models.Model):
         discount = subscription_option["discount"]
 
         return (price * duration) - discount
+
+
+class SubscriptionIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel("intro"),
+    ]
+
+    subpage_types = []
+
+    max_count = 1
