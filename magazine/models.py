@@ -20,6 +20,7 @@ from wagtail.search import index
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtailautocomplete.edit_handlers import AutocompletePanel
 
+from subscription.models import Subscription
 
 class MagazineIndexPage(Page):
     intro = RichTextField(blank=True)
@@ -206,6 +207,19 @@ class MagazineArticle(Page):
 
     parent_page_types = ["MagazineIssue"]
     subpage_types = []
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+
+        if hasattr(request.user, "email"):
+            user_email = request.user.email
+
+            matching_active_subscription = Subscription.objects.filter(subscriber_email=user_email)
+
+            if matching_active_subscription:
+                context["active_subscriber"] = True
+
+        return context
 
     def get_sitemap_urls(self):
         return [
