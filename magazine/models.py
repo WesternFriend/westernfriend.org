@@ -167,6 +167,7 @@ class MagazineDepartment(Page):
 
 
 class MagazineArticle(Page):
+    teaser = RichTextField(blank=True)
     body = RichTextField(blank=True)
 
     department = models.ForeignKey(
