@@ -6,15 +6,16 @@ from orders.models import Order
 from subscription.models import Subscription
 
 
-def payment_process(request):
-    order_id = request.session.get("order_id")
-    subscription_id = request.session.get("subscription_id")
+def payment_process(request, previous_page):
+    if previous_page=="bookstore_order":
+        order_id = request.session.get("order_id")
 
-    if order_id:
         entity = get_object_or_404(Order, id=order_id)
-    elif subscription_id:
+    elif previous_page=="subscribe":
+        subscription_id = request.session.get("subscription_id")
+        
         entity = get_object_or_404(Subscription, id=subscription_id)
-
+    
     if request.method == "POST":
         # retrieve payment nonce
         nonce = request.POST.get("payment_method_nonce", None)

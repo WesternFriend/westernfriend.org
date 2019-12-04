@@ -241,6 +241,13 @@ class SubscriptionIndexPage(Page):
                 request.session["subscription_id"] = subscription.id
 
                 # redirect for payment
-                return redirect(reverse("payment:process"))
+                return redirect(
+                    reverse(
+                        "payment:process",
+                        kwargs={
+                            "previous_page": "subscribe"
+                        }
+                    )
+                )
         else:
             return super().serve(request)
