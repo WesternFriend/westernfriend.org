@@ -50,7 +50,10 @@ def payment_process(request):
         return render(
             request,
             "payment/process.html",
-            {"client_token": client_token},
+            {
+                "client_token": client_token,
+                "payment_total": entity.get_total_cost()
+            },
         )
 
 

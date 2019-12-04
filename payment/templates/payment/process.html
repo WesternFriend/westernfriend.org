@@ -4,6 +4,7 @@
 {% block content %}
 <h1>Pay online</h1>
 
+
 <p class="text-muted">Note: credit card information is transmitted directly to our payment processor and is not sent to the Western Friend server.</p>
 
 <div id="dropin-container"></div>
@@ -11,6 +12,8 @@
 <form action="" id="payment-form" method="post">
     <input type="hidden" id="nonce-input" name="payment_method_nonce" , value="" />
     {% csrf_token %}
+
+    <p>Payment total: ${{ payment_total }}</p>
 
     <button type="submit" id="#submit-button" value="pay" class="btn btn-outline-success">
         Pay
@@ -27,7 +30,12 @@
 
     braintree.dropin.create({
         authorization: '{{ client_token }}',
-        container: '#dropin-container'
+        container: '#dropin-container',
+        paypal: {
+            flow: 'checkout',
+            amount: '{{ payment_total }}',
+            currency: 'USD'
+        },
     }, function (createErr, instance) {
         paymentForm.addEventListener('submit', function (event) {
             // prevent form from submitting at this time
