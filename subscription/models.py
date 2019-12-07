@@ -1,3 +1,4 @@
+from django.contrib.auth import login, authenticate
 from django.db import models
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -5,6 +6,7 @@ from django.urls import reverse
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page
+
 
 SUBSCRIPTION_TYPES_AND_PRICES = [
     {
@@ -215,39 +217,70 @@ class SubscriptionIndexPage(Page):
 
     max_count = 1
 
+    template = "subscription/index.html"
+
     def get_context(self, request, *args, **kwargs):
         # avoid circular dependency
-        from .forms import SubscriptionCreateForm
+        from .forms import UserRegisterationForm, SubscriptionCreateForm
 
         context = super().get_context(request)
+
+        show_registration_form = request.GET.get("register")
+  
+        if show_registration_form:
+            context["registration_form"] = UserRegisterationForm
 
         context["form"] = SubscriptionCreateForm
 
         return context
 
     def serve(self, request, *args, **kwargs):
-        # avoid circular dependency
-        from .forms import SubscriptionCreateForm
-
         if request.method == "POST":
-            subscription_data = request.POST
-
-            form = SubscriptionCreateForm(subscription_data)
-
-            if form.is_valid():
-                subscription = form.save()
-
-                # set the order in the session
-                request.session["subscription_id"] = subscription.id
-
-                # redirect for payment
-                return redirect(
-                    reverse(
-                        "payment:process",
-                        kwargs={
-                            "previous_page": "subscribe"
-                        }
-                    )
-                )
+            user_is_registering = request.GET.get("register")
+            
+            # return the output of the form processing function
+            # so this serve method returns an HttpResponse
+            if user_is_registering:
+                return process_registration_form(request)
+            else:
+                return process_subscription_form(request)
         else:
             return super().serve(request)
+
+
+def process_registration_form(request):
+    # Avoid circular dependency
+    from .forms import UserRegisterationForm
+
+    form = UserRegisterationForm(request.POST)
+
+    if form.is_valid():
+        user = form.save()
+
+        login(request, user)
+
+        return redirect("/subscribe")
+
+
+def process_subscription_form(request):
+    # Avoid circular dependency
+    from .forms import SubscriptionCreateForm
+
+    form = SubscriptionCreateForm(request.POST)
+
+    if form.is_valid():
+        subscription = form.save()
+
+        # set the order in the session
+        request.session["subscription_id"] = subscription.id
+
+        # redirect for payment
+        return redirect(
+            reverse(
+                "payment:process",
+                kwargs={
+                    "previous_page": "subscribe"
+                }
+            )
+        )
+        
