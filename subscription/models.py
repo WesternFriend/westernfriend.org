@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import login, authenticate
 from django.db import models
 from django.shortcuts import redirect
@@ -155,6 +156,18 @@ class Subscription(models.Model):
     subscriber_address_country = models.CharField(
         max_length=255, default="United States", help_text="Country for shipping.", blank=True,
     )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="owner",
+        # TODO: determine whether we want these to be nullable
+        # e.g. for tracking subscriptions created offline
+        # null=True,
+        # blank=True,
+        editable=True,
+        on_delete=models.PROTECT,
+        related_name="subscriptions"
+    )
     
     paid = models.BooleanField(default=False)
 
@@ -172,6 +185,7 @@ class Subscription(models.Model):
         FieldPanel("subscriber_address_locality"),
         FieldPanel("subscriber_address_region"),
         FieldPanel("subscriber_address_country"),
+        FieldPanel("user"),
         FieldPanel("paid"),
         FieldPanel("braintree_id")
     ]
@@ -267,9 +281,13 @@ def process_subscription_form(request):
     from .forms import SubscriptionCreateForm
 
     form = SubscriptionCreateForm(request.POST)
+    
 
     if form.is_valid():
-        subscription = form.save()
+        # Attach request user to subscription before save
+        subscription = form.save(commit=False)
+        subscription.user = request.user
+        subscription.save()
 
         # set the order in the session
         request.session["subscription_id"] = subscription.id
