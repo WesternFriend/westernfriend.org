@@ -295,13 +295,16 @@ def process_subscription_form(request):
 
         # Attach request user to subscription before save
         subscription.user = request.user
-        now = arrow.utcnow()
         
-        # Today is start date
-        subscription.start_date = now.date()
+        # Set subscription start and end dates
+        # based on current day
+        today = arrow.utcnow()
+        
+        # Start date is Today
+        subscription.start_date = today.date()
 
         # End date is today plus subscription duration
-        subscription.end_date = now.shift(years=+subscription.duration).date()
+        subscription.end_date = today.shift(years=+subscription.duration).date()
         
         subscription.save()
 
