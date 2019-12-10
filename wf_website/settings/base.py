@@ -21,6 +21,8 @@ import django_heroku
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
+AUTH_USER_MODEL = "accounts.User"
+
 CART_SESSION_ID = "cart"
 
 # Braintree settings
@@ -42,6 +44,7 @@ BraintreeConfiguration.configure(
 # Application definition
 
 INSTALLED_APPS = [
+    "accounts",
     "cart",
     "community",
     "contact",
@@ -83,6 +86,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "django_extensions",
     "wagtailfontawesome",
+    "authtools",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
