@@ -58,6 +58,7 @@ Pillow = "==5.4.1"
 Unidecode = "==1.0.23"
 Willow = "==1.1"
 braintree = "*"
+django-authtools = "*"
 
 [requires]
 python_version = "3.7"
