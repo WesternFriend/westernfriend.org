@@ -1,3 +1,5 @@
+import arrow
+
 from django.conf import settings
 from django.contrib.auth import login, authenticate
 from django.db import models
@@ -293,6 +295,13 @@ def process_subscription_form(request):
 
         # Attach request user to subscription before save
         subscription.user = request.user
+        now = arrow.utcnow()
+        
+        # Today is start date
+        subscription.start_date = now.date()
+
+        # End date is today plus subscription duration
+        subscription.end_date = now.shift(years=+subscription.duration).date()
         
         subscription.save()
 
