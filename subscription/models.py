@@ -124,6 +124,8 @@ class Subscription(models.Model):
         help_text="Number of years this subscription is active.",
         choices=duration_choices,
     )
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
     subscriber_given_name = models.CharField(
         max_length=255, default="", help_text="Enter the given name for the subscriber.",
     )
@@ -176,6 +178,8 @@ class Subscription(models.Model):
     panels = [
         FieldPanel("subscription_type"),
         FieldPanel("duration"),
+        FieldPanel("start_date"),
+        FieldPanel("end_date"),
         FieldPanel("subscriber_given_name"),
         FieldPanel("subscriber_family_name"),
         FieldPanel("subscriber_email"),
@@ -284,9 +288,12 @@ def process_subscription_form(request):
     
 
     if form.is_valid():
-        # Attach request user to subscription before save
+        # Create a temporary subscription object to modify it's fields
         subscription = form.save(commit=False)
+
+        # Attach request user to subscription before save
         subscription.user = request.user
+        
         subscription.save()
 
         # set the order in the session
