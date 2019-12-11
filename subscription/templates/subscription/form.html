@@ -22,11 +22,8 @@
         </div>   
     </div>
 
-    
     <div class="form-row">
-        <div class="col-md-8">
-            {{ form.subscriber_email | as_crispy_field }}
-        </div>
+        <p class="p-3 mb-2 bg-info text-white col-md-10">PDF subscription will be emailed to <b>{{ user.get_username }}</b></p>
     </div>
 
     <div class="form-row">
@@ -37,7 +34,7 @@
 
     <div class="form-row">
         <div class="col-md-10">
-            {{ form.subscriber_po_box_number | as_crispy_field }}
+            {{ form.subscriber_street_address_line_2 | as_crispy_field }}
         </div>
     </div>
 
