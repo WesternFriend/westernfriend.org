@@ -129,41 +129,38 @@ class Subscription(models.Model):
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     subscriber_given_name = models.CharField(
-        max_length=255, default="", help_text="Enter the given name for the subscriber.",
+        max_length=255, default="", help_text="Enter the given (first) name for the subscriber.",
     )
     subscriber_family_name = models.CharField(
         max_length=255,
         default="",
-        help_text="Enter the family name for the subscriber.",
-    )
-    subscriber_email = models.EmailField(
-        help_text="Provide an email, so we can communicate any issues regarding this subscription."
+        help_text="Enter the family (last) name for the subscriber.",
     )
     subscriber_street_address = models.CharField(
         max_length=255,
         blank=True,
         default="",
-        help_text="The street address where this subscription should be shipped.",
+        help_text="The street address where a print subscription could be mailed.",
+    )
+    subscriber_street_address_line_2 = models.CharField(
+        max_length=255, blank=True, default="", help_text="If needed, second line for mailing address."
     )
     subscriber_postal_code = models.CharField(
-        max_length=16, help_text="Postal code for the shipping address.", blank=True,
-    )
-    subscriber_po_box_number = models.CharField(
-        max_length=32, blank=True, default="", help_text="P.O. Box, if relevant."
+        max_length=16, help_text="Postal code for the mailing address.", blank=True,
     )
     subscriber_address_locality = models.CharField(
-        max_length=255, help_text="City for the shipping address.", blank=True,
+        max_length=255, help_text="City for the mailing address.", blank=True,
     )
     subscriber_address_region = models.CharField(
-        max_length=255, help_text="State for the shipping address.", blank=True, default=""
+        max_length=255, help_text="State for the mailing address.", blank=True, default=""
     )
     subscriber_address_country = models.CharField(
-        max_length=255, default="United States", help_text="Country for shipping.", blank=True,
+        max_length=255, default="United States", help_text="Country for mailing.", blank=True,
     )
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        verbose_name="owner",
+        verbose_name="subscriber email",
         # TODO: determine whether we want these to be nullable
         # e.g. for tracking subscriptions created offline
         # null=True,
@@ -178,20 +175,19 @@ class Subscription(models.Model):
     braintree_id = models.CharField(max_length=255, blank=True, help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.")
 
     panels = [
-        FieldPanel("subscription_type"),
-        FieldPanel("duration"),
-        FieldPanel("start_date"),
-        FieldPanel("end_date"),
+        FieldPanel("user"),
         FieldPanel("subscriber_given_name"),
         FieldPanel("subscriber_family_name"),
-        FieldPanel("subscriber_email"),
         FieldPanel("subscriber_street_address"),
         FieldPanel("subscriber_po_box_number"),
         FieldPanel("subscriber_postal_code"),
         FieldPanel("subscriber_address_locality"),
         FieldPanel("subscriber_address_region"),
         FieldPanel("subscriber_address_country"),
-        FieldPanel("user"),
+        FieldPanel("subscription_type"),
+        FieldPanel("duration"),
+        FieldPanel("start_date"),
+        FieldPanel("end_date"),
         FieldPanel("paid"),
         FieldPanel("braintree_id")
     ]
