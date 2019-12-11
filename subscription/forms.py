@@ -1,9 +1,10 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 
 from .models import Subscription
 
+UserModel = get_user_model()
 
 class SubscriptionCreateForm(forms.ModelForm):
 
@@ -14,9 +15,8 @@ class SubscriptionCreateForm(forms.ModelForm):
             "duration",
             "subscriber_given_name",
             "subscriber_family_name",
-            "subscriber_email",
             "subscriber_street_address",
-            "subscriber_po_box_number",
+            "subscriber_street_address_line_2",
             "subscriber_postal_code",
             "subscriber_address_locality",
             "subscriber_address_region",
@@ -32,5 +32,5 @@ class SubscriptionCreateForm(forms.ModelForm):
 
 class UserRegisterationForm(UserCreationForm):
     class Meta:
-        model = User
+        model = UserModel
         fields = ('email', 'password1', 'password2', )
