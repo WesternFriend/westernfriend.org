@@ -220,8 +220,6 @@ class MagazineArticle(Page):
             if active_subscription:
                 context["active_subscriber"] = True
 
-            
-
         return context
 
     def get_sitemap_urls(self):
