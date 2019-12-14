@@ -208,20 +208,6 @@ class MagazineArticle(Page):
     parent_page_types = ["MagazineIssue"]
     subpage_types = []
 
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
-
-        if hasattr(request.user, "subscriptions"):
-            active_subscription = request.user.subscriptions.filter(
-                end_date__gte=datetime.datetime.now(),
-                paid=True
-            )
-
-            if active_subscription:
-                context["active_subscriber"] = True
-
-        return context
-
     def get_sitemap_urls(self):
         return [
             {
