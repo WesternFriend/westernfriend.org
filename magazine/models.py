@@ -211,13 +211,16 @@ class MagazineArticle(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        if hasattr(request.user, "email"):
-            user_email = request.user.email
+        if hasattr(request.user, "subscriptions"):
+            active_subscription = request.user.subscriptions.filter(
+                end_date__gte=datetime.datetime.now(),
+                paid=True
+            )
 
-            matching_active_subscription = Subscription.objects.filter(subscriber_email=user_email)
-
-            if matching_active_subscription:
+            if active_subscription:
                 context["active_subscriber"] = True
+
+            
 
         return context
 
