@@ -44,10 +44,13 @@ SUBSCRIPTION_TYPES_AND_PRICES = [
     },
 ]
 
+
 def get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES):
-    matching_subscription_option = next(filter(lambda option: option["slug"] == slug, SUBSCRIPTION_TYPES_AND_PRICES))
+    matching_subscription_option = next(
+        filter(lambda option: option["slug"] == slug, SUBSCRIPTION_TYPES_AND_PRICES))
 
     return matching_subscription_option["price"]
+
 
 def create_subscription_type_choices(SUBSCRIPTION_TYPES_AND_PRICES):
     subscription_type_choices = []
@@ -169,10 +172,11 @@ class Subscription(models.Model):
         on_delete=models.PROTECT,
         related_name="subscriptions"
     )
-    
+
     paid = models.BooleanField(default=False)
 
-    braintree_id = models.CharField(max_length=255, blank=True, help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.")
+    braintree_id = models.CharField(
+        max_length=255, blank=True, help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.")
 
     panels = [
         FieldPanel("user"),
@@ -242,7 +246,7 @@ class SubscriptionIndexPage(Page):
         context = super().get_context(request)
 
         show_registration_form = request.GET.get("register")
-  
+
         if show_registration_form:
             context["registration_form"] = UserRegisterationForm
 
@@ -253,7 +257,7 @@ class SubscriptionIndexPage(Page):
     def serve(self, request, *args, **kwargs):
         if request.method == "POST":
             user_is_registering = request.GET.get("register")
-            
+
             # return the output of the form processing function
             # so this serve method returns an HttpResponse
             if user_is_registering:
@@ -283,7 +287,6 @@ def process_subscription_form(request):
     from .forms import SubscriptionCreateForm
 
     form = SubscriptionCreateForm(request.POST)
-    
 
     if form.is_valid():
         # Create a temporary subscription object to modify it's fields
@@ -291,17 +294,18 @@ def process_subscription_form(request):
 
         # Attach request user to subscription before save
         subscription.user = request.user
-        
+
         # Set subscription start and end dates
         # based on current day
         today = arrow.utcnow()
-        
+
         # Start date is Today
         subscription.start_date = today.date()
 
         # End date is today plus subscription duration
-        subscription.end_date = today.shift(years=+subscription.duration).date()
-        
+        subscription.end_date = today.shift(
+            years=+subscription.duration).date()
+
         subscription.save()
 
         # set the order in the session
@@ -316,4 +320,3 @@ def process_subscription_form(request):
                 }
             )
         )
-        

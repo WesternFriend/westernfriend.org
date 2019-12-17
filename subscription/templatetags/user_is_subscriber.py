@@ -4,6 +4,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.simple_tag(takes_context=True)
 def user_is_subscriber(context):
     user = context["request"].user
@@ -16,5 +17,5 @@ def user_is_subscriber(context):
 
         if active_subscription:
             return True
-    
+
     return False

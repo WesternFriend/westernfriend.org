@@ -7,15 +7,15 @@ from subscription.models import Subscription
 
 
 def payment_process(request, previous_page):
-    if previous_page=="bookstore_order":
+    if previous_page == "bookstore_order":
         order_id = request.session.get("order_id")
 
         entity = get_object_or_404(Order, id=order_id)
-    elif previous_page=="subscribe":
+    elif previous_page == "subscribe":
         subscription_id = request.session.get("subscription_id")
-        
+
         entity = get_object_or_404(Subscription, id=subscription_id)
-    
+
     if request.method == "POST":
         # retrieve payment nonce
         nonce = request.POST.get("payment_method_nonce", None)
@@ -37,7 +37,7 @@ def payment_process(request, previous_page):
             entity.braintree_id = result.transaction.id
 
             entity.save()
-            
+
             # Make sure order and payment IDs are
             # removed from session, to prevent errors
             clear_payment_session_vars(request)

@@ -6,6 +6,7 @@ from .models import Subscription
 
 UserModel = get_user_model()
 
+
 class SubscriptionCreateForm(forms.ModelForm):
 
     class Meta:
