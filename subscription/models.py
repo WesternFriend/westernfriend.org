@@ -1,7 +1,7 @@
 import arrow
 
 from django.conf import settings
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login
 from django.db import models
 from django.shortcuts import redirect
 from django.urls import reverse
