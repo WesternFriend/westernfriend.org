@@ -2,6 +2,8 @@
 
 {% load wagtailcore_tags %}
 
+{% load user_is_subscriber %}
+
 {% block body_class %}template-magazinearticlepage{% endblock %}
 
 {% block content %}
@@ -44,7 +46,17 @@
         </div>
     {% endif %}
 
-    {{ page.body | richtext }}
+    {% user_is_subscriber as user_is_subscriber %}
+
+    {% if user_is_subscriber %}
+        {{ page.body | richtext }}
+    {% else %}
+        <a href="/subscribe" class="btn btn-outline btn-success">
+            Subscribe now for full access.
+        </a>
+
+        {{ page.teaser | richtext }}
+    {% endif %}
 
     <p>
         <a href="{{ page.get_parent.url }}">

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    {% if user.is_authenticated is not True %}
+        {%  if registration_form %}
+            {% include "subscription/register.html" with form=registration_form %}
+        {% else %}
+            {% include "subscription/login_required.html" %}
+        {%  endif %}
+    {% else %}
+        {% include "subscription/form.html" %}
+    {% endif %}
+{% endblock %}

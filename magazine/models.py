@@ -20,6 +20,7 @@ from wagtail.search import index
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtailautocomplete.edit_handlers import AutocompletePanel
 
+from subscription.models import Subscription
 
 class MagazineIndexPage(Page):
     intro = RichTextField(blank=True)
@@ -167,6 +168,7 @@ class MagazineDepartment(Page):
 
 
 class MagazineArticle(Page):
+    teaser = RichTextField(blank=True)
     body = RichTextField(blank=True)
 
     department = models.ForeignKey(
@@ -184,6 +186,7 @@ class MagazineArticle(Page):
     search_fields = Page.search_fields + [index.SearchField("body")]
 
     content_panels = Page.content_panels + [
+        FieldPanel("teaser", classname="full"),
         FieldPanel("body", classname="full"),
         InlinePanel(
             "authors",

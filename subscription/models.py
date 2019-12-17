@@ -1,6 +1,15 @@
+import arrow
+
+from django.conf import settings
+from django.contrib.auth import login
 from django.db import models
+from django.shortcuts import redirect
+from django.urls import reverse
 
 from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.core.fields import RichTextField
+from wagtail.core.models import Page
+
 
 SUBSCRIPTION_TYPES_AND_PRICES = [
     {
@@ -35,10 +44,13 @@ SUBSCRIPTION_TYPES_AND_PRICES = [
     },
 ]
 
+
 def get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES):
-    matching_subscription_option = next(filter(lambda option: option["slug"] == slug, SUBSCRIPTION_TYPES_AND_PRICES))
+    matching_subscription_option = next(
+        filter(lambda option: option["slug"] == slug, SUBSCRIPTION_TYPES_AND_PRICES))
 
     return matching_subscription_option["price"]
+
 
 def create_subscription_type_choices(SUBSCRIPTION_TYPES_AND_PRICES):
     subscription_type_choices = []
@@ -117,57 +129,73 @@ class Subscription(models.Model):
         help_text="Number of years this subscription is active.",
         choices=duration_choices,
     )
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
     subscriber_given_name = models.CharField(
-        max_length=255, default="", help_text="Enter the given name for the subscriber.", blank=True,
+        max_length=255, default="", help_text="Enter the given (first) name for the subscriber.",
     )
     subscriber_family_name = models.CharField(
         max_length=255,
-        blank=True,
         default="",
-        help_text="Enter the family name for the subscriber.",
-    )
-    subscriber_email = models.EmailField(
-        help_text="Provide an email, so we can communicate any issues regarding this subscription."
+        help_text="Enter the family (last) name for the subscriber.",
     )
     subscriber_street_address = models.CharField(
         max_length=255,
         blank=True,
         default="",
-        help_text="The street address where this subscription should be shipped.",
+        help_text="The street address where a print subscription could be mailed.",
+    )
+    subscriber_street_address_line_2 = models.CharField(
+        max_length=255, blank=True, default="", help_text="If needed, second line for mailing address."
     )
     subscriber_postal_code = models.CharField(
-        max_length=16, help_text="Postal code for the shipping address."
-    )
-    subscriber_po_box_number = models.CharField(
-        max_length=32, blank=True, default="", help_text="P.O. Box, if relevant."
+        max_length=16, help_text="Postal code for the mailing address.", blank=True,
     )
     subscriber_address_locality = models.CharField(
-        max_length=255, help_text="City for the shipping address."
+        max_length=255, help_text="City for the mailing address.", blank=True,
     )
     subscriber_address_region = models.CharField(
-        max_length=255, help_text="State for the shipping address.", blank=True, default=""
+        max_length=255, help_text="State for the mailing address.", blank=True, default=""
     )
     subscriber_address_country = models.CharField(
-        max_length=255, default="United States", help_text="Country for shipping."
+        max_length=255, default="United States", help_text="Country for mailing.", blank=True,
     )
-    
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="subscriber email",
+        # TODO: determine whether we want these to be nullable
+        # e.g. for tracking subscriptions created offline
+        # null=True,
+        # blank=True,
+        editable=True,
+        on_delete=models.PROTECT,
+        related_name="subscriptions"
+    )
+
     paid = models.BooleanField(default=False)
 
-    braintree_id = models.CharField(max_length=255, blank=True)
+    braintree_id = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.")
 
     panels = [
-        FieldPanel("subscription_type"),
-        FieldPanel("duration"),
+        FieldPanel("user"),
         FieldPanel("subscriber_given_name"),
         FieldPanel("subscriber_family_name"),
-        FieldPanel("subscriber_email"),
         FieldPanel("subscriber_street_address"),
         FieldPanel("subscriber_po_box_number"),
         FieldPanel("subscriber_postal_code"),
         FieldPanel("subscriber_address_locality"),
         FieldPanel("subscriber_address_region"),
         FieldPanel("subscriber_address_country"),
+        FieldPanel("subscription_type"),
+        FieldPanel("duration"),
+        FieldPanel("start_date"),
+        FieldPanel("end_date"),
         FieldPanel("paid"),
+        FieldPanel("braintree_id")
     ]
 
     def __str__(self):
@@ -195,3 +223,102 @@ class Subscription(models.Model):
         discount = subscription_option["discount"]
 
         return (price * duration) - discount
+
+    def get_total_cost(self):
+        return self.price
+
+
+class SubscriptionIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel("intro"),
+    ]
+
+    subpage_types = []
+
+    max_count = 1
+
+    template = "subscription/index.html"
+
+    def get_context(self, request, *args, **kwargs):
+        # avoid circular dependency
+        from .forms import UserRegisterationForm, SubscriptionCreateForm
+
+        context = super().get_context(request)
+
+        show_registration_form = request.GET.get("register")
+
+        if show_registration_form:
+            context["registration_form"] = UserRegisterationForm
+
+        context["form"] = SubscriptionCreateForm
+
+        return context
+
+    def serve(self, request, *args, **kwargs):
+        if request.method == "POST":
+            user_is_registering = request.GET.get("register")
+
+            # return the output of the form processing function
+            # so this serve method returns an HttpResponse
+            if user_is_registering:
+                return process_registration_form(request)
+            else:
+                return process_subscription_form(request)
+        else:
+            return super().serve(request)
+
+
+def process_registration_form(request):
+    # Avoid circular dependency
+    from .forms import UserRegisterationForm
+
+    form = UserRegisterationForm(request.POST)
+
+    if form.is_valid():
+        user = form.save()
+
+        login(request, user)
+
+        return redirect("/subscribe")
+
+
+def process_subscription_form(request):
+    # Avoid circular dependency
+    from .forms import SubscriptionCreateForm
+
+    form = SubscriptionCreateForm(request.POST)
+
+    if form.is_valid():
+        # Create a temporary subscription object to modify it's fields
+        subscription = form.save(commit=False)
+
+        # Attach request user to subscription before save
+        subscription.user = request.user
+
+        # Set subscription start and end dates
+        # based on current day
+        today = arrow.utcnow()
+
+        # Start date is Today
+        subscription.start_date = today.date()
+
+        # End date is today plus subscription duration
+        subscription.end_date = today.shift(
+            years=+subscription.duration).date()
+
+        subscription.save()
+
+        # set the order in the session
+        request.session["subscription_id"] = subscription.id
+
+        # redirect for payment
+        return redirect(
+            reverse(
+                "payment:process",
+                kwargs={
+                    "previous_page": "subscribe"
+                }
+            )
+        )

@@ -1,15 +1,10 @@
 from django.db import models
 
 from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
-from wagtail.core import blocks
-from wagtail.core.fields import StreamField
-from wagtail.core.models import Orderable, Page
-from wagtail.snippets.models import register_snippet
+from wagtail.core.models import Orderable
 
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
-
-from shipping.calculator import get_book_shipping_cost
 
 
 class Order(ClusterableModel):
@@ -58,7 +53,8 @@ class Order(ClusterableModel):
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
     paid = models.BooleanField(default=False)
 
-    braintree_id = models.CharField(max_length=255, blank=True)
+    braintree_id = models.CharField(
+        max_length=255, blank=True, help_text="DO NOT EDIT. Used to cross-reference orders with Braintree payments.")
 
     panels = [
         FieldPanel("purchaser_given_name"),
@@ -74,6 +70,7 @@ class Order(ClusterableModel):
         FieldPanel("recipient_address_country"),
         FieldPanel("shipping_cost"),
         FieldPanel("paid"),
+        FieldPanel("braintree_id"),
         InlinePanel("items", label="Order items"),
     ]
 
@@ -82,7 +79,7 @@ class Order(ClusterableModel):
 
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
-    
+
     @property
     def purchaser_full_name(self):
         full_name = ""
@@ -106,7 +103,8 @@ class OrderItem(Orderable):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 
-    panels = [FieldPanel("product_title"), FieldPanel("price"), FieldPanel("quantity")]
+    panels = [FieldPanel("product_title"), FieldPanel(
+        "price"), FieldPanel("quantity")]
 
     def __str__(self):
         return f"{self.quantity}x {self.product_title} @ { self.price}"

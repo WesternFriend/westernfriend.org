@@ -16,13 +16,13 @@ class SubscriptionModelAdmin(ModelAdmin):
     exclude_from_explorer = False
     list_display = (
         "subscriber_full_name",
-        "subscriber_email",
+        "user",
         "subscription_type",
         "duration",
         "price",
         "paid",)
     search_fields = (
-        "subscriber_email",
+        "user",
         "subscriber_given_name", 
         "subscriber_family_name",)
     list_filter = (

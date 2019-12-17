@@ -38,7 +38,14 @@ def order_create(request):
             request.session["order_id"] = order.id
 
             # redirect for payment
-            return redirect(reverse("payment:process"))
+            return redirect(
+                reverse(
+                    "payment:process",
+                    kwargs={
+                        "previous_page": "bookstore_order"
+                    }
+                )
+            )
 
     else:
         form = OrderCreateForm()
