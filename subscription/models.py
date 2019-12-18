@@ -185,7 +185,7 @@ class Subscription(models.Model):
         FieldPanel("subscriber_given_name"),
         FieldPanel("subscriber_family_name"),
         FieldPanel("subscriber_street_address"),
-        FieldPanel("subscriber_po_box_number"),
+        FieldPanel("subscriber_street_address_line_2"),
         FieldPanel("subscriber_postal_code"),
         FieldPanel("subscriber_address_locality"),
         FieldPanel("subscriber_address_region"),
