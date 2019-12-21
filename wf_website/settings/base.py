@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "contact",
     "events",
     "facets",
+    "forms",
     "home",
     "library",
     "orders",
