@@ -83,10 +83,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
+    "authtools",
     "crispy_forms",
     "django_extensions",
     "wagtailfontawesome",
-    "authtools",
+    "wagtailmenus",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
