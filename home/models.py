@@ -24,6 +24,7 @@ class HomePage(Page):
         "community.CommunityPage",
         "events.EventsIndexPage",
         "facets.FacetIndexPage",
+        "forms.ContactFormPage",
         "library.LibraryIndexPage",
         "magazine.MagazineIndexPage",
         "magazine.MagazineTagIndexPage",
