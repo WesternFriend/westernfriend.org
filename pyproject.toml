@@ -20,6 +20,7 @@ django-registration = "^3.0.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7.9"
+autopep8 = "^1.4.4"
 
 [build-system]
 requires = ["poetry>=0.12"]
