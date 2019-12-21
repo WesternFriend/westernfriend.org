@@ -1,0 +1,7 @@
+{% load menu_tags %}
+
+{% for item in menu_items %}
+<li class="{{ item.active_class }} nav-item">
+    <a href="{{ item.href }}" class="nav-link">{{ item.text }}</a>
+</li>
+{% endfor %}
