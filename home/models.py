@@ -29,6 +29,7 @@ class HomePage(Page):
         "magazine.MagazineIndexPage",
         "magazine.MagazineTagIndexPage",
         "magazine.MagazineDepartmentIndexPage",
+        "memorials.MemorialIndexPage",
         "store.StoreIndexPage",
         "subscription.SubscriptionIndexPage",
     ]
