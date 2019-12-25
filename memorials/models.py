@@ -8,6 +8,8 @@ from wagtail.search import index
 
 from flatpickr import DatePickerInput
 
+from contact.models import Meeting
+
 
 class Memorial(Page):
     given_name = models.CharField(
@@ -70,7 +72,21 @@ class MemorialIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        memorials = Memorial.objects.all()
+        # Populate faceted search fields
+        context["meetings"] = Meeting.objects.all()
+
+        # Check if any query string is available
+        query = request.GET.dict()
+
+        # Filter out any facet that isn't a model field
+        allowed_keys = [
+            "title",
+            "memorial_meeting__title",
+        ]
+        facets = {f"{key}__contains": query[key]
+                  for key in query if key in allowed_keys}
+
+        memorials = Memorial.objects.all().filter(**facets)
 
         # Show three archive issues per page
         paginator = Paginator(memorials, 10)

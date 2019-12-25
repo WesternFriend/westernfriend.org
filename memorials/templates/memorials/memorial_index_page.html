@@ -15,6 +15,38 @@
 
 {% if memorials %}
 <div class="card">
+    <div class="card-header">
+        <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#filter-form"
+            aria-expanded="false" aria-controls="filter-form">
+            Show filters
+        </button>
+
+        <form id="filter-form" class="form collapse">
+            <div class="form-group">
+                <label for="title">Person</label>
+                <input id="title" name="title" type="text" class="form-control" placeholder="Person name">
+            </div>
+
+            <div class="form-group">
+                <label for="meeting">
+                    Meeting
+                </label>
+                <select name="memorial_meeting__title" id="memorial_meeting__title" class="form-control">
+                    <option selected disabled hidden>Choose a meeting...</option>
+                    {% for meeting in meetings %}
+                    <option>{{ meeting }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-outline-primary ml-3 align-baseline">Filter</button>
+
+            <button id="clear-filters-button" class="btn btn-outline-warning invisible float-right"
+                onclick="clearFilters()" type="button">Clear
+                filter(s)</button>
+        </form>
+    </div>
+
     <div class="list-group">
         {% for memorial in memorials %}
         <a href="{% pageurl memorial %}" class="list-group-item list-group-item-action">
@@ -55,3 +87,31 @@
 {% endif %}
 
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+    function clearFilters() {
+        window.location.replace(location.pathname)
+    }
+
+    // if filter query exists
+    if (window.location.search) {
+        // Display clear filter button
+        var clearFiltersButton = document.getElementById("clear-filters-button");
+        clearFiltersButton.classList.toggle("invisible");
+
+        // Update search facet fields with value(s) from search parameters
+        var urlParams = new URLSearchParams(window.location.search);
+
+        for (let [key, value] of urlParams) {
+            try {
+                const element = document.getElementById(key);
+
+                element.value = value;
+            } catch (error) {
+                console.log("Form element does not exist with id:", key)
+            }
+        }
+    }
+</script>
+{% endblock extra_js%}
