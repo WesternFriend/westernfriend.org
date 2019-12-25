@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "authtools",
     "crispy_forms",
     "django_extensions",
+    "flatpickr",
     "wagtailfontawesome",
     "wagtailmenus",
 ]

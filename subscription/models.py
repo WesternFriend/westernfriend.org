@@ -10,6 +10,8 @@ from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page
 
+from flatpickr import DatePickerInput
+
 
 SUBSCRIPTION_TYPES_AND_PRICES = [
     {
@@ -192,8 +194,8 @@ class Subscription(models.Model):
         FieldPanel("subscriber_address_country"),
         FieldPanel("subscription_type"),
         FieldPanel("duration"),
-        FieldPanel("start_date"),
-        FieldPanel("end_date"),
+        FieldPanel("start_date", widget=DatePickerInput()),
+        FieldPanel("end_date", widget=DatePickerInput()),
         FieldPanel("paid"),
         FieldPanel("braintree_id")
     ]
