@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "forms",
     "home",
     "library",
+    "memorials",
     "orders",
     "payment.apps.PaymentConfig",
     "search",
