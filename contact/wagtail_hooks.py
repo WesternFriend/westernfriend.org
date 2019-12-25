@@ -59,7 +59,7 @@ modeladmin_register(ContactsGroup)
 @hooks.register('insert_editor_js')
 def editor_js():
     js_files = [
-        'contact/js/contact_person_slug.js',
+        'js/contact_person_slug.js',
     ]
     js_includes = format_html_join('\n', '<script src="{0}{1}"></script>',
                                    ((settings.STATIC_URL, filename)

@@ -1,4 +1,8 @@
 function generateAutoslug() {
+  /*
+  Auto-generate slug from given and family name fields.
+  This is used for adding Person contacts and Memorials
+  */
   var slug_text = undefined;
 
   var given_name = $("#id_given_name").val();
@@ -18,11 +22,11 @@ function generateAutoslug() {
 }
 
 $(function autopopulateSlugForContact() {
-  $("#id_given_name").on("change", function() {
+  $("#id_given_name").on("change", function () {
     generateAutoslug();
   });
 
-  $("#id_family_name").on("change", function() {
+  $("#id_family_name").on("change", function () {
     generateAutoslug();
   });
 });
