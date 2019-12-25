@@ -26,6 +26,8 @@ from facets.models import (
     Topic,
 )
 
+from flatpickr import DatePickerInput
+
 
 class LibraryItem(Page):
     publication_date = models.DateField("Publication date")
@@ -66,7 +68,7 @@ class LibraryItem(Page):
             heading="Authors",
             help_text="Select one or more authors, who contributed to this article",
         ),
-        FieldPanel("publication_date"),
+        FieldPanel("publication_date", widget=DatePickerInput()),
         StreamFieldPanel("body"),
         MultiFieldPanel(
             children=[

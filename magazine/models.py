@@ -22,6 +22,9 @@ from wagtailautocomplete.edit_handlers import AutocompletePanel
 
 from subscription.models import Subscription
 
+from flatpickr import DatePickerInput
+
+
 class MagazineIndexPage(Page):
     intro = RichTextField(blank=True)
 
@@ -90,7 +93,7 @@ class MagazineIssue(Page):
     search_template = "search/magazine_issue.html"
 
     content_panels = Page.content_panels + [
-        FieldPanel("publication_date"),
+        FieldPanel("publication_date", widget=DatePickerInput()),
         ImageChooserPanel("cover_image"),
         InlinePanel(
             "featured_articles",
