@@ -2,115 +2,116 @@
 {% load wagtailcore_tags %}
 
 {% block extra_css %}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.21.0/slimselect.min.css" rel="stylesheet"></link>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.21.0/slimselect.min.css" rel="stylesheet">
+</link>
 {% endblock %}
 
 {% block content %}
-    <h1>
-        {{ page.title }}
-    </h1>
+<h1>
+    {{ page.title }}
+</h1>
 
-    {{ page.specific.intro|richtext }}
+{{ page.specific.intro|richtext }}
 
-    <div class="row">
-        <div class="col-4">
-            <div class="card mb-2">
-                <div class="card-body">
-                    <h2 class="card-title">
-                        Facets
-                        <a href="/library" class="btn btn-sm btn-outline-primary">
-                            clear
-                        </a>
-                    </h2>
-                </div>
-                <form id="facetForm" class="mx-2">
-                    <div class="form-group">
-                        <label for="author">
-                            Author
-                        </label>
-                        <select name="authors__author__title" id="author">
-                            <option selected disabled hidden>Select...</option>
-                            {% for author in authors %}
-                                <option>{{ author }}</option>
-                            {% endfor %}
-                        </select>
-                        <hr />
-                        <label for="audience">
-                            Audience
-                        </label>
-                        <select name="item_audience__title" id="audience">
-                            <option selected disabled hidden>Select...</option>
-                            {% for audience in audiences %}
-                                <option>{{ audience }}</option>
-                            {% endfor %}
-                        </select>
-                        <hr />
-                        <label for="genre">
-                            Genre
-                        </label>
-                        <select name="item_genre__title" id="genre">
-                            <option disabled selected>Select...</option>
-                            {% for genre in genres %}
-                                <option>{{ genre }}</option>
-                            {% endfor %}
-                        </select>
-                        <hr />
-                        <label for="medium">
-                            Medium
-                        </label>
-                        <select name="item_medium__title" id="medium">
-                            <option disabled selected>Select...</option>
-                            {% for medium in mediums %}
-                                <option>{{ medium }}</option>
-                            {% endfor %}
-                        </select>
-                        <hr />
-                        <label for="time_period">
-                            Time Period
-                        </label>
-                        <select name="item_time_period__title" id="time_period">
-                            <option disabled selected>Select...</option>
-                            {% for time_period in time_periods %}
-                                <option>{{ time_period }}</option>
-                            {% endfor %}
-                        </select>
-                        <hr />
-                        <label for="topic">
-                            Topic
-                        </label>
-                        <select name="topic" id="topic">
-                            <option disabled selected>Select...</option>
-                            {% for topic in topics %}
-                                <option>{{ topic }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </form>
+<div class="row">
+    <div class="col-4">
+        <div class="card mb-2">
+            <div class="card-body">
+                <h2 class="card-title">
+                    Facets
+                    <a href="/library" class="btn btn-sm btn-outline-primary">
+                        clear
+                    </a>
+                </h2>
             </div>
-        </div>
-        <div class="col" id="app">
-            {% if library_items %}
-                {% for library_item in library_items %}
-                <div class="card mb-2">
-                    <div class="card-body">
-                        <h3>
-                            <a href="{% pageurl library_item %}">
-                                {{ library_item }}
-                            </a>
-                        </h3>
-                        Authored by:
-                        {% for author in library_item.specific.authors.all %}
-                            <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+            <form id="facetForm" class="mx-2">
+                <div class="form-group">
+                    <label for="author">
+                        Author
+                    </label>
+                    <select name="authors__author__title" id="author">
+                        <option selected disabled hidden>Select...</option>
+                        {% for author in authors %}
+                        <option>{{ author }}</option>
                         {% endfor %}
-                    </div>
+                    </select>
+                    <hr />
+                    <label for="audience">
+                        Audience
+                    </label>
+                    <select name="item_audience__title" id="audience">
+                        <option selected disabled hidden>Select...</option>
+                        {% for audience in audiences %}
+                        <option>{{ audience }}</option>
+                        {% endfor %}
+                    </select>
+                    <hr />
+                    <label for="genre">
+                        Genre
+                    </label>
+                    <select name="item_genre__title" id="genre">
+                        <option disabled selected>Select...</option>
+                        {% for genre in genres %}
+                        <option>{{ genre }}</option>
+                        {% endfor %}
+                    </select>
+                    <hr />
+                    <label for="medium">
+                        Medium
+                    </label>
+                    <select name="item_medium__title" id="medium">
+                        <option disabled selected>Select...</option>
+                        {% for medium in mediums %}
+                        <option>{{ medium }}</option>
+                        {% endfor %}
+                    </select>
+                    <hr />
+                    <label for="time_period">
+                        Time Period
+                    </label>
+                    <select name="item_time_period__title" id="time_period">
+                        <option disabled selected>Select...</option>
+                        {% for time_period in time_periods %}
+                        <option>{{ time_period }}</option>
+                        {% endfor %}
+                    </select>
+                    <hr />
+                    <label for="topic">
+                        Topic
+                    </label>
+                    <select name="topic" id="topic">
+                        <option disabled selected>Select...</option>
+                        {% for topic in topics %}
+                        <option>{{ topic }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                {% endfor %}
-
-            {% else %}
-                <p>No media items found.</p>
-            {% endif %}
+            </form>
         </div>
     </div>
+    <div class="col" id="app">
+        {% if library_items %}
+        {% for library_item in library_items %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <h3>
+                    <a href="{% pageurl library_item %}">
+                        {{ library_item }}
+                    </a>
+                </h3>
+                Authored by:
+                {% for author in library_item.specific.authors.all %}
+                <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <p>No media items found.</p>
+        {% endif %}
+    </div>
+</div>
 {% endblock content %}
 
 {% block extra_js %}
