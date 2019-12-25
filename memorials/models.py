@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 
 from wagtail.admin.edit_handlers import FieldPanel, PageChooserPanel
@@ -65,3 +66,26 @@ class MemorialIndexPage(Page):
     subpage_types = [
         Memorial,
     ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+
+        memorials = Memorial.objects.all()
+
+        # Show three archive issues per page
+        paginator = Paginator(memorials, 10)
+
+        memorials_page = request.GET.get("page")
+
+        try:
+            paginated_memorials = paginator.page(memorials_page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            paginated_memorials = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            paginated_memorials = paginator.page(paginator.num_pages)
+
+        context["memorials"] = paginated_memorials
+
+        return context
