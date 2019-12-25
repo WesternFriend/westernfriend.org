@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+<h1>{{ page.title }}</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        Date of birth
+                    </h2>
+
+                    <div class="card-text">
+                        {{ page.date_of_birth }}{% if page.dates_are_approximate %}*{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        Date of death
+                    </h2>
+
+                    <div class="card-text">
+                        {{ page.date_of_death }}{% if page.dates_are_approximate %}*{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        Meeting
+                    </h2>
+
+                    <div class="card-text">
+                        {{ page.memorial_meeting }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if page.dates_are_approximate %}
+    <div class="row">
+        <div class="col-sm">
+            <span class="text-secondary">
+                *Date(s) of birth and/or death approximate
+            </span>
+
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mt-3">
+        <div class="col-sm">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        Minute
+                    </h2>
+
+                    <div class="card-text">
+                        {{ page.memorial_minute | richtext }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
