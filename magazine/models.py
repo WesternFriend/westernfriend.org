@@ -275,6 +275,9 @@ class ArchiveIssue(Page):
 
 
 class ArchiveArticle(Orderable, ClusterableModel):
+    title = models.CharField(
+        max_length=255,
+    )
     toc_page_number = models.IntegerField(
         verbose_name="ToC page #",
         help_text="Enter the page number as it appears in the Table of Contents",
@@ -289,7 +292,11 @@ class ArchiveArticle(Orderable, ClusterableModel):
         related_name="archive_articles"
     )
 
+    def __str__(self):
+        return self.title
+
     panels = [
+        FieldPanel("title"),
         MultiFieldPanel(
             [
                 FieldPanel("toc_page_number"),
