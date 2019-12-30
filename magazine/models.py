@@ -3,9 +3,8 @@ from datetime import timedelta
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
-from django_extensions.db.fields import AutoSlugField
 from modelcluster.contrib.taggit import ClusterTaggableManager
-from modelcluster.fields import ParentalKey, ParentalManyToManyField
+from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
 from wagtail.admin.edit_handlers import (
     FieldPanel,
@@ -17,10 +16,6 @@ from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page, Orderable
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
-from wagtail.snippets.edit_handlers import SnippetChooserPanel
-from wagtailautocomplete.edit_handlers import AutocompletePanel
-
-from subscription.models import Subscription
 
 from flatpickr import DatePickerInput
 
@@ -42,7 +37,6 @@ class MagazineIndexPage(Page):
 
         # TODO: see if there is a better way to deal with
         # irregular month lengths for archive threshold
-        # pylint: disable=E501
         archive_threshold = datetime.date.today() - timedelta(days=archive_days_ago)
 
         published_issues = MagazineIssue.objects.live().order_by("-publication_date")
@@ -107,7 +101,6 @@ class MagazineIssue(Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
-        # pylint: disable=E501
         context["articles_by_department"] = (
             MagazineArticle.objects.child_of(
                 self).live().order_by("department__title")
