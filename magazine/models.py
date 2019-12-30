@@ -5,6 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
 from taggit.models import TaggedItemBase
 from wagtail.admin.edit_handlers import (
     FieldPanel,
@@ -273,12 +274,12 @@ class ArchiveIssue(Page):
     ]
 
 
-class ArchiveArticle(Orderable):
+class ArchiveArticle(Orderable, ClusterableModel):
     toc_page_number = models.IntegerField(
         verbose_name="ToC page #",
         help_text="Enter the page number as it appears in the Table of Contents",
     )
-    pdf_page_number = models.IntegerField(
+    pdf_page_number = models.PositiveIntegerField(
         verbose_name="PDF page #",
         help_text="Enter the number of the page in the PDF. This sometimes differs from the table of contents.",
     )
@@ -296,4 +297,32 @@ class ArchiveArticle(Orderable):
             ],
             heading="Page number in Table of Contents and PDF",
         ),
+        InlinePanel(
+            "authors",
+            heading="Authors",
+            help_text="Select one or more authors who contributed to this article",
+        ),
+    ]
+
+
+class ArchiveArticleAuthor(Orderable):
+    archive_article = ParentalKey(
+        "magazine.ArchiveArticle",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="authors",
+    )
+    author = models.ForeignKey(
+        "wagtailcore.Page", null=True, on_delete=models.CASCADE, related_name="archive_articles_authored"
+    )
+
+    panels = [
+        PageChooserPanel(
+            "author",
+            [
+                "contact.Person",
+                "contact.Meeting",
+                "contact.Organization",
+            ]
+        )
     ]
