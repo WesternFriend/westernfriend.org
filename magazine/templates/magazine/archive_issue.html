@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>
+    {{ page.title }}
+</h1>
+
+<h2>Table of Contents</h2>
+<ul>
+    {% for article in page.archive_articles.all %}
+    <li class="article" data-pdf-page-number="{{ article.pdf_page_number }}"
+        data-internet-archive-identifier="{{ page.internet_archive_identifier }}" onclick="turnPage(this)">{{ article }}
+        (page
+        {{ article.toc_page_number }})
+    </li>
+    {% endfor %}
+</ul>
+
+<h2>Issue</h2>
+
+<iframe id="archive-pdf-viewer" src="https://archive.org/stream/{{ page.internet_archive_identifier }}?ui=embed#page/n0"
+    width="100%" height="500" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true"
+    allowfullscreen></iframe>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    function turnPage(element) {
+        // Get page number, trim whitespace
+        var pageNumber = element.dataset.pdfPageNumber;
+        //debugger;
+
+        // Subtract one from page number, since IA viewer starts at zero
+        pageNumber = parseInt(pageNumber) - 1;
+
+        // Get Internet Archive identifier, trim whitespace
+        var ia_identifier = element.dataset.internetArchiveIdentifier;
+
+        // Construct new string for Internet Archive iframe
+        var newSrc = 'https://archive.org/stream/' + ia_identifier + '?ui=embed#page/n' + pageNumber + '/mode/2up';
+
+        // Replace iframe src attribute with new string
+        document.getElementById('archive-pdf-viewer').setAttribute('src', newSrc);
+    };
+</script>
+{% endblock extra_js %}
