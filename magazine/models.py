@@ -249,3 +249,27 @@ class MagazineArticleAuthor(Orderable):
             ]
         )
     ]
+
+
+class ArchiveIssue(Page):
+    internet_archive_identifier = models.CharField(
+        max_length=255,
+        db_index=True,
+        help_text="Identifier for Internet Archive item.",
+        unique=True,
+    )
+    western_friend_volume = models.CharField(
+        max_length=255,
+        help_text="Related Western Friend volume."
+    )
+
+
+class ArchiveArticle(Page):
+    toc_page_number = models.IntegerField(
+        verbose_name="Table of Contents page number",
+        help_text="Enter the page number as it appears in the Table of Contents",
+    )
+    pdf_page_number = models.IntegerField(
+        verbose_name="PDF page number",
+        help_text="Enter the number of the page in the PDF. This sometimes differs from the table of contents.",
+    )
