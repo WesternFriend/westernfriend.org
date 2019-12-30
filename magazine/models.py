@@ -278,7 +278,7 @@ class ArchiveArticle(Orderable, ClusterableModel):
     title = models.CharField(
         max_length=255,
     )
-    toc_page_number = models.IntegerField(
+    toc_page_number = models.PositiveIntegerField(
         verbose_name="ToC page #",
         help_text="Enter the page number as it appears in the Table of Contents",
     )
