@@ -263,13 +263,37 @@ class ArchiveIssue(Page):
         help_text="Related Western Friend volume."
     )
 
+    content_panels = Page.content_panels + [
+        FieldPanel("internet_archive_identifier"),
+        FieldPanel("western_friend_volume"),
+        InlinePanel(
+            "archive_articles",
+            heading="Archive articles",
+        )
+    ]
 
-class ArchiveArticle(Page):
+
+class ArchiveArticle(Orderable):
     toc_page_number = models.IntegerField(
-        verbose_name="Table of Contents page number",
+        verbose_name="ToC page #",
         help_text="Enter the page number as it appears in the Table of Contents",
     )
     pdf_page_number = models.IntegerField(
-        verbose_name="PDF page number",
+        verbose_name="PDF page #",
         help_text="Enter the number of the page in the PDF. This sometimes differs from the table of contents.",
     )
+    archive_issue = ParentalKey(
+        to="magazine.ArchiveIssue",
+        on_delete=models.CASCADE,
+        related_name="archive_articles"
+    )
+
+    panels = [
+        MultiFieldPanel(
+            [
+                FieldPanel("toc_page_number"),
+                FieldPanel("pdf_page_number"),
+            ],
+            heading="Page number in Table of Contents and PDF",
+        ),
+    ]
