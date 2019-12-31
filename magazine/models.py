@@ -277,6 +277,8 @@ class ArchiveIssue(Page):
         )
     ]
 
+    parent_page_types = ["DeepArchiveIndexPage"]
+
 
 class ArchiveArticle(Orderable, ClusterableModel):
     title = models.CharField(
@@ -349,3 +351,6 @@ class DeepArchiveIndexPage(Page):
     max_count = 1
 
     parent_page_types = ["MagazineIndexPage"]
+    subpage_types = [
+        "ArchiveIssue"
+    ]
