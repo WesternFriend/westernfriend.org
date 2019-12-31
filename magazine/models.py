@@ -267,6 +267,7 @@ class ArchiveIssue(Page):
     content_panels = Page.content_panels + [
         FieldPanel("internet_archive_identifier"),
         FieldPanel("western_friend_volume"),
+        FieldPanel("first_published_at", widget=DatePickerInput()),
         InlinePanel(
             "archive_articles",
             heading="Archive articles",
