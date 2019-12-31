@@ -26,7 +26,10 @@ class MagazineIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    subpage_types = ["MagazineIssue"]
+    subpage_types = [
+        "MagazineIssue",
+        "DeepArchiveIndexPage",
+    ]
 
     max_count = 1
 
@@ -334,3 +337,15 @@ class ArchiveArticleAuthor(Orderable):
             ]
         )
     ]
+
+
+class DeepArchiveIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("intro")]
+
+    subpage_types = ["ArchiveIssue"]
+
+    max_count = 1
+
+    parent_page_types = ["MagazineIndexPage"]
