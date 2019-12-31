@@ -354,3 +354,8 @@ class DeepArchiveIndexPage(Page):
     subpage_types = [
         "ArchiveIssue"
     ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+
+        return context
