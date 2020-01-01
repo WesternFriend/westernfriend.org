@@ -358,6 +358,23 @@ class DeepArchiveIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        context["archive_issues"] = self.get_children()
+        archive_issues = self.get_children()
+
+        items_per_page = 9
+
+        paginator = Paginator(archive_issues, items_per_page)
+
+        archive_issues_page = request.GET.get("page")
+
+        try:
+            paginated_memorials = paginator.page(archive_issues_page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            paginated_memorials = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            paginated_memorials = paginator.page(paginator.num_pages)
+
+        context["archive_issues"] = paginated_memorials
 
         return context
