@@ -6,4 +6,21 @@
 <h1>{{ page.title }}</h1>
 
 {{ page.intro | richtext }}
+
+<div class="row">
+    {% for issue in archive_issues %}
+    <div class="col-sm-4 mb-4">
+        <div class="card">
+            <a href=" {% pageurl issue %}">
+                <img class="card-img-top"
+                    src="https://archive.org/services/img/{{ issue.specific.internet_archive_identifier }}">
+                <div class="card-body">
+                    {{ issue }}
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 {% endblock content %}
