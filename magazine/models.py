@@ -358,4 +358,6 @@ class DeepArchiveIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
+        context["archive_issues"] = self.get_children()
+
         return context
