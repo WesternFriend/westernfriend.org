@@ -88,8 +88,9 @@ class MemorialIndexPage(Page):
 
         memorials = Memorial.objects.all().filter(**facets)
 
-        # Show three archive issues per page
-        paginator = Paginator(memorials, 10)
+        items_per_page = 10
+
+        paginator = Paginator(memorials, items_per_page)
 
         memorials_page = request.GET.get("page")
 
