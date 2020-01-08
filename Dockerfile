@@ -6,6 +6,8 @@ ENV DJANGO_ENV dev
 
 COPY ./requirements.txt /code/requirements.txt
 RUN pip install -r /code/requirements.txt
+RUN poetry config settings.virtualenvs.create false
+RUN poetry install --no-dev
 RUN pip install gunicorn
 
 COPY . /code/
