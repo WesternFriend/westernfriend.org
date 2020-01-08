@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+<h1>{{ page.title }}</h1>
+
+{{ page.intro | richtext }}
+
+<div class="row">
+    {% for issue in archive_issues %}
+    <div class="col-sm-4 mb-4">
+        <div class="card">
+            <a href=" {% pageurl issue %}">
+                <img class="card-img-top"
+                    src="https://archive.org/services/img/{{ issue.specific.internet_archive_identifier }}">
+                <div class="card-body">
+                    {{ issue }}
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="list-group-item d-flex w-100 justify-content-center">
+    {% if archive_issues.has_previous %}
+    <a href="?page={{ archive_issues.previous_page_number }}" class="btn btn-outline-primary btn-sm">previous</a>
+    {% endif %}
+
+    <span class="current">
+        Page {{ archive_issues.number }} of {{ archive_issues.paginator.num_pages }}
+    </span>
+
+    {% if archive_issues.has_next %}
+    <a href="?page={{ archive_issues.next_page_number }}" class="btn btn-outline-primary btn-sm">next</a>
+    {% endif %}
+</div>
+
+{% endblock content %}

@@ -3,9 +3,9 @@ from datetime import timedelta
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
-from django_extensions.db.fields import AutoSlugField
 from modelcluster.contrib.taggit import ClusterTaggableManager
-from modelcluster.fields import ParentalKey, ParentalManyToManyField
+from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
 from taggit.models import TaggedItemBase
 from wagtail.admin.edit_handlers import (
     FieldPanel,
@@ -17,10 +17,6 @@ from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page, Orderable
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
-from wagtail.snippets.edit_handlers import SnippetChooserPanel
-from wagtailautocomplete.edit_handlers import AutocompletePanel
-
-from subscription.models import Subscription
 
 from flatpickr import DatePickerInput
 
@@ -30,7 +26,10 @@ class MagazineIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    subpage_types = ["MagazineIssue"]
+    subpage_types = [
+        "MagazineIssue",
+        "DeepArchiveIndexPage",
+    ]
 
     max_count = 1
 
@@ -42,7 +41,6 @@ class MagazineIndexPage(Page):
 
         # TODO: see if there is a better way to deal with
         # irregular month lengths for archive threshold
-        # pylint: disable=E501
         archive_threshold = datetime.date.today() - timedelta(days=archive_days_ago)
 
         published_issues = MagazineIssue.objects.live().order_by("-publication_date")
@@ -107,7 +105,6 @@ class MagazineIssue(Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
-        # pylint: disable=E501
         context["articles_by_department"] = (
             MagazineArticle.objects.child_of(
                 self).live().order_by("department__title")
@@ -256,3 +253,128 @@ class MagazineArticleAuthor(Orderable):
             ]
         )
     ]
+
+
+class ArchiveIssue(Page):
+    internet_archive_identifier = models.CharField(
+        max_length=255,
+        db_index=True,
+        help_text="Identifier for Internet Archive item.",
+        unique=True,
+    )
+    western_friend_volume = models.CharField(
+        max_length=255,
+        help_text="Related Western Friend volume."
+    )
+
+    content_panels = Page.content_panels + [
+        FieldPanel("internet_archive_identifier"),
+        FieldPanel("western_friend_volume"),
+        FieldPanel("first_published_at", widget=DatePickerInput()),
+        InlinePanel(
+            "archive_articles",
+            heading="Archive articles",
+        )
+    ]
+
+    parent_page_types = ["DeepArchiveIndexPage"]
+
+
+class ArchiveArticle(Orderable, ClusterableModel):
+    title = models.CharField(
+        max_length=255,
+    )
+    toc_page_number = models.PositiveIntegerField(
+        verbose_name="ToC page #",
+        help_text="Enter the page number as it appears in the Table of Contents",
+    )
+    pdf_page_number = models.PositiveIntegerField(
+        verbose_name="PDF page #",
+        help_text="Enter the number of the page in the PDF. This sometimes differs from the table of contents.",
+    )
+    archive_issue = ParentalKey(
+        to="magazine.ArchiveIssue",
+        on_delete=models.CASCADE,
+        related_name="archive_articles"
+    )
+
+    def __str__(self):
+        return self.title
+
+    panels = [
+        FieldPanel("title"),
+        MultiFieldPanel(
+            [
+                FieldPanel("toc_page_number"),
+                FieldPanel("pdf_page_number"),
+            ],
+            heading="Page number in Table of Contents and PDF",
+        ),
+        InlinePanel(
+            "authors",
+            heading="Authors",
+            help_text="Select one or more authors who contributed to this article",
+        ),
+    ]
+
+
+class ArchiveArticleAuthor(Orderable):
+    archive_article = ParentalKey(
+        "magazine.ArchiveArticle",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="authors",
+    )
+    author = models.ForeignKey(
+        "wagtailcore.Page", null=True, on_delete=models.CASCADE, related_name="archive_articles_authored"
+    )
+
+    panels = [
+        PageChooserPanel(
+            "author",
+            [
+                "contact.Person",
+                "contact.Meeting",
+                "contact.Organization",
+            ]
+        )
+    ]
+
+
+class DeepArchiveIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("intro")]
+
+    subpage_types = ["ArchiveIssue"]
+
+    max_count = 1
+
+    parent_page_types = ["MagazineIndexPage"]
+    subpage_types = [
+        "ArchiveIssue"
+    ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+
+        archive_issues = self.get_children()
+
+        items_per_page = 9
+
+        paginator = Paginator(archive_issues, items_per_page)
+
+        archive_issues_page = request.GET.get("page")
+
+        try:
+            paginated_memorials = paginator.page(archive_issues_page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            paginated_memorials = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            paginated_memorials = paginator.page(paginator.num_pages)
+
+        context["archive_issues"] = paginated_memorials
+
+        return context
