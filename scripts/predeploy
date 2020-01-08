@@ -1,0 +1,3 @@
+#!/bin/bash
+poetry config settings.virtualenvs.create false
+poetry install --no-dev
