@@ -6,12 +6,13 @@ ENV DJANGO_ENV dev
 
 COPY ./requirements.txt /code/requirements.txt
 RUN pip install -r /code/requirements.txt
-RUN poetry config virtualenvs.create false --local
-RUN poetry install --no-dev
 RUN pip install gunicorn
 
 COPY . /code/
 WORKDIR /code/
+
+RUN poetry config virtualenvs.create false --local
+RUN poetry install --no-dev
 
 RUN python manage.py migrate
 
