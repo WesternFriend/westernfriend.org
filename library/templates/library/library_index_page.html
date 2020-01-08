@@ -131,7 +131,7 @@
         topic: urlParams.get('item_topic__title'),
     };
 
-    document.addEventListener("DOMContentLoaded", function (event) {
+    $(document).ready(function () {
         // Render select widgets and populate values
         for (var facet in facets) {
             // Render advanced select widget on facet select
