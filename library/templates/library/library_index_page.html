@@ -131,16 +131,18 @@
         topic: urlParams.get('item_topic__title'),
     };
 
-    // Render select widgets and populate values
-    for (var facet in facets) {
-        // Render advanced select widget on facet select
-        var facetSelect = new SlimSelect({
-            select: '#' + facet
-        });
+    document.addEventListener("DOMContentLoaded", function (event) {
+        // Render select widgets and populate values
+        for (var facet in facets) {
+            // Render advanced select widget on facet select
+            var facetSelect = new SlimSelect({
+                select: '#' + facet
+            });
 
-        // populate the select with value, if one exists
-        if (facets[facet]) facetSelect.set(facets[facet]);
-    }
+            // populate the select with value, if one exists
+            if (facets[facet]) facetSelect.set(facets[facet]);
+        }
+    });
 
     // Submit form when any option is selected
     // Note: event listeners must be added after setting field values
