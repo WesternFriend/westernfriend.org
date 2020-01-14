@@ -6,15 +6,28 @@
 </h1>
 
 <h2>Table of Contents</h2>
-<ul>
-    {% for article in page.archive_articles.all %}
-    <li class="article" data-pdf-page-number="{{ article.pdf_page_number }}"
-        data-internet-archive-identifier="{{ page.internet_archive_identifier }}" onclick="turnPage(this)">{{ article }}
-        (page
-        {{ article.toc_page_number }})
-    </li>
+<table class="table">
+    <tr>
+        <th>Article</th>
+        <th>Author(s)</th>
+        <th>Page</th>
+    </tr>
+
+    {% for article in page.table_of_contents %}
+    <tr class="article" data-pdf-page-number="{{ article.value.pdf_page_number }}"
+        data-internet-archive-identifier="{{ page.internet_archive_identifier }}" onclick="turnPage(this)">
+        <td>{{ article.value.title }}</td>
+        <td>
+            {% for author in article.value.authors %}
+            {{ author }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        </td>
+        <td>{{ article.value.toc_page_number }}</td>
+    </tr>
     {% endfor %}
-</ul>
+</table>
+
+
 
 <h2>Issue</h2>
 
@@ -38,7 +51,7 @@
 
         // Construct new string for Internet Archive iframe
         var newSrc = 'https://archive.org/stream/' + ia_identifier + '?ui=embed#page/n' + pageNumber + '/mode/2up';
-
+        debugger;
         // Replace iframe src attribute with new string
         document.getElementById('archive-pdf-viewer').setAttribute('src', newSrc);
     };
