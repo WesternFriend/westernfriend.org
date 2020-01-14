@@ -8,6 +8,7 @@
 <h2>Table of Contents</h2>
 <table class="table table-sm table-striped">
     <tr>
+        <th>View page</th>
         <th>Article</th>
         <th>Author(s)</th>
         <th>Page</th>
@@ -16,6 +17,13 @@
     {% for article in page.table_of_contents %}
     <tr class="article" data-pdf-page-number="{{ article.value.pdf_page_number }}"
         data-internet-archive-identifier="{{ page.internet_archive_identifier }}" onclick="turnPage(this)">
+        <td>
+            <button class="btn btn-sm btn-outline-primary">
+                <i class="fa fa-eye"></i>
+                <i class="fa fa-file-text-o"></i>
+                View
+            </button>
+        </td>
         <td>{{ article.value.title }}</td>
         <td>
             {% for author in article.value.authors %}
