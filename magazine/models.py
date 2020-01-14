@@ -10,15 +10,18 @@ from taggit.models import TaggedItemBase
 from wagtail.admin.edit_handlers import (
     FieldPanel,
     InlinePanel,
-    PageChooserPanel,
     MultiFieldPanel,
+    PageChooserPanel,
+    StreamFieldPanel,
 )
-from wagtail.core.fields import RichTextField
+from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page, Orderable
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
 
 from flatpickr import DatePickerInput
+
+from .blocks import ArchiveArticleBlock
 
 
 class MagazineIndexPage(Page):
@@ -271,74 +274,13 @@ class ArchiveIssue(Page):
         FieldPanel("internet_archive_identifier"),
         FieldPanel("western_friend_volume"),
         FieldPanel("first_published_at", widget=DatePickerInput()),
-        InlinePanel(
-            "archive_articles",
-            heading="Archive articles",
-        )
+        StreamFieldPanel("table_of_contents")
     ]
 
     parent_page_types = ["DeepArchiveIndexPage"]
-
-
-class ArchiveArticle(Orderable, ClusterableModel):
-    title = models.CharField(
-        max_length=255,
-    )
-    toc_page_number = models.PositiveIntegerField(
-        verbose_name="ToC page #",
-        help_text="Enter the page number as it appears in the Table of Contents",
-    )
-    pdf_page_number = models.PositiveIntegerField(
-        verbose_name="PDF page #",
-        help_text="Enter the number of the page in the PDF. This sometimes differs from the table of contents.",
-    )
-    archive_issue = ParentalKey(
-        to="magazine.ArchiveIssue",
-        on_delete=models.CASCADE,
-        related_name="archive_articles"
-    )
-
-    def __str__(self):
-        return self.title
-
-    panels = [
-        FieldPanel("title"),
-        MultiFieldPanel(
-            [
-                FieldPanel("toc_page_number"),
-                FieldPanel("pdf_page_number"),
-            ],
-            heading="Page number in Table of Contents and PDF",
-        ),
-        InlinePanel(
-            "authors",
-            heading="Authors",
-            help_text="Select one or more authors who contributed to this article",
-        ),
-    ]
-
-
-class ArchiveArticleAuthor(Orderable):
-    archive_article = ParentalKey(
-        "magazine.ArchiveArticle",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="authors",
-    )
-    author = models.ForeignKey(
-        "wagtailcore.Page", null=True, on_delete=models.CASCADE, related_name="archive_articles_authored"
-    )
-
-    panels = [
-        PageChooserPanel(
-            "author",
-            [
-                "contact.Person",
-                "contact.Meeting",
-                "contact.Organization",
-            ]
-        )
-    ]
+    table_of_contents = StreamField([
+        ("Article", ArchiveArticleBlock()),
+    ], null=True, blank=True)
 
 
 class DeepArchiveIndexPage(Page):
