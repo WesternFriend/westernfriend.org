@@ -26,79 +26,75 @@
             </div>
             <form id="facetForm" class="mx-2">
                 <div class="form-group">
-                    <div class="container">
-                        <div class="row">
-                            <label for="author">
-                                Author
-                            </label>
-                            <select class="custom-select" name="authors__author__title" id="author">
-                                <option selected disabled hidden>Select...</option>
-                                {% for author in authors %}
-                                <option>{{ author }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <hr />
-                        <div class="row">
-                            <label for="audience">
-                                Audience
-                            </label>
-                            <select class="custom-select" name="item_audience__title" id="audience">
-                                <option selected disabled hidden>Select...</option>
-                                {% for audience in audiences %}
-                                <option>{{ audience }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <hr />
-                        <div class="row">
-                            <label for="genre">
-                                Genre
-                            </label>
-                            <select class="custom-select" name="item_genre__title" id="genre">
-                                <option disabled selected>Select...</option>
-                                {% for genre in genres %}
-                                <option>{{ genre }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <hr />
-                        <div class="row">
-                            <label for="medium">
-                                Medium
-                            </label>
-                            <select class="custom-select" name="item_medium__title" id="medium">
-                                <option disabled selected>Select...</option>
-                                {% for medium in mediums %}
-                                <option>{{ medium }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <hr />
-                        <div class="row">
-                            <label for="time_period">
-                                Time Period
-                            </label>
-                            <select class="custom-select" name="item_time_period__title" id="time_period">
-                                <option disabled selected>Select...</option>
-                                {% for time_period in time_periods %}
-                                <option>{{ time_period }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <hr />
-                        <div class="row">
-                            <label for="topic">
-                                Topic
-                            </label>
-                            <select class="custom-select" name="topic" id="topic">
-                                <option disabled selected>Select...</option>
-                                {% for topic in topics %}
-                                <option>{{ topic }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
+                    <label for="author">
+                        Author
+                    </label>
+                    <select class="custom-select" name="authors__author__title" id="author">
+                        <option selected disabled hidden>Select...</option>
+                        {% for author in authors %}
+                        <option>{{ author }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="audience">
+                        Audience
+                    </label>
+                    <select class="custom-select" name="item_audience__title" id="audience">
+                        <option selected disabled hidden>Select...</option>
+                        {% for audience in audiences %}
+                        <option>{{ audience }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="genre">
+                        Genre
+                    </label>
+                    <select class="custom-select" name="item_genre__title" id="genre">
+                        <option disabled selected>Select...</option>
+                        {% for genre in genres %}
+                        <option>{{ genre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="medium">
+                        Medium
+                    </label>
+                    <select class="custom-select" name="item_medium__title" id="medium">
+                        <option disabled selected>Select...</option>
+                        {% for medium in mediums %}
+                        <option>{{ medium }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="time_period">
+                        Time Period
+                    </label>
+                    <select class="custom-select" name="item_time_period__title" id="time_period">
+                        <option disabled selected>Select...</option>
+                        {% for time_period in time_periods %}
+                        <option>{{ time_period }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="topic">
+                        Topic
+                    </label>
+                    <select class="custom-select" name="topic" id="topic">
+                        <option disabled selected>Select...</option>
+                        {% for topic in topics %}
+                        <option>{{ topic }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </form>
         </div>
