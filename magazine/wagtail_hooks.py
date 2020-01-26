@@ -13,7 +13,7 @@ class MagazineIssueModelAdmin(ModelAdmin):
     menu_label = "Issues"
     list_per_page = 10
     ordering = ["publication_date", ]
-    list_display = ("title",)
+    list_display = ("title", "publication_date")
     list_filter = ("first_published_at", )
     empty_value_display = "-"
     search_fields = ("title",)
@@ -25,7 +25,7 @@ class ArchiveIssueModelAdmin(ModelAdmin):
     menu_label = "Archive Issues"
     list_per_page = 10
     ordering = ["publication_date", ]
-    list_display = ("title",)
+    list_display = ("title", "publication_date")
     empty_value_display = "-"
     search_fields = ("title",)
 
