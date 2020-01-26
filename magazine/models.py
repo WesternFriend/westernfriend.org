@@ -303,8 +303,15 @@ class DeepArchiveIndexPage(Page):
         "ArchiveIssue"
     ]
 
+    def get_publication_years(self):
+        publication_dates = ArchiveIssue.objects.dates("publication_date", "year")
+
+        return [publication_date.year for publication_date in publication_dates]
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
+
+        context["publication_years"] = self.get_publication_years()
 
         archive_issues = self.get_children()
 
