@@ -18,6 +18,7 @@ django-authtools = "^1.7.0"
 django-registration = "^3.0.1"
 wagtailmenus = "^3.0"
 django-flatpickr = "^1.0.1"
+dj-database-url = "^0.5.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7.9"
