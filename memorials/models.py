@@ -83,7 +83,7 @@ class MemorialIndexPage(Page):
             "title",
             "memorial_meeting__title",
         ]
-        facets = {f"{key}__contains": query[key]
+        facets = {f"{key}__icontains": query[key]
                   for key in query if key in allowed_keys}
 
         memorials = Memorial.objects.all().filter(**facets)
