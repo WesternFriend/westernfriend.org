@@ -13,7 +13,6 @@
     </div>
 </div>
 
-{% if memorials %}
 <div class="card">
     <div class="card-header">
         <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#filter-form"
@@ -46,6 +45,8 @@
                 filter(s)</button>
         </form>
     </div>
+
+    {% if memorials %}
 
     <div class="list-group">
         {% for memorial in memorials %}
@@ -80,11 +81,14 @@
             {% endif %}
         </div>
     </div>
+    {% else %}
+    <div class="card-body">
+        <p>There are no memorials.</p>
+    </div>
+    {% endif %}
 </div>
 
-{% else %}
-<p>There are no memorials.</p>
-{% endif %}
+
 
 {% endblock content %}
 
