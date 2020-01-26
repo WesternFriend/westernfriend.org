@@ -259,6 +259,9 @@ class MagazineArticleAuthor(Orderable):
 
 
 class ArchiveIssue(Page):
+    publication_date = models.DateField(
+        null=True, help_text="Please select the first day of the publication month"
+    )
     internet_archive_identifier = models.CharField(
         max_length=255,
         db_index=True,
@@ -276,9 +279,9 @@ class ArchiveIssue(Page):
     ], null=True, blank=True)
 
     content_panels = Page.content_panels + [
+        FieldPanel("publication_date", widget=DatePickerInput()),
         FieldPanel("internet_archive_identifier"),
         FieldPanel("western_friend_volume"),
-        FieldPanel("first_published_at", widget=DatePickerInput()),
         StreamFieldPanel("table_of_contents")
     ]
 
