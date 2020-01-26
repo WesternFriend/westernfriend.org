@@ -308,13 +308,7 @@ class DeepArchiveIndexPage(Page):
 
         return [publication_date.year for publication_date in publication_dates]
 
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
-
-        context["publication_years"] = self.get_publication_years()
-
-        archive_issues = self.get_children()
-
+    def get_paginated_archive_issues(self, archive_issues, request):
         items_per_page = 9
 
         paginator = Paginator(archive_issues, items_per_page)
@@ -322,14 +316,25 @@ class DeepArchiveIndexPage(Page):
         archive_issues_page = request.GET.get("page")
 
         try:
-            paginated_memorials = paginator.page(archive_issues_page)
+            paginated_archive_issues = paginator.page(archive_issues_page)
         except PageNotAnInteger:
             # If page is not an integer, deliver first page.
-            paginated_memorials = paginator.page(1)
+            paginated_archive_issues = paginator.page(1)
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
-            paginated_memorials = paginator.page(paginator.num_pages)
+            paginated_archive_issues = paginator.page(paginator.num_pages)
 
-        context["archive_issues"] = paginated_memorials
+        return paginated_archive_issues
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+
+        context["publication_years"] = self.get_publication_years()
+
+        archive_issues = self.get_children()
+
+        paginated_archive_issues = self.get_paginated_issues(archive_issues, request)
+
+        context["archive_issues"] = paginated_archive_issues
 
         return context
