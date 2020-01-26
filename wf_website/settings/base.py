@@ -15,7 +15,6 @@ import os
 
 from braintree import Configuration as BraintreeConfiguration
 from braintree import Environment as BraintreeEnvironment
-import django_heroku
 
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -201,6 +200,3 @@ WAGTAIL_SITE_NAME = "wf_website"
 BASE_URL = "http://example.com"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-
-django_heroku.settings(locals())
