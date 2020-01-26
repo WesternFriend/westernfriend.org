@@ -14,7 +14,7 @@ class MagazineIssueModelAdmin(ModelAdmin):
     list_per_page = 10
     ordering = ["publication_date", ]
     list_display = ("title", "publication_date")
-    list_filter = ("first_published_at", )
+    list_filter = ("publication_date", )
     empty_value_display = "-"
     search_fields = ("title",)
 
