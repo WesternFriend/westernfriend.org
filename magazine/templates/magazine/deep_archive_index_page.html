@@ -8,7 +8,7 @@
 {{ page.intro | richtext }}
 
 <div class="row">
-    <div class="col-sm-5 mb-3">
+    <div class="col-sm-7 mb-3">
         <div class="card">
             <div class="card-body">
                 <form class="form-inline">
@@ -24,12 +24,16 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-outline-primary ml-3 align-baseline">Go</button>
+                    <button type="submit" class="btn btn-outline-primary ml-3 mr-1 align-baseline">Go</button>
+
+                    <button id="clear-search-button" class="btn btn-outline-info invisible float-right"
+                        onclick="clearSearch()" type="button">Clear
+                        search</button>
                 </form>
             </div>
         </div>
     </div>
-    <div class="col-sm-7 mb-3"></div>
+    <div class="col-sm-5 mb-3"></div>
     {% for issue in archive_issues %}
     <div class="col-sm-4 mb-4">
         <div class="card">
@@ -60,3 +64,31 @@
 </div>
 
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+    function clearSearch() {
+        window.location.replace(location.pathname)
+    }
+
+    // if filter query exists
+    if (window.location.search) {
+        // Display clear filter button
+        var clearSearchButton = document.getElementById("clear-search-button");
+        clearSearchButton.classList.toggle("invisible");
+
+        // Update search facet fields with value(s) from search parameters
+        var urlParams = new URLSearchParams(window.location.search);
+
+        for (let [key, value] of urlParams) {
+            try {
+                const element = document.getElementById(key);
+
+                element.value = value;
+            } catch (error) {
+                console.log("Form element does not exist with id:", key)
+            }
+        }
+    }
+</script>
+{% endblock extra_js%}
