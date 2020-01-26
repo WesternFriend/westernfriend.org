@@ -267,7 +267,9 @@ class ArchiveIssue(Page):
     )
     western_friend_volume = models.CharField(
         max_length=255,
-        help_text="Related Western Friend volume."
+        help_text="Related Western Friend volume.",
+        null=True,
+        blank=True,
     )
 
     content_panels = Page.content_panels + [
