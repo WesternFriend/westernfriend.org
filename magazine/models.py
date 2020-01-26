@@ -271,6 +271,9 @@ class ArchiveIssue(Page):
         null=True,
         blank=True,
     )
+    table_of_contents = StreamField([
+        ("Article", ArchiveArticleBlock()),
+    ], null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("internet_archive_identifier"),
@@ -280,9 +283,7 @@ class ArchiveIssue(Page):
     ]
 
     parent_page_types = ["DeepArchiveIndexPage"]
-    table_of_contents = StreamField([
-        ("Article", ArchiveArticleBlock()),
-    ], null=True, blank=True)
+    subpage_types = []
 
 
 class DeepArchiveIndexPage(Page):
