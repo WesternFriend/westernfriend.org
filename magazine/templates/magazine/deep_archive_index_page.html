@@ -8,6 +8,28 @@
 {{ page.intro | richtext }}
 
 <div class="row">
+    <div class="col-sm-5 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label for="meeting">
+                            Filter by year
+                        </label>
+                        <select name="publication_date__year" id="publication_date__year" class="form-control">
+                            <option selected disabled hidden>Choose a year</option>
+                            {% for year in publication_years %}
+                            <option>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-outline-primary ml-3 align-baseline">Go</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-7 mb-3"></div>
     {% for issue in archive_issues %}
     <div class="col-sm-4 mb-4">
         <div class="card">
