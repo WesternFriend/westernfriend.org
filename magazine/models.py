@@ -308,6 +308,20 @@ class DeepArchiveIndexPage(Page):
 
         return [publication_date.year for publication_date in publication_dates]
 
+    def get_filtered_archive_issues(self, request):
+        # Check if any query string is available
+        query = request.GET.dict()
+
+        # Filter out any facet that isn't a model field
+        allowed_keys = [
+            "publication_date__year",
+        ]
+
+        facets = {f"{key}__icontains": query[key]
+                  for key in query if key in allowed_keys}
+
+        return ArchiveIssue.objects.all().filter(**facets)
+
     def get_paginated_archive_issues(self, archive_issues, request):
         items_per_page = 9
 
@@ -329,12 +343,13 @@ class DeepArchiveIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        context["publication_years"] = self.get_publication_years()
+        archive_issues = self.get_filtered_archive_issues(request)
 
-        archive_issues = self.get_children()
-
-        paginated_archive_issues = self.get_paginated_issues(archive_issues, request)
+        paginated_archive_issues = self.get_paginated_archive_issues(archive_issues, request)
 
         context["archive_issues"] = paginated_archive_issues
+
+        # Add publication years to context, for select menu
+        context["publication_years"] = self.get_publication_years()
 
         return context
