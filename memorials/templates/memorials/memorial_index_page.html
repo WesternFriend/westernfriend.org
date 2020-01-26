@@ -40,8 +40,8 @@
 
             <button type="submit" class="btn btn-outline-primary ml-3 align-baseline">Go</button>
 
-            <button id="clear-filters-button" class="btn btn-outline-warning invisible float-right"
-                onclick="clearFilters()" type="button">Clear
+            <button id="clear-search-button" class="btn btn-outline-warning invisible float-right"
+                onclick="clearSearch()" type="button">Clear
                 search</button>
         </form>
     </div>
@@ -94,14 +94,14 @@
 
 {% block extra_js %}
 <script>
-    function clearFilters() {
+    function clearSearch() {
         window.location.replace(location.pathname)
     }
 
     // if filter query exists
     if (window.location.search) {
         // Display clear filter button
-        var clearFiltersButton = document.getElementById("clear-filters-button");
+        var clearFiltersButton = document.getElementById("clear-search-button");
         clearFiltersButton.classList.toggle("invisible");
 
         // Update search facet fields with value(s) from search parameters
