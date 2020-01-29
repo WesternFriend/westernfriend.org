@@ -54,5 +54,15 @@
     <i class="fa fa-eye" aria-hidden="true"></i>
     View deep archive
 </a>
+<div class="row">
+    <div class="col-sm-4 mb-4">
+        <div class="card">
+            <a href=" {% pageurl page.deep_archive_page %}">
+                <img class="card-img-top"
+                    src="https://archive.org/services/img/{{ page.featured_deep_archive_issue.internet_archive_identifier }}">
+            </a>
+        </div>
+    </div>
+</div>
 {% endif %}
 {% endblock %}
