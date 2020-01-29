@@ -5,41 +5,50 @@
 {% block body_class %}template-magazineindexpage{% endblock %}
 
 {% block content %}
-    <h1>
-        {{ page.title }}
-    </h1>
+<h1>
+    {{ page.title }}
+</h1>
 
-    <div class="intro">
-        {{ page.intro | richtext }}
-    </div>
+<div class="intro">
+    {{ page.intro | richtext }}
+</div>
 
-    <h2 id="recent-issues">Recent issues</h2>
+<h2 id="recent-issues">Recent issues</h2>
 
-    <div class="row mb-4">
-        {% for issue in recent_issues %}
-            {% include "magazine/magazine_issue_card.html" %}
-        {% endfor %}
-    </div>
+<div class="row mb-4">
+    {% for issue in recent_issues %}
+    {% include "magazine/magazine_issue_card.html" %}
+    {% endfor %}
+</div>
 
-    <h2 id="archive-issues">Archive issues</h2>
+<h2 id="archive-issues">Archive issues</h2>
 
-    <div class="row">
-        {% for issue in archive_issues %}
-            {% include "magazine/magazine_issue_card.html" %}
-        {% endfor %}
+<div class="row">
+    {% for issue in archive_issues %}
+    {% include "magazine/magazine_issue_card.html" %}
+    {% endfor %}
 
-        <span class="step-links ml-3 mb-5">
-            {% if archive_issues.has_previous %}
-                <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues" class="btn btn-outline-primary btn-sm">previous</a>
-            {% endif %}
+    <span class="step-links ml-3 mb-5">
+        {% if archive_issues.has_previous %}
+        <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues"
+            class="btn btn-outline-primary btn-sm">previous</a>
+        {% endif %}
 
-            <span class="current">
-                Page {{ archive_issues.number }} of {{ archive_issues.paginator.num_pages }}
-            </span>
-
-            {% if archive_issues.has_next %}
-                <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues" class="btn btn-outline-primary btn-sm">next</a>
-            {% endif %}
+        <span class="current">
+            Page {{ archive_issues.number }} of {{ archive_issues.paginator.num_pages }}
         </span>
-    </div>
+
+        {% if archive_issues.has_next %}
+        <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues"
+            class="btn btn-outline-primary btn-sm">next</a>
+        {% endif %}
+    </span>
+</div>
+
+{% if page.deep_archive_page %}
+<h2 id="deep-archive">Deep Archive</h2>
+{{ page.deep_archive_intro | richtext }}
+
+<a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline-success mb-3">View deep archive</a>
+{% endif %}
 {% endblock %}
