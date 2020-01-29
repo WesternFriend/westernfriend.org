@@ -34,11 +34,19 @@ class MagazineIndexPage(Page):
         on_delete=models.SET_NULL,
         related_name="+"
     )
+    featured_deep_archive_issue = models.ForeignKey(
+        "magazine.ArchiveIssue",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+"
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("intro"),
         FieldPanel("deep_archive_intro"),
         PageChooserPanel("deep_archive_page", page_type="magazine.DeepArchiveIndexPage"),
+        PageChooserPanel("featured_deep_archive_issue", page_type="magazine.ArchiveIssue"),
     ]
 
     subpage_types = [
