@@ -46,9 +46,13 @@
 </div>
 
 {% if page.deep_archive_page %}
-<h2 id="deep-archive">Deep Archive</h2>
+<h2 id="deep-archive"><i class="fa fa-university" aria-hidden="true"></i>
+    Deep archive</h2>
 {{ page.deep_archive_intro | richtext }}
 
-<a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline-success mb-3">View deep archive</a>
+<a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline-primary mb-3">
+    <i class="fa fa-eye" aria-hidden="true"></i>
+    View deep archive
+</a>
 {% endif %}
 {% endblock %}
