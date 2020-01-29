@@ -27,10 +27,18 @@ from .blocks import ArchiveArticleBlock
 class MagazineIndexPage(Page):
     intro = RichTextField(blank=True)
     deep_archive_intro = RichTextField(blank=True)
+    deep_archive_page = models.ForeignKey(
+        "magazine.DeepArchiveIndexPage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+"
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("intro"),
         FieldPanel("deep_archive_intro"),
+        PageChooserPanel("deep_archive_page", page_type="magazine.DeepArchiveIndexPage"),
     ]
 
     subpage_types = [
