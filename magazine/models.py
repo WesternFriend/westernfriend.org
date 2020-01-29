@@ -26,8 +26,12 @@ from .blocks import ArchiveArticleBlock
 
 class MagazineIndexPage(Page):
     intro = RichTextField(blank=True)
+    deep_archive_intro = RichTextField(blank=True)
 
-    content_panels = Page.content_panels + [FieldPanel("intro")]
+    content_panels = Page.content_panels + [
+        FieldPanel("intro"),
+        FieldPanel("deep_archive_intro"),
+    ]
 
     subpage_types = [
         "MagazineIssue",
