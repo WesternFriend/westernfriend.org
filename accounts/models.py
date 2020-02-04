@@ -4,4 +4,5 @@ from authtools.models import AbstractEmailUser
 
 
 class User(AbstractEmailUser):
-    pass
+    USERNAME_FIELD = "email"
+    EMAIL_FIELD = "email"
