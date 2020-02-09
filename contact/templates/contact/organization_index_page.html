@@ -6,4 +6,13 @@
 
 {% block content %}
     <h1>{{ page.title }}</h1>
+    <ul class="list-group">
+        {% for organization in page.get_descendants.all %}
+            <li class="list-group-item flex-column align-items-start">
+                <h2>{{ organization }}</h2>
+                <p class="mb-1">{{ organization.specific.description }}</p>
+                <a href="{{ organization.website }}">{{ organization.specific.website }}</a>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}
