@@ -151,18 +151,7 @@ class Organization(Page):
 
 
 class OrganizationIndexPage(Page):
-
-    body = StreamField([
-        ("heading", blocks.CharBlock(classname="full title")),
-        ("paragraph", blocks.RichTextBlock()),
-        ("organizations", OrganizationsBlock())
-    ], null=True)
-
     max_count = 1
 
     parent_page_types = ["community.CommunityPage"]
     subpage_types = ["contact.Organization"]
-
-    content_panels = Page.content_panels + [
-        StreamFieldPanel("body"),
-    ]
