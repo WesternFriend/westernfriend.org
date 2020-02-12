@@ -58,6 +58,8 @@
         {{ page.teaser | richtext }}
     {% endif %}
 
+    {{ page.body_migrated | safe }}
+
     <p>
         <a href="{{ page.get_parent.url }}">
             Return to "{{ page.get_parent.title }}" issue
