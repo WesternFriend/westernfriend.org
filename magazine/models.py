@@ -98,7 +98,7 @@ class MagazineIndexPage(Page):
 
 class MagazineIssue(Page):
     cover_image = models.ForeignKey(
-        "wagtailimages.Image", on_delete=models.SET_NULL, null=True, related_name="+"
+        "wagtailimages.Image", on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
     )
     publication_date = models.DateField(
         null=True, help_text="Please select the first day of the publication month"
