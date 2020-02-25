@@ -103,6 +103,7 @@ class MagazineIssue(Page):
     publication_date = models.DateField(
         null=True, help_text="Please select the first day of the publication month"
     )
+    issue_number = models.PositiveIntegerField(null=True, blank=True)
 
     @property
     def publication_end_date(self):
