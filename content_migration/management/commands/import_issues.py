@@ -4,6 +4,17 @@ from django.core.management.base import BaseCommand, CommandError
 from magazine.models import MagazineIndexPage, MagazineIssue
 
 
+# from django.core.files.images import ImageFile
+# from wagtail.wagtailimages.models import Image
+
+# image = Image(
+#     title="Image title",
+
+#     # image_file is your StringIO/BytesIO object
+#     file=ImageFile(image_file, name="image-filename.jpg"),
+# )
+# image.save()
+
 class Command(BaseCommand):
     help = "Import Issues from Drupal site"
 
