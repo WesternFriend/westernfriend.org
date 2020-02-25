@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "cart",
     "community",
     "contact",
+    "content_migration",
     "events",
     "facets",
     "forms",
