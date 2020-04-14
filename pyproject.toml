@@ -7,10 +7,10 @@ license = "AGPL-3.0-or-later"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-wagtail = "^2.7"
+wagtail = "^2.8"
 arrow = "^0.15.4"
 braintree = "^3.57.1"
-wagtail-autocomplete = "^0.4"
+wagtail-autocomplete = "^0.5"
 django-crispy-forms = "^1.8.1"
 django-extensions = "^2.2.5"
 wagtailfontawesome = "^1.1.4"
