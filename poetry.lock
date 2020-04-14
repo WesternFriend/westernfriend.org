@@ -96,17 +96,6 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 category = "main"
-description = "Custom user model app for Django featuring email as username and class-based views for authentication."
-name = "django-authtools"
-optional = false
-python-versions = "*"
-version = "1.7.0"
-
-[package.dependencies]
-Django = ">=1.11"
-
-[[package]]
-category = "main"
 description = "A consistent, user-friendly solution for adding app-specific settings your Django package, reusable app or framework."
 name = "django-cogwheels"
 optional = false
@@ -472,7 +461,7 @@ python-versions = "*"
 version = "1.3"
 
 [metadata]
-content-hash = "fda9a50f6c897c1377e25358c63b4c4cae7227e26c3fd1b7fcae4e537a7fb8e8"
+content-hash = "b6ca56d10b24b86d1a36197f454b0276eb8a5ee75bd9b5e6462cefb57af05cd5"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -511,9 +500,6 @@ dj-database-url = [
 django = [
     {file = "Django-2.2.9-py3-none-any.whl", hash = "sha256:687c37153486cf26c3fdcbdd177ef16de38dc3463f094b5f9c9955d91f277b14"},
     {file = "Django-2.2.9.tar.gz", hash = "sha256:662a1ff78792e3fd77f16f71b1f31149489434de4b62a74895bd5d6534e635a5"},
-]
-django-authtools = [
-    {file = "django-authtools-1.7.0.tar.gz", hash = "sha256:55180b23d7f7c40776a06f0ca8d612dd568d608ef0af256b0c5818eda1b5a261"},
 ]
 django-cogwheels = [
     {file = "django-cogwheels-0.3.tar.gz", hash = "sha256:848a4d9f2c96c582a4a4f2e7c276dfd95ab3905748cae13bb7c4b365a6717e94"},

@@ -1,6 +1,5 @@
 from django.db import models
 
-#from authtools.models import AbstractEmailUser
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils import timezone
 
