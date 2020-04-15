@@ -32,7 +32,8 @@ class Command(BaseCommand):
                 import_issue = MagazineIssue(
                     title=issue["title"],
                     publication_date=issue["publication_date"] + "-01",
-                    first_published_at=issue["publication_date"] + "-01"
+                    first_published_at=issue["publication_date"] + "-01",
+                    issue_number=issue["issue_number"]
                 )
 
                 # Add issue to site page hiererchy
