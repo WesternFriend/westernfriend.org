@@ -71,7 +71,11 @@ class PersonIndexPage(Page):
 
 class Meeting(Page):
     meeting_type = models.CharField(
-        max_length=255, choices=MEETING_TYPE_CHOICES)
+        max_length=255,
+        choices=MEETING_TYPE_CHOICES,
+        null=True,
+        blank=True
+    )
 
     description = models.CharField(max_length=255, blank=True, null=True)
 
