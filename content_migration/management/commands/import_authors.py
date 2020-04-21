@@ -1,7 +1,14 @@
 import csv
 from django.core.management.base import BaseCommand, CommandError
 
-from contact.models import Meeting, Organization, Person
+from contact.models import (
+    Meeting,
+    MeetingIndexPage,
+    Organization,
+    OrganizationIndexPage,
+    Person,
+    PersonIndexPage
+)
 
 
 class Command(BaseCommand):
@@ -12,6 +19,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with open(options["file"]) as import_file:
+            # Get index pages for use when saving entities
+            meeting_index_page = MeetingIndexPage.objects.get()
+            organization_index_page = OrganizationIndexPage.objects.get()
+            person_index_page = PersonIndexPage.objects.get()
+
             authors = csv.DictReader(import_file)
 
             for author in authors:
@@ -23,30 +35,53 @@ class Command(BaseCommand):
                 author_is_meeting = author["meeting_name"] is not ""
                 author_is_organization = author["organization_name"] is not ""
                 author_is_person = (
-                    author["corrected_family_name"] is not "" or
-                    author["corrected_given_name"] is not "" or
                     author["family_name"] is not "" or
-                    author["given_name"] is not ""
+                    author["given_name"] is not "" or
+                    author["corrected_family_name"] is not "" or
+                    author["corrected_given_name"] is not ""
                 )
 
                 if author_is_meeting:
-                    print("meeting")
+                    meeting = Meeting(
+                        title=author["meeting_name"],
+                        drupal_full_name=author["drupal_full_name"]
+                    )
+
+                    meeting_index_page.add_child(instance=meeting)
+
+                    meeting_index_page.save()
                 elif author_is_organization:
-                    print("organization")
+                    organization = Organization(
+                        title=author["organization_name"],
+                        drupal_full_name=author["drupal_full_name"]
+                    )
+
+                    organization_index_page.add_child(instance=organization)
+
+                    organization_index_page.save()
                 elif author_is_person:
-                    print("person")
+                    author_name_corrected = (
+                        author["corrected_family_name"] is not "" or
+                        author["corrected_given_name"] is not ""
+                    )
+
+                    if author_name_corrected:
+                        given_name = author["corrected_given_name"]
+                        family_name = author["corrected_family_name"]
+                    else:
+                        given_name = author["given_name"]
+                        family_name = author["family_name"]
+
+                    person = Person(
+                        given_name=given_name,
+                        family_name=family_name,
+                        drupal_full_name=author["drupal_full_name"]
+                    )
+
+                    person_index_page.add_child(instance=person)
+
+                    person_index_page.save()
                 else:
                     print("unknown")
-
-                # # Get the only instance of Magazine Department Index Page
-                # magazine_department_index_page = MagazineDepartmentIndexPage.objects.get()
-
-                # import_department = MagazineDepartment(
-                #     title=department["title"],
-                # )
-
-                # # Add department to site page hiererchy
-                # magazine_department_index_page.add_child(instance=import_department)
-                # magazine_department_index_page.save()
 
         self.stdout.write("All done!")
