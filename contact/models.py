@@ -29,6 +29,8 @@ class Person(Page):
         max_length=255,
         default="",
         help_text="Enter the given name for a person.",
+        null=True,
+        blank=True,
     )
 
     family_name = models.CharField(max_length=255, blank=True, default="")
@@ -74,7 +76,7 @@ class Meeting(Page):
         max_length=255,
         choices=MEETING_TYPE_CHOICES,
         null=True,
-        blank=True
+        blank=True,
     )
 
     description = models.CharField(max_length=255, blank=True, null=True)
