@@ -9,6 +9,7 @@ from contact.models import (
 )
 from home.models import HomePage
 from community.models import CommunityPage
+from magazine.models import MagazineIndexPage
 
 
 class Command(BaseCommand):
@@ -19,9 +20,19 @@ class Command(BaseCommand):
         home_page = HomePage(
             title="Welcome"
         )
+
+        root_page.add_child(instance=home_page)
+        root_page.save()
+
         community_page = CommunityPage(
             title="Community"
         )
+        magazine_index_page = MagazineIndexPage(title="Magazine")
+
+        home_page.add_child(instance=community_page)
+        home_page.add_child(instance=magazine_index_page)
+        home_page.save()
+
         meeting_index_page = MeetingIndexPage(
             title="Meetings"
         )
@@ -31,11 +42,6 @@ class Command(BaseCommand):
         person_index_page = PersonIndexPage(
             title="People"
         )
-        root_page.add_child(instance=home_page)
-        root_page.save()
-
-        home_page.add_child(instance=community_page)
-        home_page.save()
 
         community_page.add_child(instance=meeting_index_page)
         community_page.add_child(instance=organization_index_page)
