@@ -34,7 +34,7 @@ class Person(Page):
     )
 
     family_name = models.CharField(max_length=255, blank=True, default="")
-    drupal_full_name = models.CharField(max_length=255, db_index=True, null=True, blank=True)
+    drupal_full_name = models.CharField(max_length=255, db_index=True, null=True, blank=True, unique=True)
 
     content_panels = [
         FieldPanel("given_name"),
@@ -83,7 +83,7 @@ class Meeting(Page):
 
     website = models.URLField(null=True, blank=True)
 
-    drupal_full_name = models.CharField(max_length=255, db_index=True, null=True, blank=True)
+    drupal_full_name = models.CharField(max_length=255, db_index=True, null=True, blank=True, unique=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
@@ -137,7 +137,7 @@ class Organization(Page):
     description = models.CharField(max_length=255, blank=True, null=True)
 
     website = models.URLField(null=True, blank=True)
-    drupal_full_name = models.CharField(max_length=255, db_index=True, null=True, blank=True)
+    drupal_full_name = models.CharField(max_length=255, db_index=True, null=True, blank=True, unique=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
