@@ -1,8 +1,9 @@
 
 from django.core.management.base import BaseCommand, CommandError
+import numpy as np
 import pandas as pd
 
-from magazine.models import MagazineArticle, MagazineIssue
+from magazine.models import MagazineArticle, MagazineArticleAuthor, MagazineIssue
 
 from contact.models import (
     Meeting,
@@ -16,13 +17,13 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--articles_file", action="store", type=str)
-        #parser.add_argument("--authors_file", action="store", type=str)
+        # parser.add_argument("--authors_file", action="store", type=str)
 
     def handle(self, *args, **options):
         articles = pd.read_csv(options["articles_file"])
-        # authors = pd.read_csv("../wf_import_Data/authors_cleaned_deduped-2020-04-12.csv", index_col="drupal_full_name")
+        authors = pd.read_csv("../wf_import_Data/authors_cleaned_deduped-2020-04-12.csv")
 
-        for index, row in articles[:3].iterrows():
+        for index, row in articles.iterrows():
             # Example article
             # title                                         Quaker Culture: Simplicity
             # Authors                                      Philadelphia Yearly Meeting
@@ -35,12 +36,25 @@ class Command(BaseCommand):
             article = MagazineArticle(
                 title=row["title"]
             )
-
-            related_issue = MagazineIssue.objects.get(title=row["related_issue_title"])
+            try:
+                related_issue = MagazineIssue.objects.get(title=row["related_issue_title"])
+            except:
+                print("Can't find issue: ", row["related_issue_title"])
+                print(row)
 
             related_issue.add_child(instance=article)
-            # related_issue.save
 
-            # for author in article["Authors"].split(", "):
-            #     authors_mask = authors.index == "Mary Klein"
-            #     authors[authors_mask].iloc[0].to_dict()
+            for author in row["Authors"].split(", "):
+                authors_mask = authors["drupal_full_name"] == author
+                author_data = authors[authors_mask].iloc[0].to_dict()
+
+                if author_data["organization_name"] is not np.nan:
+                    author = Organization.objects.get(drupal_full_name=author_data["drupal_full_name"])
+                elif author_data["meeting_name"] is not np.nan:
+                    author = Meeting.objects.get(drupal_full_name=author_data["drupal_full_name"])
+                else:
+                    author = Person.objects.get(drupal_full_name=author_data["drupal_full_name"])
+
+            article_author = MagazineArticleAuthor(article=article, author=author)
+            article.authors.add(article_author)
+            article.save()
