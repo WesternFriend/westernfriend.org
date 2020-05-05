@@ -50,7 +50,9 @@ class MagazineIndexPage(Page):
     ]
 
     subpage_types = [
+        "MagazineDepartmentIndexPage",
         "MagazineIssue",
+        "MagazineTagIndexPage",
         "DeepArchiveIndexPage",
     ]
 
