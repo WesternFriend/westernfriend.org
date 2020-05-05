@@ -27,8 +27,6 @@ class HomePage(Page):
         "forms.ContactFormPage",
         "library.LibraryIndexPage",
         "magazine.MagazineIndexPage",
-        "magazine.MagazineTagIndexPage",
-        "magazine.MagazineDepartmentIndexPage",
         "memorials.MemorialIndexPage",
         "store.StoreIndexPage",
         "subscription.SubscriptionIndexPage",
