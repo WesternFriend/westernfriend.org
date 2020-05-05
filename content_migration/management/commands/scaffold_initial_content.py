@@ -9,7 +9,7 @@ from contact.models import (
 )
 from home.models import HomePage
 from community.models import CommunityPage
-from magazine.models import MagazineIndexPage
+from magazine.models import MagazineDepartmentIndexPage, MagazineIndexPage, MagazineTagIndexPage
 
 
 class Command(BaseCommand):
@@ -33,6 +33,16 @@ class Command(BaseCommand):
         home_page.add_child(instance=magazine_index_page)
         home_page.save()
 
+        # Magazine section
+        magazine_department_index_page = MagazineDepartmentIndexPage(title="Departments")
+        magazine_tag_index_page = MagazineTagIndexPage(title="Tags")
+
+        magazine_index_page.add_child(instance=magazine_department_index_page)
+        magazine_index_page.add_child(instance=magazine_tag_index_page)
+        magazine_index_page.save()
+
+        
+        # Community section
         meeting_index_page = MeetingIndexPage(
             title="Meetings"
         )
