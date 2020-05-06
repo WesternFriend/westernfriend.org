@@ -3,7 +3,9 @@ from django.core.management.base import BaseCommand, CommandError
 import numpy as np
 import pandas as pd
 
-from magazine.models import MagazineArticle, MagazineArticleAuthor, MagazineDepartment, MagazineIssue
+from taggit.models import Tag
+
+from magazine.models import MagazineArticle, MagazineArticleAuthor, MagazineArticleTag, MagazineDepartment, MagazineIssue
 
 from contact.models import (
     Meeting,
@@ -23,7 +25,7 @@ class Command(BaseCommand):
         articles = pd.read_csv(options["articles_file"])
         authors = pd.read_csv("../wf_import_Data/authors_cleaned_deduped-2020-04-12.csv")
 
-        for index, row in articles[:3].iterrows():
+        for index, row in articles[:1].iterrows():
             # Example article
             # title                                         Quaker Culture: Simplicity
             # Authors                                      Philadelphia Yearly Meeting
@@ -37,6 +39,7 @@ class Command(BaseCommand):
 
             article = MagazineArticle(
                 title=row["title"],
+                body_migrated=row["Body"],
                 department=department
             )
 
@@ -61,4 +64,8 @@ class Command(BaseCommand):
 
                 article_author = MagazineArticleAuthor(article=article, author=author)
                 article.authors.add(article_author)
-                article.save()
+
+            for keyword in row["Keywords"].split(", "):
+                article.tags.add(keyword)
+
+            article.save()
