@@ -59,6 +59,6 @@ class Command(BaseCommand):
                 else:
                     author = Person.objects.get(drupal_full_name=author_data["drupal_full_name"])
 
-            article_author = MagazineArticleAuthor(article=article, author=author)
-            article.authors.add(article_author)
-            article.save()
+                article_author = MagazineArticleAuthor(article=article, author=author)
+                article.authors.add(article_author)
+                article.save()
