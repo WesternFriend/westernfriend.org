@@ -25,7 +25,7 @@ class Command(BaseCommand):
         articles = pd.read_csv(options["articles_file"])
         authors = pd.read_csv("../wf_import_Data/authors_cleaned_deduped-2020-04-12.csv")
 
-        for index, row in articles[:1].iterrows():
+        for index, row in articles.iterrows():
             # Example article
             # title                                         Quaker Culture: Simplicity
             # Authors                                      Philadelphia Yearly Meeting
@@ -64,8 +64,10 @@ class Command(BaseCommand):
 
                 article_author = MagazineArticleAuthor(article=article, author=author)
                 article.authors.add(article_author)
-
-            for keyword in row["Keywords"].split(", "):
-                article.tags.add(keyword)
+            try:
+                for keyword in row["Keywords"].split(", "):
+                    article.tags.add(keyword)
+            except:
+                print("could not split: '", row["Keywords"], "'")
 
             article.save()
