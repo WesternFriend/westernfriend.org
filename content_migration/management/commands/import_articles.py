@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 import numpy as np
 import pandas as pd
 
-from magazine.models import MagazineArticle, MagazineArticleAuthor, MagazineIssue
+from magazine.models import MagazineArticle, MagazineArticleAuthor, MagazineDepartment, MagazineIssue
 
 from contact.models import (
     Meeting,
@@ -23,7 +23,7 @@ class Command(BaseCommand):
         articles = pd.read_csv(options["articles_file"])
         authors = pd.read_csv("../wf_import_Data/authors_cleaned_deduped-2020-04-12.csv")
 
-        for index, row in articles.iterrows():
+        for index, row in articles[:3].iterrows():
             # Example article
             # title                                         Quaker Culture: Simplicity
             # Authors                                      Philadelphia Yearly Meeting
@@ -33,9 +33,13 @@ class Command(BaseCommand):
             # related_issue_title                                               On Art
             # Body
 
+            department = MagazineDepartment.objects.get(title=row["Department"])
+
             article = MagazineArticle(
-                title=row["title"]
+                title=row["title"],
+                department=department
             )
+
             try:
                 related_issue = MagazineIssue.objects.get(title=row["related_issue_title"])
             except:
