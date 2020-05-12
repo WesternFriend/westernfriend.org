@@ -292,7 +292,7 @@ class MagazineArticleAuthor(Orderable):
 
     panels = [
         PageChooserPanel(
-            "author", ["contact.Person", "contact.Meeting", "contact.Organization",]
+            "author", ["contact.Person", "contact.Meeting", "contact.Organization"]
         )
     ]
 
@@ -314,7 +314,7 @@ class ArchiveIssue(Page):
         blank=True,
     )
     table_of_contents = StreamField(
-        [("Article", ArchiveArticleBlock()),], null=True, blank=True
+        [("Article", ArchiveArticleBlock())], null=True, blank=True
     )
 
     content_panels = Page.content_panels + [
