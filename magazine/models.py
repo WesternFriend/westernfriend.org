@@ -14,8 +14,10 @@ from wagtail.admin.edit_handlers import (
     PageChooserPanel,
     StreamFieldPanel,
 )
+from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page, Orderable
+from wagtail.images.blocks import ImageChooserBlock
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
 
@@ -32,21 +34,25 @@ class MagazineIndexPage(Page):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="+"
+        related_name="+",
     )
     featured_deep_archive_issue = models.ForeignKey(
         "magazine.ArchiveIssue",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="+"
+        related_name="+",
     )
 
     content_panels = Page.content_panels + [
         FieldPanel("intro"),
         FieldPanel("deep_archive_intro"),
-        PageChooserPanel("deep_archive_page", page_type="magazine.DeepArchiveIndexPage"),
-        PageChooserPanel("featured_deep_archive_issue", page_type="magazine.ArchiveIssue"),
+        PageChooserPanel(
+            "deep_archive_page", page_type="magazine.DeepArchiveIndexPage"
+        ),
+        PageChooserPanel(
+            "featured_deep_archive_issue", page_type="magazine.ArchiveIssue"
+        ),
     ]
 
     subpage_types = [
@@ -75,8 +81,7 @@ class MagazineIndexPage(Page):
             publication_date__gte=archive_threshold
         )
 
-        archive_issues = published_issues.filter(
-            publication_date__lt=archive_threshold)
+        archive_issues = published_issues.filter(publication_date__lt=archive_threshold)
 
         # Show three archive issues per page
         paginator = Paginator(archive_issues, 3)
@@ -100,7 +105,11 @@ class MagazineIndexPage(Page):
 
 class MagazineIssue(Page):
     cover_image = models.ForeignKey(
-        "wagtailimages.Image", on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+        "wagtailimages.Image",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
     )
     publication_date = models.DateField(
         null=True, help_text="Please select the first day of the publication month"
@@ -132,8 +141,7 @@ class MagazineIssue(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
         context["articles_by_department"] = (
-            MagazineArticle.objects.child_of(
-                self).live().order_by("department__title")
+            MagazineArticle.objects.child_of(self).live().order_by("department__title")
         )
 
         return context
@@ -207,7 +215,7 @@ class MagazineArticle(Page):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="articles"
+        related_name="articles",
     )
 
     tags = ClusterTaggableManager(through=MagazineArticleTag, blank=True)
@@ -227,10 +235,7 @@ class MagazineArticle(Page):
         ),
         MultiFieldPanel(
             [
-                PageChooserPanel(
-                    "department",
-                    "magazine.MagazineDepartment"
-                ),
+                PageChooserPanel("department", "magazine.MagazineDepartment"),
                 FieldPanel("tags"),
             ],
             heading="Article information",
@@ -272,17 +277,15 @@ class MagazineArticleAuthor(Orderable):
         related_name="authors",
     )
     author = models.ForeignKey(
-        "wagtailcore.Page", null=True, on_delete=models.CASCADE, related_name="articles_authored"
+        "wagtailcore.Page",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="articles_authored",
     )
 
     panels = [
         PageChooserPanel(
-            "author",
-            [
-                "contact.Person",
-                "contact.Meeting",
-                "contact.Organization",
-            ]
+            "author", ["contact.Person", "contact.Meeting", "contact.Organization",]
         )
     ]
 
@@ -303,15 +306,15 @@ class ArchiveIssue(Page):
         null=True,
         blank=True,
     )
-    table_of_contents = StreamField([
-        ("Article", ArchiveArticleBlock()),
-    ], null=True, blank=True)
+    table_of_contents = StreamField(
+        [("Article", ArchiveArticleBlock()),], null=True, blank=True
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("publication_date", widget=DatePickerInput()),
         FieldPanel("internet_archive_identifier"),
         FieldPanel("western_friend_volume"),
-        StreamFieldPanel("table_of_contents")
+        StreamFieldPanel("table_of_contents"),
     ]
 
     parent_page_types = ["DeepArchiveIndexPage"]
@@ -328,9 +331,7 @@ class DeepArchiveIndexPage(Page):
     max_count = 1
 
     parent_page_types = ["MagazineIndexPage"]
-    subpage_types = [
-        "ArchiveIssue"
-    ]
+    subpage_types = ["ArchiveIssue"]
 
     def get_publication_years(self):
         publication_dates = ArchiveIssue.objects.dates("publication_date", "year")
@@ -346,8 +347,9 @@ class DeepArchiveIndexPage(Page):
             "publication_date__year",
         ]
 
-        facets = {f"{key}__icontains": query[key]
-                  for key in query if key in allowed_keys}
+        facets = {
+            f"{key}__icontains": query[key] for key in query if key in allowed_keys
+        }
 
         return ArchiveIssue.objects.all().filter(**facets)
 
@@ -374,7 +376,9 @@ class DeepArchiveIndexPage(Page):
 
         archive_issues = self.get_filtered_archive_issues(request)
 
-        paginated_archive_issues = self.get_paginated_archive_issues(archive_issues, request)
+        paginated_archive_issues = self.get_paginated_archive_issues(
+            archive_issues, request
+        )
 
         context["archive_issues"] = paginated_archive_issues
 
