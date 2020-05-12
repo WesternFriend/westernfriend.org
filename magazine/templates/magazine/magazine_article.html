@@ -46,10 +46,12 @@
         </div>
     {% endif %}
 
-    {% user_is_subscriber as user_is_subscriber %}
+    {% include_block page.body %}
 
+    {% user_is_subscriber as user_is_subscriber %}
+    
     {% if user_is_subscriber %}
-        {{ page.body | richtext }}
+        <p>User can see article.</p>
     {% else %}
         <a href="/subscribe" class="btn btn-outline btn-success">
             Subscribe now for full access.
