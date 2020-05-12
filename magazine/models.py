@@ -203,7 +203,14 @@ class MagazineDepartment(Page):
 
 class MagazineArticle(Page):
     teaser = RichTextField(blank=True)
-    body = RichTextField(blank=True)
+    body = StreamField(
+        [
+            ("heading", blocks.CharBlock(classname="full title")),
+            ("paragraph", blocks.RichTextBlock()),
+            ("image", ImageChooserBlock()),
+            ("pullquote", blocks.BlockQuoteBlock()),
+        ]
+    )
     body_migrated = models.TextField(
         help_text="Used only for content from old Drupal website.",
         null=True,
@@ -226,7 +233,7 @@ class MagazineArticle(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("teaser", classname="full"),
-        FieldPanel("body", classname="full"),
+        StreamFieldPanel("body", classname="full"),
         FieldPanel("body_migrated", classname="full"),
         InlinePanel(
             "authors",
