@@ -206,7 +206,28 @@ class MagazineArticle(Page):
     body = StreamField(
         [
             ("heading", blocks.CharBlock(classname="full title")),
-            ("paragraph", blocks.RichTextBlock()),
+            (
+                "paragraph",
+                blocks.RichTextBlock(
+                    features=[
+                        "h2",
+                        "h3",
+                        "h4",
+                        "bold",
+                        "italic",
+                        "ol",
+                        "ul",
+                        "hr",
+                        "link",
+                        "document-link",
+                        "image",
+                        "superscript",
+                        "superscript",
+                        "strikethrough",
+                        "blockquote",
+                    ]
+                ),
+            ),
             ("image", ImageChooserBlock()),
             ("pullquote", blocks.BlockQuoteBlock()),
         ]
