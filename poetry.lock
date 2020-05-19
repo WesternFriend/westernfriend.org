@@ -127,8 +127,8 @@ category = "main"
 description = "Best way to have Django DRY forms"
 name = "django-crispy-forms"
 optional = false
-python-versions = "*"
-version = "1.9.0"
+python-versions = ">=3.5"
+version = "1.9.1"
 
 [[package]]
 category = "main"
@@ -411,7 +411,7 @@ description = "A modern CSS selector implementation for Beautiful Soup."
 name = "soupsieve"
 optional = false
 python-versions = ">=3.5"
-version = "2.0"
+version = "2.0.1"
 
 [[package]]
 category = "main"
@@ -476,7 +476,7 @@ description = "An Autocomplete edit handler for Pages, Snippets, and more."
 name = "wagtail-autocomplete"
 optional = false
 python-versions = "*"
-version = "0.5"
+version = "0.6"
 
 [package.dependencies]
 wagtail = ">=2.3"
@@ -552,7 +552,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "f27dd3ca28b0a6f96277cfc6f2c3dbaa3ecd283cd01c7482a559ad86ec73ebd8"
+content-hash = "be909be68720106c2b1174ed1bf44495bb87ca15afdf844f2c047e84023e0f9f"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -601,8 +601,8 @@ django-cogwheels = [
     {file = "django_cogwheels-0.3-py3-none-any.whl", hash = "sha256:197bd05e7114403d7301214b3f8a371c4fb6039cf21c811f099438b167b5ed21"},
 ]
 django-crispy-forms = [
-    {file = "django-crispy-forms-1.9.0.tar.gz", hash = "sha256:67e73ac863d3159500029fbbcdcb788f287a3fd357becebc1a0b51f73896dce3"},
-    {file = "django_crispy_forms-1.9.0-py2.py3-none-any.whl", hash = "sha256:50032184708ce351e3c9f0008ac35d659d9d5973fa2db218066f2e0a76eb41d9"},
+    {file = "django-crispy-forms-1.9.1.tar.gz", hash = "sha256:fbe9c2c9698b6590afe37940cb08194d1e722015f6bc5bee83f679362406ea30"},
+    {file = "django_crispy_forms-1.9.1-py2.py3-none-any.whl", hash = "sha256:ad943285508f0ed0e271d00399b9399c22b8795a4f969029bce0fd29522a8e2d"},
 ]
 django-extensions = [
     {file = "django-extensions-2.2.9.tar.gz", hash = "sha256:2f81b618ba4d1b0e58603e25012e5c74f88a4b706e0022a3b21f24f0322a6ce6"},
@@ -780,8 +780,8 @@ six = [
     {file = "six-1.14.0.tar.gz", hash = "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"},
 ]
 soupsieve = [
-    {file = "soupsieve-2.0-py2.py3-none-any.whl", hash = "sha256:fcd71e08c0aee99aca1b73f45478549ee7e7fc006d51b37bec9e9def7dc22b69"},
-    {file = "soupsieve-2.0.tar.gz", hash = "sha256:e914534802d7ffd233242b785229d5ba0766a7f487385e3f714446a07bf540ae"},
+    {file = "soupsieve-2.0.1-py3-none-any.whl", hash = "sha256:1634eea42ab371d3d346309b93df7870a88610f0725d47528be902a0d95ecc55"},
+    {file = "soupsieve-2.0.1.tar.gz", hash = "sha256:a59dc181727e95d25f781f0eb4fd1825ff45590ec8ff49eadfd7f1a537cc0232"},
 ]
 sqlparse = [
     {file = "sqlparse-0.3.1-py2.py3-none-any.whl", hash = "sha256:022fb9c87b524d1f7862b3037e541f68597a730a8843245c349fc93e1643dc4e"},
@@ -800,7 +800,7 @@ wagtail = [
     {file = "wagtail-2.9.tar.gz", hash = "sha256:23c5514d530ad2dbe81360e53abd38cfe4b42671e03018a9dd95ee941b4327f4"},
 ]
 wagtail-autocomplete = [
-    {file = "wagtail-autocomplete-0.5.tar.gz", hash = "sha256:fdc07ba96ef141a58ccc516db9fb793315d9e7fe5016368eb55a501a895aed12"},
+    {file = "wagtail-autocomplete-0.6.tar.gz", hash = "sha256:5f8ddf16d3ca365af4ad0f09e8f45d9e982ca854dc1b084a8a30f66b00a7739d"},
 ]
 wagtailfontawesome = [
     {file = "wagtailfontawesome-1.2.1-py2.py3-none-any.whl", hash = "sha256:76b1c64c4f1042d468a83e4352f74b57bda4a4aa09cdfeeb8663dead5ed632be"},
