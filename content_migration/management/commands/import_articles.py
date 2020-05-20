@@ -1,17 +1,21 @@
-
+import re
 from django.core.management.base import BaseCommand, CommandError
+
+from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 
 from taggit.models import Tag
 
-from magazine.models import MagazineArticle, MagazineArticleAuthor, MagazineArticleTag, MagazineDepartment, MagazineIssue
-
-from contact.models import (
-    Meeting,
-    Organization,
-    Person
+from magazine.models import (
+    MagazineArticle,
+    MagazineArticleAuthor,
+    MagazineArticleTag,
+    MagazineDepartment,
+    MagazineIssue,
 )
+
+from contact.models import Meeting, Organization, Person
 
 
 class Command(BaseCommand):
@@ -23,9 +27,29 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         articles = pd.read_csv(options["articles_file"])
-        authors = pd.read_csv("../wf_import_Data/authors_cleaned_deduped-2020-04-12.csv")
+        authors = pd.read_csv(
+            "../wf_import_Data/authors_cleaned_deduped-2020-04-12.csv"
+        )
 
         for index, row in articles.iterrows():
+            soup = BeautifulSoup(row["Body"], "html.parser")
+
+            for item in soup:
+                if item.string is not None and "pullquote" in item.string:
+                    # Extract pullquote text
+                    pullquotes = re.findall(
+                        r"\[pullquote\](.+?)\[\/pullquote\]", item.string
+                    )
+                    for pullquote in pullquotes:
+                        print(pullquote)
+                    # Create a pullquote Block with text
+                    # Replace "[pullquote][/pullquote]" tags in string with "<span class='pullquote'></span>"
+                    # Create Paragraph Block with modified string
+                    # Add Pullquote block to body streamfield
+                else:
+                    # print("No pullquote")
+                    pass
+                # print("-----")
             # Example article
             # title                                         Quaker Culture: Simplicity
             # Authors                                      Philadelphia Yearly Meeting
@@ -35,39 +59,39 @@ class Command(BaseCommand):
             # related_issue_title                                               On Art
             # Body
 
-            department = MagazineDepartment.objects.get(title=row["Department"])
+            # department = MagazineDepartment.objects.get(title=row["Department"])
 
-            article = MagazineArticle(
-                title=row["title"],
-                body_migrated=row["Body"],
-                department=department
-            )
+            # article = MagazineArticle(
+            #     title=row["title"],
+            #     body_migrated=row["Body"],
+            #     department=department
+            # )
 
-            try:
-                related_issue = MagazineIssue.objects.get(title=row["related_issue_title"])
-            except:
-                print("Can't find issue: ", row["related_issue_title"])
-                print(row)
+            # try:
+            #     related_issue = MagazineIssue.objects.get(title=row["related_issue_title"])
+            # except:
+            #     print("Can't find issue: ", row["related_issue_title"])
+            #     print(row)
 
-            related_issue.add_child(instance=article)
+            # related_issue.add_child(instance=article)
 
-            for author in row["Authors"].split(", "):
-                authors_mask = authors["drupal_full_name"] == author
-                author_data = authors[authors_mask].iloc[0].to_dict()
+            # for author in row["Authors"].split(", "):
+            #     authors_mask = authors["drupal_full_name"] == author
+            #     author_data = authors[authors_mask].iloc[0].to_dict()
 
-                if author_data["organization_name"] is not np.nan:
-                    author = Organization.objects.get(drupal_full_name=author_data["drupal_full_name"])
-                elif author_data["meeting_name"] is not np.nan:
-                    author = Meeting.objects.get(drupal_full_name=author_data["drupal_full_name"])
-                else:
-                    author = Person.objects.get(drupal_full_name=author_data["drupal_full_name"])
+            #     if author_data["organization_name"] is not np.nan:
+            #         author = Organization.objects.get(drupal_full_name=author_data["drupal_full_name"])
+            #     elif author_data["meeting_name"] is not np.nan:
+            #         author = Meeting.objects.get(drupal_full_name=author_data["drupal_full_name"])
+            #     else:
+            #         author = Person.objects.get(drupal_full_name=author_data["drupal_full_name"])
 
-                article_author = MagazineArticleAuthor(article=article, author=author)
-                article.authors.add(article_author)
-            try:
-                for keyword in row["Keywords"].split(", "):
-                    article.tags.add(keyword)
-            except:
-                print("could not split: '", row["Keywords"], "'")
+            #     article_author = MagazineArticleAuthor(article=article, author=author)
+            #     article.authors.add(article_author)
+            # try:
+            #     for keyword in row["Keywords"].split(", "):
+            #         article.tags.add(keyword)
+            # except:
+            #     print("could not split: '", row["Keywords"], "'")
 
-            article.save()
+            # article.save()
