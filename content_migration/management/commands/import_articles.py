@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup, Tag as BS4_Tag
 import numpy as np
 import pandas as pd
 
-from wagtail.core.blocks import BlockQuoteBlock, RichTextBlock
 from wagtail.core.rich_text import RichText
 
 from taggit.models import Tag
