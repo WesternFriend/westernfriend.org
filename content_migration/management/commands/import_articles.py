@@ -1,9 +1,14 @@
 import re
+from typing import List
+
 from django.core.management.base import BaseCommand, CommandError
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag as BS4_Tag
 import numpy as np
 import pandas as pd
+
+from wagtail.core.blocks import BlockQuoteBlock, RichTextBlock
+from wagtail.core.rich_text import RichText
 
 from taggit.models import Tag
 
@@ -16,6 +21,31 @@ from magazine.models import (
 )
 
 from contact.models import Meeting, Organization, Person
+
+
+def extract_pullquotes(item: str) -> List[str]:
+    """
+    Get a list of all pullquote strings found within the item
+    """
+
+    return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item.string)
+
+
+def clean_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
+    """
+    Replace "[pullquote][/pullquote]" tags in string with "<span class='pullquote'></span>"
+    https://stackoverflow.com/a/44593228/1191545
+    """
+
+    replacement_values = [
+        ("[pullquote]", ""),
+        ("[/pullquote]", ""),
+    ]
+
+    for replacement_value in replacement_values:
+        item.string = item.string.replace(*replacement_value)
+
+    return item
 
 
 class Command(BaseCommand):
@@ -34,64 +64,93 @@ class Command(BaseCommand):
         for index, row in articles.iterrows():
             soup = BeautifulSoup(row["Body"], "html.parser")
 
+            department = MagazineDepartment.objects.get(title=row["Department"])
+
+            article_body_blocks = []
+
+            # Placeholder for gathering successive items
+            rich_text_value = ""
+
             for item in soup:
-                if item.string is not None and "pullquote" in item.string:
-                    # Extract pullquote text
-                    pullquotes = re.findall(
-                        r"\[pullquote\](.+?)\[\/pullquote\]", item.string
+
+                item_has_value = item.string is not None
+
+                if item_has_value:
+
+                    item_contains_pullquote = "pullquote" in item.string
+
+                    if item_contains_pullquote:
+                        # Add current rich text value as paragraph block, if not empty
+                        if rich_text_value != "":
+                            rich_text_block = ("paragraph", RichText(rich_text_value))
+
+                            article_body_blocks.append(rich_text_block)
+
+                            # reset rich text value
+                            rich_text_value = ""
+
+                        pullquotes = extract_pullquotes(item)
+
+                        # Add Pullquote block(s) to body streamfield
+                        # so they appear above the related rich text field
+                        # i.e. near the paragraph containing the pullquote
+                        for pullquote in pullquotes:
+                            block_content = ("pullquote", pullquote)
+
+                            article_body_blocks.append(block_content)
+
+                        item = clean_pullquote_tags(item)
+
+                    rich_text_value += str(item)
+
+            if rich_text_value != "":
+                # Add Paragraph Block with remaining rich text elements
+                rich_text_block = ("paragraph", RichText(rich_text_value))
+
+                article_body_blocks.append(rich_text_block)
+
+            article = MagazineArticle(
+                title=row["title"],
+                body=article_body_blocks,
+                body_migrated=row["Body"],
+                department=department,
+            )
+
+            # Assign article to issue
+            try:
+                related_issue = MagazineIssue.objects.get(
+                    title=row["related_issue_title"]
+                )
+            except:
+                print("Can't find issue: ", row["related_issue_title"])
+                print(row)
+
+            related_issue.add_child(instance=article)
+
+            # Assign authors to article
+            for author in row["Authors"].split(", "):
+                authors_mask = authors["drupal_full_name"] == author
+                author_data = authors[authors_mask].iloc[0].to_dict()
+
+                if author_data["organization_name"] is not np.nan:
+                    author = Organization.objects.get(
+                        drupal_full_name=author_data["drupal_full_name"]
                     )
-                    for pullquote in pullquotes:
-                        print(pullquote)
-                    # Create a pullquote Block with text
-                    # Replace "[pullquote][/pullquote]" tags in string with "<span class='pullquote'></span>"
-                    # Create Paragraph Block with modified string
-                    # Add Pullquote block to body streamfield
+                elif author_data["meeting_name"] is not np.nan:
+                    author = Meeting.objects.get(
+                        drupal_full_name=author_data["drupal_full_name"]
+                    )
                 else:
-                    # print("No pullquote")
-                    pass
-                # print("-----")
-            # Example article
-            # title                                         Quaker Culture: Simplicity
-            # Authors                                      Philadelphia Yearly Meeting
-            # Department                                                Quaker Culture
-            # Keywords                                              Simplicity, Beauty
-            # Media                                                                NaN
-            # related_issue_title                                               On Art
-            # Body
+                    author = Person.objects.get(
+                        drupal_full_name=author_data["drupal_full_name"]
+                    )
 
-            # department = MagazineDepartment.objects.get(title=row["Department"])
+                article_author = MagazineArticleAuthor(article=article, author=author)
+                article.authors.add(article_author)
+            try:
+                for keyword in row["Keywords"].split(", "):
+                    article.tags.add(keyword)
+            except:
+                print("could not split: '", row["Keywords"], "'")
 
-            # article = MagazineArticle(
-            #     title=row["title"],
-            #     body_migrated=row["Body"],
-            #     department=department
-            # )
-
-            # try:
-            #     related_issue = MagazineIssue.objects.get(title=row["related_issue_title"])
-            # except:
-            #     print("Can't find issue: ", row["related_issue_title"])
-            #     print(row)
-
-            # related_issue.add_child(instance=article)
-
-            # for author in row["Authors"].split(", "):
-            #     authors_mask = authors["drupal_full_name"] == author
-            #     author_data = authors[authors_mask].iloc[0].to_dict()
-
-            #     if author_data["organization_name"] is not np.nan:
-            #         author = Organization.objects.get(drupal_full_name=author_data["drupal_full_name"])
-            #     elif author_data["meeting_name"] is not np.nan:
-            #         author = Meeting.objects.get(drupal_full_name=author_data["drupal_full_name"])
-            #     else:
-            #         author = Person.objects.get(drupal_full_name=author_data["drupal_full_name"])
-
-            #     article_author = MagazineArticleAuthor(article=article, author=author)
-            #     article.authors.add(article_author)
-            # try:
-            #     for keyword in row["Keywords"].split(", "):
-            #         article.tags.add(keyword)
-            # except:
-            #     print("could not split: '", row["Keywords"], "'")
-
-            # article.save()
+            article.save()
