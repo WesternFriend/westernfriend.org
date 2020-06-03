@@ -1,6 +1,8 @@
 import datetime
 from datetime import timedelta
 
+import arrow
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 from modelcluster.contrib.taggit import ClusterTaggableManager
@@ -281,6 +283,20 @@ class MagazineArticle(Page):
                 "priority": 1,
             }
         ]
+
+    def is_public_access(self):
+        """
+        Check whether article should be accessible to all readers
+        or only subscribers based on issue publication date.
+        """
+        parent_issue = self.get_parent()
+
+        today = arrow.utcnow()
+
+        six_months_ago = today.shift(months=-6).date()
+
+        # Issues older than six months are public access
+        return parent_issue.specific.publication_date <= six_months_ago
 
 
 class MagazineIssueFeaturedArticle(Orderable):
