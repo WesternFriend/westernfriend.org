@@ -65,7 +65,7 @@ class MagazineIssueModelAdmin(ModelAdmin):
     menu_label = "Issues"
     list_per_page = 10
     ordering = [
-        "publication_date",
+        "-publication_date",
     ]
     list_display = ("title", "publication_date")
     list_filter = ("publication_date",)
