@@ -69,7 +69,7 @@ class MagazineIssueModelAdmin(ModelAdmin):
     ordering = [
         "-publication_date",
     ]
-    list_display = ("title", "publication_date", "view_articles")
+    list_display = ("title", "publication_date", "view_articles", "add_article")
     list_filter = ("publication_date",)
     empty_value_display = "-"
     search_fields = ("title",)
@@ -81,8 +81,17 @@ class MagazineIssueModelAdmin(ModelAdmin):
         MagazineIssueAdminURLHelper  # added to enable custom url generation
     )
 
+    def add_article(self, obj):
+        url_name = "wagtailadmin_pages:add_subpage"
+        url = reverse(url_name, args=[obj.id])
+
+        return format_html(
+            f'<a href="{url}" class="button button-small button-secondary">Add Article</a>'
+        )
+
     def view_articles(self, obj):
-        url = reverse("wagtailadmin_explore", args=[obj.id])
+        url_name = "wagtailadmin_explore"
+        url = reverse(url_name, args=[obj.id])
 
         return format_html(
             f'<a href="{url}" class="button button-small button-secondary">View Articles</a>'
