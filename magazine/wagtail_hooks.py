@@ -7,6 +7,7 @@ from wagtail.contrib.modeladmin.options import (
     ModelAdminGroup,
     modeladmin_register,
 )
+from wagtail.contrib.modeladmin.mixins import ThumbnailMixin
 
 from .models import MagazineDepartment, MagazineIssue, ArchiveIssue
 
@@ -61,7 +62,7 @@ class MagazineIssueButtonHelperClass(PageButtonHelper):
         return buttons
 
 
-class MagazineIssueModelAdmin(ModelAdmin):
+class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
     model = MagazineIssue
     menu_icon = "fa-book"
     menu_label = "Issues"
@@ -69,7 +70,18 @@ class MagazineIssueModelAdmin(ModelAdmin):
     ordering = [
         "-publication_date",
     ]
-    list_display = ("title", "publication_date", "view_articles", "add_article")
+    list_display = (
+        "admin_thumb",
+        "title",
+        "publication_date",
+        "view_articles",
+        "add_article",
+    )
+    list_display_add_buttons = "title"
+    thumb_image_field_name = "cover_image"
+    thumb_image_filter_spec = "height-333"
+    thumb_col_header_text = "Cover"
+    thumb_default = "https://lorempixel.com/100/100"
     list_filter = ("publication_date",)
     empty_value_display = "-"
     search_fields = ("title",)
