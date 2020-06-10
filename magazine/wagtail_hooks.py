@@ -1,4 +1,6 @@
 from django.urls import reverse
+from django.utils.html import format_html
+
 from wagtail.contrib.modeladmin.helpers import PageAdminURLHelper, PageButtonHelper
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin,
@@ -67,7 +69,7 @@ class MagazineIssueModelAdmin(ModelAdmin):
     ordering = [
         "-publication_date",
     ]
-    list_display = ("title", "publication_date")
+    list_display = ("title", "publication_date", "view_articles")
     list_filter = ("publication_date",)
     empty_value_display = "-"
     search_fields = ("title",)
@@ -78,6 +80,13 @@ class MagazineIssueModelAdmin(ModelAdmin):
     url_helper_class = (
         MagazineIssueAdminURLHelper  # added to enable custom url generation
     )
+
+    def view_articles(self, obj):
+        url = reverse("wagtailadmin_explore", args=[obj.id])
+
+        return format_html(
+            f'<a href="{url}" class="button button-small button-secondary">View Articles</a>'
+        )
 
 
 class ArchiveIssueModelAdmin(ModelAdmin):
