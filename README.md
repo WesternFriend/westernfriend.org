@@ -1,6 +1,6 @@
 # Western Friend website (prototype)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Prototype website for [Western Friend](https://westernfriend.org), part of the Religious Society of Friends.
@@ -49,6 +49,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="http://nehemiasec.com"><img src="https://avatars3.githubusercontent.com/u/5385440?v=4" width="100px;" alt=""/><br /><sub><b>N Eliseo S Carranza</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=NehemiasEC" title="Documentation">📖</a> <a href="https://github.com/WesternFriend/WF-website/issues?q=author%3ANehemiasEC" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://bryliechristopheroxley.info"><img src="https://avatars1.githubusercontent.com/u/17307?v=4" width="100px;" alt=""/><br /><sub><b>Brylie Christopher Oxley</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=brylie" title="Code">💻</a> <a href="https://github.com/WesternFriend/WF-website/commits?author=brylie" title="Documentation">📖</a> <a href="https://github.com/WesternFriend/WF-website/issues?q=author%3Abrylie" title="Bug reports">🐛</a> <a href="#projectManagement-brylie" title="Project Management">📆</a></td>
   </tr>
 </table>
 
