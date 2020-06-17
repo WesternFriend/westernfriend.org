@@ -1,0 +1,25 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "NehemiasEC",
+      "name": "N Eliseo S Carranza",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/5385440?v=4",
+      "profile": "http://nehemiasec.com",
+      "contributions": [
+        "doc",
+        "bug"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "WF-website",
+  "projectOwner": "WesternFriend",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
