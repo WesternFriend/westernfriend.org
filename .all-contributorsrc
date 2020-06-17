@@ -26,6 +26,15 @@
         "bug",
         "projectManagement"
       ]
+    },
+    {
+      "login": "dhelbegor",
+      "name": "Adailton Nascimento",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/7838804?v=4",
+      "profile": "https://dhelbegor.github.io/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
