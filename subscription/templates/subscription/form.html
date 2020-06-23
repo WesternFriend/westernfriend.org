@@ -3,6 +3,14 @@
 
 {{ page.intro | richtext }}
 
+<select name="subscription_type" class="select form-control" required="" id="id_subscription_type">
+    {% for plan in form.plans %}
+        <option value="{{ plan.id }}">{{ plan.name }} - ${{ plan.price }}</option>
+    {% endfor %}
+</select
+
+<hr />
+
 <form action="#" method="post">
     <div class="form-row">
         <div class="col-md-5">
