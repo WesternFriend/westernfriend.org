@@ -3,25 +3,38 @@
 
 {{ page.intro | richtext }}
 
-<select name="subscription_type" class="select form-control" required="" id="id_subscription_type">
-    {% for plan in form.plans %}
-        <option value="{{ plan.id }}">{{ plan.name }} - ${{ plan.price }}</option>
-    {% endfor %}
-</select
-
-<hr />
-
-<form action="#" method="post">
+<form action="#" method="post" id="dynamicFields">
     <div class="form-row">
-        <div class="col-md-5">
-            {{ form.subscription_type | as_crispy_field }}
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="subscriptionType" id="recurring" value="recurring" @bind="subscriptionType">
+            <label class="form-check-label" for="recurring">Recurring</label>
         </div>
-        <div class="col-md-5">
-            {{ form.duration | as_crispy_field }}
-        </div>   
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="subscriptionType" id="once" value="once" @bind="subscriptionType">
+            <label class="form-check-label" for="once">Once</label>
+        </div>
     </div>
 
-    <div class="form-row">
+    <div class="form-row mt-3">
+        <div :if="this.subscriptionType === 'recurring'">
+            <label for="recurring_subscription_type">Subscription type</label>
+            <select
+                name="subscription_type"
+                class="select form-control"
+                required="" id="recurring_subscription_type">
+                {% for plan in form.plans %}
+                    <option value="{{ plan.id }}">{{ plan.name }} - ${{ plan.price }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div :else>
+            {{ form.subscription_type | as_crispy_field }}
+
+            {{ form.duration | as_crispy_field }} 
+        </div> 
+    </div>
+
+    <div class="form-row mt-3">
         <div class="col-md-5">
             {{ form.subscriber_given_name | as_crispy_field }}
         </div>
@@ -75,3 +88,16 @@
 
     {% csrf_token %}
 </form>
+
+{% block extra_js %}
+<script type="module">
+    import Litedom from '//unpkg.com/litedom';
+
+    Litedom({
+        el: "#dynamicFields",
+        data: {
+            subscriptionType: "recurring",
+        },
+    })
+</script>
+{% endblock extra_js %}
