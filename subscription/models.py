@@ -1,4 +1,8 @@
+import logging
+import os
+
 import arrow
+import braintree
 
 from django.conf import settings
 from django.contrib.auth import login
@@ -10,7 +14,10 @@ from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page
 
+
 from flatpickr import DatePickerInput
+
+logger = logging.getLogger(__name__)
 
 
 SUBSCRIPTION_TYPES_AND_PRICES = [
@@ -29,11 +36,7 @@ SUBSCRIPTION_TYPES_AND_PRICES = [
         "name": "PDF only - regular price",
         "price": 30,
     },
-    {
-        "slug": "pdf-only-true-cost",
-        "name": "PDF only - true cost price",
-        "price": 60,
-    },
+    {"slug": "pdf-only-true-cost", "name": "PDF only - true cost price", "price": 60,},
     {
         "slug": "print-and-pdf-regular-price",
         "name": "Both print and PDF - regular price",
@@ -49,7 +52,8 @@ SUBSCRIPTION_TYPES_AND_PRICES = [
 
 def get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES):
     matching_subscription_option = next(
-        filter(lambda option: option["slug"] == slug, SUBSCRIPTION_TYPES_AND_PRICES))
+        filter(lambda option: option["slug"] == slug, SUBSCRIPTION_TYPES_AND_PRICES)
+    )
 
     return matching_subscription_option["price"]
 
@@ -61,7 +65,7 @@ def create_subscription_type_choices(SUBSCRIPTION_TYPES_AND_PRICES):
         choice_label = f"{subscription['name']} - ${subscription['price']}"
 
         choice = (
-            subscription['slug'],
+            subscription["slug"],
             choice_label,
         )
 
@@ -71,24 +75,13 @@ def create_subscription_type_choices(SUBSCRIPTION_TYPES_AND_PRICES):
 
 
 subscription_type_choices = create_subscription_type_choices(
-    SUBSCRIPTION_TYPES_AND_PRICES)
+    SUBSCRIPTION_TYPES_AND_PRICES
+)
 
 SUBSCRIPTION_DURATIONS_AND_DISCOUNTS = [
-    {
-        "duration": 1,
-        "label": "One year",
-        "discount": 0,
-    },
-    {
-        "duration": 2,
-        "label": "Two years",
-        "discount": 10,
-    },
-    {
-        "duration": 3,
-        "label": "Three years",
-        "discount": 25,
-    },
+    {"duration": 1, "label": "One year", "discount": 0,},
+    {"duration": 2, "label": "Two years", "discount": 10,},
+    {"duration": 3, "label": "Three years", "discount": 25,},
 ]
 
 
@@ -110,13 +103,14 @@ def create_duration_choices(SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
     return duration_choices
 
 
-duration_choices = create_duration_choices(
-    SUBSCRIPTION_DURATIONS_AND_DISCOUNTS)
+duration_choices = create_duration_choices(SUBSCRIPTION_DURATIONS_AND_DISCOUNTS)
 
 
 def get_subscription_option(duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
     matching_option = filter(
-        lambda option: option["duration"] == duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS)
+        lambda option: option["duration"] == duration,
+        SUBSCRIPTION_DURATIONS_AND_DISCOUNTS,
+    )
 
     return next(matching_option)
 
@@ -134,7 +128,9 @@ class Subscription(models.Model):
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     subscriber_given_name = models.CharField(
-        max_length=255, default="", help_text="Enter the given (first) name for the subscriber.",
+        max_length=255,
+        default="",
+        help_text="Enter the given (first) name for the subscriber.",
     )
     subscriber_family_name = models.CharField(
         max_length=255,
@@ -148,7 +144,10 @@ class Subscription(models.Model):
         help_text="The street address where a print subscription could be mailed.",
     )
     subscriber_street_address_line_2 = models.CharField(
-        max_length=255, blank=True, default="", help_text="If needed, second line for mailing address."
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="If needed, second line for mailing address.",
     )
     subscriber_postal_code = models.CharField(
         max_length=16, help_text="Postal code for the mailing address.", blank=True,
@@ -157,10 +156,16 @@ class Subscription(models.Model):
         max_length=255, help_text="City for the mailing address.", blank=True,
     )
     subscriber_address_region = models.CharField(
-        max_length=255, help_text="State for the mailing address.", blank=True, default=""
+        max_length=255,
+        help_text="State for the mailing address.",
+        blank=True,
+        default="",
     )
     subscriber_address_country = models.CharField(
-        max_length=255, default="United States", help_text="Country for mailing.", blank=True,
+        max_length=255,
+        default="United States",
+        help_text="Country for mailing.",
+        blank=True,
     )
 
     user = models.ForeignKey(
@@ -172,7 +177,7 @@ class Subscription(models.Model):
         # blank=True,
         editable=True,
         on_delete=models.PROTECT,
-        related_name="subscriptions"
+        related_name="subscriptions",
     )
 
     paid = models.BooleanField(default=False)
@@ -180,7 +185,8 @@ class Subscription(models.Model):
     braintree_id = models.CharField(
         max_length=255,
         blank=True,
-        help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.")
+        help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.",
+    )
 
     panels = [
         FieldPanel("user"),
@@ -197,7 +203,7 @@ class Subscription(models.Model):
         FieldPanel("start_date", widget=DatePickerInput()),
         FieldPanel("end_date", widget=DatePickerInput()),
         FieldPanel("paid"),
-        FieldPanel("braintree_id")
+        FieldPanel("braintree_id"),
     ]
 
     def __str__(self):
@@ -221,7 +227,8 @@ class Subscription(models.Model):
 
         duration = self.duration
         subscription_option = get_subscription_option(
-            duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS)
+            duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS
+        )
         discount = subscription_option["discount"]
 
         return (price * duration) - discount
@@ -253,6 +260,22 @@ class SubscriptionIndexPage(Page):
 
         if show_registration_form:
             context["registration_form"] = UserRegisterationForm
+
+        # Fetch Braintree plans to display in form
+        try:
+            gateway = braintree.BraintreeGateway(
+                braintree.Configuration(
+                    environment=braintree.Environment.Sandbox,
+                    merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
+                    public_key=os.environ.get("BRAINTREE_PUBLIC_KEY"),
+                    private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
+                )
+            )
+            plans = gateway.plan.all()
+
+            context["plans"] = plans
+        except:
+            logger.error("Unable to retrieve plans from Braintree.")
 
         context["form"] = SubscriptionCreateForm
 
@@ -307,8 +330,7 @@ def process_subscription_form(request):
         subscription.start_date = today.date()
 
         # End date is today plus subscription duration
-        subscription.end_date = today.shift(
-            years=+subscription.duration).date()
+        subscription.end_date = today.shift(years=+subscription.duration).date()
 
         subscription.save()
 
@@ -317,10 +339,5 @@ def process_subscription_form(request):
 
         # redirect for payment
         return redirect(
-            reverse(
-                "payment:process",
-                kwargs={
-                    "previous_page": "subscribe"
-                }
-            )
+            reverse("payment:process", kwargs={"previous_page": "subscribe"})
         )
