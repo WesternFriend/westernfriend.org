@@ -22,7 +22,7 @@
                 name="subscription_type"
                 class="select form-control"
                 required="" id="recurring_subscription_type">
-                {% for plan in form.plans %}
+                {% for plan in plans %}
                     <option value="{{ plan.id }}">{{ plan.name }} - ${{ plan.price }}</option>
                 {% endfor %}
             </select>

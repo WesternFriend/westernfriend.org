@@ -6,27 +6,10 @@ from django.contrib.auth.forms import UserCreationForm
 
 from .models import Subscription
 
-import braintree
-
 UserModel = get_user_model()
 
 
 class SubscriptionCreateForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        gateway = braintree.BraintreeGateway(
-            braintree.Configuration(
-                environment=braintree.Environment.Sandbox,
-                merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
-                public_key=os.environ.get("BRAINTREE_PUBLIC_KEY"),
-                private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
-            )
-        )
-        plans = gateway.plan.all()
-
-        self.plans = plans
-
     class Meta:
         model = Subscription
         fields = [
