@@ -198,7 +198,6 @@ class Subscription(models.Model):
         FieldPanel("subscriber_address_region"),
         FieldPanel("subscriber_address_country"),
         FieldPanel("subscription_type"),
-        FieldPanel("duration"),
         FieldPanel("start_date", widget=DatePickerInput()),
         FieldPanel("end_date", widget=DatePickerInput()),
         FieldPanel("paid"),
@@ -222,15 +221,8 @@ class Subscription(models.Model):
     @property
     def price(self):
         slug = self.subscription_type
-        price = get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES)
 
-        duration = self.duration
-        subscription_option = get_subscription_option(
-            duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS
-        )
-        discount = subscription_option["discount"]
-
-        return (price * duration) - discount
+        return get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES)
 
     def get_total_cost(self):
         return self.price
