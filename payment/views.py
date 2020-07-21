@@ -20,6 +20,8 @@ def payment_process(request, previous_page):
         # retrieve payment nonce
         nonce = request.POST.get("payment_method_nonce", None)
 
+        # TODO: activate a subscription instance instead of transaction
+
         # create and submit transaction
         result = braintree.Transaction.sale(
             {
@@ -35,6 +37,11 @@ def payment_process(request, previous_page):
 
             # store Braintree transaction ID
             entity.braintree_id = result.transaction.id
+
+            # Extend subscription end date by one year
+            # as both one-time and recurring subscriptions
+            # start with a single year interval
+            subscription.end_date = today.shift(years=+1).date()
 
             entity.save()
 
