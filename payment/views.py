@@ -41,6 +41,7 @@ def payment_process(request, previous_page):
             # TODO: add notification/logging for error in this step
 
             # activate a subscription instance instead of transaction
+            # TODO: check whether subscription should recur and set value accordingly
             subscription_result = gateway.subscription.create(
                 {
                     "payment_method_token": customer_result.customer.payment_methods[0].token,
