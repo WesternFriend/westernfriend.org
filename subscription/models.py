@@ -121,6 +121,9 @@ class Subscription(models.Model):
         help_text="Choose the subscription type you would like to receive.",
         choices=subscription_type_choices,
     )
+    recurring = models.BooleanField(
+        default=True
+    )
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     subscriber_given_name = models.CharField(
@@ -322,11 +325,12 @@ def process_subscription_form(request):
         # based on current day
         today = arrow.utcnow()
 
-        # Start date is Today
+        # Start date is today
         subscription.start_date = today.date()
 
-        # End date is today plus subscription duration
-        subscription.end_date = today.shift(years=+subscription.duration).date()
+        # End date is today
+        # until we get a success message from the payment processor
+        subscription.end_date = today.date()
 
         subscription.save()
 
