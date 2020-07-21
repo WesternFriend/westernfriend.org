@@ -55,9 +55,11 @@ def payment_process(request, previous_page):
                 # TODO: add notification/logging for error in this step
 
                 # mark order as paid
+                # TODO: deprecate/remove this "paid" property
                 entity.paid = True
 
                 # store Braintree Subscription ID
+                # TODO: rename this property to "braintree_subscription_id"
                 entity.braintree_id = subscription_result.subscription.id
 
                 # Extend subscription end date by one year from today
