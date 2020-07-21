@@ -36,7 +36,7 @@ SUBSCRIPTION_TYPES_AND_PRICES = [
         "name": "PDF only - regular price",
         "price": 30,
     },
-    {"slug": "pdf-only-true-cost", "name": "PDF only - true cost price", "price": 60,},
+    {"slug": "pdf-only-true-cost", "name": "PDF only - true cost price", "price": 60, },
     {
         "slug": "print-and-pdf-regular-price",
         "name": "Both print and PDF - regular price",
@@ -79,9 +79,9 @@ subscription_type_choices = create_subscription_type_choices(
 )
 
 SUBSCRIPTION_DURATIONS_AND_DISCOUNTS = [
-    {"duration": 1, "label": "One year", "discount": 0,},
-    {"duration": 2, "label": "Two years", "discount": 10,},
-    {"duration": 3, "label": "Three years", "discount": 25,},
+    {"duration": 1, "label": "One year", "discount": 0, },
+    {"duration": 2, "label": "Two years", "discount": 10, },
+    {"duration": 3, "label": "Three years", "discount": 25, },
 ]
 
 
@@ -124,6 +124,8 @@ class Subscription(models.Model):
     duration = models.IntegerField(
         help_text="Number of years this subscription is active.",
         choices=duration_choices,
+        null=True,
+        blank=True
     )
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
