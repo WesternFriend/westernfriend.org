@@ -121,12 +121,6 @@ class Subscription(models.Model):
         help_text="Choose the subscription type you would like to receive.",
         choices=subscription_type_choices,
     )
-    duration = models.IntegerField(
-        help_text="Number of years this subscription is active.",
-        choices=duration_choices,
-        null=True,
-        blank=True
-    )
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     subscriber_given_name = models.CharField(
