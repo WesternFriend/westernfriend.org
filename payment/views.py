@@ -1,5 +1,7 @@
+import os
 from django.shortcuts import get_object_or_404, redirect, render
 
+import arrow
 import braintree
 
 from orders.models import Order
@@ -20,36 +22,56 @@ def payment_process(request, previous_page):
         # retrieve payment nonce
         nonce = request.POST.get("payment_method_nonce", None)
 
-        # TODO: activate a subscription instance instead of transaction
-
-        # create and submit transaction
-        result = braintree.Transaction.sale(
-            {
-                "amount": entity.get_total_cost(),
-                "payment_method_nonce": nonce,
-                "options": {"submit_for_settlement": True},
-            }
+        gateway = braintree.BraintreeGateway(
+            braintree.Configuration(
+                braintree.Environment.Sandbox,
+                merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
+                public_key=os.environ.get("BRAINTREE_PUBLIC_KEY"),
+                private_key=os.environ.get("BRAINTREE_PRIVATE_KEY")
+            )
         )
 
-        if result.is_success:
-            # mark order as paid
-            entity.paid = True
+        customer_result = gateway.customer.create({
+            "first_name": entity.subscriber_given_name,
+            "last_name": entity.subscriber_family_name,
+            "payment_method_nonce": nonce
+        })
 
-            # store Braintree transaction ID
-            entity.braintree_id = result.transaction.id
+        if customer_result.is_success:
+            # TODO: add notification/logging for error in this step
 
-            # Extend subscription end date by one year
-            # as both one-time and recurring subscriptions
-            # start with a single year interval
-            subscription.end_date = today.shift(years=+1).date()
+            # activate a subscription instance instead of transaction
+            subscription_result = gateway.subscription.create(
+                {
+                    "payment_method_token": customer_result.customer.payment_methods[0].token,
+                    # TODO: figure out how to do this without hard-coding the subscription ID
+                    "plan_id": "magazine-subscription",
+                    "price": entity.get_total_cost(),
+                }
+            )
 
-            entity.save()
+            if subscription_result.is_success:
+                # TODO: add notification/logging for error in this step
 
-            # Make sure order and payment IDs are
-            # removed from session, to prevent errors
-            clear_payment_session_vars(request)
+                # mark order as paid
+                entity.paid = True
 
-            return redirect("payment:done")
+                # store Braintree Subscription ID
+                entity.braintree_id = subscription_result.subscription.id
+
+                # Extend subscription end date by one year from today
+                # as both one-time and recurring subscriptions
+                # start with a single year interval
+                today = arrow.utcnow()
+                entity.end_date = today.shift(years=+1).date()
+
+                entity.save()
+
+                # Make sure order and payment IDs are
+                # removed from session, to prevent errors
+                clear_payment_session_vars(request)
+
+                return redirect("payment:done")
         else:
             return redirect("payment:canceled")
     else:
