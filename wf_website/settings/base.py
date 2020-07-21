@@ -18,6 +18,9 @@ from braintree import Environment as BraintreeEnvironment
 
 import dj_database_url
 
+from dotenv import load_dotenv
+load_dotenv()
+
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
