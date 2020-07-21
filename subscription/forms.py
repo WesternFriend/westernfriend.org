@@ -14,6 +14,7 @@ class SubscriptionCreateForm(forms.ModelForm):
         model = Subscription
         fields = [
             "subscription_type",
+            "recurring",
             "subscriber_given_name",
             "subscriber_family_name",
             "subscriber_street_address",

@@ -4,21 +4,12 @@
 {{ page.intro | richtext }}
 
 <form action="#" method="post" id="dynamicFields">
-    <div class="form-row">
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="subscriptionType" id="recurring" value="recurring" checked>
-            <label class="form-check-label" for="recurring">Recurring</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="subscriptionType" id="once" value="once">
-            <label class="form-check-label" for="once">Once</label>
-        </div>
-    </div>
-
     <div class="form-row mt-3">
         <div>
             {{ form.subscription_type | as_crispy_field }}
-        </div> 
+
+            {{ form.recurring | as_crispy_field }}
+        </div>
     </div>
 
     <div class="form-row mt-3">
