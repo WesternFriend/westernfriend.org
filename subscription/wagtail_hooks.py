@@ -15,7 +15,8 @@ class SubscriptionModelAdmin(ModelAdmin):
     add_to_settings_menu = False
     exclude_from_explorer = False
     list_display = (
-        "subscriber_full_name",
+        "subscriber_given_name", 
+        "subscriber_family_name",
         "user",
         "subscription_type",
         "price",
