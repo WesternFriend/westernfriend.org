@@ -252,22 +252,6 @@ class SubscriptionIndexPage(Page):
         if show_registration_form:
             context["registration_form"] = UserRegisterationForm
 
-        # Fetch Braintree plans to display in form
-        try:
-            gateway = braintree.BraintreeGateway(
-                braintree.Configuration(
-                    environment=braintree.Environment.Sandbox,
-                    merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
-                    public_key=os.environ.get("BRAINTREE_PUBLIC_KEY"),
-                    private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
-                )
-            )
-            plans = gateway.plan.all()
-
-            context["plans"] = plans
-        except:
-            logger.error("Unable to retrieve plans from Braintree.")
-
         context["form"] = SubscriptionCreateForm
 
         return context
