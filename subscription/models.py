@@ -281,6 +281,17 @@ class ManageSubscriptionPage(Page):
 
     max_count = 1
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+
+        subscriptions = Subscription.objects.filter(
+            user=request.user
+        )
+
+        context["subscriptions"] = subscriptions
+
+        return context
+
 def process_registration_form(request):
     # Avoid circular dependency
     from .forms import UserRegisterationForm
