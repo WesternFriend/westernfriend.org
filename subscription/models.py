@@ -181,7 +181,7 @@ class Subscription(models.Model):
 
     paid = models.BooleanField(default=False)
 
-    braintree_id = models.CharField(
+    braintree_subscription_id = models.CharField(
         max_length=255,
         blank=True,
         help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.",
@@ -201,7 +201,7 @@ class Subscription(models.Model):
         FieldPanel("start_date", widget=DatePickerInput()),
         FieldPanel("end_date", widget=DatePickerInput()),
         FieldPanel("paid"),
-        FieldPanel("braintree_id"),
+        FieldPanel("braintree_subscription_id"),
     ]
 
     def __str__(self):
