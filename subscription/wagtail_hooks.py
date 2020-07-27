@@ -18,7 +18,6 @@ class SubscriptionModelAdmin(ModelAdmin):
         "subscriber_full_name",
         "user",
         "subscription_type",
-        "duration",
         "price",
         "paid",)
     search_fields = (
@@ -33,7 +32,6 @@ class SubscriptionModelAdmin(ModelAdmin):
     inspect_view_fields = [
         "subscriber_full_name",
         "subscription_type",
-        "duration",
         "price",
         "paid",
     ]
