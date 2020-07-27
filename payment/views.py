@@ -60,7 +60,7 @@ def payment_process(request, previous_page):
 
                 # store Braintree Subscription ID
                 # TODO: rename this property to "braintree_subscription_id"
-                entity.braintree_id = subscription_result.subscription.id
+                entity.braintree_subscription_id = subscription_result.subscription.id
 
                 # Extend subscription end date by one year from today
                 # as both one-time and recurring subscriptions
