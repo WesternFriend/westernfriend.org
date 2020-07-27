@@ -270,6 +270,17 @@ class SubscriptionIndexPage(Page):
             return super().serve(request)
 
 
+class ManageSubscriptionPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel("intro"),
+    ]
+
+    subpage_types = []
+
+    max_count = 1
+
 def process_registration_form(request):
     # Avoid circular dependency
     from .forms import UserRegisterationForm
