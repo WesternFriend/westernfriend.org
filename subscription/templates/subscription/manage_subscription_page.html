@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    {{ page.intro | richtext }}
+
+    {% for subscription in subscriptions %}
+    <p>{{ subscription }}</p>
+    {% endfor %}
+{% endblock %}
