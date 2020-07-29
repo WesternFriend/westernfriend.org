@@ -304,8 +304,9 @@ class MagazineArticle(Page):
 
         # Subscribers and superusers can always view full articles
         # everyone can view public access articles
+        # user can view full article if any of these conditions is True
         context["user_can_view_full_article"] = (
-            request.user.is_subscriber 
+            request.user.is_subscriber
             or request.user.is_superuser
             or self.is_public_access
         )
