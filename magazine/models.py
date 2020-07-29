@@ -284,6 +284,7 @@ class MagazineArticle(Page):
             }
         ]
 
+    @property
     def is_public_access(self):
         """
         Check whether article should be accessible to all readers
@@ -297,6 +298,21 @@ class MagazineArticle(Page):
 
         # Issues older than six months are public access
         return parent_issue.specific.publication_date <= six_months_ago
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+
+        # Subscribers and superusers can always view full articles
+        # everyone can view public access articles
+        context["user_can_view_full_article"] = (
+            request.user.is_subscriber 
+            or request.user.is_superuser
+            or self.is_public_access
+        )
+
+        return context
+
+
 
 
 class MagazineIssueFeaturedArticle(Orderable):

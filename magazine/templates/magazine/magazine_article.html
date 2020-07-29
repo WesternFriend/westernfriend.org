@@ -46,20 +46,15 @@
         </div>
     {% endif %}
 
-    {% if page.is_public_access %}
+
+    {% if user_can_view_full_article %}
         {% include_block page.body %}
     {% else %}
-        {% user_is_subscriber as user_is_subscriber %}
-        
-        {% if user_is_subscriber %}
-            {% include_block page.body %}
-        {% else %}
-            <a href="/subscribe" class="btn btn-outline btn-success">
-                Subscribe now for full access.
-            </a>
+        <a href="/subscribe" class="btn btn-outline btn-success">
+            Subscribe now for full access.
+        </a>
 
-            {{ page.teaser | richtext }}
-        {% endif %}
+        {{ page.teaser | richtext }}
     {% endif %}
 
     <p>
