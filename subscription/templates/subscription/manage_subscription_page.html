@@ -19,16 +19,22 @@
                         {{ active_subscription.subscription_type }}
                     </p>
                     <p class="card-subtitle mb-2 text-muted">
-                        End of current period: {{ active_subscription.end_date }}
+                        Active to: {{ active_subscription.end_date }}
+                    </p>
+
+                    <p class="card-subtitle mb-2 text-muted">
+                        Recurring: {{ active_subscription.recurring | yesno:"Yes, No" }}
                     </p>
                     
                     <a href="#" class="btn btn-outline-primary">
                         Change postal address
                     </a>
-
+                    
+                    {% if active_subscription.recurring %}
                     <a href="#" class="btn btn-outline-secondary">
                         Cancel renewal
                     </a>
+                    {% endif %}
                 </div>
             </div>
         {% endwith %}
