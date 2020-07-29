@@ -5,3 +5,9 @@
     <a href="{{ item.href }}" class="nav-link">{{ item.text }}</a>
 </li>
 {% endfor %}
+
+{% if request.user.is_subscriber %}
+<li class="nav-item">
+    <a href="/manage-subscription" class="nav-link">My Subscription</a>
+</li>
+{% endif %}
