@@ -21,7 +21,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-
+    
     def get_active_subscription(self):
         """
         Get subscription for this user that isn't expired.
