@@ -40,16 +40,20 @@ def payment_process(request, previous_page):
         if customer_result.is_success:
             # TODO: add notification/logging for error in this step
 
-            # activate a subscription instance instead of transaction
+            # activate a subscription instance
+            subscription_properties = {
+                "payment_method_token": customer_result.customer.payment_methods[0].token,
+                # TODO: figure out how to do this without hard-coding the subscription ID
+                "plan_id": "magazine-subscription",
+                "price": entity.get_total_cost(),
+            }
+
+            if not entity.recurring:
+                # Subscription should only be charged once since it is not recurring
+                subscription_properties["number_of_billing_cycles"] = 1
+
             # TODO: check whether subscription should recur and set value accordingly
-            subscription_result = gateway.subscription.create(
-                {
-                    "payment_method_token": customer_result.customer.payment_methods[0].token,
-                    # TODO: figure out how to do this without hard-coding the subscription ID
-                    "plan_id": "magazine-subscription",
-                    "price": entity.get_total_cost(),
-                }
-            )
+            subscription_result = gateway.subscription.create(subscription_properties)
 
             if subscription_result.is_success:
                 # TODO: add notification/logging for error in this step
@@ -59,7 +63,6 @@ def payment_process(request, previous_page):
                 entity.paid = True
 
                 # store Braintree Subscription ID
-                # TODO: rename this property to "braintree_subscription_id"
                 entity.braintree_subscription_id = subscription_result.subscription.id
 
                 # Extend subscription end date by one year from today
