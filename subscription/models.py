@@ -1,7 +1,7 @@
+import datetime
 import logging
 import os
 
-import arrow
 import braintree
 
 from django.conf import settings
@@ -321,14 +321,14 @@ def process_subscription_form(request):
 
         # Set subscription start and end dates
         # based on current day
-        today = arrow.utcnow()
+        today = datetime.datetime.now()
 
         # Start date is today
-        subscription.start_date = today.date()
+        subscription.start_date = today
 
         # End date is today
         # until we get a success message from the payment processor
-        subscription.end_date = today.date()
+        subscription.end_date = today
 
         subscription.save()
 
