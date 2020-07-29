@@ -6,7 +6,35 @@
 
     {{ page.intro | richtext }}
 
-    {% for subscription in subscriptions %}
-    <p>{{ subscription }}</p>
-    {% endfor %}
+    
+    {% if request.user.get_active_subscription %}
+        <h2>Active subscription details</h2>
+
+        {% with active_subscription=request.user.get_active_subscription %}
+
+            
+            <div class="card">
+                <div class="card-body">
+                    <p class="card-title">
+                        {{ active_subscription.subscription_type }}
+                    </p>
+                    <p class="card-subtitle mb-2 text-muted">
+                        End of current period: {{ active_subscription.end_date }}
+                    </p>
+                    
+                    <a href="#" class="btn btn-primary">
+                        Change postal address
+                    </a>
+                    <a href="#" class="btn btn-secondary">
+                        Update payment method
+                    </a>
+                    <a href="#" class="btn btn-default">
+                        Cancel renewal
+                    </a>
+                </div>
+            </div>
+        {% endwith %}
+    {% else %}
+        <p>No active subscription found.</p>
+    {% endif %}
 {% endblock %}
