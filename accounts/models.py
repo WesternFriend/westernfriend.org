@@ -24,7 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     def get_active_subscription(self):
         """
-        Get subscription for this user that isn't expired.
+        Get subscription that isn't expired for this user.
         """
         today = datetime.datetime.today()
 
