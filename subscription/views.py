@@ -28,8 +28,8 @@ class SubscriptionWebhookView(View):
             )
         )
 
+        # Parse Braintree webhook
         body = json.loads(request.body)
-
         webhook_notification = gateway.webhook_notification.parse(
             body["bt_signature"],
             body["bt_payload"]
