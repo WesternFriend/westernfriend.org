@@ -40,7 +40,7 @@ class SubscriptionWebhookView(View):
         # Make sure we can find the subscription
         subscription = get_object_or_404(
             Subscription,
-            pk=braintree_subscription.id
+            braintree_subscription_id=braintree_subscription.id
         )
 
         if webhook_notification.kind == "subscription_charged_successfully":
