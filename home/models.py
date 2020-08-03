@@ -15,7 +15,6 @@ class HomePage(Page):
         InlinePanel(
             "featured_articles",
             heading="Featured articles",
-            # pylint: disable=E501
             help_text="Select one or more articles to feature on the home page",
         ),
     ]
