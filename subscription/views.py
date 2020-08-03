@@ -1,7 +1,9 @@
+from datetime import timedelta
 import json
 import os
 
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -33,4 +35,15 @@ class SubscriptionWebhookView(View):
             body["bt_payload"]
         )
 
+        subscription = get_object_or_404(
+            Subscription,
+            pk=webhook_notification.subscription.id
+        )
+
+        if webhook_notification.kind == "subscription_charged_successfully":
+            one_year_with_grace = timedelta(days=370)
+
+            subscription.end_date = subscription.end_date + one_year_with_grace
+            subscription.save()
+            
         return HttpResponse()
