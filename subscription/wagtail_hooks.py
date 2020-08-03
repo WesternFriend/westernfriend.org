@@ -20,7 +20,10 @@ class SubscriptionModelAdmin(ModelAdmin):
         "user",
         "subscription_type",
         "price",
-        "paid",)
+        "paid",
+        "recurring",
+        "end_date",
+    )
     search_fields = (
         "user",
         "subscriber_given_name", 
@@ -35,6 +38,8 @@ class SubscriptionModelAdmin(ModelAdmin):
         "subscription_type",
         "price",
         "paid",
+        "recurring",
+        "end_date",
     ]
     #inspect_template_name = "store/inspect_order.html"
 
