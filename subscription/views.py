@@ -35,15 +35,27 @@ class SubscriptionWebhookView(View):
             body["bt_payload"]
         )
 
+        braintree_subscription = webhook_notification.subscription
+
+        # Make sure we can find the subscription
         subscription = get_object_or_404(
             Subscription,
-            pk=webhook_notification.subscription.id
+            pk=braintree_subscription.id
         )
 
         if webhook_notification.kind == "subscription_charged_successfully":
-            one_year_with_grace = timedelta(days=370)
+            # Grace period so subscribers maintain access
+            grace_period = timedelta(days=5)
 
-            subscription.end_date = subscription.end_date + one_year_with_grace
-            subscription.save()
+            # Use Braintree paid through date (with grace period), if available
+            if braintree_subscription.get("paid_through_date"):
+                subscription.end_date = braintree_subscription.paid_through_date + grace_period
+            # Otherwise extend by one year with grace period
+            else:
+                one_year_with_grace = timedelta(days=365) + grace_period
+
+                subscription.end_date = subscription.end_date + one_year_with_grace
             
+            subscription.save()
+
         return HttpResponse()
