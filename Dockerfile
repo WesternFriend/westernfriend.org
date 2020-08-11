@@ -22,21 +22,25 @@ RUN pip install gunicorn
 
 # Poetry is used for project package management
 RUN pip install poetry
-# We don't want Poetry to create a virtual environment
-RUN poetry config virtualenvs.create false --local
-RUN poetry install --no-dev
 
 # Add user that will be used in the container.
 RUN useradd wagtail
 
 # Copy all files to work directory and change ownership
 WORKDIR /app/
+
+# Set directory permissions
 RUN chown wagtail:wagtail /app
 COPY --chown=wagtail:wagtail . /app
 
 # Use user "wagtail" to run the build commands below
 # and the server itself.
 USER wagtail
+
+# Install Poetry dependencies
+# Note: we don't want Poetry to create a virtual environment
+RUN poetry config virtualenvs.create false --local
+RUN poetry install --no-dev
 
 # Collect static files.
 RUN python manage.py collectstatic --noinput --clear
