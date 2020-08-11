@@ -23,9 +23,10 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
 
 # We use gunicorn to serve the project
 RUN pip install gunicorn
+RUN pip install poetry
 
 # Poetry is used for project package management
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+#RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 
 # Note: we don't want Poetry to create a virtual environment
 RUN poetry config virtualenvs.create false --local
