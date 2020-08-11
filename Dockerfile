@@ -24,30 +24,18 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
 # We use gunicorn to serve the project
 RUN pip install gunicorn
 
-# Add user that will be used in the container.
-RUN adduser wagtail
-
-WORKDIR /app/
-
-# Copy all files to work directory and change ownership
-RUN chown wagtail:wagtail /app
-COPY --chown=wagtail:wagtail . /app
-
-# Use user "wagtail" to run the build commands below
-# and the server itself.
-USER wagtail
-
 # Poetry is used for project package management
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 
-# TODO: figure out how to add poetry command to PATH
-# so we don't need to use verbose path below
-
 # Note: we don't want Poetry to create a virtual environment
-RUN ${HOME}/.poetry/bin/poetry config virtualenvs.create false --local
+RUN poetry config virtualenvs.create false --local
+
+WORKDIR /app/
+
+COPY . /app
 
 # Install Poetry dependencies
-RUN ${HOME}/.poetry/bin/poetry install --no-dev
+RUN poetry install --no-dev
 
 # Collect static files.
 RUN python manage.py collectstatic --noinput --clear
