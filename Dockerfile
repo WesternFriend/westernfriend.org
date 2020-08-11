@@ -5,6 +5,9 @@ ENV PYTHONUNBUFFERED 1
 ENV DJANGO_ENV dev
 ENV PORT=8000
 
+# Use bash instead of sh
+#SHELL ["/bin/bash", "-c"]
+
 # Port used by this container to serve HTTP.
 EXPOSE 8000
 
@@ -15,18 +18,18 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
     libjpeg62-turbo-dev \
     zlib1g-dev \
     libwebp-dev \
+    curl \
  && rm -rf /var/lib/apt/lists/*
 
 # We use gunicorn to serve the project
 RUN pip install gunicorn
 
 # Add user that will be used in the container.
-RUN useradd wagtail
+RUN adduser wagtail
 
-# Copy all files to work directory and change ownership
 WORKDIR /app/
 
-# Set directory permissions
+# Copy all files to work directory and change ownership
 RUN chown wagtail:wagtail /app
 COPY --chown=wagtail:wagtail . /app
 
@@ -35,12 +38,16 @@ COPY --chown=wagtail:wagtail . /app
 USER wagtail
 
 # Poetry is used for project package management
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+
+# TODO: figure out how to add poetry command to PATH
+# so we don't need to use verbose path below
+
 # Note: we don't want Poetry to create a virtual environment
-RUN pip install poetry
-RUN poetry config virtualenvs.create false --local
+RUN ${HOME}/.poetry/bin/poetry config virtualenvs.create false --local
 
 # Install Poetry dependencies
-RUN poetry install --no-dev
+RUN ${HOME}/.poetry/bin/poetry install --no-dev
 
 # Collect static files.
 RUN python manage.py collectstatic --noinput --clear
