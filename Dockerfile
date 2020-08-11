@@ -14,23 +14,25 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
     curl \
  && rm -rf /var/lib/apt/lists/*
 
+RUN pip install --upgrade pip
+
 # We use gunicorn to serve the project
 RUN pip install gunicorn
+
+# Poetry is used to manage dependencies
 RUN pip install poetry
 
 WORKDIR /app/
 COPY . /app
 
 # Note: we don't want Poetry to create a virtual environment
+# Instead, it should use a local directory (hence --local?)
 RUN poetry config virtualenvs.create false --local
 # Install Poetry dependencies
 RUN poetry install --no-dev
 
 # Collect static files.
 RUN python manage.py collectstatic --noinput --clear
-
-# Run database migrations
-RUN python manage.py migrate --noinput
 
 RUN useradd wagtail
 RUN chown -R wagtail /app
