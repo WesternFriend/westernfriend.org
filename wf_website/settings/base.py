@@ -109,6 +109,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "wagtail.core.middleware.SiteMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "wf_website.urls"
@@ -197,6 +198,7 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesSto
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
 STATIC_URL = "/static/"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"

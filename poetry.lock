@@ -681,6 +681,17 @@ version = "0.5.1"
 
 [[package]]
 category = "main"
+description = "Radically simplified static file serving for WSGI applications"
+name = "whitenoise"
+optional = false
+python-versions = ">=3.5, <4"
+version = "5.2.0"
+
+[package.extras]
+brotli = ["brotli"]
+
+[[package]]
+category = "main"
 description = "A Python image library that sits on top of Pillow, Wand and OpenCV"
 name = "willow"
 optional = false
@@ -717,7 +728,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "3ec9a39b99ebb64f7ac9dfcc05dc3d608e1b208894127c5af1768c09cc2b512b"
+content-hash = "5d1a7edf8296ca302393a00ab270238c2d98569c920370a1ed0955141e6ac704"
 lock-version = "1.0"
 python-versions = "^3.7"
 
@@ -1094,6 +1105,10 @@ wagtailmenus = [
 webencodings = [
     {file = "webencodings-0.5.1-py2.py3-none-any.whl", hash = "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78"},
     {file = "webencodings-0.5.1.tar.gz", hash = "sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923"},
+]
+whitenoise = [
+    {file = "whitenoise-5.2.0-py2.py3-none-any.whl", hash = "sha256:05d00198c777028d72d8b0bbd234db605ef6d60e9410125124002518a48e515d"},
+    {file = "whitenoise-5.2.0.tar.gz", hash = "sha256:05ce0be39ad85740a78750c86a93485c40f08ad8c62a6006de0233765996e5c7"},
 ]
 willow = [
     {file = "Willow-1.3-py2.py3-none-any.whl", hash = "sha256:8897a6827c0bb7dee2ac908af53f0d358720bd6032ed20bab3175507e34d739a"},
