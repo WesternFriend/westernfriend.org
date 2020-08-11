@@ -20,9 +20,6 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
 # We use gunicorn to serve the project
 RUN pip install gunicorn
 
-# Poetry is used for project package management
-RUN pip install poetry
-
 # Add user that will be used in the container.
 RUN useradd wagtail
 
@@ -37,9 +34,12 @@ COPY --chown=wagtail:wagtail . /app
 # and the server itself.
 USER wagtail
 
-# Install Poetry dependencies
+# Poetry is used for project package management
 # Note: we don't want Poetry to create a virtual environment
+RUN pip install poetry
 RUN poetry config virtualenvs.create false --local
+
+# Install Poetry dependencies
 RUN poetry install --no-dev
 
 # Collect static files.
