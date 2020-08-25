@@ -43,7 +43,7 @@ class Command(BaseCommand):
                     # ensuring it is a string
                     authors_list = str(article["authors"]).split(", ")
 
-                    if authors_list != None:
+                    if authors_list is not None:
 
                         for author in authors_list:
                             authors_mask = authors["drupal_full_name"] == author
@@ -93,5 +93,9 @@ class Command(BaseCommand):
                 related_issue.save()
             except:
                 missing_archive_issues += 1
+                print(
+                    "Could not find or save related archive issue: ",
+                    internet_archive_identifier,
+                )
 
         print("Total missing issues: ", missing_archive_issues)
