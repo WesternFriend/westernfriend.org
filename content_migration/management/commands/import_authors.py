@@ -7,7 +7,7 @@ from contact.models import (
     Organization,
     OrganizationIndexPage,
     Person,
-    PersonIndexPage
+    PersonIndexPage,
 )
 
 
@@ -32,19 +32,19 @@ class Command(BaseCommand):
                 # - Organization
                 # - Person
                 # with the condition to check for corrections to person names
-                author_is_meeting = author["meeting_name"] is not ""
-                author_is_organization = author["organization_name"] is not ""
+                author_is_meeting = author["meeting_name"] != ""
+                author_is_organization = author["organization_name"] != ""
                 author_is_person = (
-                    author["family_name"] is not "" or
-                    author["given_name"] is not "" or
-                    author["corrected_family_name"] is not "" or
-                    author["corrected_given_name"] is not ""
+                    author["family_name"] != ""
+                    or author["given_name"] != ""
+                    or author["corrected_family_name"] != ""
+                    or author["corrected_given_name"] != ""
                 )
 
                 if author_is_meeting:
                     meeting = Meeting(
                         title=author["meeting_name"],
-                        drupal_full_name=author["drupal_full_name"]
+                        drupal_full_name=author["drupal_full_name"],
                     )
 
                     meeting_index_page.add_child(instance=meeting)
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 elif author_is_organization:
                     organization = Organization(
                         title=author["organization_name"],
-                        drupal_full_name=author["drupal_full_name"]
+                        drupal_full_name=author["drupal_full_name"],
                     )
 
                     organization_index_page.add_child(instance=organization)
@@ -61,8 +61,8 @@ class Command(BaseCommand):
                     organization_index_page.save()
                 elif author_is_person:
                     author_name_corrected = (
-                        author["corrected_family_name"] is not "" or
-                        author["corrected_given_name"] is not ""
+                        author["corrected_family_name"] != ""
+                        or author["corrected_given_name"] != ""
                     )
 
                     if author_name_corrected:
@@ -75,7 +75,7 @@ class Command(BaseCommand):
                     person = Person(
                         given_name=given_name,
                         family_name=family_name,
-                        drupal_full_name=author["drupal_full_name"]
+                        drupal_full_name=author["drupal_full_name"],
                     )
 
                     person_index_page.add_child(instance=person)
