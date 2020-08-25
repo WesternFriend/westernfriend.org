@@ -56,9 +56,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         articles = pd.read_csv(options["articles_file"])
-        authors = pd.read_csv(
-            "../wf_import_Data/authors_cleaned_deduped-2020-04-12.csv"
-        )
+        authors = pd.read_csv("../import_data/authors_cleaned_deduped-2020-04-12.csv")
 
         for index, row in articles.iterrows():
             soup = BeautifulSoup(row["Body"], "html.parser")
