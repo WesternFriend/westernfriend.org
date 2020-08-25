@@ -1,5 +1,6 @@
 import math
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 
 import numpy as np
@@ -87,11 +88,10 @@ class Command(BaseCommand):
                 related_issue = ArchiveIssue.objects.get(
                     internet_archive_identifier=internet_archive_identifier
                 )
-
                 related_issue.table_of_contents = table_of_contents_blocks
 
-                related_issue.save()
-            except:
+                # related_issue.save()
+            except ObjectDoesNotExist:
                 missing_archive_issues += 1
                 print(
                     "Could not find or save related archive issue: ",
