@@ -90,7 +90,7 @@ class Command(BaseCommand):
                 )
                 related_issue.table_of_contents = table_of_contents_blocks
 
-                # related_issue.save()
+                related_issue.save()
             except ObjectDoesNotExist:
                 missing_archive_issues += 1
                 print(
