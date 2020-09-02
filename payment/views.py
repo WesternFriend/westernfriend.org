@@ -25,12 +25,36 @@ def payment_process(request, previous_page):
         entity = get_object_or_404(Subscription, id=subscription_id)
 
     if request.method == "POST":
-        if processing_bookstore_order:
-            # TODO: add missing code for bookstore order
-        elif processing_subscription:
-            # retrieve payment nonce
-            nonce = request.POST.get("payment_method_nonce", None)
+        # retrieve payment nonce
+        nonce = request.POST.get("payment_method_nonce", None)
 
+        if processing_bookstore_order:
+            # create and submit transaction
+            result = braintree.Transaction.sale(
+                {
+                    "amount": entity.get_total_cost(),
+                    "payment_method_nonce": nonce,
+                    "options": {"submit_for_settlement": True},
+                }
+            )
+
+            if result.is_success:
+                # mark order as paid
+                entity.paid = True
+
+                # store Braintree transaction ID
+                entity.braintree_id = result.transaction.id
+
+                entity.save()
+
+                # Make sure order and payment IDs are
+                # removed from session, to prevent errors
+                clear_payment_session_vars(request)
+
+                return redirect("payment:done")
+            else:
+                return redirect("payment:canceled")
+        elif processing_subscription:
             gateway = braintree.BraintreeGateway(
                 braintree.Configuration(
                     braintree.Environment.Sandbox,
