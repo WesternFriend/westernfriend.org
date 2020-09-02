@@ -12,6 +12,9 @@ def payment_process(request, previous_page):
     # TODO: consider whether to separate these code paths now
     # since we are using different payment methods for subscriptions
     # and bookstore orders
+    #
+    # NOTE: for now, I am leaving the code with partially duplicate lines
+    # in case it seems desirable to separate out the code paths
     processing_subscription = previous_page == "subscribe"
     processing_bookstore_order = previous_page == "bookstore_order"
 
