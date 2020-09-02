@@ -36,7 +36,7 @@ SUBSCRIPTION_TYPES_AND_PRICES = [
         "name": "PDF only - regular price",
         "price": 30,
     },
-    {"slug": "pdf-only-true-cost", "name": "PDF only - true cost price", "price": 60, },
+    {"slug": "pdf-only-true-cost", "name": "PDF only - true cost price", "price": 60,},
     {
         "slug": "print-and-pdf-regular-price",
         "name": "Both print and PDF - regular price",
@@ -79,9 +79,9 @@ subscription_type_choices = create_subscription_type_choices(
 )
 
 SUBSCRIPTION_DURATIONS_AND_DISCOUNTS = [
-    {"duration": 1, "label": "One year", "discount": 0, },
-    {"duration": 2, "label": "Two years", "discount": 10, },
-    {"duration": 3, "label": "Three years", "discount": 25, },
+    {"duration": 1, "label": "One year", "discount": 0,},
+    {"duration": 2, "label": "Two years", "discount": 10,},
+    {"duration": 3, "label": "Three years", "discount": 25,},
 ]
 
 
@@ -121,9 +121,7 @@ class Subscription(models.Model):
         help_text="Choose the subscription type you would like to receive.",
         choices=subscription_type_choices,
     )
-    recurring = models.BooleanField(
-        default=True
-    )
+    recurring = models.BooleanField(default=True)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     subscriber_given_name = models.CharField(
@@ -284,13 +282,13 @@ class ManageSubscriptionPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        subscriptions = Subscription.objects.filter(
-            user=request.user
-        )
+        if request.get("user"):
+            subscriptions = Subscription.objects.filter(user=request.user)
 
-        context["subscriptions"] = subscriptions
+            context["subscriptions"] = subscriptions
 
         return context
+
 
 def process_registration_form(request):
     # Avoid circular dependency
