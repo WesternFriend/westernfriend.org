@@ -282,7 +282,7 @@ class ManageSubscriptionPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             subscriptions = Subscription.objects.filter(user=request.user)
 
             context["subscriptions"] = subscriptions
