@@ -34,7 +34,9 @@ class Person(Page):
     )
 
     family_name = models.CharField(max_length=255, blank=True, default="")
-    drupal_full_name = models.CharField(max_length=255, db_index=True, null=True, blank=True, unique=True)
+    drupal_full_name = models.CharField(
+        max_length=255, db_index=True, null=True, blank=True, unique=True
+    )
 
     content_panels = [
         FieldPanel("given_name"),
@@ -73,17 +75,18 @@ class PersonIndexPage(Page):
 
 class Meeting(Page):
     meeting_type = models.CharField(
-        max_length=255,
-        choices=MEETING_TYPE_CHOICES,
-        null=True,
-        blank=True,
+        max_length=255, choices=MEETING_TYPE_CHOICES, null=True, blank=True,
     )
 
     description = models.CharField(max_length=255, blank=True, null=True)
 
     website = models.URLField(null=True, blank=True)
 
-    drupal_full_name = models.CharField(max_length=255, db_index=True, null=True, blank=True, unique=True)
+    drupal_full_name = models.CharField(
+        max_length=255, db_index=True, null=True, blank=True, unique=True
+    )
+
+    civicrm_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
@@ -91,10 +94,7 @@ class Meeting(Page):
         FieldPanel("meeting_type"),
     ]
 
-    parent_page_types = [
-        "contact.MeetingIndexPage",
-        "Meeting"
-    ]
+    parent_page_types = ["contact.MeetingIndexPage", "Meeting"]
     subpage_types = ["Meeting"]
 
     template = "contact/contact.html"
@@ -112,14 +112,17 @@ class Meeting(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        context["quarterly_meetings"] = Meeting.objects.child_of(
-            self).filter(meeting_type="quarterly_meeting")
+        context["quarterly_meetings"] = Meeting.objects.child_of(self).filter(
+            meeting_type="quarterly_meeting"
+        )
 
-        context["monthly_meetings"] = Meeting.objects.descendant_of(
-            self).filter(meeting_type="monthly_meeting")
+        context["monthly_meetings"] = Meeting.objects.descendant_of(self).filter(
+            meeting_type="monthly_meeting"
+        )
 
-        context["worship_groups"] = Meeting.objects.descendant_of(
-            self).filter(meeting_type="worship_group")
+        context["worship_groups"] = Meeting.objects.descendant_of(self).filter(
+            meeting_type="worship_group"
+        )
 
         return context
 
@@ -137,7 +140,9 @@ class Organization(Page):
     description = models.CharField(max_length=255, blank=True, null=True)
 
     website = models.URLField(null=True, blank=True)
-    drupal_full_name = models.CharField(max_length=255, db_index=True, null=True, blank=True, unique=True)
+    drupal_full_name = models.CharField(
+        max_length=255, db_index=True, null=True, blank=True, unique=True
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
