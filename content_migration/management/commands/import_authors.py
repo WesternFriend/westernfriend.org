@@ -42,23 +42,35 @@ class Command(BaseCommand):
                 )
 
                 if author_is_meeting:
-                    meeting = Meeting(
+                    meeting_exists = Meeting.objects.filter(
                         title=author["meeting_name"],
-                        drupal_full_name=author["drupal_full_name"],
-                    )
+                    ).exists()
 
-                    meeting_index_page.add_child(instance=meeting)
+                    # Don't create duplicate meetings
+                    if not meeting_exists:
+                        meeting = Meeting(
+                            title=author["meeting_name"],
+                            drupal_full_name=author["drupal_full_name"],
+                        )
 
-                    meeting_index_page.save()
+                        meeting_index_page.add_child(instance=meeting)
+
+                        meeting_index_page.save()
                 elif author_is_organization:
-                    organization = Organization(
+                    organization_exists = Organization.objects.filter(
                         title=author["organization_name"],
-                        drupal_full_name=author["drupal_full_name"],
-                    )
+                    ).exists()
 
-                    organization_index_page.add_child(instance=organization)
+                    # Avoid duplicates
+                    if not organization_exists:
+                        organization = Organization(
+                            title=author["organization_name"],
+                            drupal_full_name=author["drupal_full_name"],
+                        )
 
-                    organization_index_page.save()
+                        organization_index_page.add_child(instance=organization)
+
+                        organization_index_page.save()
                 elif author_is_person:
                     author_name_corrected = (
                         author["corrected_family_name"] != ""
@@ -72,15 +84,21 @@ class Command(BaseCommand):
                         given_name = author["given_name"]
                         family_name = author["family_name"]
 
-                    person = Person(
-                        given_name=given_name,
-                        family_name=family_name,
-                        drupal_full_name=author["drupal_full_name"],
-                    )
+                    person_exists = Person.objects.filter(
+                        given_name=given_name, family_name=family_name,
+                    ).exists()
 
-                    person_index_page.add_child(instance=person)
+                    # Avoid duplicates
+                    if not person_exists:
+                        person = Person(
+                            given_name=given_name,
+                            family_name=family_name,
+                            drupal_full_name=author["drupal_full_name"],
+                        )
 
-                    person_index_page.save()
+                        person_index_page.add_child(instance=person)
+
+                        person_index_page.save()
                 else:
                     print("unknown")
 
