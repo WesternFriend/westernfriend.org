@@ -96,6 +96,7 @@ class Command(BaseCommand):
                             title=contact["Organization Name"],
                         )
                         meeting.meeting_type = meeting_type
+                        meeting.website = contact["Website"]
                         meeting.civicrm_id = contact["Contact ID"]
 
                         meeting.save()
@@ -104,6 +105,7 @@ class Command(BaseCommand):
                             title=contact["Organization Name"],
                             civicrm_id=contact["Contact ID"],
                             meeting_type=meeting_type,
+                            website=contact["Website"],
                         )
 
                         meeting_index_page.add_child(instance=meeting)
