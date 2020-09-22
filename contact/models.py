@@ -81,7 +81,8 @@ class Meeting(Page):
     description = models.CharField(max_length=255, blank=True, null=True)
 
     website = models.URLField(null=True, blank=True)
-
+    email = models.EmailField(null=True, blank=True)
+    phone = models.CharField(max_length=64, null=True, blank=True)
     civicrm_id = models.IntegerField(null=True, blank=True)
     drupal_full_name = models.CharField(
         max_length=255, db_index=True, null=True, blank=True, unique=True
@@ -90,6 +91,8 @@ class Meeting(Page):
     content_panels = Page.content_panels + [
         FieldPanel("description"),
         FieldPanel("website"),
+        FieldPanel("email"),
+        FieldPanel("phone"),
         FieldPanel("meeting_type"),
     ]
 
