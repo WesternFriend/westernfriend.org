@@ -95,7 +95,7 @@ class Meeting(Page):
         FieldPanel("email"),
         FieldPanel("phone"),
         FieldPanel("meeting_type"),
-        InlinePanel("addresses", label="Address(es)"),
+        InlinePanel("addresses", label="Address"),
     ]
 
     parent_page_types = ["contact.MeetingIndexPage", "Meeting"]
