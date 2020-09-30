@@ -18,16 +18,12 @@ class Address(models.Model):
     po_box_number = models.CharField(
         max_length=32, blank=True, default="", help_text="P.O. Box, if relevant."
     )
-    locality = models.CharField(
-        max_length=255, help_text="City for the shipping address."
-    )
+    locality = models.CharField(max_length=255, help_text="Locality or city.")
     region = models.CharField(
         max_length=255, help_text="State or region.", blank=True, default=""
     )
     postal_code = models.CharField(max_length=16, help_text="Postal code (or zipcode).")
-    country = models.CharField(
-        max_length=255, default="United States", help_text="Country for shipping."
-    )
+    country = models.CharField(max_length=255, default="United States")
     address_type = models.CharField(max_length=255, choices=ADDRESS_TYPE_CHOICES)
 
     panels = [
