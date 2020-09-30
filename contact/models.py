@@ -2,18 +2,19 @@ from django.db import models
 from django.utils.text import slugify
 from django_extensions.db.fields import AutoSlugField
 
-
+from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 from wagtail.admin.edit_handlers import (
     FieldPanel,
+    InlinePanel,
     StreamFieldPanel,
 )
 from wagtail.core import blocks
-from wagtail.core.models import Page
+from wagtail.core.models import Orderable, Page
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.search import index
 
-
+from addresses.models import Address
 from streams.blocks import OrganizationsBlock
 
 MEETING_TYPE_CHOICES = (
@@ -94,6 +95,7 @@ class Meeting(Page):
         FieldPanel("email"),
         FieldPanel("phone"),
         FieldPanel("meeting_type"),
+        InlinePanel("addresses", label="Address(es)"),
     ]
 
     parent_page_types = ["contact.MeetingIndexPage", "Meeting"]
@@ -127,6 +129,12 @@ class Meeting(Page):
         )
 
         return context
+
+
+class MeetingAddress(Orderable, Address):
+    page = ParentalKey(
+        "contact.Meeting", on_delete=models.CASCADE, related_name="addresses"
+    )
 
 
 class MeetingIndexPage(Page):
