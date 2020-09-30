@@ -2,7 +2,7 @@ from django.db import models
 
 from wagtail.admin.edit_handlers import FieldPanel
 
-ADDRESS_TYPE_CHOICES = (("mailing", "mailing"), ("worship", "worship"))
+ADDRESS_TYPE_CHOICES = (("mailing", "Mailing"), ("worship", "Worship"))
 
 
 class Address(models.Model):
@@ -31,6 +31,7 @@ class Address(models.Model):
     address_type = models.CharField(max_length=255, choices=ADDRESS_TYPE_CHOICES)
 
     panels = [
+        FieldPanel("address_type"),
         FieldPanel("street_address"),
         FieldPanel("extended_address"),
         FieldPanel("po_box_number"),
