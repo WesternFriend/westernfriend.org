@@ -19,6 +19,7 @@ from braintree import Environment as BraintreeEnvironment
 import dj_database_url
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
@@ -49,6 +50,7 @@ BraintreeConfiguration.configure(
 
 INSTALLED_APPS = [
     "accounts",
+    "addresses",
     "cart",
     "community",
     "contact",
@@ -139,9 +141,7 @@ WSGI_APPLICATION = "wf_website.wsgi.application"
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL:
-    DATABASES = {
-        "default": dj_database_url.parse(DATABASE_URL)
-    }
+    DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
 else:
     DATABASES = {
         "default": {
