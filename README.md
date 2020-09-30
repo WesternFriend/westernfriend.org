@@ -37,7 +37,7 @@ If you have any difficulty or questions, please [open a support ticket](https://
 
 ## Attribution
 
-Portions of code for the Store and Cart apps comes used, with permission, from the book [Django 2 by Example](https://www.packtpub.com/application-development/django-2-example) by Antonio Melé.
+Portions of code for the Store and Cart apps come used, with permission, from the book [Django 2 by Example](https://www.packtpub.com/application-development/django-2-example) by Antonio Melé.
 
 ## Contributors ✨
 
