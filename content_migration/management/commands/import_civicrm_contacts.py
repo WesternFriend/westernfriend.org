@@ -3,7 +3,7 @@
 
 import csv
 from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from contact.models import (
     Meeting,
@@ -79,33 +79,40 @@ class Command(BaseCommand):
 
                 contact_is_meeting = contact_type in meeting_types
                 contact_is_organization = contact_type in organization_types
-                print(contact["Organization Name"], contact["Contact ID"])
+                organization_name = contact["Organization Name"]
+                contact_id = contact["Contact ID"]
+
+                print(organization_name, contact_id)
 
                 if contact_is_meeting:
                     # If meeting exists, update
                     # else create new meeting
 
                     meeting_exists = Meeting.objects.filter(
-                        title=contact["Organization Name"],
+                        title=organization_name,
                     ).exists()
 
                     meeting_type = determine_meeting_type(contact_type)
 
                     if meeting_exists:
-                        meeting = Meeting.objects.get(
-                            title=contact["Organization Name"],
-                        )
+                        try:
+                            meeting = Meeting.objects.get(
+                                title=organization_name,
+                            )
+                        except MultipleObjectsReturned:
+                            print("Duplicate meeting found for:", organization_name)
+
                         meeting.meeting_type = meeting_type
                         meeting.website = contact["Website"]
                         meeting.phone = contact["Phone"]
                         meeting.email = contact["Email"]
-                        meeting.civicrm_id = contact["Contact ID"]
+                        meeting.civicrm_id = contact_id
 
                         meeting.save()
                     else:
                         meeting = Meeting(
-                            title=contact["Organization Name"],
-                            civicrm_id=contact["Contact ID"],
+                            title=organization_name,
+                            civicrm_id=contact_id,
                             meeting_type=meeting_type,
                             website=contact["Website"],
                             phone=contact["Phone"],
@@ -120,23 +127,26 @@ class Command(BaseCommand):
                     # else create new organization
 
                     organization_exists = Organization.objects.filter(
-                        title=contact["Organization Name"],
+                        title=organization_name,
                     ).exists()
 
                     if organization_exists:
                         print("organization exists")
-                        organization = Organization.objects.get(
-                            title=contact["Organization Name"],
-                        )
+                        try:
+                            organization = Organization.objects.get(
+                                title=organization_name,
+                            )
+                        except MultipleObjectsReturned:
+                            print("Duplicate organization found for:", organization_name)
 
-                        organization.civicrm_id = contact["Contact ID"]
+                        organization.civicrm_id = contact_id
 
                         organization.save()
                     else:
                         print("new organization")
                         organization = Organization(
-                            title=contact["Organization Name"],
-                            civicrm_id=contact["Contact ID"],
+                            title=organization_name,
+                            civicrm_id=contact_id,
                         )
 
                         organization_index_page.add_child(instance=organization)
