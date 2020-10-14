@@ -25,6 +25,8 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=16, help_text="Postal code (or zipcode).")
     country = models.CharField(max_length=255, default="United States")
     address_type = models.CharField(max_length=255, choices=ADDRESS_TYPE_CHOICES)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
 
     panels = [
         FieldPanel("address_type"),
@@ -35,6 +37,8 @@ class Address(models.Model):
         FieldPanel("region"),
         FieldPanel("postal_code"),
         FieldPanel("country"),
+        FieldPanel("latitude"),
+        FieldPanel("longitude"),
     ]
 
     def __str__(self):
