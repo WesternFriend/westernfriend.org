@@ -16,7 +16,7 @@
             </ul>
         {% endif %}
 
-        {{ article.body | richtext | truncatewords_html:30 }}
+        {{ article.teaser | richtext }}
 
         Issue:
         <a href="{% pageurl article.get_parent %}" class="card-link">
