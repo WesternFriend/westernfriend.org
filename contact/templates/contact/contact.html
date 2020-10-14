@@ -7,6 +7,53 @@
 
 {{ page.specific.description | richtext }}
 
+{% if page.addresses.count %}
+{% for address in page.addresses.all %}
+    {{ address }}
+    <p>address</p>
+{% endfor %}
+{% endif %}
+
+{% if quarterly_meetings %}
+<div class="card mt-1">
+    <div class="card-body">
+        <h3 class="card-title">Quarterly Meetings</h3>
+        {% for meeting in quarterly_meetings %}
+        <a href="{% pageurl meeting %}">
+            {{ meeting.title }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if monthly_meetings %}
+<div class="card mt-1">
+    <div class="card-body">
+        <h3 class="card-title">Monthly Meetings</h3>
+        {% for meeting in monthly_meetings %}
+        <a href="{% pageurl meeting %}">
+            {{ meeting.title }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if worship_groups %}
+<div class="card mt-1">
+    <div class="card-body">
+        <h3 class="card-title">Worship Groups</h3>
+        {% for meeting in worship_groups %}
+        <a href="{% pageurl meeting %}">
+            {{ meeting.title }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+
 {% if page.articles_authored.count %}
 <h2>Articles</h2>
 {% for article in page.articles_authored.all %}
@@ -48,50 +95,11 @@
 
 {% if page.specific.library_items_authored.count %}
 <h2>Library items</h2>
-{% for item in page.specific.library_items_authored.all %}
-<a href="{% pageurl item.library_item %}">
-    {{ item.library_item }}
-</a>
-{% endfor %}
-{% endif %}
-
-{% if quarterly_meetings %}
-<div class="card mt-1">
-    <div class="card-body">
-        <h3 class="card-title">Quarterly Meetings</h3>
-        {% for meeting in quarterly_meetings %}
-        <a href="{% pageurl meeting %}">
-            {{ meeting.title }}
-        </a>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-{% if monthly_meetings %}
-<div class="card mt-1">
-    <div class="card-body">
-        <h3 class="card-title">Monthly Meetings</h3>
-        {% for meeting in monthly_meetings %}
-        <a href="{% pageurl meeting %}">
-            {{ meeting.title }}
-        </a>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-{% if worship_groups %}
-<div class="card mt-1">
-    <div class="card-body">
-        <h3 class="card-title">Worship Groups</h3>
-        {% for meeting in worship_groups %}
-        <a href="{% pageurl meeting %}">
-            {{ meeting.title }}
-        </a>
-        {% endfor %}
-    </div>
-</div>
+    {% for item in page.specific.library_items_authored.all %}
+    <a href="{% pageurl item.library_item %}">
+        {{ item.library_item }}
+    </a>
+    {% endfor %}
 {% endif %}
 
 {% if page.memorial_minutes %}
