@@ -8,16 +8,17 @@
 {{ page.specific.description | richtext }}
 
 {% if page.addresses.count %}
-<div class="card mt-1">
-    <div class="card-body">
-        <h3 class="card-title">Address(es)</h3>
-{% for address in page.addresses.all %}
+<h2>Address(es)</h2>
 
-        <p>{{ address.address_type | title }}:</p>
+<ul class="list-group">
+{% for address in page.addresses.all %}
+    <li class="list-group-item">
+        <h3>{{ address.address_type | title }}</h3>
         <p>{{ address }}</p>
+    </li>
 {% endfor %}
-    </div>
-</div>
+</ul>
+
 {% endif %}
 
 {% if quarterly_meetings %}
