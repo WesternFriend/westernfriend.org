@@ -79,8 +79,7 @@ class Meeting(Page):
         max_length=255, choices=MEETING_TYPE_CHOICES, null=True, blank=True,
     )
 
-    description = models.CharField(max_length=255, blank=True, null=True)
-
+    description = RichTextField(blank=True, null=True)
     website = models.URLField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=64, null=True, blank=True)
