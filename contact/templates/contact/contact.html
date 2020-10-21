@@ -8,10 +8,16 @@
 {{ page.specific.description | richtext }}
 
 {% if page.addresses.count %}
+<div class="card mt-1">
+    <div class="card-body">
+        <h3 class="card-title">Address(es)</h3>
 {% for address in page.addresses.all %}
-    {{ address }}
-    <p>address</p>
+
+        <p>{{ address.address_type | title }}:</p>
+        <p>{{ address }}</p>
 {% endfor %}
+    </div>
+</div>
 {% endif %}
 
 {% if quarterly_meetings %}
