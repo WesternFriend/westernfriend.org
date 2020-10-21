@@ -14,9 +14,9 @@
 
         <dl>
             {% for address in page.addresses.all %}
-            <dt>{{ address.address_type | title }}</dt>
-            <dd>{{ address }}</dd>
-        {% endfor %}
+                <dt>{{ address.address_type | title }}</dt>
+                <dd>{{ address }}</dd>
+            {% endfor %}
         </dl>
         {% endif %}
     </div>
