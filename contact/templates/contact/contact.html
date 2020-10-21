@@ -12,14 +12,12 @@
         {% if page.addresses.count %}
         <h2>Address(es)</h2>
 
-        <ul class="list-group">
-        {% for address in page.addresses.all %}
-            <li class="list-group-item">
-                <h3>{{ address.address_type | title }}</h3>
-                <p>{{ address }}</p>
-            </li>
+        <dl>
+            {% for address in page.addresses.all %}
+            <dt>{{ address.address_type | title }}</dt>
+            <dd>{{ address }}</dd>
         {% endfor %}
-        </ul>
+        </dl>
         {% endif %}
     </div>
 
