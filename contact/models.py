@@ -118,15 +118,15 @@ class Meeting(Page):
 
         context["quarterly_meetings"] = Meeting.objects.child_of(self).filter(
             meeting_type="quarterly_meeting"
-        )
+        ).order_by('title')
 
         context["monthly_meetings"] = Meeting.objects.descendant_of(self).filter(
             meeting_type="monthly_meeting"
-        )
+        ).order_by('title')
 
         context["worship_groups"] = Meeting.objects.descendant_of(self).filter(
             meeting_type="worship_group"
-        )
+        ).order_by('title')
 
         return context
 
