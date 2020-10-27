@@ -8,9 +8,50 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from contact.models import (
     Meeting,
     MeetingIndexPage,
+    MeetingWorshipTime,
     Organization,
     OrganizationIndexPage,
 )
+
+def add_meeting_worship_times(meeting, contact):
+    # For a given Meeting model instance,
+    # add meeting time(s) from CiviCRM contact data
+
+    if contact["Regular time of Worship on First Day (1)"] != "":
+        worship_time = MeetingWorshipTime(
+            meeting=meeting,
+            worship_type="first_day",
+            worship_time=contact["Regular time of Worship on First Day (1)"]
+        )
+
+        worship_time.save()
+
+    if contact["Regular day and time of Meeting for Worship on the Occassion of Business"] != "":
+        worship_time = MeetingWorshipTime(
+            meeting=meeting,
+            worship_type="business",
+            worship_time=contact["Regular day and time of Meeting for Worship on the Occassion of Business"]
+        )
+
+        worship_time.save()
+
+    if contact["Regular time of Worship on First Day (2)"] != "":
+        worship_time = MeetingWorshipTime(
+            meeting=meeting,
+            worship_type="first_day",
+            worship_time=contact["Regular time of Worship on First Day (2)"]
+        )
+
+        worship_time.save()
+
+    if contact["Regular day and time of other weekly or monthly public meetings (1)"] != "":
+        worship_time = MeetingWorshipTime(
+            meeting=meeting,
+            worship_type="first_day",
+            worship_time=contact["Regular day and time of other weekly or monthly public meetings (1)"]
+        )
+
+        worship_time.save()
 
 
 def determine_meeting_type(contact_type):
@@ -109,6 +150,8 @@ class Command(BaseCommand):
                         meeting.civicrm_id = contact_id
 
                         meeting.save()
+
+                        add_meeting_worship_times(meeting, contact)
                     else:
                         meeting = Meeting(
                             title=organization_name,
@@ -118,6 +161,8 @@ class Command(BaseCommand):
                             phone=contact["Phone"],
                             email=contact["Email"],
                         )
+
+                        add_meeting_worship_times(meeting, contact)
 
                         meeting_index_page.add_child(instance=meeting)
 
