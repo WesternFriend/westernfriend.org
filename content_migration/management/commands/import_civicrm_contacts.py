@@ -162,11 +162,11 @@ class Command(BaseCommand):
                             email=contact["Email"],
                         )
 
-                        add_meeting_worship_times(meeting, contact)
-
                         meeting_index_page.add_child(instance=meeting)
 
                         meeting_index_page.save()
+
+                        add_meeting_worship_times(meeting, contact)
                 elif contact_is_organization:
                     # If organization exists, update
                     # else create new organization
