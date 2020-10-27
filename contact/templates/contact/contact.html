@@ -19,6 +19,17 @@
             {% endfor %}
         </dl>
         {% endif %}
+
+        {% if page.worship_times.count %}
+        <h2>Worship time(s)</h2>
+
+        <dl>
+            {% for worship_time in page.worship_times.all %}
+                <dt>{{ worship_time.worship_type | title }}</dt>
+                <dd>{{ worship_time.worship_time }}</dd>
+            {% endfor %}
+        </dl>
+        {% endif %}
     </div>
 
     <div class="col">
