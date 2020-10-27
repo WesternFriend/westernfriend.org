@@ -31,7 +31,7 @@ class MeetingModelAdmin(ModelAdmin):
     ordering = ["title"]
     list_display = ("title", "meeting_type")
     empty_value_display = "-"
-    search_fields = ("title")
+    search_fields = ("title",)
     list_filter = ("meeting_type",)
 
 
