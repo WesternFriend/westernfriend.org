@@ -9,6 +9,21 @@
     <div class="col">
         {{ page.specific.description | richtext }}
 
+        {% if page.specific.phone %}
+        <dt>Phone</dt>
+        <dd>{{ page.specific.phone }}</dd>
+        {% endif %}
+
+        {% if page.specific.email %}
+        <dt>Email</dt>
+        <dd>{{ page.specific.email }}</dd>
+        {% endif %}
+
+        {% if page.specific.website %}
+        <dt>Website</dt>
+        <dd>{{ page.specific.website }}</dd>
+        {% endif %}
+
         {% if page.addresses.count %}
         <h2>Address(es)</h2>
 
