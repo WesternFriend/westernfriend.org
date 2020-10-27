@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from wagtail.core.models import Page
+from wagtail.core.models import Page, Site
 
 from contact.models import MeetingIndexPage, OrganizationIndexPage, PersonIndexPage
 from home.models import HomePage
@@ -22,6 +22,13 @@ class Command(BaseCommand):
 
         root_page.add_child(instance=home_page)
         root_page.save()
+
+        # Set Home Page as root page for Site
+        site = Site.objects.get(id=1)
+        site.root_page = home_page
+        site.save()
+
+        # TODO: see if root_page can now be deleted
 
         community_page = CommunityPage(title="Community")
         magazine_index_page = MagazineIndexPage(title="Magazine")
