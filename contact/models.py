@@ -24,6 +24,11 @@ MEETING_TYPE_CHOICES = (
     ("yearly_meeting", "Yearly Meeting"),
 )
 
+WORSHIP_TYPE_CHOICES = (
+    ("business", "Business"),
+    ("first_day", "First day"),
+)
+
 
 class Person(Page):
     given_name = models.CharField(
@@ -94,6 +99,7 @@ class Meeting(Page):
         FieldPanel("email"),
         FieldPanel("phone"),
         FieldPanel("meeting_type"),
+        InlinePanel("worship_times", label="Worship times"),
         InlinePanel("addresses", label="Address"),
     ]
 
@@ -134,6 +140,14 @@ class MeetingAddress(Orderable, Address):
     page = ParentalKey(
         "contact.Meeting", on_delete=models.CASCADE, related_name="addresses"
     )
+
+
+class MeetingWorshipTime(Orderable):
+    meeting = ParentalKey("contact.Meeting", on_delete=models.CASCADE, related_name="worship_times")
+    worship_type = models.CharField(
+        max_length=255, choices=WORSHIP_TYPE_CHOICES, null=True, blank=True,
+    )
+    worship_time = models.CharField(max_length=255)
 
 
 class MeetingIndexPage(Page):
