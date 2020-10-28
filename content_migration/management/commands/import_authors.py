@@ -119,8 +119,8 @@ class Command(BaseCommand):
                 author_is_meeting = author["meeting_name"] != ""
                 author_is_organization = author["organization_name"] != ""
                 author_is_person = (
-                    author_is_meeting == False 
-                    and author_is_organization == False
+                    author_is_meeting is False 
+                    and author_is_organization is False
                 )
                    
 
