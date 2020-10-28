@@ -118,7 +118,7 @@ class Command(BaseCommand):
             department = MagazineDepartment.objects.get(title=row["Department"])
 
             article_body_blocks = []
-            #article_body_blocks = parse_article_body_blocks(row["Body"])
+            article_body_blocks = parse_article_body_blocks(row["Body"])
 
             article = MagazineArticle(
                 title=row["title"],
