@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # TODO: set this to a secure value before deploying to production
-ALLOWED_HOSTS = ['*'] 
+ALLOWED_HOSTS = ['*']
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
