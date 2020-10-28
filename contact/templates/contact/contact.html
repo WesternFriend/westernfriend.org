@@ -40,7 +40,7 @@
 
         <dl>
             {% for worship_time in page.worship_times.all %}
-                <dt>{{ worship_time.worship_type | title }}</dt>
+                <dt>{{ worship_time.get_worship_type_display | title }}</dt>
                 <dd>{{ worship_time.worship_time }}</dd>
             {% endfor %}
         </dl>
