@@ -10,6 +10,7 @@ from contact.models import (
     PersonIndexPage,
 )
 
+
 def create_meeting(author):
     meeting_index_page = MeetingIndexPage.objects.get()
 
@@ -119,10 +120,9 @@ class Command(BaseCommand):
                 author_is_meeting = author["meeting_name"] != ""
                 author_is_organization = author["organization_name"] != ""
                 author_is_person = (
-                    author_is_meeting is False 
+                    author_is_meeting is False
                     and author_is_organization is False
                 )
-                   
 
                 if author_is_meeting:
                     create_meeting(author)
