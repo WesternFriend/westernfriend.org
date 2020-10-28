@@ -46,6 +46,7 @@ def clean_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
 
     return item
 
+
 def parse_article_body_blocks(body):
     article_body_blocks = []
 
@@ -98,7 +99,7 @@ def parse_article_body_blocks(body):
 
             article_body_blocks.append(rich_text_block)
 
-    return article_body_blocks       
+    return article_body_blocks
 
 
 class Command(BaseCommand):
@@ -112,7 +113,7 @@ class Command(BaseCommand):
         articles = pd.read_csv(options["articles_file"])
         authors = pd.read_csv("../import_data/authors_cleaned_deduped-2020-04-12.csv")
 
-        for index, row in articles.iterrows():          
+        for index, row in articles.iterrows():
 
             department = MagazineDepartment.objects.get(title=row["Department"])
 
