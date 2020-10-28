@@ -20,17 +20,8 @@ def add_meeting_worship_times(meeting, contact):
     if contact["Regular time of Worship on First Day (1)"] != "":
         worship_time = MeetingWorshipTime(
             meeting=meeting,
-            worship_type="first_day",
+            worship_type="first_day_worship",
             worship_time=contact["Regular time of Worship on First Day (1)"]
-        )
-
-        worship_time.save()
-
-    if contact["Regular day and time of Meeting for Worship on the Occassion of Business"] != "":
-        worship_time = MeetingWorshipTime(
-            meeting=meeting,
-            worship_type="business",
-            worship_time=contact["Regular day and time of Meeting for Worship on the Occassion of Business"]
         )
 
         worship_time.save()
@@ -38,8 +29,17 @@ def add_meeting_worship_times(meeting, contact):
     if contact["Regular time of Worship on First Day (2)"] != "":
         worship_time = MeetingWorshipTime(
             meeting=meeting,
-            worship_type="first_day",
+            worship_type="first_day_worship_2nd",
             worship_time=contact["Regular time of Worship on First Day (2)"]
+        )
+
+        worship_time.save()
+
+    if contact["Regular day and time of Meeting for Worship on the Occassion of Business"] != "":
+        worship_time = MeetingWorshipTime(
+            meeting=meeting,
+            worship_type="business_meeting",
+            worship_time=contact["Regular day and time of Meeting for Worship on the Occassion of Business"]
         )
 
         worship_time.save()
@@ -47,7 +47,7 @@ def add_meeting_worship_times(meeting, contact):
     if contact["Regular day and time of other weekly or monthly public meetings (1)"] != "":
         worship_time = MeetingWorshipTime(
             meeting=meeting,
-            worship_type="first_day",
+            worship_type="other_regular_meeting",
             worship_time=contact["Regular day and time of other weekly or monthly public meetings (1)"]
         )
 
