@@ -171,7 +171,6 @@ class Command(BaseCommand):
                     article.authors.add(article_author)
                 except:
                     pass
-                    #print("Could not assign author to article:", author, article)
             try:
                 for keyword in row["Keywords"].split(", "):
                     article.tags.add(keyword)
