@@ -37,7 +37,7 @@ def create_meeting_addresses(meeting, row):
         )
 
         mailing_address.save()
-    
+
     if row_has_worship_address:
         latitude = row.get("Worship-Latitude") or None
         longitude = row.get("Worship-Longitude") or None

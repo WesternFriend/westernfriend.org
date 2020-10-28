@@ -13,6 +13,7 @@ from contact.models import (
     OrganizationIndexPage,
 )
 
+
 def add_meeting_worship_times(meeting, contact):
     # For a given Meeting model instance,
     # add meeting time(s) from CiviCRM contact data
