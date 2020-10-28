@@ -24,11 +24,6 @@ MEETING_TYPE_CHOICES = (
     ("yearly_meeting", "Yearly Meeting"),
 )
 
-WORSHIP_TYPE_CHOICES = (
-    ("business", "Business"),
-    ("first_day", "First day"),
-)
-
 
 class Person(Page):
     given_name = models.CharField(
@@ -142,10 +137,17 @@ class MeetingAddress(Orderable, Address):
     )
 
 
+class WorshipTypeChoices(models.TextChoices):
+    FIRST_DAY_WORSHIP = "first_day_worship", "First day worship"
+    FIRST_DAY_WORSHIP_2ND = "first_day_worship_2nd", "First day worship, 2nd"
+    BUSINESS_MEETING = "business_meeting", "Business meeting"
+    OTHER_REGULAR_MEETING = "other_regular_meeting", "Other regular meeting"
+
+
 class MeetingWorshipTime(Orderable):
     meeting = ParentalKey("contact.Meeting", on_delete=models.CASCADE, related_name="worship_times")
     worship_type = models.CharField(
-        max_length=255, choices=WORSHIP_TYPE_CHOICES, null=True, blank=True,
+        max_length=255, choices=WorshipTypeChoices.choices, null=True, blank=True,
     )
     worship_time = models.CharField(max_length=255)
 
