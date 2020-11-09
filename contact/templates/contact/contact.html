@@ -45,6 +45,16 @@
             {% endfor %}
         </dl>
         {% endif %}
+
+        {% if page.presiding_clerks.count %}
+        <h2>Presiding clerk(s)</h2>
+
+        <ul class="list-unstyled">
+            {% for presiding_clerk in page.presiding_clerks.all %}
+                <li>{{ presiding_clerk.person }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
     </div>
 
     <div class="col">
