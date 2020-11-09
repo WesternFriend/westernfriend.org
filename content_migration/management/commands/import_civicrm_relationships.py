@@ -74,5 +74,4 @@ class Command(BaseCommand):
 
                 print("-----")
 
-
         self.stdout.write("All done!")
