@@ -34,7 +34,7 @@ def extract_given_and_family_name(contact_name):
 
     "family_name, given_name (contact_id)"
     """
-    
+
     try:
         family_name, given_name_with_contact_id = contact_name.split(", ")
     except ValueError:
@@ -44,6 +44,7 @@ def extract_given_and_family_name(contact_name):
     given_name = extract_given_name(given_name_with_contact_id)
 
     return [family_name, given_name]
+
 
 def extract_contact_ids_from(relationship):
     meeting_name = relationship["Contact B"]
