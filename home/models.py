@@ -1,6 +1,6 @@
 from django.db import models
 from modelcluster.fields import ParentalKey
-from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
+from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, PageChooserPanel
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page, Orderable
 
@@ -56,7 +56,7 @@ class HomePageFeaturedArticle(Orderable):
         MagazineArticle, null=True, on_delete=models.CASCADE, related_name="+"
     )
 
-    panels = [FieldPanel("article")]
+    panels = [PageChooserPanel("article", "magazine.MagazineArticle")]
 
     @property
     def title(self):
