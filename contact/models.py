@@ -7,6 +7,8 @@ from modelcluster.models import ClusterableModel
 from wagtail.admin.edit_handlers import (
     FieldPanel,
     InlinePanel,
+    MultiFieldPanel,
+    PageChooserPanel,
     StreamFieldPanel,
 )
 from wagtail.core import blocks
@@ -75,6 +77,22 @@ class PersonIndexPage(Page):
     template = "contact/person_index_page.html"
 
 
+class MeetingPresidingClerk(Orderable):
+    """Presiding clerk of Quaker meeting."""
+    meeting = ParentalKey("contact.Meeting", related_name="presiding_clerks")
+    person = models.ForeignKey(
+        "contact.Person",
+        null=True,
+        blank=False,
+        on_delete=models.SET_NULL,
+        related_name="clerk_of",
+    )
+
+    panels = [
+        PageChooserPanel("person", "contact.Person"),
+    ]
+
+
 class Meeting(Page):
     meeting_type = models.CharField(
         max_length=255, choices=MEETING_TYPE_CHOICES, null=True, blank=True,
@@ -97,6 +115,10 @@ class Meeting(Page):
         FieldPanel("meeting_type"),
         InlinePanel("worship_times", label="Worship times"),
         InlinePanel("addresses", label="Address"),
+        MultiFieldPanel(
+            [InlinePanel("presiding_clerks", label="Presiding clerk")],
+            heading="Presiding clerk(s)"
+        )
     ]
 
     parent_page_types = ["contact.MeetingIndexPage", "Meeting"]
