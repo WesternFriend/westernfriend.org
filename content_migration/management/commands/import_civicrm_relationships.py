@@ -27,8 +27,6 @@ def extract_contact_ids_from(relationship):
     parent_name = relationship["Contact B"]
     child_name = relationship["Contact A"]
 
-    # print(f"{ child_name } belongs to { parent_name }")
-
     parent_id = extract_contact_id_from(parent_name)
     child_id = extract_contact_id_from(child_name)
 
@@ -53,20 +51,28 @@ class Command(BaseCommand):
                     parent = Meeting.objects.get(civicrm_id=contact_ids["parent_id"])
                 except ObjectDoesNotExist:
                     print(
-                        f"Could not find contact with CiviCRM ID { contact_ids['parent_id'] }"
+                        f"Could not find 'parent meeting' contact with CiviCRM ID { contact_ids['parent_id'] }"
                     )
-                    pass
+                    print(relationship)
 
+                    pass
                 try:
                     child = Meeting.objects.get(civicrm_id=contact_ids["child_id"])
                 except ObjectDoesNotExist:
                     print(
-                        f"Could not find contact with CiviCRM ID { contact_ids['child_id'] }"
+                        f"Could not find 'child meeting' contact with CiviCRM ID { contact_ids['child_id'] }"
                     )
+                    print(relationship)
+
                     pass
 
-                child.move(parent, pos="last-child")
+                if parent and child:
+                    try:
+                        child.move(parent, pos="last-child")
+                    except AttributeError:
+                        print(f"Could not move { child } to { parent }.")
 
-                # page = child.specific_class.objects.get(id=child.id)
+                print("-----")
+
 
         self.stdout.write("All done!")
