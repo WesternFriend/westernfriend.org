@@ -1,56 +1,165 @@
-{% load wagtailcore_tags %}
-{% load crispy_forms_tags %}
+{% load wagtailcore_tags %} 
 
-{{ page.intro | richtext }}
+{% load crispy_forms_tags %} 
+{{ page.intro |richtext }}
 
-<form action="#" method="post" id="dynamicFields">
-    <div class="form-row mt-3">
-        <div>
-            {{ form.subscription_type | as_crispy_field }}
+<form action="#" method="post" id="dynamicFields" class="mb-3">
+    <h3>Format</h3>
 
-            {{ form.recurring | as_crispy_field }}
+    <div class="form-row text-center">
+        <div
+            class="card m-1 col"
+            @click="magazineFormat = 'pdf'"
+            v-bind:class="{ 'border-success': magazineFormat == 'pdf' }"
+        >
+            <div class="card-body">
+                <i v-if="magazineFormat == 'pdf'" class="fa fa-check"></i>
+                PDF Only
+            </div>
+        </div>
+
+        <div
+            class="card m-1 col align-self-center"
+            @click="magazineFormat = 'print'"
+            v-bind:class="{ 'border-success': magazineFormat == 'print' }"
+        >
+            <div class="card-body">
+                <i v-if="magazineFormat == 'print'" class="fa fa-check"></i>
+                Print Only
+            </div>
+        </div>
+
+        <div
+            class="card m-1 col"
+            @click="magazineFormat = 'printAndPdf'"
+            v-bind:class="{ 'border-success': magazineFormat == 'printAndPdf' }"
+        >
+            <div class="card-body">
+                <i
+                    v-if="magazineFormat == 'printAndPdf'"
+                    class="fa fa-check"
+                ></i>
+                Print & PDF 
+            </div>
         </div>
     </div>
 
+    <h3>Price</h3>
+    
+    <div class="form-row text-center">
+        <div
+            class="card m-1 col"
+            @click="subscriptionCost = 'normal'"
+            v-bind:class="{ 'border-success': subscriptionCost === 'normal' }"
+        >
+            <div class="card-body">
+                <i v-if="subscriptionCost === 'normal'" class="fa fa-check"></i>
+                Normal ($${ normalComputedPrice })
+            </div>
+        </div>
+
+        <div
+            class="card m-1 col"
+            @click="subscriptionCost = 'trueCost'"
+            v-bind:class="{ 'border-success': subscriptionCost == 'trueCost' }"
+        >
+            <div class="card-body">
+                <i
+                    v-if="subscriptionCost == 'trueCost'"
+                    class="fa fa-check"
+                ></i>
+                True-cost ($${ trueCostComputedPrice })
+            </div>
+        </div>
+
+        <div
+            class="card m-1 col align-self-center"
+            @click="subscriptionCost = 'lowIncome'"
+            v-bind:class="{ 'border-success': subscriptionCost == 'lowIncome' }"
+        >
+            <div class="card-body">
+                <i v-if="subscriptionCost == 'lowIncome'" class="fa fa-check"></i>
+                Low-income ($${ lowIncomeComputedPrice })
+            </div>
+        </div>
+
+        <div
+            class="card m-1 col"
+            @click="subscriptionCost = 'international'"
+            v-bind:class="{ 'border-success': subscriptionCost == 'international' }"
+        >
+            <div class="card-body">
+                <i
+                    v-if="subscriptionCost == 'international'"
+                    class="fa fa-check"
+                ></i>
+                International ($${ internationalComputedPrice })
+            </div>
+        </div>
+    </div>
+
+    <h3>Recurring?</h3>
+
+    <div class="form-check my-2">
+        <input
+            id="recurring-checkbox"
+            v-model="recurringSubscription"
+            class="form-check-input"
+            type="checkbox"
+            data-toggle="switchbutton"
+            data-onlabel="<i class='fa fa-check'></i> Yes"
+            data-offlabel="<i class='fa fa-ban'></i> No"
+            data-onstyle="outline-success"
+            data-offstyle="outline-primary"
+            data-style="mr-1"
+        />
+
+        <label for="recurring-checkbox" class="form-check-label">
+            Support us with a recurring subscription?
+        </label>
+    </div>        
+
     <div class="form-row mt-3">
-        <div class="col-md-5">
+        <div class="col-md-6">
             {{ form.subscriber_given_name | as_crispy_field }}
         </div>
-        <div class="col-md-5">
+        <div class="col-md-6">
             {{ form.subscriber_family_name | as_crispy_field }}
-        </div>   
+        </div>
     </div>
 
     <div class="form-row">
-        <p class="p-3 mb-2 bg-info text-white col-md-10">PDF subscription will be emailed to <b>{{ user.get_username }}</b></p>
+        <p class="p-3 mb-2 bg-info text-white col-md-12">
+            PDF subscription will be emailed to <b>{{ user.get_username }}</b>
+        </p>
     </div>
 
     <div class="form-row">
-        <div class="col-md-10">
+        <div class="col-md-12">
             {{ form.subscriber_street_address | as_crispy_field }}
         </div>
     </div>
 
     <div class="form-row">
-        <div class="col-md-10">
+        <div class="col-md-12">
             {{ form.subscriber_street_address_line_2 | as_crispy_field }}
         </div>
     </div>
 
     <div class="form-row">
-        <div class="form-group col-md-3 mb-0">
+        <div class="form-group col-md-4 mb-0">
             {{ form.subscriber_address_locality | as_crispy_field }}
         </div>
-        <div class="form-group col-md-3 mb-0">
+        <div class="form-group col-md-4 mb-0">
             {{ form.subscriber_address_region | as_crispy_field }}
         </div>
-        <div class="form-group col-md-3 mb-0">
+        <div class="form-group col-md-4 mb-0">
             {{ form.subscriber_postal_code | as_crispy_field }}
         </div>
     </div>
 
     <div class="form-row">
-        <div class="col-md-9">
+        <div class="col-md-6">
             {{ form.subscriber_address_country | as_crispy_field }}
         </div>
     </div>
@@ -66,3 +175,53 @@
 
     {% csrf_token %}
 </form>
+
+<!--
+    PDF is $30
+    Print is $36
+    PDF & print $48
+
+    True cost doubles the price
+    Low income is $20 flat-rate, choice of EITHER print or PDF (not both)
+    International is $55 flat-rate
+-->
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+<script>
+    const magazineBasePrices = {
+        pdf: 30,
+        print: 36,
+        printAndPdf: 48,
+        lowIncomeFlatRate: 20,
+        internationalFlatRate: 55,
+    };
+
+    const trueCostMultiplier = 2;
+
+    new Vue({
+        delimiters: ["${", "}"],
+        el: "#dynamicFields",
+        data: {
+            magazineFormat: "pdf",
+            subscriptionCost: "normal",
+            recurringSubscription: false,
+        },
+        computed: {
+            normalComputedPrice: function () {
+                return magazineBasePrices[this.magazineFormat];
+            },
+            lowIncomeComputedPrice: function () {
+                return magazineBasePrices.lowIncomeFlatRate;
+            },
+            trueCostComputedPrice: function () {
+                return magazineBasePrices[this.magazineFormat] * trueCostMultiplier;
+            },
+            internationalComputedPrice: function () {
+                return magazineBasePrices.internationalFlatRate;
+            },
+        },
+    });
+</script>
+{% endblock extra_js %}
