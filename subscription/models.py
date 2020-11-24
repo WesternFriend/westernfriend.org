@@ -49,6 +49,15 @@ SUBSCRIPTION_TYPES_AND_PRICES = [
     },
 ]
 
+SUBSCRIPTION_PRICE_COMPONENTS = {
+    "pdf": 30,
+    "print": 36,
+    "printAndPdf": 48,
+    "lowIncomeFlatRate": 20,
+    "internationalFlatRate": 55,
+    "trueCostMultiplier": 2,
+};
+
 
 def get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES):
     matching_subscription_option = next(
@@ -251,6 +260,9 @@ class SubscriptionIndexPage(Page):
             context["registration_form"] = UserRegisterationForm
 
         context["form"] = SubscriptionCreateForm
+
+        # Pass subscription pricing components to template
+        context["subscription_price_components"] = SUBSCRIPTION_PRICE_COMPONENTS
 
         return context
 
