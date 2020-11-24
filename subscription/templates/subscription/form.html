@@ -187,18 +187,16 @@
 -->
 
 {% block extra_js %}
+<!-- provide subscription price components for dynamic calculation -->
+{{ subscription_price_components | json_script:"subscriptionPriceComponents" }}
+
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 
 <script>
-    const magazineBasePrices = {
-        pdf: 30,
-        print: 36,
-        printAndPdf: 48,
-        lowIncomeFlatRate: 20,
-        internationalFlatRate: 55,
-    };
-
-    const trueCostMultiplier = 2;
+    // get subscription price components provided by server in script tag
+    const subscriptionPriceComponents = JSON.parse(
+        document.getElementById('subscriptionPriceComponents').textContent
+    );
 
     new Vue({
         delimiters: ["${", "}"],
@@ -210,16 +208,16 @@
         },
         computed: {
             normalComputedPrice: function () {
-                return magazineBasePrices[this.magazineFormat];
+                return subscriptionPriceComponents[this.magazineFormat];
             },
             lowIncomeComputedPrice: function () {
-                return magazineBasePrices.lowIncomeFlatRate;
+                return subscriptionPriceComponents.lowIncomeFlatRate;
             },
             trueCostComputedPrice: function () {
-                return magazineBasePrices[this.magazineFormat] * trueCostMultiplier;
+                return subscriptionPriceComponents[this.magazineFormat] * subscriptionPriceComponents["trueCostMultiplier"];
             },
             internationalComputedPrice: function () {
-                return magazineBasePrices.internationalFlatRate;
+                return subscriptionPriceComponents.internationalFlatRate;
             },
         },
     });
