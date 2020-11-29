@@ -42,6 +42,8 @@
                 Print & PDF 
             </div>
         </div>
+
+        <input type="hidden" name="format" v-model="magazineFormat">
     </div>
 
     <h3>Price</h3>
@@ -49,23 +51,23 @@
     <div class="form-row text-center">
         <div
             class="card m-1 col"
-            @click="subscriptionCost = 'normal'"
-            v-bind:class="{ 'border-success': subscriptionCost === 'normal' }"
+            @click="priceGroup = 'normal'"
+            v-bind:class="{ 'border-success': priceGroup === 'normal' }"
         >
             <div class="card-body">
-                <i v-if="subscriptionCost === 'normal'" class="fa fa-check"></i>
+                <i v-if="priceGroup === 'normal'" class="fa fa-check"></i>
                 Normal ($${ normalComputedPrice })
             </div>
         </div>
 
         <div
             class="card m-1 col"
-            @click="subscriptionCost = 'trueCost'"
-            v-bind:class="{ 'border-success': subscriptionCost == 'trueCost' }"
+            @click="priceGroup = 'true_cost'"
+            v-bind:class="{ 'border-success': priceGroup == 'true_cost' }"
         >
             <div class="card-body">
                 <i
-                    v-if="subscriptionCost == 'trueCost'"
+                    v-if="priceGroup == 'true_cost'"
                     class="fa fa-check"
                 ></i>
                 True-cost ($${ trueCostComputedPrice })
@@ -74,28 +76,30 @@
 
         <div
             class="card m-1 col align-self-center"
-            @click="subscriptionCost = 'lowIncome'"
-            v-bind:class="{ 'border-success': subscriptionCost == 'lowIncome' }"
+            @click="priceGroup = 'low_income'"
+            v-bind:class="{ 'border-success': priceGroup == 'low_income' }"
         >
             <div class="card-body">
-                <i v-if="subscriptionCost == 'lowIncome'" class="fa fa-check"></i>
+                <i v-if="priceGroup == 'low_income'" class="fa fa-check"></i>
                 Low-income ($${ lowIncomeComputedPrice })
             </div>
         </div>
 
         <div
             class="card m-1 col"
-            @click="subscriptionCost = 'international'"
-            v-bind:class="{ 'border-success': subscriptionCost == 'international' }"
+            @click="priceGroup = 'international'"
+            v-bind:class="{ 'border-success': priceGroup == 'international' }"
         >
             <div class="card-body">
                 <i
-                    v-if="subscriptionCost == 'international'"
+                    v-if="priceGroup == 'international'"
                     class="fa fa-check"
                 ></i>
                 International ($${ internationalComputedPrice })
             </div>
         </div>
+
+        <input type="hidden" name="price_group" v-model="priceGroup">
     </div>
 
     <h3>Recurring?</h3>
@@ -193,7 +197,7 @@
         el: "#dynamicFields",
         data: {
             magazineFormat: "pdf",
-            subscriptionCost: "normal",
+            priceGroup: "normal",
             recurringSubscription: false,
         },
         computed: {
