@@ -39,6 +39,11 @@ SUBSCRIPTION_PRICE_COMPONENTS = {
         "print": 36,
         "print_and_pdf": 48,
     },
+    "true_cost": {
+        "pdf": 60,
+        "print": 72,
+        "print_and_pdf": 96,
+    },
     "low_income": {
         "pdf": 20,
         "print": 20,
@@ -49,7 +54,6 @@ SUBSCRIPTION_PRICE_COMPONENTS = {
         "print": 55,
         "print_and_pdf": 70,
     },
-    "true_cost_multiplier": 2,
 }
 
 
