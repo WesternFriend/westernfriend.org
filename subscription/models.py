@@ -50,14 +50,23 @@ SUBSCRIPTION_TYPES_AND_PRICES = [
 ]
 
 SUBSCRIPTION_PRICE_COMPONENTS = {
-    "pdf": 30,
-    "print": 36,
-    "printAndPdf": 48,
-    "lowIncomeFlatRate": 20,
-    "internationalFlatRate": 55,
-    "trueCostMultiplier": 2,
-};
-
+    "normal": {
+        "pdf": 30,
+        "print": 36,
+        "print_and_pdf": 48,
+    },
+    "low_income": {
+        "pdf": 20,
+        "print": 20,
+        "print_and_pdf": 25,
+    },
+    "international": {
+        "pdf": 30,
+        "print": 55,
+        "print_and_pdf": 70,
+    },
+    "true_cost_multiplier": 2,
+}
 
 def get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES):
     matching_subscription_option = next(
