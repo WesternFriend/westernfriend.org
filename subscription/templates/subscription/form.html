@@ -31,12 +31,12 @@
 
         <div
             class="card m-1 col"
-            @click="magazineFormat = 'printAndPdf'"
-            v-bind:class="{ 'border-success': magazineFormat == 'printAndPdf' }"
+            @click="magazineFormat = 'print_and_pdf'"
+            v-bind:class="{ 'border-success': magazineFormat == 'print_and_pdf' }"
         >
             <div class="card-body">
                 <i
-                    v-if="magazineFormat == 'printAndPdf'"
+                    v-if="magazineFormat == 'print_and_pdf'"
                     class="fa fa-check"
                 ></i>
                 Print & PDF 
@@ -208,16 +208,16 @@
         },
         computed: {
             normalComputedPrice: function () {
-                return subscriptionPriceComponents[this.magazineFormat];
-            },
-            lowIncomeComputedPrice: function () {
-                return subscriptionPriceComponents.lowIncomeFlatRate;
+                return subscriptionPriceComponents["normal"][this.magazineFormat];
             },
             trueCostComputedPrice: function () {
-                return subscriptionPriceComponents[this.magazineFormat] * subscriptionPriceComponents["trueCostMultiplier"];
+                return subscriptionPriceComponents["normal"][this.magazineFormat] * subscriptionPriceComponents["true_cost_multiplier"];
+            },
+            lowIncomeComputedPrice: function () {
+                return subscriptionPriceComponents["low_income"][this.magazineFormat];
             },
             internationalComputedPrice: function () {
-                return subscriptionPriceComponents.internationalFlatRate;
+                return subscriptionPriceComponents["international"][this.magazineFormat];
             },
         },
     });
