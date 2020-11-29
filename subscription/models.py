@@ -55,6 +55,13 @@ MAGAZINE_FORMAT_CHOICES = [
     ("print_and_pdf", "Print and PDF"),
 ]
 
+MAGAZINE_PRICE_GROUP_CHOICES = [
+    ("normal", "Normal"),
+    ("true_cost", "True cost"),
+    ("low_income", "Low income"),
+    ("international", "International"),
+]
+
 SUBSCRIPTION_PRICE_COMPONENTS = {
     "normal": {
         "pdf": 30,
@@ -141,6 +148,7 @@ def get_subscription_option(duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
 
 class Subscription(models.Model):
     format = models.CharField(max_length=255, choices=MAGAZINE_FORMAT_CHOICES, default="pdf")
+    price_group = models.CharField(max_length=255, choices=MAGAZINE_PRICE_GROUP_CHOICES, default="normal")
     recurring = models.BooleanField(default=True)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
