@@ -123,7 +123,6 @@ class Subscription(models.Model):
         max_length=255,
         blank=True,
         help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.",
-        editable=False,
     )
 
     panels = [
@@ -136,7 +135,6 @@ class Subscription(models.Model):
         FieldPanel("subscriber_address_locality"),
         FieldPanel("subscriber_address_region"),
         FieldPanel("subscriber_address_country"),
-        FieldPanel("subscription_type"),
         FieldPanel("start_date", widget=DatePickerInput()),
         FieldPanel("end_date", widget=DatePickerInput()),
         FieldPanel("paid"),
