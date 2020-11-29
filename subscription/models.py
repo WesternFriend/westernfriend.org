@@ -158,12 +158,10 @@ class Subscription(models.Model):
     def get_total_cost(self):
         return self.price
 
-    def save(self,*args, **kwargs):
+    def save(self, *args, **kwargs):
         self.price = SUBSCRIPTION_PRICE_COMPONENTS[self.price_group][self.format]
 
         super().save(*args, **kwargs)
-
-
 
 
 class SubscriptionIndexPage(Page):
