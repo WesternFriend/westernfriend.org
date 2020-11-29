@@ -211,7 +211,7 @@
                 return subscriptionPriceComponents["normal"][this.magazineFormat];
             },
             trueCostComputedPrice: function () {
-                return subscriptionPriceComponents["normal"][this.magazineFormat] * subscriptionPriceComponents["true_cost_multiplier"];
+                return subscriptionPriceComponents["true_cost"][this.magazineFormat];
             },
             lowIncomeComputedPrice: function () {
                 return subscriptionPriceComponents["low_income"][this.magazineFormat];
