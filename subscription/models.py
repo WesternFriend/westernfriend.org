@@ -149,6 +149,7 @@ def get_subscription_option(duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
 class Subscription(models.Model):
     format = models.CharField(max_length=255, choices=MAGAZINE_FORMAT_CHOICES, default="pdf")
     price_group = models.CharField(max_length=255, choices=MAGAZINE_PRICE_GROUP_CHOICES, default="normal")
+    price = models.IntegerField(editable=False)
     recurring = models.BooleanField(default=True)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
@@ -243,12 +244,6 @@ class Subscription(models.Model):
             full_name += self.subscriber_family_name + " "
 
         return full_name.rstrip()
-
-    @property
-    def price(self):
-        slug = self.subscription_type
-
-        return get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES)
 
     def get_total_cost(self):
         return self.price
