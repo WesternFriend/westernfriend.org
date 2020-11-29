@@ -212,6 +212,7 @@ class Subscription(models.Model):
         max_length=255,
         blank=True,
         help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.",
+        editable=False,
     )
 
     panels = [
