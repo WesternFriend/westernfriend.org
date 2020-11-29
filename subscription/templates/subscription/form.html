@@ -176,16 +176,6 @@
     {% csrf_token %}
 </form>
 
-<!--
-    PDF is $30
-    Print is $36
-    PDF & print $48
-
-    True cost doubles the price
-    Low income is $20 flat-rate, choice of EITHER print or PDF (not both)
-    International is $55 flat-rate
--->
-
 {% block extra_js %}
 <!-- provide subscription price components for dynamic calculation -->
 {{ subscription_price_components | json_script:"subscriptionPriceComponents" }}
