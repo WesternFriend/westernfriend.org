@@ -20,35 +20,6 @@ from flatpickr import DatePickerInput
 logger = logging.getLogger(__name__)
 
 
-SUBSCRIPTION_TYPES_AND_PRICES = [
-    {
-        "slug": "print-only-regular-price",
-        "name": "Print only - regular price",
-        "price": 36,
-    },
-    {
-        "slug": "print-only-true-cost",
-        "name": "Print only - true cost price",
-        "price": 72,
-    },
-    {
-        "slug": "pdf-only-regular-price",
-        "name": "PDF only - regular price",
-        "price": 30,
-    },
-    {"slug": "pdf-only-true-cost", "name": "PDF only - true cost price", "price": 60,},
-    {
-        "slug": "print-and-pdf-regular-price",
-        "name": "Both print and PDF - regular price",
-        "price": 48,
-    },
-    {
-        "slug": "print-and-pdf-true-cost",
-        "name": "Both print and PDF -true cost price",
-        "price": 96,
-    },
-]
-
 MAGAZINE_FORMAT_CHOICES = [
     ("pdf", "PDF"),
     ("print", "Print"),
@@ -80,70 +51,6 @@ SUBSCRIPTION_PRICE_COMPONENTS = {
     },
     "true_cost_multiplier": 2,
 }
-
-def get_subscription_price(slug, SUBSCRIPTION_TYPES_AND_PRICES):
-    matching_subscription_option = next(
-        filter(lambda option: option["slug"] == slug, SUBSCRIPTION_TYPES_AND_PRICES)
-    )
-
-    return matching_subscription_option["price"]
-
-
-def create_subscription_type_choices(SUBSCRIPTION_TYPES_AND_PRICES):
-    subscription_type_choices = []
-
-    for subscription in SUBSCRIPTION_TYPES_AND_PRICES:
-        choice_label = f"{subscription['name']} - ${subscription['price']}"
-
-        choice = (
-            subscription["slug"],
-            choice_label,
-        )
-
-        subscription_type_choices.append(choice)
-
-    return subscription_type_choices
-
-
-subscription_type_choices = create_subscription_type_choices(
-    SUBSCRIPTION_TYPES_AND_PRICES
-)
-
-SUBSCRIPTION_DURATIONS_AND_DISCOUNTS = [
-    {"duration": 1, "label": "One year", "discount": 0,},
-    {"duration": 2, "label": "Two years", "discount": 10,},
-    {"duration": 3, "label": "Three years", "discount": 25,},
-]
-
-
-def create_duration_choices(SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
-    duration_choices = []
-
-    for option in SUBSCRIPTION_DURATIONS_AND_DISCOUNTS:
-        choice_key = option["duration"]
-
-        if option["discount"] > 0:
-            choice_label = f"{option['label']} (${option['discount']} discount)"
-        else:
-            choice_label = option["label"]
-
-        choice = (choice_key, choice_label)
-
-        duration_choices.append(choice)
-
-    return duration_choices
-
-
-duration_choices = create_duration_choices(SUBSCRIPTION_DURATIONS_AND_DISCOUNTS)
-
-
-def get_subscription_option(duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
-    matching_option = filter(
-        lambda option: option["duration"] == duration,
-        SUBSCRIPTION_DURATIONS_AND_DISCOUNTS,
-    )
-
-    return next(matching_option)
 
 
 class Subscription(models.Model):
