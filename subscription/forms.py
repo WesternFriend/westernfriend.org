@@ -13,7 +13,6 @@ class SubscriptionCreateForm(forms.ModelForm):
     class Meta:
         model = Subscription
         fields = [
-            "subscription_type",
             "recurring",
             "subscriber_given_name",
             "subscriber_family_name",
