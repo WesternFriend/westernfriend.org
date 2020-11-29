@@ -134,11 +134,6 @@ def get_subscription_option(duration, SUBSCRIPTION_DURATIONS_AND_DISCOUNTS):
 
 
 class Subscription(models.Model):
-    subscription_type = models.CharField(
-        max_length=255,
-        help_text="Choose the subscription type you would like to receive.",
-        choices=subscription_type_choices,
-    )
     recurring = models.BooleanField(default=True)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
