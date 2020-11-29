@@ -18,7 +18,8 @@ class SubscriptionModelAdmin(ModelAdmin):
         "subscriber_given_name", 
         "subscriber_family_name",
         "user",
-        "subscription_type",
+        "format",
+        "price_group",
         "price",
         "paid",
         "recurring",
@@ -30,12 +31,12 @@ class SubscriptionModelAdmin(ModelAdmin):
         "subscriber_family_name",)
     list_filter = (
         "paid",
-        "subscription_type",
+        "format",
+        "price_group",
         )
     inspect_view_enabled = True
     inspect_view_fields = [
         "subscriber_full_name",
-        "subscription_type",
         "price",
         "paid",
         "recurring",
