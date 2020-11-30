@@ -197,6 +197,8 @@ class SubscriptionIndexPage(Page):
 
     def serve(self, request, *args, **kwargs):
         if request.method == "POST":
+            # TODO: figure out a cleaner way to separate this
+            # registration code from the subscribe view
             user_is_registering = request.GET.get("register")
 
             # return the output of the form processing function
@@ -242,6 +244,11 @@ def process_registration_form(request):
 
         login(request, user)
 
+        return redirect("/subscribe")
+    else:
+        # TODO: consider whether/how to return an HttpResponse with the invalid form data
+        # or remove this registration step from the subscribe page
+        print(form.errors)
         return redirect("/subscribe")
 
 
