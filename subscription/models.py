@@ -56,6 +56,39 @@ SUBSCRIPTION_PRICE_COMPONENTS = {
     },
 }
 
+def process_subscription_form(request):
+    """
+    Given a valid subscription form, will save and associate with a user.
+
+    TODO: determine how to share this function with the "manage subscription" page
+    """
+    # Create a temporary subscription object to modify it's fields
+    subscription = form.save(commit=False)
+
+    # Attach request user to subscription before save
+    subscription.user = request.user
+
+    # Set subscription start and end dates
+    # based on current day
+    today = datetime.datetime.now()
+
+    # Start date is today
+    subscription.start_date = today
+
+    # End date is today
+    # until we get a success message from the payment processor
+    subscription.end_date = today
+
+    subscription.save()
+
+    # set the order in the session
+    request.session["subscription_id"] = subscription.id
+
+    # redirect for payment
+    return redirect(
+        reverse("payment:process", kwargs={"previous_page": "subscribe"})
+    )
+
 
 class Subscription(models.Model):
     format = models.CharField(max_length=255, choices=MAGAZINE_FORMAT_CHOICES, default="pdf")
@@ -179,14 +212,9 @@ class SubscriptionIndexPage(Page):
 
     def get_context(self, request, *args, **kwargs):
         # avoid circular dependency
-        from .forms import UserRegisterationForm, SubscriptionCreateForm
+        from .forms import SubscriptionCreateForm
 
         context = super().get_context(request)
-
-        show_registration_form = request.GET.get("register")
-
-        if show_registration_form:
-            context["registration_form"] = UserRegisterationForm
 
         context["form"] = SubscriptionCreateForm
 
@@ -197,16 +225,16 @@ class SubscriptionIndexPage(Page):
 
     def serve(self, request, *args, **kwargs):
         if request.method == "POST":
-            # TODO: figure out a cleaner way to separate this
-            # registration code from the subscribe view
-            user_is_registering = request.GET.get("register")
+            # Avoid circular dependency
+            from .forms import SubscriptionCreateForm
 
-            # return the output of the form processing function
-            # so this serve method returns an HttpResponse
-            if user_is_registering:
-                return process_registration_form(request)
+            form = SubscriptionCreateForm(request.POST)
+
+            if form.is_valid():
+                return process_subscription_form(form)
             else:
-                return process_subscription_form(request)
+                # TODO: determine how to pass form with validation errors back to template
+                pass
         else:
             return super().serve(request)
 
@@ -231,57 +259,3 @@ class ManageSubscriptionPage(Page):
             context["subscriptions"] = subscriptions
 
         return context
-
-
-def process_registration_form(request):
-    # Avoid circular dependency
-    from .forms import UserRegisterationForm
-
-    form = UserRegisterationForm(request.POST)
-
-    if form.is_valid():
-        user = form.save()
-
-        login(request, user)
-
-        return redirect("/subscribe")
-    else:
-        # TODO: consider whether/how to return an HttpResponse with the invalid form data
-        # or remove this registration step from the subscribe page
-        print(form.errors)
-        return redirect("/subscribe")
-
-
-def process_subscription_form(request):
-    # Avoid circular dependency
-    from .forms import SubscriptionCreateForm
-
-    form = SubscriptionCreateForm(request.POST)
-
-    if form.is_valid():
-        # Create a temporary subscription object to modify it's fields
-        subscription = form.save(commit=False)
-
-        # Attach request user to subscription before save
-        subscription.user = request.user
-
-        # Set subscription start and end dates
-        # based on current day
-        today = datetime.datetime.now()
-
-        # Start date is today
-        subscription.start_date = today
-
-        # End date is today
-        # until we get a success message from the payment processor
-        subscription.end_date = today
-
-        subscription.save()
-
-        # set the order in the session
-        request.session["subscription_id"] = subscription.id
-
-        # redirect for payment
-        return redirect(
-            reverse("payment:process", kwargs={"previous_page": "subscribe"})
-        )
