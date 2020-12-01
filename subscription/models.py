@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth import login
 from django.db import models
 from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from wagtail.admin.edit_handlers import FieldPanel
@@ -210,19 +211,6 @@ class SubscriptionIndexPage(Page):
 
     template = "subscription/index.html"
 
-    def get_context(self, request, *args, **kwargs):
-        # avoid circular dependency
-        from .forms import SubscriptionCreateForm
-
-        context = super().get_context(request)
-
-        context["form"] = SubscriptionCreateForm
-
-        # Pass subscription pricing components to template
-        context["subscription_price_components"] = SUBSCRIPTION_PRICE_COMPONENTS
-
-        return context
-
     def serve(self, request, *args, **kwargs):
         if request.method == "POST":
             # Avoid circular dependency
@@ -231,12 +219,37 @@ class SubscriptionIndexPage(Page):
             subscription_form = SubscriptionCreateForm(request.POST)
 
             if subscription_form.is_valid():
-                return process_subscription_form(subscription_form, request.user)
+                return process_subscription_form(subscription_form, request)
             else:
                 # TODO: determine how to pass form with validation errors back to template
-                pass
+                context = self.get_context(request, *args, **kwargs)
+
+                # Send form with validation errors back to client
+                context["form"] = subscription_form
+
+                return TemplateResponse(
+                    request,
+                    self.get_template(request, *args, **kwargs),
+                    context
+                )
         else:
             return super().serve(request)
+
+    def get_context(self, request, *args, **kwargs):
+        # avoid circular dependency
+        from .forms import SubscriptionCreateForm
+
+        context = super().get_context(request)
+
+        # Pass in subscription form only if it isn't present
+        # from previous validation in serve()
+        if not "form" in context:
+            context["form"] = SubscriptionCreateForm
+
+        # Pass subscription pricing components to template
+        context["subscription_price_components"] = SUBSCRIPTION_PRICE_COMPONENTS
+
+        return context
 
 
 class ManageSubscriptionPage(Page):
