@@ -57,6 +57,7 @@ SUBSCRIPTION_PRICE_COMPONENTS = {
     },
 }
 
+
 def process_subscription_form(subscription_form, request):
     """
     Given a valid subscription form, will save and associate with a user.
@@ -242,7 +243,7 @@ class SubscriptionIndexPage(Page):
 
         # Pass in subscription form only if it isn't present
         # from previous validation in serve()
-        if not "form" in context:
+        if "form" not in context:
             context["form"] = SubscriptionCreateForm
 
         # Pass subscription pricing components to template
