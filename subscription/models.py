@@ -221,7 +221,6 @@ class SubscriptionIndexPage(Page):
             if subscription_form.is_valid():
                 return process_subscription_form(subscription_form, request)
             else:
-                # TODO: determine how to pass form with validation errors back to template
                 context = self.get_context(request, *args, **kwargs)
 
                 # Send form with validation errors back to client
