@@ -56,14 +56,14 @@ SUBSCRIPTION_PRICE_COMPONENTS = {
     },
 }
 
-def process_subscription_form(request):
+def process_subscription_form(subscription_form, request):
     """
     Given a valid subscription form, will save and associate with a user.
 
     TODO: determine how to share this function with the "manage subscription" page
     """
     # Create a temporary subscription object to modify it's fields
-    subscription = form.save(commit=False)
+    subscription = subscription_form.save(commit=False)
 
     # Attach request user to subscription before save
     subscription.user = request.user
@@ -228,10 +228,10 @@ class SubscriptionIndexPage(Page):
             # Avoid circular dependency
             from .forms import SubscriptionCreateForm
 
-            form = SubscriptionCreateForm(request.POST)
+            subscription_form = SubscriptionCreateForm(request.POST)
 
-            if form.is_valid():
-                return process_subscription_form(form)
+            if subscription_form.is_valid():
+                return process_subscription_form(subscription_form, request.user)
             else:
                 # TODO: determine how to pass form with validation errors back to template
                 pass
