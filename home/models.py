@@ -21,6 +21,7 @@ class HomePage(Page):
 
     subpage_types = [
         "community.CommunityPage",
+        "donations.DonatePage",
         "events.EventsIndexPage",
         "facets.FacetIndexPage",
         "forms.ContactFormPage",
