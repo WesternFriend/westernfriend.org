@@ -12,6 +12,8 @@ from contact.models import Meeting
 
 
 class Memorial(Page):
+    # TODO: use a relationship to the Contacts here
+    # instead of storing given/family names in Memorial model
     given_name = models.CharField(
         max_length=255,
         default="",
