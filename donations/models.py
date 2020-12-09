@@ -18,3 +18,7 @@ class DonatePage(Page):
     ]
 
     max_count = 1
+
+
+class Donation(models.Model):
+    amount = models.IntegerField()
