@@ -8,4 +8,86 @@
     <h1>{{ page.title }}</h1>
 
     {{ page.intro|richtext }}
-{% endblock %}
+
+    <form action="#" method="post" id="dynamicFields" class="mb-3">
+        <h3>Amount</h3>
+    
+        <div class="form-row text-center mb-3">
+
+            {% for amount in page.suggested_donation_amounts %}
+                <div
+                    class="card m-1 col"
+                    @click="donationAmount = {{ amount }}"
+                    v-bind:class="{ 'border-success': donationAmount === {{ amount }} }"
+                >
+                    <div class="card-body">
+                        <i
+                            v-if="donationAmount === {{ amount }}"
+                            class="fa fa-check"
+                        ></i>
+                        ${{ amount }}
+                    </div>
+                </div>
+
+            {% endfor %}
+
+            <input type="hidden" name="amount" v-model="donationAmount">
+        </div>
+
+        <div class="form-row">
+            <div class="col">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="first-name-addon">First name</span>
+                    </div>
+                    <input type="text" class="form-control" aria-label="First name" aria-describedby="first-name-addon">
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="last-name-addon">Last name</span>
+                    </div>
+                    <input type="text" class="form-control" aria-label="Email" aria-describedby="last-name-addon">
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="email-addon">email</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="user@example.fom" aria-label="Email" aria-describedby="email-addon">
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="text-right">
+            <div class="btn-group" role="group" aria-label="Cart navigation">
+                <button type="submit" class="btn btn-outline-primary">
+                    Donate
+                    <i class="fa fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        {% csrf_token %}
+    </form>
+{% endblock content %}
+
+{% block extra_js %}
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+<script>
+    new Vue({
+        delimiters: ["${", "}"],
+        el: "#dynamicFields",
+        data: {
+            donationAmount: 10,
+        },
+    });
+</script>
+{% endblock extra_js %}
