@@ -22,8 +22,8 @@ def process_donation_form(donation_form, request):
     # Save donation with associated address
     donation.save()
 
-    # set the order in the session
-    request.session["donation"] = donation.id
+    # set the donation ID in the session
+    request.session["donation_id"] = donation.id
 
     # redirect for payment
     return redirect(
@@ -63,7 +63,6 @@ class Donation(models.Model):
     amount = models.IntegerField()
     paid = models.BooleanField(default=False)
 
-    @property
-    def price(self):
-        # Add price property to conform to payment page
+    def get_total_cost(self):
+        # Add get_total_cost method to conform to payment page
         return self.amount
