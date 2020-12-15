@@ -61,6 +61,7 @@ class DonatePage(Page):
 
 class Donation(models.Model):
     amount = models.IntegerField()
+    paid = models.BooleanField(default=False)
 
     @property
     def price(self):
