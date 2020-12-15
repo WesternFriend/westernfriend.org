@@ -15,11 +15,13 @@ class DonationModelAdmin(ModelAdmin):
     add_to_settings_menu = False
     exclude_from_explorer = True
     list_display = (
-        "amount", 
+        "amount",
+        "paid",
     )
     inspect_view_enabled = True
     inspect_view_fields = [
         "amount",
+        "paid",
     ]
 
 
