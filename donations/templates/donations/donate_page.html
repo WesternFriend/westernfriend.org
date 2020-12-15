@@ -9,7 +9,7 @@
 
     {{ page.intro|richtext }}
 
-    <form action="#" method="post" id="dynamicFields" class="mb-3">
+    <form action="." method="post" id="donation-form" class="mb-3">
         <h3>Amount</h3>
 
         {% if page.suggested_donation_amounts %}
@@ -115,7 +115,7 @@
 <script>
     new Vue({
         delimiters: ["${", "}"],
-        el: "#dynamicFields",
+        el: "#donation-form",
         data: {
             donationAmount: 10,
         },
