@@ -62,6 +62,7 @@ class DonatePage(Page):
 class Donation(models.Model):
     amount = models.IntegerField()
     paid = models.BooleanField(default=False)
+    braintree_id = models.CharField(max_length=255, null=True, blank=True)
 
     def get_total_cost(self):
         # Add get_total_cost method to conform to payment page
