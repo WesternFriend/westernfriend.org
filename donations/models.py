@@ -61,6 +61,7 @@ class DonatePage(Page):
 
 class Donation(models.Model):
     amount = models.IntegerField()
+    donor_email = models.EmailField(help_text="Please enter your email")
     paid = models.BooleanField(default=False)
     braintree_id = models.CharField(max_length=255, null=True, blank=True)
 
