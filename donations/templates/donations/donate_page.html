@@ -69,29 +69,41 @@
             <div class="col">
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
-                        <span class="input-group-text" id="first-name-addon">First name</span>
-                    </div>
-                    <input type="text" class="form-control" aria-label="First name" aria-describedby="first-name-addon">
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="last-name-addon">Last name</span>
-                    </div>
-                    <input type="text" class="form-control" aria-label="Email" aria-describedby="last-name-addon">
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="email-addon">email</span>
+                        <span class="input-group-text" id="given-name-addon">Given name</span>
                     </div>
                     <input 
+                        name="donor_given_name"
                         type="text" 
+                        class="form-control" 
+                        aria-label="Given name" 
+                        aria-describedby="given-name-addon">
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="family-name-addon">Family name</span>
+                    </div>
+                    <input
+                        name="donor_family_name"
+                        type="text" 
+                        class="form-control" 
+                        aria-label="Family name" 
+                        aria-describedby="family-name-addon">
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text font-weight-bold" id="email-addon">
+                            Email
+                        </span>
+                    </div>
+                    <input
                         name="donor_email" 
+                        type="text" 
                         class="form-control" 
                         placeholder="user@example.fom" 
                         aria-label="Email" 

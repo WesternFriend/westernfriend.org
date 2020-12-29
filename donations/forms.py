@@ -8,5 +8,7 @@ class DonationForm(forms.ModelForm):
         model = Donation
         fields = [
             "amount",
+            "donor_given_name",
+            "donor_family_name",
             "donor_email",
         ]
