@@ -109,6 +109,7 @@ class Subscription(models.Model):
         default="",
         help_text="Enter the family (last) name for the subscriber.",
     )
+    subscriber_organization = models.CharField(max_length=255, null=True, blank=True)
     subscriber_street_address = models.CharField(
         max_length=255,
         blank=True,
