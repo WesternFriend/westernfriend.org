@@ -79,7 +79,6 @@ def process_braintree_subscription(request, entity, nonce):
         return redirect("payment:canceled")
 
 
-
 def process_braintree_transaction(request, entity, nonce):
     # create and submit transaction
     result = braintree.Transaction.sale(
@@ -115,7 +114,7 @@ def payment_process(request, previous_page):
     #
     # NOTE: for now, I am leaving the code with partially duplicate lines
     # in case it seems desirable to separate out the code paths
-    
+
     processing_bookstore_order = previous_page == "bookstore_order"
     processing_donation = previous_page == "donate"
     processing_subscription = previous_page == "subscribe"

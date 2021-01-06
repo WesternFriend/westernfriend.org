@@ -5,6 +5,7 @@ from wagtail.contrib.modeladmin.options import (
 
 from donations.models import Donation
 
+
 class DonationModelAdmin(ModelAdmin):
     """Donation admin."""
 
