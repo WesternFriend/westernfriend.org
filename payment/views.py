@@ -54,7 +54,6 @@ def process_braintree_subscription(request, entity, nonce):
             # TODO: add notification/logging for error in this step
 
             # mark order as paid
-            # TODO: deprecate/remove this "paid" property
             entity.paid = True
 
             # store Braintree Subscription ID
