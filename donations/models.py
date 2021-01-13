@@ -57,7 +57,7 @@ class DonatePage(Page):
         donor_address_form = DonorAddressForm(request.POST)
         donation_form = DonationForm(request.POST)
 
-        if request.method == "POST":            
+        if request.method == "POST":
             if donation_form.is_valid():
                 return process_donation_request(request, donation_form, donor_address_form)
 
@@ -65,13 +65,13 @@ class DonatePage(Page):
         # Note, we manually create the donation form in the template
         context = self.get_context(request, *args, **kwargs)
         context["donor_address_form"] = donor_address_form
-        
+
         return TemplateResponse(
             request,
             self.get_template(request, *args, **kwargs),
             context
-        )   
-        
+        )
+
 
 class DonorAddress(Address):
     pass
