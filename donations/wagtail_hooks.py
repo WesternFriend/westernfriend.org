@@ -27,6 +27,7 @@ class DonationModelAdmin(ModelAdmin):
         "donor_given_name",
         "donor_family_name",
         "donor_email",
+        "donor_address",
         "amount",
         "paid",
     ]
