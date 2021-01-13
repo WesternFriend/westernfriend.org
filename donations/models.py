@@ -11,7 +11,7 @@ from wagtail.core.models import Page
 from addresses.models import Address
 
 
-def process_donation_request(request, donation_form, address_form):
+def process_donation_request(request, donation_form, donor_address_form):
     """
     Process a donation form and redirecto to payment.
     """
@@ -19,11 +19,11 @@ def process_donation_request(request, donation_form, address_form):
     donation = donation_form.save(commit=False)
 
     # Check if user submitted any address information
-    if address_form.is_valid():
-        # Create address instance and associate it with donation
-        address = address_form.save()
+    if donor_address_form.is_valid():
+        # Create donor address instance and associate it with donation
+        donor_address = donor_address_form.save()
 
-        donation.address = address
+        donation.donor_address = donor_address
 
     # Save donation with associated address
     donation.save()
@@ -54,17 +54,17 @@ class DonatePage(Page):
         # Avoid circular dependency
         from .forms import DonationForm, DonorAddressForm
 
-        address_form = DonorAddressForm(request.POST)
+        donor_address_form = DonorAddressForm(request.POST)
         donation_form = DonationForm(request.POST)
 
         if request.method == "POST":            
             if donation_form.is_valid():
-                return process_donation_request(request, donation_form, address_form)
+                return process_donation_request(request, donation_form, donor_address_form)
 
         # Send donor address form to client
         # Note, we manually create the donation form in the template
         context = self.get_context(request, *args, **kwargs)
-        context["address_form"] = address_form
+        context["donor_address_form"] = donor_address_form
         
         return TemplateResponse(
             request,

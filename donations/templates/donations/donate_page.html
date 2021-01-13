@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% load crispy_forms_tags %} 
 {% load wagtailcore_tags %}
 
 {% block body_class %}template-donatepage{% endblock %}
@@ -76,7 +77,8 @@
                         type="text" 
                         class="form-control" 
                         aria-label="Given name" 
-                        aria-describedby="given-name-addon">
+                        aria-describedby="given-name-addon"
+                        required>
                 </div>
             </div>
 
@@ -90,7 +92,8 @@
                         type="text" 
                         class="form-control" 
                         aria-label="Family name" 
-                        aria-describedby="family-name-addon">
+                        aria-describedby="family-name-addon"
+                        required>
                 </div>
             </div>
 
@@ -111,7 +114,36 @@
                         required>
                 </div>
             </div>
-            
+        </div>
+
+        <div class="form-row">
+            <div class="col-md-12">
+                {{ donor_address_form.street_address | as_crispy_field }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="col-md-12">
+                {{ donor_address_form.extended_address | as_crispy_field }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-4 mb-0">
+                {{ donor_address_form.locality | as_crispy_field }}
+            </div>
+            <div class="form-group col-md-4 mb-0">
+                {{ donor_address_form.region | as_crispy_field }}
+            </div>
+            <div class="form-group col-md-4 mb-0">
+                {{ donor_address_form.postal_code | as_crispy_field }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="col-md-6">
+                {{ donor_address_form.country | as_crispy_field }}
+            </div>
         </div>
 
         <div class="text-right">

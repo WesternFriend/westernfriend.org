@@ -1,8 +1,6 @@
 from django import forms
 
-from .models import Donation
-
-# TODO: Add "email" field and make it mandatory
+from .models import Donation, DonorAddress
 
 
 class DonationForm(forms.ModelForm):
@@ -14,3 +12,9 @@ class DonationForm(forms.ModelForm):
             "donor_family_name",
             "donor_email",
         ]
+
+
+class DonorAddressForm(forms.ModelForm):
+    class Meta:
+        model = DonorAddress
+        exclude = ["address_type", "latitude", "longitude", "po_box_number"]
