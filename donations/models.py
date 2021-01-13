@@ -1,5 +1,6 @@
 from django.db import models
 from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
@@ -7,17 +8,22 @@ from wagtail.core.blocks import IntegerBlock
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 
+from addresses.models import Address
 
-def process_donation_form(donation_form, request):
+
+def process_donation_request(request, donation_form, address_form):
     """
     Process a donation form and redirecto to payment.
     """
     # Create a temporary donation object to modify it's fields
     donation = donation_form.save(commit=False)
 
-    # TODO: create address instance and associate it with donatino
-    # address = Address()
-    # donation.address = address
+    # Check if user submitted any address information
+    if address_form.is_valid():
+        # Create address instance and associate it with donation
+        address = address_form.save()
+
+        donation.address = address
 
     # Save donation with associated address
     donation.save()
@@ -45,18 +51,30 @@ class DonatePage(Page):
     max_count = 1
 
     def serve(self, request, *args, **kwargs):
-        if request.method == "POST":
-            # Avoid circular dependency
-            from .forms import DonationForm
+        # Avoid circular dependency
+        from .forms import DonationForm, DonorAddressForm
 
-            donation_form = DonationForm(request.POST)
+        address_form = DonorAddressForm(request.POST)
+        donation_form = DonationForm(request.POST)
 
+        if request.method == "POST":            
             if donation_form.is_valid():
-                return process_donation_form(donation_form, request)
-            else:
-                return super().serve(request)
-        else:
-            return super().serve(request)
+                return process_donation_request(request, donation_form, address_form)
+
+        # Send donor address form to client
+        # Note, we manually create the donation form in the template
+        context = self.get_context(request, *args, **kwargs)
+        context["address_form"] = address_form
+        
+        return TemplateResponse(
+            request,
+            self.get_template(request, *args, **kwargs),
+            context
+        )   
+        
+
+class DonorAddress(Address):
+    pass
 
 
 class Donation(models.Model):
@@ -65,6 +83,7 @@ class Donation(models.Model):
     donor_family_name = models.CharField(max_length=255)
     donor_organization = models.CharField(max_length=255, null=True, blank=True)
     donor_email = models.EmailField(help_text="Please enter your email")
+    donor_address = models.ForeignKey(to=DonorAddress, null=True, blank=True, on_delete=models.SET_NULL)
     paid = models.BooleanField(default=False)
     braintree_id = models.CharField(max_length=255, null=True, blank=True)
 
