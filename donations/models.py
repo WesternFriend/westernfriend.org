@@ -15,6 +15,7 @@ def process_donation_request(request, donation_form, donor_address_form):
     """
     Process a donation form and redirecto to payment.
     """
+    print(request.POST["recurring"])
     # Create a temporary donation object to modify it's fields
     donation = donation_form.save(commit=False)
 
@@ -33,7 +34,12 @@ def process_donation_request(request, donation_form, donor_address_form):
 
     # redirect for payment
     return redirect(
-        reverse("payment:process", kwargs={"previous_page": "donate"})
+        reverse(
+            "payment:process", 
+            kwargs={
+                "previous_page": "donate",
+            }
+        )
     )
 
 
@@ -79,6 +85,7 @@ class DonorAddress(Address):
 
 class Donation(models.Model):
     amount = models.IntegerField()
+    recurring = models.BooleanField(default=False)
     donor_given_name = models.CharField(max_length=255)
     donor_family_name = models.CharField(max_length=255)
     donor_organization = models.CharField(max_length=255, null=True, blank=True)
