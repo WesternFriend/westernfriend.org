@@ -11,6 +11,7 @@ class DonationForm(forms.ModelForm):
             "donor_given_name",
             "donor_family_name",
             "donor_email",
+            "recurring"
         ]
 
 
