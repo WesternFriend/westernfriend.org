@@ -13,6 +13,7 @@ from subscription.models import Subscription
 DONATION_PLAN_ID = "recurring-donation"
 MAGAZINE_SUBSCRIPTION_PLAN_ID = "magazine-subscription"
 
+
 def process_braintree_subscription(request, entity, nonce):
     gateway = braintree.BraintreeGateway(
         braintree.Configuration(
@@ -33,7 +34,6 @@ def process_braintree_subscription(request, entity, nonce):
         last_name = entity.donor_family_name
         plan_id = DONATION_PLAN_ID
 
-
     customer_result = gateway.customer.create(
         {
             "first_name": first_name,
@@ -50,9 +50,7 @@ def process_braintree_subscription(request, entity, nonce):
 
         # activate a subscription instance
         subscription_properties = {
-            "payment_method_token": customer_result.customer.payment_methods[
-                0
-            ].token,
+            "payment_method_token": customer_result.customer.payment_methods[0].token,
             # TODO: figure out how to do this without hard-coding the subscription ID
             "plan_id": plan_id,
             "price": entity.get_total_cost(),
@@ -63,9 +61,7 @@ def process_braintree_subscription(request, entity, nonce):
             subscription_properties["number_of_billing_cycles"] = 1
 
         # TODO: check whether subscription should recur and set value accordingly
-        subscription_result = gateway.subscription.create(
-            subscription_properties
-        )
+        subscription_result = gateway.subscription.create(subscription_properties)
 
         if subscription_result.is_success:
             # TODO: add notification/logging for error in this step
@@ -74,9 +70,7 @@ def process_braintree_subscription(request, entity, nonce):
             entity.paid = True
 
             # store Braintree Subscription ID
-            entity.braintree_subscription_id = (
-                subscription_result.subscription.id
-            )
+            entity.braintree_subscription_id = subscription_result.subscription.id
 
             if entity._meta.model_name == "subscription":
                 # Extend subscription end date by one year from today
@@ -155,13 +149,13 @@ def payment_process(request, previous_page):
 
         if processing_bookstore_order:
             return process_braintree_transaction(request, entity, nonce)
-        
+
         elif processing_donation:
             if entity.recurring:
                 return process_braintree_subscription(request, entity, nonce)
-            
+
             return process_braintree_transaction(request, entity, nonce)
-        
+
         elif processing_subscription:
             return process_braintree_subscription(request, entity, nonce)
     else:
