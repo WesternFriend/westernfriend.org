@@ -93,6 +93,7 @@ class Donation(models.Model):
     donor_address = models.ForeignKey(to=DonorAddress, null=True, blank=True, on_delete=models.SET_NULL)
     paid = models.BooleanField(default=False)
     braintree_id = models.CharField(max_length=255, null=True, blank=True)
+    braintree_subscription_id = models.CharField(max_length=255, null=True, blank=True)
 
     def get_total_cost(self):
         # Add get_total_cost method to conform to payment page
