@@ -10,6 +10,9 @@ from orders.models import Order
 from subscription.models import Subscription
 
 
+DONATION_PLAN_ID = "recurring-donation"
+MAGAZINE_SUBSCRIPTION_PLAN_ID = "magazine-subscription"
+
 def process_braintree_subscription(request, entity, nonce):
     gateway = braintree.BraintreeGateway(
         braintree.Configuration(
@@ -20,10 +23,21 @@ def process_braintree_subscription(request, entity, nonce):
         )
     )
 
+    # Check whether entity is Donation or Subscription
+    if entity._meta.model_name == "subscription":
+        first_name = entity.subscriber_given_name
+        last_name = entity.subscriber_family_name
+        plan_id = MAGAZINE_SUBSCRIPTION_PLAN_ID
+    elif entity._meta.model_name == "donation":
+        first_name = entity.donor_given_name
+        last_name = entity.donor_family_name
+        plan_id = DONATION_PLAN_ID
+
+
     customer_result = gateway.customer.create(
         {
-            "first_name": entity.subscriber_given_name,
-            "last_name": entity.subscriber_family_name,
+            "first_name": first_name,
+            "last_name": last_name,
             "payment_method_nonce": nonce,
         }
     )
@@ -31,13 +45,16 @@ def process_braintree_subscription(request, entity, nonce):
     if customer_result.is_success:
         # TODO: add notification/logging for error in this step
 
+        # TODO: determine how to allow users to select "yearly" or "monthly"
+        # for recurring donations
+
         # activate a subscription instance
         subscription_properties = {
             "payment_method_token": customer_result.customer.payment_methods[
                 0
             ].token,
             # TODO: figure out how to do this without hard-coding the subscription ID
-            "plan_id": "magazine-subscription",
+            "plan_id": plan_id,
             "price": entity.get_total_cost(),
         }
 
@@ -61,11 +78,12 @@ def process_braintree_subscription(request, entity, nonce):
                 subscription_result.subscription.id
             )
 
-            # Extend subscription end date by one year from today
-            # as both one-time and recurring subscriptions
-            # start with a single year interval
-            today = arrow.utcnow()
-            entity.end_date = today.shift(years=+1).date()
+            if entity._meta.model_name == "subscription":
+                # Extend subscription end date by one year from today
+                # as both one-time and recurring subscriptions
+                # start with a single year interval
+                today = arrow.utcnow()
+                entity.end_date = today.shift(years=+1).date()
 
             entity.save()
 
@@ -137,8 +155,13 @@ def payment_process(request, previous_page):
 
         if processing_bookstore_order:
             return process_braintree_transaction(request, entity, nonce)
+        
         elif processing_donation:
+            if entity.recurring:
+                return process_braintree_subscription(request, entity, nonce)
+            
             return process_braintree_transaction(request, entity, nonce)
+        
         elif processing_subscription:
             return process_braintree_subscription(request, entity, nonce)
     else:
