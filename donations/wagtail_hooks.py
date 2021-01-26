@@ -20,6 +20,7 @@ class DonationModelAdmin(ModelAdmin):
         "donor_family_name",
         "donor_email",
         "amount",
+        "recurring",
         "paid",
     )
     inspect_view_enabled = True
@@ -30,6 +31,8 @@ class DonationModelAdmin(ModelAdmin):
         "donor_address",
         "amount",
         "paid",
+        "braintree_id",
+        "braintree_subscription_id",
     ]
     search_fields = (
         "donor_given_name",
