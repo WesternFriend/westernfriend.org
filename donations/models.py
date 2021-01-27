@@ -92,7 +92,7 @@ class Donation(models.Model):
     donor_email = models.EmailField(help_text="Please enter your email")
     donor_address = models.ForeignKey(to=DonorAddress, null=True, blank=True, on_delete=models.SET_NULL)
     paid = models.BooleanField(default=False)
-    braintree_id = models.CharField(max_length=255, null=True, blank=True)
+    braintree_transaction_id = models.CharField(max_length=255, null=True, blank=True)
     braintree_subscription_id = models.CharField(max_length=255, null=True, blank=True)
 
     def get_total_cost(self):
