@@ -31,7 +31,7 @@ class DonationModelAdmin(ModelAdmin):
         "donor_address",
         "amount",
         "paid",
-        "braintree_id",
+        "braintree_transaction_id",
         "braintree_subscription_id",
     ]
     search_fields = (
