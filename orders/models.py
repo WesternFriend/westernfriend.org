@@ -52,6 +52,7 @@ class Order(ClusterableModel):
     )
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
     paid = models.BooleanField(default=False)
+    braintree_transaction_id = models.CharField(max_length=255, null=True, blank=True)
 
 
     panels = [
