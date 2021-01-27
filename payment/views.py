@@ -105,7 +105,7 @@ def process_braintree_transaction(request, entity, nonce):
         entity.paid = True
 
         # store Braintree transaction ID
-        entity.braintree_id = result.transaction.id
+        entity.braintree_transaction_id = result.transaction.id
 
         entity.save()
 
