@@ -1,9 +1,7 @@
-from wagtail.contrib.modeladmin.options import (
-    ModelAdmin,
-    modeladmin_register
-)
+from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
 
 from subscription.models import Subscription
+
 
 class SubscriptionModelAdmin(ModelAdmin):
     """Subscription admin."""
@@ -15,7 +13,7 @@ class SubscriptionModelAdmin(ModelAdmin):
     add_to_settings_menu = False
     exclude_from_explorer = False
     list_display = (
-        "subscriber_given_name", 
+        "subscriber_given_name",
         "subscriber_family_name",
         "user",
         "format",
@@ -27,13 +25,14 @@ class SubscriptionModelAdmin(ModelAdmin):
     )
     search_fields = (
         "user",
-        "subscriber_given_name", 
-        "subscriber_family_name",)
+        "subscriber_given_name",
+        "subscriber_family_name",
+    )
     list_filter = (
         "paid",
         "format",
         "price_group",
-        )
+    )
     inspect_view_enabled = True
     inspect_view_fields = [
         "subscriber_full_name",
@@ -42,7 +41,7 @@ class SubscriptionModelAdmin(ModelAdmin):
         "recurring",
         "end_date",
     ]
-    #inspect_template_name = "store/inspect_order.html"
+    # inspect_template_name = "store/inspect_order.html"
 
 
 modeladmin_register(SubscriptionModelAdmin)
