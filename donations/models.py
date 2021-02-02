@@ -84,8 +84,15 @@ class DonorAddress(Address):
 
 
 class Donation(models.Model):
+
+    class DonationRecurrenceChoices(models.TextChoices):
+        ONCE = ("once", "Once")
+        MONTHLY = ("monthly", "Monthly")
+        YEARLY = ("yearly", "Yearly")
+
     amount = models.IntegerField()
     recurring = models.BooleanField(default=False)
+    recurrence = models.CharField(max_length=255, null=True, blank=True, choices=DonationRecurrenceChoices.choices, default=DonationRecurrenceChoices.ONCE)
     donor_given_name = models.CharField(max_length=255)
     donor_family_name = models.CharField(max_length=255)
     donor_organization = models.CharField(max_length=255, null=True, blank=True)
@@ -94,6 +101,7 @@ class Donation(models.Model):
     paid = models.BooleanField(default=False)
     braintree_transaction_id = models.CharField(max_length=255, null=True, blank=True)
     braintree_subscription_id = models.CharField(max_length=255, null=True, blank=True)
+    # TODO: add date fields for created, payment_completed, updated
 
     def get_total_cost(self):
         # Add get_total_cost method to conform to payment page
