@@ -91,7 +91,6 @@ class Donation(models.Model):
         YEARLY = ("yearly", "Yearly")
 
     amount = models.IntegerField()
-    recurring = models.BooleanField(default=False)
     recurrence = models.CharField(max_length=255, null=True, blank=True, choices=DonationRecurrenceChoices.choices, default=DonationRecurrenceChoices.ONCE)
     donor_given_name = models.CharField(max_length=255)
     donor_family_name = models.CharField(max_length=255)
