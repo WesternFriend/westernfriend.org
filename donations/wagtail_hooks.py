@@ -20,7 +20,7 @@ class DonationModelAdmin(ModelAdmin):
         "donor_family_name",
         "donor_email",
         "amount",
-        "recurring",
+        "recurrence",
         "paid",
     )
     inspect_view_enabled = True
@@ -38,6 +38,20 @@ class DonationModelAdmin(ModelAdmin):
         "donor_given_name",
         "donor_family_name",
         "donor_email",
+    )
+    list_filter = (
+        "paid",
+        "recurrence",
+    )
+    list_export = (
+        "donor_given_name",
+        "donor_family_name",
+        "donor_email",
+        "donor_address",
+        "amount",
+        "paid",
+        "braintree_transaction_id",
+        "braintree_subscription_id",
     )
 
 
