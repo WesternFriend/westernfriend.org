@@ -9,13 +9,13 @@ from donations.models import Donation
 from orders.models import Order
 from subscription.models import Subscription
 
-
+# TODO: Change donation plans to "monthly-recurring-donation" and "yearly-recurring-donation"
 DONATION_PLAN_ID = "recurring-donation"
 MAGAZINE_SUBSCRIPTION_PLAN_ID = "magazine-subscription"
 
 
-def process_braintree_subscription(request, entity, nonce):
-    gateway = braintree.BraintreeGateway(
+def get_braintree_gateway():
+    return braintree.BraintreeGateway(
         braintree.Configuration(
             braintree.Environment.Sandbox,
             merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
@@ -23,6 +23,9 @@ def process_braintree_subscription(request, entity, nonce):
             private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
         )
     )
+
+def process_braintree_subscription(request, entity, nonce):
+    gateway = get_braintree_gateway()
 
     # Check whether entity is Donation or Subscription
     if entity._meta.model_name == "subscription":
