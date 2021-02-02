@@ -15,7 +15,6 @@ def process_donation_request(request, donation_form, donor_address_form):
     """
     Process a donation form and redirecto to payment.
     """
-    print(request.POST["recurring"])
     # Create a temporary donation object to modify it's fields
     donation = donation_form.save(commit=False)
 
@@ -105,3 +104,15 @@ class Donation(models.Model):
     def get_total_cost(self):
         # Add get_total_cost method to conform to payment page
         return self.amount
+    
+    def recurring(self):
+        """
+        Determine whether Donation is recurring.
+
+        Return True if Donation recurrence is "monthly" or "yearly", otherwise False
+        """
+
+        return self.recurrence in (
+            DonationRecurrenceChoices.MONTHLY,
+            DonationRecurrenceChoices.YEARLY,
+        )
