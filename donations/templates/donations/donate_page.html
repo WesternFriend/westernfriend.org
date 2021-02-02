@@ -11,7 +11,46 @@
     {{ page.intro|richtext }}
 
     <form action="." method="post" id="donation-form" class="mb-3">
-        <h3>Amount</h3>
+        <div class="form-row">
+            <div 
+                class="card col m-1"
+                @click="recurrence = 'once'"
+                v-bind:class="{ 'border-success': recurrence == 'once' }"
+            >
+                <div class="card-body text-center">
+                    <i v-if="recurrence == 'once'" class="fa fa-check"></i>
+                    Once
+                </div>
+            </div>
+
+            <div 
+                class="card col m-1"
+                @click="recurrence = 'monthly'"
+                v-bind:class="{ 'border-success': recurrence == 'monthly' }"
+            >
+                <div class="card-body text-center">
+                    <i v-if="recurrence == 'monthly'" class="fa fa-check"></i>
+                    Monthly
+                </div>
+            </div>
+
+            <div 
+                class="card col m-1"
+                @click="recurrence = 'yearly'"
+                v-bind:class="{ 'border-success': recurrence == 'yearly' }"
+            >
+                <div class="card-body text-center">
+                    <i v-if="recurrence == 'yearly'" class="fa fa-check"></i>
+                    Yearly
+                </div>
+            </div>
+
+            <input 
+                name="recurrence" 
+                v-model.number="recurrence" 
+                type="hidden" 
+                class="form-control">
+        </div>
 
         {% if page.suggested_donation_amounts %}
     
@@ -62,26 +101,6 @@
                         {% endif %}
                     </small>
                 </div>
-            </div>
-
-            <div class="form-check col">
-                <input
-                    name="recurring"
-                    id="recurring-checkbox"
-                    v-model="recurringSubscription"
-                    class="form-check-input"
-                    type="checkbox"
-                    data-toggle="switchbutton"
-                    data-onlabel="<i class='fa fa-check'></i> Yes"
-                    data-offlabel="<i class='fa fa-ban'></i> No"
-                    data-onstyle="outline-success"
-                    data-offstyle="outline-primary"
-                    data-style="mr-1"
-                />
-
-                <small for="recurring-checkbox" class="form-check-label form-text text-muted">
-                    Support us with a recurring donation?
-                </small>
             </div>
         </div>
 
@@ -198,6 +217,7 @@
         el: "#donation-form",
         data: {
             donationAmount: 10,
+            recurrence: "once",
         },
     });
 </script>
