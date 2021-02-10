@@ -10,7 +10,7 @@ from orders.models import Order
 from subscription.models import Subscription
 
 # TODO: Change donation plans to "monthly-recurring-donation" and "yearly-recurring-donation"
-DONATION_PLAN_ID = "recurring-donation"
+DONATION_PLAN_ID_BASE = "-recurring-donation"
 MAGAZINE_SUBSCRIPTION_PLAN_ID = "magazine-subscription"
 
 
@@ -35,7 +35,7 @@ def process_braintree_subscription(request, entity, nonce):
     elif entity._meta.model_name == "donation":
         first_name = entity.donor_given_name
         last_name = entity.donor_family_name
-        plan_id = DONATION_PLAN_ID
+        plan_id = entity.recurrence + DONATION_PLAN_ID_BASE
 
     customer_result = gateway.customer.create(
         {
