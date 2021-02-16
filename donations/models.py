@@ -4,7 +4,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
-from wagtail.core.blocks import IntegerBlock
+from wagtail.core.blocks import IntegerBlock, ListBlock, StreamBlock, StructBlock
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 
@@ -42,13 +42,30 @@ def process_donation_request(request, donation_form, donor_address_form):
     )
 
 
+class SuggestedDonationAmountsBlock(StructBlock):
+    once = ListBlock(IntegerBlock(label="Amount"))
+    monthly = ListBlock(IntegerBlock(label="Amount"))
+    yearly = ListBlock(IntegerBlock(label="Amount"))
+
+
 class DonatePage(Page):
     intro = RichTextField(blank=True)
-    suggested_donation_amounts = StreamField([
-        ("amount", IntegerBlock())
-    ], null=True, blank=True)
+    suggested_donation_amounts = StreamField(
+        StreamBlock(
+            [
+                ('suggested_donation_amounts', SuggestedDonationAmountsBlock(max_num=1))
+            ],
+            max_num=1,
+        ),
+        null=True,
+        blank=True
+    )
 
     max_count = 1
+
+    content_panels = Page.content_panels + [
+        StreamFieldPanel("suggested_donation_amounts"),
+    ]
 
     def serve(self, request, *args, **kwargs):
         # Avoid circular dependency
