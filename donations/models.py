@@ -44,7 +44,7 @@ def process_donation_request(request, donation_form, donor_address_form):
 
 class DonatePage(Page):
     intro = RichTextField(blank=True)
-    suggested_donation_amounts_once = StreamField([
+    suggested_donation_amounts = StreamField([
         ("amount", IntegerBlock())
     ], null=True, blank=True)
 
