@@ -54,24 +54,63 @@
 
         {% if page.suggested_donation_amounts %}
     
-            <div class="form-row text-center">
 
-                {% for amount in page.suggested_donation_amounts %}
-                    <div
-                        class="card m-1 col"
-                        @click="donationAmount = {{ amount }}"
-                        v-bind:class="{ 'border-success': donationAmount === {{ amount }} }"
-                    >
-                        <div class="card-body">
-                            <i
-                                v-if="donationAmount === {{ amount }}"
-                                class="fa fa-check"
-                            ></i>
-                            ${{ amount }}
+            {% for suggestion in page.suggested_donation_amounts %}
+                <div v-if="recurrence == 'once'" class="form-row text-center">
+                    {% for amount in suggestion.value.once %}
+                        <div
+                            class="card m-1 col"
+                            @click="donationAmount = {{ amount }}"
+                            v-bind:class="{ 'border-success': donationAmount === {{ amount }} }"
+                        >
+                            <div class="card-body">
+                                <i
+                                    v-if="donationAmount === {{ amount }}"
+                                    class="fa fa-check"
+                                ></i>
+                                ${{ amount }}
+                            </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
+                    {% endfor %}
+                </div>
+
+                <div v-if="recurrence == 'monthly'" class="form-row text-center">
+                    {% for amount in suggestion.value.monthly %}
+                        <div
+                            class="card m-1 col"
+                            @click="donationAmount = {{ amount }}"
+                            v-bind:class="{ 'border-success': donationAmount === {{ amount }} }"
+                        >
+                            <div class="card-body">
+                                <i
+                                    v-if="donationAmount === {{ amount }}"
+                                    class="fa fa-check"
+                                ></i>
+                                ${{ amount }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div v-if="recurrence == 'yearly'" class="form-row text-center">
+                    {% for amount in suggestion.value.yearly %}
+                        <div
+                            class="card m-1 col"
+                            @click="donationAmount = {{ amount }}"
+                            v-bind:class="{ 'border-success': donationAmount === {{ amount }} }"
+                        >
+                            <div class="card-body">
+                                <i
+                                    v-if="donationAmount === {{ amount }}"
+                                    class="fa fa-check"
+                                ></i>
+                                ${{ amount }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
 
             <div class="form-row mb-3">
                 <div class="col">
