@@ -44,13 +44,13 @@ def process_donation_request(request, donation_form, donor_address_form):
 
 class DonatePage(Page):
     intro = RichTextField(blank=True)
-    suggested_donation_amounts = StreamField([
+    suggested_donation_amounts_once = StreamField([
         ("amount", IntegerBlock())
     ], null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("intro", classname="full"),
-        StreamFieldPanel("suggested_donation_amounts")
+        StreamFieldPanel("suggested_donation_amounts_once")
     ]
 
     max_count = 1
