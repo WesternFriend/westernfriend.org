@@ -47,6 +47,12 @@ class DonatePage(Page):
     suggested_donation_amounts_once = StreamField([
         ("amount", IntegerBlock())
     ], null=True, blank=True)
+    suggested_donation_amounts_monthly = StreamField([
+        ("amount", IntegerBlock())
+    ], null=True, blank=True)
+    suggested_donation_amounts_yearly = StreamField([
+        ("amount", IntegerBlock())
+    ], null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("intro", classname="full"),
