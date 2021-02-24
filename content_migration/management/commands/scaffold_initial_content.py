@@ -28,7 +28,10 @@ class Command(BaseCommand):
         site.root_page = home_page
         site.save()
 
-        # TODO: see if root_page can now be deleted
+        # Delete welcome page
+        # ID: 2 is used, since welcome page is second page created
+        # Otherwise, the title "Welcome to your new Wagtail site!" might be useful
+        Page.objects.get(id=2).delete()
 
         community_page = CommunityPage(title="Community")
         magazine_index_page = MagazineIndexPage(title="Magazine")
