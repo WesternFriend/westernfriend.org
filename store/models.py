@@ -96,6 +96,6 @@ class BookAuthor(Orderable):
 
     panels = [
         PageChooserPanel(
-            "author", ["contact.Person", "contact.Meeting", "contact.Organization",]
+            "author", ["contact.Person", "contact.Meeting", "contact.Organization"]
         )
     ]
