@@ -22,6 +22,7 @@ class StoreIndexPage(Page):
         FieldPanel("intro"),
     ]
 
+    parent_page_types = ["home.HomePage"]
     subpage_types = [
         "store.ProductIndexPage",
     ]
@@ -45,6 +46,7 @@ class ProductIndexPage(Page):
     ]
     subpage_types = [
         "store.Book",
+        #"store.Product",
     ]
 
 
@@ -55,6 +57,9 @@ class Product(Page):
     description = RichTextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available = models.BooleanField(default=True)
+
+    parent_page_types = ["store.ProductIndexPage"]
+    subpage_types = []
 
     content_panels = Page.content_panels + [
         FieldPanel("description", classname="full"),

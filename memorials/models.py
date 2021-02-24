@@ -44,7 +44,7 @@ class Memorial(Page):
     ]
 
     parent_page_types = [
-        "MemorialIndexPage",
+        "memorials.MemorialIndexPage",
     ]
 
     def save(self, *args, **kwargs):
@@ -67,8 +67,9 @@ class MemorialIndexPage(Page):
         FieldPanel("intro")
     ]
 
+    parent_page_types = ["community.CommunityPage"]
     subpage_types = [
-        Memorial,
+        "memorials.Memorial",
     ]
 
     def get_filtered_memorials(self, request):

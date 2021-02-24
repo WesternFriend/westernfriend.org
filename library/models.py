@@ -141,7 +141,7 @@ class LibraryIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    # parent_page_types = ["home.HomePage"]
+    parent_page_types = ["home.HomePage"]
     subpage_types = ["LibraryItem"]
 
     max_count = 1
