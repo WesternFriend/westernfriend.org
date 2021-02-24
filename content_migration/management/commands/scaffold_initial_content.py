@@ -11,7 +11,14 @@ from community.models import (
 )
 from donations.models import DonatePage
 from events.models import EventsIndexPage
-from facets.models import FacetIndexPage
+from facets.models import (
+    AudienceIndexPage,
+    FacetIndexPage,
+    GenreIndexPage,
+    MediumIndexPage,
+    TimePeriodIndexPage,
+    TopicIndexPage,
+)
 from forms.models import ContactFormPage
 from library.models import LibraryIndexPage
 from magazine.models import (
@@ -107,6 +114,19 @@ class Command(BaseCommand):
         facet_index_page = FacetIndexPage(title="Facets")
 
         library_index_page.add_child(instance=facet_index_page)
+
+        # Library facets section
+        audience_index_page = AudienceIndexPage(title="Audience")
+        genre_index_page = GenreIndexPage(title="Genre")
+        medium_index_page = MediumIndexPage(title="Medium")
+        time_period_index_page = TimePeriodIndexPage(title="Time period")
+        topic_index_page = TopicIndexPage(title="Topic")
+
+        facet_index_page.add_page(instance=audience_index_page)
+        facet_index_page.add_page(instance=genre_index_page)
+        facet_index_page.add_page(instance=medium_index_page)
+        facet_index_page.add_page(instance=time_period_index_page)
+        facet_index_page.add_page(instance=topic_index_page)
 
         # Bookstore section
         product_index_page = ProductIndexPage(title="Products")
