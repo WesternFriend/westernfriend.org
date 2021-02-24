@@ -122,11 +122,11 @@ class Command(BaseCommand):
         time_period_index_page = TimePeriodIndexPage(title="Time period")
         topic_index_page = TopicIndexPage(title="Topic")
 
-        facet_index_page.add_page(instance=audience_index_page)
-        facet_index_page.add_page(instance=genre_index_page)
-        facet_index_page.add_page(instance=medium_index_page)
-        facet_index_page.add_page(instance=time_period_index_page)
-        facet_index_page.add_page(instance=topic_index_page)
+        facet_index_page.add_child(instance=audience_index_page)
+        facet_index_page.add_child(instance=genre_index_page)
+        facet_index_page.add_child(instance=medium_index_page)
+        facet_index_page.add_child(instance=time_period_index_page)
+        facet_index_page.add_child(instance=topic_index_page)
 
         # Bookstore section
         product_index_page = ProductIndexPage(title="Products")
