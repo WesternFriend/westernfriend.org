@@ -32,7 +32,7 @@ def process_donation_request(request, donation_form, donor_address_form):
     request.session["donation_id"] = donation.id
 
     # redirect for payment
-    return redirect(reverse("payment:process", kwargs={"previous_page": "donate",}))
+    return redirect(reverse("payment:process", kwargs={"previous_page": "donate"}))
 
 
 class SuggestedDonationAmountsBlock(StructBlock):
