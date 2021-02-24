@@ -114,6 +114,9 @@ class CommunityDirectory(Page):
         index.SearchField("description", partial_match=True),
     ]
 
+    class Meta:
+        verbose_name_plural = "community directories"
+
 
 class CommunityDirectoryIndexPage(Page):
     intro = RichTextField(blank=True)
