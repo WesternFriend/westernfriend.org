@@ -16,8 +16,11 @@ class Command(BaseCommand):
         issues_filename = "issues.csv"
         articles_filename = "articles.csv"
 
-        call_command('import_departments', file=f"{ directory }{ departments_filename }")
-        call_command('import_authors', file=f"{ directory }{ authors_filename }")
-        call_command('import_issues', file=f"{ directory }{ issues_filename }")
-        call_command('import_articles', articles_file=f"{ directory }{ articles_filename }")
-
+        call_command(
+            "import_departments", file=f"{ directory }{ departments_filename }"
+        )
+        call_command("import_authors", file=f"{ directory }{ authors_filename }")
+        call_command("import_issues", file=f"{ directory }{ issues_filename }")
+        call_command(
+            "import_articles", articles_file=f"{ directory }{ articles_filename }"
+        )
