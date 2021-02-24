@@ -1,21 +1,25 @@
+from io import BytesIO
 import re
 from typing import List
 
+from django.core.files import File
+from django.core.files.images import ImageFile
 from django.core.management.base import BaseCommand, CommandError
 
 from bs4 import BeautifulSoup, Tag as BS4_Tag
 import numpy as np
 import pandas as pd
+import requests
 from tqdm import tqdm
 
 from wagtail.core.rich_text import RichText
+from wagtail.documents.models import Document
+from wagtail.images.models import Image
 
-from taggit.models import Tag
 
 from magazine.models import (
     MagazineArticle,
     MagazineArticleAuthor,
-    MagazineArticleTag,
     MagazineDepartment,
     MagazineIssue,
 )
@@ -103,6 +107,52 @@ def parse_article_body_blocks(body):
     return article_body_blocks
 
 
+def parse_article_media_blocks(media_urls):
+    media_blocks = []
+
+    if media_urls is not np.nan:     
+        for url in media_urls.split(", "):
+            response = requests.get(url)
+            content_type = response.headers['content-type']
+            file_name = url.split("/")[-1]
+            file_bytes = BytesIO(response.content)
+
+            if content_type == "application/pdf":
+                # Create file
+                document_file = File(file_bytes, name=file_name)
+
+                document = Document(
+                    title=file_name,
+                    file=document_file,
+                )
+
+                document.save()
+
+                document_link_block = ("document", document)
+
+                media_blocks.append(document_link_block)
+            elif content_type in ["image/jpeg", "image/png"]:
+                # create image
+                image_file = ImageFile(file_bytes, name=file_name)
+
+                image = Image(
+                    title=file_name,
+                    file=image_file,
+                )
+
+                image.save()
+
+                image_block = ("image", image)
+
+                media_blocks.append(image_block)
+            else:
+                print(url)
+                print(content_type)
+                print("-----")
+
+    return media_blocks
+
+
 class Command(BaseCommand):
     help = "Import Articles from Drupal site while linking them to Authors, Issues, Deparments, and Keywords"
 
@@ -114,19 +164,30 @@ class Command(BaseCommand):
         articles = pd.read_csv(options["articles_file"])
         authors = pd.read_csv("../import_data/authors_cleaned_deduped-2020-04-12.csv")
 
-        for index, row in tqdm(articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"):
+        for index, row in tqdm(
+            articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"
+        ):
+            media_blocks = parse_article_media_blocks(row["Media"])
 
             department = MagazineDepartment.objects.get(title=row["Department"])
 
             article_body_blocks = []
+            body_migrated = None
 
-            if not row["Body"] is np.nan:
+            if row["Body"] is not np.nan:
                 article_body_blocks = parse_article_body_blocks(row["Body"])
+                body_migrated = row["Body"]
+
+            # Download and parse article media
+            media_blocks = parse_article_media_blocks(row["Media"])
+
+            # Merge media blocks with article body blocks
+            article_body_blocks += media_blocks
 
             article = MagazineArticle(
                 title=row["title"],
                 body=article_body_blocks,
-                body_migrated=row["Body"],
+                body_migrated=body_migrated,
                 department=department,
             )
 
