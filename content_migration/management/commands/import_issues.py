@@ -1,8 +1,8 @@
 import csv
 from datetime import datetime
-import requests
 from io import BytesIO
 
+import requests
 from tqdm import tqdm
 
 from django.core.files.images import ImageFile
