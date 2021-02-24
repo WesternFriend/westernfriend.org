@@ -11,6 +11,7 @@ from community.models import (
 )
 from donations.models import DonatePage
 from events.models import EventsIndexPage
+from facets.models import FacetIndexPage
 from forms.models import ContactFormPage
 from library.models import LibraryIndexPage
 from magazine.models import (
@@ -98,5 +99,10 @@ class Command(BaseCommand):
         community_page.add_child(instance=organization_index_page)
         community_page.add_child(instance=person_index_page)
         community_page.save()
+
+        # Library section
+        facet_index_page = FacetIndexPage(title="Facets")
+
+        library_index_page.add_child(instance=facet_index_page)
 
         self.stdout.write("All done!")
