@@ -21,7 +21,7 @@ class Command(BaseCommand):
             departments = csv.DictReader(import_file)
             departments_list = list(departments)
 
-            for department in tqdm(departments_list, desc="Departments imported:", unit="row"):
+            for department in tqdm(departments_list, desc="Departments", unit="row"):
                 import_department = MagazineDepartment(
                     title=department["title"],
                 )

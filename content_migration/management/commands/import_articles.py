@@ -114,7 +114,7 @@ class Command(BaseCommand):
         articles = pd.read_csv(options["articles_file"])
         authors = pd.read_csv("../import_data/authors_cleaned_deduped-2020-04-12.csv")
 
-        for index, row in tqdm(articles.iterrows(), total=articles.shape[0], desc="Articles imported:", unit="row"):
+        for index, row in tqdm(articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"):
 
             department = MagazineDepartment.objects.get(title=row["Department"])
 

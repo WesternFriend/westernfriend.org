@@ -28,7 +28,7 @@ class Command(BaseCommand):
             issues = csv.DictReader(import_file)
             issues_list = list(issues)
 
-            for issue in tqdm(issues_list, desc="Issues imported:", unit="row"):
+            for issue in tqdm(issues_list, desc="Issues", unit="row"):
                 response = requests.get(issue["cover_image_url"])
                 image_file = BytesIO(response.content)
 

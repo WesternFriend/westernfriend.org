@@ -111,7 +111,7 @@ class Command(BaseCommand):
             authors = csv.DictReader(import_file)
             authors_list = list(authors)
 
-            for author in tqdm(authors_list, desc="Authors imported:", unit="row"):
+            for author in tqdm(authors_list, desc="Authors", unit="row"):
                 # Check for entity type among:
                 # - Meeting
                 # - Organization
