@@ -4,7 +4,11 @@ from wagtail.core.models import Page, Site
 
 from contact.models import MeetingIndexPage, OrganizationIndexPage, PersonIndexPage
 from home.models import HomePage
-from community.models import CommunityPage
+from community.models import (
+    CommunityPage,
+    CommunityDirectoryIndexPage,
+    OnlineWorshipIndexPage,
+)
 from donations.models import DonatePage
 from events.models import EventsIndexPage
 from forms.models import ContactFormPage
@@ -15,6 +19,7 @@ from magazine.models import (
     MagazineTagIndexPage,
     DeepArchiveIndexPage,
 )
+from memorials.models import MemorialIndexPage
 from store.models import StoreIndexPage
 from subscription.models import (
     SubscriptionIndexPage,
@@ -79,11 +84,17 @@ class Command(BaseCommand):
         magazine_index_page.save()
 
         # Community section
+        community_directory_index_page = CommunityDirectoryIndexPage(title="Community directories")
         meeting_index_page = MeetingIndexPage(title="Meetings")
+        memorial_index_page = MemorialIndexPage(title="Memorials")
+        online_worship_index_page = OnlineWorshipIndexPage(title="Online meetings for worship")
         organization_index_page = OrganizationIndexPage(title="Organizations")
         person_index_page = PersonIndexPage(title="People")
 
+        community_page.add_child(instance=community_directory_index_page)
         community_page.add_child(instance=meeting_index_page)
+        community_page.add_child(instance=memorial_index_page)
+        community_page.add_child(instance=online_worship_index_page)
         community_page.add_child(instance=organization_index_page)
         community_page.add_child(instance=person_index_page)
         community_page.save()
