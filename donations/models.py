@@ -32,14 +32,7 @@ def process_donation_request(request, donation_form, donor_address_form):
     request.session["donation_id"] = donation.id
 
     # redirect for payment
-    return redirect(
-        reverse(
-            "payment:process", 
-            kwargs={
-                "previous_page": "donate",
-            }
-        )
-    )
+    return redirect(reverse("payment:process", kwargs={"previous_page": "donate",}))
 
 
 class SuggestedDonationAmountsBlock(StructBlock):
@@ -52,13 +45,11 @@ class DonatePage(Page):
     intro = RichTextField(blank=True)
     suggested_donation_amounts = StreamField(
         StreamBlock(
-            [
-                ('suggested_donation_amounts', SuggestedDonationAmountsBlock(max_num=1))
-            ],
+            [("suggested_donation_amounts", SuggestedDonationAmountsBlock(max_num=1))],
             max_num=1,
         ),
         null=True,
-        blank=True
+        blank=True,
     )
 
     max_count = 1
@@ -76,7 +67,9 @@ class DonatePage(Page):
 
         if request.method == "POST":
             if donation_form.is_valid():
-                return process_donation_request(request, donation_form, donor_address_form)
+                return process_donation_request(
+                    request, donation_form, donor_address_form
+                )
 
         # Send donor address form to client
         # Note, we manually create the donation form in the template
@@ -84,9 +77,7 @@ class DonatePage(Page):
         context["donor_address_form"] = donor_address_form
 
         return TemplateResponse(
-            request,
-            self.get_template(request, *args, **kwargs),
-            context
+            request, self.get_template(request, *args, **kwargs), context
         )
 
 
@@ -95,19 +86,26 @@ class DonorAddress(Address):
 
 
 class Donation(models.Model):
-
     class DonationRecurrenceChoices(models.TextChoices):
         ONCE = ("once", "Once")
         MONTHLY = ("monthly", "Monthly")
         YEARLY = ("yearly", "Yearly")
 
     amount = models.IntegerField()
-    recurrence = models.CharField(max_length=255, null=True, blank=True, choices=DonationRecurrenceChoices.choices, default=DonationRecurrenceChoices.ONCE)
+    recurrence = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        choices=DonationRecurrenceChoices.choices,
+        default=DonationRecurrenceChoices.ONCE,
+    )
     donor_given_name = models.CharField(max_length=255)
     donor_family_name = models.CharField(max_length=255)
     donor_organization = models.CharField(max_length=255, null=True, blank=True)
     donor_email = models.EmailField(help_text="Please enter your email")
-    donor_address = models.ForeignKey(to=DonorAddress, null=True, blank=True, on_delete=models.SET_NULL)
+    donor_address = models.ForeignKey(
+        to=DonorAddress, null=True, blank=True, on_delete=models.SET_NULL
+    )
     paid = models.BooleanField(default=False)
     braintree_transaction_id = models.CharField(max_length=255, null=True, blank=True)
     braintree_subscription_id = models.CharField(max_length=255, null=True, blank=True)
@@ -116,7 +114,7 @@ class Donation(models.Model):
     def get_total_cost(self):
         # Add get_total_cost method to conform to payment page
         return self.amount
-    
+
     def recurring(self):
         """
         Determine whether Donation is recurring.

@@ -11,7 +11,7 @@ from subscription.models import Subscription
 
 RECURRING_DONATION_PLAN_IDS = {
     "monthly": "monthly-recurring-donation",
-    "yearly": "yearly-recurring-donation"
+    "yearly": "yearly-recurring-donation",
 }
 
 MAGAZINE_SUBSCRIPTION_PLAN_ID = "magazine-subscription"
@@ -26,6 +26,7 @@ def get_braintree_gateway():
             private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
         )
     )
+
 
 def process_braintree_subscription(request, entity, nonce):
     gateway = get_braintree_gateway()
