@@ -4,7 +4,7 @@ from wagtail.core.models import Page
 
 
 class FacetIndexPage(Page):
-    parent_page_types = ["home.HomePage"]
+    parent_page_types = ["library.LibraryIndexPage"]
     subpage_types = [
         "AudienceIndexPage",
         "GenreIndexPage",
