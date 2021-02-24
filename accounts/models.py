@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 
@@ -21,14 +22,19 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-    
+
     def get_active_subscription(self):
         """
         Get subscription that isn't expired for this user.
         """
         today = datetime.datetime.today()
 
-        return self.subscriptions.get(end_date__gte=today)
+        try:
+            active_subscription = self.subscriptions.get(end_date__gte=today)
+        except ObjectDoesNotExist:
+            return None
+
+        return active_subscription
 
     @property
     def is_subscriber(self):
