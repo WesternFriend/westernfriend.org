@@ -207,6 +207,7 @@ class SubscriptionIndexPage(Page):
         FieldPanel("intro"),
     ]
 
+    parent_page_types = ["home.HomePage"]
     subpage_types = []
 
     max_count = 1
@@ -260,6 +261,7 @@ class ManageSubscriptionPage(Page):
         FieldPanel("intro"),
     ]
 
+    parent_page_types = ["home.HomePage"]
     subpage_types = []
 
     max_count = 1

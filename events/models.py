@@ -33,7 +33,7 @@ class Event(Page):
         index.SearchField("description", partial_match=True),
     ]
 
-    parent_page_types = ["EventsIndexPage"]
+    parent_page_types = ["events.EventsIndexPage"]
     subpage_types = []
 
     class Meta:
@@ -46,7 +46,8 @@ class EventsIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    subpage_types = ["Event"]
+    parent_page_types = ["home.HomePage"]
+    subpage_types = ["events.Event"]
 
     max_count = 1
 

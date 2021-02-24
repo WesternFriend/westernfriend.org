@@ -58,6 +58,9 @@ class DonatePage(Page):
         StreamFieldPanel("suggested_donation_amounts"),
     ]
 
+    parent_page_types = ["home.HomePage"]
+    subpage_types = []
+
     def serve(self, request, *args, **kwargs):
         # Avoid circular dependency
         from .forms import DonationForm, DonorAddressForm

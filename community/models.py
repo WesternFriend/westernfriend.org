@@ -44,12 +44,14 @@ class CommunityPage(Page):
 
     max_count = 1
 
+    parent_page_types = ["home.HomePage"]
     subpage_types = [
         "contact.MeetingIndexPage",
         "contact.OrganizationIndexPage",
         "contact.PersonIndexPage",
         "community.CommunityDirectoryIndexPage",
         "community.OnlineWorshipIndexPage",
+        "memorials.MemorialIndexPage",
     ]
 
 
@@ -83,6 +85,7 @@ class OnlineWorshipIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
+    parent_page_types = ["community.CommunityPage"]
     subpage_types = ["community.OnlineWorship"]
 
     max_count = 1
@@ -117,6 +120,7 @@ class CommunityDirectoryIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
+    parent_page_types = ["community.CommunityPage"]
     subpage_types = ["community.CommunityDirectory"]
 
     max_count = 1
