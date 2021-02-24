@@ -231,6 +231,7 @@ class Command(BaseCommand):
                         )
                         article.authors.add(article_author)
                     except:
+                        print("Could not create magazine article author.")
                         pass
 
             # Assign keywards to article
