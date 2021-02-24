@@ -1,9 +1,13 @@
 import csv
+from datetime import datetime
 import requests
 from io import BytesIO
 
+from tqdm import tqdm
+
 from django.core.files.images import ImageFile
 from django.core.management.base import BaseCommand, CommandError
+from django.utils.timezone import make_aware
 
 from wagtail.images.models import Image
 
@@ -22,8 +26,9 @@ class Command(BaseCommand):
 
         with open(options["file"]) as import_file:
             issues = csv.DictReader(import_file)
+            issues_list = list(issues)
 
-            for issue in issues:
+            for issue in tqdm(issues_list, desc="Issues imported:", unit="row"):
                 response = requests.get(issue["cover_image_url"])
                 image_file = BytesIO(response.content)
 
@@ -34,10 +39,17 @@ class Command(BaseCommand):
 
                 image.save()
 
+                publication_date_tz_aware = make_aware(
+                    datetime.strptime(
+                        issue["publication_date"],
+                        "%Y-%m-%d"
+                    )
+                )
+
                 import_issue = MagazineIssue(
                     title=issue["title"],
-                    publication_date=issue["publication_date"],
-                    first_published_at=issue["publication_date"],
+                    publication_date=publication_date_tz_aware,
+                    first_published_at=publication_date_tz_aware,
                     issue_number=issue["issue_number"],
                     cover_image=image,
                 )
