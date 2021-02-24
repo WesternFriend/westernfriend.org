@@ -110,10 +110,10 @@ def parse_article_body_blocks(body):
 def parse_article_media_blocks(media_urls):
     media_blocks = []
 
-    if media_urls is not np.nan:     
+    if media_urls is not np.nan:
         for url in media_urls.split(", "):
             response = requests.get(url)
-            content_type = response.headers['content-type']
+            content_type = response.headers["content-type"]
             file_name = url.split("/")[-1]
             file_bytes = BytesIO(response.content)
 
@@ -121,10 +121,7 @@ def parse_article_media_blocks(media_urls):
                 # Create file
                 document_file = File(file_bytes, name=file_name)
 
-                document = Document(
-                    title=file_name,
-                    file=document_file,
-                )
+                document = Document(title=file_name, file=document_file,)
 
                 document.save()
 
@@ -135,10 +132,7 @@ def parse_article_media_blocks(media_urls):
                 # create image
                 image_file = ImageFile(file_bytes, name=file_name)
 
-                image = Image(
-                    title=file_name,
-                    file=image_file,
-                )
+                image = Image(title=file_name, file=image_file,)
 
                 image.save()
 
