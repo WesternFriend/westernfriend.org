@@ -306,11 +306,19 @@ class MagazineArticle(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
+        # Check whether user is subscriber
+        # make sure they are authenticated first,
+        # to avoid checking for "is_subscriber" on anonymous user 
+        user_is_subscriber = (
+            request.user.is_authenticated
+            and request.user.is_subscriber
+        )
+
         # Subscribers and superusers can always view full articles
         # everyone can view public access articles
         # user can view full article if any of these conditions is True
         context["user_can_view_full_article"] = (
-            request.user.is_subscriber
+            user_is_subscriber
             or request.user.is_superuser
             or self.is_public_access
         )
