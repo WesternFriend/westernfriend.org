@@ -21,7 +21,10 @@ from magazine.models import (
     DeepArchiveIndexPage,
 )
 from memorials.models import MemorialIndexPage
-from store.models import StoreIndexPage
+from store.models import (
+    ProductIndexPage,
+    StoreIndexPage,
+)
 from subscription.models import (
     SubscriptionIndexPage,
     ManageSubscriptionPage,
@@ -104,5 +107,10 @@ class Command(BaseCommand):
         facet_index_page = FacetIndexPage(title="Facets")
 
         library_index_page.add_child(instance=facet_index_page)
+
+        # Bookstore section
+        product_index_page = ProductIndexPage(title="Products")
+
+        store_index_page.add_child(instance=product_index_page)
 
         self.stdout.write("All done!")
