@@ -1,6 +1,8 @@
 import csv
 from django.core.management.base import BaseCommand, CommandError
 
+from tqdm import tqdm
+
 from contact.models import (
     Meeting,
     MeetingIndexPage,
@@ -107,8 +109,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         with open(options["file"]) as import_file:
             authors = csv.DictReader(import_file)
+            authors_list = list(authors)
 
-            for author in authors:
+            for author in tqdm(authors_list, desc="Authors imported:", unit="row"):
                 # Check for entity type among:
                 # - Meeting
                 # - Organization

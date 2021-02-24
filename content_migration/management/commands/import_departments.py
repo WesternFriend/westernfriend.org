@@ -1,4 +1,7 @@
 import csv
+
+from tqdm import tqdm
+
 from django.core.management.base import BaseCommand, CommandError
 
 from magazine.models import MagazineDepartment, MagazineDepartmentIndexPage
@@ -16,8 +19,9 @@ class Command(BaseCommand):
 
         with open(options["file"]) as import_file:
             departments = csv.DictReader(import_file)
+            departments_list = list(departments)
 
-            for department in departments:
+            for department in tqdm(departments_list, desc="Departments imported:", unit="row"):
                 import_department = MagazineDepartment(
                     title=department["title"],
                 )
