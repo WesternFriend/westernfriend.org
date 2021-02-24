@@ -19,6 +19,7 @@ from wagtail.admin.edit_handlers import (
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page, Orderable
+from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
@@ -209,7 +210,9 @@ class MagazineArticle(Page):
     teaser = RichTextField(blank=True)
     body = StreamField(
         [
+            ("document", DocumentChooserBlock()),
             ("heading", blocks.CharBlock(classname="full title")),
+            ("image", ImageChooserBlock()),
             (
                 "paragraph",
                 blocks.RichTextBlock(
@@ -232,7 +235,6 @@ class MagazineArticle(Page):
                     ]
                 ),
             ),
-            ("image", ImageChooserBlock()),
             ("pullquote", blocks.BlockQuoteBlock()),
         ]
     )
