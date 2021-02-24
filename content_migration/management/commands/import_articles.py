@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 from bs4 import BeautifulSoup, Tag as BS4_Tag
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 from wagtail.core.rich_text import RichText
 
@@ -113,12 +114,14 @@ class Command(BaseCommand):
         articles = pd.read_csv(options["articles_file"])
         authors = pd.read_csv("../import_data/authors_cleaned_deduped-2020-04-12.csv")
 
-        for index, row in articles.iterrows():
+        for index, row in tqdm(articles.iterrows(), total=articles.shape[0], desc="Articles imported:", unit="row"):
 
             department = MagazineDepartment.objects.get(title=row["Department"])
 
             article_body_blocks = []
-            article_body_blocks = parse_article_body_blocks(row["Body"])
+
+            if not row["Body"] is np.nan:
+                article_body_blocks = parse_article_body_blocks(row["Body"])
 
             article = MagazineArticle(
                 title=row["title"],
@@ -139,42 +142,45 @@ class Command(BaseCommand):
             related_issue.add_child(instance=article)
 
             # Assign authors to article
-            for author in row["Authors"].split(", "):
-                authors_mask = authors["drupal_full_name"] == author
+            if not row["Authors"] is np.nan:
+                for author in row["Authors"].split(", "):
+                    authors_mask = authors["drupal_full_name"] == author
 
-                if authors_mask.sum() == 0:
-                    print("Author not found:", author)
-                if authors_mask.sum() > 1:
-                    print("Duplicate authors found:", author)
+                    if authors_mask.sum() == 0:
+                        print("Author not found:", author)
+                    if authors_mask.sum() > 1:
+                        print("Duplicate authors found:", author)
 
-                author_data = authors[authors_mask].iloc[0].to_dict()
-                drupal_full_name = author_data["drupal_full_name"]
+                    author_data = authors[authors_mask].iloc[0].to_dict()
+                    drupal_full_name = author_data["drupal_full_name"]
 
-                if author_data["organization_name"] is not np.nan:
-                    author = Organization.objects.get(
-                        drupal_full_name=drupal_full_name
-                    )
-                elif author_data["meeting_name"] is not np.nan:
-                    author = Meeting.objects.get(
-                        drupal_full_name=drupal_full_name
-                    )
-                else:
-                    try:
-                        author = Person.objects.get(
+                    if author_data["organization_name"] is not np.nan:
+                        author = Organization.objects.get(
                             drupal_full_name=drupal_full_name
                         )
-                    except:
-                        print("Cannot find person named:", f'"{ drupal_full_name }"')
+                    elif author_data["meeting_name"] is not np.nan:
+                        author = Meeting.objects.get(drupal_full_name=drupal_full_name)
+                    else:
+                        try:
+                            author = Person.objects.get(
+                                drupal_full_name=drupal_full_name
+                            )
+                        except:
+                            print(
+                                "Cannot find person named:", f'"{ drupal_full_name }"'
+                            )
 
-                try:
-                    article_author = MagazineArticleAuthor(article=article, author=author)
-                    article.authors.add(article_author)
-                except:
-                    pass
-            try:
+                    try:
+                        article_author = MagazineArticleAuthor(
+                            article=article, author=author
+                        )
+                        article.authors.add(article_author)
+                    except:
+                        pass
+
+            # Assign keywards to article
+            if not row["Keywords"] is np.nan:
                 for keyword in row["Keywords"].split(", "):
                     article.tags.add(keyword)
-            except:
-                print("could not split: '", row["Keywords"], "'")
 
             article.save()
