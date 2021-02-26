@@ -30,7 +30,7 @@ from flatpickr import DatePickerInput
 
 
 class LibraryItem(Page):
-    publication_date = models.DateField("Publication date")
+    publication_date = models.DateField("Publication date", null=True, blank=True)
     body = StreamField(
         [
             ("paragraph", blocks.RichTextBlock()),
@@ -39,27 +39,33 @@ class LibraryItem(Page):
             ("embed", EmbedBlock()),
             ("url", blocks.URLBlock()),
             ("quote", blocks.BlockQuoteBlock()),
-        ]
+        ],
+        null=True,
+        blank=True
     )
     item_audience = models.ForeignKey(
         "facets.Audience",
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        blank=True
     )
     item_genre = models.ForeignKey(
         "facets.Genre",
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        blank=True
     )
     item_medium = models.ForeignKey(
         "facets.Medium",
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        blank=True
     )
     item_time_period = models.ForeignKey(
         "facets.TimePeriod",
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        blank=True
     )
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
