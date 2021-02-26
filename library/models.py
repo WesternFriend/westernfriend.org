@@ -61,6 +61,7 @@ class LibraryItem(Page):
         on_delete=models.SET_NULL,
         null=True
     )
+    drupal_node_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
         InlinePanel(
