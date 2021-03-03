@@ -12,4 +12,5 @@ class LibraryItemModelAdmin(ModelAdmin):
     menu_label = "Media library"
     list_per_page = 10
     list_display = ("title", "item_audience", "item_genre", "item_medium", "item_time_period",)
+    list_filter = ("item_audience", "item_genre", "item_medium", "item_time_period",)
     search_fields = ("title")
