@@ -4,7 +4,16 @@ from django.core.management.base import BaseCommand, CommandError
 
 from tqdm import tqdm
 
-from library.models import LibraryIndexPage, LibraryItem
+from facets.models import (
+    Audience,
+    Genre,
+    Medium,
+    TimePeriod,
+    Topic,
+)
+from library.models import LibraryIndexPage, LibraryItem, LibraryItemTopic
+
+from .shared import parse_media_blocks
 
 
 class Command(BaseCommand):
@@ -33,8 +42,19 @@ class Command(BaseCommand):
                         drupal_node_id=library_item_dict["node_id"]
                     )
                 else:
-                    library_item = LibraryItem(title=library_item_dict["title"])
+                    library_item = LibraryItem(
+                        title=library_item_dict["title"],
+                        drupal_node_id=library_item_dict["node_id"]
+                    )
 
-                # Add library item to library
-                library_item_index_page.add_child(instance=library_item)
-                library_item_index_page.save()
+                library_item.item_audience = Audience.objects.get(title=library_item_dict["Audience"])
+                library_item.item_genre = Genre.objects.get(title=library_item_dict["Genre"])
+                library_item.item_medium = Medium.objects.get(title=library_item_dict["Medium"])
+                library_item.item_time_period = TimePeriod.objects.get(title=library_item_dict["Time Period"])
+
+                if not library_item_exists:
+                    # Add library item to library
+                    library_item_index_page.add_child(instance=library_item)
+                    library_item_index_page.save()
+                
+                library_item.save()
