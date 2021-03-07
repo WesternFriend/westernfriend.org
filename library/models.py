@@ -14,9 +14,7 @@ from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
 
-from modelcluster.fields import (
-    ParentalKey,
-)
+from modelcluster.fields import ParentalKey
 
 from facets.models import (
     Audience,
@@ -31,6 +29,7 @@ from flatpickr import DatePickerInput
 
 class LibraryItem(Page):
     publication_date = models.DateField("Publication date", null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     body = StreamField(
         [
             ("paragraph", blocks.RichTextBlock()),
@@ -41,31 +40,19 @@ class LibraryItem(Page):
             ("quote", blocks.BlockQuoteBlock()),
         ],
         null=True,
-        blank=True
+        blank=True,
     )
     item_audience = models.ForeignKey(
-        "facets.Audience",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
+        "facets.Audience", on_delete=models.SET_NULL, null=True, blank=True
     )
     item_genre = models.ForeignKey(
-        "facets.Genre",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
+        "facets.Genre", on_delete=models.SET_NULL, null=True, blank=True
     )
     item_medium = models.ForeignKey(
-        "facets.Medium",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
+        "facets.Medium", on_delete=models.SET_NULL, null=True, blank=True
     )
     item_time_period = models.ForeignKey(
-        "facets.TimePeriod",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
+        "facets.TimePeriod", on_delete=models.SET_NULL, null=True, blank=True
     )
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
@@ -83,10 +70,7 @@ class LibraryItem(Page):
                 FieldPanel("item_genre"),
                 FieldPanel("item_medium"),
                 FieldPanel("item_time_period"),
-                InlinePanel(
-                    "topics",
-                    label="topics"
-                )
+                InlinePanel("topics", label="topics"),
             ],
             heading="Categorization",
         ),
@@ -107,17 +91,12 @@ class LibraryItemAuthor(Orderable):
         "wagtailcore.Page",
         null=True,
         on_delete=models.CASCADE,
-        related_name="library_items_authored"
+        related_name="library_items_authored",
     )
 
     panels = [
         PageChooserPanel(
-            "author",
-            [
-                "contact.Person",
-                "contact.Meeting",
-                "contact.Organization",
-            ]
+            "author", ["contact.Person", "contact.Meeting", "contact.Organization",]
         )
     ]
 
@@ -133,13 +112,11 @@ class LibraryItemTopic(Orderable):
         "facets.Topic",
         null=True,
         on_delete=models.CASCADE,
-        related_name="related_library_items"
+        related_name="related_library_items",
     )
 
     panels = [
-        PageChooserPanel(
-            "topic",
-        ),
+        PageChooserPanel("topic",),
     ]
 
 
@@ -162,7 +139,8 @@ class LibraryIndexPage(Page):
         # Prepare a list of authors
         library_item_authors = LibraryItemAuthor.objects.all()
         authors = Page.objects.filter(
-            library_items_authored__in=library_item_authors).distinct()
+            library_items_authored__in=library_item_authors
+        ).distinct()
 
         # Populate faceted search fields
         context["audiences"] = Audience.objects.all()
