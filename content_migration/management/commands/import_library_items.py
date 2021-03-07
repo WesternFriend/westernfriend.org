@@ -49,6 +49,9 @@ class Command(BaseCommand):
 
                 library_item.title = import_library_item["title"]
                 library_item.description = import_library_item["Description"]
+
+                library_item.body = parse_media_blocks(import_library_item["Media"])
+
                 library_item.item_audience = Audience.objects.get(
                     title=import_library_item["Audience"]
                 )
