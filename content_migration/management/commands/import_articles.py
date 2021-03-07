@@ -1,20 +1,15 @@
-from io import BytesIO
 import re
 from typing import List
 
-from django.core.files import File
-from django.core.files.images import ImageFile
 from django.core.management.base import BaseCommand, CommandError
 
 from bs4 import BeautifulSoup, Tag as BS4_Tag
 import numpy as np
 import pandas as pd
-import requests
 from tqdm import tqdm
 
 from wagtail.core.rich_text import RichText
-from wagtail.documents.models import Document
-from wagtail.images.models import Image
+
 
 
 from magazine.models import (
@@ -26,6 +21,7 @@ from magazine.models import (
 
 from contact.models import Meeting, Organization, Person
 
+from .shared import parse_media_blocks
 
 def extract_pullquotes(item: str) -> List[str]:
     """
@@ -107,46 +103,6 @@ def parse_article_body_blocks(body):
     return article_body_blocks
 
 
-def parse_article_media_blocks(media_urls):
-    media_blocks = []
-
-    if media_urls is not np.nan:
-        for url in media_urls.split(", "):
-            response = requests.get(url)
-            content_type = response.headers["content-type"]
-            file_name = url.split("/")[-1]
-            file_bytes = BytesIO(response.content)
-
-            if content_type == "application/pdf":
-                # Create file
-                document_file = File(file_bytes, name=file_name)
-
-                document = Document(title=file_name, file=document_file,)
-
-                document.save()
-
-                document_link_block = ("document", document)
-
-                media_blocks.append(document_link_block)
-            elif content_type in ["image/jpeg", "image/png"]:
-                # create image
-                image_file = ImageFile(file_bytes, name=file_name)
-
-                image = Image(title=file_name, file=image_file,)
-
-                image.save()
-
-                image_block = ("image", image)
-
-                media_blocks.append(image_block)
-            else:
-                print(url)
-                print(content_type)
-                print("-----")
-
-    return media_blocks
-
-
 class Command(BaseCommand):
     help = "Import Articles from Drupal site while linking them to Authors, Issues, Deparments, and Keywords"
 
@@ -173,10 +129,11 @@ class Command(BaseCommand):
                 body_migrated = row["Body"]
 
             # Download and parse article media
-            media_blocks = parse_article_media_blocks(row["Media"])
+            if row["Media"] is not np.nan:
+                media_blocks = parse_media_blocks(row["Media"])
 
-            # Merge media blocks with article body blocks
-            article_body_blocks += media_blocks
+                # Merge media blocks with article body blocks
+                article_body_blocks += media_blocks
 
             article = MagazineArticle(
                 title=row["title"],
