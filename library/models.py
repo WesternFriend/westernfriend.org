@@ -29,7 +29,7 @@ from flatpickr import DatePickerInput
 
 class LibraryItem(Page):
     publication_date = models.DateField("Publication date", null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
+    description = RichTextField(null=True, blank=True)
     body = StreamField(
         [
             ("paragraph", blocks.RichTextBlock()),
@@ -57,6 +57,7 @@ class LibraryItem(Page):
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
+        FieldPanel("description"),
         InlinePanel(
             "authors",
             heading="Authors",
