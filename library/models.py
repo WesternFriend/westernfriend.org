@@ -14,7 +14,9 @@ from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
 
+from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
+from taggit.models import TaggedItemBase
 
 from facets.models import (
     Audience,
@@ -25,6 +27,12 @@ from facets.models import (
 )
 
 from flatpickr import DatePickerInput
+
+
+class LibraryItemTag(TaggedItemBase):
+    content_object = ParentalKey(
+        to="LibraryItem", related_name="tagged_items", on_delete=models.CASCADE
+    )
 
 
 class LibraryItem(Page):
@@ -54,6 +62,7 @@ class LibraryItem(Page):
     item_time_period = models.ForeignKey(
         "facets.TimePeriod", on_delete=models.SET_NULL, null=True, blank=True
     )
+    tags = ClusterTaggableManager(through=LibraryItemTag, blank=True)
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
