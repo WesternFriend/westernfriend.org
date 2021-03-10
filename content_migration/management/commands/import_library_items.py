@@ -57,22 +57,27 @@ class Command(BaseCommand):
 
                 # TODO: Remember to uncomment this line when done developing the remaining import script
                 # library_item.body = parse_media_blocks(import_library_item["Media"])
+                if import_library_item["Audience"] != "":
+                    library_item.item_audience = Audience.objects.get(
+                        title=import_library_item["Audience"]
+                    )
 
-                library_item.item_audience = Audience.objects.get(
-                    title=import_library_item["Audience"]
-                )
-                library_item.item_genre = Genre.objects.get(
-                    title=import_library_item["Genre"]
-                )
-                library_item.item_medium = Medium.objects.get(
-                    title=import_library_item["Medium"]
-                )
-                library_item.item_time_period = TimePeriod.objects.get(
-                    title=import_library_item["Time Period"]
-                )
+                if import_library_item["Genre"] != "":
+                    library_item.item_genre = Genre.objects.get(
+                        title=import_library_item["Genre"]
+                    )
+
+                if import_library_item["Medium"] != "":
+                    library_item.item_medium = Medium.objects.get(
+                        title=import_library_item["Medium"]
+                    )
+
+                if import_library_item["Time Period"] != "":
+                    library_item.item_time_period = TimePeriod.objects.get(
+                        title=import_library_item["Time Period"]
+                    )
 
                 # TODO: import the remaining fields
-                # - Website
                 # - Image
                 # - Authors
 
@@ -81,6 +86,15 @@ class Command(BaseCommand):
                     add_library_item_keywords(
                         library_item, import_library_item["Keywords"]
                     )
+
+                # Website
+                if import_library_item["Website"] != "":
+                    url_stream_block = (
+                        "url",
+                        import_library_item["Website"],
+                    )
+
+                    library_item.body.append(url_stream_block)
 
                 if not library_item_exists:
                     # Add library item to library
