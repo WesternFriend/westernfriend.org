@@ -81,6 +81,7 @@ class LibraryItem(Page):
                 FieldPanel("item_medium"),
                 FieldPanel("item_time_period"),
                 InlinePanel("topics", label="topics"),
+                FieldPanel("tags"),
             ],
             heading="Categorization",
         ),
