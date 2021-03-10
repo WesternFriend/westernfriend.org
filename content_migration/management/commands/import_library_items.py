@@ -96,6 +96,11 @@ class Command(BaseCommand):
 
                     library_item.body.append(url_stream_block)
 
+                if import_library_item["Media"] != "":
+                    media_items = parse_media_blocks(import_library_item["Media"])
+                    for media_item in media_items:
+                        library_item.body.append(media_item)
+
                 if not library_item_exists:
                     # Add library item to library
                     library_item_index_page.add_child(instance=library_item)
