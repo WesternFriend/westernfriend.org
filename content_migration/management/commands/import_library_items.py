@@ -16,6 +16,11 @@ from library.models import LibraryIndexPage, LibraryItem, LibraryItemTopic
 from .shared import parse_media_blocks
 
 
+def add_library_item_keywords(library_item, keywords):
+    for keyword in keywords.split(", "):
+        library_item.tags.add(keyword)
+
+
 class Command(BaseCommand):
     help = "Import all library items"
 
@@ -50,7 +55,8 @@ class Command(BaseCommand):
                 library_item.title = import_library_item["title"]
                 library_item.description = import_library_item["Description"]
 
-                library_item.body = parse_media_blocks(import_library_item["Media"])
+                # TODO: Remember to uncomment this line when done developing the remaining import script
+                # library_item.body = parse_media_blocks(import_library_item["Media"])
 
                 library_item.item_audience = Audience.objects.get(
                     title=import_library_item["Audience"]
@@ -64,6 +70,17 @@ class Command(BaseCommand):
                 library_item.item_time_period = TimePeriod.objects.get(
                     title=import_library_item["Time Period"]
                 )
+
+                # TODO: import the remaining fields
+                # - Website
+                # - Image
+                # - Authors
+
+                # - Keywords
+                if import_library_item["Keywords"] != "":
+                    add_library_item_keywords(
+                        library_item, import_library_item["Keywords"]
+                    )
 
                 if not library_item_exists:
                     # Add library item to library
