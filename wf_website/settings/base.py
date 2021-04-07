@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "subscription",
     "magazine",
     "streams",
+    "wf_pages",
     "wagtail.contrib.forms",
     "wagtail.contrib.modeladmin",
     "wagtail.contrib.redirects",
