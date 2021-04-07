@@ -31,6 +31,8 @@ class HomePage(Page):
         "store.StoreIndexPage",
         "subscription.ManageSubscriptionPage",
         "subscription.SubscriptionIndexPage",
+        "wf_pages.WfPage",
+        "wf_pages.WfPageCollectionIndexPage",
     ]
 
     max_count = 1
