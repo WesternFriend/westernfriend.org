@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    
+    {% if page.pages.count %}
+    <h2>Pages</h2>
+        <ul>
+            {% for page in collection.pages.all %}
+            <li>
+                <a href="{% pageurl page %}">
+                    {{ page }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock content %}
