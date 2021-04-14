@@ -77,9 +77,7 @@ class Command(BaseCommand):
                         title=import_library_item["Time Period"]
                     )
 
-                # TODO: import the remaining fields
-                # - Image
-                # - Authors
+                # TODO: import library item authors
 
                 # - Keywords
                 if import_library_item["Keywords"] != "":
