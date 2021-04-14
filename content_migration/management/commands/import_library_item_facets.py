@@ -45,6 +45,7 @@ facets = [
     },
 ]
 
+
 class Command(BaseCommand):
     help = "Import all library items"
 
@@ -54,10 +55,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         for facet in tqdm(
-                facets, 
-                desc="Library item facets",
-                unit="taxonomy"
-            ):
+            facets,
+            desc="Library item facets",
+            unit="taxonomy"
+        ):
             # Get the only index page instance for this facet
             facet_index_page = facet["index_page"].objects.get()
 
