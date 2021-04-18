@@ -17,10 +17,10 @@ def create_meeting(author):
     meeting_index_page = MeetingIndexPage.objects.get()
 
     meeting_name = author["meeting_name"]
-    drupal_full_name = author["drupal_full_name"]
+    drupal_term_id = author["drupal_term_id"]
 
     meeting_exists = Meeting.objects.filter(
-        drupal_full_name=drupal_full_name,
+        drupal_term_id=drupal_term_id,
     ).exists()
 
     # Don't create duplicate meetings
@@ -28,10 +28,10 @@ def create_meeting(author):
         try:
             meeting = Meeting(
                 title=meeting_name,
-                drupal_full_name=drupal_full_name,
+                drupal_term_id=drupal_term_id,
             )
         except:
-            print("Could not create meeting:", drupal_full_name)
+            print("Could not create meeting:", drupal_term_id)
 
         meeting_index_page.add_child(instance=meeting)
 
@@ -42,10 +42,10 @@ def create_organization(author):
     organization_index_page = OrganizationIndexPage.objects.get()
 
     organization_name = author["organization_name"]
-    drupal_full_name = author["drupal_full_name"]
+    drupal_term_id = author["drupal_term_id"]
 
     organization_exists = Organization.objects.filter(
-        drupal_full_name=drupal_full_name,
+        drupal_term_id=drupal_term_id,
     ).exists()
 
     # Avoid duplicates
@@ -53,10 +53,10 @@ def create_organization(author):
         try:
             organization = Organization(
                 title=organization_name,
-                drupal_full_name=drupal_full_name,
+                drupal_term_id=drupal_term_id,
             )
         except:
-            print("Could not create organization:", drupal_full_name)
+            print("Could not create organization:", drupal_term_id)
 
         organization_index_page.add_child(instance=organization)
 
@@ -66,22 +66,22 @@ def create_organization(author):
 def create_person(author):
     person_index_page = PersonIndexPage.objects.get()
 
-    drupal_full_name = author["drupal_full_name"]
+    drupal_term_id = author["drupal_term_id"]
 
     author_name_corrected = (
-        author["corrected_family_name"] != ""
-        or author["corrected_given_name"] != ""
+        author["family_name"] != ""
+        or author["given_name"] != ""
     )
 
     if author_name_corrected:
-        given_name = author["corrected_given_name"]
-        family_name = author["corrected_family_name"]
+        given_name = author["given_name"]
+        family_name = author["family_name"]
     else:
         given_name = author["given_name"]
         family_name = author["family_name"]
 
     person_exists = Person.objects.filter(
-        drupal_full_name=drupal_full_name,
+        drupal_term_id=drupal_term_id,
     ).exists()
 
     # Avoid duplicates
@@ -90,10 +90,10 @@ def create_person(author):
             person = Person(
                 given_name=given_name,
                 family_name=family_name,
-                drupal_full_name=drupal_full_name
+                drupal_term_id=drupal_term_id
             )
         except:
-            print("Could not create person: ", drupal_full_name)
+            print("Could not create person: ", drupal_term_id)
 
         person_index_page.add_child(instance=person)
 
@@ -118,7 +118,7 @@ class Command(BaseCommand):
                 # - Person
                 # with the condition to check for corrections to person names
 
-                drupal_full_name = author["drupal_full_name"]
+                drupal_term_id = author["drupal_term_id"]
 
                 author_is_meeting = author["meeting_name"] != ""
                 author_is_organization = author["organization_name"] != ""
@@ -127,13 +127,19 @@ class Command(BaseCommand):
                     and author_is_organization is False
                 )
 
-                if author_is_meeting:
-                    create_meeting(author)
-                elif author_is_organization:
-                    create_organization(author)
-                elif author_is_person:
-                    create_person(author)
+                author_is_duplicate = author["duplicate of ID"] != ""
+
+                if author_is_duplicate:
+                    # don't create duplicate authors
+                    pass
                 else:
-                    print("Unknown:", drupal_full_name)
+                    if author_is_meeting:
+                        create_meeting(author)
+                    elif author_is_organization:
+                        create_organization(author)
+                    elif author_is_person:
+                        create_person(author)
+                    else:
+                        print("Unknown:", drupal_term_id)
 
         self.stdout.write("All done!")
