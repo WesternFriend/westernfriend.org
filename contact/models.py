@@ -40,6 +40,7 @@ class Person(Page):
     drupal_full_name = models.CharField(
         max_length=255, db_index=True, null=True, blank=True, unique=True
     )
+    drupal_term_id = models.IntegerField(null=True, blank=True)
     civicrm_id = models.IntegerField(null=True, blank=True)
 
     content_panels = [
@@ -106,6 +107,7 @@ class Meeting(Page):
     drupal_full_name = models.CharField(
         max_length=255, db_index=True, null=True, blank=True, unique=True
     )
+    drupal_term_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
@@ -192,6 +194,7 @@ class Organization(Page):
     drupal_full_name = models.CharField(
         max_length=255, db_index=True, null=True, blank=True, unique=True
     )
+    drupal_term_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
