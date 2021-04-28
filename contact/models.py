@@ -41,6 +41,7 @@ class Person(Page):
         max_length=255, db_index=True, null=True, blank=True, unique=True
     )
     drupal_author_id = models.IntegerField(null=True, blank=True)
+    drupal_library_author_id = models.IntegerField(null=True, blank=True)
     civicrm_id = models.IntegerField(null=True, blank=True)
 
     content_panels = [
@@ -108,6 +109,7 @@ class Meeting(Page):
         max_length=255, db_index=True, null=True, blank=True, unique=True
     )
     drupal_author_id = models.IntegerField(null=True, blank=True)
+    drupal_library_author_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
@@ -195,6 +197,7 @@ class Organization(Page):
         max_length=255, db_index=True, null=True, blank=True, unique=True
     )
     drupal_author_id = models.IntegerField(null=True, blank=True)
+    drupal_library_author_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
