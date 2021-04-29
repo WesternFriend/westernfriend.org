@@ -11,7 +11,6 @@ from tqdm import tqdm
 from wagtail.core.rich_text import RichText
 
 
-
 from magazine.models import (
     MagazineArticle,
     MagazineArticleAuthor,
@@ -22,6 +21,7 @@ from magazine.models import (
 from contact.models import Meeting, Organization, Person
 
 from .shared import parse_media_blocks
+
 
 def extract_pullquotes(item: str) -> List[str]:
     """
@@ -156,7 +156,7 @@ class Command(BaseCommand):
             # Assign authors to article
             if not row["Authors"] is np.nan:
                 for author in row["Authors"].split(", "):
-                    authors_mask = authors["drupal_full_name"] == author
+                    authors_mask = authors["drupal_author_id"] == author["drupal_author_id"]
 
                     if authors_mask.sum() == 0:
                         print("Author not found:", author)
@@ -164,22 +164,22 @@ class Command(BaseCommand):
                         print("Duplicate authors found:", author)
 
                     author_data = authors[authors_mask].iloc[0].to_dict()
-                    drupal_full_name = author_data["drupal_full_name"]
+                    drupal_author_id = author_data["drupal_author_id"]
 
                     if author_data["organization_name"] is not np.nan:
                         author = Organization.objects.get(
-                            drupal_full_name=drupal_full_name
+                            drupal_author_id=drupal_author_id
                         )
                     elif author_data["meeting_name"] is not np.nan:
-                        author = Meeting.objects.get(drupal_full_name=drupal_full_name)
+                        author = Meeting.objects.get(drupal_author_id=drupal_author_id)
                     else:
                         try:
                             author = Person.objects.get(
-                                drupal_full_name=drupal_full_name
+                                drupal_author_id=drupal_author_id
                             )
                         except:
                             print(
-                                "Cannot find person named:", f'"{ drupal_full_name }"'
+                                "Cannot find person named:", f'"{ drupal_author_id }"'
                             )
 
                     try:
