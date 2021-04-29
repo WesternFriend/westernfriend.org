@@ -47,20 +47,20 @@ class Command(BaseCommand):
                     if authors_list is not None:
 
                         for author in authors_list:
-                            authors_mask = authors["drupal_full_name"] == author
+                            authors_mask = authors["drupal_author_id"] == author["drupal_author_id"]
                             author_data = authors[authors_mask].iloc[0].to_dict()
 
                             if author_data["organization_name"] is not np.nan:
                                 author = Organization.objects.get(
-                                    drupal_full_name=author_data["drupal_full_name"]
+                                    drupal_author_id=author_data["drupal_author_id"]
                                 )
                             elif author_data["meeting_name"] is not np.nan:
                                 author = Meeting.objects.get(
-                                    drupal_full_name=author_data["drupal_full_name"]
+                                    drupal_author_id=author_data["drupal_author_id"]
                                 )
                             else:
                                 author = Person.objects.get(
-                                    drupal_full_name=author_data["drupal_full_name"]
+                                    drupal_author_id=author_data["drupal_author_id"]
                                 )
 
                             article_authors.append(author)
