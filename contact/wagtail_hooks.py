@@ -18,7 +18,7 @@ class PersonModelAdmin(ModelAdmin):
     menu_label = "People"
     list_per_page = 10
     ordering = ["family_name", "given_name"]
-    list_display = ("family_name", "given_name", "drupal_full_name")
+    list_display = ("family_name", "given_name", "drupal_author_id", "drupal_library_author_id")
     empty_value_display = "-"
     search_fields = ("given_name", "family_name")
 
