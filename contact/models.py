@@ -37,9 +37,6 @@ class Person(Page):
     )
 
     family_name = models.CharField(max_length=255, blank=True, default="")
-    drupal_full_name = models.CharField(
-        max_length=255, db_index=True, null=True, blank=True, unique=True
-    )
     drupal_author_id = models.IntegerField(null=True, blank=True)
     drupal_library_author_id = models.IntegerField(null=True, blank=True)
     civicrm_id = models.IntegerField(null=True, blank=True)
@@ -105,9 +102,6 @@ class Meeting(Page):
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=64, null=True, blank=True)
     civicrm_id = models.IntegerField(null=True, blank=True)
-    drupal_full_name = models.CharField(
-        max_length=255, db_index=True, null=True, blank=True, unique=True
-    )
     drupal_author_id = models.IntegerField(null=True, blank=True)
     drupal_library_author_id = models.IntegerField(null=True, blank=True)
 
@@ -193,9 +187,6 @@ class Organization(Page):
 
     website = models.URLField(null=True, blank=True)
     civicrm_id = models.IntegerField(null=True, blank=True)
-    drupal_full_name = models.CharField(
-        max_length=255, db_index=True, null=True, blank=True, unique=True
-    )
     drupal_author_id = models.IntegerField(null=True, blank=True)
     drupal_library_author_id = models.IntegerField(null=True, blank=True)
 
