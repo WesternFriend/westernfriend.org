@@ -51,6 +51,7 @@ class Person(Page):
     class Meta:
         db_table = "person"
         ordering = ["title"]
+        verbose_name_plural = "people"
 
     def save(self, *args, **kwargs):
         full_name = f"{self.given_name} {self.family_name}"
