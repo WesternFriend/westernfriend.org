@@ -1,4 +1,5 @@
 import csv
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 
 from tqdm import tqdm
@@ -29,7 +30,7 @@ def create_meeting(author):
     if drupal_author_id != "":
         try:
             meeting = Meeting.objects.get(drupal_author_id=drupal_author_id)
-        except:
+        except ObjectDoesNotExist:
             print(f"Could not find record for { meeting_name } ({ drupal_author_id })")
 
         meeting.drupal_library_author_id = drupal_library_author_id
@@ -39,13 +40,10 @@ def create_meeting(author):
         # Do nothing, since we have already imported this record
         pass
     else:
-        try:
-            meeting = Meeting(
-                title=meeting_name,
-                drupal_library_author_id=drupal_library_author_id,
-            )
-        except:
-            print("Could not create meeting:", drupal_library_author_id)
+        meeting = Meeting(
+            title=meeting_name,
+            drupal_library_author_id=drupal_library_author_id,
+        )
 
         meeting_index_page.add_child(instance=meeting)
 
@@ -68,7 +66,7 @@ def create_organization(author):
     if drupal_author_id != "":
         try:
             organization = Organization.objects.get(drupal_author_id=drupal_author_id)
-        except:
+        except ObjectDoesNotExist:
             print(f"Could not find organization { organization_name  }  ({ drupal_author_id })")
 
         organization.drupal_library_author_id = drupal_library_author_id
@@ -78,13 +76,10 @@ def create_organization(author):
         # Do nothing, since we have already imported this record
         pass
     else:
-        try:
-            organization = Organization(
-                title=organization_name,
-                drupal_library_author_id=drupal_library_author_id,
-            )
-        except:
-            print("Could not create organization:", drupal_library_author_id)
+        organization = Organization(
+            title=organization_name,
+            drupal_library_author_id=drupal_library_author_id,
+        )
 
         organization_index_page.add_child(instance=organization)
 
@@ -108,7 +103,7 @@ def create_person(author):
         # Add library item author ID to magazine author
         try:
             person = Person.objects.get(drupal_author_id=drupal_author_id)
-        except:
+        except ObjectDoesNotExist:
             print(f"Could not find person { given_name  } { family_name } ({ drupal_author_id })")
 
         person.drupal_library_author_id = drupal_library_author_id
@@ -118,14 +113,11 @@ def create_person(author):
         # Don't import existing library item author
         pass
     else:
-        try:
-            person = Person(
-                given_name=given_name,
-                family_name=family_name,
-                drupal_library_author_id=drupal_library_author_id
-            )
-        except:
-            print("Could not create person: ", drupal_library_author_id)
+        person = Person(
+            given_name=given_name,
+            family_name=family_name,
+            drupal_library_author_id=drupal_library_author_id
+        )
 
         person_index_page.add_child(instance=person)
 
