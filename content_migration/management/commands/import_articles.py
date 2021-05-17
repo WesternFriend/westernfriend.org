@@ -112,12 +112,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         articles = pd.read_csv(options["articles_file"])
-        authors = pd.read_csv("../import_data/authors_cleaned_deduped-2020-04-12.csv")
+        authors = pd.read_csv("../import_data/article_authors-2021-04-14-joined-authors_cleaned-deduped.csv")
 
         for index, row in tqdm(
             articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"
         ):
-            media_blocks = parse_article_media_blocks(row["Media"])
 
             department = MagazineDepartment.objects.get(title=row["Department"])
 
@@ -155,8 +154,8 @@ class Command(BaseCommand):
 
             # Assign authors to article
             if not row["Authors"] is np.nan:
-                for author in row["Authors"].split(", "):
-                    authors_mask = authors["drupal_author_id"] == author["drupal_author_id"]
+                for drupal_author_id in row["Authors"].split(", "):
+                    authors_mask = authors["drupal_author_id"] == drupal_author_id
 
                     if authors_mask.sum() == 0:
                         print("Author not found:", author)
@@ -164,7 +163,6 @@ class Command(BaseCommand):
                         print("Duplicate authors found:", author)
 
                     author_data = authors[authors_mask].iloc[0].to_dict()
-                    drupal_author_id = author_data["drupal_author_id"]
 
                     if author_data["organization_name"] is not np.nan:
                         author = Organization.objects.get(
@@ -179,13 +177,15 @@ class Command(BaseCommand):
                             )
                         except:
                             print(
-                                "Cannot find person named:", f'"{ drupal_author_id }"'
+                                "Cannot find person with ID:", f'"{ drupal_author_id }"'
                             )
 
                     try:
                         article_author = MagazineArticleAuthor(
-                            article=article, author=author
+                            article=article,
+                            author=author,
                         )
+
                         article.authors.add(article_author)
                     except:
                         print("Could not create magazine article author.")
