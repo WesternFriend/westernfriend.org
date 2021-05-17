@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+import html
 from io import BytesIO
 
 import requests
@@ -29,33 +30,43 @@ class Command(BaseCommand):
             issues_list = list(issues)
 
             for issue in tqdm(issues_list, desc="Issues", unit="row"):
-                response = requests.get(issue["cover_image_url"])
-                image_file = BytesIO(response.content)
 
-                image = Image(
-                    title=issue["title"] + " cover image",
-                    file=ImageFile(image_file, name=issue["cover_image_file_name"]),
-                )
-
-                image.save()
-
-                publication_date_tz_aware = make_aware(
-                    datetime.strptime(
-                        issue["publication_date"],
-                        "%Y-%m-%d"
-                    )
-                )
-
-                import_issue = MagazineIssue(
+                issue_exists = MagazineIssue.objects.filter(
                     title=issue["title"],
-                    publication_date=publication_date_tz_aware,
-                    first_published_at=publication_date_tz_aware,
-                    issue_number=issue["issue_number"],
-                    cover_image=image,
-                )
+                ).exists()
 
-                # Add issue to site page hiererchy
-                magazine_index_page.add_child(instance=import_issue)
-                magazine_index_page.save()
+                # Avoid importing duplicate issues
+                # Consider whether we want to update
+                # existing issues
+                if not issue_exists:
+                    cover_image_file_name = html.unescape(issue["cover_image_url"].split("/")[-1])
+                    response = requests.get(issue["cover_image_url"])
+                    image_file = BytesIO(response.content)
+
+                    image = Image(
+                        title=issue["title"] + " cover image",
+                        file=ImageFile(image_file, name=cover_image_file_name),
+                    )
+
+                    image.save()
+
+                    publication_date_tz_aware = make_aware(
+                        datetime.strptime(
+                            issue["publication_date"],
+                            "%Y-%m"
+                        )
+                    )
+
+                    import_issue = MagazineIssue(
+                        title=issue["title"],
+                        publication_date=publication_date_tz_aware,
+                        first_published_at=publication_date_tz_aware,
+                        issue_number=issue["issue_number"],
+                        cover_image=image,
+                    )
+
+                    # Add issue to site page hiererchy
+                    magazine_index_page.add_child(instance=import_issue)
+                    magazine_index_page.save()
 
         self.stdout.write("All done!")
