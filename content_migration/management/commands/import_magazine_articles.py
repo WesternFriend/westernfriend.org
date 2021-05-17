@@ -111,7 +111,7 @@ class Command(BaseCommand):
         # parser.add_argument("--authors_file", action="store", type=str)
 
     def handle(self, *args, **options):
-        articles = pd.read_csv(options["articles_file"])
+        articles = pd.read_csv(options["articles_file"], dtype={"Authors": str})
         authors = pd.read_csv("../import_data/magazine_authors-2021-04-14-joined-authors_cleaned-deduped.csv")
 
         for index, row in tqdm(
@@ -155,12 +155,12 @@ class Command(BaseCommand):
             # Assign authors to article
             if not row["Authors"] is np.nan:
                 for drupal_author_id in row["Authors"].split(", "):
-                    authors_mask = authors["drupal_author_id"] == drupal_author_id
+                    authors_mask = authors["drupal_author_id"] == int(drupal_author_id)
 
                     if authors_mask.sum() == 0:
-                        print("Author not found:", author)
+                        print("Author not found:", drupal_author_id)
                     if authors_mask.sum() > 1:
-                        print("Duplicate authors found:", author)
+                        print("Duplicate authors found:", drupal_author_id)
 
                     author_data = authors[authors_mask].iloc[0].to_dict()
 
