@@ -112,7 +112,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         articles = pd.read_csv(options["articles_file"])
-        authors = pd.read_csv("../import_data/article_authors-2021-04-14-joined-authors_cleaned-deduped.csv")
+        authors = pd.read_csv("../import_data/magazine_authors-2021-04-14-joined-authors_cleaned-deduped.csv")
 
         for index, row in tqdm(
             articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"
