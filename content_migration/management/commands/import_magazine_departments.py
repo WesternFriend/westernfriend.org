@@ -22,12 +22,17 @@ class Command(BaseCommand):
             departments_list = list(departments)
 
             for department in tqdm(departments_list, desc="Departments", unit="row"):
-                import_department = MagazineDepartment(
+                department_exists = MagazineDepartment.objects.filter(
                     title=department["title"],
-                )
+                ).exists()
 
-                # Add department to site page hiererchy
-                magazine_department_index_page.add_child(instance=import_department)
-                magazine_department_index_page.save()
+                if not department_exists:
+                    import_department = MagazineDepartment(
+                        title=department["title"],
+                    )
+
+                    # Add department to site page hiererchy
+                    magazine_department_index_page.add_child(instance=import_department)
+                    magazine_department_index_page.save()
 
         self.stdout.write("All done!")
