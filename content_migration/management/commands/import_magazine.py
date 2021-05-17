@@ -12,7 +12,7 @@ class Command(BaseCommand):
         directory = options["data_directory"]
 
         magazine_departments_filename = "departments.csv"
-        magazine_magazine_authors_filename = "authors.csv"
+        magazine_authors_filename = "authors.csv"
         magazine_issues_filename = "issues.csv"
         magazine_articles_filename = "articles.csv"
 
