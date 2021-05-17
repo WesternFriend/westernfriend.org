@@ -1,3 +1,4 @@
+import html
 from io import BytesIO
 from urllib.parse import urlparse
 
@@ -26,7 +27,7 @@ def parse_media_blocks(media_urls):
             # The default should be to fetch a PDF or image file (i.e. from westernfriend.org)
             response = requests.get(url)
             content_type = response.headers["content-type"]
-            file_name = url.split("/")[-1]
+            file_name = html.unescape(url.split("/")[-1])
             file_bytes = BytesIO(response.content)
 
             if content_type == "application/pdf":
