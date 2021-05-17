@@ -103,45 +103,64 @@ def parse_article_body_blocks(body):
     return article_body_blocks
 
 
-def parse_article_authors(article, article_authors, magazine_authors):
-    for drupal_author_id in article_authors.split(", "):
-        authors_mask = magazine_authors["drupal_author_id"] == int(drupal_author_id)
+def get_existing_magazine_author_by_id(drupal_author_id, magazine_authors):
+    """
+    Get an author and check if it is duplicate. Return existing author
+    """
+    authors_mask = magazine_authors["drupal_author_id"] == drupal_author_id
 
-        if authors_mask.sum() == 0:
-            print("Author not found:", drupal_author_id)
-        if authors_mask.sum() > 1:
-            print("Duplicate authors found:", drupal_author_id)
+    if authors_mask.sum() == 0:
+        print("Author not found:", drupal_author_id)
+    if authors_mask.sum() > 1:
+        print("Duplicate authors found:", drupal_author_id)
 
+    try:
         author_data = magazine_authors[authors_mask].iloc[0].to_dict()
+    except IndexError:
+        print("Index error")
 
-        if author_data["organization_name"] is not np.nan:
+    # Get existing author, if this author is a duplicate
+    if not np.isnan(author_data["duplicate of ID"]):
+        author_data = get_existing_magazine_author_by_id(author_data["duplicate of ID"], magazine_authors)
+
+    return author_data
+
+
+def parse_article_authors(article, article_authors, magazine_authors):
+
+    for drupal_author_id in article_authors.split(", "):
+        drupal_author_id = int(drupal_author_id)
+
+        author_data = get_existing_magazine_author_by_id(drupal_author_id, magazine_authors)
+
+        if not np.isnan(author_data["organization_name"]):
             author = Organization.objects.get(
-                drupal_author_id=drupal_author_id
+                drupal_author_id=author_data["drupal_author_id"]
             )
-        elif author_data["meeting_name"] is not np.nan:
-            author = Meeting.objects.get(drupal_author_id=drupal_author_id)
+        elif not np.isnan(author_data["meeting_name"]):
+            author = Meeting.objects.get(drupal_author_id=author_data["drupal_author_id"])
         else:
             try:
                 author = Person.objects.get(
-                    drupal_author_id=drupal_author_id
+                    drupal_author_id=author_data["drupal_author_id"]
                 )
             except:
                 print(
-                    "Cannot find person with ID:", f'"{ drupal_author_id }"'
+                    "Cannot find person with ID:", f'"{ author_data["drupal_author_id"] }"'
                 )
 
-        try:
-            article_author = MagazineArticleAuthor(
-                article=article,
-                author=author,
-            )
+    try:
+        article_author = MagazineArticleAuthor(
+            article=article,
+            author=author,
+        )
 
-            article.authors.add(article_author)
-        except:
-            print("Could not create magazine article author.")
-            pass
+        article.authors.add(article_author)
+    except:
+        print("Could not create magazine article author.")
+        pass
 
-        return article
+    return article
 
 
 def assign_article_to_issue(article, issue_title):
@@ -175,12 +194,12 @@ class Command(BaseCommand):
             article_body_blocks = []
             body_migrated = None
 
-            if row["Body"] is not np.nan:
+            if not np.isnan(row["Body"]):
                 article_body_blocks = parse_article_body_blocks(row["Body"])
                 body_migrated = row["Body"]
 
             # Download and parse article media
-            if row["Media"] is not np.nan:
+            if not np.isnan(row["Media"]):
                 media_blocks = parse_media_blocks(row["Media"])
 
                 # Merge media blocks with article body blocks
@@ -197,11 +216,11 @@ class Command(BaseCommand):
             assign_article_to_issue(article, row["related_issue_title"])
 
             # Assign authors to article
-            if not row["Authors"] is np.nan:
+            if not np.isnan(row["Authors"]):
                 article = parse_article_authors(article, row["Authors"], magazine_authors)
 
             # Assign keywards to article
-            if not row["Keywords"] is np.nan:
+            if not np.isnan(row["Keywords"]):
                 for keyword in row["Keywords"].split(", "):
                     article.tags.add(keyword)
 
