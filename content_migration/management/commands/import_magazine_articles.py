@@ -103,6 +103,58 @@ def parse_article_body_blocks(body):
     return article_body_blocks
 
 
+def parse_article_authors(article, article_authors, magazine_authors):
+    for drupal_author_id in article_authors.split(", "):
+        authors_mask = magazine_authors["drupal_author_id"] == int(drupal_author_id)
+
+        if authors_mask.sum() == 0:
+            print("Author not found:", drupal_author_id)
+        if authors_mask.sum() > 1:
+            print("Duplicate authors found:", drupal_author_id)
+
+        author_data = magazine_authors[authors_mask].iloc[0].to_dict()
+
+        if author_data["organization_name"] is not np.nan:
+            author = Organization.objects.get(
+                drupal_author_id=drupal_author_id
+            )
+        elif author_data["meeting_name"] is not np.nan:
+            author = Meeting.objects.get(drupal_author_id=drupal_author_id)
+        else:
+            try:
+                author = Person.objects.get(
+                    drupal_author_id=drupal_author_id
+                )
+            except:
+                print(
+                    "Cannot find person with ID:", f'"{ drupal_author_id }"'
+                )
+
+        try:
+            article_author = MagazineArticleAuthor(
+                article=article,
+                author=author,
+            )
+
+            article.authors.add(article_author)
+        except:
+            print("Could not create magazine article author.")
+            pass
+
+        return article
+
+
+def assign_article_to_issue(article, issue_title):
+    try:
+        related_issue = MagazineIssue.objects.get(
+            title=issue_title
+        )
+    except:
+        print("Can't find issue: ", issue_title)
+
+    related_issue.add_child(instance=article)
+
+
 class Command(BaseCommand):
     help = "Import Articles from Drupal site while linking them to Authors, Issues, Deparments, and Keywords"
 
@@ -112,7 +164,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         articles = pd.read_csv(options["articles_file"], dtype={"Authors": str})
-        authors = pd.read_csv("../import_data/magazine_authors-2021-04-14-joined-authors_cleaned-deduped.csv")
+        magazine_authors = pd.read_csv("../import_data/magazine_authors-2021-04-14-joined-authors_cleaned-deduped.csv")
 
         for index, row in tqdm(
             articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"
@@ -142,54 +194,11 @@ class Command(BaseCommand):
             )
 
             # Assign article to issue
-            try:
-                related_issue = MagazineIssue.objects.get(
-                    title=row["related_issue_title"]
-                )
-            except:
-                print("Can't find issue: ", row["related_issue_title"])
-                print(row)
-
-            related_issue.add_child(instance=article)
+            assign_article_to_issue(article, row["related_issue_title"])
 
             # Assign authors to article
             if not row["Authors"] is np.nan:
-                for drupal_author_id in row["Authors"].split(", "):
-                    authors_mask = authors["drupal_author_id"] == int(drupal_author_id)
-
-                    if authors_mask.sum() == 0:
-                        print("Author not found:", drupal_author_id)
-                    if authors_mask.sum() > 1:
-                        print("Duplicate authors found:", drupal_author_id)
-
-                    author_data = authors[authors_mask].iloc[0].to_dict()
-
-                    if author_data["organization_name"] is not np.nan:
-                        author = Organization.objects.get(
-                            drupal_author_id=drupal_author_id
-                        )
-                    elif author_data["meeting_name"] is not np.nan:
-                        author = Meeting.objects.get(drupal_author_id=drupal_author_id)
-                    else:
-                        try:
-                            author = Person.objects.get(
-                                drupal_author_id=drupal_author_id
-                            )
-                        except:
-                            print(
-                                "Cannot find person with ID:", f'"{ drupal_author_id }"'
-                            )
-
-                    try:
-                        article_author = MagazineArticleAuthor(
-                            article=article,
-                            author=author,
-                        )
-
-                        article.authors.add(article_author)
-                    except:
-                        print("Could not create magazine article author.")
-                        pass
+                article = parse_article_authors(article, row["Authors"], magazine_authors)
 
             # Assign keywards to article
             if not row["Keywords"] is np.nan:
