@@ -1,3 +1,4 @@
+from content_migration.management.commands.shared import get_contact_from_author_data
 import math
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -12,6 +13,19 @@ from wagtail.core.blocks import ListBlock, PageChooserBlock
 from contact.models import Meeting, Organization, Person
 from magazine.models import ArchiveIssue
 from magazine.blocks import ArchiveArticleBlock
+
+
+def get_contact_from_drupal_author_id(drupal_author_id):
+    if Meeting.objects.filter(drupal_author_id=drupal_author_id).exists():
+        contact = Meeting.objects.get(drupal_author_id=drupal_author_id)
+    elif Organization.objects.filter(drupal_author_id=drupal_author_id).exists():
+        contact = Organization.objects.get(drupal_author_id=drupal_author_id)
+    elif Person.objects.filter(drupal_author_id=drupal_author_id).exists():
+        contact = Person.objects.get(drupal_author_id=drupal_author_id)
+    else:
+        raise ObjectDoesNotExist()
+
+    return contact
 
 
 class Command(BaseCommand):
@@ -45,23 +59,8 @@ class Command(BaseCommand):
                     authors_list = str(article["authors"]).split(", ")
 
                     if authors_list is not None:
-
-                        for author in authors_list:
-                            authors_mask = authors["drupal_author_id"] == author["drupal_author_id"]
-                            author_data = authors[authors_mask].iloc[0].to_dict()
-
-                            if author_data["organization_name"] is not np.nan:
-                                author = Organization.objects.get(
-                                    drupal_author_id=author_data["drupal_author_id"]
-                                )
-                            elif author_data["meeting_name"] is not np.nan:
-                                author = Meeting.objects.get(
-                                    drupal_author_id=author_data["drupal_author_id"]
-                                )
-                            else:
-                                author = Person.objects.get(
-                                    drupal_author_id=author_data["drupal_author_id"]
-                                )
+                        for drupal_author_id in authors_list:
+                            author = get_contact_from_drupal_author_id(drupal_author_id)
 
                             article_authors.append(author)
 
