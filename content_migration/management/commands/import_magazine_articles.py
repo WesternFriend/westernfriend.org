@@ -20,8 +20,6 @@ from magazine.models import (
 
 from contact.models import Meeting, Organization, Person
 
-from .shared import parse_media_blocks
-
 
 def extract_pullquotes(item: str) -> List[str]:
     """
@@ -126,6 +124,26 @@ def get_existing_magazine_author_by_id(drupal_author_id, magazine_authors):
     return author_data
 
 
+def get_contact_from_author_data(author_data):
+    if not np.isnan(author_data["organization_name"]):
+        contact = Organization.objects.get(
+            drupal_author_id=author_data["drupal_author_id"]
+        )
+    elif not np.isnan(author_data["meeting_name"]):
+        contact = Meeting.objects.get(drupal_author_id=author_data["drupal_author_id"])
+    else:
+        try:
+            contact = Person.objects.get(
+                drupal_author_id=author_data["drupal_author_id"]
+            )
+        except:
+            print(
+                "Cannot find person with ID:", f'"{ author_data["drupal_author_id"] }"'
+            )
+
+    return contact
+
+
 def parse_article_authors(article, article_authors, magazine_authors):
 
     for drupal_author_id in article_authors.split(", "):
@@ -133,21 +151,7 @@ def parse_article_authors(article, article_authors, magazine_authors):
 
         author_data = get_existing_magazine_author_by_id(drupal_author_id, magazine_authors)
 
-        if not np.isnan(author_data["organization_name"]):
-            author = Organization.objects.get(
-                drupal_author_id=author_data["drupal_author_id"]
-            )
-        elif not np.isnan(author_data["meeting_name"]):
-            author = Meeting.objects.get(drupal_author_id=author_data["drupal_author_id"])
-        else:
-            try:
-                author = Person.objects.get(
-                    drupal_author_id=author_data["drupal_author_id"]
-                )
-            except:
-                print(
-                    "Cannot find person with ID:", f'"{ author_data["drupal_author_id"] }"'
-                )
+        author = get_contact_from_author_data(author_data)
 
     try:
         article_author = MagazineArticleAuthor(
