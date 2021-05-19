@@ -1,4 +1,3 @@
-from content_migration.management.commands.shared import get_contact_from_author_data
 import math
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -36,9 +35,9 @@ class Command(BaseCommand):
         # parser.add_argument("--authors_file", action="store", type=str)
 
     def handle(self, *args, **options):
-        articles = pd.read_csv(options["articles_file"])
+        articles = pd.read_csv(options["articles_file"], dtype={"authors": str})
 
-        authors = pd.read_csv("../import_data/authors_cleaned_deduped-2020-04-12.csv")
+        authors = pd.read_csv("../import_data/magazine_authors-2021-04-14-joined-authors_cleaned-deduped.csv")
 
         grouped_articles = articles.groupby("internet_archive_identifier")
 
@@ -54,9 +53,11 @@ class Command(BaseCommand):
                     # Create table of contents
                     # assigning articles to each ToC item
 
-                    # split the comma separated list of authors
-                    # ensuring it is a string
-                    authors_list = str(article["authors"]).split(", ")
+                    # Get each author ID as an integer
+                    authors_list = map(
+                        int,
+                        article["authors"].split(", ")
+                    )
 
                     if authors_list is not None:
                         for drupal_author_id in authors_list:
