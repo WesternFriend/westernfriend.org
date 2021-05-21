@@ -308,7 +308,7 @@ class MagazineArticle(Page):
 
         # Check whether user is subscriber
         # make sure they are authenticated first,
-        # to avoid checking for "is_subscriber" on anonymous user 
+        # to avoid checking for "is_subscriber" on anonymous user
         user_is_subscriber = (
             request.user.is_authenticated
             and request.user.is_subscriber
@@ -324,8 +324,6 @@ class MagazineArticle(Page):
         )
 
         return context
-
-
 
 
 class MagazineIssueFeaturedArticle(Orderable):
@@ -379,15 +377,11 @@ class ArchiveIssue(Page):
         null=True,
         blank=True,
     )
-    table_of_contents = StreamField(
-        [("Article", ArchiveArticleBlock())], null=True, blank=True
-    )
 
     content_panels = Page.content_panels + [
         FieldPanel("publication_date", widget=DatePickerInput()),
         FieldPanel("internet_archive_identifier"),
         FieldPanel("western_friend_volume"),
-        StreamFieldPanel("table_of_contents"),
     ]
 
     parent_page_types = ["DeepArchiveIndexPage"]
