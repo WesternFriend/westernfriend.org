@@ -383,6 +383,7 @@ class ArchiveArticle(Orderable):
         blank=True,
         help_text="Page in the actual PDF file, when it differs from the original document",
     )
+    # TODO: allow multiple authors for Archive Articles
     author = models.ForeignKey(
         "wagtailcore.Page",
         null=True,
