@@ -116,6 +116,19 @@
 {% endfor %}
 {% endif %}
 
+{% if page.articles_authored.count %}
+<h2>Archive Articles</h2>
+
+<ul>
+{% for article in page.archive_articles_authored.all %}
+    <li>
+        {{ article.title }}
+    </li>
+{% endfor %}
+</ul>
+
+{% endif %}
+
 {% if page.books_authored.count %}
 <h2>Books</h2>
 {% for book_author in page.books_authored.all %}
