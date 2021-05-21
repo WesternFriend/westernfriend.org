@@ -361,6 +361,27 @@ class MagazineArticleAuthor(Orderable):
     ]
 
 
+class ArchiveArticle(Orderable):
+    issue = ParentalKey(
+        "magazine.ArchiveIssue",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="archive_articles",
+    )
+    author = models.ForeignKey(
+        "wagtailcore.Page",
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="archive_articles_authored",
+    )
+
+    panels = [
+        PageChooserPanel(
+            "author", ["contact.Person", "contact.Meeting", "contact.Organization"]
+        )
+    ]
+
+
 class ArchiveIssue(Page):
     publication_date = models.DateField(
         null=True, help_text="Please select the first day of the publication month"
@@ -382,6 +403,11 @@ class ArchiveIssue(Page):
         FieldPanel("publication_date", widget=DatePickerInput()),
         FieldPanel("internet_archive_identifier"),
         FieldPanel("western_friend_volume"),
+        InlinePanel(
+            "archive_articles",
+            heading="Table of contents",
+            help_text="Select one or more authors, who contributed to this article",
+        ),
     ]
 
     parent_page_types = ["DeepArchiveIndexPage"]
