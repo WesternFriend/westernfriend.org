@@ -11,6 +11,7 @@ from modelcluster.models import ClusterableModel
 from taggit.models import TaggedItemBase
 from wagtail.admin.edit_handlers import (
     FieldPanel,
+    FieldRowPanel,
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
@@ -362,20 +363,43 @@ class MagazineArticleAuthor(Orderable):
 
 
 class ArchiveArticle(Orderable):
+    title = models.CharField(max_length=255)
     issue = ParentalKey(
         "magazine.ArchiveIssue",
         null=True,
         on_delete=models.CASCADE,
         related_name="archive_articles",
     )
+    # We record two page numbers
+    # since the original documents used various page numbering schemes over time
+    # and the PDF page number may differ from the original document
+    page_number = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Page number as it appears the original document",
+    )
+    pdf_page_number = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Page in the actual PDF file, when it differs from the original document",
+    )
     author = models.ForeignKey(
         "wagtailcore.Page",
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         related_name="archive_articles_authored",
     )
 
     panels = [
+        FieldPanel("title", classname="full"),
+        FieldRowPanel(
+            [
+                FieldPanel("page_number"),
+                FieldPanel("pdf_page_number"),
+            ],
+            heading="Page numbers",
+        ),
         PageChooserPanel(
             "author", ["contact.Person", "contact.Meeting", "contact.Organization"]
         )
