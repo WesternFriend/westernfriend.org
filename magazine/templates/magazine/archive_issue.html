@@ -14,7 +14,7 @@
         <th>Page</th>
     </tr>
 
-    {% for article in page.table_of_contents %}
+    {% for article in page.archive_articles.all %}
     <tr class="article" data-pdf-page-number="{{ article.value.pdf_page_number }}"
         data-internet-archive-identifier="{{ page.internet_archive_identifier }}" onclick="turnPage(this)">
         <td>
@@ -24,13 +24,24 @@
                 View
             </button>
         </td>
-        <td>{{ article.value.title }}</td>
+        <td>{{ article.title }}</td>
         <td>
+        {% comment %} 
+            TODO: allow multiple authors for archive articles
+        {% endcomment %}
+        
+        {% comment %} 
             {% for author in article.value.authors %}
             {{ author }}{% if not forloop.last %},{% endif %}
             {% endfor %}
+        {% endcomment %}
         </td>
-        <td>{{ article.value.toc_page_number }}</td>
+
+        {% if article.page_number %}
+            <td>{{ article.page_number }}</td>
+        {% else %}
+            <td>Unknown</td>
+        {% endif %}
     </tr>
     {% endfor %}
 </table>
