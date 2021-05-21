@@ -1,6 +1,7 @@
 import re
 from typing import List
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 
 from bs4 import BeautifulSoup, Tag as BS4_Tag
@@ -136,7 +137,7 @@ def get_contact_from_author_data(author_data):
             contact = Person.objects.get(
                 drupal_author_id=author_data["drupal_author_id"]
             )
-        except:
+        except ObjectDoesNotExist:
             print(
                 "Cannot find person with ID:", f'"{ author_data["drupal_author_id"] }"'
             )
@@ -153,16 +154,12 @@ def parse_article_authors(article, article_authors, magazine_authors):
 
         author = get_contact_from_author_data(author_data)
 
-    try:
         article_author = MagazineArticleAuthor(
             article=article,
             author=author,
         )
 
         article.authors.add(article_author)
-    except:
-        print("Could not create magazine article author.")
-        pass
 
     return article
 
@@ -172,7 +169,7 @@ def assign_article_to_issue(article, issue_title):
         related_issue = MagazineIssue.objects.get(
             title=issue_title
         )
-    except:
+    except ObjectDoesNotExist:
         print("Can't find issue: ", issue_title)
 
     related_issue.add_child(instance=article)
