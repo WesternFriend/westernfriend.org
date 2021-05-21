@@ -22,7 +22,11 @@ class Command(BaseCommand):
             for issue in tqdm(
                 issues, desc="Archive issues", unit="row"
             ):
-                if not ArchiveIssue.objects.filter(internet_archive_identifier=issue["internet_archive_identifier"]).exists():
+                issue_exists = ArchiveIssue.objects.filter(
+                    internet_archive_identifier=issue["internet_archive_identifier"]
+                ).exists()
+
+                if not issue_exists:
                     import_issue = ArchiveIssue(
                         title=issue["title"],
                         publication_date=issue["publication_date"],
