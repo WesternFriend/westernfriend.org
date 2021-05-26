@@ -363,7 +363,6 @@ class MagazineArticleAuthor(Orderable):
     ]
 
 
-
 class ArchiveArticleAuthor(Orderable):
     article = ParentalKey(
         "magazine.ArchiveArticle",
@@ -406,7 +405,7 @@ class ArchiveArticle(ClusterableModel):
         blank=True,
         help_text="Page in the actual PDF file, when it differs from the original document",
     )
- 
+
     panels = [
         FieldPanel("title", classname="full"),
         FieldRowPanel(
