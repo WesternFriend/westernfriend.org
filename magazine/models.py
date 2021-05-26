@@ -449,7 +449,7 @@ class ArchiveIssue(Page):
         InlinePanel(
             "archive_articles",
             heading="Table of contents",
-            help_text="List one or more articles that appear in this issue",
+            help_text="Add articles to the table of contents by clicking the '+ Add' button below",
         ),
     ]
 
