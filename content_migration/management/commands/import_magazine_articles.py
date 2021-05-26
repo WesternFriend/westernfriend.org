@@ -1,3 +1,4 @@
+from content_migration.management.commands.shared import get_contact_from_author_data, get_existing_magazine_author_by_id
 import re
 from typing import List
 
@@ -100,49 +101,6 @@ def parse_article_body_blocks(body):
             article_body_blocks.append(rich_text_block)
 
     return article_body_blocks
-
-
-def get_existing_magazine_author_by_id(drupal_author_id, magazine_authors):
-    """
-    Get an author and check if it is duplicate. Return existing author
-    """
-    authors_mask = magazine_authors["drupal_author_id"] == drupal_author_id
-
-    if authors_mask.sum() == 0:
-        print("Author not found:", drupal_author_id)
-    if authors_mask.sum() > 1:
-        print("Duplicate authors found:", drupal_author_id)
-
-    try:
-        author_data = magazine_authors[authors_mask].iloc[0].to_dict()
-    except IndexError:
-        print("Index error")
-
-    # Get existing author, if this author is a duplicate
-    if not np.isnan(author_data["duplicate of ID"]):
-        author_data = get_existing_magazine_author_by_id(author_data["duplicate of ID"], magazine_authors)
-
-    return author_data
-
-
-def get_contact_from_author_data(author_data):
-    if not np.isnan(author_data["organization_name"]):
-        contact = Organization.objects.get(
-            drupal_author_id=author_data["drupal_author_id"]
-        )
-    elif not np.isnan(author_data["meeting_name"]):
-        contact = Meeting.objects.get(drupal_author_id=author_data["drupal_author_id"])
-    else:
-        try:
-            contact = Person.objects.get(
-                drupal_author_id=author_data["drupal_author_id"]
-            )
-        except ObjectDoesNotExist:
-            print(
-                "Cannot find person with ID:", f'"{ author_data["drupal_author_id"] }"'
-            )
-
-    return contact
 
 
 def parse_article_authors(article, article_authors, magazine_authors):
