@@ -7,6 +7,7 @@ class NestedInlinePanel(InlinePanel):
 
     Issue: https://github.com/wagtail/wagtail/issues/5126
     """
+
     def widget_overrides(self):
         widgets = {}
         child_edit_handler = self.get_child_edit_handler()
