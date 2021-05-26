@@ -12,6 +12,7 @@ from taggit.models import TaggedItemBase
 from wagtail.admin.edit_handlers import (
     FieldPanel,
     FieldRowPanel,
+    HelpPanel,
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
@@ -28,6 +29,7 @@ from wagtail.search import index
 from flatpickr import DatePickerInput
 
 from .blocks import ArchiveArticleBlock
+from .panels import NestedInlinePanel
 
 
 class MagazineIndexPage(Page):
@@ -362,7 +364,29 @@ class MagazineArticleAuthor(Orderable):
     ]
 
 
-class ArchiveArticle(Orderable):
+
+class ArchiveArticleAuthor(Orderable):
+    article = ParentalKey(
+        "magazine.ArchiveArticle",
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="archive_authors",
+    )
+    author = models.ForeignKey(
+        "wagtailcore.Page",
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="archive_articles_authored",
+    )
+
+    panels = [
+        PageChooserPanel(
+            "author", ["contact.Person", "contact.Meeting", "contact.Organization"]
+        )
+    ]
+
+
+class ArchiveArticle(ClusterableModel):
     title = models.CharField(max_length=255)
     issue = ParentalKey(
         "magazine.ArchiveIssue",
@@ -383,15 +407,7 @@ class ArchiveArticle(Orderable):
         blank=True,
         help_text="Page in the actual PDF file, when it differs from the original document",
     )
-    # TODO: allow multiple authors for Archive Articles
-    author = models.ForeignKey(
-        "wagtailcore.Page",
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-        related_name="archive_articles_authored",
-    )
-
+ 
     panels = [
         FieldPanel("title", classname="full"),
         FieldRowPanel(
@@ -401,9 +417,12 @@ class ArchiveArticle(Orderable):
             ],
             heading="Page numbers",
         ),
-        PageChooserPanel(
-            "author", ["contact.Person", "contact.Meeting", "contact.Organization"]
-        )
+        HelpPanel(content="Add article authors by clicking the '+ Add' button below, if known."),
+        NestedInlinePanel(
+            "archive_authors",
+            heading="Authors",
+            help_text="Select one or more authors who contributed to this article",
+        ),
     ]
 
 
@@ -431,7 +450,7 @@ class ArchiveIssue(Page):
         InlinePanel(
             "archive_articles",
             heading="Table of contents",
-            help_text="Select one or more authors, who contributed to this article",
+            help_text="List one or more articles that appear in this issue",
         ),
     ]
 
