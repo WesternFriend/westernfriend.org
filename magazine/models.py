@@ -405,6 +405,7 @@ class ArchiveArticle(ClusterableModel):
         blank=True,
         help_text="Page in the actual PDF file, when it differs from the original document",
     )
+    drupal_node_id = models.PositiveIntegerField(null=True, blank=True)
 
     panels = [
         FieldPanel("title", classname="full"),
