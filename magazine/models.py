@@ -395,7 +395,7 @@ class ArchiveArticle(ClusterableModel):
     # We record two page numbers
     # since the original documents used various page numbering schemes over time
     # and the PDF page number may differ from the original document
-    page_number = models.PositiveIntegerField(
+    toc_page_number = models.PositiveIntegerField(
         null=True,
         blank=True,
         help_text="Page number as it appears the original document",
@@ -410,7 +410,7 @@ class ArchiveArticle(ClusterableModel):
         FieldPanel("title", classname="full"),
         FieldRowPanel(
             [
-                FieldPanel("page_number"),
+                FieldPanel("toc_page_number"),
                 FieldPanel("pdf_page_number"),
             ],
             heading="Page numbers",
