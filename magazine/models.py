@@ -28,7 +28,6 @@ from wagtail.search import index
 
 from flatpickr import DatePickerInput
 
-from .blocks import ArchiveArticleBlock
 from .panels import NestedInlinePanel
 
 
