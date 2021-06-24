@@ -32,6 +32,7 @@ class Memorial(Page):
         on_delete=models.PROTECT,
         related_name="memorial_minutes"
     )
+    drupal_memorial_id = models.PositiveIntegerField(null=True, blank=True)
 
     def full_name(self):
         return f"{ self.given_name } { self.family_name }"
