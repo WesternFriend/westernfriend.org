@@ -17,8 +17,8 @@ class Memorial(Page):
         on_delete=models.PROTECT,
         related_name="memorial_minute",
     )
-    date_of_birth = models.DateField()
-    date_of_death = models.DateField()
+    date_of_birth = models.DateField(null=True, blank=True)
+    date_of_death = models.DateField(null=True, blank=True)
     dates_are_approximate = models.BooleanField(default=False)
     memorial_minute = RichTextField(blank=True)
     memorial_meeting = models.ForeignKey(
@@ -33,7 +33,7 @@ class Memorial(Page):
     def full_name(self):
         return f"{ self.memorial_person.given_name } { self.memorial_person.family_name }"
 
-    content_panels = [
+    content_panels = Page.content_panels + [
         PageChooserPanel("memorial_person"),
         FieldPanel("date_of_birth", widget=DatePickerInput()),
         FieldPanel("date_of_death", widget=DatePickerInput()),
@@ -45,11 +45,6 @@ class Memorial(Page):
     parent_page_types = [
         "memorials.MemorialIndexPage",
     ]
-
-    def save(self, *args, **kwargs):
-        self.title = self.full_name()
-
-        super(Memorial, self).save(*args, **kwargs)
 
     # TODO: determine whether we need a search index on any of the fields
     # or remove this search fields code
