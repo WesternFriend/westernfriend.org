@@ -17,12 +17,6 @@ class Memorial(Page):
         on_delete=models.PROTECT,
         related_name="memorial_minute",
     )
-    display_name = models.CharField(
-        max_length=255,
-        help_text="How to display the person's name, if different from combined given and family names.",
-        null=True,
-        blank=True,
-    )
     date_of_birth = models.DateField()
     date_of_death = models.DateField()
     dates_are_approximate = models.BooleanField()
