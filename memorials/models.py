@@ -19,7 +19,7 @@ class Memorial(Page):
     )
     date_of_birth = models.DateField()
     date_of_death = models.DateField()
-    dates_are_approximate = models.BooleanField()
+    dates_are_approximate = models.BooleanField(default=False)
     memorial_minute = RichTextField(blank=True)
     memorial_meeting = models.ForeignKey(
         to="contact.Meeting",
