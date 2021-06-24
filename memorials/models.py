@@ -12,7 +12,11 @@ from contact.models import Meeting
 
 
 class Memorial(Page):
-    
+    memorial_person = models.ForeignKey(
+        to="contact.Person",
+        on_delete=models.PROTECT,
+        related_name="memorial_minute",
+    )
     date_of_birth = models.DateField()
     date_of_death = models.DateField()
     dates_are_approximate = models.BooleanField()
@@ -27,6 +31,7 @@ class Memorial(Page):
         return f"{ self.given_name } { self.family_name }"
 
     content_panels = [
+        PageChooserPanel("memorial_person"),
         FieldPanel("date_of_birth", widget=DatePickerInput()),
         FieldPanel("date_of_death", widget=DatePickerInput()),
         FieldPanel("dates_are_approximate"),
