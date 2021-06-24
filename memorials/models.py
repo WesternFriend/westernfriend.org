@@ -24,12 +24,14 @@ class Memorial(Page):
     memorial_meeting = models.ForeignKey(
         to="contact.Meeting",
         on_delete=models.PROTECT,
-        related_name="memorial_minutes"
+        related_name="memorial_minutes",
+        null=True,
+        blank=True,
     )
     drupal_memorial_id = models.PositiveIntegerField(null=True, blank=True)
 
     def full_name(self):
-        return f"{ self.given_name } { self.family_name }"
+        return f"{ self.memorial_person.given_name } { self.memorial_person.family_name }"
 
     content_panels = [
         PageChooserPanel("memorial_person"),
