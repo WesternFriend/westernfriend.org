@@ -12,14 +12,7 @@ from contact.models import Meeting
 
 
 class Memorial(Page):
-    # TODO: use a relationship to the Contacts here
-    # instead of storing given/family names in Memorial model
-    given_name = models.CharField(
-        max_length=255,
-        default="",
-        help_text="Enter the given name for a person.",
-    )
-    family_name = models.CharField(max_length=255, blank=True, default="")
+    
     date_of_birth = models.DateField()
     date_of_death = models.DateField()
     dates_are_approximate = models.BooleanField()
@@ -34,8 +27,6 @@ class Memorial(Page):
         return f"{ self.given_name } { self.family_name }"
 
     content_panels = [
-        FieldPanel("given_name"),
-        FieldPanel("family_name"),
         FieldPanel("date_of_birth", widget=DatePickerInput()),
         FieldPanel("date_of_death", widget=DatePickerInput()),
         FieldPanel("dates_are_approximate"),
@@ -52,10 +43,9 @@ class Memorial(Page):
 
         super(Memorial, self).save(*args, **kwargs)
 
-    search_fields = [
-        index.SearchField("given_name", partial_match=True),
-        index.SearchField("family_name", partial_match=True),
-    ]
+    # TODO: determine whether we need a search index on any of the fields
+    # or remove this search fields code
+    # search_fields = []
 
 
 class MemorialIndexPage(Page):
