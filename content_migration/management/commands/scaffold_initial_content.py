@@ -60,15 +60,15 @@ class Command(BaseCommand):
         Page.objects.get(id=2).delete()
 
         # Create Home Page children
-        community_page = CommunityPage(title="Community")
-        contact_form_page = ContactFormPage(title="Contact")
-        donate_page = DonatePage(title="Donate")
+        community_page = CommunityPage(title="Community", show_in_menus=True)
+        contact_form_page = ContactFormPage(title="Contact", show_in_menus=True)
+        donate_page = DonatePage(title="Donate", show_in_menus=True)
         events_page = EventsIndexPage(title="Events")
-        library_index_page = LibraryIndexPage(title="Library")
-        magazine_index_page = MagazineIndexPage(title="Magazine")
+        library_index_page = LibraryIndexPage(title="Library", show_in_menus=True)
+        magazine_index_page = MagazineIndexPage(title="Magazine", show_in_menus=True)
         manage_subscription_page = ManageSubscriptionPage(title="Manage subscription")
-        store_index_page = StoreIndexPage(title="Bookstore")
-        subscription_index_page = SubscriptionIndexPage(title="Subscribe")
+        store_index_page = StoreIndexPage(title="Bookstore", show_in_menus=True)
+        subscription_index_page = SubscriptionIndexPage(title="Subscribe", show_in_menus=True)
 
         home_page.add_child(instance=community_page)
         home_page.add_child(instance=contact_form_page)
