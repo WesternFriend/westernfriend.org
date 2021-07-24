@@ -9,6 +9,7 @@ from tqdm import tqdm
 from memorials.models import Memorial, MemorialIndexPage
 from contact.models import Meeting, Person, PersonIndexPage
 
+
 def create_person(memorial_data):
     person = None
 
@@ -25,8 +26,9 @@ def create_person(memorial_data):
     person_index_page.add_child(instance=person)
 
     person_index_page.save()
-    
+
     return person
+
 
 def get_memorial_meeting_or_none(memorial_data):
     meeting = None
@@ -43,6 +45,7 @@ def get_memorial_meeting_or_none(memorial_data):
 
     return meeting
 
+
 def get_or_create_memorial_person(memorial_data):
     person = None
 
@@ -57,6 +60,7 @@ def get_or_create_memorial_person(memorial_data):
         person = create_person(memorial_data)
 
     return person
+
 
 class Command(BaseCommand):
     help = "Import all memorial minutes"
@@ -89,7 +93,7 @@ class Command(BaseCommand):
                         title=f"{ memorial_data['First Name'] } { memorial_data['Last Name'] }",
                         drupal_memorial_id=int(memorial_data["memorial_id"]),
                     )
-                
+
                 memorial_person = get_or_create_memorial_person(memorial_data)
 
                 if memorial_person is not None:
@@ -106,13 +110,13 @@ class Command(BaseCommand):
                 # Dates are optional
                 if memorial_data["Date of Birth"] != "":
                     memorial.date_of_birth = datetime.strptime(memorial_data["Date of Birth"], datetime_format)
-                
+
                 if memorial_data["Date of Death"] != "":
                     memorial.date_of_death = datetime.strptime(memorial_data["Date of Death"], datetime_format)
 
                 if memorial_data["Dates are approximate"] != "":
                     memorial.dates_are_approximate = True
-                
+
                 memorial.memorial_meeting = get_memorial_meeting_or_none(memorial_data)
 
                 if not memorial_exists:
@@ -121,7 +125,7 @@ class Command(BaseCommand):
                         memorial_index_page.add_child(instance=memorial)
                     except AttributeError:
                         print("Could not add memorial as child of memorial index page")
-                    
+
                     memorial_index_page.save()
                 else:
                     memorial.save()
