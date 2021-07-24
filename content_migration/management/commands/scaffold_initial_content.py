@@ -97,7 +97,7 @@ class Command(BaseCommand):
         # Community section
         community_directory_index_page = CommunityDirectoryIndexPage(title="Community directories")
         meeting_index_page = MeetingIndexPage(title="Meetings")
-        memorial_index_page = MemorialIndexPage(title="Memorials")
+        memorial_index_page = MemorialIndexPage(title="Memorials", show_in_menus=True)
         online_worship_index_page = OnlineWorshipIndexPage(title="Online meetings for worship")
         organization_index_page = OrganizationIndexPage(title="Organizations")
         person_index_page = PersonIndexPage(title="People")
