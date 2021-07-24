@@ -1,5 +1,4 @@
 {% load menu_tags %}
-{% load user_is_subscriber %}
 
 <nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light">
     <a href="/" class="navbar-brand">Western Friend</a>
@@ -14,18 +13,6 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav ml-auto">
             {% main_menu %}
-
-            {% user_is_subscriber as user_is_subscriber %}
-
-            {% if not user_is_subscriber %}
-            <li class="nav-item">
-                <a href="/subscribe" class="nav-link">Subscribe</a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-                <a href="/manage-subscription" class="nav-link">Subscribe</a>
-            </li>
-            {% endif %}
 
             <form action="{% url 'search' %}" method="get" class="form-inline mr-3">
                 <div class="input-group mb-3">
