@@ -8,6 +8,7 @@ class LibraryItemModelAdmin(ModelAdmin):
     model = LibraryItem
     menu_icon = "media"
     menu_label = "Media library"
+    menu_order = 110
     list_per_page = 10
     list_display = (
         "title",
