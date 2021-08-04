@@ -68,18 +68,6 @@ def create_person(author):
 
     drupal_author_id = author["drupal_author_id"]
 
-    author_name_corrected = (
-        author["family_name"] != ""
-        or author["given_name"] != ""
-    )
-
-    if author_name_corrected:
-        given_name = author["given_name"]
-        family_name = author["family_name"]
-    else:
-        given_name = author["given_name"]
-        family_name = author["family_name"]
-
     person_exists = Person.objects.filter(
         drupal_author_id=drupal_author_id,
     ).exists()
@@ -88,8 +76,8 @@ def create_person(author):
     if not person_exists:
         try:
             person = Person(
-                given_name=given_name,
-                family_name=family_name,
+                given_name=author["given_name"],
+                family_name=author["family_name"],
                 drupal_author_id=drupal_author_id
             )
         except:
