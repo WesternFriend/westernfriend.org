@@ -148,6 +148,13 @@ class Command(BaseCommand):
         for index, row in tqdm(
             articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"
         ):
+            article_exists = MagazineArticle.objects.filter(
+                drupal_node_id=row["node_id"]
+            ).exists()
+
+            # Skip import for existing articles
+            if article_exists:
+                continue
 
             department = MagazineDepartment.objects.get(title=row["Department"])
 
@@ -170,6 +177,7 @@ class Command(BaseCommand):
                 body=article_body_blocks,
                 body_migrated=body_migrated,
                 department=department,
+                drupal_node_id=row["node_id"],
             )
 
             # Assign article to issue
