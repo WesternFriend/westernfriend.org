@@ -22,6 +22,7 @@ from magazine.models import (
 
 from contact.models import Meeting, Organization, Person
 
+from .shared import parse_media_blocks
 
 def extract_pullquotes(item: str) -> List[str]:
     """
@@ -138,11 +139,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--articles_file", action="store", type=str)
-        # parser.add_argument("--authors_file", action="store", type=str)
+        parser.add_argument("--authors_file", action="store", type=str)
 
     def handle(self, *args, **options):
         articles = pd.read_csv(options["articles_file"], dtype={"Authors": str})
-        magazine_authors = pd.read_csv("../import_data/magazine_authors-2021-04-14-joined-authors_cleaned-deduped.csv")
+        magazine_authors = pd.read_csv(options["authors_file"])
 
         for index, row in tqdm(
             articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"
@@ -153,12 +154,12 @@ class Command(BaseCommand):
             article_body_blocks = []
             body_migrated = None
 
-            if not np.isnan(row["Body"]):
+            if row["Body"] is not np.nan:
                 article_body_blocks = parse_article_body_blocks(row["Body"])
                 body_migrated = row["Body"]
 
             # Download and parse article media
-            if not np.isnan(row["Media"]):
+            if row["Media"] is not np.nan:
                 media_blocks = parse_media_blocks(row["Media"])
 
                 # Merge media blocks with article body blocks
@@ -175,11 +176,11 @@ class Command(BaseCommand):
             assign_article_to_issue(article, row["related_issue_title"])
 
             # Assign authors to article
-            if not np.isnan(row["Authors"]):
+            if row["Authors"] is not np.nan:
                 article = parse_article_authors(article, row["Authors"], magazine_authors)
 
             # Assign keywards to article
-            if not np.isnan(row["Keywords"]):
+            if row["Keywords"] is not np.nan:
                 for keyword in row["Keywords"].split(", "):
                     article.tags.add(keyword)
 
