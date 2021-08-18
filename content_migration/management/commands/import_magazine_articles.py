@@ -108,17 +108,21 @@ def parse_article_authors(article, article_authors, magazine_authors):
 
     for drupal_author_id in article_authors.split(", "):
         drupal_author_id = int(drupal_author_id)
+        
 
         author_data = get_existing_magazine_author_by_id(drupal_author_id, magazine_authors)
 
         author = get_contact_from_author_data(author_data)
 
-        article_author = MagazineArticleAuthor(
-            article=article,
-            author=author,
-        )
+        if author is not None:
+            article_author = MagazineArticleAuthor(
+                article=article,
+                author=author,
+            )
 
-        article.authors.add(article_author)
+            article.authors.add(article_author)
+        else:
+            print("Could not find author from Drupal ID:", drupal_author_id)
 
     return article
 
