@@ -212,6 +212,13 @@ class MagazineArticle(Page):
     teaser = RichTextField(
         blank=True,
         help_text="Try to keep teaser to a couple dozen words.",
+        features=[
+            "bold",
+            "italic",
+            "link",
+            "document-link",
+            "strikethrough",
+        ],
     )
     body = StreamField(
         [
