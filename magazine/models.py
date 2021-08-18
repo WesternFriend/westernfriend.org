@@ -347,13 +347,11 @@ class MagazineIssueFeaturedArticle(Orderable):
 class MagazineArticleAuthor(Orderable):
     article = ParentalKey(
         "magazine.MagazineArticle",
-        null=True,
         on_delete=models.CASCADE,
         related_name="authors",
     )
     author = models.ForeignKey(
         "wagtailcore.Page",
-        null=True,
         on_delete=models.CASCADE,
         related_name="articles_authored",
     )
