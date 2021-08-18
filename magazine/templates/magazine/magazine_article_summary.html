@@ -18,9 +18,10 @@
 
         {{ article.teaser | richtext }}
 
-        Issue:
-        <a href="{% pageurl article.get_parent %}" class="card-link">
-            {{ article.get_parent }} ({{ article.get_parent.specific.publication_date| date:"F Y" }})
-        </a>
+        <p>Issue:
+            <a href="{% pageurl article.get_parent %}" class="card-link">
+                {{ article.get_parent }} ({{ article.get_parent.specific.publication_date| date:"F Y" }})
+            </a>
+        </p>
     </div>
 </div>
