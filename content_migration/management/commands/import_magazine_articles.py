@@ -108,7 +108,6 @@ def parse_article_authors(article, article_authors, magazine_authors):
 
     for drupal_author_id in article_authors.split(", "):
         drupal_author_id = int(drupal_author_id)
-        
 
         author_data = get_existing_magazine_author_by_id(drupal_author_id, magazine_authors)
 
