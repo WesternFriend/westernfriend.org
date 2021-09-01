@@ -121,12 +121,11 @@ class MagazineIssue(Page):
     )
     issue_number = models.PositiveIntegerField(null=True, blank=True)
 
-    
     @property
     def featured_articles(self):
         # Return a cursor of related articles that are featured
         return MagazineArticle.objects.child_of(self).filter(is_featured=True).specific()
-    
+
     @property
     def publication_end_date(self):
         if self.publication_date:
