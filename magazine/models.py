@@ -135,11 +135,6 @@ class MagazineIssue(Page):
     content_panels = Page.content_panels + [
         FieldPanel("publication_date", widget=DatePickerInput()),
         ImageChooserPanel("cover_image"),
-        InlinePanel(
-            "featured_articles",
-            heading="Featured articles",
-            help_text="Select one or more featured articles, from this issue",
-        ),
     ]
 
     parent_page_types = ["MagazineIndexPage"]
@@ -345,20 +340,6 @@ class MagazineArticle(Page):
         )
 
         return context
-
-
-class MagazineIssueFeaturedArticle(Orderable):
-    issue = ParentalKey(
-        "magazine.MagazineIssue",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="featured_articles",
-    )
-    article = models.ForeignKey(
-        MagazineArticle, null=True, on_delete=models.CASCADE, related_name="+"
-    )
-
-    panels = [PageChooserPanel("article")]
 
 
 class MagazineArticleAuthor(Orderable):
