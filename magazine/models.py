@@ -335,11 +335,13 @@ class MagazineArticle(Page):
 
         # Subscribers and superusers can always view full articles
         # everyone can view public access articles
+        # everyone can view featured articles
         # user can view full article if any of these conditions is True
         context["user_can_view_full_article"] = (
             user_is_subscriber
             or request.user.is_superuser
             or self.is_public_access
+            or self.is_featured
         )
 
         return context
