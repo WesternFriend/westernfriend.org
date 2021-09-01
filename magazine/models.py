@@ -250,6 +250,10 @@ class MagazineArticle(Page):
             ("pullquote", blocks.BlockQuoteBlock()),
         ]
     )
+    is_featured = models.BooleanField(
+        default=False,
+        help_text="Feature this article in the related issue and allow full access without a subscription?"
+    )
     body_migrated = models.TextField(
         help_text="Used only for content from old Drupal website.",
         null=True,
@@ -285,6 +289,7 @@ class MagazineArticle(Page):
             [
                 PageChooserPanel("department", "magazine.MagazineDepartment"),
                 FieldPanel("tags"),
+                FieldPanel("is_featured"),
             ],
             heading="Article information",
         ),
