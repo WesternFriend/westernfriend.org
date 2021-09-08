@@ -45,7 +45,7 @@
             {% for article in department.list %}
             <li>
                 <a href="{% pageurl article %}">
-                    {{ article }}
+                    {{ article }} {% if article.is_featured %}(featured){% endif %}
                 </a>
             </li>
             {% endfor %}
