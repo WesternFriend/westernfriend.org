@@ -6,7 +6,7 @@ blockquote {
 }
 
 .pullquote {
-	margin: 0 0 0 1em;
+	margin: 0 0 0.5em 1em;
 	background: aliceblue;
 	padding: 1em;
 	font-size: 2em;
