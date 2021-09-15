@@ -62,7 +62,7 @@ class WfPage(Page):
                     ]
                 ),
             ),
-            ("pullquote", blocks.BlockQuoteBlock()),
+            ("quote", blocks.BlockQuoteBlock()),
         ]
     )
     body_migrated = models.TextField(
