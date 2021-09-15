@@ -1,3 +1,4 @@
+from django.utils.html import format_html
 from wagtail.core import blocks
 from wagtail.images.blocks import ImageChooserBlock
 
@@ -57,3 +58,15 @@ class OrganizationsBlock(blocks.StructBlock):
 
     class Meta:
         template = "streams/blocks/organizations_block.html"
+
+
+class PullQuoteBlock(blocks.TextBlock):
+
+    def render_basic(self, value, context=None):
+        if value:
+            return format_html('<div class="pullquote">{0}</div>', value)
+        else:
+            return ''
+
+    class Meta:
+        icon = "openquote"
