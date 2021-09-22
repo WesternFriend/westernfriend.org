@@ -7,6 +7,8 @@ from wagtail.core.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images.blocks import ImageChooserBlock
 
+from documents.blocks import DocumentEmbedBlock
+
 
 class WfPageCollectionIndexPage(Page):
     intro = RichTextField(blank=True)
@@ -37,7 +39,7 @@ class WfPageCollection(Page):
 class WfPage(Page):
     body = StreamField(
         [
-            ("document", DocumentChooserBlock()),
+            ("document", DocumentEmbedBlock()),
             ("heading", blocks.CharBlock(classname="full title")),
             ("image", ImageChooserBlock()),
             (
