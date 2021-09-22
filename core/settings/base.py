@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "community",
     "contact",
     "content_migration",
+    "documents",
     "donations",
     "events",
     "facets",
