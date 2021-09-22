@@ -1,0 +1,11 @@
+<p>{{ value.title }}</p>
+
+<div id="pdf-container"></div>
+
+<script 
+    src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.6/pdfobject.min.js"
+    integrity="sha512-B+t1szGNm59mEke9jCc5nSYZTsNXIadszIDSLj79fEV87QtNGFNrD6L+kjMSmYGBLzapoiR9Okz3JJNNyS2TSg=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"></script>
+
+<script>PDFObject.embed("{{ value.url }}", "#pdf-container");</script>
