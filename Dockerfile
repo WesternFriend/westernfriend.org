@@ -43,4 +43,4 @@ USER wagtail
 EXPOSE 8000
 
 # Run the server
-CMD set -xe; gunicorn wf_website.wsgi:application --workers 3
+CMD set -xe; gunicorn core.wsgi:application --workers 3

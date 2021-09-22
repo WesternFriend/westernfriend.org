@@ -11,13 +11,11 @@ This project is built with [Python](https://www.python.org/), [Django](https://w
 
 1. clone this repository
    - `git clone git@github.com:WesternFriend/WF-website.git`
-2. change into cloned directory and project folder (`wf_website`)
-   - `cd WF-website/wf_website`
-3. activate a Poetry virtual environment
+2. activate a Poetry virtual environment
    - `poetry shell`
-4. install the project dependencies
+3. install the project dependencies
    - `poetry install`
-5. run the local server
+4. run the local server
    - `python manage.py runserver`
 
 Once the server is running, you can access it from http://localhost:8000
