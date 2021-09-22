@@ -9,14 +9,16 @@
 
     {% include_block page.body %}
 
-    <dl>
-        <dt>
-            Collection
-        </dt>
-        <dd>
-            <a href="{% pageurl page.collection %}">
-                {{ page.collection }}
-            </a>
-        </dd>
-    </dl>
+    {% if page.collection %}
+        <dl>
+            <dt>
+                Collection
+            </dt>
+            <dd>
+                <a href="{% pageurl page.collection %}">
+                    {{ page.collection }}
+                </a>
+            </dd>
+        </dl>
+    {% endif %}
 {% endblock %}
