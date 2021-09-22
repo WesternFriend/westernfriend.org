@@ -118,6 +118,8 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
