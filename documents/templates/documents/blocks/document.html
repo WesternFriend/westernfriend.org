@@ -1,6 +1,6 @@
 <p>{{ value.title }}</p>
 
-<div id="pdf-container"></div>
+<div id="pdf-container-{{ value.id }}"></div>
 
 <script 
     src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.6/pdfobject.min.js"
@@ -8,4 +8,4 @@
     crossorigin="anonymous"
     referrerpolicy="no-referrer"></script>
 
-<script>PDFObject.embed("{{ value.url }}", "#pdf-container");</script>
+<script>PDFObject.embed("{{ value.url }}", "#pdf-container-{{ value.id }}");</script>
