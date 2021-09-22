@@ -5,6 +5,11 @@ blockquote {
     padding: 1em 2em;
 }
 
+.pdfobject-container { 
+	height: 42rem;
+	border: 0.3rem solid rgba(0,0,0,.1);
+}
+
 .pullquote {
 	margin: 0 0 0.5em 1em;
 	background: aliceblue;
