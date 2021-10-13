@@ -287,6 +287,7 @@ class MagazineArticle(Page):
             "authors",
             heading="Authors",
             help_text="Select one or more authors, who contributed to this article. Note: you must first add contacts in order to select them as authors.",
+            min_num=1,
         ),
         MultiFieldPanel(
             [
