@@ -28,7 +28,8 @@ from wagtail.search import index
 
 from flatpickr import DatePickerInput
 
-from streams.blocks import PullQuoteBlock
+from streams.blocks import FormattedImageChooserStructBlock, PullQuoteBlock
+
 
 from .panels import NestedInlinePanel
 
@@ -229,7 +230,7 @@ class MagazineArticle(Page):
         [
             ("document", DocumentChooserBlock()),
             ("heading", blocks.CharBlock(classname="full title")),
-            ("image", ImageChooserBlock()),
+            ("image", FormattedImageChooserStructBlock(classname="full title")),
             (
                 "paragraph",
                 blocks.RichTextBlock(
@@ -281,7 +282,7 @@ class MagazineArticle(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("teaser", classname="full"),
-        StreamFieldPanel("body", classname="full"),
+        StreamFieldPanel("body"),
         FieldPanel("body_migrated", classname="full"),
         InlinePanel(
             "authors",
