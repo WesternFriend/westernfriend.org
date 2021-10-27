@@ -33,4 +33,28 @@
             {% endif %}
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% if page.featured_events.count %}
+                <h2>Featured events</h2>
+                {% for event in page.featured_events.all %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-title">
+                                <h2>{{ event.event.title }}</h2>
+                            </div>
+                            <p class="card-subtitle">{{ event.event.start_date }}</p>
+
+                            <div class="card-text">
+                                {{ event.event.description | richtext }}
+                            </div>
+
+                            <a href="{% pageurl event.event %}" class="card-link btn btn-primary">Read more</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
