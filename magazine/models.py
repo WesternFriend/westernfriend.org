@@ -28,7 +28,8 @@ from wagtail.search import index
 
 from flatpickr import DatePickerInput
 
-from streams.blocks import PullQuoteBlock
+from streams.blocks import FormattedImageChooserStructBlock, PullQuoteBlock
+
 
 from .panels import NestedInlinePanel
 
@@ -229,7 +230,7 @@ class MagazineArticle(Page):
         [
             ("document", DocumentChooserBlock()),
             ("heading", blocks.CharBlock(classname="full title")),
-            ("image", ImageChooserBlock()),
+            ("image", FormattedImageChooserStructBlock(classname="full title")),
             (
                 "paragraph",
                 blocks.RichTextBlock(
@@ -267,9 +268,7 @@ class MagazineArticle(Page):
 
     department = models.ForeignKey(
         MagazineDepartment,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name="articles",
     )
 
@@ -283,12 +282,13 @@ class MagazineArticle(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("teaser", classname="full"),
-        StreamFieldPanel("body", classname="full"),
+        StreamFieldPanel("body"),
         FieldPanel("body_migrated", classname="full"),
         InlinePanel(
             "authors",
             heading="Authors",
-            help_text="Select one or more authors, who contributed to this article",
+            help_text="Select one or more authors, who contributed to this article. Note: you must first add contacts in order to select them as authors.",
+            min_num=1,
         ),
         MultiFieldPanel(
             [

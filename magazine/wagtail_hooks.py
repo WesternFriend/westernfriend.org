@@ -74,6 +74,7 @@ class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
         "admin_thumb",
         "title",
         "publication_date",
+        "live",
         "view_articles",
         "add_article",
     )
