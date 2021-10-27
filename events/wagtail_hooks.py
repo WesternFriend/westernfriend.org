@@ -12,7 +12,7 @@ class EventModelAdmin(ModelAdmin):
     exclude_from_explorer = False
     list_per_page = 10
     ordering = ["start_date"]
-    list_display = ("title", "start_date", "end_date")
+    list_display = ("title", "start_date", "end_date", "live",)
     empty_value_display = "-"
     search_fields = ("title", "description")
     list_filter = ("start_date",)
