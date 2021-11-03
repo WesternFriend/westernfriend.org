@@ -4,6 +4,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 from django.db.models import Q
 
+from timezone_field import TimeZoneField
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page
@@ -17,6 +18,10 @@ class Event(Page):
 
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(blank=True, null=True)
+    timezone = TimeZoneField(
+        default="US/Pacific",
+        choices_display='WITH_GMT_OFFSET',
+    )
 
     website = models.URLField(blank=True, null=True)
 
@@ -24,6 +29,7 @@ class Event(Page):
         FieldPanel("description"),
         FieldPanel("start_date"),
         FieldPanel("end_date"),
+        FieldPanel("timezone"),
         FieldPanel("website")
     ]
 
