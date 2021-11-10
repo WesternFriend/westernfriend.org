@@ -9,11 +9,11 @@
     <h1>{{ page.title }}</h1>
 
     {% if page.start_date %}
-        {{ page.start_date | date:"N d, Y, f A" }}
+        {{ page.start_date | date:"F d, Y, f A" }}
     {% endif %}
 
     {% if page.end_date %}
-        {{ page.end_date | date:"N d, Y, f A" }}
+        {{ page.end_date | date:"F d, Y, f A" }}
     {% endif %}
 
     {{ page.timezone }}

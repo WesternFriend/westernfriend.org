@@ -44,7 +44,7 @@
                             <div class="card-title">
                                 <h2>{{ event.event.title }}</h2>
                             </div>
-                            <p class="card-subtitle">{{ event.event.start_date | date:"N d, Y, f A" }} ({{ event.event.timezone }})</p>
+                            <p class="card-subtitle">{{ event.event.start_date | date:"F d, Y, f A" }} ({{ event.event.timezone }})</p>
 
                             <div class="card-text">
                                 {{ event.event.description | richtext }}
