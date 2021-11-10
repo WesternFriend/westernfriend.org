@@ -22,7 +22,7 @@
                     <a href="{{ event.website }}" class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
                             <h3 class="mb-1">{{ event.title }}</h3>
-                            <small>{{ event.date }}</small>
+                            <small>{{ event.start_date | date:"N d, Y, f A" }}</small>
                         </div>
                         {% if event.description %}
                             <span>
@@ -34,7 +34,7 @@
                     <div class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
                             <h3 class="mb-1">{{ event.title }}</h3>
-                            <small>{{ event.date }}</small>
+                            <small>{{ event.start_date | date:"N d, Y, f A" }}</small>
                         </div>
                         {% if event.description %}
                             <span>

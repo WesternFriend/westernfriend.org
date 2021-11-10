@@ -8,17 +8,17 @@
 {% block content %}
     <h1>{{ page.title }}</h1>
 
-    {% if page.specific.start_date %}
-        {{ page.start_date }}
+    {% if page.start_date %}
+        {{ page.start_date | date:"N d, Y, f A" }}
     {% endif %}
 
-    {% if page.specific.end_date %}
-        {{ page.end_date }}
+    {% if page.end_date %}
+        {{ page.end_date | date:"N d, Y, f A" }}
     {% endif %}
 
     {{ page.timezone }}
 
-    {% if page.specific.description %}
+    {% if page.description %}
         {{ page.description | richtext }}
     {% endif %}
 
