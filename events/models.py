@@ -61,7 +61,7 @@ class EventsIndexPage(Page):
         context = super().get_context(request)
 
         upcoming_events = Event.objects.all().filter(
-            Q(date__gt=date.today())).order_by('date')
+            Q(start_date__gt=date.today())).order_by('start_date')
 
         # Show three archive issues per page
         paginator = Paginator(upcoming_events, 3)
