@@ -18,8 +18,8 @@
 
     {{ page.timezone }}
 
-    {% if page.description %}
-        {{ page.description | richtext }}
+    {% if page.body %}
+        {{ page.body }}
     {% endif %}
 
     {% if page.website %}
