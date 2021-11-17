@@ -14,6 +14,7 @@ from wagtail.search import index
 
 
 class Event(Page):
+    teaser = models.TextField(max_length=100)
     description = RichTextField(blank=True)
 
     start_date = models.DateTimeField()
