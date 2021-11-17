@@ -39,10 +39,12 @@ class Event(Page):
         FieldPanel("website")
     ]
 
+    context_object_name = "event"
+
     search_template = "search/event.html"
 
     search_fields = [
-        index.SearchField("description", partial_match=True),
+        index.SearchField("body", partial_match=True),
     ]
 
     parent_page_types = ["events.EventsIndexPage"]
