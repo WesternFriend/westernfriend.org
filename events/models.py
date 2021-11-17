@@ -13,12 +13,9 @@ from wagtail.search import index
 
 from streams.blocks import FormattedImageChooserStructBlock
 
-# Create your models here.
-
 
 class Event(Page):
     teaser = models.TextField(max_length=100)
-    description = RichTextField(blank=True)
     body = StreamField([
         ('rich_text', blocks.RichTextBlock()),
         ('image', FormattedImageChooserStructBlock()),
