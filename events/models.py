@@ -27,7 +27,7 @@ class Event(Page):
     website = models.URLField(blank=True, null=True)
 
     content_panels = Page.content_panels + [
-        FieldPanel("description"),
+        FieldPanel("teaser"),
         FieldPanel("start_date"),
         FieldPanel("end_date"),
         FieldPanel("timezone"),
