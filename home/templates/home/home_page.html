@@ -47,7 +47,7 @@
                             <p class="card-subtitle">{{ event.event.start_date | date:"F d, Y, f A" }} ({{ event.event.timezone }})</p>
 
                             <div class="card-text">
-                                {{ event.event.description | richtext }}
+                                {{ event.event.teaser }}
                             </div>
 
                             <a href="{% pageurl event.event %}" class="card-link btn btn-primary">Read more</a>
