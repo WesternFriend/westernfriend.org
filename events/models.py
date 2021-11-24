@@ -5,16 +5,21 @@ from django.db import models
 from django.db.models import Q
 
 from timezone_field import TimeZoneField
-from wagtail.admin.edit_handlers import FieldPanel
-from wagtail.core.fields import RichTextField
+from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
+from wagtail.core import blocks
+from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.search import index
 
-# Create your models here.
+from streams.blocks import FormattedImageChooserStructBlock
 
 
 class Event(Page):
-    description = RichTextField(blank=True)
+    teaser = models.TextField(max_length=100)
+    body = StreamField([
+        ('rich_text', blocks.RichTextBlock()),
+        ('image', FormattedImageChooserStructBlock()),
+    ], null=True, blank=True)
 
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(blank=True, null=True)
@@ -26,17 +31,20 @@ class Event(Page):
     website = models.URLField(blank=True, null=True)
 
     content_panels = Page.content_panels + [
-        FieldPanel("description"),
+        FieldPanel("teaser"),
+        StreamFieldPanel("body"),
         FieldPanel("start_date"),
         FieldPanel("end_date"),
         FieldPanel("timezone"),
         FieldPanel("website")
     ]
 
+    context_object_name = "event"
+
     search_template = "search/event.html"
 
     search_fields = [
-        index.SearchField("description", partial_match=True),
+        index.SearchField("body", partial_match=True),
     ]
 
     parent_page_types = ["events.EventsIndexPage"]

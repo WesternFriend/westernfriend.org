@@ -6,25 +6,25 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <h1>{{ event.title }}</h1>
 
-    {% if page.start_date %}
-        {{ page.start_date | date:"F d, Y, f A" }}
+    {% if event.start_date %}
+        {{ event.start_date | date:"F d, Y, f A" }}
     {% endif %}
 
-    {% if page.end_date %}
-        {{ page.end_date | date:"F d, Y, f A" }}
+    {% if event.end_date %}
+        {{ event.end_date | date:"F d, Y, f A" }}
     {% endif %}
 
-    {{ page.timezone }}
+    {{ event.timezone }}
 
-    {% if page.description %}
-        {{ page.description | richtext }}
+    {% if event.body %}
+        {{ event.body }}
     {% endif %}
 
-    {% if page.website %}
+    {% if event.website %}
         <a 
-            href="{{ page.specific.website }}"
+            href="{{ event.specific.website }}"
             class="btn btn-primary"
         >
             More information

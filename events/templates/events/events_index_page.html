@@ -24,9 +24,9 @@
                             <h3 class="mb-1">{{ event.title }}</h3>
                             <small>{{ event.start_date | date:"F d, Y, f A" }}</small>
                         </div>
-                        {% if event.description %}
+                        {% if event.teaer %}
                             <span>
-                                {{ event.description | richtext }}
+                                {{ event.teaser }}
                             </span>
                         {% endif %}
                     </a>
@@ -36,9 +36,9 @@
                             <h3 class="mb-1">{{ event.title }}</h3>
                             <small>{{ event.start_date | date:"F d, Y, f A" }}</small>
                         </div>
-                        {% if event.description %}
+                        {% if event.teaser %}
                             <span>
-                                {{ event.description | richtext }}
+                                {{ event.teaser }}
                             </span>
                         {% endif %}
                     </div>

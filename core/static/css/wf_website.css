@@ -5,6 +5,19 @@ blockquote {
     padding: 1em 2em;
 }
 
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+.richtext-image.left {
+	float: left;
+}
+
+.richtext-image.right {
+	float: right;
+}
+
 .pdfobject-container { 
 	height: 42rem;
 	border: 0.3rem solid rgba(0,0,0,.1);
