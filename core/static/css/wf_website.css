@@ -5,6 +5,11 @@ blockquote {
     padding: 1em 2em;
 }
 
+img {
+	max-width: 100%;
+	height: auto;
+}
+
 .richtext-image.left {
 	float: left;
 }
@@ -25,9 +30,4 @@ blockquote {
 	font-size: 2em;
 	float: right;
 	width: 50%;
-}
-
-img {
-	max-width: 100%;
-	height: auto;
 }
