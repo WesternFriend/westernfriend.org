@@ -42,3 +42,28 @@ class NewsTopic(Page):
 
     parent_page_types = ["NewsTopicsIndexPage", ]
     subpage_types = []
+
+
+class NewsTypeIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("intro")]
+
+    parent_page_types = ["NewsIndexPage", ]
+    subpage_types = ["NewsType", ]
+    max_count = 1
+
+
+class NewsType(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = [
+        FieldPanel("title"),
+        FieldPanel("intro"),
+    ]
+
+    # Hide the settings panels
+    settings_panels = []
+
+    parent_page_types = ["NewsTypeIndexPage", ]
+    subpage_types = []
