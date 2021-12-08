@@ -205,11 +205,15 @@ class MagazineDepartment(Page):
     parent_page_types = ["MagazineDepartmentIndexPage"]
     subpage_types = []
 
+    # TODO: Determine whether we still use the autocomplete widget
+    # Remove the following code if not using autocomplete
     autocomplete_search_field = "title"
 
+    # TODO: remove if not using autocomplete
     def autocomplete_label(self):
         return self.title
 
+    # TODO: remove if not using autocomplete
     def __str__(self):
         return self.title
 
