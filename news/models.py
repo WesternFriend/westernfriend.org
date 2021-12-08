@@ -10,7 +10,7 @@ class NewsIndexPage(Page):
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
     parent_page_types = ["home.HomePage", ]
-    subpage_types = []
+    subpage_types = ["NewsTopicsIndexPage", ]
     max_count = 1
 
     def get_context(self, request, *args, **kwargs):
