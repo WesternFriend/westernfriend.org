@@ -9,6 +9,7 @@ class NewsIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
+    parent_page_types = ["home.HomePage",]
     subpage_types = []
     max_count = 1
 

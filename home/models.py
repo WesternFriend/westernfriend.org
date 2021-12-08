@@ -33,6 +33,7 @@ class HomePage(Page):
         "library.LibraryIndexPage",
         "magazine.MagazineIndexPage",
         "memorials.MemorialIndexPage",
+        "news.NewsIndexPage",
         "store.StoreIndexPage",
         "subscription.ManageSubscriptionPage",
         "subscription.SubscriptionIndexPage",
