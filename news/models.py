@@ -30,7 +30,12 @@ class NewsTopicsIndexPage(Page):
 
 
 class NewsTopic(Page):
-    content_panels = [FieldPanel("title")]
+    intro = RichTextField(blank=True)
+
+    content_panels = [
+        FieldPanel("title"),
+        FieldPanel("intro"),
+    ]
 
     # Hide the settings panels
     settings_panels = []
