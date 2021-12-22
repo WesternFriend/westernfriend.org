@@ -8,6 +8,14 @@
 {% block content %}
     <h1>{{ page.title }}</h1>
 
+    {% if page.hosted_by %}
+        <strong>Hosted by:</strong>
+        <a href="{% pageurl page.hosted_by %}">
+            {{ page.hosted_by }}
+        </a>
+    {% endif %}
+
+
     {% if page.specific.description %}
         {{ page.specific.description | richtext }}
     {% endif %}
