@@ -108,10 +108,14 @@ def parse_article_authors(article, article_authors, magazine_authors):
 
     for drupal_author_id in article_authors.split(", "):
         drupal_author_id = int(drupal_author_id)
-
+        
         author_data = get_existing_magazine_author_by_id(drupal_author_id, magazine_authors)
 
-        author = get_contact_from_author_data(author_data)
+        if author_data is not None:
+            author = get_contact_from_author_data(author_data)
+        else:
+            print(f"Could not find author data for Drupal author ID:", drupal_author_id)
+            continue
 
         if author is not None:
             article_author = MagazineArticleAuthor(
@@ -151,6 +155,7 @@ class Command(BaseCommand):
         for index, row in tqdm(
             articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"
         ):
+            print(row["node_id"])
             article_exists = MagazineArticle.objects.filter(
                 drupal_node_id=row["node_id"]
             ).exists()

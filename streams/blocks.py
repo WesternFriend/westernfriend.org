@@ -74,8 +74,11 @@ class PullQuoteBlock(blocks.TextBlock):
 
 class FormattedImageChooserStructBlock(blocks.StructBlock):
     image = ImageChooserBlock()
-    width = blocks.IntegerBlock(min_value=0, max_value=800,
-                                help_text="Enter the desired image width value in pixels up to 800 max.")
+    width = blocks.IntegerBlock(
+        min_value=0,
+        max_value=800,
+        help_text="Enter the desired image width value in pixels up to 800 max."
+    )
 
     class Meta:
         icon = "media"

@@ -52,7 +52,8 @@ def parse_media_blocks(media_urls):
 
                 image.save()
 
-                image_block = ("image", image)
+                # Create an image block with dictionary properties of FormattedImageChooserStructBlock
+                image_block = ("image", { "image": image, "width": 800})
 
                 media_blocks.append(image_block)
             else:
@@ -93,8 +94,6 @@ def get_existing_magazine_author_by_id(drupal_author_id, magazine_authors):
 
 
 def get_contact_from_author_data(author_data):
-    # try:
-
     author_is_organization = not pd.isnull(author_data["organization_name"])
 
     author_is_meeting = not pd.isnull(author_data["meeting_name"])
