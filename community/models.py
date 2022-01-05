@@ -58,12 +58,21 @@ class CommunityPage(Page):
 class OnlineWorship(Page):
     description = RichTextField(blank=True)
 
+    hosted_by = models.ForeignKey(
+        'wagtailcore.Page',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='online_worship',
+    )
+
     times_of_worship = RichTextField(blank=True)
 
     website = models.URLField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
+        PageChooserPanel('hosted_by', ['contact.Meeting', 'contact.Organization']),
         FieldPanel("times_of_worship"),
         FieldPanel("website"),
     ]

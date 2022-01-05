@@ -46,6 +46,16 @@
         </dl>
         {% endif %}
 
+        {% if page.online_worship.count %}
+            <strong>Online worship:</strong>
+
+            {% with page.online_worship.all|first as online_worship %}
+            <a href="{% pageurl online_worship %}">
+                {{ online_worship.title }}
+            </a>
+            {% endwith %}
+        {% endif %}
+
         {% if page.presiding_clerks.count %}
         <h2>Presiding clerk(s)</h2>
 
