@@ -5,57 +5,64 @@
 {% block body_class %}template-magazineissue{% endblock %}
 
 {% block content %}
-    <h1>
+    <h1 class="mb-3">
         {{ page.title }}
-    </h1>
-
-    {% image page.cover_image max-320x200 %}
-
-    {% if page.publication_date %}
-        <p>
+        {% if page.publication_date %}
+        <span class="text-muted small">
             {{ page.publication_date | date:"F" }}
             /
             {{ page.publication_end_date | date:"F Y" }}
-        </p>
+        </span>
     {% endif %}
+    </h1>
 
-    {% if page.featured_articles.count %}
-        <h2>Featured articles</h2>
+    
 
-        <ul>
-            {% for featured_article in page.featured_articles.all %}
-                <li>
-                    <a href="{% pageurl featured_article %}">
-                        {{ featured_article.title }}
-                    </a>
-                </li>
+    <div class="row">
+        <div class="col">
+            {% if page.featured_articles.count %}
+            <h2>Featured articles</h2>
+
+            <ul>
+                {% for featured_article in page.featured_articles.all %}
+                    <li>
+                        <a href="{% pageurl featured_article %}">
+                            {{ featured_article.title }}
+                        </a>
+                    </li>
+                {% endfor %}
+
+            </ul>
+            {% endif %}
+
+            {% regroup articles_by_department by specific.department as departments %}
+
+            {% for department in departments %}
+                <h2>
+                {{ department.grouper }}
+                </h2>
+                
+                <ul>
+                    {% for article in department.list %}
+                    <li>
+                        <a href="{% pageurl article %}">
+                            {{ article }} {% if article.is_featured %}(featured){% endif %}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
             {% endfor %}
+        </div>
 
-        </ul>
-    {% endif %}
+        <div class="col pt-2">
+            {% image page.cover_image width-480 %}
 
-    {% regroup articles_by_department by specific.department as departments %}
-
-    {% for department in departments %}
-        <h2>
-        {{ department.grouper }}
-        </h2>
-        
-        <ul>
-            {% for article in department.list %}
-            <li>
-                <a href="{% pageurl article %}">
-                    {{ article }} {% if article.is_featured %}(featured){% endif %}
+            <p class="mt-3">
+                <a href="{{ page.get_parent.url }}">
+                    Return to {{ page.get_parent.title }} Collection
                 </a>
-            </li>
-            {% endfor %}
-        </ul>
-    {% endfor %}
-
-    <p>
-        <a href="{{ page.get_parent.url }}">
-            Return to {{ page.get_parent.title }}
-        </a>
-    </p>
+            </p>
+        </div>
+    </div>
 
 {% endblock %}
