@@ -33,6 +33,16 @@
         </div>
     {% endif %}
 
+    {% if user_can_view_full_article %}
+        {% include_block page.body %}
+    {% else %}
+        <a href="/subscribe" class="btn btn-outline btn-success">
+            Subscribe now for full access.
+        </a>
+
+        {{ page.teaser | richtext }}
+    {% endif %}
+
     {% if page.tags.all.count %}
         <div class="tags">
             {% for tag in page.tags.all %}
@@ -46,18 +56,7 @@
         </div>
     {% endif %}
 
-
-    {% if user_can_view_full_article %}
-        {% include_block page.body %}
-    {% else %}
-        <a href="/subscribe" class="btn btn-outline btn-success">
-            Subscribe now for full access.
-        </a>
-
-        {{ page.teaser | richtext }}
-    {% endif %}
-
-    <p>
+    <p class="mt-3">
         <a href="{{ page.get_parent.url }}">
             Return to "{{ page.get_parent.title }}" issue
         </a>
