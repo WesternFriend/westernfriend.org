@@ -24,6 +24,7 @@ from contact.models import Meeting, Organization, Person
 
 from .shared import parse_media_blocks
 
+
 def extract_pullquotes(item: str) -> List[str]:
     """
     Get a list of all pullquote strings found within the item
@@ -108,7 +109,7 @@ def parse_article_authors(article, article_authors, magazine_authors):
 
     for drupal_author_id in article_authors.split(", "):
         drupal_author_id = int(drupal_author_id)
-        
+
         author_data = get_existing_magazine_author_by_id(drupal_author_id, magazine_authors)
 
         if author_data is not None:
