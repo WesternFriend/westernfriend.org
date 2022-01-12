@@ -9,22 +9,14 @@
     <h1>
         {{ page.title }}
     </h1>
+    
     <p class="text-muted">
         Published {{ page.publication_date }}
     </p>
 
-    {% if page.news_topics.count %}
-        <ul class="list-inline mb-1">
-            <li class="list-inline-item">Topics:</li>
-            {% for topic in page.news_topics.all %}
-                <li class="list-inline-item">
-                    <a href="{% pageurl topic %}">
-                        {{ topic }}
-                    </a>{% if not forloop.last %},{% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    <p class="text-muted">
+        Topic <a href="{% pageurl page.news_topic %}">{{ page.news_topic }}</a>
+    </p>
 
     {{ page.body }}
 {% endblock %}
