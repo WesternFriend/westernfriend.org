@@ -10,7 +10,7 @@ class NewsIndexPage(Page):
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
     parent_page_types = ["home.HomePage", ]
-    subpage_types = ["NewsTopicsIndexPage", "NewsTypeIndexPage", ]
+    subpage_types = ["NewsTopicIndexPage", "NewsTypeIndexPage", ]
     max_count = 1
 
     def get_context(self, request, *args, **kwargs):
@@ -19,7 +19,7 @@ class NewsIndexPage(Page):
         return context
 
 
-class NewsTopicsIndexPage(Page):
+class NewsTopicIndexPage(Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
@@ -40,7 +40,7 @@ class NewsTopic(Page):
     # Hide the settings panels
     settings_panels = []
 
-    parent_page_types = ["NewsTopicsIndexPage", ]
+    parent_page_types = ["NewsTopicIndexPage", ]
     subpage_types = []
 
 
