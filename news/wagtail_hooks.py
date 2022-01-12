@@ -4,7 +4,8 @@ from wagtail.contrib.modeladmin.options import (
     modeladmin_register,
 )
 
-from .models import NewsTopic, NewsType
+from .models import NewsItem, NewsTopic, NewsType
+
 
 class NewsTopicModelAdmin(ModelAdmin):
     model = NewsTopic
@@ -30,6 +31,18 @@ class NewsTypeModelAdmin(ModelAdmin):
     search_fields = ("title",)
 
 
+class NewsItemModelAdmin(ModelAdmin):
+    model = NewsItem
+    menu_icon = "folder-inverse"
+    menu_label = "Items"
+    menu_order = 100
+    add_to_settings_menu = False
+    exclude_from_explorer = False
+    list_per_page = 10
+    list_display = ("title",)
+    search_fields = ("title",)
+
+
 class NewsAdminGroup(ModelAdminGroup):
     menu_label = "News"
     menu_icon = "fa-newspaper-o"
@@ -37,6 +50,7 @@ class NewsAdminGroup(ModelAdminGroup):
     items = (
         NewsTopicModelAdmin,
         NewsTypeModelAdmin,
+        NewsItemModelAdmin,
     )
 
 
