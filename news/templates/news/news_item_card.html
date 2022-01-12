@@ -1,0 +1,21 @@
+{% load wagtailcore_tags %}
+
+<div class="card">
+    <div class="card-body">
+        <h2 class="card-title">
+          {{ news_item.title }}
+        </h2>
+
+        <p class="card-subtitle mb-2 text-muted">
+            {{ news_item.publication_date }}
+        </p>
+
+        <p class="card-text">
+            {{ news_item.teaser }}
+        </p>
+
+        <a href="{% pageurl news_item %}" class="card-link">
+            Read more
+        </a>
+    </div>
+  </div>
