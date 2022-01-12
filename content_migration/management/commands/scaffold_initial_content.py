@@ -28,6 +28,11 @@ from magazine.models import (
     DeepArchiveIndexPage,
 )
 from memorials.models import MemorialIndexPage
+from news.models import (
+    NewsIndexPage,
+    NewsTopicIndexPage,
+    NewsTypeIndexPage,
+)
 from store.models import (
     ProductIndexPage,
     StoreIndexPage,
@@ -67,6 +72,7 @@ class Command(BaseCommand):
         library_index_page = LibraryIndexPage(title="Library", show_in_menus=True)
         magazine_index_page = MagazineIndexPage(title="Magazine", show_in_menus=True)
         manage_subscription_page = ManageSubscriptionPage(title="Manage subscription")
+        news_index_page = NewsIndexPage(title="News")
         store_index_page = StoreIndexPage(title="Bookstore", show_in_menus=True)
         subscription_index_page = SubscriptionIndexPage(title="Subscribe", show_in_menus=True)
 
@@ -77,6 +83,7 @@ class Command(BaseCommand):
         home_page.add_child(instance=library_index_page)
         home_page.add_child(instance=magazine_index_page)
         home_page.add_child(instance=manage_subscription_page)
+        home_page.add_child(instance=news_index_page)
         home_page.add_child(instance=store_index_page)
         home_page.add_child(instance=subscription_index_page)
         home_page.save()
@@ -93,6 +100,15 @@ class Command(BaseCommand):
         magazine_index_page.add_child(instance=deep_archive_index_page)
 
         magazine_index_page.save()
+
+        # News section
+        news_topic_index_page = NewsTopicIndexPage("Topic")
+        news_type_index_page = NewsTypeIndexPage(title="Type")
+
+        news_index_page.add_child(instance=news_topic_index_page)
+        news_index_page.add_child(instance=news_type_index_page)
+
+        news_index_page.save()
 
         # Community section
         community_directory_index_page = CommunityDirectoryIndexPage(title="Community directories")
