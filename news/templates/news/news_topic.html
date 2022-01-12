@@ -6,4 +6,8 @@
     </h1>
 
     {{ page.specific.intro | richtext }}
+
+    {% for news_item in page.news_items.all %}
+        {% include "news/news_item_card.html" %}
+    {% endfor %}
 {% endblock content %}
