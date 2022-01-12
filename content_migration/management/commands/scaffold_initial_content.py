@@ -102,7 +102,7 @@ class Command(BaseCommand):
         magazine_index_page.save()
 
         # News section
-        news_topic_index_page = NewsTopicIndexPage("News topics", slug="topic")
+        news_topic_index_page = NewsTopicIndexPage(title="News topics", slug="topic")
         news_type_index_page = NewsTypeIndexPage(title="News types", slug="type")
 
         news_index_page.add_child(instance=news_topic_index_page)
