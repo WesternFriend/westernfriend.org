@@ -76,6 +76,11 @@ class NewsType(Page):
 
 
 class NewsItem(Page):
+    teaser = models.TextField(
+        max_length=100,
+        null=True,
+        help_text="Briefly summarize the news item for display in news lists",
+    )
     body = StreamField(
         [
             ("document", DocumentChooserBlock()),
@@ -120,6 +125,7 @@ class NewsItem(Page):
     )
 
     content_panels = Page.content_panels + [
+        FieldPanel("teaser"),
         StreamFieldPanel("body"),
         MultiFieldPanel(
             heading="Metadata",
