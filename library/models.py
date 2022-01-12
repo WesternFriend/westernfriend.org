@@ -12,7 +12,6 @@ from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
-from wagtail.images.blocks import ImageChooserBlock
 
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
@@ -25,6 +24,7 @@ from facets.models import (
     TimePeriod,
     Topic,
 )
+from streams.blocks import FormattedImageChooserStructBlock
 
 from flatpickr import DatePickerInput
 
@@ -41,7 +41,7 @@ class LibraryItem(Page):
     body = StreamField(
         [
             ("paragraph", blocks.RichTextBlock()),
-            ("image", ImageChooserBlock()),
+            ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("document", DocumentChooserBlock()),
             ("embed", EmbedBlock()),
             ("url", blocks.URLBlock()),
