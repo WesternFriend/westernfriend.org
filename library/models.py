@@ -16,6 +16,7 @@ from wagtail.embeds.blocks import EmbedBlock
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
+from documents.blocks import DocumentEmbedBlock
 
 from facets.models import (
     Audience,
@@ -42,7 +43,7 @@ class LibraryItem(Page):
         [
             ("paragraph", blocks.RichTextBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
-            ("document", DocumentChooserBlock()),
+            ("document", DocumentEmbedBlock()),
             ("embed", EmbedBlock()),
             ("url", blocks.URLBlock()),
             ("quote", blocks.BlockQuoteBlock()),
