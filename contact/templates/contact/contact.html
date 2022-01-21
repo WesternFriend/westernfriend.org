@@ -173,10 +173,10 @@
 
 {% if page.specific.library_items_authored.count %}
 <h2>Library items</h2>
-    {% for item in page.specific.library_items_authored.all %}
-    <a href="{% pageurl item.library_item %}">
-        {{ item.library_item }}
-    </a>
+    {% for item_authored in page.specific.library_items_authored.all %}
+        {% with item_authored.library_item as library_item %}
+            {% include "library/library_item_card.html" %}
+        {% endwith %}
     {% endfor %}
 {% endif %}
 
