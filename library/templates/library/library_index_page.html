@@ -152,19 +152,7 @@
     <div class="col" id="app">
         {% if library_items %}
         {% for library_item in library_items %}
-        <div class="card mb-2">
-            <div class="card-body">
-                <h3>
-                    <a href="{% pageurl library_item %}">
-                        {{ library_item }}
-                    </a>
-                </h3>
-                Authored by:
-                {% for author in library_item.specific.authors.all %}
-                <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            </div>
-        </div>
+        {% include "library/library_item_card.html" %}
         {% endfor %}
 
         {% else %}
