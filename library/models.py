@@ -170,7 +170,7 @@ class LibraryIndexPage(Page):
             "item_genre__title",
             "item_medium__title",
             "item_time_period__title",
-            "item_topic__title",
+            "topics__topic__title",
         ]
         facets = {key: query[key] for key in query if key in allowed_keys}
 
