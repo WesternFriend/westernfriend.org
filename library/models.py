@@ -170,12 +170,12 @@ class LibraryIndexPage(Page):
             "item_genre__title",
             "item_medium__title",
             "item_time_period__title",
-            "item_topic__title",
+            "topics__topic__title",
         ]
         facets = {key: query[key] for key in query if key in allowed_keys}
 
-        # Filter library items using facets from GET request
-        library_items = LibraryItem.objects.filter(**facets)
+        # Filter live (not draft) library items using facets from request
+        library_items = LibraryItem.objects.live().filter(**facets)
 
         # Provide filtered library items
         context["library_items"] = library_items

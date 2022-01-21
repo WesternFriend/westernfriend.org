@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% load wagtailcore_tags %}
 
-{% block extra_css %}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.21.0/slimselect.min.css" rel="stylesheet">
-</link>
-{% endblock %}
 
 {% block content %}
 <h1>
@@ -30,9 +26,18 @@
                         Author
                     </label>
                     <select class="custom-select" name="authors__author__title" id="author">
+                        {% if not request.GET.authors__author__title %}
                         <option selected disabled hidden>Select...</option>
+                        {% endif %}
+
                         {% for author in authors %}
-                        <option>{{ author }}</option>
+                        <option 
+                            value="{{ author }}"
+                            {% if request.GET.authors__author__title == author.title %}selected{% endif %}    
+                        >
+                            {{ author }}
+                        </option>
+
                         {% endfor %}
                     </select>
                 </div>
@@ -42,9 +47,18 @@
                         Audience
                     </label>
                     <select class="custom-select" name="item_audience__title" id="audience">
+                        {% if not request.GET.item_audience__title %}
                         <option selected disabled hidden>Select...</option>
+                        {% endif %}
+
                         {% for audience in audiences %}
-                        <option>{{ audience }}</option>
+                        <option 
+                            value="{{ audience }}"
+                            {% if request.GET.item_audience__title == audience.title %}selected{% endif %}    
+                        >
+                            {{ audience }}
+                        </option>
+
                         {% endfor %}
                     </select>
                 </div>
@@ -54,9 +68,18 @@
                         Genre
                     </label>
                     <select class="custom-select" name="item_genre__title" id="genre">
-                        <option disabled selected>Select...</option>
+                        {% if not request.GET.item_genre__title %}
+                        <option selected disabled hidden>Select...</option>
+                        {% endif %}
+
                         {% for genre in genres %}
-                        <option>{{ genre }}</option>
+                        <option 
+                            value="{{ genre }}"
+                            {% if request.GET.item_genre__title == genre.title %}selected{% endif %}    
+                        >
+                            {{ genre }}
+                        </option>
+
                         {% endfor %}
                     </select>
                 </div>
@@ -66,9 +89,18 @@
                         Medium
                     </label>
                     <select class="custom-select" name="item_medium__title" id="medium">
-                        <option disabled selected>Select...</option>
+                        {% if not request.GET.item_medium__title %}
+                        <option selected disabled hidden>Select...</option>
+                        {% endif %}
+
                         {% for medium in mediums %}
-                        <option>{{ medium }}</option>
+                        <option 
+                            value="{{ medium }}"
+                            {% if request.GET.item_medium__title == medium.title %}selected{% endif %}    
+                        >
+                            {{ medium }}
+                        </option>
+
                         {% endfor %}
                     </select>
                 </div>
@@ -78,9 +110,18 @@
                         Time Period
                     </label>
                     <select class="custom-select" name="item_time_period__title" id="time_period">
-                        <option disabled selected>Select...</option>
+                        {% if not request.GET.item_time_period__title %}
+                        <option selected disabled hidden>Select...</option>
+                        {% endif %}
+
                         {% for time_period in time_periods %}
-                        <option>{{ time_period }}</option>
+                        <option 
+                            value="{{ time_period }}"
+                            {% if request.GET.item_time_period__title == time_period.title %}selected{% endif %}    
+                        >
+                            {{ time_period }}
+                        </option>
+
                         {% endfor %}
                     </select>
                 </div>
@@ -89,10 +130,19 @@
                     <label for="topic">
                         Topic
                     </label>
-                    <select class="custom-select" name="topic" id="topic">
-                        <option disabled selected>Select...</option>
+                    <select class="custom-select" name="topics__topic__title" id="topic">
+                        {% if not request.GET.topics__topic__title %}
+                        <option selected disabled hidden>Select...</option>
+                        {% endif %}
+
                         {% for topic in topics %}
-                        <option>{{ topic }}</option>
+                        <option 
+                            value="{{ topic }}"
+                            {% if request.GET.topics__topic__title == topic %}selected{% endif %}    
+                        >
+                            {{ topic }}
+                        </option>
+
                         {% endfor %}
                     </select>
                 </div>
@@ -102,19 +152,7 @@
     <div class="col" id="app">
         {% if library_items %}
         {% for library_item in library_items %}
-        <div class="card mb-2">
-            <div class="card-body">
-                <h3>
-                    <a href="{% pageurl library_item %}">
-                        {{ library_item }}
-                    </a>
-                </h3>
-                Authored by:
-                {% for author in library_item.specific.authors.all %}
-                <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            </div>
-        </div>
+        {% include "library/library_item_card.html" %}
         {% endfor %}
 
         {% else %}
@@ -125,40 +163,11 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.21.0/slimselect.min.js"></script>
-
 <script>
-    // Keep search facets in-sync with url parameters
-    var urlParams = new URLSearchParams(window.location.search);
-
-    // get facet url params
-    var facets = {
-        author: urlParams.get('authors__author__title'),
-        audience: urlParams.get('item_audience__title'),
-        genre: urlParams.get('item_genre__title'),
-        medium: urlParams.get('item_medium__title'),
-        time_period: urlParams.get('item_time_period__title'),
-        topic: urlParams.get('item_topic__title'),
-    };
-
-    $(document).ready(function () {
-        // Render select widgets and populate values
-        for (var facet in facets) {
-            // Render advanced select widget on facet select
-            var facetSelect = new SlimSelect({
-                select: '#' + facet
-            });
-
-            // populate the select with value, if one exists
-            if (facets[facet]) facetSelect.set(facets[facet]);
-        }
-    });
-
     // Submit form when any option is selected
-    // Note: event listeners must be added after setting field values
-    // to prevent a form submit "loop" onchange
     document.getElementById("facetForm").addEventListener("change", function () {
         this.submit();
     });
+    
 </script>
 {% endblock %}
