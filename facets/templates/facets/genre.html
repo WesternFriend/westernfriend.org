@@ -7,9 +7,12 @@
 
     <h2>Library items</h2>
     
-    {% for library_item in page.specific.libraryitem_set.all %}
-        <a href="{% pageurl library_item %}">
-            {{ library_item }}
-        </a>
-    {% endfor %}
+    {% if page.specific.libraryitem_set.all %}
+        {% for library_item in page.specific.libraryitem_set.all %}
+            {% include "library/library_item_card.html" %}
+        {% endfor %}
+
+    {% else %}
+        <p>No media items found.</p>
+    {% endif %}
 {% endblock %}
