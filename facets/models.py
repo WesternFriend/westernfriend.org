@@ -74,3 +74,14 @@ class TopicIndexPage(Page):
 class Topic(Page):
     parent_page_types = ["TopicIndexPage"]
     subpage_types = []
+
+    def get_context(self, request, *args, **kwargs):
+        # Avoid circular import
+        from library.models import LibraryItem
+
+        context = super().get_context(request, *args, **kwargs)
+
+        # Get live library items matching topic
+        context["library_items"] = LibraryItem.objects.live().filter(topics__topic=self)
+
+        return context

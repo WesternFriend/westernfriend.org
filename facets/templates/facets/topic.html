@@ -7,8 +7,8 @@
 
     <h2>Library items</h2>
     
-    {% if page.specific.libraryitem_set.all %}
-        {% for library_item in page.specific.libraryitem_set.all %}
+    {% if library_items %}
+        {% for library_item in library_items %}
             {% include "library/library_item_card.html" %}
         {% endfor %}
 
