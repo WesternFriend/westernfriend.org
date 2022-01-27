@@ -17,7 +17,9 @@
 
 <div class="row mb-4">
     {% for issue in recent_issues %}
-    {% include "magazine/magazine_issue_card.html" %}
+    <div class="col-sm-4 mb-4">
+        {% include "magazine/magazine_issue_card.html" %}
+    </div>
     {% endfor %}
 </div>
 
@@ -25,24 +27,26 @@
 
 <div class="row">
     {% for issue in archive_issues %}
-    {% include "magazine/magazine_issue_card.html" %}
+    <div class="col-sm-3 mb-4">
+        {% include "magazine/magazine_issue_card.html" %}
+    </div>
     {% endfor %}
+</div>
 
-    <span class="step-links ml-3 mb-5">
-        {% if archive_issues.has_previous %}
-        <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues"
-            class="btn btn-outline-primary btn-sm">previous</a>
-        {% endif %}
+<div class="row step-links ml-3 mb-5">
+    {% if archive_issues.has_previous %}
+    <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues"
+        class="btn btn-outline-primary btn-sm mr-1">previous</a>
+    {% endif %}
 
-        <span class="current">
-            Page {{ archive_issues.number }} of {{ archive_issues.paginator.num_pages }}
-        </span>
-
-        {% if archive_issues.has_next %}
-        <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues"
-            class="btn btn-outline-primary btn-sm">next</a>
-        {% endif %}
+    <span class="current pt-1">
+        Page {{ archive_issues.number }} of {{ archive_issues.paginator.num_pages }}
     </span>
+
+    {% if archive_issues.has_next %}
+    <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues"
+        class="btn btn-outline-primary btn-sm ml-1">next</a>
+    {% endif %}
 </div>
 
 {% if page.deep_archive_page %}
