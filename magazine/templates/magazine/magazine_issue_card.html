@@ -1,25 +1,24 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
-<div class="col-sm-4 mb-4">
-    <div class="card">
-        <a href="{% pageurl issue %}">
-            {% image issue.specific.cover_image max-286x300 class="card-img-top h-100" %}
-        </a>
 
-        <div class="card-body">
-            <h3 class="panel-title">
-                <a href="{% pageurl issue %}">
-                    {{ issue.title }}
-                </a>
-            </h3>
+<div class="card h-100">
+    <a href="{% pageurl issue %}">
+        {% image issue.specific.cover_image max-286x300 class="card-img-top h-100" %}
+    </a>
 
-            {% if issue.specific.publication_date %}
-                <p class="card-text">
-                    {{ issue.specific.publication_date | date:"M" }}
-                    /
-                    {{ issue.specific.publication_end_date | date:"M Y" }}
-                </p>
-            {% endif %}
-        </div>
+    <div class="card-body">
+        <p class="panel-title mb-0">
+            <a href="{% pageurl issue %}" class="stretched-link">
+                {{ issue.title }}
+            </a>
+        </p>
+
+        {% if issue.specific.publication_date %}
+            <p class="card-text">
+                {{ issue.specific.publication_date | date:"M" }}
+                /
+                {{ issue.specific.publication_end_date | date:"M Y" }}
+            </p>
+        {% endif %}
     </div>
 </div>
