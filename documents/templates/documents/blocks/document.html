@@ -1,6 +1,11 @@
-<div id="pdf-container-{{ value.id }}"></div>
+<div class="d-flex justify-content-end mb-2">
+    <a href="{{ value.url }}" class="btn btn-outline-primary">
+        <i class="bi bi-cloud-download"></i>
+        Download: {{ value.title | truncatewords:3 }}
+    </a>
+</div>
 
-<p>Download: <a href="{{ value.url }}">{{ value.title }}</a></p>
+<div id="pdf-container-{{ value.id }}"></div>
 
 <script 
     src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.6/pdfobject.min.js"
