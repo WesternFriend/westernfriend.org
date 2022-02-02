@@ -38,6 +38,10 @@ class LibraryItemTag(TaggedItemBase):
 
 class LibraryItem(Page):
     publication_date = models.DateField("Publication date", null=True, blank=True)
+    publication_date_is_approximate = models.BooleanField(
+        default=False,
+        help_text="This field indicates when a library item wasn't published on a specific publication date."
+    )
     description = RichTextField(null=True, blank=True)
     body = StreamField(
         [
@@ -74,6 +78,7 @@ class LibraryItem(Page):
             help_text="Select one or more authors, who contributed to this article",
         ),
         FieldPanel("publication_date", widget=DatePickerInput()),
+        FieldPanel("publication_date_is_approximate"),
         StreamFieldPanel("body"),
         MultiFieldPanel(
             children=[
