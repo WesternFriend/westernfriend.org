@@ -2,7 +2,6 @@ from django.db import models
 
 from wagtail.admin.edit_handlers import (
     FieldPanel,
-    FieldRowPanel,
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
@@ -79,7 +78,7 @@ class LibraryItem(Page):
             help_text="Select one or more authors, who contributed to this article",
         ),
         StreamFieldPanel("body"),
-        FieldRowPanel(
+        MultiFieldPanel(
             children=[
                 FieldPanel("publication_date", widget=DatePickerInput()),
                 FieldPanel("publication_date_is_approximate"),
