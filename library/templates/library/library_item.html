@@ -19,6 +19,7 @@
     {% include_block page.body %}
 
     <dl class="mt-3">
+        {% if page.specific.item_audience  %}
         <dt>
             Audience:
         </dt>
@@ -27,9 +28,9 @@
                 {{ page.specific.item_audience }}
             </a>
         </dd>
+        {% endif %}
 
-
-
+        {% if page.specific.item_genre  %}
         <dt>
             Genre:
         </dt>
@@ -38,8 +39,9 @@
                 {{ page.specific.item_genre }}
             </a>
         </dd>
+        {% endif %}
 
-
+        {% if page.specific.item_medium  %}
         <dt>
             Medium:
         </dt>
@@ -48,8 +50,9 @@
                 {{ page.specific.item_medium }}
             </a>
         </dd>
+        {% endif %}
 
-
+        {% if page.specific.item_time_period  %}
         <dt>
             Time period:
         </dt>
@@ -58,18 +61,20 @@
                 {{ page.specific.item_time_period }}
             </a>
         </dd>
+        {% endif %}
 
+        {% if page.specific.topics.count  %}
         <dt>
             Topic
         </dt>
         
         <dd>
-        {% for topic in page.specific.topics.all %}
-            
+            {% for topic in page.specific.topics.all %}
                 <a href="{% pageurl topic.topic %}">
                     {{ topic.topic }}
                 </a>{% if not forloop.last %},{% endif %}
-        {% endfor %}
+            {% endfor %}
         </dd>
+        {% endif %}
     </dl>
 {% endblock %}
