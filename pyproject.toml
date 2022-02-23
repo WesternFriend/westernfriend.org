@@ -31,5 +31,5 @@ black = {version = "^19.10b0", allow-prereleases = true}
 pylint = "^2.5.3"
 
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry>=1.0"]
 build-backend = "poetry.masonry.api"
