@@ -25,7 +25,7 @@ from facets.models import (
     TimePeriod,
     Topic,
 )
-from streams.blocks import FormattedImageChooserStructBlock
+from streams.blocks import FormattedImageChooserStructBlock, MediaBlock
 
 from flatpickr import DatePickerInput
 
@@ -48,6 +48,7 @@ class LibraryItem(Page):
             ("paragraph", blocks.RichTextBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("document", DocumentEmbedBlock()),
+            ("media", MediaBlock(icon="media")),
             ("embed", EmbedBlock()),
             ("url", blocks.URLBlock()),
             ("quote", blocks.BlockQuoteBlock()),
