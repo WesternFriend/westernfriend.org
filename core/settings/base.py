@@ -102,6 +102,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "flatpickr",
     "wagtailfontawesome",
+    "wagtailmedia",
     "wagtailmenus",
 ]
 
