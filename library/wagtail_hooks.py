@@ -6,8 +6,8 @@ from library.models import LibraryItem
 @modeladmin_register
 class LibraryItemModelAdmin(ModelAdmin):
     model = LibraryItem
-    menu_icon = "media"
-    menu_label = "Media library"
+    menu_icon = "fa-university"
+    menu_label = "Library"
     menu_order = 110
     list_per_page = 10
     list_display = (
