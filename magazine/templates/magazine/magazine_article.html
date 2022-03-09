@@ -11,27 +11,42 @@
         {{ page.title }}
     </h1>
 
+    <dl class="row">
     {% if page.authors.count %}
-        <ul class="list-inline mb-1">
-            <li class="list-inline-item">Authored by:</li>
+        <dt class="col-sm-1">Author(s)</dt>
+        <dd class="col-sm-11">
             {% for author in page.authors.all %}
-                <li class="list-inline-item">
-                    <a href="{% pageurl author.author %}">
-                        {{ author.author.title }}
-                    </a>{% if not forloop.last %},{% endif %}
-                </li>
+                {% if author.author.live %}
+                    <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                {% else %}
+                    {{ author.author }}{% if not forloop.last %},{% endif %}
+                {% endif %}
             {% endfor %}
-        </ul>
+        </dd>
     {% endif %}
 
+    <dt class="col-sm-1">
+        Issue
+    </dt>
+    <dd class="col-sm-11">
+        <a href="{{ page.get_parent.url }}">
+            {{ page.get_parent.title }}
+        </a>
+    </dd>
+
     {% if page.department %}
-        <div class="mb-2">
-            Department:&nbsp;
+        <dt class="col-sm-1">
+            <abbr title="Magazine Department">
+                Dept.
+            </abbr>
+        </dt>
+        <dd class="col-sm-11">
             <a href="{% pageurl page.department %}">
                 {{ page.department }}
             </a>
-        </div>
+        </dd>
     {% endif %}
+    </dl>
 
     {% if user_can_view_full_article %}
         {% include_block page.body %}
