@@ -157,9 +157,13 @@
         <ul class="list-inline mb-1">
             <li class="list-inline-item">Authored by:</li>
             {% for author in book.authors.all %}
-            <li class="list-inline-item">
-                <a href="{% pageurl author.author %}">{{ author.author.title }}</a>{% if not forloop.last %},{% endif %}
-            </li>
+                {% if author.author.live %}
+                    <li class="list-inline-item">
+                        <a href="{% pageurl author.author %}">{{ author.author.title }}</a>{% if not forloop.last %},{% endif %}
+                    </li>
+                {% else %}
+                    {{ author.author }}{% if not forloop.last %},{% endif %}
+                {% endif %}
             {% endfor %}
         </ul>
         {% endif %}
