@@ -13,8 +13,8 @@
 
     <dl class="row">
     {% if page.authors.count %}
-        <dt class="col-sm-1">Author(s)</dt>
-        <dd class="col-sm-11">
+        <dt class="col-sm-2">Author(s):</dt>
+        <dd class="col-sm-10">
             {% for author in page.authors.all %}
                 {% if author.author.live %}
                     <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
@@ -25,22 +25,20 @@
         </dd>
     {% endif %}
 
-    <dt class="col-sm-1">
-        Issue
+    <dt class="col-sm-2">
+        Magazine Issue:
     </dt>
-    <dd class="col-sm-11">
-        <a href="{{ page.get_parent.url }}">
-            {{ page.get_parent.title }}
+    <dd class="col-sm-10">
+        <a href="{% pageurl page.get_parent %}" class="card-link">
+            {{ page.get_parent }} ({{ page.get_parent.specific.publication_date| date:"F Y" }})
         </a>
     </dd>
 
     {% if page.department %}
-        <dt class="col-sm-1">
-            <abbr title="Magazine Department">
-                Dept.
-            </abbr>
+        <dt class="col-sm-2">
+                Department:
         </dt>
-        <dd class="col-sm-11">
+        <dd class="col-sm-10">
             <a href="{% pageurl page.department %}">
                 {{ page.department }}
             </a>
