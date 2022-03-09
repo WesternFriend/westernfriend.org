@@ -78,3 +78,13 @@
         {% endif %}
     </dl>
 {% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fitvids/1.2.0/jquery.fitvids.min.js"></script>
+<script>
+  $(document).ready(function(){
+    // Ensure embedded videos are responsive
+    $(".block-embed").fitVids();
+  });
+</script>
+{% endblock extra_js %}
