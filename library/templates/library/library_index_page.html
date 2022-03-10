@@ -137,13 +137,12 @@
             <div class="card-body">
                 <form action="" method="get">
                     <div class="row g-1">
-                        <div class="col-sm-12 col-md-5">
+                        <div class="col-sm-12 col-md-6 col-lg-4">
                             <label for="author-select-list" class="form-label">Author</label>
                             <input 
                                 class="form-control"
                                 list="author-select-options"
                                 id="author-select-list"
-                                placeholder="Type to search by author name..."
                                 name="authors__author__title"
                                 autocomplete="off"
                                 {% if request.GET.authors__author__title %}
@@ -160,17 +159,16 @@
                                 {% endfor %}
                             </datalist>
                         </div>
-                        <div class="col-sm-12 col-md-4">
+                        <div class="col-sm-12 col-md-6 col-lg-4">
                             <label for="title-search" class="form-label">Title</label>
                             <input 
                                 type="text"
                                 name="title__icontains"
                                 class="form-control"
                                 id="title-search"
-                                placeholder="Enter text to search"
                             >
                         </div>
-                        <div class="col-sm-12 col-md-2 col-lg-2 align-self-end">
+                        <div class="col-sm-12 col-md-12 col-lg-2 align-self-end">
                             <div class="btn-group mt-2" role="group" aria-label="Basic example">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-search"></i>
