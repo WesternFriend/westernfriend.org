@@ -10,7 +10,7 @@
 {{ page.specific.intro|richtext }}
 
 <div class="row">
-    <div class="col-3">
+    <div class="col-sm-12 col-md-3">
         <div class="card mb-2">
             <div class="card-body">
                 <h2 class="card-title">
@@ -129,6 +129,54 @@
         </div>
     </div>
     <div class="col" id="app">
+        <div class="card mb-2">
+            <div class="card-header">
+                Search by
+            </div>
+            <div class="card-body">
+                <form action="" method="get">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-5">
+                            <label for="author-select-list" class="form-label">Author</label>
+                            <input 
+                                class="form-control"
+                                list="author-select-options"
+                                id="author-select-list"
+                                placeholder="Type to search by author name..."
+                                name="authors__author__title"
+                                autocomplete="off"
+                                {% if request.GET.authors__author__title %}
+                                    value="{{ request.GET.authors__author__title }}"
+                                {% endif %}
+                            >
+                            <datalist id="author-select-options">
+                                {% for author in authors %}
+                                    <option 
+                                        value="{{ author }}"    
+                                    >
+                                        {{ author }}
+                                    </option>
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        <div class="col-sm-12 col-md-5">
+                            <label for="title-search" class="form-label">Title</label>
+                            <input 
+                                type="text"
+                                name="title__icontains"
+                                class="form-control"
+                                id="title-search"
+                                placeholder="Enter text to search"
+                            >
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-2 align-self-end">
+                            <button type="submit" class="btn btn-primary mt-2">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         {% if library_items %}
         {% for library_item in library_items %}
         {% include "library/library_item_card.html" %}
