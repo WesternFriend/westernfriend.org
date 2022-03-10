@@ -159,12 +159,19 @@ class LibraryIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
+        # Prepare a list of authors
+        library_item_authors = LibraryItemAuthor.objects.all()
+        authors = Page.objects.filter(
+            library_items_authored__in=library_item_authors
+        ).distinct()
+
         # Populate faceted search fields
         context["audiences"] = Audience.objects.all()
         context["genres"] = Genre.objects.all()
         context["mediums"] = Medium.objects.all()
         context["time_periods"] = TimePeriod.objects.all()
         context["topics"] = Topic.objects.all()
+        context["authors"] = authors
 
         query = request.GET.dict()
 
