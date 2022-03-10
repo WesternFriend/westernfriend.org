@@ -22,27 +22,6 @@
             </div>
             <form id="facetForm" class="mx-2">
                 <div class="form-group">
-                    <label for="author">
-                        Author
-                    </label>
-                    <select class="custom-select" name="authors__author__title" id="author">
-                        {% if not request.GET.authors__author__title %}
-                        <option selected disabled hidden>Select...</option>
-                        {% endif %}
-
-                        {% for author in authors %}
-                        <option 
-                            value="{{ author }}"
-                            {% if request.GET.authors__author__title == author.title %}selected{% endif %}    
-                        >
-                            {{ author }}
-                        </option>
-
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
                     <label for="audience">
                         Audience
                     </label>
