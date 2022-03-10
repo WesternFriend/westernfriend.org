@@ -16,7 +16,8 @@
                 <h2 class="card-title">
                     Facets
                     <a href="/library" class="btn btn-sm btn-outline-primary">
-                        clear
+                        <i class="bi bi-eraser-fill"></i>
+                        Clear
                     </a>
                 </h2>
             </div>
@@ -135,7 +136,7 @@
             </div>
             <div class="card-body">
                 <form action="" method="get">
-                    <div class="row">
+                    <div class="row g-1">
                         <div class="col-sm-12 col-md-5">
                             <label for="author-select-list" class="form-label">Author</label>
                             <input 
@@ -159,7 +160,7 @@
                                 {% endfor %}
                             </datalist>
                         </div>
-                        <div class="col-sm-12 col-md-5">
+                        <div class="col-sm-12 col-md-4">
                             <label for="title-search" class="form-label">Title</label>
                             <input 
                                 type="text"
@@ -169,8 +170,17 @@
                                 placeholder="Enter text to search"
                             >
                         </div>
-                        <div class="col-sm-12 col-md-3 col-lg-2 align-self-end">
-                            <button type="submit" class="btn btn-primary mt-2">Search</button>
+                        <div class="col-sm-12 col-md-2 col-lg-2 align-self-end">
+                            <div class="btn-group mt-2" role="group" aria-label="Basic example">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search"></i>
+                                    Search
+                                </button>
+                                <a href="/library" class="btn btn-outline-primary">
+                                    <i class="bi bi-eraser-fill"></i>
+                                    Clear
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </form>
