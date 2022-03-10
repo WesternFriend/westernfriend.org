@@ -84,11 +84,11 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fitvids/1.2.0/jquery.fitvids.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fitvids@2/dist/fitvids.min.js"></script>
 <script>
-  $(document).ready(function(){
-    // Ensure embedded videos are responsive
-    $(".block-embed").fitVids();
-  });
+document.addEventListener("DOMContentLoaded", function(event) {
+  // Ensure embedded videos are responsive
+  fitvids(".block-embed");
+});
 </script>
 {% endblock extra_js %}
