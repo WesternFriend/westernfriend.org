@@ -175,16 +175,21 @@ class LibraryIndexPage(Page):
 
         query = request.GET.dict()
 
-        # Filter out any facet that isn't a model field
+        # Define allow keys that are model fields
         allowed_keys = [
             "authors__author__title",
             "item_audience__title",
             "item_genre__title",
             "item_medium__title",
             "item_time_period__title",
+            "title__icontains",
             "topics__topic__title",
         ]
-        facets = {key: query[key] for key in query if key in allowed_keys}
+
+        # Remove any query parameter that
+        # - isn't a model field, or
+        # - has an empty value (empty string)
+        facets = {key: value for key, value in query.items() if key in allowed_keys and value is not ""}
 
         # Filter live (not draft) library items using facets from request
         library_items = LibraryItem.objects.live().filter(**facets)
