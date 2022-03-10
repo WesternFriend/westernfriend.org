@@ -84,7 +84,7 @@ class OnlineWorship(Page):
 
     search_template = "search/online_worship.html"
 
-    search_fields = [
+    search_fields = Page.search_fields + [
         index.SearchField("description", partial_match=True),
     ]
 
@@ -119,7 +119,7 @@ class CommunityDirectory(Page):
 
     search_template = "search/community_directory.html"
 
-    search_fields = [
+    search_fields = Page.search_fields + [
         index.SearchField("description", partial_match=True),
     ]
 

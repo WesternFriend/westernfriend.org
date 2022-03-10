@@ -59,7 +59,7 @@ class Person(Page):
 
         super(Person, self).save(*args, **kwargs)
 
-    search_fields = [
+    search_fields = Page.search_fields + [
         index.SearchField("given_name", partial_match=True),
         index.SearchField("family_name", partial_match=True),
     ]
@@ -127,7 +127,7 @@ class Meeting(Page):
 
     search_template = "search/meeting.html"
 
-    search_fields = [
+    search_fields = Page.search_fields + [
         index.SearchField("description", partial_match=True),
     ]
 
@@ -203,7 +203,7 @@ class Organization(Page):
 
     search_template = "search/organization.html"
 
-    search_fields = [
+    search_fields = Page.search_fields + [
         index.SearchField("description", partial_match=True),
     ]
 
