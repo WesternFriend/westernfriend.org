@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 
 from wagtail.admin.edit_handlers import (
@@ -194,7 +195,22 @@ class LibraryIndexPage(Page):
         # Filter live (not draft) library items using facets from request
         library_items = LibraryItem.objects.live().filter(**facets)
 
-        # Provide filtered library items
-        context["library_items"] = library_items
+        # Get page number from request, 
+        # default to first page
+        default_page = 1
+        page = request.GET.get('page', default_page)
+
+        # Paginate library items
+        items_per_page = 2
+        paginator = Paginator(library_items, items_per_page)
+        try:
+            library_items_page = paginator.page(page)
+        except PageNotAnInteger:
+            library_items_page = paginator.page(default_page)
+        except EmptyPage:
+            library_items_page = paginator.page(paginator.num_pages)
+
+        # Provide filtered, paginated library items
+        context["library_items_page"] = library_items_page
 
         return context
