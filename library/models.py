@@ -201,7 +201,7 @@ class LibraryIndexPage(Page):
         page = request.GET.get('page', default_page)
 
         # Paginate library items
-        items_per_page = 2
+        items_per_page = 10
         paginator = Paginator(library_items, items_per_page)
         try:
             library_items_page = paginator.page(page)
