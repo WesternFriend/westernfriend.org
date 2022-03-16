@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+
+{% load tz %}
 {% load static wagtailcore_tags %}
 
 {% block body_class %}template-event{% endblock %}
@@ -9,14 +11,14 @@
     <h1>{{ event.title }}</h1>
 
     {% if event.start_date %}
-        {{ event.start_date | date:"F d, Y, f A" }}
+        {{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
     {% endif %}
 
     {% if event.end_date %}
-        {{ event.end_date | date:"F d, Y, f A" }}
+        {{ event.end_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
     {% endif %}
 
-    {{ event.timezone }}
+    US/Pacific
 
     {% if event.body %}
         {{ event.body }}
