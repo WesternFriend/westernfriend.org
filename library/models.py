@@ -195,7 +195,7 @@ class LibraryIndexPage(Page):
         # Filter live (not draft) library items using facets from request
         library_items = LibraryItem.objects.live().filter(**facets)
 
-        # Get page number from request, 
+        # Get page number from request,
         # default to first page
         default_page = 1
         page = request.GET.get('page', default_page)
