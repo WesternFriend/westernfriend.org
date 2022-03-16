@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load tz %}
+
 {% load wagtailcore_tags %}
 
 {% block body_class %}template-magazineindexpage{% endblock %}
@@ -16,37 +18,29 @@
     {% if events %}
         <h2>Upcoming events</h2>
 
-        <div class="list-group">
-            {% for event in events %}
-                {% if event.website %}
-                    <a href="{{ event.website }}" class="list-group-item list-group-item-action flex-column align-items-start">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h3 class="mb-1">{{ event.title }}</h3>
-                            <small>{{ event.start_date | date:"F d, Y, f A" }}</small>
-                        </div>
-                        {% if event.teaer %}
-                            <span>
-                                {{ event.teaser }}
-                            </span>
-                        {% endif %}
-                    </a>
-                {% else %}
-                    <div class="list-group-item list-group-item-action flex-column align-items-start">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h3 class="mb-1">{{ event.title }}</h3>
-                            <small>{{ event.start_date | date:"F d, Y, f A" }}</small>
-                        </div>
-                        {% if event.teaser %}
-                            <span>
-                                {{ event.teaser }}
-                            </span>
-                        {% endif %}
-                    </div>
-                {% endif %}
-            {% endfor %}
-         </div>
+        {% for event in events %}
 
-         <div class="step-links ml-3 mt-1 text-center">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <p class="card-title">
+                        {{ event.title }} - 
+                        <small>{{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}</small>
+                    </p>
+
+                    {% if event.teaser %}
+                        <p class="card-text">
+                            {{ event.teaser }}
+                        </p>
+                    {% endif %}
+
+                    <a href="{% pageurl event %}" class="btn btn-primary btn-sm stretched-link">
+                        View details
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="step-links ml-3 mt-1 text-center">
             {% if events.has_previous %}
                 <a href="?page={{ events.previous_page_number }}" class="btn btn-outline-primary btn-sm">previous</a>
             {% endif %}
