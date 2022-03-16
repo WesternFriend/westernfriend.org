@@ -16,15 +16,13 @@
     </div>
 
     {% if events %}
-        <h2>Upcoming events</h2>
-
         {% for event in events %}
 
             <div class="card mb-2">
                 <div class="card-body">
-                    <p class="card-title">
+                    <p class="card-title font-weight-bold">
                         {{ event.title }} - 
-                        <small>{{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}</small>
+                        <span>{{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }} US/Pacific</span>
                     </p>
 
                     {% if event.teaser %}
@@ -33,7 +31,7 @@
                         </p>
                     {% endif %}
 
-                    <a href="{% pageurl event %}" class="btn btn-primary btn-sm stretched-link">
+                    <a href="{% pageurl event %}" class="btn btn-outline-primary btn-sm stretched-link">
                         <i class="fa fa-info-circle" aria-hidden="true"></i>
                         View details
                     </a>

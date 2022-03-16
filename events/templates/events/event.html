@@ -10,15 +10,20 @@
 {% block content %}
     <h1>{{ event.title }}</h1>
 
-    {% if event.start_date %}
-        {{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
-    {% endif %}
+    <p class="font-weight-bold mb-2">
+        {% if event.start_date %}
+            {{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
+        {% endif %}
 
-    {% if event.end_date %}
-        {{ event.end_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
-    {% endif %}
+        {% if event.end_date %}
+            {{ event.end_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
+        {% endif %}
 
-    US/Pacific
+        US/Pacific
+    </p>
+    
+
+    
 
     {% if event.body %}
         {{ event.body }}
@@ -28,6 +33,7 @@
         <a 
             href="{{ event.specific.website }}"
             class="btn btn-primary btn-sm"
+            target="blank"
         >
             <i class="fa fa-link" aria-hidden="true"></i>
             Visit event website
