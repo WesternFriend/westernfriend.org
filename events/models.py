@@ -15,7 +15,7 @@ from streams.blocks import FormattedImageChooserStructBlock
 
 
 class Event(Page):
-    teaser = models.TextField(max_length=100)
+    teaser = models.TextField(max_length=100, null=True, blank=True)
     body = StreamField([
         ('rich_text', blocks.RichTextBlock()),
         ('image', FormattedImageChooserStructBlock()),
