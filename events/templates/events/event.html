@@ -27,9 +27,10 @@
     {% if event.website %}
         <a 
             href="{{ event.specific.website }}"
-            class="btn btn-primary"
+            class="btn btn-primary btn-sm"
         >
-            More information
+            <i class="fa fa-link" aria-hidden="true"></i>
+            Visit event website
         </a>
     {% endif %}
 {% endblock %}
