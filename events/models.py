@@ -28,7 +28,7 @@ class Event(Page):
         choices_display='WITH_GMT_OFFSET',
     )
 
-    website = models.URLField(blank=True, null=True)
+    website = models.URLField(blank=True, null=True, max_length=300)
 
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
