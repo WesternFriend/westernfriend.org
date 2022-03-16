@@ -5,6 +5,8 @@ from tqdm import tqdm
 
 from django.core.management.base import BaseCommand, CommandError
 
+from wagtail.core.rich_text import RichText
+
 from events.models import Event, EventsIndexPage
 
 # Event dates are in ISO 8601 format
@@ -30,17 +32,22 @@ class Command(BaseCommand):
                     drupal_node_id=event["node_id"],
                 ).exists()
 
-                # Convert event date strings into Python dates
-                start_date = datetime.strptime(event["start_date"], date_format)
-                end_date = datetime.strptime(event["end_date"], date_format)
-
-                # Get teaser, max length is 100 characters
-                teaser = event["body"][0:99]
-
                 if not event_exists:
+                    # Convert event date strings into Python dates
+                    start_date = datetime.strptime(event["start_date"], date_format)
+                    end_date = datetime.strptime(event["end_date"], date_format)
+
+                    # # Get teaser, max length is 100 characters
+                    teaser = event["body"][0:99]
+
+                    event_body_blocks = []
+                    # Create rich text block for event body blocks list
+                    rich_text_block = ("rich_text", RichText(event["body"]))
+                    event_body_blocks.append(rich_text_block)
+
                     import_event = Event(
                         title=event["title"],
-                        body=event["body"],
+                        body=event_body_blocks,
                         teaser=teaser,
                         start_date=start_date,
                         end_date=end_date,
