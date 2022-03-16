@@ -190,7 +190,7 @@ class LibraryIndexPage(Page):
         # Remove any query parameter that
         # - isn't a model field, or
         # - has an empty value (empty string)
-        facets = {key: value for key, value in query.items() if key in allowed_keys and value is not ""}
+        facets = {key: value for key, value in query.items() if key in allowed_keys and value != ""}
 
         # Filter live (not draft) library items using facets from request
         library_items = LibraryItem.objects.live().filter(**facets)
