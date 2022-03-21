@@ -24,6 +24,7 @@ python-dotenv = "^0.14.0"
 whitenoise = "^5.2.0"
 tqdm = "^4.57.0"
 wagtailmedia = "^0.9.0"
+django-timezone-field = "^5.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7.9"
