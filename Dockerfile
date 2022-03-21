@@ -43,4 +43,4 @@ USER wagtail
 EXPOSE 8000
 
 # Run the server
-CMD set -xe; gunicorn core.wsgi:application --workers 3
+CMD set -xe; gunicorn --worker-tmp-dir /dev/shm core.wsgi:application --workers 3
