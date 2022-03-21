@@ -26,8 +26,9 @@ WORKDIR /app/
 COPY . /app
 
 # Note: we don't want Poetry to create a virtual environment
-# Instead, it should use a local directory (hence --local?)
-RUN poetry config virtualenvs.create false --local
+# Instead, it should use a local directory
+RUN poetry config virtualenvs.create false
+
 # Install Poetry dependencies
 RUN poetry install --no-dev
 
