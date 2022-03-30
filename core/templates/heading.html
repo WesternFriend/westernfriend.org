@@ -1,19 +1,9 @@
-<div class="sticky-top">
-    <div class="container-fluid pt-2" style="background-color: #ff8774">
-        <div class="container">    
-            <a href="/" class="pb-0" style="color: inherit; text-decoration: none;">
-                <img 
-                    src="https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
-                    alt="Western Friend logo"
-                    style="height: 50px"
-                    class="pl-2">
+{% load static %}
 
-                <span class="h2">Western Friend</span>
-    
-                <em class="ml-3">Quaker Plain Speech and Spirit in the West</em>
-            </a>
-        </div>
-    </div>
+<div class="sticky-top">
+    <a href="/" class="pb-0" style="color: inherit; text-decoration: none;">
+        <img src="{% static 'img/header-image.jpg' %}" alt="">
+    </a>
 
     {% include "navbar.html" %}
 </div>
