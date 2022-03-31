@@ -124,9 +124,7 @@
             <div class="col-3-md">
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="donation-amount-addon">Amount $</span>
-                        </div>
+                        <span class="input-group-text" id="donation-amount-addon">Amount $</span>
 
                         <input name="amount" v-model.number="donationAmount" type="number" class="form-control" aria-label="Donation amount" aria-describedby="donation-amount-addon">
                     </div>
@@ -146,9 +144,8 @@
         <div class="row mb-3">
             <div class="col">
                 <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="given-name-addon">Given name*</span>
-                    </div>
+                    <span class="input-group-text" id="given-name-addon">Given name*</span>
+
                     <input 
                         name="donor_given_name"
                         type="text" 
@@ -164,9 +161,8 @@
 
             <div class="col">
                 <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="family-name-addon">Family name*</span>
-                    </div>
+                    <span class="input-group-text" id="family-name-addon">Family name*</span>
+
                     <input
                         name="donor_family_name"
                         type="text" 
@@ -182,11 +178,10 @@
 
             <div class="col">
                 <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text font-weight-bold" id="email-addon">
-                            Email*
-                        </span>
-                    </div>
+                    <span class="input-group-text font-weight-bold" id="email-addon">
+                        Email*
+                    </span>
+
                     <input
                         name="donor_email" 
                         type="text" 
