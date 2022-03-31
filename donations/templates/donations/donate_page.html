@@ -10,7 +10,7 @@
 
     {{ page.intro|richtext }}
 
-    <form action="." method="post" id="donation-form" class="mb-3">
+    <form action="." method="post" id="donation-form">
         <div class="row">
             <div 
                 class="card col m-1"
@@ -54,7 +54,6 @@
 
         {% if page.suggested_donation_amounts %}
     
-
             {% for suggestion in page.suggested_donation_amounts %}
                 <div v-if="recurrence == 'once'" class="row text-center">
                     {% for amount in suggestion.value.once %}
@@ -112,7 +111,7 @@
             {% endfor %}
 
 
-            <div class="row mb-3">
+            <div class="row">
                 <div class="col">
                     <small id="pre-defined-amount-help" class="form-text text-muted">
                             Choose from one of the suggested donation amounts above.
@@ -121,7 +120,7 @@
             </div>
         {% endif %}
 
-        <div class="row">
+        <div class="row mt-1">
             <div class="col-3-md">
                 <div class="form-group">
                     <div class="input-group">
@@ -233,14 +232,10 @@
             </div>
         </div>
 
-        <div class="text-right">
-            <div class="btn-group" role="group" aria-label="Cart navigation">
-                <button type="submit" class="btn btn-outline-primary">
-                    Donate
-                    <i class="bi bi-arrow-right ms-1"></i>
-                </button>
-            </div>
-        </div>
+        <button type="submit" class="btn btn-outline-primary mt-3" aria-label="Donate button">
+            Donate
+            <i class="bi bi-arrow-right ms-1"></i>
+        </button>
 
         {% csrf_token %}
     </form>
