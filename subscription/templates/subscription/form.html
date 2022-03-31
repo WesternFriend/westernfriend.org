@@ -13,7 +13,7 @@
             v-bind:class="{ 'border-success': magazineFormat == 'pdf' }"
         >
             <div class="card-body">
-                <i v-if="magazineFormat == 'pdf'" class="fa fa-check"></i>
+                <i v-if="magazineFormat == 'pdf'" class="bi bi-check"></i>
                 PDF Only
             </div>
         </div>
@@ -24,7 +24,7 @@
             v-bind:class="{ 'border-success': magazineFormat == 'print' }"
         >
             <div class="card-body">
-                <i v-if="magazineFormat == 'print'" class="fa fa-check"></i>
+                <i v-if="magazineFormat == 'print'" class="bi bi-check"></i>
                 Print Only
             </div>
         </div>
@@ -37,7 +37,7 @@
             <div class="card-body">
                 <i
                     v-if="magazineFormat == 'print_and_pdf'"
-                    class="fa fa-check"
+                    class="bi bi-check"
                 ></i>
                 Print & PDF 
             </div>
@@ -55,7 +55,7 @@
             v-bind:class="{ 'border-success': priceGroup === 'normal' }"
         >
             <div class="card-body">
-                <i v-if="priceGroup === 'normal'" class="fa fa-check"></i>
+                <i v-if="priceGroup === 'normal'" class="bi bi-check"></i>
                 Normal ($${ normalComputedPrice })
             </div>
         </div>
@@ -68,7 +68,7 @@
             <div class="card-body">
                 <i
                     v-if="priceGroup == 'true_cost'"
-                    class="fa fa-check"
+                    class="bi bi-check"
                 ></i>
                 True-cost ($${ trueCostComputedPrice })
             </div>
@@ -80,7 +80,7 @@
             v-bind:class="{ 'border-success': priceGroup == 'low_income' }"
         >
             <div class="card-body">
-                <i v-if="priceGroup == 'low_income'" class="fa fa-check"></i>
+                <i v-if="priceGroup == 'low_income'" class="bi bi-check"></i>
                 Low-income ($${ lowIncomeComputedPrice })
             </div>
         </div>
@@ -93,7 +93,7 @@
             <div class="card-body">
                 <i
                     v-if="priceGroup == 'international'"
-                    class="fa fa-check"
+                    class="bi bi-check"
                 ></i>
                 International ($${ internationalComputedPrice })
             </div>
@@ -112,8 +112,8 @@
             class="form-check-input"
             type="checkbox"
             data-toggle="switchbutton"
-            data-onlabel="<i class='fa fa-check'></i> Yes"
-            data-offlabel="<i class='fa fa-ban'></i> No"
+            data-onlabel="<i class='bi bi-check'></i> Yes"
+            data-offlabel="<i class='bi bi-x'></i> No"
             data-onstyle="outline-success"
             data-offstyle="outline-primary"
             data-style="mr-1"
@@ -173,7 +173,7 @@
         <div class="btn-group" role="group" aria-label="Cart navigation">
             <button type="submit" class="btn btn-outline-primary">
                 Subscribe
-                <i class="fa fa-arrow-right ml-1"></i>
+                <i class="bi bi-arrow-right ml-1"></i>
             </button>
         </div>
     </div>

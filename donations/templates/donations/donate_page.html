@@ -18,7 +18,7 @@
                 v-bind:class="{ 'border-success': recurrence == 'once' }"
             >
                 <div class="card-body text-center">
-                    <i v-if="recurrence == 'once'" class="fa fa-check"></i>
+                    <i v-if="recurrence == 'once'" class="bi bi-check"></i>
                     Once
                 </div>
             </div>
@@ -29,7 +29,7 @@
                 v-bind:class="{ 'border-success': recurrence == 'monthly' }"
             >
                 <div class="card-body text-center">
-                    <i v-if="recurrence == 'monthly'" class="fa fa-check"></i>
+                    <i v-if="recurrence == 'monthly'" class="bi bi-check"></i>
                     Monthly
                 </div>
             </div>
@@ -40,7 +40,7 @@
                 v-bind:class="{ 'border-success': recurrence == 'yearly' }"
             >
                 <div class="card-body text-center">
-                    <i v-if="recurrence == 'yearly'" class="fa fa-check"></i>
+                    <i v-if="recurrence == 'yearly'" class="bi bi-check"></i>
                     Yearly
                 </div>
             </div>
@@ -66,7 +66,7 @@
                             <div class="card-body">
                                 <i
                                     v-if="donationAmount === {{ amount }}"
-                                    class="fa fa-check"
+                                    class="bi bi-check"
                                 ></i>
                                 ${{ amount }}
                             </div>
@@ -84,7 +84,7 @@
                             <div class="card-body">
                                 <i
                                     v-if="donationAmount === {{ amount }}"
-                                    class="fa fa-check"
+                                    class="bi bi-check"
                                 ></i>
                                 ${{ amount }}
                             </div>
@@ -102,7 +102,7 @@
                             <div class="card-body">
                                 <i
                                     v-if="donationAmount === {{ amount }}"
-                                    class="fa fa-check"
+                                    class="bi bi-check"
                                 ></i>
                                 ${{ amount }}
                             </div>
@@ -237,7 +237,7 @@
             <div class="btn-group" role="group" aria-label="Cart navigation">
                 <button type="submit" class="btn btn-outline-primary">
                     Donate
-                    <i class="fa fa-arrow-right ml-1"></i>
+                    <i class="bi bi-arrow-right ml-1"></i>
                 </button>
             </div>
         </div>
