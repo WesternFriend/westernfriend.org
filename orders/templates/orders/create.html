@@ -46,7 +46,7 @@
 <form action="#" method="post">
     <h2>Purchaser</h2>
 
-    <div class="form-row">
+    <div class="row">
         <div class="col-md-3">
             {{ form.purchaser_given_name | as_crispy_field }}
         </div>
@@ -55,39 +55,39 @@
         </div>   
     </div>
 
-    <div class="form-row">
+    <div class="row">
         <div class="col-md-6">
             {{ form.purchaser_meeting_or_organization | as_crispy_field }}
         </div>
     </div>
 
     
-    <div class="form-row">
+    <div class="row">
         <div class="col-md-6">
             {{ form.purchaser_email | as_crispy_field }}
         </div>
     </div>
 
     <h2>Recipient</h2>
-    <div class="form-row">
+    <div class="row">
         <div class="col-md-6">
             {{ form.recipient_name | as_crispy_field }}
         </div>
     </div>
 
-    <div class="form-row">
+    <div class="row">
         <div class="col-md-6">
             {{ form.recipient_street_address | as_crispy_field }}
         </div>
     </div>
 
-    <div class="form-row">
+    <div class="row">
         <div class="col-md-6">
             {{ form.recipient_po_box_number | as_crispy_field }}
         </div>
     </div>
 
-    <div class="form-row">
+    <div class="row">
         <div class="form-group col-md-2 mb-0">
             {{ form.recipient_address_locality | as_crispy_field }}
         </div>
@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <div class="form-row">
+    <div class="row">
         <div class="col-md-6">
             {{ form.recipient_address_country | as_crispy_field }}
         </div>

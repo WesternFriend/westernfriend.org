@@ -11,7 +11,7 @@
     {{ page.intro|richtext }}
 
     <form action="." method="post" id="donation-form" class="mb-3">
-        <div class="form-row">
+        <div class="row">
             <div 
                 class="card col m-1"
                 @click="recurrence = 'once'"
@@ -56,7 +56,7 @@
     
 
             {% for suggestion in page.suggested_donation_amounts %}
-                <div v-if="recurrence == 'once'" class="form-row text-center">
+                <div v-if="recurrence == 'once'" class="row text-center">
                     {% for amount in suggestion.value.once %}
                         <div
                             class="card m-1 col"
@@ -74,7 +74,7 @@
                     {% endfor %}
                 </div>
 
-                <div v-if="recurrence == 'monthly'" class="form-row text-center">
+                <div v-if="recurrence == 'monthly'" class="row text-center">
                     {% for amount in suggestion.value.monthly %}
                         <div
                             class="card m-1 col"
@@ -92,7 +92,7 @@
                     {% endfor %}
                 </div>
 
-                <div v-if="recurrence == 'yearly'" class="form-row text-center">
+                <div v-if="recurrence == 'yearly'" class="row text-center">
                     {% for amount in suggestion.value.yearly %}
                         <div
                             class="card m-1 col"
@@ -112,7 +112,7 @@
             {% endfor %}
 
 
-            <div class="form-row mb-3">
+            <div class="row mb-3">
                 <div class="col">
                     <small id="pre-defined-amount-help" class="form-text text-muted">
                             Choose from one of the suggested donation amounts above.
@@ -121,7 +121,7 @@
             </div>
         {% endif %}
 
-        <div class="form-row">
+        <div class="row">
             <div class="col-3-md">
                 <div class="form-group">
                     <div class="input-group">
@@ -144,7 +144,7 @@
         </div>
 
 
-        <div class="form-row mb-3">
+        <div class="row mb-3">
             <div class="col">
                 <div class="input-group">
                     <div class="input-group-prepend">
@@ -203,19 +203,19 @@
             </div>
         </div>
 
-        <div class="form-row">
+        <div class="row">
             <div class="col-md-12">
                 {{ donor_address_form.street_address | as_crispy_field }}
             </div>
         </div>
 
-        <div class="form-row">
+        <div class="row">
             <div class="col-md-12">
                 {{ donor_address_form.extended_address | as_crispy_field }}
             </div>
         </div>
 
-        <div class="form-row">
+        <div class="row">
             <div class="form-group col-md-4 mb-0">
                 {{ donor_address_form.locality | as_crispy_field }}
             </div>
@@ -227,7 +227,7 @@
             </div>
         </div>
 
-        <div class="form-row">
+        <div class="row">
             <div class="col-md-6">
                 {{ donor_address_form.country | as_crispy_field }}
             </div>
