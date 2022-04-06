@@ -31,3 +31,7 @@ img {
 	float: right;
 	width: 50%;
 }
+
+.navbar-dark .navbar-nav .nav-link {
+	color: #ffe9e5;
+}
