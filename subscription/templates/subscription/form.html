@@ -6,14 +6,14 @@
 <form action="#" method="post" id="dynamicFields" class="mb-3">
     <h3>Format</h3>
 
-    <div class="form-row text-center">
+    <div class="row text-center">
         <div
             class="card m-1 col"
             @click="magazineFormat = 'pdf'"
             v-bind:class="{ 'border-success': magazineFormat == 'pdf' }"
         >
             <div class="card-body">
-                <i v-if="magazineFormat == 'pdf'" class="fa fa-check"></i>
+                <i v-if="magazineFormat == 'pdf'" class="bi bi-check"></i>
                 PDF Only
             </div>
         </div>
@@ -24,7 +24,7 @@
             v-bind:class="{ 'border-success': magazineFormat == 'print' }"
         >
             <div class="card-body">
-                <i v-if="magazineFormat == 'print'" class="fa fa-check"></i>
+                <i v-if="magazineFormat == 'print'" class="bi bi-check"></i>
                 Print Only
             </div>
         </div>
@@ -37,7 +37,7 @@
             <div class="card-body">
                 <i
                     v-if="magazineFormat == 'print_and_pdf'"
-                    class="fa fa-check"
+                    class="bi bi-check"
                 ></i>
                 Print & PDF 
             </div>
@@ -48,14 +48,14 @@
 
     <h3>Price</h3>
     
-    <div class="form-row text-center">
+    <div class="row text-center">
         <div
             class="card m-1 col"
             @click="priceGroup = 'normal'"
             v-bind:class="{ 'border-success': priceGroup === 'normal' }"
         >
             <div class="card-body">
-                <i v-if="priceGroup === 'normal'" class="fa fa-check"></i>
+                <i v-if="priceGroup === 'normal'" class="bi bi-check"></i>
                 Normal ($${ normalComputedPrice })
             </div>
         </div>
@@ -68,7 +68,7 @@
             <div class="card-body">
                 <i
                     v-if="priceGroup == 'true_cost'"
-                    class="fa fa-check"
+                    class="bi bi-check"
                 ></i>
                 True-cost ($${ trueCostComputedPrice })
             </div>
@@ -80,7 +80,7 @@
             v-bind:class="{ 'border-success': priceGroup == 'low_income' }"
         >
             <div class="card-body">
-                <i v-if="priceGroup == 'low_income'" class="fa fa-check"></i>
+                <i v-if="priceGroup == 'low_income'" class="bi bi-check"></i>
                 Low-income ($${ lowIncomeComputedPrice })
             </div>
         </div>
@@ -93,7 +93,7 @@
             <div class="card-body">
                 <i
                     v-if="priceGroup == 'international'"
-                    class="fa fa-check"
+                    class="bi bi-check"
                 ></i>
                 International ($${ internationalComputedPrice })
             </div>
@@ -104,19 +104,13 @@
 
     <h3>Recurring?</h3>
 
-    <div class="form-check my-2">
+    <div class="form-check form-switch my-2">
         <input
             name="recurring"
             id="recurring-checkbox"
             v-model="recurringSubscription"
             class="form-check-input"
             type="checkbox"
-            data-toggle="switchbutton"
-            data-onlabel="<i class='fa fa-check'></i> Yes"
-            data-offlabel="<i class='fa fa-ban'></i> No"
-            data-onstyle="outline-success"
-            data-offstyle="outline-primary"
-            data-style="mr-1"
         />
 
         <label for="recurring-checkbox" class="form-check-label">
@@ -124,7 +118,7 @@
         </label>
     </div>        
 
-    <div class="form-row mt-3">
+    <div class="row mt-3">
         <div class="col-md-6">
             {{ form.subscriber_given_name | as_crispy_field }}
         </div>
@@ -133,25 +127,25 @@
         </div>
     </div>
 
-    <div class="form-row">
+    <div class="row">
         <p class="p-3 mb-2 bg-info text-white col-md-12">
             PDF subscription will be emailed to <b>{{ user.get_username }}</b>
         </p>
     </div>
 
-    <div class="form-row">
+    <div class="row">
         <div class="col-md-12">
             {{ form.subscriber_street_address | as_crispy_field }}
         </div>
     </div>
 
-    <div class="form-row">
+    <div class="row">
         <div class="col-md-12">
             {{ form.subscriber_street_address_line_2 | as_crispy_field }}
         </div>
     </div>
 
-    <div class="form-row">
+    <div class="row">
         <div class="form-group col-md-4 mb-0">
             {{ form.subscriber_address_locality | as_crispy_field }}
         </div>
@@ -163,20 +157,16 @@
         </div>
     </div>
 
-    <div class="form-row">
+    <div class="row">
         <div class="col-md-6">
             {{ form.subscriber_address_country | as_crispy_field }}
         </div>
     </div>
 
-    <div class="text-right">
-        <div class="btn-group" role="group" aria-label="Cart navigation">
-            <button type="submit" class="btn btn-outline-primary">
-                Subscribe
-                <i class="fa fa-arrow-right ml-1"></i>
-            </button>
-        </div>
-    </div>
+    <button type="submit" class="btn btn-outline-primary" aria-label="Subscribe button">
+        Subscribe
+        <i class="bi bi-arrow-right ms-1"></i>
+    </button>
 
     {% csrf_token %}
 </form>

@@ -33,10 +33,10 @@
     {% endfor %}
 </div>
 
-<div class="row step-links ml-3 mb-5">
+<div class="row step-links ms-3 mb-5">
     {% if archive_issues.has_previous %}
     <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues"
-        class="btn btn-outline-primary btn-sm mr-1">previous</a>
+        class="btn btn-outline-primary btn-sm me-1">previous</a>
     {% endif %}
 
     <span class="current pt-1">
@@ -45,17 +45,17 @@
 
     {% if archive_issues.has_next %}
     <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues"
-        class="btn btn-outline-primary btn-sm ml-1">next</a>
+        class="btn btn-outline-primary btn-sm ms-1">next</a>
     {% endif %}
 </div>
 
 {% if page.deep_archive_page %}
-<h2 id="deep-archive"><i class="fa fa-university" aria-hidden="true"></i>
+<h2 id="deep-archive"><i class="bi bi-calendar-heart" aria-hidden="true"></i>
     Deep archive</h2>
 {{ page.deep_archive_intro | richtext }}
 
 <a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline-primary mb-3">
-    <i class="fa fa-eye" aria-hidden="true"></i>
+    <i class="bi bi-eye" aria-hidden="true"></i>
     View deep archive
 </a>
 <div class="row">

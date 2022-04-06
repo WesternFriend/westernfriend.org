@@ -32,14 +32,14 @@
                     {% endif %}
 
                     <a href="{% pageurl event %}" class="btn btn-outline-primary btn-sm stretched-link">
-                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        <i class="bi bi-info-circle" aria-hidden="true"></i>
                         View details
                     </a>
                 </div>
             </div>
         {% endfor %}
 
-        <div class="step-links ml-3 mt-1 text-center">
+        <div class="step-links ms-3 mt-1 text-center">
             {% if events.has_previous %}
                 <a href="?page={{ events.previous_page_number }}" class="btn btn-outline-primary btn-sm">previous</a>
             {% endif %}
