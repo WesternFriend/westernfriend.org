@@ -14,6 +14,6 @@
 <form action="{% pageurl page %}" method="POST">
     {% csrf_token %}
     {{ form | crispy }}
-    <input type="submit">
+    <input type="submit" class="btn btn-outline-primary" value="Send">
 </form>
 {% endblock content %}
