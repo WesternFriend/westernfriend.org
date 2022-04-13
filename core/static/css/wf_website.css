@@ -11,7 +11,8 @@ img {
 }
 
 #navbar-search-input {
-	border-color: #f8f9fa;
+	background-color: #ffefed;
+	border-color: #ffefed;
 }
 
 .richtext-image.left {
