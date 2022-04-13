@@ -10,6 +10,10 @@ img {
 	height: auto;
 }
 
+#navbar-search-input {
+	border-color: #f8f9fa;
+}
+
 .richtext-image.left {
 	float: left;
 }
