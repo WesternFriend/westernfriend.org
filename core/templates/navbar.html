@@ -12,16 +12,7 @@
                 {% main_menu %}
             </ul>
             <ul class="navbar-nav ms-auto">
-                <form action="{% url 'search' %}" method="get" class="form-inline me-3 mb-2">
-                    <div class="input-group">
-                        <input id="navbar-search-input" name="query" type="text" class="form-control" placeholder="Search" aria-label="Search" />
-                        
-                        <button class="btn btn-outline-light" type="submit">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </form>
-                <li class="navbar-nav ms-3">
+                <li class="navbar-nav me-2">
                     {% if user.is_authenticated %}
                     <a href="{% url 'logout' %}?next={{ request.path }}" class="nav-link">
                         Logout
@@ -35,6 +26,16 @@
                     </a>
                     {% endif %}
                 </li>
+
+                <form action="{% url 'search' %}" method="get" class="form-inline mb-2">
+                    <div class="input-group">
+                        <input id="navbar-search-input" name="query" type="text" class="form-control" placeholder="Search" aria-label="Search" />
+                        
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
             </ul>
         </div>
     </div>
