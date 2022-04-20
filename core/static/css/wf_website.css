@@ -16,9 +16,8 @@ img {
 	font-size: 1rem;
 }
 
-.dropdown-menu>.nav-item>a {
-	/* TODO: try to remove the !important declaration here */
-	color: #333 !important;
+.dropdown-menu.show .nav-item a {
+	color: #333;
 }
 
 .richtext-image.left {
