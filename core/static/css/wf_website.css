@@ -20,6 +20,11 @@ img {
 	color: #333;
 }
 
+.dropdown-menu.show .nav-item a:hover {
+	color: #000;
+	font-weight: medium;
+}
+
 .richtext-image.left {
 	float: left;
 }
