@@ -7,6 +7,7 @@ class NavigationExternalLinkBlock(blocks.StructBlock):
 
     class Meta:
         template = "navigation/blocks/external_link.html"
+        label = "External link"
 
 
 class NavigationPageChooserBlock(blocks.StructBlock):
@@ -15,6 +16,7 @@ class NavigationPageChooserBlock(blocks.StructBlock):
 
     class Meta:
         template = "navigation/blocks/page_link.html"
+        label = "Internal page link"
 
 
 class NavigationDropdownMenuBlock(blocks.StructBlock):
@@ -26,3 +28,4 @@ class NavigationDropdownMenuBlock(blocks.StructBlock):
 
     class Meta:
         template = "navigation/blocks/dropdown_menu.html"
+        label = "Dropdown menu"
