@@ -21,4 +21,4 @@ class NavigationMenuSetting(BaseSetting):
     ]
 
     class Meta:
-        verbose_name = "Navigation menu (WF)"
+        verbose_name = "Navigation menu"
