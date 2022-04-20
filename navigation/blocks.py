@@ -1,5 +1,6 @@
 from wagtail.core import blocks
 
+
 class NavigationExternalLinkBlock(blocks.StructBlock):
     title = blocks.CharBlock()
     url = blocks.URLBlock()
