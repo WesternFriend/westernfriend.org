@@ -1,4 +1,5 @@
-{% load menu_tags %}
+{% load wagtailsettings_tags %}
+{% get_settings use_default_site=True %}
 
 <nav class="navbar navbar-expand-lg navbar-dark pb-0 shadow-sm" style="background-color: #000;">
     <div class="container">
@@ -9,7 +10,8 @@
 
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav">
-                {% main_menu %}                
+                <li class="nav-item"><a href="#" class="nav-link">Test</a></li>
+                {{ settings.navigation.NavigationMenuSetting.items }}
             </ul>
             <ul class="navbar-nav ms-auto">
                 <li class="navbar-nav me-2">
