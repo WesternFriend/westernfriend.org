@@ -1,4 +1,15 @@
 from wagtail.core import blocks
+from wagtail.core.blocks import StructValue
+
+
+class NavigationExternalLinkStructValue(StructValue):
+    def href(self):
+        url = self.get("url")
+        anchor = self.get("anchor")
+        # Construct a URL with anchor if exists, otherwise use URL
+        href = f"{ url }#{ anchor }" if anchor else url
+
+        return href
 
 
 class NavigationExternalLinkBlock(blocks.StructBlock):
@@ -10,9 +21,21 @@ class NavigationExternalLinkBlock(blocks.StructBlock):
     )
 
     class Meta:
-        template = "navigation/blocks/external_link.html"
+        template = "navigation/blocks/nav_link.html"
         label = "External link"
         icon = "link-external"
+        value_class = NavigationExternalLinkStructValue
+
+
+class NavigationPageChooserStructValue(StructValue):
+    def href(self):
+        """Construct a URL with anchor if exists, otherwise use URL"""
+        url = self.get("page").url
+        anchor = self.get("anchor")
+        
+        href = f"{ url }#{ anchor }" if anchor else url
+
+        return href
 
 
 class NavigationPageChooserBlock(blocks.StructBlock):
@@ -23,10 +46,21 @@ class NavigationPageChooserBlock(blocks.StructBlock):
         help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol."
     )
 
+    @property
+    def href(self):
+        """Construct a URL with anchor if exists, otherwise use page URL"""
+        page_url = self.page.get_url()
+
+        
+        href = f"{ page_url }#{ self.anchor }" if self.anchor else page_url
+
+        return href
+
     class Meta:
-        template = "navigation/blocks/page_link.html"
+        template = "navigation/blocks/nav_link.html"
         label = "Internal page link"
         icon = "doc-empty"
+        value_class = NavigationPageChooserStructValue
 
 
 class NavigationDropdownMenuBlock(blocks.StructBlock):
