@@ -4,6 +4,10 @@ from wagtail.core import blocks
 class NavigationExternalLinkBlock(blocks.StructBlock):
     title = blocks.CharBlock()
     url = blocks.URLBlock()
+    anchor = blocks.CharBlock(
+        required=False, 
+        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol."
+    )
 
     class Meta:
         template = "navigation/blocks/external_link.html"
@@ -14,6 +18,10 @@ class NavigationExternalLinkBlock(blocks.StructBlock):
 class NavigationPageChooserBlock(blocks.StructBlock):
     title = blocks.CharBlock()
     page = blocks.PageChooserBlock()
+    anchor = blocks.CharBlock(
+        required=False, 
+        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol."
+    )
 
     class Meta:
         template = "navigation/blocks/page_link.html"
