@@ -4,9 +4,10 @@ from wagtail.core.blocks import StructValue
 
 class NavigationExternalLinkStructValue(StructValue):
     def href(self):
+        """Construct a URL with anchor if exists, otherwise use URL"""
         url = self.get("url")
         anchor = self.get("anchor")
-        # Construct a URL with anchor if exists, otherwise use URL
+
         href = f"{ url }#{ anchor }" if anchor else url
 
         return href
@@ -16,7 +17,7 @@ class NavigationExternalLinkBlock(blocks.StructBlock):
     title = blocks.CharBlock()
     url = blocks.URLBlock()
     anchor = blocks.CharBlock(
-        required=False, 
+        required=False,
         help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol."
     )
 
@@ -32,7 +33,7 @@ class NavigationPageChooserStructValue(StructValue):
         """Construct a URL with anchor if exists, otherwise use URL"""
         url = self.get("page").url
         anchor = self.get("anchor")
-        
+
         href = f"{ url }#{ anchor }" if anchor else url
 
         return href
@@ -42,19 +43,9 @@ class NavigationPageChooserBlock(blocks.StructBlock):
     title = blocks.CharBlock()
     page = blocks.PageChooserBlock()
     anchor = blocks.CharBlock(
-        required=False, 
+        required=False,
         help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol."
     )
-
-    @property
-    def href(self):
-        """Construct a URL with anchor if exists, otherwise use page URL"""
-        page_url = self.page.get_url()
-
-        
-        href = f"{ page_url }#{ self.anchor }" if self.anchor else page_url
-
-        return href
 
     class Meta:
         template = "navigation/blocks/nav_link.html"
