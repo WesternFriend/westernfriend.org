@@ -40,7 +40,6 @@ class WfPage(Page):
     body = StreamField(
         [
             ("document", DocumentEmbedBlock()),
-            ("heading", blocks.CharBlock(classname="full title")),
             ("image", ImageChooserBlock()),
             (
                 "paragraph",

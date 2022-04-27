@@ -26,7 +26,6 @@ from streams import blocks as wf_blocks
 
 class CommunityPage(Page):
     body = StreamField([
-        ("heading", blocks.CharBlock(classname="full title")),
         ("paragraph", blocks.RichTextBlock()),
         ("image", ImageChooserBlock()),
         ("card", wf_blocks.CardBlock()),

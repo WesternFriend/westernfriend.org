@@ -232,7 +232,6 @@ class MagazineArticle(Page):
     body = StreamField(
         [
             ("document", DocumentChooserBlock()),
-            ("heading", blocks.CharBlock(classname="full title")),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             (
                 "paragraph",
