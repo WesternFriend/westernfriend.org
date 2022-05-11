@@ -35,6 +35,7 @@ class CommunityPage(Page):
                 template="streams/blocks/card_row.html"
             )
         ),
+        ("target", wf_blocks.AnchorTarget()),
     ], null=True)
 
     content_panels = Page.content_panels + [
