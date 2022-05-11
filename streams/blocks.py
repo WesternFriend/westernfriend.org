@@ -1,3 +1,4 @@
+from django.core.validators import validate_slug
 from django.forms.utils import flatatt
 from django.utils.html import format_html, format_html_join
 from wagtail.core import blocks
@@ -9,6 +10,18 @@ IMAGE_ALIGN_CHOICES = [
     ("left", "Left"),
     ("right", "Right"),
 ]
+
+
+class AnchorTarget(blocks.StructBlock):
+    target_slug = blocks.CharBlock(
+        help_text="Used to link to a specific location within this page. Slug should only contain letters, numbers, underscore (_), or hyphen (-).",
+        validators=(validate_slug,)
+    )
+
+    class Meta:
+        icon = "link"
+        form_classname = "struct-block"
+        template = "streams/blocks/anchor_target.html"
 
 
 class ButtonBlock(blocks.StructBlock):
