@@ -7,7 +7,7 @@ from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
 
-from streams.blocks import FormattedImageChooserStructBlock, PullQuoteBlock
+from streams.blocks import AnchorTarget, FormattedImageChooserStructBlock, PullQuoteBlock
 
 
 class NewsIndexPage(Page):
@@ -109,6 +109,7 @@ class NewsItem(Page):
                 ),
             ),
             ("pullquote", PullQuoteBlock()),
+            ("target", AnchorTarget()),
         ]
     )
     publication_date = models.DateField(default=date.today)

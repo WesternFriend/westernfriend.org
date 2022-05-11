@@ -8,6 +8,7 @@ from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images.blocks import ImageChooserBlock
 
 from documents.blocks import DocumentEmbedBlock
+from streams.blocks import AnchorTarget
 
 
 class WfPageCollectionIndexPage(Page):
@@ -63,6 +64,7 @@ class WfPage(Page):
                 ),
             ),
             ("quote", blocks.BlockQuoteBlock()),
+            ("target", AnchorTarget()),
         ]
     )
     body_migrated = models.TextField(

@@ -27,7 +27,7 @@ from wagtail.search import index
 
 from flatpickr import DatePickerInput
 
-from streams.blocks import FormattedImageChooserStructBlock, PullQuoteBlock
+from streams.blocks import AnchorTarget, FormattedImageChooserStructBlock, PullQuoteBlock
 
 
 from .panels import NestedInlinePanel
@@ -256,6 +256,7 @@ class MagazineArticle(Page):
                 ),
             ),
             ("pullquote", PullQuoteBlock()),
+            ("target", AnchorTarget()),
         ]
     )
     is_featured = models.BooleanField(
