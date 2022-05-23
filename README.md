@@ -37,6 +37,8 @@ If you have any difficulty or questions, please [open a support ticket](https://
 
 Portions of code for the Store and Cart apps comes used, with permission, from the book [Django 2 by Example](https://www.packtpub.com/application-development/django-2-example) by Antonio Melé.
 
+Portions of help text are borrowed from the California Community Colleges Accessibility Center [HTML Headings article](https://cccaccessibility.org/web-1/web-developer-tutorials/html-headings).
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
