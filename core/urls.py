@@ -13,6 +13,7 @@ from search import views as search_views
 from subscription import urls as subscription_urls
 
 from django_registration.backends.one_step.views import RegistrationView
+
 # TODO: Change this line to send verification emails when registering users
 # Note: this will require two activation email tempates (subject and body)
 # from django_registration.backends.activation.views import RegistrationView
@@ -20,12 +21,11 @@ from accounts.forms import CustomUserForm
 
 urlpatterns = [
     url(r"^django-admin/", admin.site.urls),
-    url(r'^accounts/register/$',
-        RegistrationView.as_view(
-            form_class=CustomUserForm
-        ),
-        name='django_registration_register',
-        ),
+    url(
+        r"^accounts/register/$",
+        RegistrationView.as_view(form_class=CustomUserForm),
+        name="django_registration_register",
+    ),
     path("accounts/", include("django_registration.backends.one_step.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     url(r"^admin/autocomplete/", include(autocomplete_admin_urls)),

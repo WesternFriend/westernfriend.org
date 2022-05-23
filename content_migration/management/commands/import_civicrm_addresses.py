@@ -33,7 +33,7 @@ def create_meeting_addresses(meeting, row):
             region=row["Mailing-State"],
             postal_code=row["Mailing-Postal Code"],
             address_type="mailing",
-            page=meeting
+            page=meeting,
         )
 
         mailing_address.save()
@@ -52,7 +52,7 @@ def create_meeting_addresses(meeting, row):
             address_type="worship",
             latitude=latitude,
             longitude=longitude,
-            page=meeting
+            page=meeting,
         )
 
         worship_address.save()

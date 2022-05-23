@@ -27,7 +27,11 @@ from wagtail.search import index
 
 from flatpickr import DatePickerInput
 
-from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock, PullQuoteBlock
+from streams.blocks import (
+    FormattedImageChooserStructBlock,
+    HeadingBlock,
+    PullQuoteBlock,
+)
 
 
 from .panels import NestedInlinePanel
@@ -126,7 +130,9 @@ class MagazineIssue(Page):
     @property
     def featured_articles(self):
         # Return a cursor of related articles that are featured
-        return MagazineArticle.objects.child_of(self).filter(is_featured=True).specific()
+        return (
+            MagazineArticle.objects.child_of(self).filter(is_featured=True).specific()
+        )
 
     @property
     def publication_end_date(self):
@@ -258,7 +264,7 @@ class MagazineArticle(Page):
     )
     is_featured = models.BooleanField(
         default=False,
-        help_text="Feature this article in the related issue and allow full access without a subscription?"
+        help_text="Feature this article in the related issue and allow full access without a subscription?",
     )
     body_migrated = models.TextField(
         help_text="Used only for content from old Drupal website.",
@@ -334,8 +340,7 @@ class MagazineArticle(Page):
         # make sure they are authenticated first,
         # to avoid checking for "is_subscriber" on anonymous user
         user_is_subscriber = (
-            request.user.is_authenticated
-            and request.user.is_subscriber
+            request.user.is_authenticated and request.user.is_subscriber
         )
 
         # Subscribers and superusers can always view full articles
@@ -424,7 +429,9 @@ class ArchiveArticle(ClusterableModel):
             ],
             heading="Page numbers",
         ),
-        HelpPanel(content="Add article authors by clicking the '+ Add' button below, if known."),
+        HelpPanel(
+            content="Add article authors by clicking the '+ Add' button below, if known."
+        ),
         NestedInlinePanel(
             "archive_authors",
             heading="Authors",

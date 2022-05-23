@@ -39,12 +39,7 @@ def order_create(request):
 
             # redirect for payment
             return redirect(
-                reverse(
-                    "payment:process",
-                    kwargs={
-                        "previous_page": "bookstore_order"
-                    }
-                )
+                reverse("payment:process", kwargs={"previous_page": "bookstore_order"})
             )
 
     else:

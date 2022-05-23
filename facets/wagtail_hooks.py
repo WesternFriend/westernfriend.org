@@ -1,7 +1,7 @@
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin,
     ModelAdminGroup,
-    modeladmin_register
+    modeladmin_register,
 )
 
 from facets.models import (
@@ -19,7 +19,7 @@ class AudienceModelAdmin(ModelAdmin):
     menu_label = "Audience"
     list_per_page = 10
     list_display = ("title",)
-    search_fields = ("title")
+    search_fields = "title"
 
 
 class GenreModelAdmin(ModelAdmin):
@@ -39,7 +39,7 @@ class MediumModelAdmin(ModelAdmin):
     list_per_page = 10
     ordering = ["title"]
     list_display = ("title",)
-    search_fields = ("title")
+    search_fields = "title"
 
 
 class TimePeriodModelAdmin(ModelAdmin):
@@ -49,7 +49,7 @@ class TimePeriodModelAdmin(ModelAdmin):
     list_per_page = 10
     ordering = ["title"]
     list_display = ("title",)
-    search_fields = ("title")
+    search_fields = "title"
 
 
 class TopicModelAdmin(ModelAdmin):
@@ -59,7 +59,7 @@ class TopicModelAdmin(ModelAdmin):
     list_per_page = 10
     ordering = ["title"]
     list_display = ("title",)
-    search_fields = ("title")
+    search_fields = "title"
 
 
 class FacetsGroup(ModelAdminGroup):

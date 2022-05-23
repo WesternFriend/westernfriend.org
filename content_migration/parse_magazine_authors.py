@@ -1,4 +1,5 @@
 import csv
+
 parsed_authors = []
 
 with open("magazine_authors.csv") as authors_csv:

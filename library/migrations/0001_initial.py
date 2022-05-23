@@ -17,82 +17,264 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('facets', '0001_initial'),
-        ('wagtailcore', '0066_collection_management_permissions'),
-        ('taggit', '0004_alter_taggeditem_content_type_alter_taggeditem_tag'),
+        ("facets", "0001_initial"),
+        ("wagtailcore", "0066_collection_management_permissions"),
+        ("taggit", "0004_alter_taggeditem_content_type_alter_taggeditem_tag"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LibraryIndexPage',
+            name="LibraryIndexPage",
             fields=[
-                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.page')),
-                ('intro', wagtail.core.fields.RichTextField(blank=True)),
+                (
+                    "page_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="wagtailcore.page",
+                    ),
+                ),
+                ("intro", wagtail.core.fields.RichTextField(blank=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('wagtailcore.page',),
+            bases=("wagtailcore.page",),
         ),
         migrations.CreateModel(
-            name='LibraryItem',
+            name="LibraryItem",
             fields=[
-                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.page')),
-                ('publication_date', models.DateField(blank=True, null=True, verbose_name='Publication date')),
-                ('publication_date_is_approximate', models.BooleanField(default=False, help_text="This field indicates when a library item wasn't published on a specific publication date.")),
-                ('description', wagtail.core.fields.RichTextField(blank=True, null=True)),
-                ('body', wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock()), ('image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('width', wagtail.core.blocks.IntegerBlock(help_text='Enter the desired image width value in pixels up to 800 max.', max_value=800, min_value=0))], classname='full title')), ('document', documents.blocks.DocumentEmbedBlock()), ('media', streams.blocks.MediaBlock(icon='media')), ('embed', wagtail.embeds.blocks.EmbedBlock()), ('url', wagtail.core.blocks.URLBlock()), ('quote', wagtail.core.blocks.BlockQuoteBlock())], blank=True, null=True)),
-                ('drupal_node_id', models.IntegerField(blank=True, null=True)),
-                ('item_audience', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='facets.audience')),
-                ('item_genre', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='facets.genre')),
-                ('item_medium', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='facets.medium')),
-                ('item_time_period', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='facets.timeperiod')),
+                (
+                    "page_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="wagtailcore.page",
+                    ),
+                ),
+                (
+                    "publication_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Publication date"
+                    ),
+                ),
+                (
+                    "publication_date_is_approximate",
+                    models.BooleanField(
+                        default=False,
+                        help_text="This field indicates when a library item wasn't published on a specific publication date.",
+                    ),
+                ),
+                (
+                    "description",
+                    wagtail.core.fields.RichTextField(blank=True, null=True),
+                ),
+                (
+                    "body",
+                    wagtail.core.fields.StreamField(
+                        [
+                            ("paragraph", wagtail.core.blocks.RichTextBlock()),
+                            (
+                                "image",
+                                wagtail.core.blocks.StructBlock(
+                                    [
+                                        (
+                                            "image",
+                                            wagtail.images.blocks.ImageChooserBlock(),
+                                        ),
+                                        (
+                                            "width",
+                                            wagtail.core.blocks.IntegerBlock(
+                                                help_text="Enter the desired image width value in pixels up to 800 max.",
+                                                max_value=800,
+                                                min_value=0,
+                                            ),
+                                        ),
+                                    ],
+                                    classname="full title",
+                                ),
+                            ),
+                            ("document", documents.blocks.DocumentEmbedBlock()),
+                            ("media", streams.blocks.MediaBlock(icon="media")),
+                            ("embed", wagtail.embeds.blocks.EmbedBlock()),
+                            ("url", wagtail.core.blocks.URLBlock()),
+                            ("quote", wagtail.core.blocks.BlockQuoteBlock()),
+                        ],
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                ("drupal_node_id", models.IntegerField(blank=True, null=True)),
+                (
+                    "item_audience",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="facets.audience",
+                    ),
+                ),
+                (
+                    "item_genre",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="facets.genre",
+                    ),
+                ),
+                (
+                    "item_medium",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="facets.medium",
+                    ),
+                ),
+                (
+                    "item_time_period",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="facets.timeperiod",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('wagtailcore.page',),
+            bases=("wagtailcore.page",),
         ),
         migrations.CreateModel(
-            name='LibraryItemTopic',
+            name="LibraryItemTopic",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sort_order', models.IntegerField(blank=True, editable=False, null=True)),
-                ('library_item', modelcluster.fields.ParentalKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='topics', to='library.libraryitem')),
-                ('topic', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='related_library_items', to='facets.topic')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "sort_order",
+                    models.IntegerField(blank=True, editable=False, null=True),
+                ),
+                (
+                    "library_item",
+                    modelcluster.fields.ParentalKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="topics",
+                        to="library.libraryitem",
+                    ),
+                ),
+                (
+                    "topic",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="related_library_items",
+                        to="facets.topic",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['sort_order'],
-                'abstract': False,
+                "ordering": ["sort_order"],
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='LibraryItemTag',
+            name="LibraryItemTag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('content_object', modelcluster.fields.ParentalKey(on_delete=django.db.models.deletion.CASCADE, related_name='tagged_items', to='library.libraryitem')),
-                ('tag', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='library_libraryitemtag_items', to='taggit.tag')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "content_object",
+                    modelcluster.fields.ParentalKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tagged_items",
+                        to="library.libraryitem",
+                    ),
+                ),
+                (
+                    "tag",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="library_libraryitemtag_items",
+                        to="taggit.tag",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='LibraryItemAuthor',
+            name="LibraryItemAuthor",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sort_order', models.IntegerField(blank=True, editable=False, null=True)),
-                ('author', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='library_items_authored', to='wagtailcore.page')),
-                ('library_item', modelcluster.fields.ParentalKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='authors', to='library.libraryitem')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "sort_order",
+                    models.IntegerField(blank=True, editable=False, null=True),
+                ),
+                (
+                    "author",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="library_items_authored",
+                        to="wagtailcore.page",
+                    ),
+                ),
+                (
+                    "library_item",
+                    modelcluster.fields.ParentalKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="authors",
+                        to="library.libraryitem",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['sort_order'],
-                'abstract': False,
+                "ordering": ["sort_order"],
+                "abstract": False,
             },
         ),
         migrations.AddField(
-            model_name='libraryitem',
-            name='tags',
-            field=modelcluster.contrib.taggit.ClusterTaggableManager(blank=True, help_text='A comma-separated list of tags.', through='library.LibraryItemTag', to='taggit.Tag', verbose_name='Tags'),
+            model_name="libraryitem",
+            name="tags",
+            field=modelcluster.contrib.taggit.ClusterTaggableManager(
+                blank=True,
+                help_text="A comma-separated list of tags.",
+                through="library.LibraryItemTag",
+                to="taggit.Tag",
+                verbose_name="Tags",
+            ),
         ),
     ]

@@ -87,14 +87,16 @@ def process_subscription_form(subscription_form, request):
     request.session["subscription_id"] = subscription.id
 
     # redirect for payment
-    return redirect(
-        reverse("payment:process", kwargs={"previous_page": "subscribe"})
-    )
+    return redirect(reverse("payment:process", kwargs={"previous_page": "subscribe"}))
 
 
 class Subscription(models.Model):
-    format = models.CharField(max_length=255, choices=MAGAZINE_FORMAT_CHOICES, default="pdf")
-    price_group = models.CharField(max_length=255, choices=MAGAZINE_PRICE_GROUP_CHOICES, default="normal")
+    format = models.CharField(
+        max_length=255, choices=MAGAZINE_FORMAT_CHOICES, default="pdf"
+    )
+    price_group = models.CharField(
+        max_length=255, choices=MAGAZINE_PRICE_GROUP_CHOICES, default="normal"
+    )
     price = models.IntegerField(editable=False)
     recurring = models.BooleanField(default=True)
     start_date = models.DateField(null=True)
@@ -123,10 +125,14 @@ class Subscription(models.Model):
         help_text="If needed, second line for mailing address.",
     )
     subscriber_postal_code = models.CharField(
-        max_length=16, help_text="Postal code for the mailing address.", blank=True,
+        max_length=16,
+        help_text="Postal code for the mailing address.",
+        blank=True,
     )
     subscriber_address_locality = models.CharField(
-        max_length=255, help_text="City for the mailing address.", blank=True,
+        max_length=255,
+        help_text="City for the mailing address.",
+        blank=True,
     )
     subscriber_address_region = models.CharField(
         max_length=255,
@@ -230,9 +236,7 @@ class SubscriptionIndexPage(Page):
                 context["form"] = subscription_form
 
                 return TemplateResponse(
-                    request,
-                    self.get_template(request, *args, **kwargs),
-                    context
+                    request, self.get_template(request, *args, **kwargs), context
                 )
         else:
             return super().serve(request)

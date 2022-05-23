@@ -37,7 +37,10 @@ def parse_media_blocks(media_urls):
                 # Create file
                 document_file = File(file_bytes, name=file_name)
 
-                document = Document(title=file_name, file=document_file,)
+                document = Document(
+                    title=file_name,
+                    file=document_file,
+                )
 
                 document.save()
 
@@ -48,7 +51,10 @@ def parse_media_blocks(media_urls):
                 # create image
                 image_file = ImageFile(file_bytes, name=file_name)
 
-                image = Image(title=file_name, file=image_file,)
+                image = Image(
+                    title=file_name,
+                    file=image_file,
+                )
 
                 image.save()
 
@@ -86,7 +92,9 @@ def get_existing_magazine_author_by_id(drupal_author_id, magazine_authors):
 
     # Get existing author, if this author is a duplicate
     if not pd.isnull(author_data["duplicate of ID"]):
-        author_data = get_existing_magazine_author_by_id(author_data["duplicate of ID"], magazine_authors)
+        author_data = get_existing_magazine_author_by_id(
+            author_data["duplicate of ID"], magazine_authors
+        )
 
     return author_data
 

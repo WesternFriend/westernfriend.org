@@ -11,13 +11,111 @@ import wagtail.images.blocks
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('community', '0002_alter_communitypage_body'),
+        ("community", "0002_alter_communitypage_body"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='communitypage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock()), ('image', wagtail.images.blocks.ImageChooserBlock()), ('card', wagtail.core.blocks.StructBlock([('title', wagtail.core.blocks.CharBlock(help_text='Add a title', required=True)), ('text', wagtail.core.blocks.RichTextBlock(required=False)), ('image', wagtail.images.blocks.ImageChooserBlock(required=False)), ('image_align', wagtail.core.blocks.ChoiceBlock(choices=[('left', 'Left'), ('right', 'Right')], help_text='Whether to align the image left or right on the block.', required=False)), ('button', wagtail.core.blocks.StructBlock([('button_text', wagtail.core.blocks.CharBlock(required=False)), ('page_link', wagtail.core.blocks.PageChooserBlock(required=False))], required=False))])), ('card_row', wagtail.core.blocks.ListBlock(wagtail.core.blocks.StructBlock([('page', wagtail.core.blocks.PageChooserBlock(required=True)), ('text', wagtail.core.blocks.CharBlock(required=False))], label='Page'), template='streams/blocks/card_row.html')), ('target', wagtail.core.blocks.StructBlock([('target_slug', wagtail.core.blocks.CharBlock(help_text='Used to link to a specific location within this page. Slug should only contain letters, numbers, underscore (_), or hyphen (-).', validators=(django.core.validators.RegexValidator(re.compile('^[-a-zA-Z0-9_]+\\Z'), 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.', 'invalid'),)))]))], null=True),
+            model_name="communitypage",
+            name="body",
+            field=wagtail.core.fields.StreamField(
+                [
+                    ("paragraph", wagtail.core.blocks.RichTextBlock()),
+                    ("image", wagtail.images.blocks.ImageChooserBlock()),
+                    (
+                        "card",
+                        wagtail.core.blocks.StructBlock(
+                            [
+                                (
+                                    "title",
+                                    wagtail.core.blocks.CharBlock(
+                                        help_text="Add a title", required=True
+                                    ),
+                                ),
+                                (
+                                    "text",
+                                    wagtail.core.blocks.RichTextBlock(required=False),
+                                ),
+                                (
+                                    "image",
+                                    wagtail.images.blocks.ImageChooserBlock(
+                                        required=False
+                                    ),
+                                ),
+                                (
+                                    "image_align",
+                                    wagtail.core.blocks.ChoiceBlock(
+                                        choices=[("left", "Left"), ("right", "Right")],
+                                        help_text="Whether to align the image left or right on the block.",
+                                        required=False,
+                                    ),
+                                ),
+                                (
+                                    "button",
+                                    wagtail.core.blocks.StructBlock(
+                                        [
+                                            (
+                                                "button_text",
+                                                wagtail.core.blocks.CharBlock(
+                                                    required=False
+                                                ),
+                                            ),
+                                            (
+                                                "page_link",
+                                                wagtail.core.blocks.PageChooserBlock(
+                                                    required=False
+                                                ),
+                                            ),
+                                        ],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    (
+                        "card_row",
+                        wagtail.core.blocks.ListBlock(
+                            wagtail.core.blocks.StructBlock(
+                                [
+                                    (
+                                        "page",
+                                        wagtail.core.blocks.PageChooserBlock(
+                                            required=True
+                                        ),
+                                    ),
+                                    (
+                                        "text",
+                                        wagtail.core.blocks.CharBlock(required=False),
+                                    ),
+                                ],
+                                label="Page",
+                            ),
+                            template="streams/blocks/card_row.html",
+                        ),
+                    ),
+                    (
+                        "target",
+                        wagtail.core.blocks.StructBlock(
+                            [
+                                (
+                                    "target_slug",
+                                    wagtail.core.blocks.CharBlock(
+                                        help_text="Used to link to a specific location within this page. Slug should only contain letters, numbers, underscore (_), or hyphen (-).",
+                                        validators=(
+                                            django.core.validators.RegexValidator(
+                                                re.compile("^[-a-zA-Z0-9_]+\\Z"),
+                                                "Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.",
+                                                "invalid",
+                                            ),
+                                        ),
+                                    ),
+                                )
+                            ]
+                        ),
+                    ),
+                ],
+                null=True,
+            ),
         ),
     ]

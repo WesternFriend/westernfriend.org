@@ -78,7 +78,7 @@ def create_person(author):
             person = Person(
                 given_name=author["given_name"],
                 family_name=author["family_name"],
-                drupal_author_id=drupal_author_id
+                drupal_author_id=drupal_author_id,
             )
         except:
             print("Could not create person: ", drupal_author_id)
@@ -111,8 +111,7 @@ class Command(BaseCommand):
                 author_is_meeting = author["meeting_name"] != ""
                 author_is_organization = author["organization_name"] != ""
                 author_is_person = (
-                    author_is_meeting is False
-                    and author_is_organization is False
+                    author_is_meeting is False and author_is_organization is False
                 )
 
                 author_is_duplicate = author["duplicate of ID"] != ""

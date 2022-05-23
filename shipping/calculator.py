@@ -12,7 +12,6 @@ def get_book_shipping_cost(book_quantity=1):
     so this function should only consider the quantity of books.
     """
 
-
     # Apply shipping rules based on total number of books
     # one book is four dollars
     # two to four books are three dollars each

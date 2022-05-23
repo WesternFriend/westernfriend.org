@@ -39,7 +39,9 @@ class Command(BaseCommand):
                 # Consider whether we want to update
                 # existing issues
                 if not issue_exists:
-                    cover_image_file_name = html.unescape(issue["cover_image_url"].split("/")[-1])
+                    cover_image_file_name = html.unescape(
+                        issue["cover_image_url"].split("/")[-1]
+                    )
                     response = requests.get(issue["cover_image_url"])
                     image_file = BytesIO(response.content)
 
@@ -51,10 +53,7 @@ class Command(BaseCommand):
                     image.save()
 
                     publication_date_tz_aware = make_aware(
-                        datetime.strptime(
-                            issue["publication_date"],
-                            "%Y-%m"
-                        )
+                        datetime.strptime(issue["publication_date"], "%Y-%m")
                     )
 
                     import_issue = MagazineIssue(

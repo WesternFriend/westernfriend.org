@@ -22,7 +22,7 @@ def add_meeting_worship_times(meeting, contact):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="first_day_worship",
-            worship_time=contact["Regular time of Worship on First Day (1)"]
+            worship_time=contact["Regular time of Worship on First Day (1)"],
         )
 
         worship_time.save()
@@ -31,25 +31,37 @@ def add_meeting_worship_times(meeting, contact):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="first_day_worship_2nd",
-            worship_time=contact["Regular time of Worship on First Day (2)"]
+            worship_time=contact["Regular time of Worship on First Day (2)"],
         )
 
         worship_time.save()
 
-    if contact["Regular day and time of Meeting for Worship on the Occassion of Business"] != "":
+    if (
+        contact[
+            "Regular day and time of Meeting for Worship on the Occassion of Business"
+        ]
+        != ""
+    ):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="business_meeting",
-            worship_time=contact["Regular day and time of Meeting for Worship on the Occassion of Business"]
+            worship_time=contact[
+                "Regular day and time of Meeting for Worship on the Occassion of Business"
+            ],
         )
 
         worship_time.save()
 
-    if contact["Regular day and time of other weekly or monthly public meetings (1)"] != "":
+    if (
+        contact["Regular day and time of other weekly or monthly public meetings (1)"]
+        != ""
+    ):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="other_regular_meeting",
-            worship_time=contact["Regular day and time of other weekly or monthly public meetings (1)"]
+            worship_time=contact[
+                "Regular day and time of other weekly or monthly public meetings (1)"
+            ],
         )
 
         worship_time.save()
@@ -183,7 +195,9 @@ class Command(BaseCommand):
                                 title=organization_name,
                             )
                         except MultipleObjectsReturned:
-                            print("Duplicate organization found for:", organization_name)
+                            print(
+                                "Duplicate organization found for:", organization_name
+                            )
 
                         organization.civicrm_id = contact_id
 

@@ -1,7 +1,4 @@
-from wagtail.contrib.modeladmin.options import (
-    ModelAdmin,
-    modeladmin_register
-)
+from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
 
 from memorials.models import Memorial
 
@@ -15,10 +12,7 @@ class MemorialModelAdmin(ModelAdmin):
     menu_order = 295
     add_to_settings_menu = False
     exclude_from_explorer = False
-    list_display = (
-        "full_name",
-        "memorial_meeting"
-    )
+    list_display = ("full_name", "memorial_meeting")
     search_fields = (
         "user",
         "given_name",

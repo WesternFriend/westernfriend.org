@@ -15,18 +15,22 @@ from streams import blocks as wf_blocks
 
 
 class CommunityPage(Page):
-    body = StreamField([
-        ("heading", wf_blocks.HeadingBlock()),
-        ("rich_text", blocks.RichTextBlock()),
-        ("image", ImageChooserBlock()),
-        ("card", wf_blocks.CardBlock()),
-        (
-            "card_row", blocks.ListBlock(
-                wf_blocks.PageCardBlock(label="Page"),
-                template="streams/blocks/card_row.html"
-            )
-        ),
-    ], null=True)
+    body = StreamField(
+        [
+            ("heading", wf_blocks.HeadingBlock()),
+            ("rich_text", blocks.RichTextBlock()),
+            ("image", ImageChooserBlock()),
+            ("card", wf_blocks.CardBlock()),
+            (
+                "card_row",
+                blocks.ListBlock(
+                    wf_blocks.PageCardBlock(label="Page"),
+                    template="streams/blocks/card_row.html",
+                ),
+            ),
+        ],
+        null=True,
+    )
 
     content_panels = Page.content_panels + [
         StreamFieldPanel("body"),
@@ -49,11 +53,11 @@ class OnlineWorship(Page):
     description = RichTextField(blank=True)
 
     hosted_by = models.ForeignKey(
-        'wagtailcore.Page',
+        "wagtailcore.Page",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='online_worship',
+        related_name="online_worship",
     )
 
     times_of_worship = RichTextField(blank=True)
@@ -62,7 +66,7 @@ class OnlineWorship(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
-        PageChooserPanel('hosted_by', ['contact.Meeting', 'contact.Organization']),
+        PageChooserPanel("hosted_by", ["contact.Meeting", "contact.Organization"]),
         FieldPanel("times_of_worship"),
         FieldPanel("website"),
     ]

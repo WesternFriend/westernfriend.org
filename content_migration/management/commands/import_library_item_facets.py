@@ -54,20 +54,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        for facet in tqdm(
-            facets,
-            desc="Library item facets",
-            unit="taxonomy"
-        ):
+        for facet in tqdm(facets, desc="Library item facets", unit="taxonomy"):
             # Get the only index page instance for this facet
             facet_index_page = facet["index_page"].objects.get()
 
             file_path = options["folder"] + facet["file_name"]
 
             with open(file_path) as import_file:
-                facet_items = list(
-                    csv.DictReader(import_file)
-                )
+                facet_items = list(csv.DictReader(import_file))
 
                 for facet_item in facet_items:
                     facet_instance = facet["facet_class"](

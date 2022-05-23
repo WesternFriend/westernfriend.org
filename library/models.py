@@ -40,7 +40,7 @@ class LibraryItem(Page):
     publication_date = models.DateField("Publication date", null=True, blank=True)
     publication_date_is_approximate = models.BooleanField(
         default=False,
-        help_text="This field indicates when a library item wasn't published on a specific publication date."
+        help_text="This field indicates when a library item wasn't published on a specific publication date.",
     )
     description = RichTextField(null=True, blank=True)
     body = StreamField(
@@ -120,7 +120,12 @@ class LibraryItemAuthor(Orderable):
 
     panels = [
         PageChooserPanel(
-            "author", ["contact.Person", "contact.Meeting", "contact.Organization", ]
+            "author",
+            [
+                "contact.Person",
+                "contact.Meeting",
+                "contact.Organization",
+            ],
         )
     ]
 
@@ -140,7 +145,9 @@ class LibraryItemTopic(Orderable):
     )
 
     panels = [
-        PageChooserPanel("topic",),
+        PageChooserPanel(
+            "topic",
+        ),
     ]
 
 
@@ -190,7 +197,11 @@ class LibraryIndexPage(Page):
         # Remove any query parameter that
         # - isn't a model field, or
         # - has an empty value (empty string)
-        facets = {key: value for key, value in query.items() if key in allowed_keys and value != ""}
+        facets = {
+            key: value
+            for key, value in query.items()
+            if key in allowed_keys and value != ""
+        }
 
         # Filter live (not draft) library items using facets from request
         library_items = LibraryItem.objects.live().filter(**facets)
@@ -198,7 +209,7 @@ class LibraryIndexPage(Page):
         # Get page number from request,
         # default to first page
         default_page = 1
-        page = request.GET.get('page', default_page)
+        page = request.GET.get("page", default_page)
 
         # Paginate library items
         items_per_page = 10

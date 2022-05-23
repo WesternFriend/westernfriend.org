@@ -9,47 +9,153 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Order',
+            name="Order",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('purchaser_given_name', models.CharField(blank=True, default='', help_text='Enter the given name for the purchaser.', max_length=255)),
-                ('purchaser_family_name', models.CharField(blank=True, default='', help_text='Enter the family name for the purchaser.', max_length=255)),
-                ('purchaser_meeting_or_organization', models.CharField(blank=True, default='', help_text='Enter the meeting or organization name, if this purchaser is a meeting or organization.', max_length=255)),
-                ('purchaser_email', models.EmailField(help_text='Provide an email, so we can communicate any issues regarding this order.', max_length=254)),
-                ('recipient_name', models.CharField(default='', help_text='Enter the recipient name (as it should appear on shipping label).', max_length=255)),
-                ('recipient_street_address', models.CharField(blank=True, default='', help_text='The street address where this order should be shipped.', max_length=255)),
-                ('recipient_postal_code', models.CharField(help_text='Postal code for the shipping address.', max_length=16)),
-                ('recipient_po_box_number', models.CharField(blank=True, default='', help_text='P.O. Box, if relevant.', max_length=32)),
-                ('recipient_address_locality', models.CharField(help_text='City for the shipping address.', max_length=255)),
-                ('recipient_address_region', models.CharField(blank=True, default='', help_text='State for the shipping address.', max_length=255)),
-                ('recipient_address_country', models.CharField(default='United States', help_text='Country for shipping.', max_length=255)),
-                ('shipping_cost', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('paid', models.BooleanField(default=False)),
-                ('braintree_transaction_id', models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "purchaser_given_name",
+                    models.CharField(
+                        blank=True,
+                        default="",
+                        help_text="Enter the given name for the purchaser.",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "purchaser_family_name",
+                    models.CharField(
+                        blank=True,
+                        default="",
+                        help_text="Enter the family name for the purchaser.",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "purchaser_meeting_or_organization",
+                    models.CharField(
+                        blank=True,
+                        default="",
+                        help_text="Enter the meeting or organization name, if this purchaser is a meeting or organization.",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "purchaser_email",
+                    models.EmailField(
+                        help_text="Provide an email, so we can communicate any issues regarding this order.",
+                        max_length=254,
+                    ),
+                ),
+                (
+                    "recipient_name",
+                    models.CharField(
+                        default="",
+                        help_text="Enter the recipient name (as it should appear on shipping label).",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "recipient_street_address",
+                    models.CharField(
+                        blank=True,
+                        default="",
+                        help_text="The street address where this order should be shipped.",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "recipient_postal_code",
+                    models.CharField(
+                        help_text="Postal code for the shipping address.", max_length=16
+                    ),
+                ),
+                (
+                    "recipient_po_box_number",
+                    models.CharField(
+                        blank=True,
+                        default="",
+                        help_text="P.O. Box, if relevant.",
+                        max_length=32,
+                    ),
+                ),
+                (
+                    "recipient_address_locality",
+                    models.CharField(
+                        help_text="City for the shipping address.", max_length=255
+                    ),
+                ),
+                (
+                    "recipient_address_region",
+                    models.CharField(
+                        blank=True,
+                        default="",
+                        help_text="State for the shipping address.",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "recipient_address_country",
+                    models.CharField(
+                        default="United States",
+                        help_text="Country for shipping.",
+                        max_length=255,
+                    ),
+                ),
+                ("shipping_cost", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("paid", models.BooleanField(default=False)),
+                (
+                    "braintree_transaction_id",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='OrderItem',
+            name="OrderItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sort_order', models.IntegerField(blank=True, editable=False, null=True)),
-                ('product_title', models.CharField(max_length=255)),
-                ('product_id', models.PositiveIntegerField(default=1)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('quantity', models.PositiveIntegerField(default=1)),
-                ('order', modelcluster.fields.ParentalKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='orders.order')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "sort_order",
+                    models.IntegerField(blank=True, editable=False, null=True),
+                ),
+                ("product_title", models.CharField(max_length=255)),
+                ("product_id", models.PositiveIntegerField(default=1)),
+                ("price", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("quantity", models.PositiveIntegerField(default=1)),
+                (
+                    "order",
+                    modelcluster.fields.ParentalKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="items",
+                        to="orders.order",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['sort_order'],
-                'abstract': False,
+                "ordering": ["sort_order"],
+                "abstract": False,
             },
         ),
     ]

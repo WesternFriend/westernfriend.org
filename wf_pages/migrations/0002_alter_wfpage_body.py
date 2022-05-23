@@ -10,13 +10,41 @@ import wagtail.images.blocks
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wf_pages', '0001_initial'),
+        ("wf_pages", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='wfpage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('document', documents.blocks.DocumentEmbedBlock()), ('image', wagtail.images.blocks.ImageChooserBlock()), ('paragraph', wagtail.core.blocks.RichTextBlock(features=['h2', 'h3', 'h4', 'bold', 'italic', 'ol', 'ul', 'hr', 'link', 'document-link', 'image', 'superscript', 'superscript', 'strikethrough', 'blockquote'])), ('quote', wagtail.core.blocks.BlockQuoteBlock())]),
+            model_name="wfpage",
+            name="body",
+            field=wagtail.core.fields.StreamField(
+                [
+                    ("document", documents.blocks.DocumentEmbedBlock()),
+                    ("image", wagtail.images.blocks.ImageChooserBlock()),
+                    (
+                        "paragraph",
+                        wagtail.core.blocks.RichTextBlock(
+                            features=[
+                                "h2",
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "ol",
+                                "ul",
+                                "hr",
+                                "link",
+                                "document-link",
+                                "image",
+                                "superscript",
+                                "superscript",
+                                "strikethrough",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    ("quote", wagtail.core.blocks.BlockQuoteBlock()),
+                ]
+            ),
         ),
     ]

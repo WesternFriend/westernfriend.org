@@ -7,7 +7,11 @@ from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
 
-from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock, PullQuoteBlock
+from streams.blocks import (
+    FormattedImageChooserStructBlock,
+    HeadingBlock,
+    PullQuoteBlock,
+)
 
 
 class NewsIndexPage(Page):
@@ -15,8 +19,14 @@ class NewsIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    parent_page_types = ["home.HomePage", ]
-    subpage_types = ["NewsTopicIndexPage", "NewsTypeIndexPage", "NewsItem", ]
+    parent_page_types = [
+        "home.HomePage",
+    ]
+    subpage_types = [
+        "NewsTopicIndexPage",
+        "NewsTypeIndexPage",
+        "NewsItem",
+    ]
     max_count = 1
 
     def get_context(self, request, *args, **kwargs):
@@ -30,8 +40,12 @@ class NewsTopicIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    parent_page_types = ["NewsIndexPage", ]
-    subpage_types = ["NewsTopic", ]
+    parent_page_types = [
+        "NewsIndexPage",
+    ]
+    subpage_types = [
+        "NewsTopic",
+    ]
     max_count = 1
 
 
@@ -46,7 +60,9 @@ class NewsTopic(Page):
     # Hide the settings panels
     settings_panels = []
 
-    parent_page_types = ["NewsTopicIndexPage", ]
+    parent_page_types = [
+        "NewsTopicIndexPage",
+    ]
     subpage_types = []
 
 
@@ -55,8 +71,12 @@ class NewsTypeIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    parent_page_types = ["NewsIndexPage", ]
-    subpage_types = ["NewsType", ]
+    parent_page_types = [
+        "NewsIndexPage",
+    ]
+    subpage_types = [
+        "NewsType",
+    ]
     max_count = 1
 
 
@@ -71,7 +91,9 @@ class NewsType(Page):
     # Hide the settings panels
     settings_panels = []
 
-    parent_page_types = ["NewsTypeIndexPage", ]
+    parent_page_types = [
+        "NewsTypeIndexPage",
+    ]
     subpage_types = []
 
 
@@ -83,7 +105,7 @@ class NewsItem(Page):
     )
     body = StreamField(
         [
-            ("heading", HeadingBlock()),   
+            ("heading", HeadingBlock()),
             (
                 "rich_text",
                 blocks.RichTextBlock(
@@ -134,5 +156,7 @@ class NewsItem(Page):
         ),
     ]
 
-    parent_page_types = ["NewsIndexPage", ]
+    parent_page_types = [
+        "NewsIndexPage",
+    ]
     subpage_types = []

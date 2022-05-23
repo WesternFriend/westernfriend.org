@@ -10,19 +10,29 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('magazine', '0001_initial'),
-        ('home', '0001_initial'),
+        ("magazine", "0001_initial"),
+        ("home", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='homepagefeaturedarticle',
-            name='article',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='magazine.magazinearticle'),
+            model_name="homepagefeaturedarticle",
+            name="article",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="+",
+                to="magazine.magazinearticle",
+            ),
         ),
         migrations.AddField(
-            model_name='homepagefeaturedarticle',
-            name='home_page',
-            field=modelcluster.fields.ParentalKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='featured_articles', to='home.homepage'),
+            model_name="homepagefeaturedarticle",
+            name="home_page",
+            field=modelcluster.fields.ParentalKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="featured_articles",
+                to="home.homepage",
+            ),
         ),
     ]

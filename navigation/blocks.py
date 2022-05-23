@@ -18,7 +18,7 @@ class NavigationExternalLinkBlock(blocks.StructBlock):
     url = blocks.URLBlock()
     anchor = blocks.CharBlock(
         required=False,
-        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol."
+        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",
     )
 
     class Meta:
@@ -44,7 +44,7 @@ class NavigationPageChooserBlock(blocks.StructBlock):
     page = blocks.PageChooserBlock()
     anchor = blocks.CharBlock(
         required=False,
-        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol."
+        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",
     )
 
     class Meta:
@@ -56,10 +56,12 @@ class NavigationPageChooserBlock(blocks.StructBlock):
 
 class NavigationDropdownMenuBlock(blocks.StructBlock):
     title = blocks.CharBlock()
-    items = blocks.StreamBlock([
-        ("page", NavigationPageChooserBlock()),
-        ("external_link", NavigationExternalLinkBlock()),
-    ])
+    items = blocks.StreamBlock(
+        [
+            ("page", NavigationPageChooserBlock()),
+            ("external_link", NavigationExternalLinkBlock()),
+        ]
+    )
 
     class Meta:
         template = "navigation/blocks/dropdown_menu.html"

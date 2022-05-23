@@ -13,13 +13,81 @@ import wagtail.images.blocks
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('news', '0001_initial'),
+        ("news", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='newsitem',
-            name='body',
-            field=wagtail.core.fields.StreamField([('document', wagtail.documents.blocks.DocumentChooserBlock()), ('heading', wagtail.core.blocks.CharBlock(form_classname='full title')), ('image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('width', wagtail.core.blocks.IntegerBlock(help_text='Enter the desired image width value in pixels up to 800 max.', max_value=800, min_value=0))], classname='full title')), ('paragraph', wagtail.core.blocks.RichTextBlock(features=['h2', 'h3', 'h4', 'bold', 'italic', 'ol', 'ul', 'hr', 'link', 'document-link', 'image', 'superscript', 'superscript', 'strikethrough', 'blockquote'])), ('pullquote', streams.blocks.PullQuoteBlock()), ('target', wagtail.core.blocks.StructBlock([('target_slug', wagtail.core.blocks.CharBlock(help_text='Used to link to a specific location within this page. Slug should only contain letters, numbers, underscore (_), or hyphen (-).', validators=(django.core.validators.RegexValidator(re.compile('^[-a-zA-Z0-9_]+\\Z'), 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.', 'invalid'),)))]))]),
+            model_name="newsitem",
+            name="body",
+            field=wagtail.core.fields.StreamField(
+                [
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "heading",
+                        wagtail.core.blocks.CharBlock(form_classname="full title"),
+                    ),
+                    (
+                        "image",
+                        wagtail.core.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "width",
+                                    wagtail.core.blocks.IntegerBlock(
+                                        help_text="Enter the desired image width value in pixels up to 800 max.",
+                                        max_value=800,
+                                        min_value=0,
+                                    ),
+                                ),
+                            ],
+                            classname="full title",
+                        ),
+                    ),
+                    (
+                        "paragraph",
+                        wagtail.core.blocks.RichTextBlock(
+                            features=[
+                                "h2",
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "ol",
+                                "ul",
+                                "hr",
+                                "link",
+                                "document-link",
+                                "image",
+                                "superscript",
+                                "superscript",
+                                "strikethrough",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    ("pullquote", streams.blocks.PullQuoteBlock()),
+                    (
+                        "target",
+                        wagtail.core.blocks.StructBlock(
+                            [
+                                (
+                                    "target_slug",
+                                    wagtail.core.blocks.CharBlock(
+                                        help_text="Used to link to a specific location within this page. Slug should only contain letters, numbers, underscore (_), or hyphen (-).",
+                                        validators=(
+                                            django.core.validators.RegexValidator(
+                                                re.compile("^[-a-zA-Z0-9_]+\\Z"),
+                                                "Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.",
+                                                "invalid",
+                                            ),
+                                        ),
+                                    ),
+                                )
+                            ]
+                        ),
+                    ),
+                ]
+            ),
         ),
     ]

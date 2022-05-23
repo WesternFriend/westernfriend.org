@@ -31,7 +31,9 @@ class Memorial(Page):
     drupal_memorial_id = models.PositiveIntegerField(null=True, blank=True)
 
     def full_name(self):
-        return f"{ self.memorial_person.given_name } { self.memorial_person.family_name }"
+        return (
+            f"{ self.memorial_person.given_name } { self.memorial_person.family_name }"
+        )
 
     content_panels = Page.content_panels + [
         PageChooserPanel("memorial_person"),
@@ -56,9 +58,7 @@ class MemorialIndexPage(Page):
 
     max_count = 1
 
-    content_panels = Page.content_panels + [
-        FieldPanel("intro")
-    ]
+    content_panels = Page.content_panels + [FieldPanel("intro")]
 
     parent_page_types = ["community.CommunityPage"]
     subpage_types = [
@@ -74,8 +74,9 @@ class MemorialIndexPage(Page):
             "title",
             "memorial_meeting__title",
         ]
-        facets = {f"{key}__icontains": query[key]
-                  for key in query if key in allowed_keys}
+        facets = {
+            f"{key}__icontains": query[key] for key in query if key in allowed_keys
+        }
 
         return Memorial.objects.all().filter(**facets)
 

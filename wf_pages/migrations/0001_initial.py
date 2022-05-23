@@ -13,43 +13,126 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('wagtailcore', '0066_collection_management_permissions'),
+        ("wagtailcore", "0066_collection_management_permissions"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='WfPageCollection',
+            name="WfPageCollection",
             fields=[
-                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.page')),
+                (
+                    "page_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="wagtailcore.page",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('wagtailcore.page',),
+            bases=("wagtailcore.page",),
         ),
         migrations.CreateModel(
-            name='WfPageCollectionIndexPage',
+            name="WfPageCollectionIndexPage",
             fields=[
-                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.page')),
-                ('intro', wagtail.core.fields.RichTextField(blank=True)),
+                (
+                    "page_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="wagtailcore.page",
+                    ),
+                ),
+                ("intro", wagtail.core.fields.RichTextField(blank=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('wagtailcore.page',),
+            bases=("wagtailcore.page",),
         ),
         migrations.CreateModel(
-            name='WfPage',
+            name="WfPage",
             fields=[
-                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.page')),
-                ('body', wagtail.core.fields.StreamField([('document', documents.blocks.DocumentEmbedBlock()), ('heading', wagtail.core.blocks.CharBlock(form_classname='full title')), ('image', wagtail.images.blocks.ImageChooserBlock()), ('paragraph', wagtail.core.blocks.RichTextBlock(features=['h2', 'h3', 'h4', 'bold', 'italic', 'ol', 'ul', 'hr', 'link', 'document-link', 'image', 'superscript', 'superscript', 'strikethrough', 'blockquote'])), ('quote', wagtail.core.blocks.BlockQuoteBlock())])),
-                ('body_migrated', models.TextField(blank=True, help_text='Used only for content from old Drupal website.', null=True)),
-                ('collection', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='pages', to='wf_pages.wfpagecollection')),
+                (
+                    "page_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="wagtailcore.page",
+                    ),
+                ),
+                (
+                    "body",
+                    wagtail.core.fields.StreamField(
+                        [
+                            ("document", documents.blocks.DocumentEmbedBlock()),
+                            (
+                                "heading",
+                                wagtail.core.blocks.CharBlock(
+                                    form_classname="full title"
+                                ),
+                            ),
+                            ("image", wagtail.images.blocks.ImageChooserBlock()),
+                            (
+                                "paragraph",
+                                wagtail.core.blocks.RichTextBlock(
+                                    features=[
+                                        "h2",
+                                        "h3",
+                                        "h4",
+                                        "bold",
+                                        "italic",
+                                        "ol",
+                                        "ul",
+                                        "hr",
+                                        "link",
+                                        "document-link",
+                                        "image",
+                                        "superscript",
+                                        "superscript",
+                                        "strikethrough",
+                                        "blockquote",
+                                    ]
+                                ),
+                            ),
+                            ("quote", wagtail.core.blocks.BlockQuoteBlock()),
+                        ]
+                    ),
+                ),
+                (
+                    "body_migrated",
+                    models.TextField(
+                        blank=True,
+                        help_text="Used only for content from old Drupal website.",
+                        null=True,
+                    ),
+                ),
+                (
+                    "collection",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="pages",
+                        to="wf_pages.wfpagecollection",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Page',
-                'verbose_name_plural': 'Pages',
+                "verbose_name": "Page",
+                "verbose_name_plural": "Pages",
             },
-            bases=('wagtailcore.page',),
+            bases=("wagtailcore.page",),
         ),
     ]
