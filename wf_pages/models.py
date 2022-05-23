@@ -4,11 +4,10 @@ from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
-from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images.blocks import ImageChooserBlock
 
 from documents.blocks import DocumentEmbedBlock
-from streams.blocks import AnchorTarget
+from streams.blocks import HeadingBlock
 
 
 class WfPageCollectionIndexPage(Page):
@@ -40,15 +39,11 @@ class WfPageCollection(Page):
 class WfPage(Page):
     body = StreamField(
         [
-            ("document", DocumentEmbedBlock()),
-            ("image", ImageChooserBlock()),
+            ("heading", HeadingBlock()),
             (
-                "paragraph",
+                "rich_text",
                 blocks.RichTextBlock(
                     features=[
-                        "h2",
-                        "h3",
-                        "h4",
                         "bold",
                         "italic",
                         "ol",
@@ -64,7 +59,8 @@ class WfPage(Page):
                 ),
             ),
             ("quote", blocks.BlockQuoteBlock()),
-            ("target", AnchorTarget()),
+            ("document", DocumentEmbedBlock()),
+            ("image", ImageChooserBlock()),
         ]
     )
     body_migrated = models.TextField(

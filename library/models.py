@@ -11,7 +11,6 @@ from wagtail.admin.edit_handlers import (
 from wagtail.core.models import Orderable, Page
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
-from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 
 from modelcluster.contrib.taggit import ClusterTaggableManager
@@ -26,7 +25,7 @@ from facets.models import (
     TimePeriod,
     Topic,
 )
-from streams.blocks import AnchorTarget, FormattedImageChooserStructBlock, MediaBlock
+from streams.blocks import AnchorTarget, FormattedImageChooserStructBlock, HeadingBlock, MediaBlock
 
 from flatpickr import DatePickerInput
 
@@ -46,14 +45,14 @@ class LibraryItem(Page):
     description = RichTextField(null=True, blank=True)
     body = StreamField(
         [
-            ("paragraph", blocks.RichTextBlock()),
+            ("heading", HeadingBlock()),
+            ("rich_text", blocks.RichTextBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("document", DocumentEmbedBlock()),
             ("media", MediaBlock(icon="media")),
             ("embed", EmbedBlock()),
             ("url", blocks.URLBlock()),
             ("quote", blocks.BlockQuoteBlock()),
-            ("target", AnchorTarget()),
         ],
         null=True,
         blank=True,

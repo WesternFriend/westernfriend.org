@@ -1,32 +1,23 @@
 from django.db import models
-from django.http import Http404
-from django.shortcuts import render
 
 from wagtail.admin.edit_handlers import (
     FieldPanel,
-    InlinePanel,
-    MultiFieldPanel,
     PageChooserPanel,
     StreamFieldPanel,
 )
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
-from wagtail.core.models import Page, Orderable
-from wagtail.contrib.routable_page.models import RoutablePageMixin, route
-from wagtail.images.edit_handlers import ImageChooserPanel
+from wagtail.core.models import Page
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.images.models import Image
 from wagtail.search import index
-
-from modelcluster.fields import ParentalKey
-from wagtailautocomplete.edit_handlers import AutocompletePanel
 
 from streams import blocks as wf_blocks
 
 
 class CommunityPage(Page):
     body = StreamField([
-        ("paragraph", blocks.RichTextBlock()),
+        ("heading", wf_blocks.HeadingBlock()),
+        ("rich_text", blocks.RichTextBlock()),
         ("image", ImageChooserBlock()),
         ("card", wf_blocks.CardBlock()),
         (
@@ -35,7 +26,6 @@ class CommunityPage(Page):
                 template="streams/blocks/card_row.html"
             )
         ),
-        ("target", wf_blocks.AnchorTarget()),
     ], null=True)
 
     content_panels = Page.content_panels + [
