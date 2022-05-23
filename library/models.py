@@ -25,7 +25,7 @@ from facets.models import (
     TimePeriod,
     Topic,
 )
-from streams.blocks import AnchorTarget, FormattedImageChooserStructBlock, HeadingBlock, MediaBlock
+from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock, MediaBlock
 
 from flatpickr import DatePickerInput
 
