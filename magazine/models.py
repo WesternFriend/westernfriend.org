@@ -27,7 +27,7 @@ from wagtail.search import index
 
 from flatpickr import DatePickerInput
 
-from streams.blocks import AnchorTarget, FormattedImageChooserStructBlock, HeadingBlock, PullQuoteBlock
+from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock, PullQuoteBlock
 
 
 from .panels import NestedInlinePanel
