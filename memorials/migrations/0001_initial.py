@@ -10,37 +10,76 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('wagtailcore', '0066_collection_management_permissions'),
-        ('contact', '0001_initial'),
+        ("wagtailcore", "0066_collection_management_permissions"),
+        ("contact", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='MemorialIndexPage',
+            name="MemorialIndexPage",
             fields=[
-                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.page')),
-                ('intro', wagtail.core.fields.RichTextField(blank=True)),
+                (
+                    "page_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="wagtailcore.page",
+                    ),
+                ),
+                ("intro", wagtail.core.fields.RichTextField(blank=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('wagtailcore.page',),
+            bases=("wagtailcore.page",),
         ),
         migrations.CreateModel(
-            name='Memorial',
+            name="Memorial",
             fields=[
-                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.page')),
-                ('date_of_birth', models.DateField(blank=True, null=True)),
-                ('date_of_death', models.DateField(blank=True, null=True)),
-                ('dates_are_approximate', models.BooleanField(default=False)),
-                ('memorial_minute', wagtail.core.fields.RichTextField(blank=True)),
-                ('drupal_memorial_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('memorial_meeting', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='memorial_minutes', to='contact.meeting')),
-                ('memorial_person', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='memorial_minute', to='contact.person')),
+                (
+                    "page_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="wagtailcore.page",
+                    ),
+                ),
+                ("date_of_birth", models.DateField(blank=True, null=True)),
+                ("date_of_death", models.DateField(blank=True, null=True)),
+                ("dates_are_approximate", models.BooleanField(default=False)),
+                ("memorial_minute", wagtail.core.fields.RichTextField(blank=True)),
+                (
+                    "drupal_memorial_id",
+                    models.PositiveIntegerField(blank=True, null=True),
+                ),
+                (
+                    "memorial_meeting",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="memorial_minutes",
+                        to="contact.meeting",
+                    ),
+                ),
+                (
+                    "memorial_person",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="memorial_minute",
+                        to="contact.person",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('wagtailcore.page',),
+            bases=("wagtailcore.page",),
         ),
     ]

@@ -35,11 +35,9 @@ def get_memorial_meeting_or_none(memorial_data):
 
     if memorial_data["Memorial Meeting"] != "":
         try:
-            meeting = Meeting.objects.get(
-                title=memorial_data["Memorial Meeting"]
-            )
+            meeting = Meeting.objects.get(title=memorial_data["Memorial Meeting"])
         except:
-            print("Could not find memorial meeting:", memorial_data['Memorial Meeting'])
+            print("Could not find memorial meeting:", memorial_data["Memorial Meeting"])
 
             return None
 
@@ -55,7 +53,10 @@ def get_or_create_memorial_person(memorial_data):
                 drupal_author_id=int(memorial_data["Article Author ID"])
             )
         except:
-            print("Could not find existing contact for Drupal ID:", memorial_data["Article Author ID"])
+            print(
+                "Could not find existing contact for Drupal ID:",
+                memorial_data["Article Author ID"],
+            )
     else:
         person = create_person(memorial_data)
 
@@ -73,13 +74,9 @@ class Command(BaseCommand):
         memorial_index_page = MemorialIndexPage.objects.get()
 
         with open(options["file"]) as import_file:
-            memorials = list(
-                csv.DictReader(import_file)
-            )
+            memorials = list(csv.DictReader(import_file))
 
-            for memorial_data in tqdm(
-                memorials, desc="Memorials", unit="row"
-            ):
+            for memorial_data in tqdm(memorials, desc="Memorials", unit="row"):
                 memorial_exists = Memorial.objects.filter(
                     drupal_memorial_id=int(memorial_data["memorial_id"])
                 ).exists()
@@ -101,7 +98,9 @@ class Command(BaseCommand):
                 else:
                     continue
 
-                memorial.title = memorial_data["First Name"] + " " + memorial_data["Last Name"]
+                memorial.title = (
+                    memorial_data["First Name"] + " " + memorial_data["Last Name"]
+                )
                 memorial.memorial_minute = memorial_data["body"]
 
                 # Strip out time from datetime strings
@@ -109,10 +108,14 @@ class Command(BaseCommand):
 
                 # Dates are optional
                 if memorial_data["Date of Birth"] != "":
-                    memorial.date_of_birth = datetime.strptime(memorial_data["Date of Birth"], datetime_format)
+                    memorial.date_of_birth = datetime.strptime(
+                        memorial_data["Date of Birth"], datetime_format
+                    )
 
                 if memorial_data["Date of Death"] != "":
-                    memorial.date_of_death = datetime.strptime(memorial_data["Date of Death"], datetime_format)
+                    memorial.date_of_death = datetime.strptime(
+                        memorial_data["Date of Death"], datetime_format
+                    )
 
                 if memorial_data["Dates are approximate"] != "":
                     memorial.dates_are_approximate = True

@@ -24,6 +24,7 @@ class ButtonBlock(blocks.StructBlock):
 
 class CardBlock(blocks.StructBlock):
     """Card with title, text, and image."""
+
     title = blocks.CharBlock(required=True, help_text="Add a title")
     text = blocks.RichTextBlock(required=False)
     image = ImageChooserBlock(required=False)
@@ -31,7 +32,7 @@ class CardBlock(blocks.StructBlock):
         required=False,
         choices=IMAGE_ALIGN_CHOICES,
         default="left",
-        help_text="Whether to align the image left or right on the block."
+        help_text="Whether to align the image left or right on the block.",
     )
     button = ButtonBlock(required=False)
 
@@ -59,7 +60,9 @@ class HeadingBlock(blocks.StructBlock):
         validators=(validate_slug,),
         required=False,
     )
-    color = NativeColorBlock(required=False,)
+    color = NativeColorBlock(
+        required=False,
+    )
 
     class Meta:
         icon = "list-ol"
@@ -108,7 +111,6 @@ class PageCardBlock(blocks.StructBlock):
 
 
 class OrganizationsBlock(blocks.StructBlock):
-
     def get_context(self, value, parent_context=None):
         # avoid circular imports
         from contact.models import Organization
@@ -124,12 +126,11 @@ class OrganizationsBlock(blocks.StructBlock):
 
 
 class PullQuoteBlock(blocks.TextBlock):
-
     def render_basic(self, value, context=None):
         if value:
             return format_html('<div class="pullquote">{0}</div>', value)
         else:
-            return ''
+            return ""
 
     class Meta:
         icon = "openquote"
@@ -140,7 +141,7 @@ class FormattedImageChooserStructBlock(blocks.StructBlock):
     width = blocks.IntegerBlock(
         min_value=0,
         max_value=800,
-        help_text="Enter the desired image width value in pixels up to 800 max."
+        help_text="Enter the desired image width value in pixels up to 800 max.",
     )
 
     class Meta:

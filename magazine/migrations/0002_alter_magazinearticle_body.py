@@ -11,13 +11,57 @@ import wagtail.images.blocks
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('magazine', '0001_initial'),
+        ("magazine", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='magazinearticle',
-            name='body',
-            field=wagtail.core.fields.StreamField([('document', wagtail.documents.blocks.DocumentChooserBlock()), ('image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('width', wagtail.core.blocks.IntegerBlock(help_text='Enter the desired image width value in pixels up to 800 max.', max_value=800, min_value=0))], classname='full title')), ('paragraph', wagtail.core.blocks.RichTextBlock(features=['h2', 'h3', 'h4', 'bold', 'italic', 'ol', 'ul', 'hr', 'link', 'document-link', 'image', 'superscript', 'superscript', 'strikethrough', 'blockquote'])), ('pullquote', streams.blocks.PullQuoteBlock())]),
+            model_name="magazinearticle",
+            name="body",
+            field=wagtail.core.fields.StreamField(
+                [
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "image",
+                        wagtail.core.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "width",
+                                    wagtail.core.blocks.IntegerBlock(
+                                        help_text="Enter the desired image width value in pixels up to 800 max.",
+                                        max_value=800,
+                                        min_value=0,
+                                    ),
+                                ),
+                            ],
+                            classname="full title",
+                        ),
+                    ),
+                    (
+                        "paragraph",
+                        wagtail.core.blocks.RichTextBlock(
+                            features=[
+                                "h2",
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "ol",
+                                "ul",
+                                "hr",
+                                "link",
+                                "document-link",
+                                "image",
+                                "superscript",
+                                "superscript",
+                                "strikethrough",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    ("pullquote", streams.blocks.PullQuoteBlock()),
+                ]
+            ),
         ),
     ]

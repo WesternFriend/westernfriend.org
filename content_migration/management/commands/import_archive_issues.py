@@ -19,9 +19,7 @@ class Command(BaseCommand):
         with open(options["file"]) as import_file:
             issues = csv.DictReader(import_file)
 
-            for issue in tqdm(
-                issues, desc="Archive issues", unit="row"
-            ):
+            for issue in tqdm(issues, desc="Archive issues", unit="row"):
                 issue_exists = ArchiveIssue.objects.filter(
                     internet_archive_identifier=issue["internet_archive_identifier"]
                 ).exists()
@@ -30,7 +28,9 @@ class Command(BaseCommand):
                     import_issue = ArchiveIssue(
                         title=issue["title"],
                         publication_date=issue["publication_date"],
-                        internet_archive_identifier=issue["internet_archive_identifier"],
+                        internet_archive_identifier=issue[
+                            "internet_archive_identifier"
+                        ],
                         western_friend_volume=issue["western_friend_volume"],
                     )
 

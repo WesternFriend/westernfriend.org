@@ -13,37 +13,90 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('wagtailcore', '0066_collection_management_permissions'),
+        ("wagtailcore", "0066_collection_management_permissions"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Event',
+            name="Event",
             fields=[
-                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.page')),
-                ('teaser', models.TextField(blank=True, max_length=100, null=True)),
-                ('body', wagtail.core.fields.StreamField([('rich_text', wagtail.core.blocks.RichTextBlock()), ('image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('width', wagtail.core.blocks.IntegerBlock(help_text='Enter the desired image width value in pixels up to 800 max.', max_value=800, min_value=0))]))], blank=True, null=True)),
-                ('start_date', models.DateTimeField()),
-                ('end_date', models.DateTimeField(blank=True, null=True)),
-                ('timezone', timezone_field.fields.TimeZoneField(choices_display='WITH_GMT_OFFSET', default='US/Pacific')),
-                ('website', models.URLField(blank=True, max_length=300, null=True)),
-                ('drupal_node_id', models.IntegerField(blank=True, null=True)),
+                (
+                    "page_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="wagtailcore.page",
+                    ),
+                ),
+                ("teaser", models.TextField(blank=True, max_length=100, null=True)),
+                (
+                    "body",
+                    wagtail.core.fields.StreamField(
+                        [
+                            ("rich_text", wagtail.core.blocks.RichTextBlock()),
+                            (
+                                "image",
+                                wagtail.core.blocks.StructBlock(
+                                    [
+                                        (
+                                            "image",
+                                            wagtail.images.blocks.ImageChooserBlock(),
+                                        ),
+                                        (
+                                            "width",
+                                            wagtail.core.blocks.IntegerBlock(
+                                                help_text="Enter the desired image width value in pixels up to 800 max.",
+                                                max_value=800,
+                                                min_value=0,
+                                            ),
+                                        ),
+                                    ]
+                                ),
+                            ),
+                        ],
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                ("start_date", models.DateTimeField()),
+                ("end_date", models.DateTimeField(blank=True, null=True)),
+                (
+                    "timezone",
+                    timezone_field.fields.TimeZoneField(
+                        choices_display="WITH_GMT_OFFSET", default="US/Pacific"
+                    ),
+                ),
+                ("website", models.URLField(blank=True, max_length=300, null=True)),
+                ("drupal_node_id", models.IntegerField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'events',
-                'ordering': ['start_date'],
+                "db_table": "events",
+                "ordering": ["start_date"],
             },
-            bases=('wagtailcore.page',),
+            bases=("wagtailcore.page",),
         ),
         migrations.CreateModel(
-            name='EventsIndexPage',
+            name="EventsIndexPage",
             fields=[
-                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.page')),
-                ('intro', wagtail.core.fields.RichTextField(blank=True)),
+                (
+                    "page_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="wagtailcore.page",
+                    ),
+                ),
+                ("intro", wagtail.core.fields.RichTextField(blank=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('wagtailcore.page',),
+            bases=("wagtailcore.page",),
         ),
     ]

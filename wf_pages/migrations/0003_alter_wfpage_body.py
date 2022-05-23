@@ -12,13 +12,61 @@ import wagtail.images.blocks
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wf_pages', '0002_alter_wfpage_body'),
+        ("wf_pages", "0002_alter_wfpage_body"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='wfpage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('document', documents.blocks.DocumentEmbedBlock()), ('image', wagtail.images.blocks.ImageChooserBlock()), ('paragraph', wagtail.core.blocks.RichTextBlock(features=['h2', 'h3', 'h4', 'bold', 'italic', 'ol', 'ul', 'hr', 'link', 'document-link', 'image', 'superscript', 'superscript', 'strikethrough', 'blockquote'])), ('quote', wagtail.core.blocks.BlockQuoteBlock()), ('target', wagtail.core.blocks.StructBlock([('target_slug', wagtail.core.blocks.CharBlock(help_text='Used to link to a specific location within this page. Slug should only contain letters, numbers, underscore (_), or hyphen (-).', validators=(django.core.validators.RegexValidator(re.compile('^[-a-zA-Z0-9_]+\\Z'), 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.', 'invalid'),)))]))]),
+            model_name="wfpage",
+            name="body",
+            field=wagtail.core.fields.StreamField(
+                [
+                    ("document", documents.blocks.DocumentEmbedBlock()),
+                    ("image", wagtail.images.blocks.ImageChooserBlock()),
+                    (
+                        "paragraph",
+                        wagtail.core.blocks.RichTextBlock(
+                            features=[
+                                "h2",
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "ol",
+                                "ul",
+                                "hr",
+                                "link",
+                                "document-link",
+                                "image",
+                                "superscript",
+                                "superscript",
+                                "strikethrough",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    ("quote", wagtail.core.blocks.BlockQuoteBlock()),
+                    (
+                        "target",
+                        wagtail.core.blocks.StructBlock(
+                            [
+                                (
+                                    "target_slug",
+                                    wagtail.core.blocks.CharBlock(
+                                        help_text="Used to link to a specific location within this page. Slug should only contain letters, numbers, underscore (_), or hyphen (-).",
+                                        validators=(
+                                            django.core.validators.RegexValidator(
+                                                re.compile("^[-a-zA-Z0-9_]+\\Z"),
+                                                "Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.",
+                                                "invalid",
+                                            ),
+                                        ),
+                                    ),
+                                )
+                            ]
+                        ),
+                    ),
+                ]
+            ),
         ),
     ]

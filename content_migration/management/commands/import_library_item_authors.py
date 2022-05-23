@@ -22,7 +22,9 @@ def create_meeting(author):
     drupal_author_id = author["Magazine Author ID"]
 
     # Check if we've already imported the library item author
-    library_item_author_exists = Person.objects.filter(drupal_library_author_id=drupal_library_author_id).exists()
+    library_item_author_exists = Person.objects.filter(
+        drupal_library_author_id=drupal_library_author_id
+    ).exists()
 
     # Don't create duplicate meetings
     # Ensure that both Magazine Author ID and
@@ -58,7 +60,9 @@ def create_organization(author):
     drupal_author_id = author["Magazine Author ID"]
 
     # Check if we've already imported the library item author
-    library_item_author_exists = Person.objects.filter(drupal_library_author_id=drupal_library_author_id).exists()
+    library_item_author_exists = Person.objects.filter(
+        drupal_library_author_id=drupal_library_author_id
+    ).exists()
 
     # Avoid duplicates
     # Ensure that both Magazine Author ID and
@@ -67,7 +71,9 @@ def create_organization(author):
         try:
             organization = Organization.objects.get(drupal_author_id=drupal_author_id)
         except ObjectDoesNotExist:
-            print(f"Could not find organization { organization_name  }  ({ drupal_author_id })")
+            print(
+                f"Could not find organization { organization_name  }  ({ drupal_author_id })"
+            )
 
         organization.drupal_library_author_id = drupal_library_author_id
 
@@ -96,7 +102,9 @@ def create_person(author):
     family_name = author["family_name"]
 
     # Check if we've already imported the library item author
-    library_item_author_exists = Person.objects.filter(drupal_library_author_id=drupal_library_author_id).exists()
+    library_item_author_exists = Person.objects.filter(
+        drupal_library_author_id=drupal_library_author_id
+    ).exists()
 
     # assuming the Magazine Authors import runs before Library Item Authors
     if drupal_author_id != "":
@@ -104,7 +112,9 @@ def create_person(author):
         try:
             person = Person.objects.get(drupal_author_id=drupal_author_id)
         except ObjectDoesNotExist:
-            print(f"Could not find person { given_name  } { family_name } ({ drupal_author_id })")
+            print(
+                f"Could not find person { given_name  } { family_name } ({ drupal_author_id })"
+            )
 
         person.drupal_library_author_id = drupal_library_author_id
 
@@ -116,7 +126,7 @@ def create_person(author):
         person = Person(
             given_name=given_name,
             family_name=family_name,
-            drupal_library_author_id=drupal_library_author_id
+            drupal_library_author_id=drupal_library_author_id,
         )
 
         person_index_page.add_child(instance=person)
@@ -147,8 +157,7 @@ class Command(BaseCommand):
                 author_is_meeting = author["meeting_name"] != ""
                 author_is_organization = author["organization_name"] != ""
                 author_is_person = (
-                    author_is_meeting is False
-                    and author_is_organization is False
+                    author_is_meeting is False and author_is_organization is False
                 )
 
                 author_is_duplicate = author["duplicate of ID"] != ""

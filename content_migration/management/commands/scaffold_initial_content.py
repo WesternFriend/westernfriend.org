@@ -43,7 +43,6 @@ from subscription.models import (
 )
 
 
-
 class Command(BaseCommand):
     help = "Create initial site structure"
 
@@ -74,7 +73,9 @@ class Command(BaseCommand):
         manage_subscription_page = ManageSubscriptionPage(title="Manage subscription")
         news_index_page = NewsIndexPage(title="News")
         store_index_page = StoreIndexPage(title="Bookstore", show_in_menus=True)
-        subscription_index_page = SubscriptionIndexPage(title="Subscribe", show_in_menus=True)
+        subscription_index_page = SubscriptionIndexPage(
+            title="Subscribe", show_in_menus=True
+        )
 
         home_page.add_child(instance=community_page)
         home_page.add_child(instance=contact_form_page)
@@ -111,10 +112,14 @@ class Command(BaseCommand):
         news_index_page.save()
 
         # Community section
-        community_directory_index_page = CommunityDirectoryIndexPage(title="Community directories")
+        community_directory_index_page = CommunityDirectoryIndexPage(
+            title="Community directories"
+        )
         meeting_index_page = MeetingIndexPage(title="Meetings")
         memorial_index_page = MemorialIndexPage(title="Memorials", show_in_menus=True)
-        online_worship_index_page = OnlineWorshipIndexPage(title="Online meetings for worship")
+        online_worship_index_page = OnlineWorshipIndexPage(
+            title="Online meetings for worship"
+        )
         organization_index_page = OrganizationIndexPage(title="Organizations")
         person_index_page = PersonIndexPage(title="People")
 

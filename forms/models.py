@@ -8,8 +8,9 @@ from modelcluster.fields import ParentalKey
 
 
 class FormField(AbstractFormField):
-    page = ParentalKey("ContactFormPage", on_delete=models.CASCADE,
-                       related_name='form_fields')
+    page = ParentalKey(
+        "ContactFormPage", on_delete=models.CASCADE, related_name="form_fields"
+    )
 
 
 class ContactFormPage(AbstractForm):
@@ -20,9 +21,9 @@ class ContactFormPage(AbstractForm):
 
     content_panels = AbstractForm.content_panels + [
         FormSubmissionsPanel(),
-        FieldPanel('intro', classname="full"),
-        InlinePanel('form_fields', label="Form fields"),
-        FieldPanel('thank_you_text', classname="full"),
+        FieldPanel("intro", classname="full"),
+        InlinePanel("form_fields", label="Form fields"),
+        FieldPanel("thank_you_text", classname="full"),
     ]
 
     parent_page_types = ["home.HomePage"]

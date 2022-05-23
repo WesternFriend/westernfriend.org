@@ -90,7 +90,9 @@ class Command(BaseCommand):
                 #     )
                 #     pass
 
-                family_name, given_name = extract_given_and_family_name(relationship["Contact A"])
+                family_name, given_name = extract_given_and_family_name(
+                    relationship["Contact A"]
+                )
 
                 person_exists = Person.objects.filter(
                     given_name=given_name,

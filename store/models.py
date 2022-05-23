@@ -85,7 +85,10 @@ class Book(Product):
 
 class BookAuthor(Orderable):
     book = ParentalKey(
-        "store.Book", null=True, on_delete=models.CASCADE, related_name="authors",
+        "store.Book",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="authors",
     )
     author = models.ForeignKey(
         "wagtailcore.Page",

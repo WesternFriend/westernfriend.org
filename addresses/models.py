@@ -13,17 +13,31 @@ class Address(models.Model):
     http://microformats.org/wiki/adr
     """
 
-    street_address = models.CharField(max_length=255, blank=True, default="",)
-    extended_address = models.CharField(max_length=255, blank=True, default="",)
+    street_address = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+    )
+    extended_address = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+    )
     po_box_number = models.CharField(
         max_length=32, blank=True, default="", help_text="P.O. Box, if relevant"
     )
-    locality = models.CharField(max_length=255, help_text="Locality or city", null=True, blank=True)
+    locality = models.CharField(
+        max_length=255, help_text="Locality or city", null=True, blank=True
+    )
     region = models.CharField(
         max_length=255, help_text="State or region", blank=True, default=""
     )
-    postal_code = models.CharField(max_length=16, help_text="Postal code (or zipcode)", null=True, blank=True)
-    country = models.CharField(max_length=255, default="United States", null=True, blank=True)
+    postal_code = models.CharField(
+        max_length=16, help_text="Postal code (or zipcode)", null=True, blank=True
+    )
+    country = models.CharField(
+        max_length=255, default="United States", null=True, blank=True
+    )
     address_type = models.CharField(max_length=255, choices=ADDRESS_TYPE_CHOICES)
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)

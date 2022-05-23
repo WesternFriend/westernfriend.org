@@ -9,7 +9,10 @@ from modelcluster.models import ClusterableModel
 
 class Order(ClusterableModel):
     purchaser_given_name = models.CharField(
-        max_length=255, default="", help_text="Enter the given name for the purchaser.", blank=True,
+        max_length=255,
+        default="",
+        help_text="Enter the given name for the purchaser.",
+        blank=True,
     )
     purchaser_family_name = models.CharField(
         max_length=255,
@@ -27,7 +30,9 @@ class Order(ClusterableModel):
         help_text="Provide an email, so we can communicate any issues regarding this order."
     )
     recipient_name = models.CharField(
-        max_length=255, default="", help_text="Enter the recipient name (as it should appear on shipping label)."
+        max_length=255,
+        default="",
+        help_text="Enter the recipient name (as it should appear on shipping label).",
     )
     recipient_street_address = models.CharField(
         max_length=255,
@@ -45,7 +50,10 @@ class Order(ClusterableModel):
         max_length=255, help_text="City for the shipping address."
     )
     recipient_address_region = models.CharField(
-        max_length=255, help_text="State for the shipping address.", blank=True, default=""
+        max_length=255,
+        help_text="State for the shipping address.",
+        blank=True,
+        default="",
     )
     recipient_address_country = models.CharField(
         max_length=255, default="United States", help_text="Country for shipping."
@@ -53,7 +61,6 @@ class Order(ClusterableModel):
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
     paid = models.BooleanField(default=False)
     braintree_transaction_id = models.CharField(max_length=255, null=True, blank=True)
-
 
     panels = [
         FieldPanel("purchaser_given_name"),
@@ -101,8 +108,7 @@ class OrderItem(Orderable):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 
-    panels = [FieldPanel("product_title"), FieldPanel(
-        "price"), FieldPanel("quantity")]
+    panels = [FieldPanel("product_title"), FieldPanel("price"), FieldPanel("quantity")]
 
     def __str__(self):
         return f"{self.quantity}x {self.product_title} @ { self.price}"

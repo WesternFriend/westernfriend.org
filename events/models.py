@@ -16,17 +16,21 @@ from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock
 
 class Event(Page):
     teaser = models.TextField(max_length=100, null=True, blank=True)
-    body = StreamField([
-        ("heading", HeadingBlock()),
-        ('rich_text', blocks.RichTextBlock()),
-        ('image', FormattedImageChooserStructBlock()),
-    ], null=True, blank=True)
+    body = StreamField(
+        [
+            ("heading", HeadingBlock()),
+            ("rich_text", blocks.RichTextBlock()),
+            ("image", FormattedImageChooserStructBlock()),
+        ],
+        null=True,
+        blank=True,
+    )
 
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(blank=True, null=True)
     timezone = TimeZoneField(
         default="US/Pacific",
-        choices_display='WITH_GMT_OFFSET',
+        choices_display="WITH_GMT_OFFSET",
     )
 
     website = models.URLField(blank=True, null=True, max_length=300)
@@ -39,7 +43,7 @@ class Event(Page):
         FieldPanel("start_date"),
         FieldPanel("end_date"),
         FieldPanel("timezone"),
-        FieldPanel("website")
+        FieldPanel("website"),
     ]
 
     context_object_name = "event"
@@ -71,8 +75,11 @@ class EventsIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        upcoming_events = Event.objects.all().filter(
-            Q(start_date__gt=date.today())).order_by('start_date')
+        upcoming_events = (
+            Event.objects.all()
+            .filter(Q(start_date__gt=date.today()))
+            .order_by("start_date")
+        )
 
         # Show three archive issues per page
         paginator = Paginator(upcoming_events, 3)

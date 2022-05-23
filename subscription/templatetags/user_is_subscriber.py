@@ -11,8 +11,7 @@ def user_is_subscriber(context):
 
     if hasattr(user, "subscriptions"):
         active_subscription = user.subscriptions.filter(
-            end_date__gte=datetime.datetime.now(),
-            paid=True
+            end_date__gte=datetime.datetime.now(), paid=True
         )
 
         if active_subscription:

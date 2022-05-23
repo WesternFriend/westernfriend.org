@@ -17,10 +17,17 @@ class Command(BaseCommand):
         magazine_articles_filename = "articles.csv"
 
         call_command(
-            "import_magazine_departments", file=f"{ directory }{ magazine_departments_filename }"
+            "import_magazine_departments",
+            file=f"{ directory }{ magazine_departments_filename }",
         )
-        call_command("import_magazine_authors", file=f"{ directory }{ magazine_authors_filename }")
-        call_command("import_magazine_issues", file=f"{ directory }{ magazine_issues_filename }")
         call_command(
-            "import_magazine_articles", articles_file=f"{ directory }{ magazine_articles_filename }"
+            "import_magazine_authors",
+            file=f"{ directory }{ magazine_authors_filename }",
+        )
+        call_command(
+            "import_magazine_issues", file=f"{ directory }{ magazine_issues_filename }"
+        )
+        call_command(
+            "import_magazine_articles",
+            articles_file=f"{ directory }{ magazine_articles_filename }",
         )

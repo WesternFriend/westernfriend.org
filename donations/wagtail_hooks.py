@@ -1,7 +1,4 @@
-from wagtail.contrib.modeladmin.options import (
-    ModelAdmin,
-    modeladmin_register
-)
+from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
 
 from donations.models import Donation
 

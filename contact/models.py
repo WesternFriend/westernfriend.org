@@ -73,6 +73,7 @@ class PersonIndexPage(Page):
 
 class MeetingPresidingClerk(Orderable):
     """Presiding clerk of Quaker meeting."""
+
     meeting = ParentalKey("contact.Meeting", related_name="presiding_clerks")
     person = models.ForeignKey(
         "contact.Person",
@@ -89,7 +90,10 @@ class MeetingPresidingClerk(Orderable):
 
 class Meeting(Page):
     meeting_type = models.CharField(
-        max_length=255, choices=MEETING_TYPE_CHOICES, null=True, blank=True,
+        max_length=255,
+        choices=MEETING_TYPE_CHOICES,
+        null=True,
+        blank=True,
     )
 
     description = RichTextField(blank=True, null=True)
@@ -110,8 +114,8 @@ class Meeting(Page):
         InlinePanel("addresses", label="Address"),
         MultiFieldPanel(
             [InlinePanel("presiding_clerks", label="Presiding clerk")],
-            heading="Presiding clerk(s)"
-        )
+            heading="Presiding clerk(s)",
+        ),
     ]
 
     parent_page_types = ["contact.MeetingIndexPage", "Meeting"]
@@ -132,17 +136,23 @@ class Meeting(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        context["quarterly_meetings"] = Meeting.objects.child_of(self).filter(
-            meeting_type="quarterly_meeting"
-        ).order_by('title')
+        context["quarterly_meetings"] = (
+            Meeting.objects.child_of(self)
+            .filter(meeting_type="quarterly_meeting")
+            .order_by("title")
+        )
 
-        context["monthly_meetings"] = Meeting.objects.descendant_of(self).filter(
-            meeting_type="monthly_meeting"
-        ).order_by('title')
+        context["monthly_meetings"] = (
+            Meeting.objects.descendant_of(self)
+            .filter(meeting_type="monthly_meeting")
+            .order_by("title")
+        )
 
-        context["worship_groups"] = Meeting.objects.descendant_of(self).filter(
-            meeting_type="worship_group"
-        ).order_by('title')
+        context["worship_groups"] = (
+            Meeting.objects.descendant_of(self)
+            .filter(meeting_type="worship_group")
+            .order_by("title")
+        )
 
         return context
 
@@ -161,9 +171,14 @@ class WorshipTypeChoices(models.TextChoices):
 
 
 class MeetingWorshipTime(Orderable):
-    meeting = ParentalKey("contact.Meeting", on_delete=models.CASCADE, related_name="worship_times")
+    meeting = ParentalKey(
+        "contact.Meeting", on_delete=models.CASCADE, related_name="worship_times"
+    )
     worship_type = models.CharField(
-        max_length=255, choices=WorshipTypeChoices.choices, null=True, blank=True,
+        max_length=255,
+        choices=WorshipTypeChoices.choices,
+        null=True,
+        blank=True,
     )
     worship_time = models.CharField(max_length=255)
 

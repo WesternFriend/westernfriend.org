@@ -1,4 +1,7 @@
-from content_migration.management.commands.shared import get_contact_from_author_data, get_existing_magazine_author_by_id
+from content_migration.management.commands.shared import (
+    get_contact_from_author_data,
+    get_existing_magazine_author_by_id,
+)
 import re
 from typing import List
 
@@ -110,7 +113,9 @@ def parse_article_authors(article, article_authors, magazine_authors):
     for drupal_author_id in article_authors.split(", "):
         drupal_author_id = int(drupal_author_id)
 
-        author_data = get_existing_magazine_author_by_id(drupal_author_id, magazine_authors)
+        author_data = get_existing_magazine_author_by_id(
+            drupal_author_id, magazine_authors
+        )
 
         if author_data is not None:
             author = get_contact_from_author_data(author_data)
@@ -133,9 +138,7 @@ def parse_article_authors(article, article_authors, magazine_authors):
 
 def assign_article_to_issue(article, issue_title):
     try:
-        related_issue = MagazineIssue.objects.get(
-            title=issue_title
-        )
+        related_issue = MagazineIssue.objects.get(title=issue_title)
     except ObjectDoesNotExist:
         print("Can't find issue: ", issue_title)
 
@@ -194,7 +197,9 @@ class Command(BaseCommand):
 
             # Assign authors to article
             if row["Authors"] is not np.nan:
-                article = parse_article_authors(article, row["Authors"], magazine_authors)
+                article = parse_article_authors(
+                    article, row["Authors"], magazine_authors
+                )
 
             # Assign keywards to article
             if row["Keywords"] is not np.nan:
