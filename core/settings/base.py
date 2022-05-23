@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "django_extensions",
     "flatpickr",
+    "wagtail_color_panel",
     "wagtailfontawesome",
     "wagtailmedia",
 ]
