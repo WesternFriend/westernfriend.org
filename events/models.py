@@ -11,12 +11,13 @@ from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.search import index
 
-from streams.blocks import FormattedImageChooserStructBlock
+from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock
 
 
 class Event(Page):
     teaser = models.TextField(max_length=100, null=True, blank=True)
     body = StreamField([
+        ("heading", HeadingBlock()),
         ('rich_text', blocks.RichTextBlock()),
         ('image', FormattedImageChooserStructBlock()),
     ], null=True, blank=True)

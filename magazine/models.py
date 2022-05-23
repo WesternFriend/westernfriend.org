@@ -27,7 +27,7 @@ from wagtail.search import index
 
 from flatpickr import DatePickerInput
 
-from streams.blocks import AnchorTarget, FormattedImageChooserStructBlock, PullQuoteBlock
+from streams.blocks import AnchorTarget, FormattedImageChooserStructBlock, HeadingBlock, PullQuoteBlock
 
 
 from .panels import NestedInlinePanel
@@ -231,15 +231,11 @@ class MagazineArticle(Page):
     )
     body = StreamField(
         [
-            ("document", DocumentChooserBlock()),
-            ("image", FormattedImageChooserStructBlock(classname="full title")),
+            ("heading", HeadingBlock()),
             (
-                "paragraph",
+                "rich_text",
                 blocks.RichTextBlock(
                     features=[
-                        "h2",
-                        "h3",
-                        "h4",
                         "bold",
                         "italic",
                         "ol",
@@ -256,7 +252,8 @@ class MagazineArticle(Page):
                 ),
             ),
             ("pullquote", PullQuoteBlock()),
-            ("target", AnchorTarget()),
+            ("document", DocumentChooserBlock()),
+            ("image", FormattedImageChooserStructBlock(classname="full title")),
         ]
     )
     is_featured = models.BooleanField(

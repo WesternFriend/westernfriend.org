@@ -1,23 +1,17 @@
 from django.db import models
-from django.utils.text import slugify
-from django_extensions.db.fields import AutoSlugField
 
 from modelcluster.fields import ParentalKey
-from modelcluster.models import ClusterableModel
 from wagtail.admin.edit_handlers import (
     FieldPanel,
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
-    StreamFieldPanel,
 )
-from wagtail.core import blocks
 from wagtail.core.models import Orderable, Page
-from wagtail.core.fields import RichTextField, StreamField
+from wagtail.core.fields import RichTextField
 from wagtail.search import index
 
 from addresses.models import Address
-from streams.blocks import OrganizationsBlock
 
 MEETING_TYPE_CHOICES = (
     ("monthly_meeting", "Monthly Meeting"),

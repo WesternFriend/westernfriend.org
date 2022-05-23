@@ -7,7 +7,7 @@ from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
 
-from streams.blocks import AnchorTarget, FormattedImageChooserStructBlock, PullQuoteBlock
+from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock, PullQuoteBlock
 
 
 class NewsIndexPage(Page):
@@ -83,16 +83,11 @@ class NewsItem(Page):
     )
     body = StreamField(
         [
-            ("document", DocumentChooserBlock()),
-            ("heading", blocks.CharBlock(classname="full title")),
-            ("image", FormattedImageChooserStructBlock(classname="full title")),
+            ("heading", HeadingBlock()),   
             (
-                "paragraph",
+                "rich_text",
                 blocks.RichTextBlock(
                     features=[
-                        "h2",
-                        "h3",
-                        "h4",
                         "bold",
                         "italic",
                         "ol",
@@ -109,7 +104,8 @@ class NewsItem(Page):
                 ),
             ),
             ("pullquote", PullQuoteBlock()),
-            ("target", AnchorTarget()),
+            ("image", FormattedImageChooserStructBlock(classname="full title")),
+            ("document", DocumentChooserBlock()),
         ]
     )
     publication_date = models.DateField(default=date.today)
