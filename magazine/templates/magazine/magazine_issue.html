@@ -23,7 +23,7 @@
             {% if page.featured_articles.count %}
             <h2>Featured articles</h2>
 
-            <ul>
+            <ul class="list-unstyled">
                 {% for featured_article in page.featured_articles.all %}
                     <li>
                         <a href="{% pageurl featured_article %}">
@@ -42,7 +42,7 @@
                 {{ department.grouper }}
                 </h2>
                 
-                <ul>
+                <ul class="list-unstyled">
                     {% for article in department.list %}
                     <li>
                         <a href="{% pageurl article %}">
