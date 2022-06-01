@@ -1,7 +1,13 @@
+
 a:not(.nav-link):not(.wagtail-userbar-link):not(.wagtail-userbar__item>a) {
 	color: #aa3f2e;
 	transition: background-color .5s;
 }
+
+body {
+	font-family: Georgia,Cambria,"Times New Roman",Times,serif;
+}
+
 blockquote {
     border-left: .25em solid #d9d9d9;
     color: #4d4d4d;
@@ -9,6 +15,9 @@ blockquote {
     padding: 1em 2em;
 }
 
+h1, h2, h3, h4, h5, h6 {
+	font-family: var(--bs-font-sans-serif);
+}
 img {
 	max-width: 100%;
 	height: auto;
