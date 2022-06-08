@@ -69,7 +69,6 @@ class HeadingBlock(blocks.StructBlock):
         help_text="The text to appear in the heading.",
     )
     target_slug = blocks.CharBlock(
-        # noqa: F501
         help_text="Used to link to a specific location within this page. A slug should only contain letters, numbers, underscore (_), or hyphen (-).",  # noqa: E501
         validators=(validate_slug,),
         required=False,
