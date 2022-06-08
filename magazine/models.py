@@ -31,6 +31,7 @@ from streams.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,
     PullQuoteBlock,
+    SpacerBlock,
 )
 
 
@@ -260,6 +261,7 @@ class MagazineArticle(Page):
             ("pullquote", PullQuoteBlock()),
             ("document", DocumentChooserBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
+            ("spacer", SpacerBlock()),
         ]
     )
     is_featured = models.BooleanField(
