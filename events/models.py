@@ -11,7 +11,7 @@ from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.search import index
 
-from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock
+from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
 
 
 class Event(Page):
@@ -21,6 +21,7 @@ class Event(Page):
             ("heading", HeadingBlock()),
             ("rich_text", blocks.RichTextBlock()),
             ("image", FormattedImageChooserStructBlock()),
+            ("spacer", SpacerBlock()),
         ],
         null=True,
         blank=True,

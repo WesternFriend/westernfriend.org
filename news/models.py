@@ -11,6 +11,7 @@ from streams.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,
     PullQuoteBlock,
+    SpacerBlock,
 )
 
 
@@ -128,6 +129,7 @@ class NewsItem(Page):
             ("pullquote", PullQuoteBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("document", DocumentChooserBlock()),
+            ("spacer", SpacerBlock()),
         ]
     )
     publication_date = models.DateField(default=date.today)

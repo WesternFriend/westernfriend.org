@@ -28,6 +28,7 @@ class CommunityPage(Page):
                     template="streams/blocks/card_row.html",
                 ),
             ),
+            ("spacer", wf_blocks.SpacerBlock()),
         ],
         null=True,
     )

@@ -7,7 +7,7 @@ from wagtail.core.models import Page
 from wagtail.images.blocks import ImageChooserBlock
 
 from documents.blocks import DocumentEmbedBlock
-from streams.blocks import HeadingBlock
+from streams.blocks import HeadingBlock, SpacerBlock
 
 
 class WfPageCollectionIndexPage(Page):
@@ -61,6 +61,7 @@ class WfPage(Page):
             ("quote", blocks.BlockQuoteBlock()),
             ("document", DocumentEmbedBlock()),
             ("image", ImageChooserBlock()),
+            ("spacer", SpacerBlock()),
         ]
     )
     body_migrated = models.TextField(
