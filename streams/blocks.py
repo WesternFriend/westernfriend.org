@@ -41,6 +41,19 @@ class CardBlock(blocks.StructBlock):
         template = "streams/blocks/card.html"
 
 
+class FormattedImageChooserStructBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    width = blocks.IntegerBlock(
+        min_value=0,
+        max_value=800,
+        help_text="Enter the desired image width value in pixels up to 800 max.",
+    )
+
+    class Meta:
+        icon = "media"
+        template = "streams/blocks/formatted_image_block.html"
+
+
 class HeadingBlock(blocks.StructBlock):
     heading_level = blocks.ChoiceBlock(
         choices=[
@@ -102,15 +115,6 @@ class MediaBlock(AbstractMediaChooserBlock):
         )
 
 
-class PageCardBlock(blocks.StructBlock):
-    page = blocks.PageChooserBlock(required=True)
-    text = blocks.CharBlock(required=False)
-
-    class Meta:
-        icon = "link"
-        template = "streams/blocks/page_card.html"
-
-
 class OrganizationsBlock(blocks.StructBlock):
     def get_context(self, value, parent_context=None):
         # avoid circular imports
@@ -126,6 +130,15 @@ class OrganizationsBlock(blocks.StructBlock):
         template = "streams/blocks/organizations_block.html"
 
 
+class PageCardBlock(blocks.StructBlock):
+    page = blocks.PageChooserBlock(required=True)
+    text = blocks.CharBlock(required=False)
+
+    class Meta:
+        icon = "link"
+        template = "streams/blocks/page_card.html"
+
+
 class PullQuoteBlock(blocks.TextBlock):
     def render_basic(self, value, context=None):
         if value:
@@ -135,16 +148,3 @@ class PullQuoteBlock(blocks.TextBlock):
 
     class Meta:
         icon = "openquote"
-
-
-class FormattedImageChooserStructBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
-    width = blocks.IntegerBlock(
-        min_value=0,
-        max_value=800,
-        help_text="Enter the desired image width value in pixels up to 800 max.",
-    )
-
-    class Meta:
-        icon = "media"
-        template = "streams/blocks/formatted_image_block.html"
