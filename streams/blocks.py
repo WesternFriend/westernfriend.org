@@ -63,7 +63,6 @@ class HeadingBlock(blocks.StructBlock):
     )
     color = NativeColorBlock(
         required=False,
-        default="#343a40",
     )
 
     class Meta:
