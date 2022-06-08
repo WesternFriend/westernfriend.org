@@ -5,6 +5,7 @@ a:not(.nav-link):not(.wagtail-userbar-link):not(.wagtail-userbar__item>a) {
 }
 
 body {
+	background-color: #eefcfb;
 	font-family: Georgia,Cambria,"Times New Roman",Times,serif;
 }
 
