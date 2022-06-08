@@ -150,8 +150,10 @@ class PullQuoteBlock(blocks.TextBlock):
 
 
 class SpacerBlock(blocks.StructBlock):
-    height = blocks.IntegerBlock(
-        help_text="The height of this spacer in 'em' values where 1 em is one uppercase M."
+    height = blocks.DecimalBlock(
+        help_text="The height of this spacer in 'em' values where 1 em is one uppercase M.",
+        min_value=0,
+        decimal_places=1,
     )
 
     class Meta:
