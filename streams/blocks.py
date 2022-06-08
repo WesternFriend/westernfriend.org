@@ -148,3 +148,13 @@ class PullQuoteBlock(blocks.TextBlock):
 
     class Meta:
         icon = "openquote"
+
+
+class SpacerBlock(blocks.StructBlock):
+    height = blocks.IntegerBlock(
+        help_text="The height of this spacer in 'em' values where 1 em is one uppercase M."
+    )
+
+    class Meta:
+        icon = "arrows-up-down"
+        template = "streams/blocks/spacer.html"
