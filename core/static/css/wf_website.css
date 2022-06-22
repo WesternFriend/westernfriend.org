@@ -59,6 +59,10 @@ p {
 	font-size: 1rem;
 }
 
+.card-title {
+	font-family: var(--bs-font-sans-serif);
+}
+
 .dropdown-menu.show .nav-item a {
 	color: #333;
 }
