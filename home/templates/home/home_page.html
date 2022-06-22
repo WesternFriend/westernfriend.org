@@ -10,26 +10,22 @@
     {{ page.intro|richtext }}
 
     <div class="row">
-        <div class="col-sm-7">
+        <div class="col-sm-4 pt-2">
+            {% if current_issue %}
+                <a href="{% pageurl current_issue %}">
+                    {% image current_issue.cover_image max-320x200 %}
+                    <br />
+                    Current issue: {{ current_issue.title }}
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="col-sm-8">
             {% if page.featured_articles.count %}
                 <h2>Featured articles</h2>
                 {% for article in page.featured_articles.all %}
                     {% include "magazine/magazine_article_summary.html" with article=article.article %}
                 {% endfor %}
-            {% endif %}
-        </div>
-
-        <div class="col-sm-5">
-            {% if current_issue %}
-                <h2>Current Issue</h2>
-
-                <a href="{% pageurl current_issue %}">
-                    <h3>
-                        {{ current_issue.title }}
-                    </h3>
-                    <br />
-                    {% image current_issue.cover_image max-320x200 %}
-                </a>
             {% endif %}
         </div>
     </div>
@@ -38,23 +34,32 @@
         <div class="col-sm-12">
             {% if page.featured_events.count %}
                 <h2>Featured events</h2>
-                {% for event in page.featured_events.all %}
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="card-title">
-                                <h2>{{ event.event.title }}</h2>
-                            </div>
-                            <p class="card-subtitle">{{ event.event.start_date | date:"F d, Y, f A" }} ({{ event.event.timezone }})</p>
 
-                            <div class="card-text">
-                                {{ event.event.teaser }}
-                            </div>
+                <div class="ms-1 row row-cols-2 row-cols-lg-3 g-2 g-lg-2">
+                    {% for event in page.featured_events.all %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="card-title fw-bold">
+                                    <h3>
+                                        <a href="{% pageurl event.event %}">
+                                            {{ event.event.title }}
+                                        </a>
+                                    </h3>
+                                </div>
+                                <p class="card-subtitle">{{ event.event.start_date | date:"F d, Y, f A" }} ({{ event.event.timezone }})</p>
 
-                            <a href="{% pageurl event.event %}" class="card-link btn btn-primary">Read more</a>
+                                <div class="card-text">
+                                    {{ event.event.teaser }}
+                                </div>
+
+                                <a href="{% pageurl event.event %}" class="card-link btn btn-primary">Read more</a>
+                            </div>
                         </div>
                     </div>
-                {% endfor %}
-            {% endif %}
+                    {% endfor %}
+                {% endif %}
+                </div>
         </div>
     </div>
 {% endblock %}
