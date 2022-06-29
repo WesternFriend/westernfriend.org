@@ -13,11 +13,6 @@ class HomePage(Page):
     content_panels = Page.content_panels + [
         FieldPanel("intro", classname="full"),
         InlinePanel(
-            "featured_articles",
-            heading="Featured articles",
-            help_text="Select one or more articles to feature on the home page",
-        ),
-        InlinePanel(
             "featured_events",
             heading="Featured events",
             help_text="Select one or more events to feature on the home page",
@@ -51,29 +46,6 @@ class HomePage(Page):
         )
 
         return context
-
-
-class HomePageFeaturedArticle(Orderable):
-    home_page = ParentalKey(
-        "home.HomePage",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="featured_articles",
-    )
-
-    article = models.ForeignKey(
-        MagazineArticle, null=True, on_delete=models.CASCADE, related_name="+"
-    )
-
-    panels = [PageChooserPanel("article", "magazine.MagazineArticle")]
-
-    @property
-    def title(self):
-        return self.article.title
-
-    @property
-    def body(self):
-        return self.article.body
 
 
 class HomePageFeaturedEvent(Orderable):
