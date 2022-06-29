@@ -1,5 +1,5 @@
 
-a:not(.nav-link):not(.wagtail-userbar-link):not(.wagtail-userbar__item>a) {
+a:not(.nav-link):not(.wagtail-userbar-link):not(.wagtail-userbar__item>a):not(.card-link) {
 	color: #aa3f2e;
 	transition: background-color .5s;
 }
