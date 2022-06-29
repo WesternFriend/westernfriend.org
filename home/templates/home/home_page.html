@@ -21,10 +21,10 @@
         </div>
 
         <div class="col-sm-8">
-            {% if page.featured_articles.count %}
+            {% if current_issue.featured_articles.count %}
                 <h2>Featured articles</h2>
-                {% for article in page.featured_articles.all %}
-                    {% include "magazine/magazine_article_summary.html" with article=article.article %}
+                {% for article in current_issue.featured_articles.all %}
+                    {% include "magazine/magazine_article_summary.html" with article=article %}
                 {% endfor %}
             {% endif %}
         </div>
