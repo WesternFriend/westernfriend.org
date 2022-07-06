@@ -195,17 +195,6 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
-name = "django-extensions"
-version = "2.2.9"
-description = "Extensions for Django"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-six = ">=1.2"
-
-[[package]]
 name = "django-filter"
 version = "21.1"
 description = "Django-filter is a reusable Django application for allowing users to filter querysets dynamically."
@@ -735,21 +724,6 @@ docs = ["pyenchant (>=3.1.1,<4)", "sphinxcontrib-spelling (>=5.4.0,<6)", "Sphinx
 testing = ["python-dateutil (>=2.7)", "pytz (>=2014.7)", "elasticsearch (>=5.0,<6.0)", "Jinja2 (>=3.0,<3.1)", "boto3 (>=1.16,<1.17)", "freezegun (>=0.3.8)", "openpyxl (>=2.6.4)", "Unidecode (>=0.04.14,<2.0)", "azure-mgmt-cdn (>=5.1,<6.0)", "azure-mgmt-frontdoor (>=0.3,<0.4)", "coverage (>=3.7.0)", "flake8 (>=3.6.0)", "isort (==5.6.4)", "flake8-blind-except (==0.1.1)", "flake8-print (==2.0.2)", "doc8 (==0.8.1)", "jinjalint (>=0.5)", "docutils (==0.15)", "polib (>=1.1,<2.0)"]
 
 [[package]]
-name = "wagtail-autocomplete"
-version = "0.6.3"
-description = "An Autocomplete edit handler for Pages, Snippets, and more."
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-wagtail = ">=2.3"
-
-[package.extras]
-docs = ["Sphinx (>=1.7)", "sphinx_rtd_theme (>=0.4.0)"]
-test = ["tox", "pytest (>=3.5)", "pytest-django (>=3.2)", "beautifulsoup4 (>=4.8)", "html5lib (>=0.999999999)", "pytest-pythonpath (>=0.7.2)"]
-
-[[package]]
 name = "wagtail-color-panel"
 version = "1.4.0"
 description = ""
@@ -859,7 +833,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "3bdb4b451cf3d56e2c226f6e3acfcea8fe2e85ba929ae557d078574f86ebe5ea"
+content-hash = "b95e22b77bc3bfbb9dd50850ff399ef9a30650da807525dbf98d8a09eea5860f"
 
 [metadata.files]
 anyascii = [
@@ -951,10 +925,6 @@ django = [
 django-crispy-forms = [
     {file = "django-crispy-forms-1.14.0.tar.gz", hash = "sha256:35887b8851a931374dd697207a8f56c57a9c5cb9dbf0b9fa54314da5666cea5b"},
     {file = "django_crispy_forms-1.14.0-py3-none-any.whl", hash = "sha256:bc4d2037f6de602d39c0bc452ac3029d1f5d65e88458872cc4dbc01c3a400604"},
-]
-django-extensions = [
-    {file = "django-extensions-2.2.9.tar.gz", hash = "sha256:2f81b618ba4d1b0e58603e25012e5c74f88a4b706e0022a3b21f24f0322a6ce6"},
-    {file = "django_extensions-2.2.9-py2.py3-none-any.whl", hash = "sha256:b19182d101a441fe001c5753553a901e2ef3ff60e8fbbe38881eb4a61fdd17c4"},
 ]
 django-filter = [
     {file = "django-filter-21.1.tar.gz", hash = "sha256:632a251fa8f1aadb4b8cceff932bb52fe2f826dd7dfe7f3eac40e5c463d6836e"},
@@ -1319,9 +1289,6 @@ urllib3 = [
 wagtail = [
     {file = "wagtail-2.16.2-py3-none-any.whl", hash = "sha256:d48ea4d45d09f8482a1b4632e0dca1aad99489cc26386f2af32b306e014832ba"},
     {file = "wagtail-2.16.2.tar.gz", hash = "sha256:ee23dc1ba39d4785d20acc95274b29dbcf83f5d9fd670555f541f2a88eec9daa"},
-]
-wagtail-autocomplete = [
-    {file = "wagtail-autocomplete-0.6.3.tar.gz", hash = "sha256:73602db77eb3eee27f17a0b22aa88badf9fb5079fb1822c921f06a17224ce4db"},
 ]
 wagtail-color-panel = [
     {file = "wagtail-color-panel-1.4.0.tar.gz", hash = "sha256:826eec57d35d595823fe78472cbf6d2650a2a8ed509d3d5205c924283f33cd9c"},
