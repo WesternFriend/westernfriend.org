@@ -77,12 +77,6 @@
     </div>
 
     <div class="row">
-        <p class="p-3 mb-2 bg-success text-white col-md-12 rounded-pill">
-            PDF subscription will be emailed to <b>{{ user.get_username }}</b>
-        </p>
-    </div>
-
-    <div class="row">
         <div class="col-md-12">
             {{ form.subscriber_street_address | as_crispy_field }}
         </div>
@@ -110,6 +104,12 @@
         <div class="col-md-6">
             {{ form.subscriber_address_country | as_crispy_field }}
         </div>
+    </div>
+
+    <div class="row mb-3" v-if="subscriptionIncludesPdf">
+        <p class="p-3 mb-2 bg-success text-white col-md-12 rounded-pill">
+            PDF subscription will be emailed to <b>{{ user.get_username }}</b>
+        </p>
     </div>
 
     <button type="submit" class="btn btn-outline-primary" aria-label="Subscribe button">
@@ -152,6 +152,9 @@
             },
             internationalComputedPrice: function () {
                 return subscriptionPriceComponents["international"][this.magazineFormat];
+            },
+            subscriptionIncludesPdf: function () {
+                return this.magazineFormat === "pdf" || this.magazineFormat === "print_and_pdf";
             },
         },
     });
