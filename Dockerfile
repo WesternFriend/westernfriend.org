@@ -14,7 +14,7 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
     curl \
  && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
 # We use gunicorn to serve the project
 RUN pip install gunicorn
