@@ -67,7 +67,7 @@
         </label>
     </div>        
 
-    <div class="row mt-3">
+    <div class="row mt-2">
         <div class="col-md-6">
             {{ form.subscriber_given_name | as_crispy_field }}
         </div>
@@ -76,19 +76,19 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mt-2">
         <div class="col-md-12">
             {{ form.subscriber_street_address | as_crispy_field }}
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mt-2">
         <div class="col-md-12">
             {{ form.subscriber_street_address_line_2 | as_crispy_field }}
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mt-2">
         <div class="form-group col-md-4 mb-0">
             {{ form.subscriber_address_locality | as_crispy_field }}
         </div>
@@ -100,19 +100,19 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mt-2">
         <div class="col-md-6">
             {{ form.subscriber_address_country | as_crispy_field }}
         </div>
     </div>
 
-    <div class="row mb-3" v-if="subscriptionIncludesPdf">
+    <div class="row mt-3" v-if="subscriptionIncludesPdf">
         <p class="p-3 mb-2 bg-success text-white col-md-12 rounded-pill">
-            PDF subscription will be emailed to <b>{{ user.get_username }}</b>
+            PDF subscription will be emailed to your login: <b>{{ user.get_username }}
         </p>
     </div>
 
-    <button type="submit" class="btn btn-outline-primary" aria-label="Subscribe button">
+    <button type="submit" class="btn btn-outline-success mt-2" aria-label="Subscribe button">
         Subscribe
         <i class="bi bi-arrow-right ms-1"></i>
     </button>
