@@ -6,44 +6,23 @@
 <form action="#" method="post" id="dynamicFields" class="mb-3">
     <h3>Format</h3>
 
-    <div class="row text-center">
-        <div
-            class="card m-1 col"
-            @click="magazineFormat = 'pdf'"
-            v-bind:class="{ 'border-success': magazineFormat == 'pdf' }"
-        >
-            <div class="card-body">
-                <i v-if="magazineFormat == 'pdf'" class="bi bi-check"></i>
-                PDF Only
-            </div>
+    <div class="row">
+        <div class="btn-group" role="group" aria-label="Magazine format selection">
+            <input type="radio" class="btn-check" name="magazineFormat" v-model="magazineFormat" value="pdf" id="pdfFormat" autocomplete="off" checked>
+            <label class="btn btn-outline-success" for="pdfFormat">
+                PDF
+            </label>
+          
+            <input type="radio" class="btn-check" name="magazineFormat" v-model="magazineFormat" value="print" id="printFormat" autocomplete="off">
+            <label class="btn btn-outline-success" for="printFormat">
+                Print
+            </label>
+          
+            <input type="radio" class="btn-check" name="magazineFormat" v-model="magazineFormat" value="print_and_pdf" id="printAndPdfFormat" autocomplete="off">
+            <label class="btn btn-outline-success" for="printAndPdfFormat">
+                Print & PDF
+            </label>
         </div>
-
-        <div
-            class="card m-1 col align-self-center"
-            @click="magazineFormat = 'print'"
-            v-bind:class="{ 'border-success': magazineFormat == 'print' }"
-        >
-            <div class="card-body">
-                <i v-if="magazineFormat == 'print'" class="bi bi-check"></i>
-                Print Only
-            </div>
-        </div>
-
-        <div
-            class="card m-1 col"
-            @click="magazineFormat = 'print_and_pdf'"
-            v-bind:class="{ 'border-success': magazineFormat == 'print_and_pdf' }"
-        >
-            <div class="card-body">
-                <i
-                    v-if="magazineFormat == 'print_and_pdf'"
-                    class="bi bi-check"
-                ></i>
-                Print & PDF 
-            </div>
-        </div>
-
-        <input type="hidden" name="format" v-model="magazineFormat">
     </div>
 
     <h3>Price</h3>
