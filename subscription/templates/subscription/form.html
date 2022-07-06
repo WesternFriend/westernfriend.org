@@ -6,7 +6,7 @@
 <form action="#" method="post" id="dynamicFields" class="mb-3">
     <h3>Format</h3>
 
-    <div class="row">
+    <div class="row mb-3">
         <div class="btn-group" role="group" aria-label="Magazine format selection">
             <input type="radio" class="btn-check" name="magazineFormat" v-model="magazineFormat" value="pdf" id="pdfFormat" autocomplete="off" checked>
             <label class="btn btn-outline-success" for="pdfFormat">
@@ -26,59 +26,29 @@
     </div>
 
     <h3>Price</h3>
-    
-    <div class="row text-center">
-        <div
-            class="card m-1 col"
-            @click="priceGroup = 'normal'"
-            v-bind:class="{ 'border-success': priceGroup === 'normal' }"
-        >
-            <div class="card-body">
-                <i v-if="priceGroup === 'normal'" class="bi bi-check"></i>
+
+    <div class="row mb-3">
+        <div class="btn-group" role="group" aria-label="Magazine price selection">
+            <input type="radio" class="btn-check" name="priceGroup" v-model="priceGroup" value="normal" id="normalPrice" autocomplete="off" checked>
+            <label class="btn btn-outline-success" for="normalPrice">
                 Normal ($${ normalComputedPrice })
-            </div>
-        </div>
+            </label>
 
-        <div
-            class="card m-1 col"
-            @click="priceGroup = 'true_cost'"
-            v-bind:class="{ 'border-success': priceGroup == 'true_cost' }"
-        >
-            <div class="card-body">
-                <i
-                    v-if="priceGroup == 'true_cost'"
-                    class="bi bi-check"
-                ></i>
+            <input type="radio" class="btn-check" name="priceGroup" v-model="priceGroup" value="true_cost" id="trueCostPrice" autocomplete="off" checked>
+            <label class="btn btn-outline-success" for="trueCostPrice">
                 True-cost ($${ trueCostComputedPrice })
-            </div>
-        </div>
+            </label>
 
-        <div
-            class="card m-1 col align-self-center"
-            @click="priceGroup = 'low_income'"
-            v-bind:class="{ 'border-success': priceGroup == 'low_income' }"
-        >
-            <div class="card-body">
-                <i v-if="priceGroup == 'low_income'" class="bi bi-check"></i>
+            <input type="radio" class="btn-check" name="priceGroup" v-model="priceGroup" value="low_income" id="lowIncomePrice" autocomplete="off" checked>
+            <label class="btn btn-outline-success" for="lowIncomePrice">
                 Low-income ($${ lowIncomeComputedPrice })
-            </div>
-        </div>
+            </label>
 
-        <div
-            class="card m-1 col"
-            @click="priceGroup = 'international'"
-            v-bind:class="{ 'border-success': priceGroup == 'international' }"
-        >
-            <div class="card-body">
-                <i
-                    v-if="priceGroup == 'international'"
-                    class="bi bi-check"
-                ></i>
+            <input type="radio" class="btn-check" name="priceGroup" v-model="priceGroup" value="international" id="internationalPrice" autocomplete="off" checked>
+            <label class="btn btn-outline-success" for="internationalPrice">
                 International ($${ internationalComputedPrice })
-            </div>
+            </label>
         </div>
-
-        <input type="hidden" name="price_group" v-model="priceGroup">
     </div>
 
     <h3>Recurring?</h3>
