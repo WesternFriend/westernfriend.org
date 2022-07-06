@@ -116,34 +116,34 @@ class Subscription(models.Model):
         max_length=255,
         blank=True,
         default="",
-        help_text="The street address where a print subscription could be mailed.",
+        help_text="The street address where a print subscription could be mailed",
     )
     subscriber_street_address_line_2 = models.CharField(
         max_length=255,
         blank=True,
         default="",
-        help_text="If needed, second line for mailing address.",
+        help_text="If needed, second line for mailing address",
     )
     subscriber_postal_code = models.CharField(
         max_length=16,
-        help_text="Postal code for the mailing address.",
+        help_text="Postal code for the mailing address",
         blank=True,
     )
     subscriber_address_locality = models.CharField(
         max_length=255,
-        help_text="City for the mailing address.",
+        help_text="City for the mailing address",
         blank=True,
     )
     subscriber_address_region = models.CharField(
         max_length=255,
-        help_text="State for the mailing address.",
+        help_text="State for the mailing address",
         blank=True,
         default="",
     )
     subscriber_address_country = models.CharField(
         max_length=255,
         default="United States",
-        help_text="Country for mailing.",
+        help_text="Country for mailing",
         blank=True,
     )
 
