@@ -107,6 +107,7 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
     "crispy_forms",
     "flatpickr",
+    "storages",
     "wagtail_color_panel",
     "wagtailfontawesome",
     "wagtailmedia",
