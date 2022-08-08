@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
+from django.core.management.utils import get_random_secret_key
+
 from braintree import Configuration as BraintreeConfiguration
 from braintree import Environment as BraintreeEnvironment
 
@@ -22,8 +24,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# TODO: set this to a secure value before deploying to production
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
+
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
