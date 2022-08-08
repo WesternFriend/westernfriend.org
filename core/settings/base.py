@@ -32,15 +32,16 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # Settings related to DigitalOcean Spaces
+# Note: for now, we are using the AWS naming-convention from Boto3
 USE_SPACES = os.getenv("USE_SPACES") == "TRUE"
-DO_REGION = os.getenv("DO_REGION", "sfo3")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "sfo3")
 AWS_ACCESS_KEY_ID = os.getenv("DO_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("DO_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("DO_STORAGE_BUCKET_NAME")
 AWS_LOCATION = os.getenv("DO_STATIC_LOCATION", "static")
 PUBLIC_MEDIA_LOCATION = os.getenv("DO_MEDIA_LOCATION", "media")
 AWS_DEFAULT_ACL = "public-read"
-AWS_S3_ENDPOINT_URL = f"https://{DO_REGION}.digitaloceanspaces.com"
+AWS_S3_ENDPOINT_URL = f"https://{AWS_S3_REGION_NAME}.digitaloceanspaces.com"
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
 
 
