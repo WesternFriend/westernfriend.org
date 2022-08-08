@@ -37,7 +37,7 @@ DO_REGION = os.getenv("DO_REGION", "sfo3")
 DO_ACCESS_KEY_ID = os.getenv("DO_ACCESS_KEY_ID")
 DO_SECRET_ACCESS_KEY = os.getenv("DO_SECRET_ACCESS_KEY")
 DO_STORAGE_BUCKET_NAME = os.getenv("DO_STORAGE_BUCKET_NAME")
-DO_LOCATION = os.getenv("DO_STORAGE_BUCKET_NAME", "static")
+DO_LOCATION = os.getenv("DO_LOCATION", "static")
 DO_DEFAULT_ACL = "public-read"
 DO_S3_ENDPOINT_URL = f"https://{DO_REGION}.digitaloceanspaces.com"
 DO_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
