@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
 
 from django.core.management.utils import get_random_secret_key
 
@@ -153,15 +154,18 @@ WSGI_APPLICATION = "core.wsgi.application"
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+NOT_COLLECTING_STATICFILES = len(sys.argv) > 0 and sys.argv[1] != 'collectstatic'
+
 if DATABASE_URL:
     DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
 else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    if NOT_COLLECTING_STATICFILES:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+            }
         }
-    }
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
