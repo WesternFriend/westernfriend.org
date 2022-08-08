@@ -34,14 +34,14 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 # Settings related to DigitalOcean Spaces
 USE_SPACES = os.getenv("USE_SPACES") == "TRUE"
 DO_REGION = os.getenv("DO_REGION", "sfo3")
-DO_ACCESS_KEY_ID = os.getenv("DO_ACCESS_KEY_ID")
-DO_SECRET_ACCESS_KEY = os.getenv("DO_SECRET_ACCESS_KEY")
-DO_STORAGE_BUCKET_NAME = os.getenv("DO_STORAGE_BUCKET_NAME")
-DO_STATIC_LOCATION = os.getenv("DO_STATIC_LOCATION", "static")
-DO_MEDIA_LOCATION = os.getenv("DO_MEDIA_LOCATION", "media")
-DO_DEFAULT_ACL = "public-read"
-DO_S3_ENDPOINT_URL = f"https://{DO_REGION}.digitaloceanspaces.com"
-DO_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+AWS_ACCESS_KEY_ID = os.getenv("DO_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("DO_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("DO_STORAGE_BUCKET_NAME")
+AWS_LOCATION = os.getenv("DO_STATIC_LOCATION", "static")
+PUBLIC_MEDIA_LOCATION = os.getenv("DO_MEDIA_LOCATION", "media")
+AWS_DEFAULT_ACL = "public-read"
+AWS_S3_ENDPOINT_URL = f"https://{DO_REGION}.digitaloceanspaces.com"
+AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
 
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -236,10 +236,10 @@ STATICFILES_DIRS = [os.path.join(PROJECT_DIR, "static")]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 if USE_SPACES:
-    STATIC_URL = f"https://{DO_S3_ENDPOINT_URL}/{DO_STATIC_LOCATION}/"
+    STATIC_URL = f"https://{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/"
     STATICFILES_STORAGE = "core.storage_backends.StaticStorage"
 
-    MEDIA_URL = f'https://{DO_S3_ENDPOINT_URL}/{DO_MEDIA_LOCATION}/'
+    MEDIA_URL = f'https://{AWS_S3_ENDPOINT_URL}/{PUBLIC_MEDIA_LOCATION}/'
     DEFAULT_FILE_STORAGE = 'core.storage_backends.MediaStorage'
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
