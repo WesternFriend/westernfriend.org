@@ -31,6 +31,18 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
+# Settings related to DigitalOcean Spaces
+USE_SPACES = os.getenv("USE_SPACES") == "TRUE"
+DO_REGION = os.getenv("DO_REGION", "sfo3")
+DO_ACCESS_KEY_ID = os.getenv("DO_ACCESS_KEY_ID")
+DO_SECRET_ACCESS_KEY = os.getenv("DO_SECRET_ACCESS_KEY")
+DO_STORAGE_BUCKET_NAME = os.getenv("DO_STORAGE_BUCKET_NAME")
+DO_LOCATION = os.getenv("DO_STORAGE_BUCKET_NAME", "static")
+DO_DEFAULT_ACL = "public-read"
+DO_S3_ENDPOINT_URL = f"https://{DO_REGION}.digitaloceanspaces.com"
+DO_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+
+
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
@@ -155,7 +167,7 @@ WSGI_APPLICATION = "core.wsgi.application"
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-NOT_COLLECTING_STATICFILES = len(sys.argv) > 0 and sys.argv[1] != 'collectstatic'
+NOT_COLLECTING_STATICFILES = len(sys.argv) > 0 and sys.argv[1] != "collectstatic"
 
 if DATABASE_URL:
     DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
@@ -218,11 +230,17 @@ STATICFILES_DIRS = [os.path.join(PROJECT_DIR, "static")]
 # ManifestStaticFilesStorage is recommended in production, to prevent outdated
 # Javascript / CSS assets being served from cache (e.g. after a Wagtail upgrade).
 # See https://docs.djangoproject.com/en/2.1/ref/contrib/staticfiles/#manifeststaticfilesstorage
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-
-STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
-STATIC_URL = "/static/"
+#
+# Here, we use WhiteNoise to compress our manifest static files storage
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+if USE_SPACES:
+    STATIC_URL = f"https://{DO_S3_ENDPOINT_URL}/{DO_LOCATION}/"
+    STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
+    STATIC_URL = "/static/"
+
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
