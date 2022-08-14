@@ -124,7 +124,7 @@
 <!-- provide subscription price components for dynamic calculation -->
 {{ subscription_price_components | json_script:"subscriptionPriceComponents" }}
 
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://unpkg.com/vue@3"></script>
 
 <script>
     // get subscription price components provided by server in script tag
@@ -132,13 +132,16 @@
         document.getElementById('subscriptionPriceComponents').textContent
     );
 
-    new Vue({
-        delimiters: ["${", "}"],
-        el: "#dynamicFields",
-        data: {
-            magazineFormat: "pdf",
-            priceGroup: "normal",
-            recurringSubscription: false,
+    var app = Vue.createApp({
+        compilerOptions:{
+            delimiters: ["${", "}"],
+        },
+        data() {
+            return {
+                magazineFormat: "pdf",
+                priceGroup: "normal",
+                recurringSubscription: false,
+            }
         },
         computed: {
             normalComputedPrice: function () {
@@ -157,6 +160,6 @@
                 return this.magazineFormat === "pdf" || this.magazineFormat === "print_and_pdf";
             },
         },
-    });
+    }).mount('#dynamicFields');
 </script>
 {% endblock extra_js %}
