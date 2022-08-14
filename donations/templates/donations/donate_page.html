@@ -238,16 +238,19 @@
 
 {% block extra_js %}
 
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://unpkg.com/vue@3"></script>
 
 <script>
-    new Vue({
-        delimiters: ["${", "}"],
-        el: "#donation-form",
-        data: {
-            donationAmount: 10,
-            recurrence: "once",
+    var vue = Vue.createApp({
+        compilerOptions:{
+            delimiters: ["${", "}"],
         },
-    });
+        data() {
+            return {
+                donationAmount: 10,
+                recurrence: "once",
+            }
+        },
+    }).mount("#donation-form");
 </script>
 {% endblock extra_js %}
