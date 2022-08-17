@@ -3,10 +3,10 @@ function generateAutoslug() {
   Auto-generate slug from given and family name fields.
   This is used for adding Person contacts and Memorials
   */
-  var slug_text = undefined;
+  let slug_text = undefined;
 
-  var given_name = $("#id_given_name").val();
-  var family_name = $("#id_family_name").val();
+  const given_name = document.getElementById("id_given_name").value;
+  const family_name = document.getElementById("id_family_name").value;
 
   if (given_name && family_name) {
     slug_text = `${given_name} ${family_name}`;
@@ -15,18 +15,17 @@ function generateAutoslug() {
   }
 
   if (slug_text) {
-    var slugified_name = cleanForSlug(slug_text, true);
+    const slugified_name = cleanForSlug(slug_text, true);
 
-    $("#id_slug").val(slugified_name);
+    document.getElementById("id_slug").value = slugified_name;
   }
 }
 
-$(function autopopulateSlugForContact() {
-  $("#id_given_name").on("change", function () {
-    generateAutoslug();
-  });
 
-  $("#id_family_name").on("change", function () {
-    generateAutoslug();
-  });
-});
+function registerNameElementEventListeners() {
+  document.getElementById("id_given_name").addEventListener("change", generateAutoslug);
+
+  document.getElementById("id_family_name").addEventListener("change", generateAutoslug);
+};
+
+document.addEventListener("DOMContentLoaded", registerNameElementEventListeners);
