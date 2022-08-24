@@ -14,9 +14,10 @@ CiviCRM stores contacts that are used in our Community Directory.
 3. Click "search"
 4. Click "Actions" -> "Export Contacts
 5. Click "Select fields for export"
-6. Choose "Organization - primary fields"
+6. Choose "Organization export (mailing and worship)"
 7. Click "Continue"
 8. Click "Download File"
+9. Open the CSV in LibreOffice and save it to fix the unicode issues with column names
 
 Import the contacts with the following command.
 
