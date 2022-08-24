@@ -69,7 +69,6 @@ class Command(BaseCommand):
             addresses = csv.DictReader(import_file)
 
             for row in addresses:
-
                 contact_subtype = row["Contact Subtype"]
 
                 meeting_subtypes = [
