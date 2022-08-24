@@ -7,23 +7,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from contact.models import MeetingAddress, Meeting
 
 
-def validate_mailing_address(row):
-    address_has_locality = row["Mailing-City"] != ""
-    address_has_postal_code = row["Mailing-Postal Code"] != ""
-
-    return address_has_locality and address_has_postal_code
-
-
-def validate_worship_address(row):
-    address_has_locality = row["Worship-City"] != ""
-    address_has_postal_code = row["Worship-Postal Code"] != ""
-
-    return address_has_locality and address_has_postal_code
-
-
 def create_meeting_addresses(meeting, row):
-    row_has_mailing_address = validate_mailing_address(row)
-    row_has_worship_address = validate_worship_address(row)
+    row_has_mailing_address = row["Mailing-State"] != ""
+    row_has_worship_address = row["Worship-State"] != ""
 
     if row_has_mailing_address:
         mailing_address = MeetingAddress(
