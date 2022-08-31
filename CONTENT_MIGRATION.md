@@ -27,10 +27,31 @@ python manage.py import_civicrm_contacts --file path/to/file.csv
 
 ### Addresses
 
+Organization addresses can be imported with the same CSV downloaded in the previous section, by running the following command.
+
+```py
+python manage.py import_civicrm_addresses --file path/to/file.csv
+```
+
 ### Relationships
 
 1. Visit the CiviCRM [Relationships Report](https://westernfriend.org/civicrm/report/instance/5)
-2. Click "Actions" -> "Download CSV"
-3. Name the file "CiviCRM_relationships.csv"
+2. Click the "Filters" tab and select the following values for Contact Type A and Contact Type B
+   - Yearly Meeting
+   - Quarterly/Regional Meeting
+   - Monthly Meeting
+   - Worship Group
+3. Click "View results"
+4. Click "Actions" -> "Download CSV"
+5. Name the file "CiviCRM_meeting_relationships.csv"
+6. Open the file in LibreOffice and save it again as a CSV to fix the character encoding
+
+Import the relationships with the following command.
+
+```py
+python manage.py import_civicrm_relationships --file path/to/file.csv
+```
 
 ### Clerk relationships
+
+TODO
