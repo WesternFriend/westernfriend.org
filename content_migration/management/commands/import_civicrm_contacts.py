@@ -2,6 +2,9 @@
 # https://stackoverflow.com/a/38999572/1191545
 
 import csv
+
+from tqdm import tqdm
+
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
@@ -99,9 +102,14 @@ class Command(BaseCommand):
             meeting_index_page = MeetingIndexPage.objects.get()
             organization_index_page = OrganizationIndexPage.objects.get()
 
-            contacts = csv.DictReader(import_file)
+            contacts = list(csv.DictReader(import_file))
 
-            for contact in contacts:
+            for contact in tqdm(
+                contacts,
+                total=len(contacts),
+                desc="Contacts",
+                unit="row",
+            ):
                 # Check for entity type among:
                 # - Meeting
                 # - Organization
