@@ -13,28 +13,25 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
     libwebp-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# pipx is used to install Poetry
-RUN python3 -m pip install --user pipx
-RUN python3 -m pipx ensurepath
-RUN python3 -m pipx completions
-RUN echo "eval \"\$(register-python-argcomplete pipx)\"" >> ~/.bashrc
-RUN source ~/.bashrc
-
 # Poetry is used to manage dependencies
-RUN pipx install poetry
+RUN pip install poetry
 
 # We use gunicorn to serve the project
 RUN pip install gunicorn
 
 WORKDIR /app/
-COPY . /app
+# Cache dependencies
+COPY poetry.lock pyproject.toml /app/
 
 # Note: we don't want Poetry to create a virtual environment
-# Instead, it should use a local directory
+# since it has led to broken builds
 RUN poetry config virtualenvs.create false
 
 # Install Poetry dependencies
-RUN poetry install --only main
+RUN poetry install --only main --no-ansi
+
+# Copy app files
+COPY . /app
 
 RUN useradd wagtail
 RUN chown -R wagtail /app
