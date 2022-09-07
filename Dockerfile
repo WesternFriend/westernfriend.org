@@ -17,6 +17,8 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
 RUN python3 -m pip install --user pipx
 RUN python3 -m pipx ensurepath
 RUN python3 -m pipx completions
+RUN echo "eval \"\$(register-python-argcomplete pipx)\"" >> ~/.bashrc
+RUN source ~/.bashrc
 
 # Poetry is used to manage dependencies
 RUN pipx install poetry
