@@ -842,6 +842,20 @@ Django = ">=1.7.1"
 wagtail = ">=1.4.0"
 
 [[package]]
+name = "wagtailmedia"
+version = "0.11.0"
+description = "A module for Wagtail that provides functionality similar to wagtail.documents module, but for audio and video files."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+wagtail = ">=2.15"
+
+[package.extras]
+testing = ["tox (>=3.24,<4.0)", "coverage (>=3.7.0)", "mock (>=1.0.0)"]
+
+[[package]]
 name = "webencodings"
 version = "0.5.1"
 description = "Character encoding aliases for legacy web content"
@@ -911,7 +925,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "f33ac837a797a7f371d204c2824726b0d5f69cef8b90cda0558c3b1823ca5ad0"
+content-hash = "d7f5156621ba3b3898f6436f604850c77490093842a20d8d8cea52030336d64e"
 
 [metadata.files]
 anyascii = [
@@ -1267,6 +1281,7 @@ wagtailfontawesome = [
     {file = "wagtailfontawesome-1.2.1-py2.py3-none-any.whl", hash = "sha256:76b1c64c4f1042d468a83e4352f74b57bda4a4aa09cdfeeb8663dead5ed632be"},
     {file = "wagtailfontawesome-1.2.1.tar.gz", hash = "sha256:6c1bd2d6061880848de6374ceb75d38a8c9b0debb1d4aef8a2fdc9d565a8f417"},
 ]
+wagtailmedia = []
 webencodings = [
     {file = "webencodings-0.5.1-py2.py3-none-any.whl", hash = "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78"},
     {file = "webencodings-0.5.1.tar.gz", hash = "sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923"},
