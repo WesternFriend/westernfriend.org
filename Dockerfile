@@ -11,11 +11,14 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
     libjpeg62-turbo-dev \
     zlib1g-dev \
     libwebp-dev \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
+# pipx is used to install Poetry
+RUN python3 -m pip install --user pipx
+RUN python3 -m pipx ensurepath
+
 # Poetry is used to manage dependencies
-RUN curl -sSL https://install.python-poetry.org | python -
+RUN pipx install poetry
 
 # We use gunicorn to serve the project
 RUN pip install gunicorn
