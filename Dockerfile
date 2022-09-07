@@ -3,6 +3,7 @@ LABEL maintainer="brylie@amble.fi"
 
 ENV PYTHONUNBUFFERED 1
 ENV DJANGO_ENV dev
+ENV POETRY_HOME=/opt/poetry
 
 # Install system packages required by Wagtail and Django.
 RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-recommends \
@@ -15,6 +16,8 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
 
 # Poetry is used to manage dependencies
 RUN pip install poetry
+RUN python3 -m venv $POETRY_HOME
+RUN $POETRY_HOME/bin/pip install poetry==1.2.0
 
 # We use gunicorn to serve the project
 RUN pip install gunicorn
@@ -25,10 +28,10 @@ COPY poetry.lock pyproject.toml /app/
 
 # Note: we don't want Poetry to create a virtual environment
 # since it has led to broken builds
-RUN poetry config virtualenvs.create false
+RUN $POETRY_HOME/bin/poetry config virtualenvs.create false
 
 # Install Poetry dependencies
-RUN poetry install --only main --no-ansi
+RUN $POETRY_HOME/bin/poetry install --only main --no-ansi
 
 # Copy app files
 COPY . /app
