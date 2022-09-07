@@ -12,7 +12,7 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
     zlib1g-dev \
     libwebp-dev \
     curl \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
@@ -30,10 +30,7 @@ COPY . /app
 RUN poetry config virtualenvs.create false
 
 # Install Poetry dependencies
-RUN poetry install --no-dev
-
-# Collect static files.
-RUN python manage.py collectstatic --noinput --clear
+RUN poetry install --only main
 
 RUN useradd wagtail
 RUN chown -R wagtail /app
