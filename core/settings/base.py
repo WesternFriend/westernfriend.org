@@ -245,10 +245,12 @@ STATICFILES_DIRS = [os.path.join(PROJECT_DIR, "static")]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 if USE_SPACES:
-    STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/"
+    STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{AWS_LOCATION}/"
     STATICFILES_STORAGE = "core.storage_backends.StaticStorage"
 
-    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{PUBLIC_MEDIA_LOCATION}/"
+    MEDIA_URL = (
+        f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{PUBLIC_MEDIA_LOCATION}/"
+    )
     DEFAULT_FILE_STORAGE = "core.storage_backends.MediaStorage"
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
