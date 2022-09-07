@@ -14,13 +14,11 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Poetry is used to manage dependencies
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
 # We use gunicorn to serve the project
 RUN pip install gunicorn
-
-# Poetry is used to manage dependencies
-RUN pip install poetry
 
 WORKDIR /app/
 COPY . /app
