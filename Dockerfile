@@ -16,6 +16,7 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
 # pipx is used to install Poetry
 RUN python3 -m pip install --user pipx
 RUN python3 -m pipx ensurepath
+RUN python3 -m pipx completions
 
 # Poetry is used to manage dependencies
 RUN pipx install poetry
