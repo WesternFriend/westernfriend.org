@@ -5,15 +5,6 @@ ENV PYTHONUNBUFFERED 1
 ENV DJANGO_ENV dev
 ENV POETRY_HOME=/opt/poetry
 
-# Install system packages required by Wagtail and Django.
-RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    libjpeg62-turbo-dev \
-    zlib1g-dev \
-    libwebp-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 # Poetry is used to manage dependencies
 RUN pip install poetry
 RUN python3 -m venv $POETRY_HOME
