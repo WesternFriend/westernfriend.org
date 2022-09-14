@@ -55,3 +55,52 @@ python manage.py import_civicrm_relationships --file path/to/file.csv
 ### Clerk relationships
 
 TODO
+
+## Magazine
+
+The magazine is one of the most complicated features of this project. As such, it has several files that need to be migrated.
+
+### Export
+
+The Magazine data can be exported from the following URLs.
+
+- [Authors](https://westernfriend.org/export/magazine_authors_uncleaned.csv)
+- [Departments](https://westernfriend.org/export/magazine_departments.csv)
+- [Issues](https://westernfriend.org/export/magazine_issues.csv)
+- [Articles](https://westernfriend.org/export/magazine_articles.csv)
+
+### Clean
+
+The Magazine Authors data needs to be cleaned prior to import so
+
+- author names can be separated correctly into given and family names
+  - automatic separation by `parse_magazine_authors.py` in `content_migration` app merged carefully into online spreadsheet to avoid loss of previous manual work
+  - manual review and cleaning by Mary via an online spreadsheet
+- organizations can be categorized
+- organizations with overlapping CiviCRM IDs can be identified
+
+### Import
+
+The Magazine data needs to be imported in a specific order, so that relationships will work properly.
+
+1. Authors and Departments
+2. Issues
+3. Articles
+
+The commands are as follows.Note: at some point, we may reduce this to a single command.
+
+```sh
+python manage.py import_magazine_authors --file /path/to/file
+```
+
+```sh
+python manage.py import_magazine_departments --file /path/to/file
+```
+
+```sh
+python manage.py import_magazine_issues --file /path/to/file
+```
+
+```sh
+python manage.py import_magazine_articles --articles_file /path/to/file --authors_file /path/to/file
+```
