@@ -237,11 +237,6 @@ STATICFILES_FINDERS = [
 
 STATICFILES_DIRS = [os.path.join(PROJECT_DIR, "static")]
 
-# ManifestStaticFilesStorage is recommended in production, to prevent outdated
-# Javascript / CSS assets being served from cache (e.g. after a Wagtail upgrade).
-# See https://docs.djangoproject.com/en/2.1/ref/contrib/staticfiles/#manifeststaticfilesstorage
-STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-
 if USE_SPACES:
     STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{AWS_LOCATION}/"
     STATICFILES_STORAGE = "core.storage_backends.StaticStorage"
@@ -253,10 +248,8 @@ if USE_SPACES:
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
     STATIC_URL = "/static/"
-
-
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    MEDIA_URL = "/media/"
 
 
 # Wagtail settings
