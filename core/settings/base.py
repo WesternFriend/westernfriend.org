@@ -25,6 +25,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(PROJECT_DIR)
+
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 default_csrf_trusted_origins = (
@@ -53,10 +56,7 @@ PUBLIC_MEDIA_LOCATION = os.getenv("PUBLIC_MEDIA_LOCATION", "media")
 AWS_DEFAULT_ACL = "public-read"
 AWS_S3_ENDPOINT_URL = f"https://{AWS_S3_REGION_NAME}.digitaloceanspaces.com"
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
-
-
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(PROJECT_DIR)
+STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -239,14 +239,13 @@ STATICFILES_DIRS = [os.path.join(PROJECT_DIR, "static")]
 
 if USE_SPACES:
     STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{AWS_LOCATION}/"
-    STATICFILES_STORAGE = "core.storage_backends.StaticStorage"
+    STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
     MEDIA_URL = (
         f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{PUBLIC_MEDIA_LOCATION}/"
     )
-    DEFAULT_FILE_STORAGE = "core.storage_backends.MediaStorage"
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 else:
-    STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
     STATIC_URL = "/static/"
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
     MEDIA_URL = "/media/"
