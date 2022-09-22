@@ -245,6 +245,10 @@ if USE_SPACES:
         f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{PUBLIC_MEDIA_LOCATION}/"
     )
     DEFAULT_FILE_STORAGE = "core.storage_backends.MediaStorage"
+
+    # Prevent setting URL querystring parameters
+    # which are causing 403 errors on DigitalOcean Spaces
+    AWS_QUERYSTRING_AUTH = False
 else:
     STATIC_URL = "/static/"
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
