@@ -12,11 +12,6 @@ class HomePage(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("intro", classname="full"),
-        InlinePanel(
-            "featured_events",
-            heading="Featured events",
-            help_text="Select one or more events to feature on the home page",
-        ),
     ]
 
     subpage_types = [
@@ -46,20 +41,3 @@ class HomePage(Page):
         )
 
         return context
-
-
-class HomePageFeaturedEvent(Orderable):
-    home_page = ParentalKey(
-        "home.HomePage",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="featured_events",
-    )
-    event = models.ForeignKey(
-        "events.Event",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="+",
-    )
-
-    panels = [PageChooserPanel("event", "events.Event")]
