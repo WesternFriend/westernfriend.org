@@ -6,7 +6,6 @@ from wagtail.admin.edit_handlers import (
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
-    StreamFieldPanel,
 )
 from wagtail.core.models import Orderable, Page
 from wagtail.core.fields import RichTextField, StreamField
@@ -25,7 +24,12 @@ from facets.models import (
     TimePeriod,
     Topic,
 )
-from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock, MediaBlock, SpacerBlock
+from streams.blocks import (
+    FormattedImageChooserStructBlock,
+    HeadingBlock,
+    MediaBlock,
+    SpacerBlock,
+)
 
 from flatpickr import DatePickerInput
 
@@ -57,6 +61,7 @@ class LibraryItem(Page):
         ],
         null=True,
         blank=True,
+        use_json_field=True,
     )
     item_audience = models.ForeignKey(
         "facets.Audience", on_delete=models.SET_NULL, null=True, blank=True
@@ -80,7 +85,7 @@ class LibraryItem(Page):
             heading="Authors",
             help_text="Select one or more authors, who contributed to this article",
         ),
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
         MultiFieldPanel(
             children=[
                 FieldPanel("publication_date", widget=DatePickerInput()),

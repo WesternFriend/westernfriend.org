@@ -2,7 +2,6 @@ from django.db import models
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Orderable, Page
 from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, PageChooserPanel
-from wagtail.images.edit_handlers import ImageChooserPanel
 
 from modelcluster.fields import ParentalKey
 
@@ -58,7 +57,7 @@ class Product(Page):
         FieldPanel("description", classname="full"),
         FieldPanel("price"),
         FieldPanel("available"),
-        ImageChooserPanel("image"),
+        FieldPanel("image"),
     ]
 
     def get_context(self, request, *args, **kwargs):
