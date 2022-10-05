@@ -3,7 +3,6 @@ from django.db import models
 from wagtail.admin.edit_handlers import (
     FieldPanel,
     PageChooserPanel,
-    StreamFieldPanel,
 )
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
@@ -34,7 +33,7 @@ class CommunityPage(Page):
     )
 
     content_panels = Page.content_panels + [
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
     ]
 
     max_count = 1

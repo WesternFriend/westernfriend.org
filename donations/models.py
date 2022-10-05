@@ -3,8 +3,8 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from wagtail.admin.edit_handlers import StreamFieldPanel
 from wagtail.core.blocks import IntegerBlock, ListBlock, StreamBlock, StructBlock
+from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 
@@ -55,7 +55,7 @@ class DonatePage(Page):
     max_count = 1
 
     content_panels = Page.content_panels + [
-        StreamFieldPanel("suggested_donation_amounts"),
+        FieldPanel("suggested_donation_amounts"),
     ]
 
     parent_page_types = ["home.HomePage"]

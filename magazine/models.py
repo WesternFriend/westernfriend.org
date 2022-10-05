@@ -16,7 +16,6 @@ from wagtail.admin.edit_handlers import (
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
-    StreamFieldPanel,
 )
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
@@ -290,7 +289,7 @@ class MagazineArticle(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("teaser", classname="full"),
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
         FieldPanel("body_migrated", classname="full"),
         InlinePanel(
             "authors",

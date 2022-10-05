@@ -1,7 +1,7 @@
 from datetime import date
 
 from django.db import models
-from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel, StreamFieldPanel
+from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
@@ -147,7 +147,7 @@ class NewsItem(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("teaser"),
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
         MultiFieldPanel(
             heading="Metadata",
             children=[

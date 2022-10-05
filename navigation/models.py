@@ -1,6 +1,6 @@
 from django.db import models
 
-from wagtail.admin.edit_handlers import StreamFieldPanel
+from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.contrib.settings.models import BaseSetting, register_setting
 from wagtail.core.fields import StreamField
 
@@ -22,7 +22,7 @@ class NavigationMenuSetting(BaseSetting):
     )
 
     panels = [
-        StreamFieldPanel("items"),
+        FieldPanel("items"),
     ]
 
     class Meta:
