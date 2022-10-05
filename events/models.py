@@ -36,16 +36,21 @@ class Event(Page):
     )
 
     website = models.URLField(blank=True, null=True, max_length=300)
-
+    is_featured = models.BooleanField(
+        default=False,
+        help_text="Whether this event should be featured on the home page.",
+    )
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
+        FieldPanel("is_featured"),
         FieldPanel("teaser"),
         FieldPanel("body"),
         FieldPanel("start_date"),
         FieldPanel("end_date"),
         FieldPanel("timezone"),
         FieldPanel("website"),
+        FieldPanel("is_featured"),
     ]
 
     context_object_name = "event"
