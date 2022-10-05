@@ -50,7 +50,6 @@ class Event(Page):
         FieldPanel("end_date"),
         FieldPanel("timezone"),
         FieldPanel("website"),
-        FieldPanel("is_featured"),
     ]
 
     context_object_name = "event"
