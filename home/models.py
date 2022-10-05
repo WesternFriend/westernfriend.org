@@ -43,7 +43,10 @@ class HomePage(Page):
 
         context["featured_events"] = (
             Event.objects.live()
-            .filter(start_date__gte=datetime.now())
+            .filter(
+                start_date__gte=datetime.now(),
+                is_featured=True,
+            )
             .order_by("start_date")[:3]
         )
 
