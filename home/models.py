@@ -1,10 +1,11 @@
-from django.db import models
-from modelcluster.fields import ParentalKey
-from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, PageChooserPanel
-from wagtail.core.fields import RichTextField
-from wagtail.core.models import Page, Orderable
+from datetime import datetime
 
-from magazine.models import MagazineIssue, MagazineArticle
+from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.core.fields import RichTextField
+from wagtail.core.models import Page
+from events.models import Event
+
+from magazine.models import MagazineIssue
 
 
 class HomePage(Page):
@@ -12,11 +13,6 @@ class HomePage(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("intro", classname="full"),
-        InlinePanel(
-            "featured_events",
-            heading="Featured events",
-            help_text="Select one or more events to feature on the home page",
-        ),
     ]
 
     subpage_types = [
@@ -40,26 +36,15 @@ class HomePage(Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
-        # pylint: disable=E501
+
         context["current_issue"] = (
             MagazineIssue.objects.live().order_by("-publication_date").first()
         )
 
+        context["featured_events"] = (
+            Event.objects.live()
+            .filter(start_date__gte=datetime.now())
+            .order_by("start_date")[:3]
+        )
+
         return context
-
-
-class HomePageFeaturedEvent(Orderable):
-    home_page = ParentalKey(
-        "home.HomePage",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="featured_events",
-    )
-    event = models.ForeignKey(
-        "events.Event",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="+",
-    )
-
-    panels = [PageChooserPanel("event", "events.Event")]
