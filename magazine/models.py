@@ -21,7 +21,6 @@ from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page, Orderable
 from wagtail.documents.blocks import DocumentChooserBlock
-from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
 
 from flatpickr import DatePickerInput
@@ -147,7 +146,7 @@ class MagazineIssue(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("publication_date", widget=DatePickerInput()),
-        ImageChooserPanel("cover_image"),
+        FieldPanel("cover_image"),
     ]
 
     parent_page_types = ["MagazineIndexPage"]
