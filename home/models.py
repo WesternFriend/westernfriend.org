@@ -1,6 +1,9 @@
+from datetime import datetime
+
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page
+from events.models import Event
 
 from magazine.models import MagazineIssue
 
@@ -33,9 +36,13 @@ class HomePage(Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
-        # pylint: disable=E501
+
         context["current_issue"] = (
             MagazineIssue.objects.live().order_by("-publication_date").first()
         )
+
+        context["featured_events"] = Event.objects.filter(
+            start_date__gte=datetime.now()
+        ).order_by("start_date")[:3]
 
         return context
