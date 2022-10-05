@@ -41,8 +41,10 @@ class HomePage(Page):
             MagazineIssue.objects.live().order_by("-publication_date").first()
         )
 
-        context["featured_events"] = Event.objects.filter(
-            start_date__gte=datetime.now()
-        ).order_by("start_date")[:3]
+        context["featured_events"] = (
+            Event.objects.live()
+            .filter(start_date__gte=datetime.now())
+            .order_by("start_date")[:3]
+        )
 
         return context
