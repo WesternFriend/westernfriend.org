@@ -50,6 +50,7 @@ class DonatePage(Page):
         ),
         null=True,
         blank=True,
+        use_json_field=True,
     )
 
     max_count = 1

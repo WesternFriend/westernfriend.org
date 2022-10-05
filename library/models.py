@@ -61,6 +61,7 @@ class LibraryItem(Page):
         ],
         null=True,
         blank=True,
+        use_json_field=True,
     )
     item_audience = models.ForeignKey(
         "facets.Audience", on_delete=models.SET_NULL, null=True, blank=True

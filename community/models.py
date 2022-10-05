@@ -30,6 +30,7 @@ class CommunityPage(Page):
             ("spacer", wf_blocks.SpacerBlock()),
         ],
         null=True,
+        use_json_field=True,
     )
 
     content_panels = Page.content_panels + [

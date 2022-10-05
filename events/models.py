@@ -25,6 +25,7 @@ class Event(Page):
         ],
         null=True,
         blank=True,
+        use_json_field=True,
     )
 
     start_date = models.DateTimeField()

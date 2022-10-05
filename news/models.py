@@ -130,7 +130,8 @@ class NewsItem(Page):
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("document", DocumentChooserBlock()),
             ("spacer", SpacerBlock()),
-        ]
+        ],
+        use_json_field=True,
     )
     publication_date = models.DateField(default=date.today)
 

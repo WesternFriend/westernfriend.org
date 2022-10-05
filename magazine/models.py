@@ -261,7 +261,8 @@ class MagazineArticle(Page):
             ("document", DocumentChooserBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("spacer", SpacerBlock()),
-        ]
+        ],
+        use_json_field=True,
     )
     is_featured = models.BooleanField(
         default=False,

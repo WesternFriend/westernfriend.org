@@ -18,7 +18,8 @@ class NavigationMenuSetting(BaseSetting):
             ("internal_page", NavigationPageChooserBlock()),
             ("external_link", NavigationExternalLinkBlock()),
             ("drop_down", NavigationDropdownMenuBlock()),
-        ]
+        ],
+        use_json_field=True,
     )
 
     panels = [
