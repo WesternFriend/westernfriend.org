@@ -76,9 +76,9 @@ def parse_article_body_blocks(body):
                 item_contains_pullquote = "pullquote" in item.string
 
                 if item_contains_pullquote:
-                    # Add current rich text value as paragraph block, if not empty
+                    # Add current rich text value as rich text block, if not empty
                     if rich_text_value != "":
-                        rich_text_block = ("paragraph", RichText(rich_text_value))
+                        rich_text_block = ("rich_text", RichText(rich_text_value))
 
                         article_body_blocks.append(rich_text_block)
 
@@ -101,7 +101,7 @@ def parse_article_body_blocks(body):
 
         if rich_text_value != "":
             # Add Paragraph Block with remaining rich text elements
-            rich_text_block = ("paragraph", RichText(rich_text_value))
+            rich_text_block = ("rich_text", RichText(rich_text_value))
 
             article_body_blocks.append(rich_text_block)
 
@@ -159,7 +159,6 @@ class Command(BaseCommand):
         for index, row in tqdm(
             articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"
         ):
-            print(row["node_id"])
             article_exists = MagazineArticle.objects.filter(
                 drupal_node_id=row["node_id"]
             ).exists()
