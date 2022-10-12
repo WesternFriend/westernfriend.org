@@ -2,7 +2,7 @@ import csv
 
 parsed_authors = []
 
-with open("magazine_authors.csv") as authors_csv:
+with open("magazine_authors_uncleaned.csv") as authors_csv:
     reader = csv.reader(authors_csv)
     authors = list(reader)
 

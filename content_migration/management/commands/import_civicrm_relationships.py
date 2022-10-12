@@ -6,6 +6,8 @@
 import csv
 import re
 
+from tqdm import tqdm
+
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -41,9 +43,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with open(options["file"]) as import_file:
-            relationships = csv.DictReader(import_file)
+            relationships = list(csv.DictReader(import_file))
 
-            for relationship in relationships:
+            for relationship in tqdm(
+                relationships,
+                total=len(relationships),
+                desc="Relationships",
+                unit="row",
+            ):
 
                 contact_ids = extract_contact_ids_from(relationship)
 
@@ -71,7 +78,5 @@ class Command(BaseCommand):
                         child.move(parent, pos="last-child")
                     except AttributeError:
                         print(f"Could not move { child } to { parent }.")
-
-                print("-----")
 
         self.stdout.write("All done!")

@@ -25,18 +25,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(PROJECT_DIR)
+default_allowed_hosts = "127.0.0.1,localhost,westernfriend.ngrok.io"
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default_allowed_hosts).split(",")
 
-default_csrf_trusted_origins = (
-    "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost"
-)
+default_csrf_trusted_origins = "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost,https://westernfriend.ngrok.io"
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "CSRF_TRUSTED_ORIGINS", default_csrf_trusted_origins
 ).split(",")
+
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 SECURE_REFERRER_POLICY = "strict-origin"
 
