@@ -35,6 +35,11 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     "CSRF_TRUSTED_ORIGINS", default_csrf_trusted_origins
 ).split(",")
 
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(PROJECT_DIR)
+
+SECURE_REFERRER_POLICY = "strict-origin"
+
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
@@ -51,10 +56,7 @@ PUBLIC_MEDIA_LOCATION = os.getenv("PUBLIC_MEDIA_LOCATION", "media")
 AWS_DEFAULT_ACL = "public-read"
 AWS_S3_ENDPOINT_URL = f"https://{AWS_S3_REGION_NAME}.digitaloceanspaces.com"
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
-
-
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(PROJECT_DIR)
+STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -132,7 +134,6 @@ INSTALLED_APPS = [
     "storages",
     "wagtail_color_panel",
     "wagtailfontawesome",
-    "wagtailmedia",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
@@ -146,7 +147,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -222,8 +222,6 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 
@@ -237,26 +235,22 @@ STATICFILES_FINDERS = [
 
 STATICFILES_DIRS = [os.path.join(PROJECT_DIR, "static")]
 
-# ManifestStaticFilesStorage is recommended in production, to prevent outdated
-# Javascript / CSS assets being served from cache (e.g. after a Wagtail upgrade).
-# See https://docs.djangoproject.com/en/2.1/ref/contrib/staticfiles/#manifeststaticfilesstorage
-#
-# Here, we use WhiteNoise to compress our manifest static files storage
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
 if USE_SPACES:
-    STATIC_URL = f"https://{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/"
+    STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{AWS_LOCATION}/"
     STATICFILES_STORAGE = "core.storage_backends.StaticStorage"
 
-    MEDIA_URL = f"https://{AWS_S3_ENDPOINT_URL}/{PUBLIC_MEDIA_LOCATION}/"
+    MEDIA_URL = (
+        f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{PUBLIC_MEDIA_LOCATION}/"
+    )
     DEFAULT_FILE_STORAGE = "core.storage_backends.MediaStorage"
+
+    # Prevent setting URL querystring parameters
+    # which are causing 403 errors on DigitalOcean Spaces
+    AWS_QUERYSTRING_AUTH = False
 else:
-    STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
     STATIC_URL = "/static/"
-
-
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    MEDIA_URL = "/media/"
 
 
 # Wagtail settings
@@ -268,3 +262,5 @@ WAGTAIL_SITE_NAME = "Western Friend"
 BASE_URL = "http://example.com"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+WAGTAILADMIN_BASE_URL = "/admin"

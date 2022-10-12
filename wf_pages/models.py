@@ -1,6 +1,6 @@
 from django.db import models
 
-from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
+from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
@@ -62,7 +62,8 @@ class WfPage(Page):
             ("document", DocumentEmbedBlock()),
             ("image", ImageChooserBlock()),
             ("spacer", SpacerBlock()),
-        ]
+        ],
+        use_json_field=True,
     )
     body_migrated = models.TextField(
         help_text="Used only for content from old Drupal website.",
@@ -78,7 +79,7 @@ class WfPage(Page):
     )
 
     content_panels = Page.content_panels + [
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
         FieldPanel("collection"),
     ]
 

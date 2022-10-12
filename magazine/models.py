@@ -16,13 +16,11 @@ from wagtail.admin.edit_handlers import (
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
-    StreamFieldPanel,
 )
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page, Orderable
 from wagtail.documents.blocks import DocumentChooserBlock
-from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
 
 from flatpickr import DatePickerInput
@@ -148,7 +146,7 @@ class MagazineIssue(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("publication_date", widget=DatePickerInput()),
-        ImageChooserPanel("cover_image"),
+        FieldPanel("cover_image"),
     ]
 
     parent_page_types = ["MagazineIndexPage"]
@@ -262,7 +260,8 @@ class MagazineArticle(Page):
             ("document", DocumentChooserBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("spacer", SpacerBlock()),
-        ]
+        ],
+        use_json_field=True,
     )
     is_featured = models.BooleanField(
         default=False,
@@ -290,7 +289,7 @@ class MagazineArticle(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("teaser", classname="full"),
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
         FieldPanel("body_migrated", classname="full"),
         InlinePanel(
             "authors",

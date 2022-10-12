@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import Q
 
 from timezone_field import TimeZoneField
-from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
+from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
@@ -25,6 +25,7 @@ class Event(Page):
         ],
         null=True,
         blank=True,
+        use_json_field=True,
     )
 
     start_date = models.DateTimeField()
@@ -35,12 +36,16 @@ class Event(Page):
     )
 
     website = models.URLField(blank=True, null=True, max_length=300)
-
+    is_featured = models.BooleanField(
+        default=False,
+        help_text="Whether this event should be featured on the home page.",
+    )
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
+        FieldPanel("is_featured"),
         FieldPanel("teaser"),
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
         FieldPanel("start_date"),
         FieldPanel("end_date"),
         FieldPanel("timezone"),
