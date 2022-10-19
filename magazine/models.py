@@ -281,7 +281,7 @@ class MagazineArticle(Page):
 
     tags = ClusterTaggableManager(through=MagazineArticleTag, blank=True)
 
-    drupal_node_id = models.PositiveIntegerField(null=True, blank=True)
+    drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
     search_template = "search/magazine_article.html"
 
