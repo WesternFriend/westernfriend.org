@@ -112,9 +112,8 @@ class Meeting(Page):
         FieldPanel("meeting_type"),
         InlinePanel("worship_times", label="Worship times"),
         InlinePanel("addresses", label="Address"),
-        MultiFieldPanel(
-            [InlinePanel("presiding_clerks", label="Presiding clerk")],
-            heading="Presiding clerk(s)",
+        InlinePanel(
+            "presiding_clerks", label="Presiding clerk", heading="Presiding clerk(s)"
         ),
     ]
 
