@@ -2,6 +2,10 @@
 
 This document describes how to migrate existing content from Drupal to Wagtail.
 
+## Order matters
+
+Note, the order of imports matter. Specifically, be sure to import Drupal authors before CiviCRM contacts, since the CiviCRM contacts will cross-reference against Drupal authors.
+
 ## CiviCRM
 
 CiviCRM stores contacts that are used in our Community Directory.
