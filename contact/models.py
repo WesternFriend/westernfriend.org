@@ -3,8 +3,8 @@ from django.db import models
 from modelcluster.fields import ParentalKey
 from wagtail.admin.edit_handlers import (
     FieldPanel,
+    FieldRowPanel,
     InlinePanel,
-    MultiFieldPanel,
     PageChooserPanel,
 )
 from wagtail.core.models import Orderable, Page
@@ -36,6 +36,14 @@ class Person(Page):
     civicrm_id = models.IntegerField(null=True, blank=True)
 
     content_panels = [
+        FieldRowPanel(
+            heading="Import metadata",
+            help_text="Temporary area for troubleshooting content importers.",
+            children=[
+                FieldPanel("civicrm_id", permission="superuser"),
+                FieldPanel("drupal_author_id", permission="superuser"),
+            ],
+        ),
         FieldPanel("given_name"),
         FieldPanel("family_name"),
     ]
@@ -105,6 +113,14 @@ class Meeting(Page):
     drupal_library_author_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
+        FieldRowPanel(
+            heading="Import metadata",
+            help_text="Temporary area for troubleshooting content importers.",
+            children=[
+                FieldPanel("civicrm_id", permission="superuser"),
+                FieldPanel("drupal_author_id", permission="superuser"),
+            ],
+        ),
         FieldPanel("description"),
         FieldPanel("website"),
         FieldPanel("email"),
@@ -200,6 +216,14 @@ class Organization(Page):
     drupal_library_author_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
+        FieldRowPanel(
+            heading="Import metadata",
+            help_text="Temporary area for troubleshooting content importers.",
+            children=[
+                FieldPanel("civicrm_id", permission="superuser"),
+                FieldPanel("drupal_author_id", permission="superuser"),
+            ],
+        ),
         FieldPanel("description"),
         FieldPanel("website"),
     ]
