@@ -43,7 +43,7 @@ class OrganizationModelAdmin(ModelAdmin):
     ordering = ["title"]
     list_display = ("title",)
     empty_value_display = "-"
-    search_fields = "title"
+    search_fields = ("title",)
 
 
 class ContactsGroup(ModelAdminGroup):
