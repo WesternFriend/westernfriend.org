@@ -1,7 +1,7 @@
 {% load wagtailcore_tags %}
 <div class="card mb-2">
     <div class="card-body">
-        <a href="{% pageurl article %}" class="card-title fs-3 fw-bold">
+        <a href="{% pageurl article %}" class="card-title fs-3 fw-bold magazine-article-summary-title-link">
             {{ article.title }}
         </a>
 
@@ -22,10 +22,8 @@
 
         {{ article.teaser | richtext }}
 
-        <p>Issue:
-            <a href="{% pageurl article.get_parent %}">
-                {{ article.get_parent }} ({{ article.get_parent.specific.publication_date| date:"F Y" }})
-            </a>
-        </p>
+        <a href="{% pageurl article.get_parent %}">
+            {{ article.get_parent }} ({{ article.get_parent.specific.publication_date| date:"F Y" }})
+        </a>
     </div>
 </div>

@@ -5,17 +5,22 @@ a:not(.nav-link):not(.wagtail-userbar-link):not(.wagtail-userbar__item>a):not(.c
 
 body {
 	background-color: #f0f4f7;
-	font-family: Georgia,Cambria,"Times New Roman",Times,serif;
+	font-family: Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
 blockquote {
-    border-left: .25em solid #d9d9d9;
-    color: #4d4d4d;
-    margin: 1em 0;
-    padding: 1em 2em;
+	border-left: .25em solid #d9d9d9;
+	color: #4d4d4d;
+	margin: 1em 0;
+	padding: 1em 2em;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 	font-family: var(--bs-font-sans-serif);
 }
 
@@ -24,23 +29,23 @@ h1 {
 }
 
 h2 {
-	font-size: 2.1rem;	
+	font-size: 2.1rem;
 }
 
 h3 {
-	font-size: 1.7rem;	
+	font-size: 1.7rem;
 }
 
 h4 {
-	font-size: 1.4rem;	
+	font-size: 1.4rem;
 }
 
 h5 {
-	font-size: 1.2rem;	
+	font-size: 1.2rem;
 }
 
 h6 {
-	font-size: 1.1rem;	
+	font-size: 1.1rem;
 }
 
 img {
@@ -71,6 +76,26 @@ p {
 	font-weight: medium;
 }
 
+.home-page-featured-issue {
+	font-family: var(--bs-font-sans-serif);
+}
+
+.magazine-article-summary-title-link:link {
+	text-decoration: none;
+}
+
+.magazine-article-summary-title-link:visited {
+	text-decoration: none;
+}
+
+.magazine-article-summary-title-link:hover {
+	text-decoration: none;
+}
+
+.magazine-article-summary-title-link:active {
+	text-decoration: none;
+}
+
 .richtext-image.left {
 	float: left;
 }
@@ -79,9 +104,9 @@ p {
 	float: right;
 }
 
-.pdfobject-container { 
+.pdfobject-container {
 	height: 42rem;
-	border: 0.3rem solid rgba(0,0,0,.1);
+	border: 0.3rem solid rgba(0, 0, 0, .1);
 }
 
 .pullquote {
