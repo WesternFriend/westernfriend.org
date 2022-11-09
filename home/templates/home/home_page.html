@@ -45,13 +45,11 @@
                     <div class="col">
                         <div class="card h-100">
                             <div class="card-body">
-                                <div class="card-title fw-bold">
-                                    <h3>
-                                        <a href="{% pageurl event.event %}">
-                                            {{ event.event.title }}
-                                        </a>
-                                    </h3>
-                                </div>
+                                <a href="{% pageurl event.event %}"
+                                class="card-title fs-3 fw-bold title-link-no-underline">
+                                    {{ event.event.title }}
+                                </a>
+
                                 <p class="card-subtitle">{{ event.event.start_date | date:"F d, Y, f A" }} ({{ event.event.timezone }})</p>
 
                                 <div class="card-text">

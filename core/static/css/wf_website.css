@@ -80,19 +80,19 @@ p {
 	font-family: var(--bs-font-sans-serif);
 }
 
-.magazine-article-summary-title-link:link {
+.title-link-no-underline:link {
 	text-decoration: none;
 }
 
-.magazine-article-summary-title-link:visited {
+.title-link-no-underline:visited {
 	text-decoration: none;
 }
 
-.magazine-article-summary-title-link:hover {
+.title-link-no-underline:hover {
 	text-decoration: none;
 }
 
-.magazine-article-summary-title-link:active {
+.title-link-no-underline:active {
 	text-decoration: none;
 }
 
