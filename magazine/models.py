@@ -94,7 +94,7 @@ class MagazineIndexPage(Page):
         archive_issues = published_issues.filter(publication_date__lt=archive_threshold)
 
         # Show three archive issues per page
-        paginator = Paginator(archive_issues, 4)
+        paginator = Paginator(archive_issues, 8)
 
         archive_issues_page = request.GET.get("archive-issues-page")
 
