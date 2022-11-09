@@ -29,7 +29,7 @@
             {% if current_issue.featured_articles.count %}
                 <h2>Featured articles</h2>
                 {% for article in current_issue.featured_articles.all %}
-                    {% include "magazine/magazine_article_summary.html" with article=article %}
+                    {% include "home/home_magazine_article_summary.html" with article=article %}
                 {% endfor %}
             {% endif %}
         </div>
