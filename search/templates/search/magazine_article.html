@@ -16,11 +16,12 @@
             </ul>
         {% endif %}
 
-        {{ entity.specific.body | richtext | truncatewords_html:30 }}
+        {{ entity.specific.teaser | richtext }}
 
-        Issue:
-        <a href="{% pageurl entity.get_parent %}" class="card-link">
-            {{ entity.get_parent }} ({{ entity.get_parent.specific.publication_date| date:"F Y" }})
-        </a>
+        <p>
+            <a href="{% pageurl entity.get_parent %}" class="card-link">
+                {{ entity.get_parent }} ({{ entity.get_parent.specific.publication_date| date:"F Y" }})
+            </a>
+        </p>
     </div>
 </div>
