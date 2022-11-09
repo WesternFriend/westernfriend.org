@@ -35,10 +35,12 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mt-4">
         <div class="col-sm-12">
             {% if featured_events.count %}
-                <h2>Featured events</h2>
+                <h2>
+                    Featured events
+                </h2>
 
                 <div class="ms-1 row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2 g-lg-2">
                     {% for event in featured_events.all %}
