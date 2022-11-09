@@ -13,7 +13,9 @@
     {{ page.intro | richtext }}
 </div>
 
-<h2 id="recent-issues">Recent issues</h2>
+<h2 id="recent-issues">
+    Recent issues
+</h2>
 
 <div class="row mb-4">
     {% for issue in recent_issues %}
@@ -23,7 +25,9 @@
     {% endfor %}
 </div>
 
-<h2 id="archive-issues">Archive issues</h2>
+<h2 id="archive-issues">
+    Archive issues
+</h2>
 
 <div class="row">
     {% for issue in archive_issues %}
@@ -79,8 +83,10 @@
 </nav>
 
 {% if page.deep_archive_page %}
-<h2 id="deep-archive"><i class="bi bi-calendar-heart" aria-hidden="true"></i>
-    Deep archive</h2>
+<h2 id="deep-archive">
+    <i class="bi bi-calendar-heart" aria-hidden="true"></i>
+    Deep archive
+</h2>
 {{ page.deep_archive_intro | richtext }}
 
 <a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline-primary mb-3">
