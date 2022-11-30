@@ -80,18 +80,6 @@ p {
 	font-family: var(--bs-font-sans-serif);
 }
 
-/* 
-	remove left padding from first link 
-	to left-align items on home page
-*/
-.website-links>.block-internal_page:first-child a {
-	padding-left: 0;
-}
-
-.website-links>.block-drop_down:first-child a {
-	padding-left: 0;
-}
-
 .title-link-no-underline:link {
 	text-decoration: none;
 }
