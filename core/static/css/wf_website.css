@@ -88,6 +88,10 @@ p {
 	padding-left: 0;
 }
 
+.website-links>.block-drop_down:first-child a {
+	padding-left: 0;
+}
+
 .title-link-no-underline:link {
 	text-decoration: none;
 }
