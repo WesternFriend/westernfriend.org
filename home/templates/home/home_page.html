@@ -9,8 +9,8 @@
 
     {{ page.intro|richtext }}
 
-    <div class="row">
-        <div class="col-sm-4 col-lg-4 col-xl-4 pt-3">
+    <div class="row mt-2">
+        <div class="col-sm-4 col-lg-4 col-xl-4 mt-2">
             {% if current_issue %}
                 <a href="{% pageurl current_issue %}" class="home-page-featured-issue">
                     {% image current_issue.cover_image max-640x400 %}
