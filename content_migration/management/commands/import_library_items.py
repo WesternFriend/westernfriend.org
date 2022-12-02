@@ -25,7 +25,11 @@ class Command(BaseCommand):
     help = "Import all library items"
 
     def add_arguments(self, parser):
-        parser.add_argument("--file", action="store", type=str)
+        parser.add_argument(
+            "--file",
+            action="store",
+            type=str,
+        )
 
     def handle(self, *args, **options):
         # Get the only instance of Magazine Department Index Page
@@ -51,6 +55,11 @@ class Command(BaseCommand):
                         title=import_library_item["title"],
                         drupal_node_id=import_library_item["node_id"],
                     )
+
+                    # Add library item to library branch of content tree
+                    library_item_index_page.add_child(instance=library_item)
+
+                    library_item_index_page.save()
 
                 library_item.title = import_library_item["title"]
                 library_item.description = import_library_item["Description"]
@@ -82,7 +91,8 @@ class Command(BaseCommand):
                 # - Keywords
                 if import_library_item["Keywords"] != "":
                     add_library_item_keywords(
-                        library_item, import_library_item["Keywords"]
+                        library_item,
+                        import_library_item["Keywords"],
                     )
 
                 # Website
@@ -98,10 +108,5 @@ class Command(BaseCommand):
                     media_items = parse_media_blocks(import_library_item["Media"])
                     for media_item in media_items:
                         library_item.body.append(media_item)
-
-                if not library_item_exists:
-                    # Add library item to library
-                    library_item_index_page.add_child(instance=library_item)
-                    library_item_index_page.save()
 
                 library_item.save()
