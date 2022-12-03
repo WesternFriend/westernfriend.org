@@ -1,7 +1,9 @@
 import csv
 
-from django.core.management.base import BaseCommand, CommandError
+import pandas as pd
 
+from django.core.management.base import BaseCommand, CommandError
+from wagtail.core.models import Page
 from tqdm import tqdm
 
 from facets.models import (
@@ -9,11 +11,58 @@ from facets.models import (
     Genre,
     Medium,
     TimePeriod,
+    # TODO: make sure to add library item topics
     Topic,
 )
-from library.models import LibraryIndexPage, LibraryItem, LibraryItemTopic
+from library.models import (
+    LibraryIndexPage,
+    LibraryItem,
+    LibraryItemAuthor,
+    LibraryItemTopic,
+)
 
-from .shared import parse_media_blocks
+from .shared import (
+    get_contact_from_author_data,
+    get_existing_magazine_author_by_id,
+    parse_media_blocks,
+)
+
+
+def add_library_item_authors(
+    library_item,
+    drupal_author_ids,
+    magazine_authors_data: pd.DataFrame,
+):
+    drupal_author_ids_int = [
+        int(author_id) for author_id in drupal_author_ids.split(", ")
+    ]
+
+    for drupal_author_id in drupal_author_ids_int:
+        author = None
+
+        author_data = get_existing_magazine_author_by_id(
+            int(drupal_author_id),
+            magazine_authors_data,
+        )
+
+        if author_data is not None:
+            author = get_contact_from_author_data(author_data)
+        else:
+            continue
+
+        if author:
+            library_item_author_exists = LibraryItemAuthor.objects.filter(
+                library_item=library_item,
+                author=author,
+            ).exists()
+
+            if not library_item_author_exists:
+                item_author = LibraryItemAuthor(
+                    library_item=library_item,
+                    author=author,
+                )
+
+                library_item.authors.add(item_author)
 
 
 def add_library_item_keywords(library_item, keywords):
@@ -26,7 +75,13 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--file",
+            "--library_items_file",
+            action="store",
+            type=str,
+        )
+
+        parser.add_argument(
+            "--magazine_authors_file",
             action="store",
             type=str,
         )
@@ -35,12 +90,14 @@ class Command(BaseCommand):
         # Get the only instance of Magazine Department Index Page
         library_item_index_page = LibraryIndexPage.objects.get()
 
-        with open(options["file"]) as import_file:
-            library_items_csv = csv.DictReader(import_file)
+        with open(options["library_items_file"]) as library_items_file:
+            library_items_csv = csv.DictReader(library_items_file)
             library_items = list(library_items_csv)
 
             for import_library_item in tqdm(
-                library_items, desc="Library items", unit="row"
+                library_items,
+                desc="Library items",
+                unit="row",
             ):
                 library_item_exists = LibraryItem.objects.filter(
                     drupal_node_id=import_library_item["node_id"]
@@ -65,7 +122,8 @@ class Command(BaseCommand):
                 library_item.description = import_library_item["Description"]
 
                 # TODO: Remember to uncomment this line when done developing the remaining import script
-                # library_item.body = parse_media_blocks(import_library_item["Media"])
+                library_item.body = parse_media_blocks(import_library_item["Media"])
+
                 if import_library_item["Audience"] != "":
                     library_item.item_audience = Audience.objects.get(
                         title=import_library_item["Audience"]
@@ -86,7 +144,17 @@ class Command(BaseCommand):
                         title=import_library_item["Time Period"]
                     )
 
-                # TODO: import library item authors
+                # Authors
+                with open(options["magazine_authors_file"]) as magazine_authors_file:
+                    magazine_authors_data = pd.read_csv(magazine_authors_file)
+                    # magazine_authors = list(magazine_authors_data)
+
+                    if import_library_item["drupal_magazine_author_ids"] != "":
+                        add_library_item_authors(
+                            library_item,
+                            import_library_item["drupal_magazine_author_ids"],
+                            magazine_authors_data,
+                        )
 
                 # - Keywords
                 if import_library_item["Keywords"] != "":
@@ -103,10 +171,5 @@ class Command(BaseCommand):
                     )
 
                     library_item.body.append(url_stream_block)
-
-                if import_library_item["Media"] != "":
-                    media_items = parse_media_blocks(import_library_item["Media"])
-                    for media_item in media_items:
-                        library_item.body.append(media_item)
 
                 library_item.save()
