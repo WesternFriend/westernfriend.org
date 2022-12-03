@@ -108,13 +108,14 @@ def parse_article_body_blocks(body):
     return article_body_blocks
 
 
-def parse_article_authors(article, article_authors, magazine_authors):
+def parse_article_authors(article, article_authors, magazine_authors_data):
 
     for drupal_author_id in article_authors.split(", "):
         drupal_author_id = int(drupal_author_id)
 
         author_data = get_existing_magazine_author_by_id(
-            drupal_author_id, magazine_authors
+            drupal_author_id,
+            magazine_authors_data,
         )
 
         if author_data is not None:
@@ -149,15 +150,26 @@ class Command(BaseCommand):
     help = "Import Articles from Drupal site while linking them to Authors, Issues, Deparments, and Keywords"
 
     def add_arguments(self, parser):
-        parser.add_argument("--articles_file", action="store", type=str)
-        parser.add_argument("--authors_file", action="store", type=str)
+        parser.add_argument(
+            "--articles_file",
+            action="store",
+            type=str,
+        )
+        parser.add_argument(
+            "--authors_file",
+            action="store",
+            type=str,
+        )
 
     def handle(self, *args, **options):
-        articles = pd.read_csv(options["articles_file"], dtype={"Authors": str})
-        magazine_authors = pd.read_csv(options["authors_file"])
+        articles_data = pd.read_csv(options["articles_file"], dtype={"Authors": str})
+        magazine_authors_data = pd.read_csv(options["authors_file"])
 
         for index, row in tqdm(
-            articles.iterrows(), total=articles.shape[0], desc="Articles", unit="row"
+            articles_data.iterrows(),
+            total=articles_data.shape[0],
+            desc="Articles",
+            unit="row",
         ):
             article_exists = MagazineArticle.objects.filter(
                 drupal_node_id=row["node_id"]
@@ -197,7 +209,9 @@ class Command(BaseCommand):
             # Assign authors to article
             if row["Authors"] is not np.nan:
                 article = parse_article_authors(
-                    article, row["Authors"], magazine_authors
+                    article,
+                    row["Authors"],
+                    magazine_authors_data,
                 )
 
             # Assign keywards to article

@@ -32,7 +32,8 @@ def create_archive_article_authors(archive_article, authors, magazine_authors):
         if authors_list is not None:
             for drupal_author_id in authors_list:
                 author_data = get_existing_magazine_author_by_id(
-                    drupal_author_id, magazine_authors
+                    drupal_author_id,
+                    magazine_authors,
                 )
 
                 if author_data is not None:
