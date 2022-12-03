@@ -88,12 +88,12 @@ def get_existing_magazine_author_by_id(
 
     # Make sure author exists in data
     if authors_mask.sum() == 0:
-        print("Author row not found:", drupal_author_id)
+        print("Author row not found in DataFrame:", drupal_author_id)
         return None
 
     # Make sure author is not in duplicate rows
     if authors_mask.sum() > 1:
-        print("Duplicate rows found with same author ID:", drupal_author_id)
+        print("Duplicate DataFrame rows found with same author ID:", drupal_author_id)
         return None
 
     author_data = None
@@ -143,7 +143,8 @@ def get_contact_from_author_data(author_data):
 
         except ObjectDoesNotExist:
             print(
-                "Cannot find person with ID:", f'"{ author_data["drupal_author_id"] }"'
+                "Could not find person with ID:",
+                f'"{ author_data["drupal_author_id"] }"',
             )
 
     return contact
