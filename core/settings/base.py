@@ -134,6 +134,7 @@ INSTALLED_APPS = [
     "storages",
     "wagtail_color_panel",
     "wagtailfontawesome",
+    "wagtailmedia",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
