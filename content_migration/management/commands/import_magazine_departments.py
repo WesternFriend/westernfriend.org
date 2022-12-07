@@ -1,8 +1,7 @@
 import csv
 
-from tqdm import tqdm
-
 from django.core.management.base import BaseCommand, CommandError
+from tqdm import tqdm
 
 from magazine.models import MagazineDepartment, MagazineDepartmentIndexPage
 

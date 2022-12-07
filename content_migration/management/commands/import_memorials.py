@@ -2,12 +2,10 @@ import csv
 from datetime import datetime
 
 from django.core.management.base import BaseCommand, CommandError
-
 from tqdm import tqdm
 
-
-from memorials.models import Memorial, MemorialIndexPage
 from contact.models import Meeting, Person, PersonIndexPage
+from memorials.models import Memorial, MemorialIndexPage
 
 
 def create_person(memorial_data):

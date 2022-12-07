@@ -3,7 +3,7 @@ import csv
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
 
-from magazine.models import DeepArchiveIndexPage, ArchiveIssue
+from magazine.models import ArchiveIssue, DeepArchiveIndexPage
 
 
 class Command(BaseCommand):

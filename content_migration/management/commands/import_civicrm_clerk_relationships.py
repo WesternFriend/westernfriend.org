@@ -6,8 +6,8 @@
 import csv
 import re
 
-from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand, CommandError
 
 from contact.models import Meeting, MeetingPresidingClerk, Person, PersonIndexPage
 

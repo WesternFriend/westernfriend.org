@@ -1,19 +1,18 @@
-from django.core.exceptions import ObjectDoesNotExist
-from contact.models import Meeting, Organization, Person
 import html
 from io import BytesIO
 from urllib.parse import urlparse
 
+import numpy as np
+import pandas as pd
+import requests
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 from django.core.files.images import ImageFile
-
 from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.images.models import Image
 
-import numpy as np
-import pandas as pd
-import requests
+from contact.models import Meeting, Organization, Person
 
 
 def parse_media_blocks(media_urls):

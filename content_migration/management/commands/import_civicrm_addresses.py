@@ -1,10 +1,10 @@
 import csv
 import re
 
-from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand, CommandError
 
-from contact.models import MeetingAddress, Meeting
+from contact.models import Meeting, MeetingAddress
 
 
 def create_meeting_addresses(meeting, row):

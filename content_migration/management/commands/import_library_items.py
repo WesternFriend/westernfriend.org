@@ -1,17 +1,15 @@
 import csv
 
 import pandas as pd
-
 from django.core.management.base import BaseCommand, CommandError
-from wagtail.core.models import Page
 from tqdm import tqdm
+from wagtail.core.models import Page
 
-from facets.models import (
+from facets.models import (  # TODO: make sure to add library item topics
     Audience,
     Genre,
     Medium,
     TimePeriod,
-    # TODO: make sure to add library item topics
     Topic,
 )
 from library.models import (

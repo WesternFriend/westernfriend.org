@@ -1,15 +1,13 @@
 import csv
-from datetime import datetime
 import html
+from datetime import datetime
 from io import BytesIO
 
 import requests
-from tqdm import tqdm
-
 from django.core.files.images import ImageFile
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.timezone import make_aware
-
+from tqdm import tqdm
 from wagtail.images.models import Image
 
 from magazine.models import MagazineIndexPage, MagazineIssue

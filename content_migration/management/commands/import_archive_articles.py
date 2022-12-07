@@ -1,19 +1,17 @@
+import math
+
+import numpy as np
+import pandas as pd
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand, CommandError
+from wagtail.core.blocks import ListBlock, PageChooserBlock
+from wagtail.core.models import Page
+
+from contact.models import Meeting, Organization, Person
 from content_migration.management.commands.shared import (
     get_contact_from_author_data,
     get_existing_magazine_author_by_id,
 )
-import math
-
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand, CommandError
-
-import numpy as np
-import pandas as pd
-
-from wagtail.core.models import Page
-from wagtail.core.blocks import ListBlock, PageChooserBlock
-
-from contact.models import Meeting, Organization, Person
 from magazine.models import ArchiveArticle, ArchiveArticleAuthor, ArchiveIssue
 
 

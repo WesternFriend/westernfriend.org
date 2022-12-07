@@ -1,10 +1,8 @@
 from django.db import models
-
-from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
-from wagtail.core.models import Orderable
-
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
+from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
+from wagtail.core.models import Orderable
 
 
 class Order(ClusterableModel):

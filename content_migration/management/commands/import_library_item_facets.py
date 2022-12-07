@@ -1,20 +1,19 @@
 import csv
 
 from django.core.management.base import BaseCommand, CommandError
-
 from tqdm import tqdm
 
 from facets.models import (
-    AudienceIndexPage,
     Audience,
-    GenreIndexPage,
+    AudienceIndexPage,
     Genre,
-    MediumIndexPage,
+    GenreIndexPage,
     Medium,
-    TimePeriodIndexPage,
+    MediumIndexPage,
     TimePeriod,
-    TopicIndexPage,
+    TimePeriodIndexPage,
     Topic,
+    TopicIndexPage,
 )
 
 facets = [

@@ -1,6 +1,6 @@
 import csv
-from django.core.management.base import BaseCommand, CommandError
 
+from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
 
 from contact.models import (

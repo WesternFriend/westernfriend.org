@@ -3,7 +3,6 @@ from django.forms.utils import flatatt
 from django.utils.html import format_html, format_html_join
 from wagtail.core import blocks
 from wagtail.images.blocks import ImageChooserBlock
-
 from wagtail_color_panel.blocks import NativeColorBlock
 from wagtailmedia.blocks import AbstractMediaChooserBlock
 

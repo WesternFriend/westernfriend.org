@@ -1,5 +1,4 @@
 from django.db import models
-
 from modelcluster.fields import ParentalKey
 from wagtail.admin.edit_handlers import (
     FieldPanel,
@@ -7,8 +6,8 @@ from wagtail.admin.edit_handlers import (
     InlinePanel,
     PageChooserPanel,
 )
-from wagtail.core.models import Orderable, Page
 from wagtail.core.fields import RichTextField
+from wagtail.core.models import Orderable, Page
 from wagtail.search import index
 
 from addresses.models import Address

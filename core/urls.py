@@ -1,22 +1,19 @@
 from django.conf import settings
-from django.urls import include, re_path
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path, re_path
+from django_registration.backends.one_step.views import RegistrationView
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.core import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
-from magazine import urls as magazine_urls
-from search import views as search_views
-from subscription import urls as subscription_urls
-
-from django_registration.backends.one_step.views import RegistrationView
-
 # TODO: Change this line to send verification emails when registering users
 # Note: this will require two activation email tempates (subject and body)
 # from django_registration.backends.activation.views import RegistrationView
 from accounts.forms import CustomUserForm
+from magazine import urls as magazine_urls
+from search import views as search_views
+from subscription import urls as subscription_urls
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),

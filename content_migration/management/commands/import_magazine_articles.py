@@ -1,29 +1,26 @@
+import re
+from typing import List
+
+import numpy as np
+import pandas as pd
+from bs4 import BeautifulSoup
+from bs4 import Tag as BS4_Tag
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand, CommandError
+from tqdm import tqdm
+from wagtail.core.rich_text import RichText
+
+from contact.models import Meeting, Organization, Person
 from content_migration.management.commands.shared import (
     get_contact_from_author_data,
     get_existing_magazine_author_by_id,
 )
-import re
-from typing import List
-
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand, CommandError
-
-from bs4 import BeautifulSoup, Tag as BS4_Tag
-import numpy as np
-import pandas as pd
-from tqdm import tqdm
-
-from wagtail.core.rich_text import RichText
-
-
 from magazine.models import (
     MagazineArticle,
     MagazineArticleAuthor,
     MagazineDepartment,
     MagazineIssue,
 )
-
-from contact.models import Meeting, Organization, Person
 
 from .shared import parse_media_blocks
 
