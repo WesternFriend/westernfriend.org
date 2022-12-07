@@ -8,11 +8,7 @@
     <h1 class="mb-3">
         {{ page.title }}
         {% if page.publication_date %}
-        <span class="text-muted small">
-            {{ page.publication_date | date:"F" }}
-            /
-            {{ page.publication_end_date | date:"F Y" }}
-        </span>
+            ({{ page.publication_date | date:"F" }}/{{ page.publication_end_date | date:"F Y" }})
         {% endif %}
     </h1>
 
@@ -38,7 +34,7 @@
             {% regroup articles_by_department by specific.department as departments %}
 
             {% for department in departments %}
-                <h2>
+                <h2 class="h3">
                 {{ department.grouper }}
                 </h2>
                 
