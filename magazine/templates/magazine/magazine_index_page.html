@@ -37,50 +37,53 @@
     {% endfor %}
 </div>
 
-<nav aria-label="Archive issues navigation">
-    <ul class="pagination">
-        {% if archive_issues.has_previous %}
-        <li class="page-item">
-            <a href="?archive-issues-page=1#archive-issues" class="page-link">&laquo; first</a>
-        </li>
+{% if archive_issues.has_other_pages %}
+    <nav aria-label="Archive issues navigation">
+        <ul class="pagination">
+            {% if archive_issues.has_previous %}
+            <li class="page-item">
+                <a href="?archive-issues-page=1#archive-issues" class="page-link">&laquo; first</a>
+            </li>
 
-        <li class="page-item">
-            <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues"
-                class="page-link">
-                previous
-            </a>
-        </li>
-        {% endif %}
-
-        {% for i in archive_issues.paginator.page_range %}
-            {% if archive_issues.number == i %}
-                <li class="active page-item" aria-current="page">
-                    <a href="?archive-issues-page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
-                </li>
-            {% else %}
-                <li class="page-item">
-                    <a href="?archive-issues-page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
-                </li>
+            <li class="page-item">
+                <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues"
+                    class="page-link">
+                    previous
+                </a>
+            </li>
             {% endif %}
-        {% endfor %}
 
-        {% if archive_issues.has_next %}
-        <li class="page-item">
-            <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues"
+            
+            {% for i in archive_issues.paginator.page_range %}
+                {% if archive_issues.number == i %}
+                    <li class="active page-item" aria-current="page">
+                        <a href="?archive-issues-page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a href="?archive-issues-page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if archive_issues.has_next %}
+            <li class="page-item">
+                <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues"
+                    class="page-link">
+                    next
+                </a>
+            </li>
+            
+            <li class="page-item">
+                <a href="?archive-issues-page={{ archive_issues.paginator.num_pages }}#archive-issues" 
                 class="page-link">
-                next
-            </a>
-        </li>
-        
-        <li class="page-item">
-            <a href="?archive-issues-page={{ archive_issues.paginator.num_pages }}#archive-issues" 
-            class="page-link">
-                last &raquo;
-            </a>
-        </li>
-        {% endif %}
-    </ul>
-</nav>
+                    last &raquo;
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
 
 {% if page.deep_archive_page %}
 <h2 id="deep-archive">
