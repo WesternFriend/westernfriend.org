@@ -1,7 +1,9 @@
 from decimal import Decimal
+
 from django.conf import settings
+
 from shipping.calculator import get_book_shipping_cost
-from store.models import Product, Book
+from store.models import Book, Product
 
 
 class Cart(object):
