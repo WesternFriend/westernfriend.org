@@ -29,9 +29,7 @@ from .shared import parse_media_blocks
 
 
 def extract_pullquotes(item: str) -> List[str]:
-    """
-    Get a list of all pullquote strings found within the item
-    """
+    """Get a list of all pullquote strings found within the item"""
 
     return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item.string)
 

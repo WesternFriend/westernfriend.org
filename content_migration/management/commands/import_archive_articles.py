@@ -18,9 +18,7 @@ from magazine.models import ArchiveArticle, ArchiveArticleAuthor, ArchiveIssue
 
 
 def create_archive_article_authors(archive_article, authors, magazine_authors):
-    """
-    Create an ArchiveArticleAuthor instance for each author, if any
-    """
+    """Create an ArchiveArticleAuthor instance for each author, if any"""
 
     if authors is not np.nan:
         # Create table of contents

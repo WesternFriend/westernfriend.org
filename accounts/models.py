@@ -24,9 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def get_active_subscription(self):
-        """
-        Get subscription that isn't expired for this user.
-        """
+        """Get subscription that isn't expired for this user."""
         today = datetime.datetime.today()
 
         try:
@@ -38,9 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_subscriber(self):
-        """
-        Check whether user has active subscription.
-        """
+        """Check whether user has active subscription."""
 
         if self.get_active_subscription() is not None:
             return True

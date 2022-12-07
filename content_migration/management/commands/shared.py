@@ -80,9 +80,7 @@ def get_existing_magazine_author_by_id(
     drupal_author_id,
     magazine_authors,
 ):
-    """
-    Get an author and check if it is duplicate. Return existing author
-    """
+    """Get an author and check if it is duplicate. Return existing author"""
 
     authors_mask = magazine_authors["drupal_author_id"] == drupal_author_id
 
