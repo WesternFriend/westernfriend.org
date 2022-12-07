@@ -1,9 +1,8 @@
 import os
-from django.shortcuts import get_object_or_404, redirect, render
 
 import arrow
 import braintree
-
+from django.shortcuts import get_object_or_404, redirect, render
 
 from donations.models import Donation
 from orders.models import Order
@@ -121,8 +120,7 @@ def process_braintree_transaction(request, entity, nonce):
         clear_payment_session_vars(request)
 
         return redirect("payment:done")
-    else:
-        return redirect("payment:canceled")
+    return redirect("payment:canceled")
 
 
 def payment_process(request, previous_page):
@@ -157,13 +155,13 @@ def payment_process(request, previous_page):
         if processing_bookstore_order:
             return process_braintree_transaction(request, entity, nonce)
 
-        elif processing_donation:
+        if processing_donation:
             if entity.recurring:
                 return process_braintree_subscription(request, entity, nonce)
 
             return process_braintree_transaction(request, entity, nonce)
 
-        elif processing_subscription:
+        if processing_subscription:
             return process_braintree_subscription(request, entity, nonce)
     else:
         client_token = braintree.ClientToken.generate()

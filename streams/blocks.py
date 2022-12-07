@@ -3,7 +3,6 @@ from django.forms.utils import flatatt
 from django.utils.html import format_html, format_html_join
 from wagtail.core import blocks
 from wagtail.images.blocks import ImageChooserBlock
-
 from wagtail_color_panel.blocks import NativeColorBlock
 from wagtailmedia.blocks import AbstractMediaChooserBlock
 
@@ -142,8 +141,7 @@ class PullQuoteBlock(blocks.TextBlock):
     def render_basic(self, value, context=None):
         if value:
             return format_html('<div class="pullquote">{0}</div>', value)
-        else:
-            return ""
+        return ""
 
     class Meta:
         icon = "openquote"

@@ -3,20 +3,16 @@ import logging
 import os
 
 import braintree
-
 from django.conf import settings
 from django.contrib.auth import login
 from django.db import models
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-
+from flatpickr import DatePickerInput
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page
-
-
-from flatpickr import DatePickerInput
 
 logger = logging.getLogger(__name__)
 
@@ -229,15 +225,14 @@ class SubscriptionIndexPage(Page):
 
             if subscription_form.is_valid():
                 return process_subscription_form(subscription_form, request)
-            else:
-                context = self.get_context(request, *args, **kwargs)
+            context = self.get_context(request, *args, **kwargs)
 
-                # Send form with validation errors back to client
-                context["form"] = subscription_form
+            # Send form with validation errors back to client
+            context["form"] = subscription_form
 
-                return TemplateResponse(
-                    request, self.get_template(request, *args, **kwargs), context
-                )
+            return TemplateResponse(
+                request, self.get_template(request, *args, **kwargs), context
+            )
         else:
             return super().serve(request)
 
