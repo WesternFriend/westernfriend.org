@@ -8,7 +8,7 @@
     <h1 class="mb-3">
         {{ page.title }}
         {% if page.publication_date %}
-            ({{ page.publication_date | date:"F" }}/{{ page.publication_end_date | date:"F Y" }})
+            ({{ page.publication_date | date:"M" }}/{{ page.publication_end_date | date:"M Y" }})
         {% endif %}
     </h1>
 
@@ -21,7 +21,7 @@
 
             <ul class="list-unstyled">
                 {% for featured_article in page.featured_articles.all %}
-                    <li>
+                    <li class="mb-2">
                         <a href="{% pageurl featured_article %}">
                             {{ featured_article.title }}
                         </a>
@@ -40,7 +40,7 @@
                 
                 <ul class="list-unstyled">
                     {% for article in department.list %}
-                    <li>
+                    <li class="mb-2">
                         <a href="{% pageurl article %}">
                             {{ article }} {% if article.is_featured %}(featured){% endif %}
                         </a>
