@@ -11,7 +11,7 @@
 
 <div class="row">
     <div class="col-sm-12 col-md-3">
-        <div class="card mb-2">
+        <div class="card mb-2 pb-3">
             <div class="card-body">
                 <h2 class="card-title">
                     Facets
@@ -129,7 +129,7 @@
             </form>
         </div>
     </div>
-    <div class="col" id="app">
+    <div class="col col-md-9" id="app">
         <div class="card mb-2">
             <div class="card-header">
                 Search by
@@ -191,27 +191,51 @@
             {% endfor %}
             
             {% if library_items_page.has_other_pages %}
-            <div class="btn-group" role="group" aria-label="Basic example">
-                {% if library_items_page.has_previous %}
-                    <a href="?page={{ library_items_page.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
-                {% endif %}
+                <nav aria-label="Archive issues navigation">
+                    <ul class="pagination">
+                        {% if library_items_page.has_previous %}
+                        <li class="page-item">
+                            <a href="?page={{ library_items_page.previous_page_number }}" class="page-link">&laquo; first</a>
+                        </li>
 
-                {% for page_number in library_items_page.paginator.page_range %}
-                    {% if library_items_page.number == page_number %}
-                        <button class="btn btn-outline-primary active">
-                            <span>{{ page_number }} <span class="sr-only">(current)</span></span>
-                        </button>
-                    {% else %}
-                        <a href="?page={{ page_number }}" class="btn btn-outline-primary">
-                            {{ page_number }}
-                        </a>
-                    {% endif %}
-                {% endfor %}
+                        <li class="page-item">
+                            <a href="?page={{ library_items_page.previous_page_number }}#archive-issues"
+                                class="page-link">
+                                previous
+                            </a>
+                        </li>
+                        {% endif %}
 
-                {% if library_items_page.has_next %}
-                    <a href="?page={{ library_items_page.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
-                {% endif %}
-            </div>
+                        
+                        {% for i in library_items_page.paginator.page_range %}
+                            {% if library_items_page.number == i %}
+                                <li class="active page-item" aria-current="page">
+                                    <a href="?page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a href="?page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if library_items_page.has_next %}
+                        <li class="page-item">
+                            <a href="?page={{ library_items_page.next_page_number }}"
+                                class="page-link">
+                                next
+                            </a>
+                        </li>
+                        
+                        <li class="page-item">
+                            <a href="?page={{ library_items_page.paginator.num_pages }}#archive-issues" 
+                            class="page-link">
+                                last &raquo;
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
             {% endif %}
         {% else %}
         <p>No media items found.</p>
