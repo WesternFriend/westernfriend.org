@@ -32,6 +32,22 @@ autopep8 = "^1.4.4"
 pylint = "^2.5.3"
 black = "^22.3.0"
 
+[tool.poetry.group.dev.dependencies]
+autohooks = "^22.11.2"
+autohooks-plugin-black = "^22.11.0"
+autohooks-plugin-isort = "^22.8.0"
+
 [build-system]
 requires = ["poetry>=1.0"]
 build-backend = "poetry.masonry.api"
+
+
+[tool.autohooks]
+mode = "poetry"
+pre-commit = ["autohooks.plugins.isort", "autohooks.plugins.black"]
+
+[tool.autohooks.plugins.black]
+arguments = ["-q", "--diff"]
+
+[tool.isort]
+profile = "black"
