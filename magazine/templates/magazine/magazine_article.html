@@ -46,15 +46,19 @@
     {% endif %}
     </dl>
 
-    {% if user_can_view_full_article %}
-        {% include_block page.body %}
-    {% else %}
-        <a href="/subscribe" class="btn btn-outline btn-success">
-            Subscribe now for full access.
-        </a>
+    <div class="card mb-2">
+        <div class="card-body">
+            {% if user_can_view_full_article %}
+                {% include_block page.body %}
+            {% else %}
+                <a href="/subscribe" class="btn btn-outline btn-success">
+                    Subscribe now for full access.
+                </a>
 
-        {{ page.teaser | richtext }}
-    {% endif %}
+                {{ page.teaser | richtext }}
+            {% endif %}
+        </div>
+    </div>
 
     {% if page.tags.all.count %}
         <div class="tags">
