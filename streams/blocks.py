@@ -142,8 +142,7 @@ class PullQuoteBlock(blocks.TextBlock):
     def render_basic(self, value, context=None):
         if value:
             return format_html('<div class="pullquote">{0}</div>', value)
-        else:
-            return ""
+        return ""
 
     class Meta:
         icon = "openquote"
