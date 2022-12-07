@@ -1,19 +1,18 @@
-from django.core.exceptions import ObjectDoesNotExist
-from contact.models import Meeting, Organization, Person
 import html
 from io import BytesIO
 from urllib.parse import urlparse
 
+import numpy as np
+import pandas as pd
+import requests
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 from django.core.files.images import ImageFile
-
 from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.images.models import Image
 
-import numpy as np
-import pandas as pd
-import requests
+from contact.models import Meeting, Organization, Person
 
 
 def parse_media_blocks(media_urls):
@@ -80,9 +79,7 @@ def get_existing_magazine_author_by_id(
     drupal_author_id,
     magazine_authors,
 ):
-    """
-    Get an author and check if it is duplicate. Return existing author
-    """
+    """Get an author and check if it is duplicate. Return existing author"""
 
     authors_mask = magazine_authors["drupal_author_id"] == drupal_author_id
 

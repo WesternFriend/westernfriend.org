@@ -1,14 +1,14 @@
 from decimal import Decimal
+
 from django.conf import settings
+
 from shipping.calculator import get_book_shipping_cost
-from store.models import Product, Book
+from store.models import Book, Product
 
 
 class Cart(object):
     def __init__(self, request):
-        """
-        Initialize the cart.
-        """
+        """Initialize the cart."""
         self.session = request.session
 
         cart = self.session.get(settings.CART_SESSION_ID)
@@ -20,9 +20,7 @@ class Cart(object):
         self.cart = cart
 
     def add(self, product, quantity=1, update_quantity=False):
-        """
-        Add a product to the cart or update its quantity.
-        """
+        """Add a product to the cart or update its quantity."""
         product_id = str(product.id)
 
         if product_id not in self.cart:
@@ -46,9 +44,7 @@ class Cart(object):
         self.session.modified = True
 
     def remove(self, product):
-        """
-        Remove a product from the cart.
-        """
+        """Remove a product from the cart."""
         product_id = str(product.id)
 
         if product_id in self.cart:
@@ -82,9 +78,7 @@ class Cart(object):
         self.save()
 
     def __iter__(self):
-        """
-        Get cart products from the database.
-        """
+        """Get cart products from the database."""
         # get the product objects and add them to the cart
         products = self.get_cart_products()
 
@@ -100,9 +94,7 @@ class Cart(object):
             yield item
 
     def __len__(self):
-        """
-        Count all items in the cart.
-        """
+        """Count all items in the cart."""
         item_quantities = [item["quantity"] for item in self.cart.values()]
 
         return sum(item_quantities)

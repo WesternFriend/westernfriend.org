@@ -2,9 +2,8 @@ from django.db import models
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-
-from wagtail.core.blocks import IntegerBlock, ListBlock, StreamBlock, StructBlock
 from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.core.blocks import IntegerBlock, ListBlock, StreamBlock, StructBlock
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 
@@ -12,9 +11,7 @@ from addresses.models import Address
 
 
 def process_donation_request(request, donation_form, donor_address_form):
-    """
-    Process a donation form and redirecto to payment.
-    """
+    """Process a donation form and redirecto to payment."""
     # Create a temporary donation object to modify it's fields
     donation = donation_form.save(commit=False)
 
