@@ -20,7 +20,9 @@ This project is built with [Python](https://www.python.org/), [Django](https://w
    - `poetry shell`
 3. install the project dependencies
    - `poetry install`
-4. run the local server
+4. activate `autohooks` for automatic code maintenance
+   - `poetry run autohooks activate --mode poetry`
+5. run the local server
    - `python manage.py runserver`
 
 Once the server is running, you can access it from http://localhost:8000
