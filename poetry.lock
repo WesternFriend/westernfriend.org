@@ -1057,7 +1057,7 @@ wagtail = ">=1.4.0"
 
 [[package]]
 name = "wagtailmedia"
-version = "0.11.1"
+version = "0.12.0"
 description = "A module for Wagtail that provides functionality similar to wagtail.documents module, but for audio and video files."
 category = "main"
 optional = false
@@ -1100,7 +1100,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "94c0324d70ad45d6e6d8750e3fb7da441abfcc11b77cf43c17a8ea925edb9b2a"
+content-hash = "4421f9ccf6af3b0f393ac9e01e7c4a33fda83501eb6db5765e46be5a66d68621"
 
 [metadata.files]
 anyascii = [
@@ -1662,8 +1662,8 @@ wagtailfontawesome = [
     {file = "wagtailfontawesome-1.2.1.tar.gz", hash = "sha256:6c1bd2d6061880848de6374ceb75d38a8c9b0debb1d4aef8a2fdc9d565a8f417"},
 ]
 wagtailmedia = [
-    {file = "wagtailmedia-0.11.1-py2.py3-none-any.whl", hash = "sha256:f141441356a42a07a289cf874012ebc17b95a73d8e2d21b11c40fcb5dbce43f4"},
-    {file = "wagtailmedia-0.11.1.tar.gz", hash = "sha256:9147b5142e44bcf62a74b57cad81436cb1df6ee9971cca0038e548400c39ffed"},
+    {file = "wagtailmedia-0.12.0-py2.py3-none-any.whl", hash = "sha256:0807515c5d89782666b613de2e4aedab19e9dd358097fad2cb79633c0b5416d3"},
+    {file = "wagtailmedia-0.12.0.tar.gz", hash = "sha256:1d39622c3d7d0191e58ffedf45d05fbef851e3905955513012a72ae4d46a12b0"},
 ]
 webencodings = [
     {file = "webencodings-0.5.1-py2.py3-none-any.whl", hash = "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78"},
