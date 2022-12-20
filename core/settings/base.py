@@ -14,13 +14,10 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 import sys
 
-from django.core.management.utils import get_random_secret_key
-
+import dj_database_url
 from braintree import Configuration as BraintreeConfiguration
 from braintree import Environment as BraintreeEnvironment
-
-import dj_database_url
-
+from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -103,7 +100,7 @@ INSTALLED_APPS = [
     "store",
     "subscription",
     "magazine",
-    "streams",
+    "blocks",
     "wf_pages",
     "wagtail.contrib.forms",
     "wagtail.contrib.modeladmin",

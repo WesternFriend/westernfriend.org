@@ -7,7 +7,7 @@ from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
 
-from streams.blocks import (
+from blocks.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,
     PullQuoteBlock,

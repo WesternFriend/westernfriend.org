@@ -1,9 +1,8 @@
 from datetime import date
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
 from django.db.models import Q
-
 from timezone_field import TimeZoneField
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core import blocks
@@ -11,7 +10,7 @@ from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.search import index
 
-from streams.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
+from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
 
 
 class Event(Page):

@@ -1,37 +1,28 @@
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
-
+from flatpickr import DatePickerInput
+from modelcluster.contrib.taggit import ClusterTaggableManager
+from modelcluster.fields import ParentalKey
+from taggit.models import TaggedItemBase
 from wagtail.admin.edit_handlers import (
     FieldPanel,
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
 )
-from wagtail.core.models import Orderable, Page
-from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
+from wagtail.core.fields import RichTextField, StreamField
+from wagtail.core.models import Orderable, Page
 from wagtail.embeds.blocks import EmbedBlock
 
-from modelcluster.contrib.taggit import ClusterTaggableManager
-from modelcluster.fields import ParentalKey
-from taggit.models import TaggedItemBase
-from documents.blocks import DocumentEmbedBlock
-
-from facets.models import (
-    Audience,
-    Genre,
-    Medium,
-    TimePeriod,
-    Topic,
-)
-from streams.blocks import (
+from blocks.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,
     MediaBlock,
     SpacerBlock,
 )
-
-from flatpickr import DatePickerInput
+from documents.blocks import DocumentEmbedBlock
+from facets.models import Audience, Genre, Medium, TimePeriod, Topic
 
 
 class LibraryItemTag(TaggedItemBase):

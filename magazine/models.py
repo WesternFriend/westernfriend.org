@@ -2,9 +2,9 @@ import datetime
 from datetime import timedelta
 
 import arrow
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
+from flatpickr import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
@@ -19,19 +19,16 @@ from wagtail.admin.edit_handlers import (
 )
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
-from wagtail.core.models import Page, Orderable
+from wagtail.core.models import Orderable, Page
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.search import index
 
-from flatpickr import DatePickerInput
-
-from streams.blocks import (
+from blocks.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,
     PullQuoteBlock,
     SpacerBlock,
 )
-
 
 from .panels import NestedInlinePanel
 

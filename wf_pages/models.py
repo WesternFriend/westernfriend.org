@@ -1,13 +1,12 @@
 from django.db import models
-
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.images.blocks import ImageChooserBlock
 
+from blocks.blocks import HeadingBlock, SpacerBlock
 from documents.blocks import DocumentEmbedBlock
-from streams.blocks import HeadingBlock, SpacerBlock
 
 
 class WfPageCollectionIndexPage(Page):
