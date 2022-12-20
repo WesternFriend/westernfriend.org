@@ -18,7 +18,7 @@ class ButtonBlock(blocks.StructBlock):
 
     class Meta:
         icon = "placeholder"
-        template = "streams/blocks/button.html"
+        template = "blocks/blocks/button.html"
 
 
 class CardBlock(blocks.StructBlock):
@@ -37,7 +37,7 @@ class CardBlock(blocks.StructBlock):
 
     class Meta:
         icon = "form"
-        template = "streams/blocks/card.html"
+        template = "blocks/blocks/card.html"
 
 
 class FormattedImageChooserStructBlock(blocks.StructBlock):
@@ -50,7 +50,7 @@ class FormattedImageChooserStructBlock(blocks.StructBlock):
 
     class Meta:
         icon = "media"
-        template = "streams/blocks/formatted_image_block.html"
+        template = "blocks/blocks/formatted_image_block.html"
 
 
 class HeadingBlock(blocks.StructBlock):
@@ -78,7 +78,7 @@ class HeadingBlock(blocks.StructBlock):
 
     class Meta:
         icon = "list-ol"
-        template = "streams/blocks/heading.html"
+        template = "blocks/blocks/heading.html"
 
 
 class MediaBlock(AbstractMediaChooserBlock):
@@ -125,7 +125,7 @@ class OrganizationsBlock(blocks.StructBlock):
         return context
 
     class Meta:
-        template = "streams/blocks/organizations_block.html"
+        template = "blocks/blocks/organizations_block.html"
 
 
 class PageCardBlock(blocks.StructBlock):
@@ -134,7 +134,7 @@ class PageCardBlock(blocks.StructBlock):
 
     class Meta:
         icon = "link"
-        template = "streams/blocks/page_card.html"
+        template = "blocks/blocks/page_card.html"
 
 
 class PullQuoteBlock(blocks.TextBlock):
@@ -156,4 +156,9 @@ class SpacerBlock(blocks.StructBlock):
 
     class Meta:
         icon = "arrows-up-down"
-        template = "streams/blocks/spacer.html"
+        template = "blocks/blocks/spacer.html"
+
+
+class WfURLBlock(blocks.URLBlock):
+    class Meta:
+        template = "blocks/blocks/wf_url.html"

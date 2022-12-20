@@ -1,16 +1,12 @@
 from django.db import models
-
-from wagtail.admin.edit_handlers import (
-    FieldPanel,
-    PageChooserPanel,
-)
+from wagtail.admin.edit_handlers import FieldPanel, PageChooserPanel
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.search import index
 
-from streams import blocks as wf_blocks
+from blocks import blocks as wf_blocks
 
 
 class CommunityPage(Page):
@@ -24,7 +20,7 @@ class CommunityPage(Page):
                 "card_row",
                 blocks.ListBlock(
                     wf_blocks.PageCardBlock(label="Page"),
-                    template="streams/blocks/card_row.html",
+                    template="blocks/blocks/card_row.html",
                 ),
             ),
             ("spacer", wf_blocks.SpacerBlock()),
