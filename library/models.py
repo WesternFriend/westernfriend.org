@@ -20,6 +20,7 @@ from blocks.blocks import (
     HeadingBlock,
     MediaBlock,
     SpacerBlock,
+    WfURLBlock,
 )
 from documents.blocks import DocumentEmbedBlock
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
@@ -46,7 +47,7 @@ class LibraryItem(Page):
             ("document", DocumentEmbedBlock()),
             ("media", MediaBlock(icon="media")),
             ("embed", EmbedBlock()),
-            ("url", blocks.URLBlock()),
+            ("url", WfURLBlock()),
             ("quote", blocks.BlockQuoteBlock()),
             ("spacer", SpacerBlock()),
         ],

@@ -157,3 +157,8 @@ class SpacerBlock(blocks.StructBlock):
     class Meta:
         icon = "arrows-up-down"
         template = "blocks/blocks/spacer.html"
+
+
+class WfURLBlock(blocks.URLBlock):
+    class Meta:
+        template = "blocks/blocks/wf_url.html"
