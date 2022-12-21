@@ -160,7 +160,7 @@ class Command(BaseCommand):
         articles_data = pd.read_csv(options["articles_file"], dtype={"Authors": str})
         magazine_authors_data = pd.read_csv(options["authors_file"])
 
-        for index, row in tqdm(
+        for _index, row in tqdm(
             articles_data.iterrows(),
             total=articles_data.shape[0],
             desc="Articles",

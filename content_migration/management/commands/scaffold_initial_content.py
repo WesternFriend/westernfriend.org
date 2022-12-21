@@ -1,14 +1,12 @@
 from django.core.management.base import BaseCommand, CommandError
-
 from wagtail.core.models import Page, Site
 
-from contact.models import MeetingIndexPage, OrganizationIndexPage, PersonIndexPage
-from home.models import HomePage
 from community.models import (
-    CommunityPage,
     CommunityDirectoryIndexPage,
+    CommunityPage,
     OnlineWorshipIndexPage,
 )
+from contact.models import MeetingIndexPage, OrganizationIndexPage, PersonIndexPage
 from donations.models import DonatePage
 from events.models import EventsIndexPage
 from facets.models import (
@@ -20,27 +18,18 @@ from facets.models import (
     TopicIndexPage,
 )
 from forms.models import ContactFormPage
+from home.models import HomePage
 from library.models import LibraryIndexPage
 from magazine.models import (
+    DeepArchiveIndexPage,
     MagazineDepartmentIndexPage,
     MagazineIndexPage,
     MagazineTagIndexPage,
-    DeepArchiveIndexPage,
 )
 from memorials.models import MemorialIndexPage
-from news.models import (
-    NewsIndexPage,
-    NewsTopicIndexPage,
-    NewsTypeIndexPage,
-)
-from store.models import (
-    ProductIndexPage,
-    StoreIndexPage,
-)
-from subscription.models import (
-    SubscriptionIndexPage,
-    ManageSubscriptionPage,
-)
+from news.models import NewsIndexPage, NewsTopicIndexPage, NewsTypeIndexPage
+from store.models import ProductIndexPage, StoreIndexPage
+from subscription.models import ManageSubscriptionPage, SubscriptionIndexPage
 
 
 class Command(BaseCommand):

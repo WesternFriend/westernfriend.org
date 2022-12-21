@@ -2,7 +2,6 @@ import html
 from io import BytesIO
 from urllib.parse import urlparse
 
-import numpy as np
 import pandas as pd
 import requests
 from django.core.exceptions import ObjectDoesNotExist
@@ -125,13 +124,21 @@ def get_contact_from_author_data(author_data):
     )
 
     if author_is_organization:
-        contact = Organization.objects.get(
-            drupal_author_id=author_data["drupal_author_id"]
-        )
+        try:
+            contact = Organization.objects.get(
+                drupal_author_id=author_data["drupal_author_id"]
+            )
+        except Organization.DoesNotExist:
+            print(
+                f"Could not find organization with ID: {author_data['drupal_author_id']}"
+            )
     elif author_is_meeting:
-        contact = Meeting.objects.get(
-            drupal_author_id=author_data["drupal_author_id"],
-        )
+        try:
+            contact = Meeting.objects.get(
+                drupal_author_id=author_data["drupal_author_id"],
+            )
+        except Meeting.DoesNotExist:
+            print(f"Could not find meeting with ID: {author_data['drupal_author_id']}")
     else:
         try:
             contact = Person.objects.get(

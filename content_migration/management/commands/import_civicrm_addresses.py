@@ -1,10 +1,11 @@
 import csv
 import re
 
-from django.core.management.base import BaseCommand, CommandError
+import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand, CommandError
 
-from contact.models import MeetingAddress, Meeting
+from contact.models import Meeting, MeetingAddress
 
 
 def create_meeting_addresses(meeting, row):
@@ -51,28 +52,28 @@ class Command(BaseCommand):
         parser.add_argument("--file", action="store", type=str)
 
     def handle(self, *args, **options):
-        with open(options["file"]) as import_file:
-            addresses = csv.DictReader(import_file)
 
-            for row in addresses:
-                contact_subtype = row["Contact Subtype"]
+        addresses = pd.read_csv(options["file"]).to_dict("records")
 
-                meeting_subtypes = [
-                    "Monthly_Meeting_Worship_Group",
-                    "Quarterly_Regional_Meeting",
-                    "Yearly_Meeting",
-                    "Worship_Group",
-                ]
+        for row in addresses:
+            contact_subtype = row["Contact Subtype"]
 
-                if contact_subtype in meeting_subtypes:
-                    try:
-                        meeting = Meeting.objects.get(civicrm_id=row["Contact ID"])
-                    except ObjectDoesNotExist:
-                        print(
-                            f"Could not find contact with CiviCRM ID { row['Contact ID'] }"
-                        )
-                        pass
+            meeting_subtypes = [
+                "Monthly_Meeting_Worship_Group",
+                "Quarterly_Regional_Meeting",
+                "Yearly_Meeting",
+                "Worship_Group",
+            ]
 
-                    create_meeting_addresses(meeting, row)
+            if contact_subtype in meeting_subtypes:
+                try:
+                    meeting = Meeting.objects.get(civicrm_id=row["Contact ID"])
+                except ObjectDoesNotExist:
+                    print(
+                        f"Could not find contact with CiviCRM ID { row['Contact ID'] }"
+                    )
+                    pass
+
+                create_meeting_addresses(meeting, row)
 
         self.stdout.write("All done!")
