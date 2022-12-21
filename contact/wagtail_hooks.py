@@ -1,15 +1,13 @@
-from django.utils.html import format_html_join
 from django.conf import settings
-
+from django.utils.html import format_html_join
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin,
     ModelAdminGroup,
     modeladmin_register,
 )
-
 from wagtail.core import hooks
 
-from .models import Person, Meeting, Organization
+from .models import Meeting, Organization, Person
 
 
 class PersonModelAdmin(ModelAdmin):

@@ -4,8 +4,8 @@ from wagtail.contrib.modeladmin.options import (
     modeladmin_register,
 )
 
-from store.models import Book
 from orders.models import Order
+from store.models import Book
 
 
 class BookModelAdmin(ModelAdmin):

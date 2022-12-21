@@ -3,8 +3,8 @@ from datetime import datetime
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page
-from events.models import Event
 
+from events.models import Event
 from magazine.models import MagazineIssue
 
 

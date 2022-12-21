@@ -1,5 +1,4 @@
 from django.db import models
-
 from wagtail.admin.edit_handlers import FieldPanel
 
 ADDRESS_TYPE_CHOICES = (("mailing", "Mailing"), ("worship", "Worship"))

@@ -1,10 +1,9 @@
 from django.db import models
-from wagtail.core.fields import RichTextField
-from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
-from wagtail.contrib.forms.models import AbstractForm, AbstractFormField
-from wagtail.contrib.forms.edit_handlers import FormSubmissionsPanel
-
 from modelcluster.fields import ParentalKey
+from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
+from wagtail.contrib.forms.edit_handlers import FormSubmissionsPanel
+from wagtail.contrib.forms.models import AbstractForm, AbstractFormField
+from wagtail.core.fields import RichTextField
 
 
 class FormField(AbstractFormField):
