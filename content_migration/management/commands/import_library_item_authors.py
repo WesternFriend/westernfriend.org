@@ -1,7 +1,6 @@
-import csv
+import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
-
 from tqdm import tqdm
 
 from contact.models import (
@@ -141,38 +140,36 @@ class Command(BaseCommand):
         parser.add_argument("--file", action="store", type=str)
 
     def handle(self, *args, **options):
-        with open(options["file"]) as import_file:
-            authors = csv.DictReader(import_file)
-            authors_list = list(authors)
+        authors_list = pd.read_csv(options["file"]).to_dict("records")
 
-            for author in tqdm(authors_list, desc="Authors", unit="row"):
-                # Check for entity type among:
-                # - Meeting
-                # - Organization
-                # - Person
-                # with the condition to check for corrections to person names
+        for author in tqdm(authors_list, desc="Authors", unit="row"):
+            # Check for entity type among:
+            # - Meeting
+            # - Organization
+            # - Person
+            # with the condition to check for corrections to person names
 
-                drupal_library_author_id = author["drupal_library_author_id"]
+            drupal_library_author_id = author["drupal_library_author_id"]
 
-                author_is_meeting = author["meeting_name"] != ""
-                author_is_organization = author["organization_name"] != ""
-                author_is_person = (
-                    author_is_meeting is False and author_is_organization is False
-                )
+            author_is_meeting = author["meeting_name"] != ""
+            author_is_organization = author["organization_name"] != ""
+            author_is_person = (
+                author_is_meeting is False and author_is_organization is False
+            )
 
-                author_is_duplicate = author["duplicate of ID"] != ""
+            author_is_duplicate = author["duplicate of ID"] != ""
 
-                if author_is_duplicate:
-                    # don't create duplicate authors
-                    pass
+            if author_is_duplicate:
+                # don't create duplicate authors
+                pass
+            else:
+                if author_is_person:
+                    create_person(author)
+                elif author_is_meeting:
+                    create_meeting(author)
+                elif author_is_organization:
+                    create_organization(author)
                 else:
-                    if author_is_person:
-                        create_person(author)
-                    elif author_is_meeting:
-                        create_meeting(author)
-                    elif author_is_organization:
-                        create_organization(author)
-                    else:
-                        print("Unknown:", drupal_library_author_id)
+                    print("Unknown:", drupal_library_author_id)
 
         self.stdout.write("All done!")

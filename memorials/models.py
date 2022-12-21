@@ -1,12 +1,10 @@
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
-
+from flatpickr import DatePickerInput
 from wagtail.admin.edit_handlers import FieldPanel, PageChooserPanel
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Page
 from wagtail.search import index
-
-from flatpickr import DatePickerInput
 
 from contact.models import Meeting
 

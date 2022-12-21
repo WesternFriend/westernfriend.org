@@ -1,20 +1,18 @@
-import csv
-
+import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
-
 from tqdm import tqdm
 
 from facets.models import (
-    AudienceIndexPage,
     Audience,
-    GenreIndexPage,
+    AudienceIndexPage,
     Genre,
-    MediumIndexPage,
+    GenreIndexPage,
     Medium,
-    TimePeriodIndexPage,
+    MediumIndexPage,
     TimePeriod,
-    TopicIndexPage,
+    TimePeriodIndexPage,
     Topic,
+    TopicIndexPage,
 )
 
 facets = [
@@ -60,13 +58,12 @@ class Command(BaseCommand):
 
             file_path = options["folder"] + facet["file_name"]
 
-            with open(file_path) as import_file:
-                facet_items = list(csv.DictReader(import_file))
+            facet_items = pd.read_csv(file_path).to_dict("records")
 
-                for facet_item in facet_items:
-                    facet_instance = facet["facet_class"](
-                        title=facet_item["drupal_full_name"]
-                    )
+            for facet_item in facet_items:
+                facet_instance = facet["facet_class"](
+                    title=facet_item["drupal_full_name"]
+                )
 
-                    facet_index_page.add_child(instance=facet_instance)
-                    facet_index_page.save()
+                facet_index_page.add_child(instance=facet_instance)
+                facet_index_page.save()

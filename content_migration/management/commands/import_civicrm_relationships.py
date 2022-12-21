@@ -3,14 +3,12 @@
 # we need to move the existing pages to the correct parent.
 # https://stackoverflow.com/a/57057466/1191545
 
-import csv
 import re
 
-from tqdm import tqdm
-
-from django.core.management.base import BaseCommand, CommandError
+import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.core.management.base import BaseCommand, CommandError
+from tqdm import tqdm
 from wagtail.core.models import Page
 
 from contact.models import Meeting
@@ -42,41 +40,40 @@ class Command(BaseCommand):
         parser.add_argument("--file", action="store", type=str)
 
     def handle(self, *args, **options):
-        with open(options["file"]) as import_file:
-            relationships = list(csv.DictReader(import_file))
+        relationships = pd.read_csv(options["file"]).to_dict("records")
 
-            for relationship in tqdm(
-                relationships,
-                total=len(relationships),
-                desc="Relationships",
-                unit="row",
-            ):
+        for relationship in tqdm(
+            relationships,
+            total=len(relationships),
+            desc="Relationships",
+            unit="row",
+        ):
 
-                contact_ids = extract_contact_ids_from(relationship)
+            contact_ids = extract_contact_ids_from(relationship)
 
+            try:
+                parent = Meeting.objects.get(civicrm_id=contact_ids["parent_id"])
+            except ObjectDoesNotExist:
+                print(
+                    f"Could not find 'parent meeting' contact with CiviCRM ID { contact_ids['parent_id'] }"
+                )
+                print(relationship)
+
+                pass
+            try:
+                child = Meeting.objects.get(civicrm_id=contact_ids["child_id"])
+            except ObjectDoesNotExist:
+                print(
+                    f"Could not find 'child meeting' contact with CiviCRM ID { contact_ids['child_id'] }"
+                )
+                print(relationship)
+
+                pass
+
+            if parent and child:
                 try:
-                    parent = Meeting.objects.get(civicrm_id=contact_ids["parent_id"])
-                except ObjectDoesNotExist:
-                    print(
-                        f"Could not find 'parent meeting' contact with CiviCRM ID { contact_ids['parent_id'] }"
-                    )
-                    print(relationship)
-
-                    pass
-                try:
-                    child = Meeting.objects.get(civicrm_id=contact_ids["child_id"])
-                except ObjectDoesNotExist:
-                    print(
-                        f"Could not find 'child meeting' contact with CiviCRM ID { contact_ids['child_id'] }"
-                    )
-                    print(relationship)
-
-                    pass
-
-                if parent and child:
-                    try:
-                        child.move(parent, pos="last-child")
-                    except AttributeError:
-                        print(f"Could not move { child } to { parent }.")
+                    child.move(parent, pos="last-child")
+                except AttributeError:
+                    print(f"Could not move { child } to { parent }.")
 
         self.stdout.write("All done!")

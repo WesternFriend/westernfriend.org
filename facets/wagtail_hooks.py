@@ -4,13 +4,7 @@ from wagtail.contrib.modeladmin.options import (
     modeladmin_register,
 )
 
-from facets.models import (
-    Audience,
-    Genre,
-    Medium,
-    TimePeriod,
-    Topic,
-)
+from facets.models import Audience, Genre, Medium, TimePeriod, Topic
 
 
 class AudienceModelAdmin(ModelAdmin):

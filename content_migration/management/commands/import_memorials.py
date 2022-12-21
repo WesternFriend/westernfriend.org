@@ -1,13 +1,11 @@
-import csv
 from datetime import datetime
 
+import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
-
 from tqdm import tqdm
 
-
-from memorials.models import Memorial, MemorialIndexPage
 from contact.models import Meeting, Person, PersonIndexPage
+from memorials.models import Memorial, MemorialIndexPage
 
 
 def create_person(memorial_data):
@@ -73,62 +71,61 @@ class Command(BaseCommand):
         # Get the only instance of Magazine Department Index Page
         memorial_index_page = MemorialIndexPage.objects.get()
 
-        with open(options["file"]) as import_file:
-            memorials = list(csv.DictReader(import_file))
+        memorials = pd.read_csv(options["file"]).to_dict("records")
 
-            for memorial_data in tqdm(memorials, desc="Memorials", unit="row"):
-                memorial_exists = Memorial.objects.filter(
+        for memorial_data in tqdm(memorials, desc="Memorials", unit="row"):
+            memorial_exists = Memorial.objects.filter(
+                drupal_memorial_id=int(memorial_data["memorial_id"])
+            ).exists()
+
+            if memorial_exists:
+                memorial = Memorial.objects.get(
                     drupal_memorial_id=int(memorial_data["memorial_id"])
-                ).exists()
-
-                if memorial_exists:
-                    memorial = Memorial.objects.get(
-                        drupal_memorial_id=int(memorial_data["memorial_id"])
-                    )
-                else:
-                    memorial = Memorial(
-                        title=f"{ memorial_data['First Name'] } { memorial_data['Last Name'] }",
-                        drupal_memorial_id=int(memorial_data["memorial_id"]),
-                    )
-
-                memorial_person = get_or_create_memorial_person(memorial_data)
-
-                if memorial_person is not None:
-                    memorial.memorial_person = memorial_person
-                else:
-                    continue
-
-                memorial.title = (
-                    memorial_data["First Name"] + " " + memorial_data["Last Name"]
                 )
-                memorial.memorial_minute = memorial_data["body"]
+            else:
+                memorial = Memorial(
+                    title=f"{ memorial_data['First Name'] } { memorial_data['Last Name'] }",
+                    drupal_memorial_id=int(memorial_data["memorial_id"]),
+                )
 
-                # Strip out time from datetime strings
-                datetime_format = "%Y-%m-%dT%X"
+            memorial_person = get_or_create_memorial_person(memorial_data)
 
-                # Dates are optional
-                if memorial_data["Date of Birth"] != "":
-                    memorial.date_of_birth = datetime.strptime(
-                        memorial_data["Date of Birth"], datetime_format
-                    )
+            if memorial_person is not None:
+                memorial.memorial_person = memorial_person
+            else:
+                continue
 
-                if memorial_data["Date of Death"] != "":
-                    memorial.date_of_death = datetime.strptime(
-                        memorial_data["Date of Death"], datetime_format
-                    )
+            memorial.title = (
+                memorial_data["First Name"] + " " + memorial_data["Last Name"]
+            )
+            memorial.memorial_minute = memorial_data["body"]
 
-                if memorial_data["Dates are approximate"] != "":
-                    memorial.dates_are_approximate = True
+            # Strip out time from datetime strings
+            datetime_format = "%Y-%m-%dT%X"
 
-                memorial.memorial_meeting = get_memorial_meeting_or_none(memorial_data)
+            # Dates are optional
+            if memorial_data["Date of Birth"] != "":
+                memorial.date_of_birth = datetime.strptime(
+                    memorial_data["Date of Birth"], datetime_format
+                )
 
-                if not memorial_exists:
-                    # Add memorial to memorials collection
-                    try:
-                        memorial_index_page.add_child(instance=memorial)
-                    except AttributeError:
-                        print("Could not add memorial as child of memorial index page")
+            if memorial_data["Date of Death"] != "":
+                memorial.date_of_death = datetime.strptime(
+                    memorial_data["Date of Death"], datetime_format
+                )
 
-                    memorial_index_page.save()
-                else:
-                    memorial.save()
+            if memorial_data["Dates are approximate"] != "":
+                memorial.dates_are_approximate = True
+
+            memorial.memorial_meeting = get_memorial_meeting_or_none(memorial_data)
+
+            if not memorial_exists:
+                # Add memorial to memorials collection
+                try:
+                    memorial_index_page.add_child(instance=memorial)
+                except AttributeError:
+                    print("Could not add memorial as child of memorial index page")
+
+                memorial_index_page.save()
+            else:
+                memorial.save()

@@ -3,10 +3,10 @@
 
 import csv
 
-from tqdm import tqdm
-
+import pandas as pd
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from tqdm import tqdm
 
 from contact.models import (
     Meeting,
@@ -97,130 +97,127 @@ class Command(BaseCommand):
         parser.add_argument("--file", action="store", type=str)
 
     def handle(self, *args, **options):
-        with open(options["file"]) as import_file:
-            # Get index pages for use when saving entities
-            meeting_index_page = MeetingIndexPage.objects.get()
-            organization_index_page = OrganizationIndexPage.objects.get()
+        # Get index pages for use when saving entities
+        meeting_index_page = MeetingIndexPage.objects.get()
+        organization_index_page = OrganizationIndexPage.objects.get()
 
-            contacts = list(csv.DictReader(import_file))
+        contacts = pd.read_csv(options["file"]).to_dict("records")
 
-            for contact in tqdm(
-                contacts,
-                total=len(contacts),
-                desc="Contacts",
-                unit="row",
-            ):
-                # Check for entity type among:
-                # - Meeting
-                # - Organization
-                #
-                # Contact Subtypes include
-                # - Monthly_Meeting_Worship_Group
-                # - Quarterly_Regional_Meeting
-                # - Yearly_Meeting
-                # - Worship_Group
-                # - Quaker_Organization
-                # - NULL
+        for contact in tqdm(
+            contacts,
+            total=len(contacts),
+            desc="Contacts",
+            unit="row",
+        ):
+            # Check for entity type among:
+            # - Meeting
+            # - Organization
+            #
+            # Contact Subtypes include
+            # - Monthly_Meeting_Worship_Group
+            # - Quarterly_Regional_Meeting
+            # - Yearly_Meeting
+            # - Worship_Group
+            # - Quaker_Organization
+            # - NULL
 
-                contact_type = contact["Contact Subtype"].strip()
+            contact_type = contact["Contact Subtype"].strip()
 
-                # Most of the contacts are meetings.
-                # We will need nested logic to label the meeting based on type.
-                meeting_types = [
-                    "Yearly_Meeting",
-                    "Quarterly_Regional_Meeting",
-                    "Monthly_Meeting_Worship_Group",
-                    "Worship_Group",
-                ]
+            # Most of the contacts are meetings.
+            # We will need nested logic to label the meeting based on type.
+            meeting_types = [
+                "Yearly_Meeting",
+                "Quarterly_Regional_Meeting",
+                "Monthly_Meeting_Worship_Group",
+                "Worship_Group",
+            ]
 
-                # Organization types contains empty string
-                # because contacts without a value
-                # are organizations in the spreadsheet
-                # Make sure empty string catches the contacts without subtype.
-                organization_types = ["Quaker_Organization", ""]
+            # Organization types contains empty string
+            # because contacts without a value
+            # are organizations in the spreadsheet
+            # Make sure empty string catches the contacts without subtype.
+            organization_types = ["Quaker_Organization", ""]
 
-                contact_is_meeting = contact_type in meeting_types
-                contact_is_organization = contact_type in organization_types
-                organization_name = contact["Organization Name"]
-                contact_id = contact["Contact ID"]
+            contact_is_meeting = contact_type in meeting_types
+            contact_is_organization = contact_type in organization_types
+            organization_name = contact["Organization Name"]
+            contact_id = contact["Contact ID"]
 
-                print(organization_name, contact_id)
+            print(organization_name, contact_id)
 
-                if contact_is_meeting:
-                    # If meeting exists, update
-                    # else create new meeting
+            if contact_is_meeting:
+                # If meeting exists, update
+                # else create new meeting
 
-                    meeting_exists = Meeting.objects.filter(
-                        title=organization_name,
-                    ).exists()
+                meeting_exists = Meeting.objects.filter(
+                    title=organization_name,
+                ).exists()
 
-                    meeting_type = determine_meeting_type(contact_type)
+                meeting_type = determine_meeting_type(contact_type)
 
-                    if meeting_exists:
-                        try:
-                            meeting = Meeting.objects.get(
-                                title=organization_name,
-                            )
-                        except MultipleObjectsReturned:
-                            print("Duplicate meeting found for:", organization_name)
-
-                        meeting.meeting_type = meeting_type
-                        meeting.website = contact["Website"]
-                        meeting.phone = contact["Phone"]
-                        meeting.email = contact["Email"]
-                        meeting.civicrm_id = contact_id
-
-                        meeting.save()
-
-                        add_meeting_worship_times(meeting, contact)
-                    else:
-                        meeting = Meeting(
+                if meeting_exists:
+                    try:
+                        meeting = Meeting.objects.get(
                             title=organization_name,
-                            civicrm_id=contact_id,
-                            meeting_type=meeting_type,
-                            website=contact["Website"],
-                            phone=contact["Phone"],
-                            email=contact["Email"],
                         )
+                    except MultipleObjectsReturned:
+                        print("Duplicate meeting found for:", organization_name)
 
-                        meeting_index_page.add_child(instance=meeting)
+                    meeting.meeting_type = meeting_type
+                    meeting.website = contact["Website"]
+                    meeting.phone = contact["Phone"]
+                    meeting.email = contact["Email"]
+                    meeting.civicrm_id = contact_id
 
-                        meeting_index_page.save()
+                    meeting.save()
 
-                        add_meeting_worship_times(meeting, contact)
-                elif contact_is_organization:
-                    # If organization exists, update
-                    # else create new organization
-
-                    organization_exists = Organization.objects.filter(
-                        title=organization_name,
-                    ).exists()
-
-                    if organization_exists:
-                        print("organization exists")
-                        try:
-                            organization = Organization.objects.get(
-                                title=organization_name,
-                            )
-                        except MultipleObjectsReturned:
-                            print(
-                                "Duplicate organization found for:", organization_name
-                            )
-
-                        organization.civicrm_id = contact_id
-
-                        organization.save()
-                    else:
-                        print("new organization")
-                        organization = Organization(
-                            title=organization_name,
-                            civicrm_id=contact_id,
-                        )
-
-                        organization_index_page.add_child(instance=organization)
-
-                        organization_index_page.save()
+                    add_meeting_worship_times(meeting, contact)
                 else:
-                    print(f"Contact type: '{contact_type}'")
+                    meeting = Meeting(
+                        title=organization_name,
+                        civicrm_id=contact_id,
+                        meeting_type=meeting_type,
+                        website=contact["Website"],
+                        phone=contact["Phone"],
+                        email=contact["Email"],
+                    )
+
+                    meeting_index_page.add_child(instance=meeting)
+
+                    meeting_index_page.save()
+
+                    add_meeting_worship_times(meeting, contact)
+            elif contact_is_organization:
+                # If organization exists, update
+                # else create new organization
+
+                organization_exists = Organization.objects.filter(
+                    title=organization_name,
+                ).exists()
+
+                if organization_exists:
+                    print("organization exists")
+                    try:
+                        organization = Organization.objects.get(
+                            title=organization_name,
+                        )
+                    except MultipleObjectsReturned:
+                        print("Duplicate organization found for:", organization_name)
+
+                    organization.civicrm_id = contact_id
+
+                    organization.save()
+                else:
+                    print("new organization")
+                    organization = Organization(
+                        title=organization_name,
+                        civicrm_id=contact_id,
+                    )
+
+                    organization_index_page.add_child(instance=organization)
+
+                    organization_index_page.save()
+            else:
+                print(f"Contact type: '{contact_type}'")
 
         self.stdout.write("All done!")

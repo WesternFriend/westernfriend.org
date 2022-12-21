@@ -6,8 +6,8 @@
 import csv
 import re
 
-from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand, CommandError
 
 from contact.models import Meeting, MeetingPresidingClerk, Person, PersonIndexPage
 
@@ -63,68 +63,67 @@ class Command(BaseCommand):
         parser.add_argument("--file", action="store", type=str)
 
     def handle(self, *args, **options):
-        with open(options["file"]) as import_file:
-            relationships = csv.DictReader(import_file)
+        relationships = pd.read_csv(options["file"]).to_dict("records")
 
-            for relationship in relationships:
+        for relationship in relationships:
 
-                contact_ids = extract_contact_ids_from(relationship)
+            contact_ids = extract_contact_ids_from(relationship)
 
-                meeting_exists = Meeting.objects.filter(
-                    civicrm_id=contact_ids["meeting_id"],
-                ).exists()
+            meeting_exists = Meeting.objects.filter(
+                civicrm_id=contact_ids["meeting_id"],
+            ).exists()
 
-                try:
-                    meeting = Meeting.objects.get(civicrm_id=contact_ids["meeting_id"])
-                except ObjectDoesNotExist:
-                    print(
-                        f"Could not find meeting with CiviCRM ID { contact_ids['meeting_id'] }"
-                    )
-                    pass
-
-                # try:
-                #     clerk = Person.objects.get(civicrm_id=contact_ids["clerk_id"])
-                # except ObjectDoesNotExist:
-                #     print(
-                #         f"Could not find person with CiviCRM ID { contact_ids['clerk_id'] }"
-                #     )
-                #     pass
-
-                family_name, given_name = extract_given_and_family_name(
-                    relationship["Contact A"]
+            try:
+                meeting = Meeting.objects.get(civicrm_id=contact_ids["meeting_id"])
+            except ObjectDoesNotExist:
+                print(
+                    f"Could not find meeting with CiviCRM ID { contact_ids['meeting_id'] }"
                 )
+                pass
 
-                person_exists = Person.objects.filter(
+            # try:
+            #     clerk = Person.objects.get(civicrm_id=contact_ids["clerk_id"])
+            # except ObjectDoesNotExist:
+            #     print(
+            #         f"Could not find person with CiviCRM ID { contact_ids['clerk_id'] }"
+            #     )
+            #     pass
+
+            family_name, given_name = extract_given_and_family_name(
+                relationship["Contact A"]
+            )
+
+            person_exists = Person.objects.filter(
+                given_name=given_name,
+                family_name=family_name,
+            ).exists()
+
+            if person_exists:
+                person = Person.objects.get(
                     given_name=given_name,
                     family_name=family_name,
-                ).exists()
-
-                if person_exists:
-                    person = Person.objects.get(
-                        given_name=given_name,
-                        family_name=family_name,
-                    )
-                else:
-                    person = Person(
-                        given_name=given_name,
-                        family_name=family_name,
-                    )
-
-                    # Get the only instance of Person Index Page
-                    person_index_page = PersonIndexPage.objects.get()
-
-                    # Add person to site page hiererchy
-                    person_index_page.add_child(instance=person)
-                    person_index_page.save()
-
-                print(meeting)
-                print(person)
-
-                meeting_presiding_clerk = MeetingPresidingClerk(
-                    meeting=meeting,
-                    person=person,
+                )
+            else:
+                person = Person(
+                    given_name=given_name,
+                    family_name=family_name,
                 )
 
-                meeting_presiding_clerk.save()
+                # Get the only instance of Person Index Page
+                person_index_page = PersonIndexPage.objects.get()
+
+                # Add person to site page hiererchy
+                person_index_page.add_child(instance=person)
+                person_index_page.save()
+
+            print(meeting)
+            print(person)
+
+            meeting_presiding_clerk = MeetingPresidingClerk(
+                meeting=meeting,
+                person=person,
+            )
+
+            meeting_presiding_clerk.save()
 
         self.stdout.write("All done!")

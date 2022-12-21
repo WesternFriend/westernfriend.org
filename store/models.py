@@ -1,9 +1,8 @@
 from django.db import models
+from modelcluster.fields import ParentalKey
+from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, PageChooserPanel
 from wagtail.core.fields import RichTextField
 from wagtail.core.models import Orderable, Page
-from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, PageChooserPanel
-
-from modelcluster.fields import ParentalKey
 
 from cart.forms import CartAddProductForm
 

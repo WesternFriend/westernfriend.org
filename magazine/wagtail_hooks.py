@@ -1,15 +1,14 @@
 from django.urls import reverse
 from django.utils.html import format_html
-
 from wagtail.contrib.modeladmin.helpers import PageAdminURLHelper, PageButtonHelper
+from wagtail.contrib.modeladmin.mixins import ThumbnailMixin
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin,
     ModelAdminGroup,
     modeladmin_register,
 )
-from wagtail.contrib.modeladmin.mixins import ThumbnailMixin
 
-from .models import MagazineDepartment, MagazineIssue, ArchiveIssue
+from .models import ArchiveIssue, MagazineDepartment, MagazineIssue
 
 
 class MagazineIssueAdminURLHelper(PageAdminURLHelper):
