@@ -42,7 +42,21 @@ class LibraryItem(Page):
     body = StreamField(
         [
             ("heading", HeadingBlock()),
-            ("rich_text", wt_blocks.RichTextBlock()),
+            (
+                "rich_text",
+                wt_blocks.RichTextBlock(
+                    features=[
+                        "h2",
+                        "h3",
+                        "bold",
+                        "italic",
+                        "ol",
+                        "ul",
+                        "link",
+                        "hr",
+                    ],
+                ),
+            ),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("document", DocumentEmbedBlock()),
             ("media", MediaBlock(icon="media")),
