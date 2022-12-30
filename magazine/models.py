@@ -245,7 +245,6 @@ class MagazineArticle(Page):
                         "hr",
                         "link",
                         "document-link",
-                        "image",
                         "superscript",
                         "superscript",
                         "strikethrough",

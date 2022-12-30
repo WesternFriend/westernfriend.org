@@ -47,6 +47,16 @@ class FormattedImageChooserStructBlock(blocks.StructBlock):
         max_value=800,
         help_text="Enter the desired image width value in pixels up to 800 max.",
     )
+    align = blocks.ChoiceBlock(
+        help_test="Optionally align image left or right",
+        choices=(
+            ("left", "Left"),
+            ("right", "Right"),
+        ),
+        default=None,
+        required=False,
+        icon="file-richtext",
+    )
 
     class Meta:
         icon = "media"

@@ -10,7 +10,7 @@ from wagtail.admin.edit_handlers import (
     MultiFieldPanel,
     PageChooserPanel,
 )
-from wagtail.core import blocks
+from wagtail.core import blocks as wt_blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Orderable, Page
 from wagtail.embeds.blocks import EmbedBlock
@@ -42,13 +42,27 @@ class LibraryItem(Page):
     body = StreamField(
         [
             ("heading", HeadingBlock()),
-            ("rich_text", blocks.RichTextBlock()),
+            (
+                "rich_text",
+                wt_blocks.RichTextBlock(
+                    features=[
+                        "h2",
+                        "h3",
+                        "bold",
+                        "italic",
+                        "ol",
+                        "ul",
+                        "link",
+                        "hr",
+                    ],
+                ),
+            ),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("document", DocumentEmbedBlock()),
             ("media", MediaBlock(icon="media")),
             ("embed", EmbedBlock()),
             ("url", WfURLBlock()),
-            ("quote", blocks.BlockQuoteBlock()),
+            ("quote", wt_blocks.BlockQuoteBlock()),
             ("spacer", SpacerBlock()),
         ],
         null=True,
