@@ -5,7 +5,7 @@ from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.images.blocks import ImageChooserBlock
 
-from blocks.blocks import HeadingBlock, SpacerBlock
+from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
 from documents.blocks import DocumentEmbedBlock
 
 
@@ -50,7 +50,6 @@ class WfPage(Page):
                         "hr",
                         "link",
                         "document-link",
-                        "image",
                         "superscript",
                         "strikethrough",
                         "blockquote",
@@ -59,7 +58,7 @@ class WfPage(Page):
             ),
             ("quote", blocks.BlockQuoteBlock()),
             ("document", DocumentEmbedBlock()),
-            ("image", ImageChooserBlock()),
+            ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("spacer", SpacerBlock()),
         ],
         use_json_field=True,

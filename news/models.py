@@ -118,7 +118,6 @@ class NewsItem(Page):
                         "hr",
                         "link",
                         "document-link",
-                        "image",
                         "superscript",
                         "superscript",
                         "strikethrough",
