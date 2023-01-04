@@ -125,5 +125,3 @@ class Command(BaseCommand):
                     create_person(author)
                 else:
                     print("Unknown:", drupal_author_id)
-
-        self.stdout.write("All done!")

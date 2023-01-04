@@ -32,5 +32,3 @@ class Command(BaseCommand):
                 # Add department to site page hiererchy
                 magazine_department_index_page.add_child(instance=import_department)
                 magazine_department_index_page.save()
-
-        self.stdout.write("All done!")
