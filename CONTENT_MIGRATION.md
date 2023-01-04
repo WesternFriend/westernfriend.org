@@ -26,17 +26,18 @@ Note the order of the imports is crucial. Specifically, be sure to import Drupal
 
 The general import order should be:
 
-1. [Magazine content](#magazine)
+1. Scaffold initial content
+2. [Magazine content](#magazine)
    1. Departments
    2. Authors
    3. Issues
    4. Articles
-2. [CiviCRM contacts/relationships](#civicrm---contacts-relationships-and-clerks)
-3. [Media Library](#media-library)
+3. [CiviCRM contacts/relationships](#civicrm---contacts-relationships-and-clerks)
+4. [Media Library](#media-library)
    1. facets (there are multiple facets)
    2. Authors
    3. Items
-4. Memorials
+5. Memorials
 
 ## Pre-processing
 
@@ -52,7 +53,7 @@ We must pre-process the Magazine Authors as follows.
 2. manually review the authors to ensure the names were split correctly
 3. identify meetings and organizations by filling in a `meeting_name` and `organization_name` respectively in the final spreadsheet
 
-In order to preserve work, subsequent iterations should be processed as follows.
+To preserve work, subsequent iterations should be processed as follows.
 
 1. use a script to separate the author names into `given_name` and `family_name` fields
 2. use a script to merge only **new** authors into the existing spreadsheet by ignoring existing `drupal_author_id`s
@@ -61,7 +62,7 @@ In order to preserve work, subsequent iterations should be processed as follows.
 
 ### Library Item Authors -> Contacts
 
-Library Item authors have only a `drupal_full_name` field. They should be processed and merged in to the Contacts as follows.
+Library Item authors have only a `drupal_full_name` field. They should be processed and merged into the Contacts as follows.
 
 1. use a script to separate the author names into `given_name` and `family_name` fields
 2. use a script to merge only **new** authors into the existing spreadsheet by ignoring existing `drupal_author_id`s
@@ -137,17 +138,17 @@ The Magazine data can be exported from the following URLs.
 
 ### Clean
 
-The Magazine Authors data needs to be cleaned prior to import so
+The Magazine Authors' data needs to be cleaned prior to import so
 
 - author names can be separated correctly into given and family names
-  - automatic separation by `parse_magazine_authors.py` in `content_migration` app merged carefully into online spreadsheet to avoid loss of previous manual work
+  - automatic separation by `parse_magazine_authors.py` in `content_migration` app merged carefully into an online spreadsheet to avoid loss of previous manual work
   - manual review and cleaning by Mary via an online spreadsheet
 - organizations can be categorized
 - organizations with overlapping CiviCRM IDs can be identified
 
 ### Import
 
-The Magazine data needs to be imported in a specific order, so that relationships will work properly.
+The Magazine data needs to be imported in a specific order so that relationships will work properly.
 
 1. Authors and Departments
 2. Issues
