@@ -108,8 +108,8 @@ class Command(BaseCommand):
 
             drupal_author_id = author["drupal_author_id"]
 
-            author_is_meeting = author["meeting_name"] != ""
-            author_is_organization = author["organization_name"] != ""
+            author_is_meeting = author["meeting_name"] != None
+            author_is_organization = author["organization_name"] != None
             author_is_person = (
                 author_is_meeting is False and author_is_organization is False
             )
