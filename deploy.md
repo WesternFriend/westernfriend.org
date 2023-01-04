@@ -38,6 +38,7 @@ Environment variables are added through the DigitalOcean App Platform configurat
 - `DEBUG` - "True" or "False", should be "False" for production
 - `USE_SPACES` - "True" or "False", whether to use DO Spaces for static files. In this case, use "True".
 - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
+- `AWS_STORAGE_BUCKET_NAME` - the name of the DO Storage Bucket for static files
 
 ## Migrate, create a superuser, and collect static
 
