@@ -34,7 +34,15 @@ Access Control Max Age: 600
 
 ## Environment variables
 
-Environment variables are added through the DigitalOcean App Platform configuration for the specific app.
+Environment variables are added through the DigitalOcean App Platform configuration for the specific app. Make sure to define the following environment variables with corresponding values.
+
+- `DJANGO_CORS_ALLOWED_ORIGINS` - each origin should begin with a protocol, e.g., `https://`
+- `DJANGO_ALLOWED_HOSTS` - each allowed host needs only the domain (and subdomain if relevant), no protocol
+- `DJANGO_CSRF_TRUSTED_ORIGINS`- each origin should begin with a protocol, e.g., `https://`
+- `DJANGO_SECRET_KEY` - [random generated key](https://stackoverflow.com/a/67423892)
+- `DEBUG` - "True" or "False", should be "False" for production
+- `USE_SPACES` - "True" or "False", whether to use DO Spaces for static files. In this case, use "True".
+- `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
 
 ## Running migrate and collectstatic
 
