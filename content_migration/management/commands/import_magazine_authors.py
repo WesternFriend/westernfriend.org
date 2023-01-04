@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
@@ -94,7 +95,9 @@ class Command(BaseCommand):
         parser.add_argument("--file", action="store", type=str)
 
     def handle(self, *args, **options):
-        authors_list = pd.read_csv(options["file"]).to_dict("records")
+        authors_list = (
+            pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
+        )
 
         for author in tqdm(authors_list, desc="Authors", unit="row"):
             # Check for entity type among:
@@ -105,13 +108,13 @@ class Command(BaseCommand):
 
             drupal_author_id = author["drupal_author_id"]
 
-            author_is_meeting = author["meeting_name"] != ""
-            author_is_organization = author["organization_name"] != ""
+            author_is_meeting = author["meeting_name"] != None
+            author_is_organization = author["organization_name"] != None
             author_is_person = (
                 author_is_meeting is False and author_is_organization is False
             )
 
-            author_is_duplicate = author["duplicate of ID"] != ""
+            author_is_duplicate = author["duplicate of ID"] != None
 
             if author_is_duplicate:
                 # don't create duplicate authors
@@ -125,5 +128,3 @@ class Command(BaseCommand):
                     create_person(author)
                 else:
                     print("Unknown:", drupal_author_id)
-
-        self.stdout.write("All done!")

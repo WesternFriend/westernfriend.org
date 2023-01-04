@@ -63,5 +63,3 @@ class Command(BaseCommand):
                 # Add issue to site page hiererchy
                 magazine_index_page.add_child(instance=import_issue)
                 magazine_index_page.save()
-
-        self.stdout.write("All done!")
