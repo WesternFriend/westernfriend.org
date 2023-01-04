@@ -16,6 +16,21 @@ We are using DigitalOcean App Platform to auto-deploy and manage the site.
 1. run migrations
 2. create a superuser
 
+### Static files
+
+We need a space to store static files. For that, we will use DO Spaces.
+
+1. create a Spaces Bucket
+2. edit the CORS settings with the following values (substituting actual values where needed)
+
+```yaml
+Origin: https://domain-name.com
+Allowed Methods: GET
+Allowed Headers:
+- Access-Control-Allow-Origin
+- Referer
+Access Control Max Age: 600
+```
 
 ### Data prep
 
