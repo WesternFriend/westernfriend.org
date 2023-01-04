@@ -1,20 +1,15 @@
 # Deployment
 
-This work-in-progress document outlines steps necessary to deploy the site.
+This work-in-progress document outlines the steps necessary to deploy the site.
 
 ## DigitalOcean App Platform
 
-We are using DigitalOcean App Platform to auto-deploy and manage the site.
+We are using the DigitalOcean App Platform to auto-deploy and manage the site.
 
 1. create a new DigitalOcean App, such as "westernfriend-website"
 2. make sure to add a database along with the app during the creation process or after
 3. configure the deployment to be triggered when changes are merged to the `main` branch of this repo
 4. configure a domain (or subdomain) to point to the deployed app
-
-### After the initial deployment
-
-1. run migrations
-2. create a superuser
 
 ### Static files
 
@@ -44,17 +39,18 @@ Environment variables are added through the DigitalOcean App Platform configurat
 - `USE_SPACES` - "True" or "False", whether to use DO Spaces for static files. In this case, use "True".
 - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
 
-## Running migrate and collectstatic
+## Migrate, create a superuser, and collect static
 
-The app can be configured with custom run command such as the following.
-
-```sh
-python manage.py migrate && python manage.py collectstatic --no-input
-```
+1. run migrations
+    - `python manage.py migrate` 
+2. create a superuser
+   - `python manage.py createsuperuser`
+3. collect static files
+   - `python manage.py collectstatic --no-input`
 
 ### Scaffold initial content
 
-We have a pre-defined content tree for the primary website structure. In order to save some time, run the following command in the DO App console to scaffold the initial content tree.
+We have a pre-defined content tree for the primary website structure. To save some time, run the following command in the DO App console to scaffold the initial content tree.
 
 ```py
 python manage.py scaffold_initial_content
@@ -66,5 +62,3 @@ Refer to the [content migration](CONTENT_MIGRATION.md) guide for further details
 
 1. copy all import files (CSV format) to the DO Spaces bucket for import data
 2. run the import commands via the DO App console, using the bucket location (HTTPS) as a target
-
-
