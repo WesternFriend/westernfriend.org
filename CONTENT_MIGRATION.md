@@ -5,9 +5,9 @@ This document describes how to migrate existing content from Drupal to Wagtail.
 - [Content migration](#content-migration)
   - [Order matters](#order-matters)
   - [Pre-processing](#pre-processing)
-    - [Magazine Authors -> Contacts](#magazine-authors---contacts)
-    - [Library Item Authors -> Contacts](#library-item-authors---contacts)
-  - [CiviCRM -> Contacts, relationships, and clerks](#civicrm---contacts-relationships-and-clerks)
+    - [Magazine Authors -\> Contacts](#magazine-authors---contacts)
+    - [Library Item Authors -\> Contacts](#library-item-authors---contacts)
+  - [CiviCRM -\> Contacts, relationships, and clerks](#civicrm---contacts-relationships-and-clerks)
     - [Organizations (incl. meetings and worship groups)](#organizations-incl-meetings-and-worship-groups)
     - [Addresses](#addresses)
     - [Relationships](#relationships)
@@ -20,14 +20,21 @@ This document describes how to migrate existing content from Drupal to Wagtail.
 
 ## Order matters
 
-Note the order of imports matter. Specifically, be sure to import Drupal authors before CiviCRM contacts, since the CiviCRM contacts will cross-reference against Drupal authors.
+Note the order of the imports is crucial. Specifically, be sure to import Drupal authors before CiviCRM contacts, since the CiviCRM contacts will cross-reference against Drupal authors.
 
-The general order should be:
+The general import order should be:
 
-1. import Magazine content
-2. import CiviCRM contacts/relationships
-3. import Media Library
-4. ...
+1. Magazine content
+   1. Departments
+   2. Authors
+   3. Issues
+   4. Articles
+2. CiviCRM contacts/relationships
+3. Media Library
+   1. facets (there are multiple facets)
+   2. Authors
+   3. Items
+4. Memorials
 
 ## Pre-processing
 
@@ -74,7 +81,7 @@ CiviCRM stores contacts that are used in our Community Directory.
 6. Choose "Organization export (mailing and worship)"
 7. Click "Continue"
 8. Click "Download File"
-9. Open the CSV in LibreOffice and save it to fix the unicode issues with column names
+9. Open the CSV in LibreOffice and save it to fix the Unicode issues with column names
 
 Import the contacts with the following command.
 
@@ -121,10 +128,10 @@ The magazine is one of the most complicated features of this project. As such, i
 
 The Magazine data can be exported from the following URLs.
 
-- [Authors](https://westernfriend.org/export/magazine_authors_uncleaned.csv)
-- [Departments](https://westernfriend.org/export/magazine_departments.csv)
-- [Issues](https://westernfriend.org/export/magazine_issues.csv)
-- [Articles](https://westernfriend.org/export/magazine_articles.csv)
+- Authors: `/export/magazine_authors_uncleaned.csv`
+- Departments: `/export/magazine_departments.csv`
+- Issues: `/export/magazine_issues.csv`
+- Articles: `/export/magazine_articles.csv`
 
 ### Clean
 
