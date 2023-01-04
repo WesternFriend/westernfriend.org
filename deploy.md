@@ -52,6 +52,14 @@ The app can be configured with custom run command such as the following.
 python manage.py migrate && python manage.py collectstatic --no-input
 ```
 
+### Scaffold initial content
+
+We have a pre-defined content tree for the primary website structure. In order to save some time, run the following command in the DO App console to scaffold the initial content tree.
+
+```py
+python manage.py scaffold_initial_content
+```
+
 ### Data prep/import
 
 Refer to the [content migration](CONTENT_MIGRATION.md) guide for further details about preparing data for import. Once the data have been prepared, use the following steps to import them to the online website.
