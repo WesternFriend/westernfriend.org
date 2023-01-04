@@ -32,8 +32,6 @@ Allowed Headers:
 Access Control Max Age: 600
 ```
 
-### Data prep
-
 ## Environment variables
 
 Environment variables are added through the DigitalOcean App Platform configuration for the specific app.
@@ -45,3 +43,12 @@ The app can be configured with custom run command such as the following.
 ```sh
 python manage.py migrate && python manage.py collectstatic --no-input
 ```
+
+### Data prep/import
+
+Refer to the [content migration](CONTENT_MIGRATION.md) guide for further details about preparing data for import. Once the data have been prepared, use the following steps to import them to the online website.
+
+1. copy all import files (CSV format) to the DO Spaces bucket for import data
+2. run the import commands via the DO App console, using the bucket location (HTTPS) as a target
+
+
