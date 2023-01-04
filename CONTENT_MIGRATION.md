@@ -16,6 +16,8 @@ This document describes how to migrate existing content from Drupal to Wagtail.
     - [Export](#export)
     - [Clean](#clean)
     - [Import](#import)
+      - [Single command](#single-command)
+      - [Individual commands](#individual-commands)
   - [Media Library](#media-library)
 
 ## Order matters
@@ -24,13 +26,13 @@ Note the order of the imports is crucial. Specifically, be sure to import Drupal
 
 The general import order should be:
 
-1. Magazine content
+1. [Magazine content](#magazine)
    1. Departments
    2. Authors
    3. Issues
    4. Articles
-2. CiviCRM contacts/relationships
-3. Media Library
+2. [CiviCRM contacts/relationships](#civicrm---contacts-relationships-and-clerks)
+3. [Media Library](#media-library)
    1. facets (there are multiple facets)
    2. Authors
    3. Items
@@ -151,7 +153,17 @@ The Magazine data needs to be imported in a specific order, so that relationship
 2. Issues
 3. Articles
 
-The commands are as follows.Note: at some point, we may reduce this to a single command.
+#### Single command
+
+Run this single command to import all magazine content in the correct order. Make sure all CSV files are in the same directory.
+
+```sh
+python manage.py import_magazine --file /path/to/data/directory/
+```
+
+#### Individual commands
+
+Below are the individual commands to import magazine content.
 
 ```sh
 python manage.py import_magazine_authors --file /path/to/file
