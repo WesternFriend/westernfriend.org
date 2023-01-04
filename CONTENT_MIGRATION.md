@@ -159,7 +159,7 @@ The Magazine data needs to be imported in a specific order so that relationships
 Run this single command to import all magazine content in the correct order. Make sure all CSV files are in the same directory.
 
 ```sh
-python manage.py import_magazine --file /path/to/data/directory/
+python manage.py import_magazine --data-directory /path/to/data/directory/
 ```
 
 #### Individual commands
