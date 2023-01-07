@@ -27,7 +27,7 @@ Allowed Headers:
 Access Control Max Age: 600
 ```
 
-## Environment variables
+### Environment variables
 
 Environment variables are added through the DigitalOcean App Platform configuration for the specific app. Make sure to define the following environment variables with corresponding values.
 
@@ -42,6 +42,8 @@ Environment variables are added through the DigitalOcean App Platform configurat
 
 ## Migrate, create a superuser, and collect static
 
+Access the app console via DigitalOcean admin UI, and run the following commands.
+
 1. run migrations
     - `python manage.py migrate` 
 2. create a superuser
@@ -49,7 +51,9 @@ Environment variables are added through the DigitalOcean App Platform configurat
 3. collect static files
    - `python manage.py collectstatic --no-input`
 
-### Scaffold initial content
+At this point, make sure to check the DigitalOcean Space were static files should be stored, to ensure the app has access to the storage space.
+
+## Scaffold initial content
 
 We have a pre-defined content tree for the primary website structure. To save some time, run the following command in the DO App console to scaffold the initial content tree.
 
@@ -57,7 +61,7 @@ We have a pre-defined content tree for the primary website structure. To save so
 python manage.py scaffold_initial_content
 ```
 
-### Data prep/import
+## Data prep/import
 
 Refer to the [content migration](CONTENT_MIGRATION.md) guide for further details about preparing data for import. Once the data have been prepared, use the following steps to import them to the online website.
 
