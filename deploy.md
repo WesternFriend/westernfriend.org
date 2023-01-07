@@ -7,6 +7,7 @@ This work-in-progress document outlines the steps necessary to deploy the site.
   - [App](#app)
     - [Example Configuration](#example-configuration)
     - [Environment Variables](#environment-variables)
+  - [Domain](#domain)
   - [Initialize the App](#initialize-the-app)
   - [Scaffold Initial Content](#scaffold-initial-content)
   - [Data prep/import](#data-prepimport)
@@ -76,6 +77,10 @@ Environment variables are added through the DigitalOcean App Platform configurat
 - `USE_SPACES` - "True" or "False", whether to use DO Spaces for static files. In this case, use "True".
 - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
 - `AWS_STORAGE_BUCKET_NAME` - the name of the DO Storage Bucket for static files
+
+## Domain
+
+Add a domain name [under the app settings](https://docs.digitalocean.com/products/app-platform/how-to/manage-domains). Be sure to add a corresponding CNAME record to the domain DNS configuration. DNS settings are managed wherever the domain is registered.
 
 ## Initialize the App
 
