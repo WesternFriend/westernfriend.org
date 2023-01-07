@@ -4,12 +4,16 @@ This work-in-progress document outlines the steps necessary to deploy the site.
 
 ## DigitalOcean App Platform
 
-We are using the DigitalOcean App Platform to auto-deploy and manage the site.
+We are using the DigitalOcean App Platform to auto-deploy and manage the site. 
 
-1. create a new DigitalOcean App, such as "westernfriend-website"
-2. make sure to add a database along with the app during the creation process or after
-3. configure the deployment to be triggered when changes are merged to the `main` branch of this repo
-4. configure a domain (or subdomain) to point to the deployed app
+Set up the site by following the steps below. The order of steps matters. So, be careful about jumping ahead before completing any given step.
+
+1. Create a Storage Bucket for site static media and file uploads
+2. Create a new App, such as "westernfriend-website"
+   1. Make sure to add a database along with the app during the creation process
+   2. configure the deployment to be triggered when changes are merged to the `main` branch of this repo
+   3. Configure all necessary environment variables while creating the App
+3. configure a domain (or subdomain) to point to the deployed app
 
 ### Static files
 
@@ -29,16 +33,17 @@ Access Control Max Age: 600
 
 ### Environment variables
 
-Environment variables are added through the DigitalOcean App Platform configuration for the specific app. Make sure to define the following environment variables with corresponding values.
+Environment variables are added through the DigitalOcean App Platform configuration for the specific app. Make sure to define the following environment variables with corresponding values. Also, make sure to quote all of the environment variable values, to avoid potential pitfalls or unexpected behavior.
 
-- `DJANGO_CORS_ALLOWED_ORIGINS` - each origin should begin with a protocol, e.g., `https://`
+- `DJANGO_CORS_ALLOWED_ORIGINS` - each origin should begin with a protocol, e.g., `"https://..."`
 - `DJANGO_ALLOWED_HOSTS` - each allowed host needs only the domain (and subdomain if relevant), no protocol
-- `DJANGO_CSRF_TRUSTED_ORIGINS`- each origin should begin with a protocol, e.g., `https://`
+- `DJANGO_CSRF_TRUSTED_ORIGINS`- each origin should begin with a protocol, e.g., `"https://..."`
 - `DJANGO_SECRET_KEY` - [random generated key](https://stackoverflow.com/a/67423892)
 - `DEBUG` - "True" or "False", should be "False" for production
 - `USE_SPACES` - "True" or "False", whether to use DO Spaces for static files. In this case, use "True".
 - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
 - `AWS_STORAGE_BUCKET_NAME` - the name of the DO Storage Bucket for static files
+
 
 ## Migrate, create a superuser, and collect static
 
