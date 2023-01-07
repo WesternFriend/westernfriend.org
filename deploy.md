@@ -2,6 +2,16 @@
 
 This work-in-progress document outlines the steps necessary to deploy the site.
 
+- [Deployment](#deployment)
+  - [DigitalOcean App Platform](#digitalocean-app-platform)
+    - [Example configuration](#example-configuration)
+    - [Static files](#static-files)
+    - [Environment variables](#environment-variables)
+  - [Migrate, create a superuser, and collect static](#migrate-create-a-superuser-and-collect-static)
+  - [Scaffold initial content](#scaffold-initial-content)
+  - [Data prep/import](#data-prepimport)
+
+
 ## DigitalOcean App Platform
 
 We are using the DigitalOcean App Platform to auto-deploy and manage the site. 
@@ -9,21 +19,45 @@ We are using the DigitalOcean App Platform to auto-deploy and manage the site.
 Set up the site by following the steps below. The order of steps matters. So, be careful about jumping ahead before completing any given step.
 
 1. Create a Storage Bucket for site static media and file uploads
-2. Create a new App, such as "westernfriend-website"
-   1. Make sure to add a database along with the app during the creation process
-   2. configure the deployment to be triggered when changes are merged to the `main` branch of this repo
-   3. Configure all necessary environment variables while creating the App
+2. Create a new App with the following considerations during the creation process
+   1. Make sure to add a database
+   2. Deployment is triggered when changes are merged to the `main` branch
+   3. Configure all necessary [environment variables](#environment-variables) while creating the App
+   4. Edit the App Info with the following settings
+      1. Give the app a meaningful name
+      2. Set the Region to San Francisco, so it is closer to most WesternFriend community
 3. configure a domain (or subdomain) to point to the deployed app
+
+### Example configuration
+
+Below is an example configuration for our staging setup.
+
+```yaml
+App
+- wf-website-staging
+   - wf-website: Web Service / Dockerfile
+   - db: Dev Database
+
+Environment Variables
+- Global: 0 environment variables
+   - wf-website: 9 environment variables
+
+Info
+   - Name: wf-website-staging
+   - Region: San Francisco
+
+Project: Western Friend
+```
 
 ### Static files
 
 We need a space to store static files. For that, we will use DO Spaces.
 
-1. create a Spaces Bucket
-2. edit the CORS settings with the following values (substituting actual values where needed)
+1. Create a Spaces Bucket
+2. Edit the CORS settings with the following values
 
 ```yaml
-Origin: https://domain-name.com
+Origin: https://<domain.TLD>
 Allowed Methods: GET
 Allowed Headers:
 - Access-Control-Allow-Origin
@@ -50,13 +84,13 @@ Environment variables are added through the DigitalOcean App Platform configurat
 Access the app console via DigitalOcean admin UI, and run the following commands.
 
 1. run migrations
-    - `python manage.py migrate` 
+    - `python manage.py migrate`
 2. create a superuser
    - `python manage.py createsuperuser`
 3. collect static files
    - `python manage.py collectstatic --no-input`
 
-At this point, make sure to check the DigitalOcean Space were static files should be stored, to ensure the app has access to the storage space.
+At this point, make sure to check the DigitalOcean Space where static files should be stored, to ensure the app has access to the storage space.
 
 ## Scaffold initial content
 
