@@ -39,11 +39,11 @@ SECURE_REFERRER_POLICY = "strict-origin"
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
 # Settings related to DigitalOcean Spaces
 # Note: for now, we are using the AWS naming-convention from Boto3
-USE_SPACES = os.getenv("USE_SPACES", "False") == "True"
+USE_SPACES = os.getenv("DJANGO_USE_SPACES", "False") == "True"
 AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "sfo3")
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
