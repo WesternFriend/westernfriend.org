@@ -18,6 +18,7 @@ Before creating the app, we need a space to store static files. For that, we wil
 
 1. Create a [Spaces Object Storage Bucket](https://cloud.digitalocean.com/spaces)
 2. Edit the [Spaces CORS settings](https://docs.digitalocean.com/products/spaces/how-to/configure-cors/) with the following values
+3. [Create an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key) - save these values as they are used later
 
 ```yaml
 Origin: https://<domain.TLD>
@@ -30,7 +31,7 @@ Access Control Max Age: 600
 
 ## App
 
-We are using the DigitalOcean App Platform to auto-deploy and manage the site. 
+We are using the DigitalOcean App Platform to auto-deploy and manage the site.
 
 Set up the site by following the steps below. The order of steps matters. So, be careful about jumping ahead before completing any given step.
 
@@ -38,7 +39,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
 2. Create a new App with the following considerations during the creation process
    1. Make sure to add a database
    2. Deployment is triggered when changes are merged to the `main` branch
-   3. Configure all necessary [environment variables](#environment-variables) while creating the App
+   3. Configure all necessary [environment variables](#environment-variables) at the component level (`wf-website`), not the app, which combines the `wf-website` and `db` components
    4. Edit the App Info with the following settings
       1. Give the app a meaningful name
       2. Set the Region to San Francisco, so it is closer to most WesternFriend community
@@ -67,14 +68,16 @@ Project: Western Friend
 
 ### Environment Variables
 
-Environment variables are added through the DigitalOcean App Platform configuration for the specific app. Make sure to define the following environment variables with corresponding values. Also, make sure to quote all of the environment variable values, to avoid potential pitfalls or unexpected behavior.
+Environment variables are added through the DigitalOcean App Platform configuration for the specific app. Make sure to define the following environment variables with corresponding values.
 
-- `DJANGO_CORS_ALLOWED_ORIGINS` - each origin should begin with a protocol, e.g., `"https://..."`
+- `DJANGO_CORS_ALLOWED_ORIGINS` - each origin should begin with a protocol, e.g., `https://...`
 - `DJANGO_ALLOWED_HOSTS` - each allowed host needs only the domain (and subdomain if relevant), no protocol
-- `DJANGO_CSRF_TRUSTED_ORIGINS`- each origin should begin with a protocol, e.g., `"https://..."`
+- `DJANGO_CSRF_TRUSTED_ORIGINS`- each origin should begin with a protocol, e.g., `https://...`
 - `DJANGO_SECRET_KEY` - [random generated key](https://stackoverflow.com/a/67423892)
 - `DEBUG` - "True" or "False", should be "False" for production
 - `USE_SPACES` - "True" or "False", whether to use DO Spaces for static files. In this case, use "True".
+- `AWS_ACCESS_KEY_ID` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key)
+- `AWS_SECRET_ACCESS_KEY` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key)
 - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
 - `AWS_STORAGE_BUCKET_NAME` - the name of the DO Storage Bucket for static files
 
