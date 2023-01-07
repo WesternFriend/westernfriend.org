@@ -3,16 +3,31 @@
 This work-in-progress document outlines the steps necessary to deploy the site.
 
 - [Deployment](#deployment)
-  - [DigitalOcean App Platform](#digitalocean-app-platform)
-    - [Example configuration](#example-configuration)
-    - [Static files](#static-files)
-    - [Environment variables](#environment-variables)
-  - [Migrate, create a superuser, and collect static](#migrate-create-a-superuser-and-collect-static)
-  - [Scaffold initial content](#scaffold-initial-content)
+  - [Static Files](#static-files)
+  - [App](#app)
+    - [Example Configuration](#example-configuration)
+    - [Environment Variables](#environment-variables)
+  - [Initialize the App](#initialize-the-app)
+  - [Scaffold Initial Content](#scaffold-initial-content)
   - [Data prep/import](#data-prepimport)
 
+## Static Files
 
-## DigitalOcean App Platform
+Before creating the app, we need a space to store static files. For that, we will use DO Spaces.
+
+1. Create a [Spaces Object Storage Bucket](https://cloud.digitalocean.com/spaces)
+2. Edit the [Spaces CORS settings](https://docs.digitalocean.com/products/spaces/how-to/configure-cors/) with the following values
+
+```yaml
+Origin: https://<domain.TLD>
+Allowed Methods: GET
+Allowed Headers:
+- Access-Control-Allow-Origin
+- Referer
+Access Control Max Age: 600
+```
+
+## App
 
 We are using the DigitalOcean App Platform to auto-deploy and manage the site. 
 
@@ -28,7 +43,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
       2. Set the Region to San Francisco, so it is closer to most WesternFriend community
 3. configure a domain (or subdomain) to point to the deployed app
 
-### Example configuration
+### Example Configuration
 
 Below is an example configuration for our staging setup.
 
@@ -49,23 +64,7 @@ Info
 Project: Western Friend
 ```
 
-### Static files
-
-We need a space to store static files. For that, we will use DO Spaces.
-
-1. Create a Spaces Bucket
-2. Edit the CORS settings with the following values
-
-```yaml
-Origin: https://<domain.TLD>
-Allowed Methods: GET
-Allowed Headers:
-- Access-Control-Allow-Origin
-- Referer
-Access Control Max Age: 600
-```
-
-### Environment variables
+### Environment Variables
 
 Environment variables are added through the DigitalOcean App Platform configuration for the specific app. Make sure to define the following environment variables with corresponding values. Also, make sure to quote all of the environment variable values, to avoid potential pitfalls or unexpected behavior.
 
@@ -78,21 +77,20 @@ Environment variables are added through the DigitalOcean App Platform configurat
 - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
 - `AWS_STORAGE_BUCKET_NAME` - the name of the DO Storage Bucket for static files
 
+## Initialize the App
 
-## Migrate, create a superuser, and collect static
+Access the app console via DigitalOcean admin UI, and run the following commands to initialize the app.
 
-Access the app console via DigitalOcean admin UI, and run the following commands.
-
-1. run migrations
+1. Run migrations
     - `python manage.py migrate`
-2. create a superuser
+2. Create a superuser
    - `python manage.py createsuperuser`
-3. collect static files
+3. Collect static files
    - `python manage.py collectstatic --no-input`
 
 At this point, make sure to check the DigitalOcean Space where static files should be stored, to ensure the app has access to the storage space.
 
-## Scaffold initial content
+## Scaffold Initial Content
 
 We have a pre-defined content tree for the primary website structure. To save some time, run the following command in the DO App console to scaffold the initial content tree.
 
