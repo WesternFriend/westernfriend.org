@@ -2,6 +2,12 @@
 
 This document describes how to migrate existing content from Drupal to Wagtail.
 
+Note: if the import process fails for any reason, run the following commands
+
+- `python manage.py reset_db` to completely reset the database
+- `python manage.py migrate` to re-run migrations
+- `python manage.py scaffold_initial_content` to prepare the initial content tree for data import
+
 - [Content migration](#content-migration)
   - [Order matters](#order-matters)
   - [Pre-processing](#pre-processing)
