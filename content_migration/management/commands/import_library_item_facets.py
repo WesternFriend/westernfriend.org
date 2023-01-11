@@ -61,9 +61,14 @@ class Command(BaseCommand):
             facet_items = pd.read_csv(file_path).to_dict("records")
 
             for facet_item in facet_items:
-                facet_instance = facet["facet_class"](
-                    title=facet_item["drupal_full_name"]
-                )
+                if (
+                    not facet["facet_class"]
+                    .objects.filter(title=facet_item["drupal_full_name"])
+                    .exists()
+                ):
+                    facet_instance = facet["facet_class"](
+                        title=facet_item["drupal_full_name"]
+                    )
 
-                facet_index_page.add_child(instance=facet_instance)
-                facet_index_page.save()
+                    facet_index_page.add_child(instance=facet_instance)
+                    facet_index_page.save()
