@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
+    "django_extensions",
     "crispy_forms",
     "flatpickr",
     "storages",
