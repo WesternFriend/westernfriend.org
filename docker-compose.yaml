@@ -23,7 +23,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
-      PGADMIN_PORT: ${PGADMIN_PORT:-5050}
+      PGADMIN_LISTEN_PORT: ${PGADMIN_PORT:-5050}
     volumes:
       - pgadmin:/var/lib/pgadmin
 
