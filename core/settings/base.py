@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
+    "django_extensions",
     "crispy_forms",
     "flatpickr",
     "storages",
@@ -180,11 +181,16 @@ NOT_COLLECTING_STATICFILES = len(sys.argv) > 0 and sys.argv[1] != "collectstatic
 if DATABASE_URL:
     DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
 else:
+    # Default to using local development environment
     if NOT_COLLECTING_STATICFILES:
         DATABASES = {
             "default": {
-                "ENGINE": "django.db.backends.sqlite3",
-                "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": "wf_website",
+                "USER": "postgres",
+                "PASSWORD": "postgres",
+                "HOST": "localhost",
+                "PORT": "5432",
             }
         }
 

@@ -22,7 +22,13 @@ This project is built with [Python](https://www.python.org/), [Django](https://w
    - `poetry install`
 4. activate `autohooks` for automatic code maintenance
    - `poetry run autohooks activate --mode poetry`
-5. run the local server
+5. start the development database
+   - `docker compose up`
+6. run database migrations
+   - `python manage.py migrate`
+7. create a superuser
+   - `python manage.py createsuperuser`  
+9. run the local server
    - `python manage.py runserver`
 
 Once the server is running, you can access it from http://localhost:8000
@@ -39,3 +45,7 @@ From there, you can begin adding the basic content, such as:
 - etc.
 
 If you have any difficulty or questions, please [open a support ticket](https://github.com/WesternFriend/WF-website/issues).
+
+## pgAdmin database access
+
+We include pgAdmin in our Docker compose setup, which can be useful for exploring the database. the pgAdmin service should be running on localhost:5050 with the username and password being defined in the `docker-compose.yaml` file.

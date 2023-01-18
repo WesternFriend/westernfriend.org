@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
@@ -37,7 +38,7 @@ def add_library_item_authors(
         author = None
 
         author_data = get_existing_magazine_author_by_id(
-            int(drupal_author_id),
+            drupal_author_id,
             magazine_authors_data,
         )
 
@@ -86,7 +87,14 @@ class Command(BaseCommand):
         # Get the only instance of Magazine Department Index Page
         library_item_index_page = LibraryIndexPage.objects.get()
 
-        library_items = pd.read_csv(options["file"]).to_dict("records")
+        library_items = (
+            pd.read_csv(options["library_items_file"])
+            .replace({np.nan: None})
+            .to_dict("records")
+        )
+
+        with open(options["magazine_authors_file"]) as magazine_authors_file:
+            magazine_authors_data = pd.read_csv(magazine_authors_file)
 
         for import_library_item in tqdm(
             library_items,
@@ -115,50 +123,50 @@ class Command(BaseCommand):
             library_item.title = import_library_item["title"]
             library_item.description = import_library_item["Description"]
 
-            # TODO: Remember to uncomment this line when done developing the remaining import script
-            library_item.body = parse_media_blocks(import_library_item["Media"])
+            # # TODO: Remember to uncomment this line when done developing the remaining import script
+            # # library_item.body = parse_media_blocks(import_library_item["Media"])
+            library_item.body = None
 
-            if import_library_item["Audience"] != "":
+            if import_library_item["Audience"] != None:
                 library_item.item_audience = Audience.objects.get(
                     title=import_library_item["Audience"]
                 )
 
-            if import_library_item["Genre"] != "":
+            if import_library_item["Genre"] != None:
                 library_item.item_genre = Genre.objects.get(
                     title=import_library_item["Genre"]
                 )
 
-            if import_library_item["Medium"] != "":
+            if import_library_item["Medium"] != None:
                 library_item.item_medium = Medium.objects.get(
                     title=import_library_item["Medium"]
                 )
 
-            if import_library_item["Time Period"] != "":
+            if import_library_item["Time Period"] != None:
                 library_item.item_time_period = TimePeriod.objects.get(
                     title=import_library_item["Time Period"]
                 )
 
-            # Authors
-            with open(options["magazine_authors_file"]) as magazine_authors_file:
-                magazine_authors_data = pd.read_csv(magazine_authors_file)
-                # magazine_authors = list(magazine_authors_data)
-
-                if import_library_item["drupal_magazine_author_ids"] != "":
-                    add_library_item_authors(
-                        library_item,
-                        import_library_item["drupal_magazine_author_ids"],
-                        magazine_authors_data,
-                    )
+            # # Authors
+            # TODO: determine why this fails with existing authors
+            # this will be replaced by a database query
+            # https://github.com/WesternFriend/WF-website/issues/503
+            if import_library_item["drupal_magazine_author_ids"] != None:
+                add_library_item_authors(
+                    library_item,
+                    import_library_item["drupal_magazine_author_ids"],
+                    magazine_authors_data,
+                )
 
             # - Keywords
-            if import_library_item["Keywords"] != "":
+            if import_library_item["Keywords"] != None:
                 add_library_item_keywords(
                     library_item,
                     import_library_item["Keywords"],
                 )
 
             # Website
-            if import_library_item["Website"] != "":
+            if import_library_item["Website"] != None:
                 url_stream_block = (
                     "url",
                     import_library_item["Website"],
