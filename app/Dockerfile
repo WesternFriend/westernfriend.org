@@ -8,7 +8,7 @@ ENV POETRY_HOME=/opt/poetry
 # Poetry is used to manage dependencies
 RUN pip install poetry
 RUN python3 -m venv $POETRY_HOME
-RUN $POETRY_HOME/bin/pip install poetry==1.2.0
+RUN $POETRY_HOME/bin/pip install poetry==1.3.1
 
 # We use gunicorn to serve the project
 RUN pip install gunicorn
