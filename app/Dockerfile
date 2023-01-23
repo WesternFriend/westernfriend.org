@@ -21,6 +21,9 @@ COPY poetry.lock pyproject.toml /app/
 # since it has led to broken builds
 RUN $POETRY_HOME/bin/poetry config virtualenvs.create false
 
+# Verify Poetry version
+RUN $POETRY_HOME/bin/poetry --version
+
 # Install Poetry dependencies
 RUN $POETRY_HOME/bin/poetry install --only main --no-ansi
 
