@@ -10,6 +10,15 @@
     {{ page.intro|richtext }}
 
     <div class="row mt-2">
+        <div class="col">
+            {% if current_issue.featured_articles.count %}
+                <h2>Featured articles</h2>
+                {% for article in current_issue.featured_articles.all %}
+                    {% include "home/home_magazine_article_summary.html" with article=article %}
+                {% endfor %}
+            {% endif %}
+        </div>
+
         <div class="col-sm-4 col-lg-4 col-xl-4 mt-2">
             {% if current_issue %}
                 <a href="{% pageurl current_issue %}" class="home-page-featured-issue">
@@ -22,15 +31,6 @@
                         ({{ current_issue.publication_date | date:"M" }}/{{ current_issue.publication_end_date | date:"M Y" }})
                     {% endif %}
                 </a>
-            {% endif %}
-        </div>
-
-        <div class="col">
-            {% if current_issue.featured_articles.count %}
-                <h2>Featured articles</h2>
-                {% for article in current_issue.featured_articles.all %}
-                    {% include "home/home_magazine_article_summary.html" with article=article %}
-                {% endfor %}
             {% endif %}
         </div>
     </div>
