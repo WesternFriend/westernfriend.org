@@ -35,6 +35,8 @@ class Person(Page):
     civicrm_id = models.IntegerField(null=True, blank=True, db_index=True)
 
     content_panels = [
+        FieldPanel("given_name"),
+        FieldPanel("family_name"),
         FieldRowPanel(
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
@@ -43,8 +45,6 @@ class Person(Page):
                 FieldPanel("drupal_author_id", permission="superuser"),
             ],
         ),
-        FieldPanel("given_name"),
-        FieldPanel("family_name"),
     ]
 
     template = "contact/contact.html"
@@ -112,14 +112,6 @@ class Meeting(Page):
     drupal_library_author_id = models.IntegerField(null=True, blank=True, db_index=True)
 
     content_panels = Page.content_panels + [
-        FieldRowPanel(
-            heading="Import metadata",
-            help_text="Temporary area for troubleshooting content importers.",
-            children=[
-                FieldPanel("civicrm_id", permission="superuser"),
-                FieldPanel("drupal_author_id", permission="superuser"),
-            ],
-        ),
         FieldPanel("description"),
         FieldPanel("website"),
         FieldPanel("email"),
@@ -129,6 +121,14 @@ class Meeting(Page):
         InlinePanel("addresses", label="Address"),
         InlinePanel(
             "presiding_clerks", label="Presiding clerk", heading="Presiding clerk(s)"
+        ),
+        FieldRowPanel(
+            heading="Import metadata",
+            help_text="Temporary area for troubleshooting content importers.",
+            children=[
+                FieldPanel("civicrm_id", permission="superuser"),
+                FieldPanel("drupal_author_id", permission="superuser"),
+            ],
         ),
     ]
 
@@ -215,6 +215,8 @@ class Organization(Page):
     drupal_library_author_id = models.IntegerField(null=True, blank=True, db_index=True)
 
     content_panels = Page.content_panels + [
+        FieldPanel("description"),
+        FieldPanel("website"),
         FieldRowPanel(
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
@@ -223,8 +225,6 @@ class Organization(Page):
                 FieldPanel("drupal_author_id", permission="superuser"),
             ],
         ),
-        FieldPanel("description"),
-        FieldPanel("website"),
     ]
 
     parent_page_types = ["contact.OrganizationIndexPage"]
