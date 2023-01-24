@@ -19,10 +19,10 @@
             {% endif %}
         </div>
 
-        <div class="col-sm-4 col-lg-4 col-xl-4 mt-2">
+        <div class="col-sm-4 col-lg-5 col-xl-5 mt-2">
             {% if current_issue %}
                 <a href="{% pageurl current_issue %}" class="home-page-featured-issue">
-                    {% image current_issue.cover_image max-640x400 %}
+                    {% image current_issue.cover_image max-800x600 %}
                     <br />
                     {{ current_issue.title }}
 
