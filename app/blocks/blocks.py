@@ -57,6 +57,10 @@ class FormattedImageChooserStructBlock(blocks.StructBlock):
         required=False,
         icon="file-richtext",
     )
+    link = blocks.URLBlock(
+        required=False,
+        help_text="Optional web address to use as image link.",
+    )
 
     class Meta:
         icon = "media"
