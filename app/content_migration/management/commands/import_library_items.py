@@ -94,6 +94,9 @@ class Command(BaseCommand):
         )
 
         with open(options["magazine_authors_file"]) as magazine_authors_file:
+            # TODO: deprecate this feature
+            # rely in previous import into Contacts tables
+            # use db query instead of pandas
             magazine_authors_data = pd.read_csv(magazine_authors_file)
 
         for import_library_item in tqdm(
