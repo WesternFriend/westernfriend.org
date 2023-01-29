@@ -40,6 +40,8 @@ class Person(Page):
         unique=True,
         db_index=True,
     )
+    # TODO: add `drupal_duplicate_author_ids` field, or similar
+    # to keep track of author IDs that are marked as a duplicate of this author
     drupal_library_author_id = models.IntegerField(
         null=True,
         blank=True,
@@ -156,6 +158,8 @@ class Meeting(Page):
         unique=True,
         db_index=True,
     )
+    # TODO: add `drupal_duplicate_author_ids` field, or similar
+    # to keep track of author IDs that are marked as a duplicate of this author
     drupal_library_author_id = models.IntegerField(
         null=True,
         blank=True,
@@ -285,6 +289,8 @@ class Organization(Page):
         unique=True,
         db_index=True,
     )
+    # TODO: add `drupal_duplicate_author_ids` field, or similar
+    # to keep track of author IDs that are marked as a duplicate of this author
     drupal_library_author_id = models.IntegerField(
         null=True,
         blank=True,

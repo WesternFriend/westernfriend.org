@@ -117,7 +117,9 @@ class Command(BaseCommand):
             author_is_duplicate = author["duplicate of ID"] != None
 
             if author_is_duplicate:
-                # don't create duplicate authors
+                # TODO: update the original author record
+                # by adding this duplicate author id to the
+                # original author's `drupal_duplicate_author_ids` column, or similar
                 pass
             else:
                 if author_is_meeting:
