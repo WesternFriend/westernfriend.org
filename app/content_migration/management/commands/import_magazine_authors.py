@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
+from app.content_migration.management.commands.shared import (
+    get_existing_magazine_author_from_db,
+)
 
 from contact.models import (
     Meeting,
@@ -117,10 +120,15 @@ class Command(BaseCommand):
             author_is_duplicate = author["duplicate of ID"] != None
 
             if author_is_duplicate:
-                # TODO: update the original author record
-                # by adding this duplicate author id to the
-                # original author's `drupal_duplicate_author_ids` column, or similar
-                pass
+                # Update the primary author record
+                # to keep track of duplicate author IDs
+                primary_contact = get_existing_magazine_author_from_db(
+                    author["duplicate of ID"]
+                )
+                primary_contact.drupal_duplicate_author_ids.append(
+                    drupal_author_id,
+                )
+                primary_contact.save()
             else:
                 if author_is_meeting:
                     create_meeting(author)
