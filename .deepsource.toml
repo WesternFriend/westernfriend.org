@@ -21,11 +21,3 @@ enabled = true
 exclude_patterns = [
   "**/migrations/*"
 ]
-
-[[transformers]]
-name = "black"
-enabled = true
-
-[[transformers]]
-name = "isort"
-enabled = true
