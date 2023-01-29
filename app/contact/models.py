@@ -29,10 +29,27 @@ class Person(Page):
         blank=True,
     )
 
-    family_name = models.CharField(max_length=255, blank=True, default="")
-    drupal_author_id = models.IntegerField(null=True, blank=True, db_index=True)
-    drupal_library_author_id = models.IntegerField(null=True, blank=True, db_index=True)
-    civicrm_id = models.IntegerField(null=True, blank=True, db_index=True)
+    family_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+    )
+    drupal_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+    )
+    drupal_library_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+    civicrm_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
 
     content_panels = [
         FieldPanel("given_name"),
@@ -111,14 +128,39 @@ class Meeting(Page):
         null=True,
         blank=True,
     )
-
-    description = RichTextField(blank=True, null=True)
-    website = models.URLField(null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
-    phone = models.CharField(max_length=64, null=True, blank=True)
-    civicrm_id = models.IntegerField(null=True, blank=True, db_index=True)
-    drupal_author_id = models.IntegerField(null=True, blank=True, db_index=True)
-    drupal_library_author_id = models.IntegerField(null=True, blank=True, db_index=True)
+    description = RichTextField(
+        blank=True,
+        null=True,
+    )
+    website = models.URLField(
+        null=True,
+        blank=True,
+    )
+    email = models.EmailField(
+        null=True,
+        blank=True,
+    )
+    phone = models.CharField(
+        max_length=64,
+        null=True,
+        blank=True,
+    )
+    civicrm_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+    drupal_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+    )
+    drupal_library_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
@@ -222,12 +264,32 @@ class MeetingIndexPage(Page):
 
 
 class Organization(Page):
-    description = models.CharField(max_length=255, blank=True, null=True)
+    description = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
 
-    website = models.URLField(null=True, blank=True)
-    civicrm_id = models.IntegerField(null=True, blank=True, db_index=True)
-    drupal_author_id = models.IntegerField(null=True, blank=True, db_index=True)
-    drupal_library_author_id = models.IntegerField(null=True, blank=True, db_index=True)
+    website = models.URLField(
+        null=True,
+        blank=True,
+    )
+    civicrm_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+    drupal_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+    )
+    drupal_library_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
