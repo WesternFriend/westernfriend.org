@@ -1,5 +1,6 @@
 import html
 from io import BytesIO
+from itertools import chain
 from urllib.parse import urlparse
 
 import pandas as pd
@@ -72,6 +73,38 @@ def parse_media_blocks(media_urls):
                 print("-----")
 
     return media_blocks
+
+
+def get_existing_magazine_author_from_db(drupal_author_id):
+    """
+    Given a Drupal Author ID,
+    Search across all types of contacts for a matching result.
+
+    Verify that any matches are unique.
+
+    Return
+    - the matching author or
+    - None if no author was found.
+    """
+    # TODO: include a query to check `duplicate_author_ids` column, or equivalent
+    # since we are relying on that column to locate the "original" record
+    # and the Library item authors data may reference duplicate authors
+    person = Person.objects.filter(drupal_author_id=drupal_author_id)
+    meeting = Meeting.objects.filter(drupal_author_id=drupal_author_id)
+    organization = Organization.objects.filter(drupal_author_id=drupal_author_id)
+
+    results = list(chain(person, meeting, organization))
+
+    magazine_author = None
+
+    if len(results) == 0:
+        print(f"Could not find magazine author by ID: { drupal_author_id }")
+    elif len(results) > 1:
+        print(f"Duplicate authors found for magazine author ID: { drupal_author_id }")
+    else:
+        magazine_author = results[0]
+
+    return magazine_author
 
 
 def get_existing_magazine_author_by_id(
