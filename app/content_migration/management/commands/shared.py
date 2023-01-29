@@ -3,13 +3,12 @@ from io import BytesIO
 from itertools import chain
 from urllib.parse import urlparse
 
-from django.db.models import Q
-
 import pandas as pd
 import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 from django.core.files.images import ImageFile
+from django.db.models import Q
 from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.images.models import Image
