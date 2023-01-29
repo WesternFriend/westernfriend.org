@@ -64,8 +64,18 @@ class Person(Page):
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
             children=[
-                FieldPanel("civicrm_id", permission="superuser"),
-                FieldPanel("drupal_author_id", permission="superuser"),
+                FieldPanel(
+                    "civicrm_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_author_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_duplicate_author_ids",
+                    permission="superuser",
+                ),
             ],
         ),
     ]
@@ -188,8 +198,18 @@ class Meeting(Page):
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
             children=[
-                FieldPanel("civicrm_id", permission="superuser"),
-                FieldPanel("drupal_author_id", permission="superuser"),
+                FieldPanel(
+                    "civicrm_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_author_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_duplicate_author_ids",
+                    permission="superuser",
+                ),
             ],
         ),
     ]
@@ -314,8 +334,18 @@ class Organization(Page):
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
             children=[
-                FieldPanel("civicrm_id", permission="superuser"),
-                FieldPanel("drupal_author_id", permission="superuser"),
+                FieldPanel(
+                    "civicrm_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_author_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_duplicate_author_ids",
+                    permission="superuser",
+                ),
             ],
         ),
     ]
