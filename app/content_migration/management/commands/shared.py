@@ -3,6 +3,8 @@ from io import BytesIO
 from itertools import chain
 from urllib.parse import urlparse
 
+from django.db.models import Q
+
 import pandas as pd
 import requests
 from django.core.exceptions import ObjectDoesNotExist
@@ -79,6 +81,7 @@ def get_existing_magazine_author_from_db(drupal_author_id):
     """
     Given a Drupal Author ID,
     Search across all types of contacts for a matching result.
+    If the author is a duplicate, return the primary author record.
 
     Verify that any matches are unique.
 
@@ -86,12 +89,22 @@ def get_existing_magazine_author_from_db(drupal_author_id):
     - the matching author or
     - None if no author was found.
     """
-    # TODO: include a query to check `duplicate_author_ids` column, or equivalent
+    # Query against primary drupal author ID column
+    # Include a query to check `duplicate_author_ids` column,
     # since we are relying on that column to locate the "original" record
     # and the Library item authors data may reference duplicate authors
-    person = Person.objects.filter(drupal_author_id=drupal_author_id)
-    meeting = Meeting.objects.filter(drupal_author_id=drupal_author_id)
-    organization = Organization.objects.filter(drupal_author_id=drupal_author_id)
+    person = Person.objects.filter(
+        Q(drupal_author_id=drupal_author_id)
+        | Q(drupal_duplicate_author_ids__contains=[drupal_author_id])
+    )
+    meeting = Meeting.objects.filter(
+        Q(drupal_author_id=drupal_author_id)
+        | Q(drupal_duplicate_author_ids__contains=[drupal_author_id])
+    )
+    organization = Organization.objects.filter(
+        Q(drupal_author_id=drupal_author_id)
+        | Q(drupal_duplicate_author_ids__contains=[drupal_author_id])
+    )
 
     results = list(chain(person, meeting, organization))
 
