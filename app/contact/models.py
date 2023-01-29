@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from modelcluster.fields import ParentalKey
 from wagtail.admin.edit_handlers import (
@@ -40,8 +41,11 @@ class Person(Page):
         unique=True,
         db_index=True,
     )
-    # TODO: add `drupal_duplicate_author_ids` field, or similar
-    # to keep track of author IDs that are marked as a duplicate of this author
+    drupal_duplicate_author_ids = ArrayField(
+        models.IntegerField(),
+        blank=True,
+        default=list,
+    )
     drupal_library_author_id = models.IntegerField(
         null=True,
         blank=True,
@@ -158,8 +162,11 @@ class Meeting(Page):
         unique=True,
         db_index=True,
     )
-    # TODO: add `drupal_duplicate_author_ids` field, or similar
-    # to keep track of author IDs that are marked as a duplicate of this author
+    drupal_duplicate_author_ids = ArrayField(
+        models.IntegerField(),
+        blank=True,
+        default=list,
+    )
     drupal_library_author_id = models.IntegerField(
         null=True,
         blank=True,
@@ -289,8 +296,11 @@ class Organization(Page):
         unique=True,
         db_index=True,
     )
-    # TODO: add `drupal_duplicate_author_ids` field, or similar
-    # to keep track of author IDs that are marked as a duplicate of this author
+    drupal_duplicate_author_ids = ArrayField(
+        models.IntegerField(),
+        blank=True,
+        default=list,
+    )
     drupal_library_author_id = models.IntegerField(
         null=True,
         blank=True,
