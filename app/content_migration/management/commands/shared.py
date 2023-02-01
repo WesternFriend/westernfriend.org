@@ -110,9 +110,11 @@ def get_existing_magazine_author_from_db(drupal_author_id):
     magazine_author = None
 
     if len(results) == 0:
-        print(f"Could not find magazine author by ID: { drupal_author_id }")
+        print(f"Could not find magazine author by ID: { int(drupal_author_id) }")
     elif len(results) > 1:
-        print(f"Duplicate authors found for magazine author ID: { drupal_author_id }")
+        print(
+            f"Duplicate authors found for magazine author ID: { int(drupal_author_id) }"
+        )
     else:
         magazine_author = results[0]
 
