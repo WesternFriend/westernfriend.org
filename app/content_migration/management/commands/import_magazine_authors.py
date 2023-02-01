@@ -93,14 +93,14 @@ def create_person(author):
 
 def import_primary_author_records(authors_list):
     for author in tqdm(authors_list, desc="Primary Author records", unit="row"):
+
+        drupal_author_id = author["drupal_author_id"]
+
         # Check for entity type among:
         # - Meeting
         # - Organization
         # - Person
         # with the condition to check for corrections to person names
-
-        drupal_author_id = author["drupal_author_id"]
-
         author_is_meeting = author["meeting_name"] != None
         author_is_organization = author["organization_name"] != None
         author_is_person = (
