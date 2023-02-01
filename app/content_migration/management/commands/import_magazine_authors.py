@@ -3,6 +3,9 @@ import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
 
+from content_migration.management.commands.shared import (
+    get_existing_magazine_author_from_db,
+)
 from contact.models import (
     Meeting,
     MeetingIndexPage,
@@ -88,6 +91,63 @@ def create_person(author):
         person_index_page.save()
 
 
+def import_primary_author_records(authors_list):
+    for author in tqdm(authors_list, desc="Primary Author records", unit="row"):
+
+        drupal_author_id = author["drupal_author_id"]
+
+        # Check for entity type among:
+        # - Meeting
+        # - Organization
+        # - Person
+        # with the condition to check for corrections to person names
+        author_is_meeting = author["meeting_name"] != None
+        author_is_organization = author["organization_name"] != None
+        author_is_person = (
+            author_is_meeting is False and author_is_organization is False
+        )
+
+        author_is_duplicate = author["duplicate of ID"] != None
+
+        if author_is_duplicate:
+            # Don't import duplicate authors
+            # continue to next author record
+            continue
+        else:
+            if author_is_meeting:
+                create_meeting(author)
+            elif author_is_organization:
+                create_organization(author)
+            elif author_is_person:
+                create_person(author)
+            else:
+                print("Unknown:", drupal_author_id)
+
+
+def add_duplicate_author_ids_to_primary_author_records(authors_list):
+    for author in tqdm(authors_list, desc="Duplicate author IDs", unit="row"):
+        drupal_author_id = author["drupal_author_id"]
+
+        author_is_duplicate = author["duplicate of ID"] != None
+
+        if author_is_duplicate:
+            # Update the primary author record
+            # to keep track of duplicate author IDs
+            primary_contact = get_existing_magazine_author_from_db(
+                author["duplicate of ID"]
+            )
+            if primary_contact:
+                if drupal_author_id not in primary_contact.drupal_duplicate_author_ids:
+                    primary_contact.drupal_duplicate_author_ids.append(
+                        drupal_author_id,
+                    )
+                    primary_contact.save()
+            else:
+                # log message should be printed in previous function
+                # get_existing_magazine_author_from_db
+                continue
+
+
 class Command(BaseCommand):
     help = "Import Authors from Drupal site"
 
@@ -99,32 +159,6 @@ class Command(BaseCommand):
             pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
         )
 
-        for author in tqdm(authors_list, desc="Authors", unit="row"):
-            # Check for entity type among:
-            # - Meeting
-            # - Organization
-            # - Person
-            # with the condition to check for corrections to person names
+        import_primary_author_records(authors_list)
 
-            drupal_author_id = author["drupal_author_id"]
-
-            author_is_meeting = author["meeting_name"] != None
-            author_is_organization = author["organization_name"] != None
-            author_is_person = (
-                author_is_meeting is False and author_is_organization is False
-            )
-
-            author_is_duplicate = author["duplicate of ID"] != None
-
-            if author_is_duplicate:
-                # don't create duplicate authors
-                pass
-            else:
-                if author_is_meeting:
-                    create_meeting(author)
-                elif author_is_organization:
-                    create_organization(author)
-                elif author_is_person:
-                    create_person(author)
-                else:
-                    print("Unknown:", drupal_author_id)
+        add_duplicate_author_ids_to_primary_author_records(authors_list)

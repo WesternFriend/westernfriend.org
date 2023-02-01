@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from modelcluster.fields import ParentalKey
 from wagtail.admin.edit_handlers import (
@@ -29,10 +30,32 @@ class Person(Page):
         blank=True,
     )
 
-    family_name = models.CharField(max_length=255, blank=True, default="")
-    drupal_author_id = models.IntegerField(null=True, blank=True, db_index=True)
-    drupal_library_author_id = models.IntegerField(null=True, blank=True, db_index=True)
-    civicrm_id = models.IntegerField(null=True, blank=True, db_index=True)
+    family_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+    )
+    drupal_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+    )
+    drupal_duplicate_author_ids = ArrayField(
+        models.IntegerField(),
+        blank=True,
+        default=list,
+    )
+    drupal_library_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+    civicrm_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
 
     content_panels = [
         FieldPanel("given_name"),
@@ -41,8 +64,18 @@ class Person(Page):
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
             children=[
-                FieldPanel("civicrm_id", permission="superuser"),
-                FieldPanel("drupal_author_id", permission="superuser"),
+                FieldPanel(
+                    "civicrm_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_author_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_duplicate_author_ids",
+                    permission="superuser",
+                ),
             ],
         ),
     ]
@@ -53,6 +86,7 @@ class Person(Page):
         db_table = "person"
         ordering = ["title"]
         verbose_name_plural = "people"
+        indexes = [models.Index(fields=["drupal_author_id"])]
 
     def save(self, *args, **kwargs):
         full_name = f"{self.given_name} {self.family_name}"
@@ -61,8 +95,17 @@ class Person(Page):
         super(Person, self).save(*args, **kwargs)
 
     search_fields = Page.search_fields + [
-        index.SearchField("given_name", partial_match=True),
-        index.SearchField("family_name", partial_match=True),
+        index.SearchField(
+            "given_name",
+            partial_match=True,
+        ),
+        index.SearchField(
+            "family_name",
+            partial_match=True,
+        ),
+        index.SearchField(
+            "drupal_author_id",
+        ),
     ]
 
     parent_page_types = ["contact.PersonIndexPage"]
@@ -102,14 +145,44 @@ class Meeting(Page):
         null=True,
         blank=True,
     )
-
-    description = RichTextField(blank=True, null=True)
-    website = models.URLField(null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
-    phone = models.CharField(max_length=64, null=True, blank=True)
-    civicrm_id = models.IntegerField(null=True, blank=True, db_index=True)
-    drupal_author_id = models.IntegerField(null=True, blank=True, db_index=True)
-    drupal_library_author_id = models.IntegerField(null=True, blank=True, db_index=True)
+    description = RichTextField(
+        blank=True,
+        null=True,
+    )
+    website = models.URLField(
+        null=True,
+        blank=True,
+    )
+    email = models.EmailField(
+        null=True,
+        blank=True,
+    )
+    phone = models.CharField(
+        max_length=64,
+        null=True,
+        blank=True,
+    )
+    civicrm_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+    drupal_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+    )
+    drupal_duplicate_author_ids = ArrayField(
+        models.IntegerField(),
+        blank=True,
+        default=list,
+    )
+    drupal_library_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
@@ -126,8 +199,18 @@ class Meeting(Page):
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
             children=[
-                FieldPanel("civicrm_id", permission="superuser"),
-                FieldPanel("drupal_author_id", permission="superuser"),
+                FieldPanel(
+                    "civicrm_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_author_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_duplicate_author_ids",
+                    permission="superuser",
+                ),
             ],
         ),
     ]
@@ -140,12 +223,19 @@ class Meeting(Page):
     search_template = "search/meeting.html"
 
     search_fields = Page.search_fields + [
-        index.SearchField("description", partial_match=True),
+        index.SearchField(
+            "description",
+            partial_match=True,
+        ),
+        index.SearchField(
+            "drupal_author_id",
+        ),
     ]
 
     class Meta:
         db_table = "meeting"
         ordering = ["title"]
+        indexes = [models.Index(fields=["drupal_author_id"])]
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
@@ -207,12 +297,37 @@ class MeetingIndexPage(Page):
 
 
 class Organization(Page):
-    description = models.CharField(max_length=255, blank=True, null=True)
+    description = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
 
-    website = models.URLField(null=True, blank=True)
-    civicrm_id = models.IntegerField(null=True, blank=True, db_index=True)
-    drupal_author_id = models.IntegerField(null=True, blank=True, db_index=True)
-    drupal_library_author_id = models.IntegerField(null=True, blank=True, db_index=True)
+    website = models.URLField(
+        null=True,
+        blank=True,
+    )
+    civicrm_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+    drupal_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+    )
+    drupal_duplicate_author_ids = ArrayField(
+        models.IntegerField(),
+        blank=True,
+        default=list,
+    )
+    drupal_library_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
@@ -221,8 +336,18 @@ class Organization(Page):
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
             children=[
-                FieldPanel("civicrm_id", permission="superuser"),
-                FieldPanel("drupal_author_id", permission="superuser"),
+                FieldPanel(
+                    "civicrm_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_author_id",
+                    permission="superuser",
+                ),
+                FieldPanel(
+                    "drupal_duplicate_author_ids",
+                    permission="superuser",
+                ),
             ],
         ),
     ]
@@ -235,12 +360,19 @@ class Organization(Page):
     search_template = "search/organization.html"
 
     search_fields = Page.search_fields + [
-        index.SearchField("description", partial_match=True),
+        index.SearchField(
+            "description",
+            partial_match=True,
+        ),
+        index.SearchField(
+            "drupal_author_id",
+        ),
     ]
 
     class Meta:
         db_table = "organization"
         ordering = ["title"]
+        indexes = [models.Index(fields=["drupal_author_id"])]
 
 
 class OrganizationIndexPage(Page):

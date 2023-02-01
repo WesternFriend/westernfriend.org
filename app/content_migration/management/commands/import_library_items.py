@@ -21,6 +21,7 @@ from library.models import (
 from .shared import (
     get_contact_from_author_data,
     get_existing_magazine_author_by_id,
+    get_existing_magazine_author_from_db,
     parse_media_blocks,
 )
 
@@ -28,24 +29,13 @@ from .shared import (
 def add_library_item_authors(
     library_item,
     drupal_author_ids,
-    magazine_authors_data: pd.DataFrame,
 ):
     drupal_author_ids_int = [
         int(author_id) for author_id in drupal_author_ids.split(", ")
     ]
 
     for drupal_author_id in drupal_author_ids_int:
-        author = None
-
-        author_data = get_existing_magazine_author_by_id(
-            drupal_author_id,
-            magazine_authors_data,
-        )
-
-        if author_data is not None:
-            author = get_contact_from_author_data(author_data)
-        else:
-            continue
+        author = get_existing_magazine_author_from_db(drupal_author_id)
 
         if author:
             library_item_author_exists = LibraryItemAuthor.objects.filter(
@@ -72,13 +62,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--library_items_file",
-            action="store",
-            type=str,
-        )
-
-        parser.add_argument(
-            "--magazine_authors_file",
+            "--file",
             action="store",
             type=str,
         )
@@ -88,13 +72,8 @@ class Command(BaseCommand):
         library_item_index_page = LibraryIndexPage.objects.get()
 
         library_items = (
-            pd.read_csv(options["library_items_file"])
-            .replace({np.nan: None})
-            .to_dict("records")
+            pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
         )
-
-        with open(options["magazine_authors_file"]) as magazine_authors_file:
-            magazine_authors_data = pd.read_csv(magazine_authors_file)
 
         for import_library_item in tqdm(
             library_items,
@@ -147,15 +126,11 @@ class Command(BaseCommand):
                     title=import_library_item["Time Period"]
                 )
 
-            # # Authors
-            # TODO: determine why this fails with existing authors
-            # this will be replaced by a database query
-            # https://github.com/WesternFriend/WF-website/issues/503
+            # Authors
             if import_library_item["drupal_magazine_author_ids"] != None:
                 add_library_item_authors(
                     library_item,
                     import_library_item["drupal_magazine_author_ids"],
-                    magazine_authors_data,
                 )
 
             # - Keywords
