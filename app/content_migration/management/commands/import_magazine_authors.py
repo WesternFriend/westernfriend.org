@@ -92,7 +92,7 @@ def create_person(author):
 
 
 def import_primary_author_records(authors_list):
-    for author in tqdm(authors_list, desc="Authors", unit="row"):
+    for author in tqdm(authors_list, desc="Primary Author records", unit="row"):
         # Check for entity type among:
         # - Meeting
         # - Organization
@@ -125,7 +125,7 @@ def import_primary_author_records(authors_list):
 
 
 def add_duplicate_author_ids_to_primary_author_records(authors_list):
-    for author in tqdm(authors_list, desc="Authors", unit="row"):
+    for author in tqdm(authors_list, desc="Duplicate author IDs", unit="row"):
         drupal_author_id = author["drupal_author_id"]
 
         author_is_duplicate = author["duplicate of ID"] != None
