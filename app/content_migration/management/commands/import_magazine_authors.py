@@ -136,12 +136,16 @@ def add_duplicate_author_ids_to_primary_author_records(authors_list):
             primary_contact = get_existing_magazine_author_from_db(
                 author["duplicate of ID"]
             )
-
-            if drupal_author_id not in primary_contact.drupal_duplicate_author_ids:
-                primary_contact.drupal_duplicate_author_ids.append(
-                    drupal_author_id,
+            if primary_contact:
+                if drupal_author_id not in primary_contact.drupal_duplicate_author_ids:
+                    primary_contact.drupal_duplicate_author_ids.append(
+                        drupal_author_id,
+                    )
+                    primary_contact.save()
+            else:
+                print(
+                    f"Could not get primary author record ID { int(author['duplicate of ID']) }"
                 )
-                primary_contact.save()
 
 
 class Command(BaseCommand):
