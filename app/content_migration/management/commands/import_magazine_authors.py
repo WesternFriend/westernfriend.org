@@ -143,9 +143,9 @@ def add_duplicate_author_ids_to_primary_author_records(authors_list):
                     )
                     primary_contact.save()
             else:
-                print(
-                    f"Could not get primary author record ID { int(author['duplicate of ID']) }"
-                )
+                # log message should be printed in previous function
+                # get_existing_magazine_author_from_db
+                continue
 
 
 class Command(BaseCommand):
