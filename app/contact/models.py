@@ -86,6 +86,7 @@ class Person(Page):
         db_table = "person"
         ordering = ["title"]
         verbose_name_plural = "people"
+        indexes = [models.Index(fields=["drupal_author_id"])]
 
     def save(self, *args, **kwargs):
         full_name = f"{self.given_name} {self.family_name}"
@@ -234,6 +235,7 @@ class Meeting(Page):
     class Meta:
         db_table = "meeting"
         ordering = ["title"]
+        indexes = [models.Index(fields=["drupal_author_id"])]
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
@@ -370,6 +372,7 @@ class Organization(Page):
     class Meta:
         db_table = "organization"
         ordering = ["title"]
+        indexes = [models.Index(fields=["drupal_author_id"])]
 
 
 class OrganizationIndexPage(Page):
