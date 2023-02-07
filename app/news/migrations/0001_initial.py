@@ -4,8 +4,8 @@ import datetime
 
 import django.db.models.deletion
 import wagtail.blocks
-import wagtail.fields
 import wagtail.documents.blocks
+import wagtail.fields
 import wagtail.images.blocks
 from django.db import migrations, models
 

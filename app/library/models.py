@@ -4,16 +4,16 @@ from flatpickr import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
+from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import (
     FieldPanel,
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
 )
-from wagtail import blocks as wagtail_blocks
+from wagtail.embeds.blocks import EmbedBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
-from wagtail.embeds.blocks import EmbedBlock
 
 from blocks.blocks import (
     FormattedImageChooserStructBlock,

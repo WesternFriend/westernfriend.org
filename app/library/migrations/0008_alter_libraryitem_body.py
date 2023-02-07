@@ -4,8 +4,8 @@ import re
 
 import django.core.validators
 import wagtail.blocks
-import wagtail.fields
 import wagtail.embeds.blocks
+import wagtail.fields
 import wagtail.images.blocks
 import wagtail_color_panel.blocks
 from django.db import migrations

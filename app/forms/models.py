@@ -1,8 +1,8 @@
 from django.db import models
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import FieldPanel, InlinePanel
-from wagtail.contrib.forms.panels import FormSubmissionsPanel
 from wagtail.contrib.forms.models import AbstractForm, AbstractFormField
+from wagtail.contrib.forms.panels import FormSubmissionsPanel
 from wagtail.fields import RichTextField
 
 

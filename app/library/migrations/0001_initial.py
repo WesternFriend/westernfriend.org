@@ -4,8 +4,8 @@ import django.db.models.deletion
 import modelcluster.contrib.taggit
 import modelcluster.fields
 import wagtail.blocks
-import wagtail.fields
 import wagtail.embeds.blocks
+import wagtail.fields
 import wagtail.images.blocks
 from django.db import migrations, models
 

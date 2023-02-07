@@ -3,9 +3,6 @@ import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
 
-from content_migration.management.commands.shared import (
-    get_existing_magazine_author_from_db,
-)
 from contact.models import (
     Meeting,
     MeetingIndexPage,
@@ -13,6 +10,9 @@ from contact.models import (
     OrganizationIndexPage,
     Person,
     PersonIndexPage,
+)
+from content_migration.management.commands.shared import (
+    get_existing_magazine_author_from_db,
 )
 
 

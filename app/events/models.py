@@ -4,8 +4,8 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
 from django.db.models import Q
 from timezone_field import TimeZoneField
-from wagtail.admin.panels import FieldPanel
 from wagtail import blocks as wagtail_blocks
+from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index

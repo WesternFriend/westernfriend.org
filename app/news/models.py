@@ -1,11 +1,11 @@
 from datetime import date
 
 from django.db import models
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail import blocks as wagtail_blocks
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
-from wagtail.documents.blocks import DocumentChooserBlock
 
 from blocks.blocks import (
     FormattedImageChooserStructBlock,

@@ -4,8 +4,8 @@ import re
 
 import django.core.validators
 import wagtail.blocks
-import wagtail.fields
 import wagtail.documents.blocks
+import wagtail.fields
 import wagtail.images.blocks
 from django.db import migrations
 

@@ -9,6 +9,7 @@ from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 from taggit.models import TaggedItemBase
+from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import (
     FieldPanel,
     FieldRowPanel,
@@ -17,10 +18,9 @@ from wagtail.admin.panels import (
     MultiFieldPanel,
     PageChooserPanel,
 )
-from wagtail import blocks as wagtail_blocks
+from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
-from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.search import index
 
 from blocks.blocks import (
