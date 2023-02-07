@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
-from wagtail.core.models import Page
+from wagtail.models import Page
 
 from facets.models import (  # TODO: make sure to add library item topics
     Audience,

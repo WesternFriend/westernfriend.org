@@ -3,9 +3,9 @@
 import django.db.models.deletion
 import modelcluster.contrib.taggit
 import modelcluster.fields
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
 import wagtail.documents.blocks
+import wagtail.fields
 import wagtail.images.blocks
 from django.db import migrations, models
 
@@ -117,7 +117,7 @@ class Migration(migrations.Migration):
                         to="wagtailcore.page",
                     ),
                 ),
-                ("intro", wagtail.core.fields.RichTextField(blank=True)),
+                ("intro", wagtail.fields.RichTextField(blank=True)),
             ],
             options={
                 "abstract": False,
@@ -140,14 +140,14 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "teaser",
-                    wagtail.core.fields.RichTextField(
+                    wagtail.fields.RichTextField(
                         blank=True,
                         help_text="Try to keep teaser to a couple dozen words.",
                     ),
                 ),
                 (
                     "body",
-                    wagtail.core.fields.StreamField(
+                    wagtail.fields.StreamField(
                         [
                             (
                                 "document",
@@ -155,13 +155,11 @@ class Migration(migrations.Migration):
                             ),
                             (
                                 "heading",
-                                wagtail.core.blocks.CharBlock(
-                                    form_classname="full title"
-                                ),
+                                wagtail.blocks.CharBlock(form_classname="full title"),
                             ),
                             (
                                 "image",
-                                wagtail.core.blocks.StructBlock(
+                                wagtail.blocks.StructBlock(
                                     [
                                         (
                                             "image",
@@ -169,7 +167,7 @@ class Migration(migrations.Migration):
                                         ),
                                         (
                                             "width",
-                                            wagtail.core.blocks.IntegerBlock(
+                                            wagtail.blocks.IntegerBlock(
                                                 help_text="Enter the desired image width value in pixels up to 800 max.",
                                                 max_value=800,
                                                 min_value=0,
@@ -181,7 +179,7 @@ class Migration(migrations.Migration):
                             ),
                             (
                                 "paragraph",
-                                wagtail.core.blocks.RichTextBlock(
+                                wagtail.blocks.RichTextBlock(
                                     features=[
                                         "h2",
                                         "h3",
@@ -261,7 +259,7 @@ class Migration(migrations.Migration):
                         to="wagtailcore.page",
                     ),
                 ),
-                ("intro", wagtail.core.fields.RichTextField(blank=True)),
+                ("intro", wagtail.fields.RichTextField(blank=True)),
             ],
             options={
                 "abstract": False,
@@ -340,8 +338,8 @@ class Migration(migrations.Migration):
                         to="wagtailcore.page",
                     ),
                 ),
-                ("intro", wagtail.core.fields.RichTextField(blank=True)),
-                ("deep_archive_intro", wagtail.core.fields.RichTextField(blank=True)),
+                ("intro", wagtail.fields.RichTextField(blank=True)),
+                ("deep_archive_intro", wagtail.fields.RichTextField(blank=True)),
                 (
                     "deep_archive_page",
                     models.ForeignKey(

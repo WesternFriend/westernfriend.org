@@ -3,8 +3,8 @@
 import re
 
 import django.core.validators
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
+import wagtail.fields
 import wagtail.images.blocks
 import wagtail_color_panel.blocks
 from django.db import migrations
@@ -22,13 +22,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="wfpage",
             name="body",
-            field=wagtail.core.fields.StreamField(
+            field=wagtail.fields.StreamField(
                 [
                     ("document", documents.blocks.DocumentEmbedBlock()),
                     ("image", wagtail.images.blocks.ImageChooserBlock()),
                     (
                         "paragraph",
-                        wagtail.core.blocks.RichTextBlock(
+                        wagtail.blocks.RichTextBlock(
                             features=[
                                 "h2",
                                 "h3",
@@ -47,14 +47,14 @@ class Migration(migrations.Migration):
                             ]
                         ),
                     ),
-                    ("quote", wagtail.core.blocks.BlockQuoteBlock()),
+                    ("quote", wagtail.blocks.BlockQuoteBlock()),
                     (
                         "target",
-                        wagtail.core.blocks.StructBlock(
+                        wagtail.blocks.StructBlock(
                             [
                                 (
                                     "target_slug",
-                                    wagtail.core.blocks.CharBlock(
+                                    wagtail.blocks.CharBlock(
                                         help_text="Used to link to a specific location within this page. Slug should only contain letters, numbers, underscore (_), or hyphen (-).",
                                         validators=(
                                             django.core.validators.RegexValidator(
@@ -70,11 +70,11 @@ class Migration(migrations.Migration):
                     ),
                     (
                         "heading",
-                        wagtail.core.blocks.StructBlock(
+                        wagtail.blocks.StructBlock(
                             [
                                 (
                                     "heading_level",
-                                    wagtail.core.blocks.ChoiceBlock(
+                                    wagtail.blocks.ChoiceBlock(
                                         choices=[
                                             ("h2", "Level 2"),
                                             ("h3", "Level 3"),
@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
                                 ),
                                 (
                                     "heading_text",
-                                    wagtail.core.blocks.CharBlock(
+                                    wagtail.blocks.CharBlock(
                                         help_text="The text to appear in the heading."
                                     ),
                                 ),

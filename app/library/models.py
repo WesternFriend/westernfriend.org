@@ -4,16 +4,16 @@ from flatpickr import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
-from wagtail.admin.edit_handlers import (
+from wagtail import blocks as wagtail_blocks
+from wagtail.admin.panels import (
     FieldPanel,
     InlinePanel,
     MultiFieldPanel,
     PageChooserPanel,
 )
-from wagtail.core import blocks as wt_blocks
-from wagtail.core.fields import RichTextField, StreamField
-from wagtail.core.models import Orderable, Page
 from wagtail.embeds.blocks import EmbedBlock
+from wagtail.fields import RichTextField, StreamField
+from wagtail.models import Orderable, Page
 
 from blocks.blocks import (
     FormattedImageChooserStructBlock,
@@ -44,7 +44,7 @@ class LibraryItem(Page):
             ("heading", HeadingBlock()),
             (
                 "rich_text",
-                wt_blocks.RichTextBlock(
+                wagtail_blocks.RichTextBlock(
                     features=[
                         "h2",
                         "h3",
@@ -62,7 +62,7 @@ class LibraryItem(Page):
             ("media", MediaBlock(icon="media")),
             ("embed", EmbedBlock()),
             ("url", WfURLBlock()),
-            ("quote", wt_blocks.BlockQuoteBlock()),
+            ("quote", wagtail_blocks.BlockQuoteBlock()),
             ("spacer", SpacerBlock()),
         ],
         null=True,

@@ -1,7 +1,7 @@
 from django.core.validators import validate_slug
 from django.forms.utils import flatatt
 from django.utils.html import format_html, format_html_join
-from wagtail.core import blocks
+from wagtail import blocks as wagtail_blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail_color_panel.blocks import NativeColorBlock
 from wagtailmedia.blocks import AbstractMediaChooserBlock
@@ -12,22 +12,22 @@ IMAGE_ALIGN_CHOICES = [
 ]
 
 
-class ButtonBlock(blocks.StructBlock):
-    button_text = blocks.CharBlock(required=False)
-    page_link = blocks.PageChooserBlock(required=False)
+class ButtonBlock(wagtail_blocks.StructBlock):
+    button_text = wagtail_blocks.CharBlock(required=False)
+    page_link = wagtail_blocks.PageChooserBlock(required=False)
 
     class Meta:
         icon = "placeholder"
         template = "blocks/blocks/button.html"
 
 
-class CardBlock(blocks.StructBlock):
+class CardBlock(wagtail_blocks.StructBlock):
     """Card with title, text, and image."""
 
-    title = blocks.CharBlock(required=True, help_text="Add a title")
-    text = blocks.RichTextBlock(required=False)
+    title = wagtail_blocks.CharBlock(required=True, help_text="Add a title")
+    text = wagtail_blocks.RichTextBlock(required=False)
     image = ImageChooserBlock(required=False)
-    image_align = blocks.ChoiceBlock(
+    image_align = wagtail_blocks.ChoiceBlock(
         required=False,
         choices=IMAGE_ALIGN_CHOICES,
         default="left",
@@ -40,14 +40,14 @@ class CardBlock(blocks.StructBlock):
         template = "blocks/blocks/card.html"
 
 
-class FormattedImageChooserStructBlock(blocks.StructBlock):
+class FormattedImageChooserStructBlock(wagtail_blocks.StructBlock):
     image = ImageChooserBlock()
-    width = blocks.IntegerBlock(
+    width = wagtail_blocks.IntegerBlock(
         min_value=0,
         max_value=800,
         help_text="Enter the desired image width value in pixels up to 800 max.",
     )
-    align = blocks.ChoiceBlock(
+    align = wagtail_blocks.ChoiceBlock(
         help_test="Optionally align image left or right",
         choices=(
             ("left", "Left"),
@@ -57,7 +57,7 @@ class FormattedImageChooserStructBlock(blocks.StructBlock):
         required=False,
         icon="file-richtext",
     )
-    link = blocks.URLBlock(
+    link = wagtail_blocks.URLBlock(
         required=False,
         help_text="Optional web address to use as image link.",
     )
@@ -67,8 +67,8 @@ class FormattedImageChooserStructBlock(blocks.StructBlock):
         template = "blocks/blocks/formatted_image_block.html"
 
 
-class HeadingBlock(blocks.StructBlock):
-    heading_level = blocks.ChoiceBlock(
+class HeadingBlock(wagtail_blocks.StructBlock):
+    heading_level = wagtail_blocks.ChoiceBlock(
         choices=[
             ("h2", "Level 2 (child of level 1)"),
             ("h3", "Level 3 (child of level 2)"),
@@ -78,10 +78,10 @@ class HeadingBlock(blocks.StructBlock):
         ],
         help_text="These different heading levels help to communicate the organization and hierarchy of the content on a page.",  # noqa: E501
     )
-    heading_text = blocks.CharBlock(
+    heading_text = wagtail_blocks.CharBlock(
         help_text="The text to appear in the heading.",
     )
-    target_slug = blocks.CharBlock(
+    target_slug = wagtail_blocks.CharBlock(
         help_text="Used to link to a specific location within this page. A slug should only contain letters, numbers, underscore (_), or hyphen (-).",  # noqa: E501
         validators=(validate_slug,),
         required=False,
@@ -129,7 +129,7 @@ class MediaBlock(AbstractMediaChooserBlock):
         )
 
 
-class OrganizationsBlock(blocks.StructBlock):
+class OrganizationsBlock(wagtail_blocks.StructBlock):
     def get_context(self, value, parent_context=None):
         # avoid circular imports
         from contact.models import Organization
@@ -144,16 +144,16 @@ class OrganizationsBlock(blocks.StructBlock):
         template = "blocks/blocks/organizations_block.html"
 
 
-class PageCardBlock(blocks.StructBlock):
-    page = blocks.PageChooserBlock(required=True)
-    text = blocks.CharBlock(required=False)
+class PageCardBlock(wagtail_blocks.StructBlock):
+    page = wagtail_blocks.PageChooserBlock(required=True)
+    text = wagtail_blocks.CharBlock(required=False)
 
     class Meta:
         icon = "link"
         template = "blocks/blocks/page_card.html"
 
 
-class PullQuoteBlock(blocks.TextBlock):
+class PullQuoteBlock(wagtail_blocks.TextBlock):
     def render_basic(self, value, context=None):
         if value:
             return format_html('<div class="pullquote">{0}</div>', value)
@@ -163,8 +163,8 @@ class PullQuoteBlock(blocks.TextBlock):
         icon = "openquote"
 
 
-class SpacerBlock(blocks.StructBlock):
-    height = blocks.DecimalBlock(
+class SpacerBlock(wagtail_blocks.StructBlock):
+    height = wagtail_blocks.DecimalBlock(
         help_text="The height of this spacer in 'em' values where 1 em is one uppercase M.",
         min_value=0,
         decimal_places=1,
@@ -175,6 +175,6 @@ class SpacerBlock(blocks.StructBlock):
         template = "blocks/blocks/spacer.html"
 
 
-class WfURLBlock(blocks.URLBlock):
+class WfURLBlock(wagtail_blocks.URLBlock):
     class Meta:
         template = "blocks/blocks/wf_url.html"

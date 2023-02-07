@@ -3,9 +3,9 @@
 import re
 
 import django.core.validators
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
 import wagtail.documents.blocks
+import wagtail.fields
 import wagtail.images.blocks
 import wagtail_color_panel.blocks
 from django.db import migrations
@@ -23,15 +23,15 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="newsitem",
             name="body",
-            field=wagtail.core.fields.StreamField(
+            field=wagtail.fields.StreamField(
                 [
                     (
                         "heading",
-                        wagtail.core.blocks.StructBlock(
+                        wagtail.blocks.StructBlock(
                             [
                                 (
                                     "heading_level",
-                                    wagtail.core.blocks.ChoiceBlock(
+                                    wagtail.blocks.ChoiceBlock(
                                         choices=[
                                             ("h2", "Level 2 (child of level 1)"),
                                             ("h3", "Level 3 (child of level 2)"),
@@ -44,13 +44,13 @@ class Migration(migrations.Migration):
                                 ),
                                 (
                                     "heading_text",
-                                    wagtail.core.blocks.CharBlock(
+                                    wagtail.blocks.CharBlock(
                                         help_text="The text to appear in the heading."
                                     ),
                                 ),
                                 (
                                     "target_slug",
-                                    wagtail.core.blocks.CharBlock(
+                                    wagtail.blocks.CharBlock(
                                         help_text="Used to link to a specific location within this page. A slug should only contain letters, numbers, underscore (_), or hyphen (-).",
                                         required=False,
                                         validators=(
@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
                     ),
                     (
                         "rich_text",
-                        wagtail.core.blocks.RichTextBlock(
+                        wagtail.blocks.RichTextBlock(
                             features=[
                                 "bold",
                                 "italic",
@@ -93,12 +93,12 @@ class Migration(migrations.Migration):
                     ("pullquote", blocks.blocks.PullQuoteBlock()),
                     (
                         "image",
-                        wagtail.core.blocks.StructBlock(
+                        wagtail.blocks.StructBlock(
                             [
                                 ("image", wagtail.images.blocks.ImageChooserBlock()),
                                 (
                                     "width",
-                                    wagtail.core.blocks.IntegerBlock(
+                                    wagtail.blocks.IntegerBlock(
                                         help_text="Enter the desired image width value in pixels up to 800 max.",
                                         max_value=800,
                                         min_value=0,
@@ -111,11 +111,11 @@ class Migration(migrations.Migration):
                     ("document", wagtail.documents.blocks.DocumentChooserBlock()),
                     (
                         "spacer",
-                        wagtail.core.blocks.StructBlock(
+                        wagtail.blocks.StructBlock(
                             [
                                 (
                                     "height",
-                                    wagtail.core.blocks.FloatBlock(
+                                    wagtail.blocks.FloatBlock(
                                         help_text="The height of this spacer in 'em' values where 1 em is one uppercase M.",
                                         min_value=0,
                                     ),

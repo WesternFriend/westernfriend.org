@@ -2,7 +2,7 @@
 
 import django.db.models.deletion
 import modelcluster.fields
-import wagtail.core.fields
+import wagtail.fields
 from django.db import migrations, models
 
 
@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    wagtail.core.fields.RichTextField(blank=True, null=True),
+                    wagtail.fields.RichTextField(blank=True, null=True),
                 ),
                 ("website", models.URLField(blank=True, null=True)),
                 ("email", models.EmailField(blank=True, max_length=254, null=True)),

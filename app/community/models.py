@@ -1,9 +1,9 @@
 from django.db import models
-from wagtail.admin.edit_handlers import FieldPanel, PageChooserPanel
-from wagtail.core import blocks
-from wagtail.core.fields import RichTextField, StreamField
-from wagtail.core.models import Page
+from wagtail import blocks as wagtail_blocks
+from wagtail.admin.panels import FieldPanel, PageChooserPanel
+from wagtail.fields import RichTextField, StreamField
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.models import Page
 from wagtail.search import index
 
 from blocks import blocks as wf_blocks
@@ -13,12 +13,12 @@ class CommunityPage(Page):
     body = StreamField(
         [
             ("heading", wf_blocks.HeadingBlock()),
-            ("rich_text", blocks.RichTextBlock()),
+            ("rich_text", wagtail_blocks.RichTextBlock()),
             ("image", ImageChooserBlock()),
             ("card", wf_blocks.CardBlock()),
             (
                 "card_row",
-                blocks.ListBlock(
+                wagtail_blocks.ListBlock(
                     wf_blocks.PageCardBlock(label="Page"),
                     template="blocks/blocks/card_row.html",
                 ),

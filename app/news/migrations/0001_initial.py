@@ -3,9 +3,9 @@
 import datetime
 
 import django.db.models.deletion
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
 import wagtail.documents.blocks
+import wagtail.fields
 import wagtail.images.blocks
 from django.db import migrations, models
 
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                         to="wagtailcore.page",
                     ),
                 ),
-                ("intro", wagtail.core.fields.RichTextField(blank=True)),
+                ("intro", wagtail.fields.RichTextField(blank=True)),
             ],
             options={
                 "abstract": False,
@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
                         to="wagtailcore.page",
                     ),
                 ),
-                ("intro", wagtail.core.fields.RichTextField(blank=True)),
+                ("intro", wagtail.fields.RichTextField(blank=True)),
             ],
             options={
                 "abstract": False,
@@ -77,7 +77,7 @@ class Migration(migrations.Migration):
                         to="wagtailcore.page",
                     ),
                 ),
-                ("intro", wagtail.core.fields.RichTextField(blank=True)),
+                ("intro", wagtail.fields.RichTextField(blank=True)),
             ],
             options={
                 "abstract": False,
@@ -98,7 +98,7 @@ class Migration(migrations.Migration):
                         to="wagtailcore.page",
                     ),
                 ),
-                ("intro", wagtail.core.fields.RichTextField(blank=True)),
+                ("intro", wagtail.fields.RichTextField(blank=True)),
             ],
             options={
                 "abstract": False,
@@ -119,7 +119,7 @@ class Migration(migrations.Migration):
                         to="wagtailcore.page",
                     ),
                 ),
-                ("intro", wagtail.core.fields.RichTextField(blank=True)),
+                ("intro", wagtail.fields.RichTextField(blank=True)),
             ],
             options={
                 "abstract": False,
@@ -150,7 +150,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "body",
-                    wagtail.core.fields.StreamField(
+                    wagtail.fields.StreamField(
                         [
                             (
                                 "document",
@@ -158,13 +158,11 @@ class Migration(migrations.Migration):
                             ),
                             (
                                 "heading",
-                                wagtail.core.blocks.CharBlock(
-                                    form_classname="full title"
-                                ),
+                                wagtail.blocks.CharBlock(form_classname="full title"),
                             ),
                             (
                                 "image",
-                                wagtail.core.blocks.StructBlock(
+                                wagtail.blocks.StructBlock(
                                     [
                                         (
                                             "image",
@@ -172,7 +170,7 @@ class Migration(migrations.Migration):
                                         ),
                                         (
                                             "width",
-                                            wagtail.core.blocks.IntegerBlock(
+                                            wagtail.blocks.IntegerBlock(
                                                 help_text="Enter the desired image width value in pixels up to 800 max.",
                                                 max_value=800,
                                                 min_value=0,
@@ -184,7 +182,7 @@ class Migration(migrations.Migration):
                             ),
                             (
                                 "paragraph",
-                                wagtail.core.blocks.RichTextBlock(
+                                wagtail.blocks.RichTextBlock(
                                     features=[
                                         "h2",
                                         "h3",

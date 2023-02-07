@@ -1,7 +1,7 @@
 {% load static wagtailuserbar %}
 
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<html class="no-js h-100" lang="en">
 
 <head>
     <meta charset="utf-8" />
@@ -32,14 +32,16 @@
     {% endblock %}
 </head>
 
-<body class="{% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %} d-flex flex-column h-100">
     {% wagtailuserbar %}
 
     {% include "heading.html" %}
 
-    <div class="container mt-3">
+    <div class="container mt-3 flex-shrink-0">
         {% block content %}{% endblock %}
     </div>
+
+    {% include "footer.html" %}
 
     {# Global javascript #}
     <!-- Bootstrap bundle with Popper -->
@@ -48,8 +50,6 @@
     {% block extra_js %}
     {# Override this in templates to add extra javascript #}
     {% endblock %}
-
-    {% include "footer.html" %}
 </body>
 
 </html>

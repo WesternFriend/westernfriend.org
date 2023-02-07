@@ -1,5 +1,5 @@
-from wagtail.core import blocks
-from wagtail.core.blocks import StructValue
+from wagtail import blocks as wagtail_blocks
+from wagtail.blocks import StructValue
 
 
 class NavigationExternalLinkStructValue(StructValue):
@@ -13,10 +13,10 @@ class NavigationExternalLinkStructValue(StructValue):
         return href
 
 
-class NavigationExternalLinkBlock(blocks.StructBlock):
-    title = blocks.CharBlock()
-    url = blocks.URLBlock()
-    anchor = blocks.CharBlock(
+class NavigationExternalLinkBlock(wagtail_blocks.StructBlock):
+    title = wagtail_blocks.CharBlock()
+    url = wagtail_blocks.URLBlock()
+    anchor = wagtail_blocks.CharBlock(
         required=False,
         help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",
     )
@@ -39,10 +39,10 @@ class NavigationPageChooserStructValue(StructValue):
         return href
 
 
-class NavigationPageChooserBlock(blocks.StructBlock):
-    title = blocks.CharBlock()
-    page = blocks.PageChooserBlock()
-    anchor = blocks.CharBlock(
+class NavigationPageChooserBlock(wagtail_blocks.StructBlock):
+    title = wagtail_blocks.CharBlock()
+    page = wagtail_blocks.PageChooserBlock()
+    anchor = wagtail_blocks.CharBlock(
         required=False,
         help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",
     )
@@ -54,9 +54,9 @@ class NavigationPageChooserBlock(blocks.StructBlock):
         value_class = NavigationPageChooserStructValue
 
 
-class NavigationDropdownMenuBlock(blocks.StructBlock):
-    title = blocks.CharBlock()
-    items = blocks.StreamBlock(
+class NavigationDropdownMenuBlock(wagtail_blocks.StructBlock):
+    title = wagtail_blocks.CharBlock()
+    items = wagtail_blocks.StreamBlock(
         [
             ("page", NavigationPageChooserBlock()),
             ("external_link", NavigationExternalLinkBlock()),
