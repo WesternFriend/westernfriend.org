@@ -3,8 +3,8 @@
 import re
 
 import django.core.validators
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
+import wagtail.fields
 import wagtail.documents.blocks
 import wagtail.images.blocks
 from django.db import migrations
@@ -22,21 +22,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="newsitem",
             name="body",
-            field=wagtail.core.fields.StreamField(
+            field=wagtail.fields.StreamField(
                 [
                     ("document", wagtail.documents.blocks.DocumentChooserBlock()),
                     (
                         "heading",
-                        wagtail.core.blocks.CharBlock(form_classname="full title"),
+                        wagtail.blocks.CharBlock(form_classname="full title"),
                     ),
                     (
                         "image",
-                        wagtail.core.blocks.StructBlock(
+                        wagtail.blocks.StructBlock(
                             [
                                 ("image", wagtail.images.blocks.ImageChooserBlock()),
                                 (
                                     "width",
-                                    wagtail.core.blocks.IntegerBlock(
+                                    wagtail.blocks.IntegerBlock(
                                         help_text="Enter the desired image width value in pixels up to 800 max.",
                                         max_value=800,
                                         min_value=0,
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                     ),
                     (
                         "paragraph",
-                        wagtail.core.blocks.RichTextBlock(
+                        wagtail.blocks.RichTextBlock(
                             features=[
                                 "h2",
                                 "h3",
@@ -71,11 +71,11 @@ class Migration(migrations.Migration):
                     ("pullquote", blocks.blocks.PullQuoteBlock()),
                     (
                         "target",
-                        wagtail.core.blocks.StructBlock(
+                        wagtail.blocks.StructBlock(
                             [
                                 (
                                     "target_slug",
-                                    wagtail.core.blocks.CharBlock(
+                                    wagtail.blocks.CharBlock(
                                         help_text="Used to link to a specific location within this page. Slug should only contain letters, numbers, underscore (_), or hyphen (-).",
                                         validators=(
                                             django.core.validators.RegexValidator(

@@ -1,4 +1,4 @@
-from wagtail.admin.edit_handlers import InlinePanel
+from wagtail.admin.panels import InlinePanel
 
 
 class NestedInlinePanel(InlinePanel):

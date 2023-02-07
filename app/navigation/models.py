@@ -1,7 +1,7 @@
 from django.db import models
-from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.admin.panels import FieldPanel
 from wagtail.contrib.settings.models import BaseSetting, register_setting
-from wagtail.core.fields import StreamField
+from wagtail.fields import StreamField
 
 from .blocks import (
     NavigationDropdownMenuBlock,

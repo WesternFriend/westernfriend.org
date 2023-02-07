@@ -9,7 +9,7 @@ import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
-from wagtail.core.models import Page
+from wagtail.models import Page
 
 from contact.models import Meeting
 

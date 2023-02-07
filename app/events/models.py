@@ -4,10 +4,10 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
 from django.db.models import Q
 from timezone_field import TimeZoneField
-from wagtail.admin.edit_handlers import FieldPanel
-from wagtail.core import blocks
-from wagtail.core.fields import RichTextField, StreamField
-from wagtail.core.models import Page
+from wagtail.admin.panels import FieldPanel
+from wagtail import blocks as wagtail_blocks
+from wagtail.fields import RichTextField, StreamField
+from wagtail.models import Page
 from wagtail.search import index
 
 from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
@@ -18,7 +18,7 @@ class Event(Page):
     body = StreamField(
         [
             ("heading", HeadingBlock()),
-            ("rich_text", blocks.RichTextBlock()),
+            ("rich_text", wagtail_blocks.RichTextBlock()),
             ("image", FormattedImageChooserStructBlock()),
             ("spacer", SpacerBlock()),
         ],

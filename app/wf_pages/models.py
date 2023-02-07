@@ -1,8 +1,8 @@
 from django.db import models
-from wagtail.admin.edit_handlers import FieldPanel
-from wagtail.core import blocks
-from wagtail.core.fields import RichTextField, StreamField
-from wagtail.core.models import Page
+from wagtail.admin.panels import FieldPanel
+from wagtail import blocks as wagtail_blocks
+from wagtail.fields import RichTextField, StreamField
+from wagtail.models import Page
 from wagtail.images.blocks import ImageChooserBlock
 
 from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
@@ -41,7 +41,7 @@ class WfPage(Page):
             ("heading", HeadingBlock()),
             (
                 "rich_text",
-                blocks.RichTextBlock(
+                wagtail_blocks.RichTextBlock(
                     features=[
                         "bold",
                         "italic",
@@ -56,7 +56,7 @@ class WfPage(Page):
                     ]
                 ),
             ),
-            ("quote", blocks.BlockQuoteBlock()),
+            ("quote", wagtail_blocks.BlockQuoteBlock()),
             ("document", DocumentEmbedBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("spacer", SpacerBlock()),

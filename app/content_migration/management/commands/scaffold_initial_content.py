@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from wagtail.core.models import Page, Site
+from wagtail.models import Page, Site
 
 from community.models import (
     CommunityDirectoryIndexPage,

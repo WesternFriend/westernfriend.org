@@ -2,10 +2,10 @@ from django.db import models
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from wagtail.admin.edit_handlers import FieldPanel
-from wagtail.core.blocks import IntegerBlock, ListBlock, StreamBlock, StructBlock
-from wagtail.core.fields import RichTextField, StreamField
-from wagtail.core.models import Page
+from wagtail.admin.panels import FieldPanel
+from wagtail.blocks import IntegerBlock, ListBlock, StreamBlock, StructBlock
+from wagtail.fields import RichTextField, StreamField
+from wagtail.models import Page
 
 from addresses.models import Address
 

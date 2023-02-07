@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
-from wagtail.core.blocks import ListBlock, PageChooserBlock
-from wagtail.core.models import Page
+from wagtail.blocks import ListBlock, PageChooserBlock
+from wagtail.models import Page
 
 from contact.models import Meeting, Organization, Person
 from content_migration.management.commands.shared import (

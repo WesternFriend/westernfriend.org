@@ -2,7 +2,7 @@
 
 import django.db.models.deletion
 import modelcluster.fields
-import wagtail.core.fields
+import wagtail.fields
 from django.db import migrations, models
 
 
@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                         to="wagtailcore.page",
                     ),
                 ),
-                ("description", wagtail.core.fields.RichTextField(blank=True)),
+                ("description", wagtail.fields.RichTextField(blank=True)),
                 ("price", models.DecimalField(decimal_places=2, max_digits=10)),
                 ("available", models.BooleanField(default=True)),
                 (
@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
                         to="wagtailcore.page",
                     ),
                 ),
-                ("intro", wagtail.core.fields.RichTextField(blank=True)),
+                ("intro", wagtail.fields.RichTextField(blank=True)),
             ],
             options={
                 "abstract": False,
