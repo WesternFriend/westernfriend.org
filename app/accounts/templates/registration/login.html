@@ -5,11 +5,11 @@
     <h1>Login</h1>
     <div class="row">
         <div class="col-md-6">
-            <form method="post" action="">
+            <form method="post" action="" class="mb-2">
                 {% csrf_token %}
                 {{ form|crispy }}
 
-                <input type="submit" value="login" class="btn btn-primary">
+                <input type="submit" value="login" class="btn btn-primary mt-3">
                 <input type="hidden" name="next" value="{{ next }}">
             </form>
             <a href="{% url 'password_reset' %}">Lost password?</a>
