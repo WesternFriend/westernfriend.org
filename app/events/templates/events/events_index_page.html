@@ -8,6 +8,7 @@
 
 {% block content %}
     <h1>
+        {{ event_category_title }}&nbsp;
         {{ page.title }}
     </h1>
 
@@ -53,6 +54,6 @@
             {% endif %}
         </div>
     {% else %}
-        <p>There are no events events</p>
+        <p>There are no {{ event_category_title }} events</p>
     {% endif %}
 {% endblock %}

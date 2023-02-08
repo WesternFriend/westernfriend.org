@@ -107,10 +107,12 @@ class EventsIndexPage(Page):
             # https://docs.djangoproject.com/en/4.1/topics/security/#sql-injection-protection
             # Adding this note to reappraise the security of this code if needed.
             filter_c = request_c
+            event_category_title = request_c.capitalize()
         else:
             # Default to Western events
             western_c = Event.EventCategoryChoices.WESTERN
             filter_c = western_c
+            event_category_title = western_c.label
 
         upcoming_events = (
             Event.objects.all()
@@ -136,5 +138,6 @@ class EventsIndexPage(Page):
             paginated_events = paginator.page(paginator.num_pages)
 
         context["events"] = paginated_events
+        context["event_category_title"] = event_category_title
 
         return context
