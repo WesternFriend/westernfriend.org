@@ -57,6 +57,10 @@ p {
 	margin-left: 0.1em;
 }
 
+#div_id_password {
+	margin-top: 0.8em;
+}
+
 #navbar-search-input {
 	background-color: #ffefed;
 	border-color: #ffefed;

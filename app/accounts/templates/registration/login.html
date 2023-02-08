@@ -9,7 +9,7 @@
                 {% csrf_token %}
                 {{ form|crispy }}
 
-                <input type="submit" value="login" class="btn btn-primary">
+                <input type="submit" value="login" class="btn btn-primary mt-3">
                 <input type="hidden" name="next" value="{{ next }}">
             </form>
             <a href="{% url 'password_reset' %}">Lost password?</a>
