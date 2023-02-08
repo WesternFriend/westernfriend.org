@@ -16,13 +16,15 @@ from wagtail.models import Page
 
 logger = logging.getLogger(__name__)
 
-
+# TODO: convert to a models.TextChoices class
+# e.g. in donations/models.py
 MAGAZINE_FORMAT_CHOICES = [
     ("pdf", "PDF"),
     ("print", "Print"),
     ("print_and_pdf", "Print and PDF"),
 ]
-
+# TODO: convert to a models.TextChoices class
+# e.g. in donations/models.py
 MAGAZINE_PRICE_GROUP_CHOICES = [
     ("normal", "Normal"),
     ("true_cost", "True cost"),

@@ -6,6 +6,8 @@ from wagtail.images.blocks import ImageChooserBlock
 from wagtail_color_panel.blocks import NativeColorBlock
 from wagtailmedia.blocks import AbstractMediaChooserBlock
 
+# TODO: convert to a models.TextChoices class
+# e.g. in donations/models.py
 IMAGE_ALIGN_CHOICES = [
     ("left", "Left"),
     ("right", "Right"),

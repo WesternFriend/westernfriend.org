@@ -13,6 +13,8 @@ from wagtail.search import index
 
 from addresses.models import Address
 
+# TODO: convert to a models.TextChoices class
+# e.g. in donations/models.py
 MEETING_TYPE_CHOICES = (
     ("monthly_meeting", "Monthly Meeting"),
     ("quarterly_meeting", "Quarterly Meeting"),
