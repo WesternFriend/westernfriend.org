@@ -5,12 +5,33 @@ from django.db import models
 from django.db.models import Q
 from timezone_field import TimeZoneField
 from wagtail import blocks as wagtail_blocks
-from wagtail.admin.panels import FieldPanel, PageChooserPanel
+from wagtail.admin.panels import FieldPanel, InlinePanel, PageChooserPanel
 from wagtail.fields import RichTextField, StreamField
-from wagtail.models import Page
+from wagtail.models import Orderable, Page
 from wagtail.search import index
 
+from modelcluster.fields import ParentalKey
+
 from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
+
+
+class EventSponsor(Orderable):
+    event = ParentalKey(
+        "events.Event",
+        on_delete=models.CASCADE,
+        related_name="sponsors",
+    )
+    sponsor = models.ForeignKey(
+        "wagtailcore.Page",
+        on_delete=models.CASCADE,
+        related_name="events_sponsored",
+    )
+
+    panels = [
+        PageChooserPanel(
+            "sponsor", ["contact.Person", "contact.Meeting", "contact.Organization"]
+        )
+    ]
 
 
 class Event(Page):
@@ -48,27 +69,22 @@ class Event(Page):
         choices=EventCategoryChoices.choices,
         default=EventCategoryChoices.WESTERN,
     )
-    sponsor = models.ForeignKey(
-        "wagtailcore.Page",
-        on_delete=models.PROTECT,
-        related_name="events_sponsored",
-        null=True,
-        blank=True,
-    )
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("is_featured"),
         FieldPanel("category"),
+        InlinePanel(
+            "sponsors",
+            heading="Sponsors",
+            label="Sponsor",
+        ),
         FieldPanel("teaser"),
         FieldPanel("body"),
         FieldPanel("start_date"),
         FieldPanel("end_date"),
         FieldPanel("timezone"),
         FieldPanel("website"),
-        PageChooserPanel(
-            "sponsor", ["contact.Person", "contact.Meeting", "contact.Organization"]
-        ),
     ]
 
     context_object_name = "event"
