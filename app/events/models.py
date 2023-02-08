@@ -14,6 +14,10 @@ from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, Spacer
 
 
 class Event(Page):
+    class EventCategoryChoices(models.TextChoices):
+        WESTERN = ("western", "Western")
+        OTHER = ("other", "Other")
+
     teaser = models.TextField(max_length=100, null=True, blank=True)
     body = StreamField(
         [
@@ -39,6 +43,11 @@ class Event(Page):
         default=False,
         help_text="Whether this event should be featured on the home page.",
     )
+    category = models.CharField(
+        max_length=255,
+        choices=EventCategoryChoices.choices,
+        default=EventCategoryChoices.WESTERN,
+    )
     sponsor = models.ForeignKey(
         "wagtailcore.Page",
         on_delete=models.PROTECT,
@@ -50,6 +59,7 @@ class Event(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("is_featured"),
+        FieldPanel("category"),
         FieldPanel("teaser"),
         FieldPanel("body"),
         FieldPanel("start_date"),
