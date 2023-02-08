@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import Q
 from timezone_field import TimeZoneField
 from wagtail import blocks as wagtail_blocks
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, PageChooserPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
@@ -39,6 +39,13 @@ class Event(Page):
         default=False,
         help_text="Whether this event should be featured on the home page.",
     )
+    sponsor = models.ForeignKey(
+        "wagtailcore.Page",
+        on_delete=models.PROTECT,
+        related_name="events_sponsored",
+        null=True,
+        blank=True,
+    )
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
@@ -49,6 +56,9 @@ class Event(Page):
         FieldPanel("end_date"),
         FieldPanel("timezone"),
         FieldPanel("website"),
+        PageChooserPanel(
+            "sponsor", ["contact.Person", "contact.Meeting", "contact.Organization"]
+        ),
     ]
 
     context_object_name = "event"
