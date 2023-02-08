@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-default_allowed_hosts = "127.0.0.1,localhost,westernfriend.ngrok.io"
+default_allowed_hosts = "127.0.0.1,localhost,westernfriend.eu.ngrok.io"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default_allowed_hosts).split(",")
 
