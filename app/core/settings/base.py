@@ -26,7 +26,7 @@ default_allowed_hosts = "127.0.0.1,localhost,westernfriend.eu.ngrok.io"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default_allowed_hosts).split(",")
 
-default_csrf_trusted_origins = "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost,https://westernfriend.ngrok.io"
+default_csrf_trusted_origins = "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost,https://westernfriend.eu.ngrok.io"
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "DJANGO_CSRF_TRUSTED_ORIGINS", default_csrf_trusted_origins
