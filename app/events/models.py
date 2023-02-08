@@ -99,10 +99,25 @@ class EventsIndexPage(Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
+        request_c = request.GET.get("category", None)
+
+        if request_c:
+            # Note: using the querystring parameter directly in the filter object
+            # seems safe since Django querysets are protected from SQL injection
+            # https://docs.djangoproject.com/en/4.1/topics/security/#sql-injection-protection
+            # Adding this note to reappraise the security of this code if needed.
+            filter_c = request_c
+        else:
+            # Default to Western events
+            western_c = Event.EventCategoryChoices.WESTERN
+            filter_c = western_c
 
         upcoming_events = (
             Event.objects.all()
-            .filter(Q(start_date__gt=date.today()))
+            .filter(
+                Q(start_date__gt=date.today()),
+                Q(category=filter_c),
+            )
             .order_by("start_date")
         )
 
