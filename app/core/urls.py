@@ -2,9 +2,9 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
 from django_registration.backends.one_step.views import RegistrationView
+from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps.views import sitemap
-from wagtail.core import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 # TODO: Change this line to send verification emails when registering users

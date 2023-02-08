@@ -1,6 +1,8 @@
 from django.db import models
 from wagtail.admin.panels import FieldPanel
 
+# TODO: convert to a models.TextChoices class
+# e.g. in donations/models.py
 ADDRESS_TYPE_CHOICES = (("mailing", "Mailing"), ("worship", "Worship"))
 
 

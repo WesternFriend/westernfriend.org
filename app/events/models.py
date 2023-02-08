@@ -5,15 +5,40 @@ from django.db import models
 from django.db.models import Q
 from timezone_field import TimeZoneField
 from wagtail import blocks as wagtail_blocks
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, InlinePanel, PageChooserPanel
 from wagtail.fields import RichTextField, StreamField
-from wagtail.models import Page
+from wagtail.models import Orderable, Page
 from wagtail.search import index
+
+from modelcluster.fields import ParentalKey
 
 from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
 
 
+class EventSponsor(Orderable):
+    event = ParentalKey(
+        "events.Event",
+        on_delete=models.CASCADE,
+        related_name="sponsors",
+    )
+    sponsor = models.ForeignKey(
+        "wagtailcore.Page",
+        on_delete=models.CASCADE,
+        related_name="events_sponsored",
+    )
+
+    panels = [
+        PageChooserPanel(
+            "sponsor", ["contact.Person", "contact.Meeting", "contact.Organization"]
+        )
+    ]
+
+
 class Event(Page):
+    class EventCategoryChoices(models.TextChoices):
+        WESTERN = ("western", "Western")
+        OTHER = ("other", "Other")
+
     teaser = models.TextField(max_length=100, null=True, blank=True)
     body = StreamField(
         [
@@ -39,10 +64,21 @@ class Event(Page):
         default=False,
         help_text="Whether this event should be featured on the home page.",
     )
+    category = models.CharField(
+        max_length=255,
+        choices=EventCategoryChoices.choices,
+        default=EventCategoryChoices.WESTERN,
+    )
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("is_featured"),
+        FieldPanel("category"),
+        InlinePanel(
+            "sponsors",
+            heading="Sponsors",
+            label="Sponsor",
+        ),
         FieldPanel("teaser"),
         FieldPanel("body"),
         FieldPanel("start_date"),
@@ -79,10 +115,27 @@ class EventsIndexPage(Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
+        request_c = request.GET.get("category", None)
+
+        if request_c:
+            # Note: using the querystring parameter directly in the filter object
+            # seems safe since Django querysets are protected from SQL injection
+            # https://docs.djangoproject.com/en/4.1/topics/security/#sql-injection-protection
+            # Adding this note to reappraise the security of this code if needed.
+            filter_c = request_c
+            event_category_title = request_c.capitalize()
+        else:
+            # Default to Western events
+            western_c = Event.EventCategoryChoices.WESTERN
+            filter_c = western_c
+            event_category_title = western_c.label
 
         upcoming_events = (
             Event.objects.all()
-            .filter(Q(start_date__gt=date.today()))
+            .filter(
+                Q(start_date__gt=date.today()),
+                Q(category=filter_c),
+            )
             .order_by("start_date")
         )
 
@@ -101,5 +154,6 @@ class EventsIndexPage(Page):
             paginated_events = paginator.page(paginator.num_pages)
 
         context["events"] = paginated_events
+        context["event_category_title"] = event_category_title
 
         return context
