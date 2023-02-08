@@ -22,7 +22,19 @@
         US/Pacific
     </p>
     
-
+    {% if event.sponsors %}
+        <dt class="col-sm-2">Sponsor(s):</dt>
+        <dd class="col-sm-10">
+            {% for sponsor in event.sponsors.all %}
+                {% if sponsor.sponsor.live %}
+                    <a href="{% pageurl sponsor.sponsor %}">
+                    {{ sponsor.sponsor }}</a>{% if not forloop.last %},{% endif %}
+                {% else %}
+                    {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
+                {% endif %}
+            {% endfor %}
+        </dd>
+    {% endif %}
     
 
     {% if event.body %}
