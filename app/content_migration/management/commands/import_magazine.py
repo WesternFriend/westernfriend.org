@@ -11,6 +11,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         directory = options["data_directory"]
 
+        if not directory.endswith("/"):
+            directory += "/"
+
         magazine_departments_filename = "magazine_departments.csv"
         magazine_authors_filename = "magazine_authors.csv"
         magazine_issues_filename = "magazine_issues.csv"
