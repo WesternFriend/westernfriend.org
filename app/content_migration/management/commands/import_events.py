@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
-from wagtail.core.rich_text import RichText
+from wagtail.rich_text import RichText
 
 from events.models import Event, EventsIndexPage
 

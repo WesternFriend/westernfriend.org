@@ -8,7 +8,7 @@ from bs4 import Tag as BS4_Tag
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
-from wagtail.core.rich_text import RichText
+from wagtail.rich_text import RichText
 
 from contact.models import Meeting, Organization, Person
 from content_migration.management.commands.shared import (
