@@ -6,6 +6,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from wagtail.blocks import ListBlock, PageChooserBlock
 from wagtail.models import Page
+from app.content_migration.management.commands.shared import (
+    get_existing_magazine_author_from_db,
+)
 
 from contact.models import Meeting, Organization, Person
 from content_migration.management.commands.shared import (
@@ -15,7 +18,7 @@ from content_migration.management.commands.shared import (
 from magazine.models import ArchiveArticle, ArchiveArticleAuthor, ArchiveIssue
 
 
-def create_archive_article_authors(archive_article, authors, magazine_authors):
+def create_archive_article_authors(archive_article, authors):
     """Create an ArchiveArticleAuthor instance for each author, if any"""
 
     if authors is not np.nan:
@@ -27,14 +30,11 @@ def create_archive_article_authors(archive_article, authors, magazine_authors):
 
         if authors_list is not None:
             for drupal_author_id in authors_list:
-                author_data = get_existing_magazine_author_by_id(
+                contact = get_existing_magazine_author_from_db(
                     drupal_author_id,
-                    magazine_authors,
                 )
 
-                if author_data is not None:
-                    contact = get_contact_from_author_data(author_data)
-
+                if contact is not None:
                     article_author = ArchiveArticleAuthor(
                         article=archive_article,
                         author=contact,
@@ -47,17 +47,13 @@ class Command(BaseCommand):
     help = "Import Archive Articles from Drupal site while linking them to Authors and Issues"
 
     def add_arguments(self, parser):
-        parser.add_argument("--articles_file", action="store", type=str)
+        parser.add_argument("--file", action="store", type=str)
         # parser.add_argument("--authors_file", action="store", type=str)
 
     def handle(self, *args, **options):
-        articles = pd.read_csv(options["articles_file"], dtype={"authors": str})
-
-        # We need to handle archive article authors that may have
-        # been merged with a different author ID as part of the de-duping process
-        # So, we will check for the correct author ID in the authors list below
-        magazine_authors = pd.read_csv(
-            "../import_data/magazine_authors-2021-04-14-joined-authors_cleaned-deduped.csv"
+        articles = pd.read_csv(
+            options["file"],
+            dtype={"authors": str},
         )
 
         grouped_articles = articles.groupby("internet_archive_identifier")
@@ -96,6 +92,4 @@ class Command(BaseCommand):
 
                 archive_article.save()
 
-                create_archive_article_authors(
-                    archive_article, article_data["authors"], magazine_authors
-                )
+                create_archive_article_authors(archive_article, article_data["authors"])
