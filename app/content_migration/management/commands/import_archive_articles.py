@@ -38,12 +38,19 @@ def create_archive_article_authors(archive_article, authors):
                 )
 
                 if contact is not None:
-                    article_author = ArchiveArticleAuthor(
+
+                    article_author_exists = ArchiveArticleAuthor.objects.filter(
                         article=archive_article,
                         author=contact,
-                    )
+                    ).exists()
 
-                    article_author.save()
+                    if not article_author_exists:
+                        article_author = ArchiveArticleAuthor(
+                            article=archive_article,
+                            author=contact,
+                        )
+
+                        article_author.save()
 
 
 class Command(BaseCommand):
