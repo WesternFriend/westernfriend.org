@@ -5,24 +5,43 @@
     {{ page.title }}
 </h1>
 
+<iframe 
+    id="archive-pdf-viewer"
+    src="https://archive.org/stream/{{ page.internet_archive_identifier }}?ui=embed#page/n0"
+    width="100%"
+    height="700"
+    frameborder="0"
+    webkitallowfullscreen="true"
+    mozallowfullscreen="true"
+    allowfullscreen>
+</iframe>
+
 <h2>Table of Contents</h2>
-<table class="table table-sm table-striped">
-    <tr>
-        <th>View page</th>
-        <th>Article</th>
-        <th>Author(s)</th>
-        <th>Page</th>
-    </tr>
+<table class="table">
+    <thead>
+        <tr>
+            <th>View page</th>
+            <th>Article</th>
+            <th>Author(s)</th>
+            <th>Page</th>
+        </tr>
+    </thead>
 
     {% for article in page.archive_articles.all %}
-    <tr class="article" data-pdf-page-number="{{ article.value.pdf_page_number }}"
-        data-internet-archive-identifier="{{ page.internet_archive_identifier }}" onclick="turnPage(this)">
+    <tr 
+        class="article"
+        data-pdf-page-number="{{ article.value.pdf_page_number }}"
+        data-internet-archive-identifier="{{ page.internet_archive_identifier }}" 
+        onclick="turnPage(this)"
+    >
         <td>
+            {% if article.value.pdf_page_number %}
             <button class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-eye"></i>
                 <i class="bi bi-file-earmark-text"></i>
-                View
+                {{ article.value.pdf_page_number }}
             </button>
+            {% endif %}
         </td>
         <td>{{ article.title }}</td>
         <td>
@@ -30,11 +49,11 @@
             TODO: allow multiple authors for archive articles
         {% endcomment %}
         
-        {% comment %} 
-            {% for author in article.value.authors %}
+
+        {% for author in article.value.authors %}
             {{ author }}{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        {% endcomment %}
+        {% endfor %}
+
         </td>
 
         {% if article.page_number %}
@@ -45,14 +64,6 @@
     </tr>
     {% endfor %}
 </table>
-
-
-
-<h2>Issue</h2>
-
-<iframe id="archive-pdf-viewer" src="https://archive.org/stream/{{ page.internet_archive_identifier }}?ui=embed#page/n0"
-    width="100%" height="500" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true"
-    allowfullscreen></iframe>
 {% endblock content %}
 
 {% block extra_js %}
