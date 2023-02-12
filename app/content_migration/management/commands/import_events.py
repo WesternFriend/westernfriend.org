@@ -54,6 +54,7 @@ class Command(BaseCommand):
                     start_date=start_date,
                     end_date=end_date,
                     website=event["event_link"],
+                    category=Event.EventCategoryChoices.WESTERN,
                 )
 
                 # # Add event to site page hiererchy
