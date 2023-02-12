@@ -35,7 +35,7 @@ class OnlineWorshipModelAdmin(ModelAdmin):
 
 class CommunityResourcesGroup(ModelAdminGroup):
     menu_label = "Resources"
-    menu_icon = "site"
+    menu_icon = "snippet"
     menu_order = 300
     items = (CommunityDirectoryModelAdmin, OnlineWorshipModelAdmin)
 
