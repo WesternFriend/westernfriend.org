@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load wagtailcore_tags %}
+
 {% block content %}
 <h1>
     {{ page.title }}
@@ -30,12 +32,12 @@
     {% for article in page.archive_articles.all %}
     <tr 
         class="article"
-        data-pdf-page-number="{{ article.value.pdf_page_number }}"
+        data-pdf-page-number="{{ article.pdf_page_number }}"
         data-internet-archive-identifier="{{ page.internet_archive_identifier }}" 
         onclick="turnPage(this)"
     >
         <td>
-            {% if article.value.pdf_page_number %}
+            {% if article.pdf_page_number %}
             <button class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-eye"></i>
                 <i class="bi bi-file-earmark-text"></i>
@@ -45,19 +47,18 @@
         </td>
         <td>{{ article.title }}</td>
         <td>
-        {% comment %} 
-            TODO: allow multiple authors for archive articles
-        {% endcomment %}
-        
-
-        {% for author in article.value.authors %}
-            {{ author }}{% if not forloop.last %},{% endif %}
+        {% for archive_author in article.archive_authors.all %}
+            {% if archive_author.author.live %}
+                <a href="{% pageurl archive_author.author %}">{{ archive_author.author }}</a>{% if not forloop.last %},{% endif %}
+            {% else %}
+                {{ archive_author.author }}{% if not forloop.last %},{% endif %}
+            {% endif %}
         {% endfor %}
 
         </td>
 
-        {% if article.page_number %}
-            <td>{{ article.page_number }}</td>
+        {% if article.toc_page_number %}
+            <td>{{ article.toc_page_number }}</td>
         {% else %}
             <td>Unknown</td>
         {% endif %}
