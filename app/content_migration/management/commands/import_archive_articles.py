@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
@@ -10,6 +12,13 @@ from content_migration.management.commands.shared import (
 )
 
 from magazine.models import ArchiveArticle, ArchiveArticleAuthor, ArchiveIssue
+
+logging.basicConfig(
+    filename="archive_article_import.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 def create_archive_article_authors(archive_article, authors):
@@ -60,10 +69,8 @@ class Command(BaseCommand):
                     internet_archive_identifier=internet_archive_identifier
                 )
             except ObjectDoesNotExist:
-                print(
-                    "Could not find archive issue with identifier:",
-                    internet_archive_identifier,
-                )
+                errpr_message = f"Could not find archive issue with identifier: { internet_archive_identifier }"
+                logger.error(errpr_message)
 
             for index, article_data in issue_articles.iterrows():
 
