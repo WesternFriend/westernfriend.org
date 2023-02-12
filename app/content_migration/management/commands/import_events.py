@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+import numpy as np
 
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
@@ -36,8 +37,10 @@ class Command(BaseCommand):
                 start_date = datetime.strptime(event["start_date"], date_format)
                 end_date = datetime.strptime(event["end_date"], date_format)
 
-                # # Get teaser, max length is 100 characters
-                teaser = event["body"][0:99]
+                # Get teaser, max length is 100 characters
+                teaser = None
+                if event["body"]:
+                    teaser = event["body"][0:99]
 
                 event_body_blocks = []
                 # Create rich text block for event body blocks list
@@ -53,7 +56,7 @@ class Command(BaseCommand):
                     website=event["event_link"],
                 )
 
-                # Add event to site page hiererchy
+                # # Add event to site page hiererchy
                 events_index_page.add_child(instance=import_event)
                 events_index_page.save()
 
