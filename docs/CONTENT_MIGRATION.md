@@ -190,6 +190,16 @@ python manage.py import_magazine_articles --articles_file /path/to/file --author
 
 ## Media Library
 
+### Single command
+
+Import all Library content with the following single command.
+
+```sh
+python manage.py import_library --folder /path/to/data/directory/
+```
+
+### Individual commands
+
 Import the Media Library in the following order.
 
 1. facets
