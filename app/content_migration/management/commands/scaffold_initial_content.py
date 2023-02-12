@@ -36,7 +36,11 @@ class Command(BaseCommand):
     help = "Create initial site structure"
 
     def handle(self, *args, **options):
-        root_page = Page.objects.get(id=1)
+        try:
+            root_page = Page.objects.get(id=1)
+        except Page.DoesNotExist:
+            root_page = Page(id=1).save()
+
         home_page = HomePage(title="Welcome")
 
         root_page.add_child(instance=home_page)
@@ -50,7 +54,10 @@ class Command(BaseCommand):
         # Delete welcome page
         # ID: 2 is used, since welcome page is second page created
         # Otherwise, the title "Welcome to your new Wagtail site!" might be useful
-        Page.objects.get(id=2).delete()
+        try:
+            Page.objects.get(id=2).delete()
+        except Page.DoesNotExist:
+            print("No need to delete welcome page")
 
         # Create Home Page children
         community_page = CommunityPage(title="Community", show_in_menus=True)

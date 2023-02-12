@@ -7,6 +7,9 @@ from wagtail.contrib.modeladmin.options import (
 )
 from wagtail.core import hooks
 
+from events.models import Event
+from memorials.models import Memorial
+
 from .models import Meeting, Organization, Person
 
 
@@ -44,14 +47,66 @@ class OrganizationModelAdmin(ModelAdmin):
     search_fields = ("title",)
 
 
-class ContactsGroup(ModelAdminGroup):
-    menu_label = "Contacts"
-    menu_icon = "mail"
+class MemorialModelAdmin(ModelAdmin):
+    """Memorial model admin."""
+
+    model = Memorial
+    menu_label = "Memorials"
+    menu_icon = "fa-circle-o-notch"
+    menu_order = 295
+    add_to_settings_menu = False
+    exclude_from_explorer = False
+    list_display = ("full_name", "memorial_meeting")
+    search_fields = (
+        "user",
+        "given_name",
+        "family_name",
+    )
+
+
+class EventModelAdmin(ModelAdmin):
+    model = Event
+    menu_icon = "date"
+    menu_label = "Events"
     menu_order = 200
-    items = (PersonModelAdmin, MeetingModelAdmin, OrganizationModelAdmin)
+    add_to_settings_menu = False
+    exclude_from_explorer = False
+    list_per_page = 10
+    ordering = [
+        "start_date",
+    ]
+    list_display = (
+        "title",
+        "start_date",
+        "end_date",
+        "live",
+    )
+    empty_value_display = "-"
+    search_fields = (
+        "title",
+        "description",
+    )
+    list_filter = (
+        "start_date",
+        "category",
+        "live",
+    )
 
 
-modeladmin_register(ContactsGroup)
+class CommunityGroup(ModelAdminGroup):
+    menu_label = "Community"
+    menu_icon = "site"
+    menu_order = 200
+    items = (
+        PersonModelAdmin,
+        MeetingModelAdmin,
+        OrganizationModelAdmin,
+        EventModelAdmin,
+        MemorialModelAdmin,
+    )
+
+
+modeladmin_register(CommunityGroup)
 
 
 @hooks.register("insert_editor_js")

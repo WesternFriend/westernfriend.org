@@ -1,13 +1,66 @@
-from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
+from wagtail.contrib.modeladmin.options import (
+    ModelAdmin,
+    ModelAdminGroup,
+    modeladmin_register,
+)
 
+from facets.models import Audience, Genre, Medium, TimePeriod, Topic
 from library.models import LibraryItem
 
 
-@modeladmin_register
+class AudienceModelAdmin(ModelAdmin):
+    model = Audience
+    menu_icon = "group"
+    menu_label = "Audiences"
+    list_per_page = 10
+    list_display = ("title",)
+    search_fields = "title"
+
+
+class GenreModelAdmin(ModelAdmin):
+    model = Genre
+    menu_icon = "fa-book"
+    menu_label = "Genres"
+    list_per_page = 10
+    ordering = ["title"]
+    list_display = ("title",)
+    search_fields = ("title",)
+
+
+class MediumModelAdmin(ModelAdmin):
+    model = Medium
+    menu_icon = "fa-paperclip"
+    menu_label = "Mediums"
+    list_per_page = 10
+    ordering = ["title"]
+    list_display = ("title",)
+    search_fields = "title"
+
+
+class TimePeriodModelAdmin(ModelAdmin):
+    model = TimePeriod
+    menu_icon = "fa-calendar"
+    menu_label = "Time Periods"
+    list_per_page = 10
+    ordering = ["title"]
+    list_display = ("title",)
+    search_fields = "title"
+
+
+class TopicModelAdmin(ModelAdmin):
+    model = Topic
+    menu_icon = "fa-commenting"
+    menu_label = "Topics"
+    list_per_page = 10
+    ordering = ["title"]
+    list_display = ("title",)
+    search_fields = "title"
+
+
 class LibraryItemModelAdmin(ModelAdmin):
     model = LibraryItem
-    menu_icon = "fa-university"
-    menu_label = "Library"
+    menu_icon = "media"
+    menu_label = "Items"
     menu_order = 110
     list_per_page = 10
     list_display = (
@@ -24,3 +77,18 @@ class LibraryItemModelAdmin(ModelAdmin):
         "item_time_period",
     )
     search_fields = ("title",)
+
+
+@modeladmin_register
+class LibraryGroup(ModelAdminGroup):
+    menu_label = "Library"
+    menu_icon = "fa-university"
+    menu_order = 200
+    items = (
+        LibraryItemModelAdmin,
+        AudienceModelAdmin,
+        GenreModelAdmin,
+        MediumModelAdmin,
+        TimePeriodModelAdmin,
+        TopicModelAdmin,
+    )

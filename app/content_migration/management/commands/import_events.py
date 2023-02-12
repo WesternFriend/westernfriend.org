@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime
 
+import numpy as np
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
@@ -22,11 +23,13 @@ class Command(BaseCommand):
         # Get the only instance of Magazine Department Index Page
         events_index_page = EventsIndexPage.objects.get()
 
-        events_list = pd.read_csv(options["file"]).to_dict("records")
+        events_list = (
+            pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
+        )
 
         for event in tqdm(events_list, desc="events", unit="row"):
             event_exists = Event.objects.filter(
-                drupal_node_id=event["node_id"],
+                drupal_node_id=event["drupal_node_id"],
             ).exists()
 
             if not event_exists:
@@ -34,8 +37,10 @@ class Command(BaseCommand):
                 start_date = datetime.strptime(event["start_date"], date_format)
                 end_date = datetime.strptime(event["end_date"], date_format)
 
-                # # Get teaser, max length is 100 characters
-                teaser = event["body"][0:99]
+                # Get teaser, max length is 100 characters
+                teaser = None
+                if event["body"]:
+                    teaser = event["body"][0:99]
 
                 event_body_blocks = []
                 # Create rich text block for event body blocks list
@@ -49,9 +54,10 @@ class Command(BaseCommand):
                     start_date=start_date,
                     end_date=end_date,
                     website=event["event_link"],
+                    category=Event.EventCategoryChoices.WESTERN,
                 )
 
-                # Add event to site page hiererchy
+                # # Add event to site page hiererchy
                 events_index_page.add_child(instance=import_event)
                 events_index_page.save()
 
