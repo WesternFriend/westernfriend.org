@@ -468,6 +468,11 @@ class ArchiveIssue(Page):
     parent_page_types = ["DeepArchiveIndexPage"]
     subpage_types = []
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["internet_archive_identifier"]),
+        ]
+
 
 class DeepArchiveIndexPage(Page):
     intro = RichTextField(blank=True)
