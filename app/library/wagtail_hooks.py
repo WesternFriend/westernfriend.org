@@ -4,8 +4,8 @@ from wagtail.contrib.modeladmin.options import (
     modeladmin_register,
 )
 
-from library.models import LibraryItem
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
+from library.models import LibraryItem
 
 
 class AudienceModelAdmin(ModelAdmin):

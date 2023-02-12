@@ -7,9 +7,10 @@ from wagtail.contrib.modeladmin.options import (
 )
 from wagtail.core import hooks
 
-from .models import Meeting, Organization, Person
 from events.models import Event
 from memorials.models import Memorial
+
+from .models import Meeting, Organization, Person
 
 
 class PersonModelAdmin(ModelAdmin):

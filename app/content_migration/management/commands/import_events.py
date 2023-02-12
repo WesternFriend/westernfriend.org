@@ -1,7 +1,7 @@
 import csv
 from datetime import datetime
-import numpy as np
 
+import numpy as np
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 from tqdm import tqdm
