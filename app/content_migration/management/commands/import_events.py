@@ -22,7 +22,9 @@ class Command(BaseCommand):
         # Get the only instance of Magazine Department Index Page
         events_index_page = EventsIndexPage.objects.get()
 
-        events_list = pd.read_csv(options["file"]).to_dict("records")
+        events_list = (
+            pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
+        )
 
         for event in tqdm(events_list, desc="events", unit="row"):
             event_exists = Event.objects.filter(
