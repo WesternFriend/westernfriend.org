@@ -377,13 +377,13 @@ class ArchiveArticleAuthor(Orderable):
     article = ParentalKey(
         "magazine.ArchiveArticle",
         null=True,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="archive_authors",
     )
     author = models.ForeignKey(
         "wagtailcore.Page",
         null=True,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="archive_articles_authored",
     )
 
@@ -436,6 +436,11 @@ class ArchiveArticle(ClusterableModel):
         ),
     ]
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["drupal_node_id"]),
+        ]
+
 
 class ArchiveIssue(Page):
     publication_date = models.DateField(
@@ -467,6 +472,11 @@ class ArchiveIssue(Page):
 
     parent_page_types = ["DeepArchiveIndexPage"]
     subpage_types = []
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["internet_archive_identifier"]),
+        ]
 
 
 class DeepArchiveIndexPage(Page):

@@ -15,7 +15,6 @@ class Command(BaseCommand):
             directory += "/"
 
         library_items_filename = "library_items.csv"
-        magazine_authors_filename = "magazine_authors.csv"
 
         call_command(
             "import_library_item_facets",
@@ -23,6 +22,5 @@ class Command(BaseCommand):
         )
         call_command(
             "import_library_items",
-            library_items_file=f"{ directory }{ library_items_filename }",
-            magazine_authors_file=f"{ directory }{ magazine_authors_filename }",
+            file=f"{ directory }{ library_items_filename }",
         )

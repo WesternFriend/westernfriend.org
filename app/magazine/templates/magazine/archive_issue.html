@@ -1,66 +1,95 @@
 {% extends "base.html" %}
 
+{% load wagtailcore_tags %}
+
 {% block content %}
 <h1>
     {{ page.title }}
 </h1>
 
+<iframe 
+    id="archive-pdf-viewer"
+    src="https://archive.org/stream/{{ page.internet_archive_identifier }}?ui=embed#page/n0"
+    width="100%"
+    height="700"
+    frameborder="0"
+    webkitallowfullscreen="true"
+    mozallowfullscreen="true"
+    allowfullscreen>
+</iframe>
+
 <h2>Table of Contents</h2>
-<table class="table table-sm table-striped">
-    <tr>
-        <th>View page</th>
-        <th>Article</th>
-        <th>Author(s)</th>
-        <th>Page</th>
-    </tr>
+<table class="table">
+    <thead>
+        <tr>
+            <th>View page</th>
+            <th>Article</th>
+            <th>Author(s)</th>
+            <th>Page</th>
+        </tr>
+    </thead>
 
     {% for article in page.archive_articles.all %}
-    <tr class="article" data-pdf-page-number="{{ article.value.pdf_page_number }}"
-        data-internet-archive-identifier="{{ page.internet_archive_identifier }}" onclick="turnPage(this)">
+    <tr 
+        class="article"
+        data-pdf-page-number="{{ article.pdf_page_number }}"
+        data-internet-archive-identifier="{{ page.internet_archive_identifier }}" 
+        onclick="turnPage(this)"
+    >
         <td>
+            {% if article.pdf_page_number %}
             <button class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-eye"></i>
                 <i class="bi bi-file-earmark-text"></i>
-                View
+                {{ article.value.pdf_page_number }}
             </button>
+            {% endif %}
         </td>
         <td>{{ article.title }}</td>
         <td>
-        {% comment %} 
-            TODO: allow multiple authors for archive articles
-        {% endcomment %}
-        
-        {% comment %} 
-            {% for author in article.value.authors %}
-            {{ author }}{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        {% endcomment %}
+        {% for archive_author in article.archive_authors.all %}
+            {% if archive_author.author.live %}
+                <a href="{% pageurl archive_author.author %}">{{ archive_author.author }}</a>{% if not forloop.last %},{% endif %}
+            {% else %}
+                {{ archive_author.author }}{% if not forloop.last %},{% endif %}
+            {% endif %}
+        {% endfor %}
+
         </td>
 
-        {% if article.page_number %}
-            <td>{{ article.page_number }}</td>
+        {% if article.toc_page_number %}
+            <td>{{ article.toc_page_number }}</td>
         {% else %}
             <td>Unknown</td>
         {% endif %}
     </tr>
     {% endfor %}
 </table>
-
-
-
-<h2>Issue</h2>
-
-<iframe id="archive-pdf-viewer" src="https://archive.org/stream/{{ page.internet_archive_identifier }}?ui=embed#page/n0"
-    width="100%" height="500" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true"
-    allowfullscreen></iframe>
 {% endblock content %}
 
 {% block extra_js %}
-<script>
+<script data-ia-identifier="{{ page.internet_archive_identifier }}">
+    document.addEventListener('DOMContentLoaded', setInitialPdfPage, false);
+    // Get Internet Archive identifier
+    const ia_identifier = document.currentScript.getAttribute('data-ia-identifier');
+    
+    function setInitialPdfPage (event) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pdfPageNumber = urlParams.get('pdf_page_number');
+
+        if (pdfPageNumber) {
+            // Construct new string for Internet Archive iframe
+            const newSrc = `https://archive.org/stream/${ia_identifier}?ui=embed#page/n${pdfPageNumber}/mode/2up`;
+            
+
+            // Replace iframe src attribute with new string
+            document.getElementById('archive-pdf-viewer').setAttribute('src', newSrc);
+        }
+    }
+
     function turnPage(element) {
         // Get page number, trim whitespace
         var pageNumber = element.dataset.pdfPageNumber;
-        //debugger;
 
         // Subtract one from page number, since IA viewer starts at zero
         pageNumber = parseInt(pageNumber) - 1;
@@ -70,7 +99,7 @@
 
         // Construct new string for Internet Archive iframe
         var newSrc = 'https://archive.org/stream/' + ia_identifier + '?ui=embed#page/n' + pageNumber + '/mode/2up';
-        debugger;
+
         // Replace iframe src attribute with new string
         document.getElementById('archive-pdf-viewer').setAttribute('src', newSrc);
     };

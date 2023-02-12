@@ -126,13 +126,17 @@
 {% endfor %}
 {% endif %}
 
-{% if page.articles_authored.count %}
+{% if page.archive_articles_authored.count %}
 <h2>Archive Articles</h2>
 
 <ul>
 {% for article in page.archive_articles_authored.all %}
     <li>
-        {{ article.title }}
+        {{ article.article.issue }} -
+        <a 
+            href="{% pageurl article.article.issue %}?pdf_page_number={{ article.article.pdf_page_number }}">
+            {{ article.article.title }}
+        </a>
     </li>
 {% endfor %}
 </ul>
