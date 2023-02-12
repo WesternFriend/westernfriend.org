@@ -3,14 +3,13 @@ from datetime import date
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
 from django.db.models import Q
+from modelcluster.fields import ParentalKey
 from timezone_field import TimeZoneField
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel, InlinePanel, PageChooserPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
-
-from modelcluster.fields import ParentalKey
 
 from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
 

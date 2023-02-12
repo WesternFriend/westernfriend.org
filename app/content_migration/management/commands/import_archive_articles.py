@@ -5,12 +5,11 @@ import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
-
 from wagtail.models import Page
+
 from content_migration.management.commands.shared import (
     get_existing_magazine_author_from_db,
 )
-
 from magazine.models import ArchiveArticle, ArchiveArticleAuthor, ArchiveIssue
 
 logging.basicConfig(
