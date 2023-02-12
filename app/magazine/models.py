@@ -436,6 +436,11 @@ class ArchiveArticle(ClusterableModel):
         ),
     ]
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["drupal_node_id"]),
+        ]
+
 
 class ArchiveIssue(Page):
     publication_date = models.DateField(
