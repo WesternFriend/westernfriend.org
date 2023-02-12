@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
         for event in tqdm(events_list, desc="events", unit="row"):
             event_exists = Event.objects.filter(
-                drupal_node_id=event["node_id"],
+                drupal_node_id=event["drupal_node_id"],
             ).exists()
 
             if not event_exists:
