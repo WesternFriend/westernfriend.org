@@ -11,7 +11,9 @@ class EventModelAdmin(ModelAdmin):
     add_to_settings_menu = False
     exclude_from_explorer = False
     list_per_page = 10
-    ordering = ["start_date"]
+    ordering = [
+        "start_date",
+    ]
     list_display = (
         "title",
         "start_date",
@@ -19,8 +21,15 @@ class EventModelAdmin(ModelAdmin):
         "live",
     )
     empty_value_display = "-"
-    search_fields = ("title", "description")
-    list_filter = ("start_date",)
+    search_fields = (
+        "title",
+        "description",
+    )
+    list_filter = (
+        "start_date",
+        "category",
+        "live",
+    )
 
 
 modeladmin_register(EventModelAdmin)
