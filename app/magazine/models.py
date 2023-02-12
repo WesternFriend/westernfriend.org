@@ -383,7 +383,7 @@ class ArchiveArticleAuthor(Orderable):
     author = models.ForeignKey(
         "wagtailcore.Page",
         null=True,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="archive_articles_authored",
     )
 
