@@ -1,20 +1,14 @@
-import math
-
 import numpy as np
 import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand, CommandError
-from wagtail.blocks import ListBlock, PageChooserBlock
+from django.core.management.base import BaseCommand
+from tqdm import tqdm
+
 from wagtail.models import Page
-from app.content_migration.management.commands.shared import (
+from content_migration.management.commands.shared import (
     get_existing_magazine_author_from_db,
 )
 
-from contact.models import Meeting, Organization, Person
-from content_migration.management.commands.shared import (
-    get_contact_from_author_data,
-    get_existing_magazine_author_by_id,
-)
 from magazine.models import ArchiveArticle, ArchiveArticleAuthor, ArchiveIssue
 
 
@@ -57,8 +51,10 @@ class Command(BaseCommand):
         )
 
         grouped_articles = articles.groupby("internet_archive_identifier")
-
-        for internet_archive_identifier, issue_articles in grouped_articles:
+        # for issue in tqdm(issues, desc="Archive issues", unit="row"):
+        for internet_archive_identifier, issue_articles in tqdm(
+            grouped_articles, desc="Archive articles", unit="row"
+        ):
             try:
                 issue = ArchiveIssue.objects.get(
                     internet_archive_identifier=internet_archive_identifier
