@@ -377,7 +377,7 @@ class ArchiveArticleAuthor(Orderable):
     article = ParentalKey(
         "magazine.ArchiveArticle",
         null=True,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="archive_authors",
     )
     author = models.ForeignKey(
