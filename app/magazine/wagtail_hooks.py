@@ -118,9 +118,16 @@ class ArchiveIssueModelAdmin(ModelAdmin):
     ordering = [
         "publication_date",
     ]
-    list_display = ("title", "publication_date")
+    list_display = (
+        "title",
+        "publication_date",
+        "internet_archive_identifier",
+    )
     empty_value_display = "-"
-    search_fields = ("title",)
+    search_fields = (
+        "title",
+        "internet_archive_identifier",
+    )
 
 
 class MagazineDepartmentModelAdmin(ModelAdmin):
