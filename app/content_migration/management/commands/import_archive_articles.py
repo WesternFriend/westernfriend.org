@@ -78,13 +78,29 @@ class Command(BaseCommand):
                 if not np.isnan(article_data["toc_page_number"]):
                     toc_page_number = article_data["toc_page_number"]
 
-                archive_article = ArchiveArticle(
-                    title=article_data["title"],
-                    issue=issue,
-                    toc_page_number=toc_page_number,
-                    pdf_page_number=pdf_page_number,
-                    drupal_node_id=article_data["node_id"],
-                )
+                article_exists = ArchiveArticle.objects.filter(
+                    drupal_node_id=article_data["drupal_node_id"]
+                ).exists()
+
+                if article_exists:
+                    archive_article = ArchiveArticle.objects.get(
+                        drupal_node_id=article_data["drupal_node_id"]
+                    )
+                    # Make sure all fields are updated
+                    archive_article.title = article_data["title"]
+                    archive_article.issue = issue
+                    archive_article.toc_page_number = toc_page_number
+                    archive_article.pdf_page_number = pdf_page_number
+                    archive_article.drupal_node_id = article_data["drupal_node_id"]
+                else:
+                    # Create a new archive article
+                    archive_article = ArchiveArticle(
+                        title=article_data["title"],
+                        issue=issue,
+                        toc_page_number=toc_page_number,
+                        pdf_page_number=pdf_page_number,
+                        drupal_node_id=article_data["drupal_node_id"],
+                    )
 
                 archive_article.save()
 
