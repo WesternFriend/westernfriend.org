@@ -132,7 +132,8 @@
 <ul>
 {% for article in page.archive_articles_authored.all %}
     <li>
-        <a href="{% pageurl article.article.issue %}">
+        <a 
+            href="{% pageurl article.article.issue %}?pdf_page={{ article.article.pdf_page_number }}">
             {{ article.article.issue }}
         </a>- {{ article.article.title }}
     </li>
