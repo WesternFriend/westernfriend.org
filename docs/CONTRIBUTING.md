@@ -28,7 +28,7 @@ This project is built with [Python](https://www.python.org/), [Django](https://w
    - `python manage.py migrate`
 7. create a superuser
    - `python manage.py createsuperuser`  
-9. run the local server
+8. run the local server
    - `python manage.py runserver`
 
 Once the server is running, you can access it from http://localhost:8000
