@@ -85,12 +85,13 @@ CiviCRM stores contacts that are used in our Community Directory.
 2. Set the search criteria to "is Organization"
    - this is because we only want organizations for our community directory
 3. Click "search"
-4. Click "Actions" -> "Export Contacts
-5. Click "Select fields for export"
-6. Choose "Organization export (mailing and worship)"
-7. Click "Continue"
-8. Click "Download File"
-9. Open the CSV in LibreOffice and save it to fix the Unicode issues with column names
+4. select all records
+5. Click "Actions" -> "Export Contacts
+6. Click "Select fields for export"
+7. Choose "Organization export (mailing and worship)"
+8. Click "Continue"
+9. Click "Download File"
+10. Open the CSV in LibreOffice and save it to fix the Unicode issues with column names
 
 Import the contacts with the following command.
 
@@ -115,7 +116,7 @@ python manage.py import_civicrm_addresses --file path/to/file.csv
    - Monthly Meeting
    - Worship Group
 3. Click "View results"
-4. Click "Actions" -> "Download CSV"
+4. Click "Actions" -> "Export as CSV"
 5. Name the file "CiviCRM_meeting_relationships.csv"
 6. Open the file in LibreOffice and save it again as a CSV to fix the character encoding
 
