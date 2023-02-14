@@ -75,8 +75,8 @@ class Command(BaseCommand):
                     internet_archive_identifier=internet_archive_identifier
                 )
             except ObjectDoesNotExist:
-                errpr_message = f"Could not find archive issue with identifier: { internet_archive_identifier }"
-                logger.error(errpr_message)
+                error_message = f"Could not find archive issue with identifier: { internet_archive_identifier }"
+                logger.error(error_message)
 
             for index, article_data in issue_articles.iterrows():
 
