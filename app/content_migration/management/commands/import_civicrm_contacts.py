@@ -2,6 +2,7 @@
 # https://stackoverflow.com/a/38999572/1191545
 
 import csv
+import logging
 
 import pandas as pd
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
@@ -15,6 +16,13 @@ from contact.models import (
     Organization,
     OrganizationIndexPage,
 )
+
+logging.basicConfig(
+    filename="archive_article_import.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 def add_meeting_worship_times(meeting, contact):
