@@ -4,6 +4,7 @@
 import csv
 import logging
 
+import numpy as np
 import pandas as pd
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
@@ -29,7 +30,7 @@ def add_meeting_worship_times(meeting, contact):
     # For a given Meeting model instance,
     # add meeting time(s) from CiviCRM contact data
 
-    if contact["Regular time of Worship on First Day (1)"] != "":
+    if contact["Regular time of Worship on First Day (1)"] != None:
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="first_day_worship",
@@ -38,7 +39,7 @@ def add_meeting_worship_times(meeting, contact):
 
         worship_time.save()
 
-    if contact["Regular time of Worship on First Day (2)"] != "":
+    if contact["Regular time of Worship on First Day (2)"] != None:
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="first_day_worship_2nd",
@@ -51,7 +52,7 @@ def add_meeting_worship_times(meeting, contact):
         contact[
             "Regular day and time of Meeting for Worship on the Occassion of Business"
         ]
-        != ""
+        != None
     ):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
@@ -65,7 +66,7 @@ def add_meeting_worship_times(meeting, contact):
 
     if (
         contact["Regular day and time of other weekly or monthly public meetings (1)"]
-        != ""
+        != None
     ):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
@@ -109,7 +110,9 @@ class Command(BaseCommand):
         meeting_index_page = MeetingIndexPage.objects.get()
         organization_index_page = OrganizationIndexPage.objects.get()
 
-        contacts = pd.read_csv(options["file"]).to_dict("records")
+        contacts = (
+            pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
+        )
 
         for contact in tqdm(
             contacts,
@@ -128,6 +131,14 @@ class Command(BaseCommand):
             # - Worship_Group
             # - Quaker_Organization
             # - NULL
+
+            if contact["Contact Subtype"] is None:
+                error_message = (
+                    f"Contact { contact['Display Name']} does not have Contact Subtype"
+                )
+                logger.error(error_message)
+                # Skip to next contact
+                continue
 
             contact_type = contact["Contact Subtype"].strip()
 
@@ -150,8 +161,6 @@ class Command(BaseCommand):
             contact_is_organization = contact_type in organization_types
             organization_name = contact["Organization Name"]
             contact_id = contact["Contact ID"]
-
-            print(organization_name, contact_id)
 
             if contact_is_meeting:
                 # If meeting exists, update
@@ -178,8 +187,6 @@ class Command(BaseCommand):
                     meeting.civicrm_id = contact_id
 
                     meeting.save()
-
-                    add_meeting_worship_times(meeting, contact)
                 else:
                     meeting = Meeting(
                         title=organization_name,
@@ -194,7 +201,7 @@ class Command(BaseCommand):
 
                     meeting_index_page.save()
 
-                    add_meeting_worship_times(meeting, contact)
+                add_meeting_worship_times(meeting, contact)
             elif contact_is_organization:
                 # If organization exists, update
                 # else create new organization
