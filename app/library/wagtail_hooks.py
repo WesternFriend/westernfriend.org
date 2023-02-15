@@ -59,7 +59,7 @@ class TopicModelAdmin(ModelAdmin):
 
 class LibraryItemModelAdmin(ModelAdmin):
     model = LibraryItem
-    menu_icon = "media"
+    menu_icon = "list-ul"
     menu_label = "Items"
     menu_order = 110
     list_per_page = 10
