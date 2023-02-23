@@ -242,12 +242,18 @@ class Command(BaseCommand):
         }
 
         stream_data = [
-            {
-                "type": "page",
+            (
+                "page",
                 # StructBlock
-                "value": magazine_page_menu_item_value,
-            },
+                magazine_page_menu_item_value,
+            ),
         ]
+
+        mock_menu_block = StreamBlock(
+            [
+                ("page", NavigationPageChooserBlock()),
+            ]
+        )
 
         magazine_books_dropdown = {
             "title": "Magazine / Books",
@@ -257,7 +263,7 @@ class Command(BaseCommand):
                 # type of block to use.....
                 # https://stackoverflow.com/questions/75548482/how-to-programatically-create-a-wagtail-structblock-containing-a-streamfield
                 # https://stackoverflow.com/questions/46795866/add-streamblock-child-items-programmatically-in-wagtail?rq=1
-                stream_block=NavigationPageChooserBlock(),
+                stream_block=mock_menu_block,
                 stream_data=stream_data,
             ),
         }
