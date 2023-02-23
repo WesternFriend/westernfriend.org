@@ -236,34 +236,30 @@ class Command(BaseCommand):
 
         store_index_page.add_child(instance=product_index_page)
 
-        # magazine_books_dropdown = NavigationDropdownMenuBlock(
-        #     title="Magazine / Books",
-        #     menu_items=[
-        #         ("page", magazine_index_page),
-        #         ("page", deep_archive_index_page),
-        #         ("page", future_issues),
-        #         ("page", store_index_page),
-        #     ],
-        # )
+        magazine_page_menu_item_value = {
+            "title": "Magazine",
+            "page": magazine_index_page,
+        }
 
-        # navigation_menu_block = NavigationDropdownMenuBlock()
-        # StructBlock
+        stream_data = [
+            {
+                "type": "page",
+                # StructBlock
+                "value": magazine_page_menu_item_value,
+            },
+        ]
+
         magazine_books_dropdown = {
             "title": "Magazine / Books",
             # StreamBlock
-            # "menu_items": StreamValue(
-            #     stream_block=NavigationPageChooserBlock(),
-            #     stream_data=[
-            #         {
-            #             "type": "page",
-            #             # StructBlock
-            #             "value": {
-            #                 "title": "Magazine",
-            #                 "page": magazine_index_page,
-            #             },
-            #         },
-            #     ],
-            # ),
+            "menu_items": StreamValue(
+                # TODO: determine how to tell this StreamValue what
+                # type of block to use.....
+                # https://stackoverflow.com/questions/75548482/how-to-programatically-create-a-wagtail-structblock-containing-a-streamfield
+                # https://stackoverflow.com/questions/46795866/add-streamblock-child-items-programmatically-in-wagtail?rq=1
+                stream_block=NavigationPageChooserBlock(),
+                stream_data=stream_data,
+            ),
         }
 
         # ("page", deep_archive_index_page),
