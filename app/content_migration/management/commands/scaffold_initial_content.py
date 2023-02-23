@@ -72,16 +72,16 @@ class Command(BaseCommand):
         # Create Home Page children
 
         # Custom WF Pages in site root
-        help_wanted = WfPage(
+        help_wanted_page = WfPage(
             title="Help Wanted",
         )
-        future_issues = WfPage(
+        future_issues_page = WfPage(
             title="Future Issues",
         )
-        mission_and_history = WfPage(
+        mission_and_history_page = WfPage(
             title="Mission & History",
         )
-        board_of_directors = WfPage(
+        board_of_directors_page = WfPage(
             title="Board of Directors",
         )
         community_page = CommunityPage(
@@ -132,10 +132,10 @@ class Command(BaseCommand):
         home_page.add_child(instance=news_index_page)
         home_page.add_child(instance=store_index_page)
         home_page.add_child(instance=subscription_index_page)
-        home_page.add_child(instance=future_issues)
-        home_page.add_child(instance=mission_and_history)
-        home_page.add_child(instance=board_of_directors)
-        home_page.add_child(instance=help_wanted)
+        home_page.add_child(instance=future_issues_page)
+        home_page.add_child(instance=mission_and_history_page)
+        home_page.add_child(instance=board_of_directors_page)
+        home_page.add_child(instance=help_wanted_page)
         home_page.save()
 
         # Magazine section
@@ -236,19 +236,6 @@ class Command(BaseCommand):
 
         store_index_page.add_child(instance=product_index_page)
 
-        magazine_page_menu_item_value = {
-            "title": "Magazine",
-            "page": magazine_index_page,
-        }
-
-        stream_data = [
-            (
-                "page",
-                # StructBlock
-                magazine_page_menu_item_value,
-            ),
-        ]
-
         mock_menu_block = StreamBlock(
             [
                 ("page", NavigationPageChooserBlock()),
@@ -264,13 +251,38 @@ class Command(BaseCommand):
                 # https://stackoverflow.com/questions/75548482/how-to-programatically-create-a-wagtail-structblock-containing-a-streamfield
                 # https://stackoverflow.com/questions/46795866/add-streamblock-child-items-programmatically-in-wagtail?rq=1
                 stream_block=mock_menu_block,
-                stream_data=stream_data,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Recent Issues",
+                            "page": magazine_index_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Deep Archive",
+                            "page": deep_archive_index_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Future Issues",
+                            "page": future_issues_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Books",
+                            "page": store_index_page,
+                        },
+                    ),
+                ],
             ),
         }
-
-        # ("page", deep_archive_index_page),
-        # ("page", future_issues),
-        # ("page", store_index_page),
 
         # Navigation menu
         navigation_items = [
