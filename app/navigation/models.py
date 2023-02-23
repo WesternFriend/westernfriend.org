@@ -12,7 +12,7 @@ from .blocks import (
 
 @register_setting
 class NavigationMenuSetting(BaseSiteSetting):
-    items = StreamField(
+    menu_items = StreamField(
         [
             ("internal_page", NavigationPageChooserBlock()),
             ("external_link", NavigationExternalLinkBlock()),
@@ -22,7 +22,7 @@ class NavigationMenuSetting(BaseSiteSetting):
     )
 
     panels = [
-        FieldPanel("items"),
+        FieldPanel("menu_items"),
     ]
 
     class Meta:
