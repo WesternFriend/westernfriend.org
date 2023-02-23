@@ -290,7 +290,7 @@ class Command(BaseCommand):
         ]
         navigation_menu = NavigationMenuSetting(
             menu_items=navigation_items,
-            site_id=1,
+            site_id=site.id,
         )
 
         navigation_menu.save()
