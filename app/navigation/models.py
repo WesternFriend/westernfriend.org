@@ -1,6 +1,6 @@
 from django.db import models
 from wagtail.admin.panels import FieldPanel
-from wagtail.contrib.settings.models import BaseSetting, register_setting
+from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.fields import StreamField
 
 from .blocks import (
@@ -11,7 +11,7 @@ from .blocks import (
 
 
 @register_setting
-class NavigationMenuSetting(BaseSetting):
+class NavigationMenuSetting(BaseSiteSetting):
     items = StreamField(
         [
             ("internal_page", NavigationPageChooserBlock()),
