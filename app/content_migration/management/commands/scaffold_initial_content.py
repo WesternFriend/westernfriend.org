@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
+from wagtail import blocks as wagtail_blocks
 from wagtail.models import Page, Site
+from wagtail.blocks import StreamBlock, StreamValue
 
 from community.models import (
     CommunityDirectoryIndexPage,
@@ -27,6 +29,11 @@ from magazine.models import (
     MagazineTagIndexPage,
 )
 from memorials.models import MemorialIndexPage
+from navigation.models import NavigationMenuSetting
+from navigation.blocks import (
+    NavigationDropdownMenuBlock,
+    NavigationPageChooserBlock,
+)
 from news.models import NewsIndexPage, NewsTopicIndexPage, NewsTypeIndexPage
 from store.models import ProductIndexPage, StoreIndexPage
 from subscription.models import ManageSubscriptionPage, SubscriptionIndexPage
@@ -228,5 +235,50 @@ class Command(BaseCommand):
         )
 
         store_index_page.add_child(instance=product_index_page)
+
+        # magazine_books_dropdown = NavigationDropdownMenuBlock(
+        #     title="Magazine / Books",
+        #     menu_items=[
+        #         ("page", magazine_index_page),
+        #         ("page", deep_archive_index_page),
+        #         ("page", future_issues),
+        #         ("page", store_index_page),
+        #     ],
+        # )
+
+        # navigation_menu_block = NavigationDropdownMenuBlock()
+        # StructBlock
+        magazine_books_dropdown = {
+            "title": "Magazine / Books",
+            # StreamBlock
+            # "menu_items": StreamValue(
+            #     stream_block=NavigationPageChooserBlock(),
+            #     stream_data=[
+            #         {
+            #             "type": "page",
+            #             # StructBlock
+            #             "value": {
+            #                 "title": "Magazine",
+            #                 "page": magazine_index_page,
+            #             },
+            #         },
+            #     ],
+            # ),
+        }
+
+        # ("page", deep_archive_index_page),
+        # ("page", future_issues),
+        # ("page", store_index_page),
+
+        # Navigation menu
+        navigation_items = [
+            ("drop_down", magazine_books_dropdown),
+        ]
+        navigation_menu = NavigationMenuSetting(
+            menu_items=navigation_items,
+            site_id=1,
+        )
+
+        navigation_menu.save()
 
         self.stdout.write("All done!")
