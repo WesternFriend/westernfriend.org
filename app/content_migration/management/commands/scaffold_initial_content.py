@@ -246,10 +246,6 @@ class Command(BaseCommand):
             "title": "Magazine / Books",
             # StreamBlock
             "menu_items": StreamValue(
-                # TODO: determine how to tell this StreamValue what
-                # type of block to use.....
-                # https://stackoverflow.com/questions/75548482/how-to-programatically-create-a-wagtail-structblock-containing-a-streamfield
-                # https://stackoverflow.com/questions/46795866/add-streamblock-child-items-programmatically-in-wagtail?rq=1
                 stream_block=mock_menu_block,
                 stream_data=[
                     (
@@ -284,9 +280,163 @@ class Command(BaseCommand):
             ),
         }
 
+        other_content_dropdown = {
+            "title": "Other Content",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Library / Media",
+                            "page": library_index_page,
+                        },
+                    ),
+                    # TODO: create NewslettersIndexPage / feature
+                    # (
+                    #     "page",
+                    #     {
+                    #         "title": "Newsletters",
+                    #         "page": newsletters_index_page,
+                    #     },
+                    # ),
+                    # TODO: create PodcastIndexPage / feature
+                    # (
+                    #     "page",
+                    #     {
+                    #         "title": "Podcasts",
+                    #         "page": podcast_index_page,
+                    #     },
+                    # ),
+                    (
+                        "page",
+                        {
+                            "title": "Memorials",
+                            "page": memorial_index_page,
+                        },
+                    ),
+                ],
+            ),
+        }
+
+        events_dropdown = {
+            "title": "Events",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Online Worship",
+                            "page": online_worship_index_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Western Events",
+                            "page": events_page,
+                        },
+                    ),
+                    # TODO: create other events link
+                    # e.g. as external link, passing in category=other querstring
+                    # (
+                    #     "page",
+                    #     {
+                    #         "title": "Other Events",
+                    #         "page": future_issues_page,
+                    #     },
+                    # ),
+                ],
+            ),
+        }
+
+        about_us_dropdown = {
+            "title": "About Us",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Mission & History",
+                            "page": mission_and_history_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Board of Directors",
+                            "page": board_of_directors_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Directories",
+                            "page": community_directory_index_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Contact Us",
+                            "page": contact_form_page,
+                        },
+                    ),
+                ],
+            ),
+        }
+
+        subscribe_donate_dropdown = {
+            "title": "Subscribe / Donate",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Subscribe - Magazine",
+                            "page": subscription_index_page,
+                        },
+                    ),
+                    # TODO: create NewsletterSubscriptionFormPage
+                    # (
+                    #     "page",
+                    #     {
+                    #         "title": "Subscribe - Newsletter",
+                    #         "page": newsletter_subscription_form_page,
+                    #     },
+                    # ),
+                    (
+                        "page",
+                        {
+                            "title": "Donate",
+                            "page": donate_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Help Wanted",
+                            "page": help_wanted_page,
+                        },
+                    ),
+                ],
+            ),
+        }
+
         # Navigation menu
         navigation_items = [
             ("drop_down", magazine_books_dropdown),
+            ("drop_down", other_content_dropdown),
+            ("drop_down", events_dropdown),
+            ("drop_down", about_us_dropdown),
+            ("drop_down", subscribe_donate_dropdown),
         ]
         navigation_menu = NavigationMenuSetting(
             menu_items=navigation_items,
