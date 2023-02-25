@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
+from wagtail import blocks as wagtail_blocks
 from wagtail.models import Page, Site
+from wagtail.blocks import StreamBlock, StreamValue
 
 from community.models import (
     CommunityDirectoryIndexPage,
@@ -27,9 +29,15 @@ from magazine.models import (
     MagazineTagIndexPage,
 )
 from memorials.models import MemorialIndexPage
+from navigation.models import NavigationMenuSetting
+from navigation.blocks import (
+    NavigationDropdownMenuBlock,
+    NavigationPageChooserBlock,
+)
 from news.models import NewsIndexPage, NewsTopicIndexPage, NewsTypeIndexPage
 from store.models import ProductIndexPage, StoreIndexPage
 from subscription.models import ManageSubscriptionPage, SubscriptionIndexPage
+from wf_pages.models import WfPage
 
 
 class Command(BaseCommand):
@@ -41,7 +49,9 @@ class Command(BaseCommand):
         except Page.DoesNotExist:
             root_page = Page(id=1).save()
 
-        home_page = HomePage(title="Welcome")
+        home_page = HomePage(
+            title="Welcome",
+        )
 
         root_page.add_child(instance=home_page)
         root_page.save()
@@ -60,17 +70,56 @@ class Command(BaseCommand):
             print("No need to delete welcome page")
 
         # Create Home Page children
-        community_page = CommunityPage(title="Community", show_in_menus=True)
-        contact_form_page = ContactFormPage(title="Contact", show_in_menus=True)
-        donate_page = DonatePage(title="Donate", show_in_menus=True)
-        events_page = EventsIndexPage(title="Events")
-        library_index_page = LibraryIndexPage(title="Library", show_in_menus=True)
-        magazine_index_page = MagazineIndexPage(title="Magazine", show_in_menus=True)
-        manage_subscription_page = ManageSubscriptionPage(title="Manage subscription")
-        news_index_page = NewsIndexPage(title="News")
-        store_index_page = StoreIndexPage(title="Bookstore", show_in_menus=True)
+
+        # Custom WF Pages in site root
+        help_wanted_page = WfPage(
+            title="Help Wanted",
+        )
+        future_issues_page = WfPage(
+            title="Future Issues",
+        )
+        mission_and_history_page = WfPage(
+            title="Mission & History",
+        )
+        board_of_directors_page = WfPage(
+            title="Board of Directors",
+        )
+        community_page = CommunityPage(
+            title="Community",
+            show_in_menus=True,
+        )
+        contact_form_page = ContactFormPage(
+            title="Contact",
+            show_in_menus=True,
+        )
+        donate_page = DonatePage(
+            title="Donate",
+            show_in_menus=True,
+        )
+        events_page = EventsIndexPage(
+            title="Events",
+        )
+        library_index_page = LibraryIndexPage(
+            title="Library",
+            show_in_menus=True,
+        )
+        magazine_index_page = MagazineIndexPage(
+            title="Magazine",
+            show_in_menus=True,
+        )
+        manage_subscription_page = ManageSubscriptionPage(
+            title="Manage subscription",
+        )
+        news_index_page = NewsIndexPage(
+            title="News",
+        )
+        store_index_page = StoreIndexPage(
+            title="Bookstore",
+            show_in_menus=True,
+        )
         subscription_index_page = SubscriptionIndexPage(
-            title="Subscribe", show_in_menus=True
+            title="Subscribe",
+            show_in_menus=True,
         )
 
         home_page.add_child(instance=community_page)
@@ -83,14 +132,22 @@ class Command(BaseCommand):
         home_page.add_child(instance=news_index_page)
         home_page.add_child(instance=store_index_page)
         home_page.add_child(instance=subscription_index_page)
+        home_page.add_child(instance=future_issues_page)
+        home_page.add_child(instance=mission_and_history_page)
+        home_page.add_child(instance=board_of_directors_page)
+        home_page.add_child(instance=help_wanted_page)
         home_page.save()
 
         # Magazine section
         magazine_department_index_page = MagazineDepartmentIndexPage(
-            title="Departments"
+            title="Departments",
         )
-        magazine_tag_index_page = MagazineTagIndexPage(title="Tags")
-        deep_archive_index_page = DeepArchiveIndexPage(title="Archive")
+        magazine_tag_index_page = MagazineTagIndexPage(
+            title="Tags",
+        )
+        deep_archive_index_page = DeepArchiveIndexPage(
+            title="Archive",
+        )
 
         magazine_index_page.add_child(instance=magazine_department_index_page)
         magazine_index_page.add_child(instance=magazine_tag_index_page)
@@ -99,8 +156,14 @@ class Command(BaseCommand):
         magazine_index_page.save()
 
         # News section
-        news_topic_index_page = NewsTopicIndexPage(title="News topics", slug="topic")
-        news_type_index_page = NewsTypeIndexPage(title="News types", slug="type")
+        news_topic_index_page = NewsTopicIndexPage(
+            title="News topics",
+            slug="topic",
+        )
+        news_type_index_page = NewsTypeIndexPage(
+            title="News types",
+            slug="type",
+        )
 
         news_index_page.add_child(instance=news_topic_index_page)
         news_index_page.add_child(instance=news_type_index_page)
@@ -109,15 +172,24 @@ class Command(BaseCommand):
 
         # Community section
         community_directory_index_page = CommunityDirectoryIndexPage(
-            title="Community directories"
+            title="Community directories",
         )
-        meeting_index_page = MeetingIndexPage(title="Meetings")
-        memorial_index_page = MemorialIndexPage(title="Memorials", show_in_menus=True)
+        meeting_index_page = MeetingIndexPage(
+            title="Meetings",
+        )
+        memorial_index_page = MemorialIndexPage(
+            title="Memorials",
+            show_in_menus=True,
+        )
         online_worship_index_page = OnlineWorshipIndexPage(
-            title="Online meetings for worship"
+            title="Online meetings for worship",
         )
-        organization_index_page = OrganizationIndexPage(title="Organizations")
-        person_index_page = PersonIndexPage(title="People")
+        organization_index_page = OrganizationIndexPage(
+            title="Organizations",
+        )
+        person_index_page = PersonIndexPage(
+            title="People",
+        )
 
         community_page.add_child(instance=community_directory_index_page)
         community_page.add_child(instance=meeting_index_page)
@@ -128,16 +200,28 @@ class Command(BaseCommand):
         community_page.save()
 
         # Library section
-        facet_index_page = FacetIndexPage(title="Facets")
+        facet_index_page = FacetIndexPage(
+            title="Facets",
+        )
 
         library_index_page.add_child(instance=facet_index_page)
 
         # Library facets section
-        audience_index_page = AudienceIndexPage(title="Audience")
-        genre_index_page = GenreIndexPage(title="Genre")
-        medium_index_page = MediumIndexPage(title="Medium")
-        time_period_index_page = TimePeriodIndexPage(title="Time period")
-        topic_index_page = TopicIndexPage(title="Topic")
+        audience_index_page = AudienceIndexPage(
+            title="Audience",
+        )
+        genre_index_page = GenreIndexPage(
+            title="Genre",
+        )
+        medium_index_page = MediumIndexPage(
+            title="Medium",
+        )
+        time_period_index_page = TimePeriodIndexPage(
+            title="Time period",
+        )
+        topic_index_page = TopicIndexPage(
+            title="Topic",
+        )
 
         facet_index_page.add_child(instance=audience_index_page)
         facet_index_page.add_child(instance=genre_index_page)
@@ -146,8 +230,219 @@ class Command(BaseCommand):
         facet_index_page.add_child(instance=topic_index_page)
 
         # Bookstore section
-        product_index_page = ProductIndexPage(title="Products")
+        product_index_page = ProductIndexPage(
+            title="Products",
+        )
 
         store_index_page.add_child(instance=product_index_page)
+
+        mock_menu_block = StreamBlock(
+            [
+                ("page", NavigationPageChooserBlock()),
+            ]
+        )
+
+        magazine_books_dropdown = {
+            "title": "Magazine / Books",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Recent Issues",
+                            "page": magazine_index_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Deep Archive",
+                            "page": deep_archive_index_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Future Issues",
+                            "page": future_issues_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Books",
+                            "page": store_index_page,
+                        },
+                    ),
+                ],
+            ),
+        }
+
+        other_content_dropdown = {
+            "title": "Other Content",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Library / Media",
+                            "page": library_index_page,
+                        },
+                    ),
+                    # TODO: create NewslettersIndexPage / feature
+                    # (
+                    #     "page",
+                    #     {
+                    #         "title": "Newsletters",
+                    #         "page": newsletters_index_page,
+                    #     },
+                    # ),
+                    # TODO: create PodcastIndexPage / feature
+                    # (
+                    #     "page",
+                    #     {
+                    #         "title": "Podcasts",
+                    #         "page": podcast_index_page,
+                    #     },
+                    # ),
+                    (
+                        "page",
+                        {
+                            "title": "Memorials",
+                            "page": memorial_index_page,
+                        },
+                    ),
+                ],
+            ),
+        }
+
+        events_dropdown = {
+            "title": "Events",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Online Worship",
+                            "page": online_worship_index_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Western Events",
+                            "page": events_page,
+                        },
+                    ),
+                    # TODO: create other events link
+                    # e.g. as external link, passing in category=other querstring
+                    # (
+                    #     "page",
+                    #     {
+                    #         "title": "Other Events",
+                    #         "page": future_issues_page,
+                    #     },
+                    # ),
+                ],
+            ),
+        }
+
+        about_us_dropdown = {
+            "title": "About Us",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Mission & History",
+                            "page": mission_and_history_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Board of Directors",
+                            "page": board_of_directors_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Directories",
+                            "page": community_directory_index_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Contact Us",
+                            "page": contact_form_page,
+                        },
+                    ),
+                ],
+            ),
+        }
+
+        subscribe_donate_dropdown = {
+            "title": "Subscribe / Donate",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Subscribe - Magazine",
+                            "page": subscription_index_page,
+                        },
+                    ),
+                    # TODO: create NewsletterSubscriptionFormPage
+                    # (
+                    #     "page",
+                    #     {
+                    #         "title": "Subscribe - Newsletter",
+                    #         "page": newsletter_subscription_form_page,
+                    #     },
+                    # ),
+                    (
+                        "page",
+                        {
+                            "title": "Donate",
+                            "page": donate_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Help Wanted",
+                            "page": help_wanted_page,
+                        },
+                    ),
+                ],
+            ),
+        }
+
+        # Navigation menu
+        navigation_items = [
+            ("drop_down", magazine_books_dropdown),
+            ("drop_down", other_content_dropdown),
+            ("drop_down", events_dropdown),
+            ("drop_down", about_us_dropdown),
+            ("drop_down", subscribe_donate_dropdown),
+        ]
+        navigation_menu = NavigationMenuSetting(
+            menu_items=navigation_items,
+            site_id=site.id,
+        )
+
+        navigation_menu.save()
 
         self.stdout.write("All done!")
