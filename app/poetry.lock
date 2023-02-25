@@ -223,18 +223,18 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.26.77"
+version = "1.26.79"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "boto3-1.26.77-py3-none-any.whl", hash = "sha256:17f0d782487275cac12676a61b3f1a4900954cc454c842b8551ca47a3dcd59b4"},
-    {file = "boto3-1.26.77.tar.gz", hash = "sha256:bf808f7433629650128ab577a9d4a0f4daf072d9f2f3a907b9d567a6952d9154"},
+    {file = "boto3-1.26.79-py3-none-any.whl", hash = "sha256:049de631cc03726a14b8eb24ac9ec2a48b0624197796f36166da809fdc9b9a7f"},
+    {file = "boto3-1.26.79.tar.gz", hash = "sha256:73d7bd1f16118ef0dfe936e0420cd76b02d1aedb75330ebda51168458ab752ac"},
 ]
 
 [package.dependencies]
-botocore = ">=1.29.77,<1.30.0"
+botocore = ">=1.29.79,<1.30.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -243,14 +243,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.29.77"
+version = "1.29.79"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "botocore-1.29.77-py3-none-any.whl", hash = "sha256:d8aa7bffe2422de282b2d02945b7b45d5fecf00f67b65eebb0b1fa3de1abc6d0"},
-    {file = "botocore-1.29.77.tar.gz", hash = "sha256:9d94a02f2584b52c65fb3cb309fb1b29d6d0c36d69062722b0275c1c382c44c9"},
+    {file = "botocore-1.29.79-py3-none-any.whl", hash = "sha256:5f254f019e8641f8b2ba6dddc1f7541e8c6d25d976802392710b2fc4bac925b1"},
+    {file = "botocore-1.29.79.tar.gz", hash = "sha256:c7ded44062bed3b928944cfb09e1578ed3fed0e4c98de4f233f3c2056a8d491e"},
 ]
 
 [package.dependencies]
@@ -1230,14 +1230,14 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.2.2)", "pytest (>=7.2.1)", "pytes
 
 [[package]]
 name = "pontos"
-version = "23.2.9"
+version = "23.2.10"
 description = "Common utilities and tools maintained by Greenbone Networks"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "pontos-23.2.9-py3-none-any.whl", hash = "sha256:747610beb27a1baef37d0fe55ddb1c0c9d29d32513941a9cb63e111a10b733a6"},
-    {file = "pontos-23.2.9.tar.gz", hash = "sha256:bb12e2e9438ba2df3070297bdcff69189d0a91f26df7f8ec9e05c7ecc44aa15c"},
+    {file = "pontos-23.2.10-py3-none-any.whl", hash = "sha256:8eebafb362ecc81eb5201b8f18b73b1807e274b91041755094e33ae39c34dc23"},
+    {file = "pontos-23.2.10.tar.gz", hash = "sha256:a4dcea78f6dca97cbd2b09d3b1db7d1d378a7331fc48581e9309a89c5479b408"},
 ]
 
 [package.dependencies]

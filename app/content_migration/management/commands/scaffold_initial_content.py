@@ -31,7 +31,7 @@ from magazine.models import (
 from memorials.models import MemorialIndexPage
 from navigation.models import NavigationMenuSetting
 from navigation.blocks import (
-    NavigationDropdownMenuBlock,
+    NavigationExternalLinkBlock,
     NavigationPageChooserBlock,
 )
 from news.models import NewsIndexPage, NewsTopicIndexPage, NewsTypeIndexPage
@@ -239,6 +239,7 @@ class Command(BaseCommand):
         mock_menu_block = StreamBlock(
             [
                 ("page", NavigationPageChooserBlock()),
+                ("external_link", NavigationExternalLinkBlock()),
             ]
         )
 
@@ -340,15 +341,13 @@ class Command(BaseCommand):
                             "page": events_page,
                         },
                     ),
-                    # TODO: create other events link
-                    # e.g. as external link, passing in category=other querstring
-                    # (
-                    #     "page",
-                    #     {
-                    #         "title": "Other Events",
-                    #         "page": future_issues_page,
-                    #     },
-                    # ),
+                    (
+                        "external_link",
+                        {
+                            "title": "Other Events",
+                            "url": f"{events_page.relative_url(current_site=site)}?category=other",
+                        },
+                    ),
                 ],
             ),
         }
