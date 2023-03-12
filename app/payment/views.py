@@ -156,9 +156,13 @@ def payment_process(request, previous_page):
             return process_braintree_transaction(request, entity, nonce)
 
         if processing_donation:
-            if entity.recurring:
+            # Recurring donations happen more than once
+            # and should be treated as a subscription
+            # since only Braintree subscriptions can recur
+            if entity.recurrence != "once":
                 return process_braintree_subscription(request, entity, nonce)
 
+            # Otherwise, treate the donation as a single-time transaction
             return process_braintree_transaction(request, entity, nonce)
 
         if processing_subscription:

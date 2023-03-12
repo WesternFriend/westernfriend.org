@@ -5,7 +5,7 @@ from wagtail.contrib.modeladmin.options import (
     ModelAdminGroup,
     modeladmin_register,
 )
-from wagtail.core import hooks
+from wagtail import hooks
 
 from community.models import CommunityDirectory, OnlineWorship
 from contact.models import Meeting, Organization, Person

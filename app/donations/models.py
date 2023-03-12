@@ -124,6 +124,6 @@ class Donation(models.Model):
         """
 
         return self.recurrence in (
-            DonationRecurrenceChoices.MONTHLY,
-            DonationRecurrenceChoices.YEARLY,
+            self.DonationRecurrenceChoices.MONTHLY,
+            self.DonationRecurrenceChoices.YEARLY,
         )
