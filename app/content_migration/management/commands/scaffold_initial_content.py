@@ -121,6 +121,9 @@ class Command(BaseCommand):
             title="Subscribe",
             show_in_menus=True,
         )
+        subscribe_newsletter_page = WfPage(
+            title="Subscribe - Newsletter",
+        )
 
         home_page.add_child(instance=community_page)
         home_page.add_child(instance=contact_form_page)
@@ -136,6 +139,8 @@ class Command(BaseCommand):
         home_page.add_child(instance=mission_and_history_page)
         home_page.add_child(instance=board_of_directors_page)
         home_page.add_child(instance=help_wanted_page)
+        home_page.add_child(instance=subscribe_newsletter_page)
+
         home_page.save()
 
         # Magazine section
@@ -403,14 +408,13 @@ class Command(BaseCommand):
                             "page": subscription_index_page,
                         },
                     ),
-                    # TODO: create NewsletterSubscriptionFormPage
-                    # (
-                    #     "page",
-                    #     {
-                    #         "title": "Subscribe - Newsletter",
-                    #         "page": newsletter_subscription_form_page,
-                    #     },
-                    # ),
+                    (
+                        "page",
+                        {
+                            "title": "Subscribe - Newsletter",
+                            "page": subscribe_newsletter_page,
+                        },
+                    ),
                     (
                         "page",
                         {
