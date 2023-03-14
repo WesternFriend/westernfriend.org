@@ -259,7 +259,7 @@ class Command(BaseCommand):
                     (
                         "page",
                         {
-                            "title": "Deep Archive",
+                            "title": "Archive Issues",
                             "page": deep_archive_index_page,
                         },
                     ),
@@ -321,37 +321,6 @@ class Command(BaseCommand):
             ),
         }
 
-        events_dropdown = {
-            "title": "Events",
-            # StreamBlock
-            "menu_items": StreamValue(
-                stream_block=mock_menu_block,
-                stream_data=[
-                    (
-                        "page",
-                        {
-                            "title": "Online Worship",
-                            "page": online_worship_index_page,
-                        },
-                    ),
-                    (
-                        "page",
-                        {
-                            "title": "Western Events",
-                            "page": events_page,
-                        },
-                    ),
-                    (
-                        "external_link",
-                        {
-                            "title": "Other Events",
-                            "url": f"{events_page.relative_url(current_site=site)}?category=other",
-                        },
-                    ),
-                ],
-            ),
-        }
-
         about_us_dropdown = {
             "title": "About Us",
             # StreamBlock
@@ -384,6 +353,37 @@ class Command(BaseCommand):
                         {
                             "title": "Contact Us",
                             "page": contact_form_page,
+                        },
+                    ),
+                ],
+            ),
+        }
+
+        events_dropdown = {
+            "title": "Events",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Online Worship",
+                            "page": online_worship_index_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Western Events",
+                            "page": events_page,
+                        },
+                    ),
+                    (
+                        "external_link",
+                        {
+                            "title": "Other Events",
+                            "url": f"{events_page.relative_url(current_site=site)}?category=other",
                         },
                     ),
                 ],
@@ -433,8 +433,8 @@ class Command(BaseCommand):
         navigation_items = [
             ("drop_down", magazine_books_dropdown),
             ("drop_down", other_content_dropdown),
-            ("drop_down", events_dropdown),
             ("drop_down", about_us_dropdown),
+            ("drop_down", events_dropdown),
             ("drop_down", subscribe_donate_dropdown),
         ]
         navigation_menu = NavigationMenuSetting(
