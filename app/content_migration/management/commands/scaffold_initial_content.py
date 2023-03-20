@@ -124,6 +124,9 @@ class Command(BaseCommand):
         subscribe_newsletter_page = WfPage(
             title="Subscribe - Newsletter",
         )
+        podcast_index_page = WfPage(
+            title="Podcasts",
+        )
 
         home_page.add_child(instance=community_page)
         home_page.add_child(instance=contact_form_page)
@@ -307,13 +310,13 @@ class Command(BaseCommand):
                         },
                     ),
                     # TODO: create PodcastIndexPage / feature
-                    # (
-                    #     "page",
-                    #     {
-                    #         "title": "Podcasts",
-                    #         "page": podcast_index_page,
-                    #     },
-                    # ),
+                    (
+                        "page",
+                        {
+                            "title": "Podcasts",
+                            "page": podcast_index_page,
+                        },
+                    ),
                     (
                         "page",
                         {
