@@ -74,15 +74,19 @@ class Command(BaseCommand):
         # Custom WF Pages in site root
         help_wanted_page = WfPage(
             title="Help Wanted",
+            show_in_menus=True,
         )
         future_issues_page = WfPage(
             title="Future Issues",
+            show_in_menus=True,
         )
         mission_and_history_page = WfPage(
             title="Mission & History",
+            show_in_menus=True,
         )
         board_of_directors_page = WfPage(
             title="Board of Directors",
+            show_in_menus=True,
         )
         community_page = CommunityPage(
             title="Community",
@@ -98,6 +102,7 @@ class Command(BaseCommand):
         )
         events_page = EventsIndexPage(
             title="Events",
+            show_in_menus=True,
         )
         library_index_page = LibraryIndexPage(
             title="Library",
@@ -112,6 +117,7 @@ class Command(BaseCommand):
         )
         news_index_page = NewsIndexPage(
             title="News",
+            show_in_menus=True,
         )
         store_index_page = StoreIndexPage(
             title="Bookstore",
@@ -119,6 +125,14 @@ class Command(BaseCommand):
         )
         subscription_index_page = SubscriptionIndexPage(
             title="Subscribe",
+            show_in_menus=True,
+        )
+        subscribe_newsletter_page = WfPage(
+            title="Subscribe - Newsletter",
+            show_in_menus=True,
+        )
+        podcast_index_page = WfPage(
+            title="Podcasts",
             show_in_menus=True,
         )
 
@@ -136,6 +150,8 @@ class Command(BaseCommand):
         home_page.add_child(instance=mission_and_history_page)
         home_page.add_child(instance=board_of_directors_page)
         home_page.add_child(instance=help_wanted_page)
+        home_page.add_child(instance=subscribe_newsletter_page)
+
         home_page.save()
 
         # Magazine section
@@ -259,7 +275,7 @@ class Command(BaseCommand):
                     (
                         "page",
                         {
-                            "title": "Deep Archive",
+                            "title": "Archive Issues",
                             "page": deep_archive_index_page,
                         },
                     ),
@@ -294,58 +310,26 @@ class Command(BaseCommand):
                             "page": library_index_page,
                         },
                     ),
-                    # TODO: create NewslettersIndexPage / feature
-                    # (
-                    #     "page",
-                    #     {
-                    #         "title": "Newsletters",
-                    #         "page": newsletters_index_page,
-                    #     },
-                    # ),
+                    (
+                        "page",
+                        {
+                            "title": "Extra Extra / News",
+                            "page": news_index_page,
+                        },
+                    ),
                     # TODO: create PodcastIndexPage / feature
-                    # (
-                    #     "page",
-                    #     {
-                    #         "title": "Podcasts",
-                    #         "page": podcast_index_page,
-                    #     },
-                    # ),
+                    (
+                        "page",
+                        {
+                            "title": "Podcasts",
+                            "page": podcast_index_page,
+                        },
+                    ),
                     (
                         "page",
                         {
                             "title": "Memorials",
                             "page": memorial_index_page,
-                        },
-                    ),
-                ],
-            ),
-        }
-
-        events_dropdown = {
-            "title": "Events",
-            # StreamBlock
-            "menu_items": StreamValue(
-                stream_block=mock_menu_block,
-                stream_data=[
-                    (
-                        "page",
-                        {
-                            "title": "Online Worship",
-                            "page": online_worship_index_page,
-                        },
-                    ),
-                    (
-                        "page",
-                        {
-                            "title": "Western Events",
-                            "page": events_page,
-                        },
-                    ),
-                    (
-                        "external_link",
-                        {
-                            "title": "Other Events",
-                            "url": f"{events_page.relative_url(current_site=site)}?category=other",
                         },
                     ),
                 ],
@@ -390,6 +374,37 @@ class Command(BaseCommand):
             ),
         }
 
+        events_dropdown = {
+            "title": "Events",
+            # StreamBlock
+            "menu_items": StreamValue(
+                stream_block=mock_menu_block,
+                stream_data=[
+                    (
+                        "page",
+                        {
+                            "title": "Online Worship",
+                            "page": online_worship_index_page,
+                        },
+                    ),
+                    (
+                        "page",
+                        {
+                            "title": "Western Events",
+                            "page": events_page,
+                        },
+                    ),
+                    (
+                        "external_link",
+                        {
+                            "title": "Other Events",
+                            "url": f"{events_page.relative_url(current_site=site)}?category=other",
+                        },
+                    ),
+                ],
+            ),
+        }
+
         subscribe_donate_dropdown = {
             "title": "Subscribe / Donate",
             # StreamBlock
@@ -403,14 +418,13 @@ class Command(BaseCommand):
                             "page": subscription_index_page,
                         },
                     ),
-                    # TODO: create NewsletterSubscriptionFormPage
-                    # (
-                    #     "page",
-                    #     {
-                    #         "title": "Subscribe - Newsletter",
-                    #         "page": newsletter_subscription_form_page,
-                    #     },
-                    # ),
+                    (
+                        "page",
+                        {
+                            "title": "Subscribe - Newsletter",
+                            "page": subscribe_newsletter_page,
+                        },
+                    ),
                     (
                         "page",
                         {
@@ -433,8 +447,8 @@ class Command(BaseCommand):
         navigation_items = [
             ("drop_down", magazine_books_dropdown),
             ("drop_down", other_content_dropdown),
-            ("drop_down", events_dropdown),
             ("drop_down", about_us_dropdown),
+            ("drop_down", events_dropdown),
             ("drop_down", subscribe_donate_dropdown),
         ]
         navigation_menu = NavigationMenuSetting(
