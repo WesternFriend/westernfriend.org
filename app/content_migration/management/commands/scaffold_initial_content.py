@@ -299,14 +299,13 @@ class Command(BaseCommand):
                             "page": library_index_page,
                         },
                     ),
-                    # TODO: create NewslettersIndexPage / feature
-                    # (
-                    #     "page",
-                    #     {
-                    #         "title": "Newsletters",
-                    #         "page": newsletters_index_page,
-                    #     },
-                    # ),
+                    (
+                        "page",
+                        {
+                            "title": "Extra Extra / News",
+                            "page": news_index_page,
+                        },
+                    ),
                     # TODO: create PodcastIndexPage / feature
                     # (
                     #     "page",
