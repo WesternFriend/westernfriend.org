@@ -74,15 +74,19 @@ class Command(BaseCommand):
         # Custom WF Pages in site root
         help_wanted_page = WfPage(
             title="Help Wanted",
+            show_in_menus=True,
         )
         future_issues_page = WfPage(
             title="Future Issues",
+            show_in_menus=True,
         )
         mission_and_history_page = WfPage(
             title="Mission & History",
+            show_in_menus=True,
         )
         board_of_directors_page = WfPage(
             title="Board of Directors",
+            show_in_menus=True,
         )
         community_page = CommunityPage(
             title="Community",
@@ -98,6 +102,7 @@ class Command(BaseCommand):
         )
         events_page = EventsIndexPage(
             title="Events",
+            show_in_menus=True,
         )
         library_index_page = LibraryIndexPage(
             title="Library",
@@ -112,6 +117,7 @@ class Command(BaseCommand):
         )
         news_index_page = NewsIndexPage(
             title="News",
+            show_in_menus=True,
         )
         store_index_page = StoreIndexPage(
             title="Bookstore",
@@ -123,9 +129,11 @@ class Command(BaseCommand):
         )
         subscribe_newsletter_page = WfPage(
             title="Subscribe - Newsletter",
+            show_in_menus=True,
         )
         podcast_index_page = WfPage(
             title="Podcasts",
+            show_in_menus=True,
         )
 
         home_page.add_child(instance=community_page)
