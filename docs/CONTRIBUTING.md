@@ -49,3 +49,11 @@ If you have any difficulty or questions, please [open a support ticket](https://
 ## pgAdmin database access
 
 We include pgAdmin in our Docker compose setup, which can be useful for exploring the database. the pgAdmin service should be running on localhost:5050 with the username and password being defined in the `docker-compose.yaml` file.
+
+## Docker UI alternative
+
+If you would like to use an alternative to Docker/Docker UI, try running [Colima](https://github.com/abiosoft/colima). Once Colima is installed, run the following command before running `docker compose up`.
+
+```sh
+colima start
+```
