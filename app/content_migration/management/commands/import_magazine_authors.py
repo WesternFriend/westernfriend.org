@@ -32,6 +32,7 @@ def create_meeting(author):
             meeting = Meeting(
                 title=meeting_name,
                 drupal_author_id=drupal_author_id,
+                civicrm_id=author["civicrm_contact_id"],
             )
         except:
             print("Could not create meeting:", drupal_author_id)
@@ -57,6 +58,7 @@ def create_organization(author):
             organization = Organization(
                 title=organization_name,
                 drupal_author_id=drupal_author_id,
+                civicrm_id=author["civicrm_contact_id"],
             )
         except:
             print("Could not create organization:", drupal_author_id)
@@ -82,6 +84,7 @@ def create_person(author):
                 given_name=author["given_name"],
                 family_name=author["family_name"],
                 drupal_author_id=drupal_author_id,
+                civicrm_id=author["civicrm_contact_id"],
             )
         except:
             print("Could not create person: ", drupal_author_id)
