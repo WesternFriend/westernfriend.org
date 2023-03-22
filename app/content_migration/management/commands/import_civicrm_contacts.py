@@ -165,9 +165,10 @@ class Command(BaseCommand):
             if contact_is_meeting:
                 # If meeting exists, update
                 # else create new meeting
-
+                # TODO: remove this check since all contacts should already have Drupal Author record
+                # make sure it is resilient to human error in the data
                 meeting_exists = Meeting.objects.filter(
-                    title=organization_name,
+                    civicrm_id=contact_id,
                 ).exists()
 
                 meeting_type = determine_meeting_type(contact_type)
@@ -175,7 +176,7 @@ class Command(BaseCommand):
                 if meeting_exists:
                     try:
                         meeting = Meeting.objects.get(
-                            title=organization_name,
+                            civicrm_id=contact_id,
                         )
                     except MultipleObjectsReturned:
                         print("Duplicate meeting found for:", organization_name)
@@ -205,16 +206,17 @@ class Command(BaseCommand):
             elif contact_is_organization:
                 # If organization exists, update
                 # else create new organization
-
+                # TODO: remove this check since all contacts should already have Drupal Author record
+                # make sure it is resilient to human error in the data
                 organization_exists = Organization.objects.filter(
-                    title=organization_name,
+                    civicrm_id=contact_id,
                 ).exists()
 
                 if organization_exists:
                     print("organization exists")
                     try:
                         organization = Organization.objects.get(
-                            title=organization_name,
+                            civicrm_id=contact_id,
                         )
                     except MultipleObjectsReturned:
                         print("Duplicate organization found for:", organization_name)
