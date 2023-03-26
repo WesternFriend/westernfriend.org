@@ -17,7 +17,7 @@ from contact.models import (
 
 logging.basicConfig(
     filename="civicrm_contact_import.log",
-    level=logging.DEBUG,
+    level=logging.ERROR,
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 logger = logging.getLogger(__name__)
