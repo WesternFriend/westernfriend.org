@@ -1,25 +1,22 @@
 # Regex to get CiviCRM ID from parentheses in contact name
 # https://stackoverflow.com/a/38999572/1191545
 
-import csv
 import logging
 
 import numpy as np
 import pandas as pd
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.core.management.base import BaseCommand, CommandError
+from django.core.exceptions import MultipleObjectsReturned
+from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
 from contact.models import (
     Meeting,
-    MeetingIndexPage,
     MeetingWorshipTime,
     Organization,
-    OrganizationIndexPage,
 )
 
 logging.basicConfig(
-    filename="archive_article_import.log",
+    filename="civicrm_contact_import.log",
     level=logging.DEBUG,
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
@@ -106,10 +103,6 @@ class Command(BaseCommand):
         parser.add_argument("--file", action="store", type=str)
 
     def handle(self, *args, **options):
-        # Get index pages for use when saving entities
-        meeting_index_page = MeetingIndexPage.objects.get()
-        organization_index_page = OrganizationIndexPage.objects.get()
-
         contacts = (
             pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
         )
@@ -159,82 +152,57 @@ class Command(BaseCommand):
 
             contact_is_meeting = contact_type in meeting_types
             contact_is_organization = contact_type in organization_types
+
+            # Get common fields for use belos
             organization_name = contact["Organization Name"]
-            contact_id = contact["Contact ID"]
+            civicrm_id = contact["Contact ID"]
 
             if contact_is_meeting:
-                # If meeting exists, update
-                # else create new meeting
-                # TODO: remove this check since all contacts should already have Drupal Author record
-                # make sure it is resilient to human error in the data
-                meeting_exists = Meeting.objects.filter(
-                    civicrm_id=contact_id,
-                ).exists()
-
-                meeting_type = determine_meeting_type(contact_type)
-
-                if meeting_exists:
-                    try:
-                        meeting = Meeting.objects.get(
-                            civicrm_id=contact_id,
-                        )
-                    except MultipleObjectsReturned:
-                        print("Duplicate meeting found for:", organization_name)
-
-                    meeting.meeting_type = meeting_type
-                    meeting.website = contact["Website"]
-                    meeting.phone = contact["Phone"]
-                    meeting.email = contact["Email"]
-                    meeting.civicrm_id = contact_id
-
-                    meeting.save()
-                else:
-                    meeting = Meeting(
-                        title=organization_name,
-                        civicrm_id=contact_id,
-                        meeting_type=meeting_type,
-                        website=contact["Website"],
-                        phone=contact["Phone"],
-                        email=contact["Email"],
+                # Make sure we have exactly one record for this organization
+                try:
+                    meeting = Meeting.objects.get(
+                        civicrm_id=civicrm_id,
                     )
+                except MultipleObjectsReturned:
+                    error_message = f"Duplicate contact found for {organization_name}"
+                    logger.error(error_message)
+                    continue
+                except Meeting.DoesNotExist:
+                    error_message = (
+                        f"Could not find contact record for meeting {organization_name}"
+                    )
+                    logger.error(error_message)
+                    continue
 
-                    meeting_index_page.add_child(instance=meeting)
+                # Update contact records with meeting data
+                meeting.meeting_type = determine_meeting_type(contact_type)
+                meeting.website = contact["Website"]
+                meeting.phone = contact["Phone"]
+                meeting.email = contact["Email"]
 
-                    meeting_index_page.save()
+                meeting.save()
 
                 add_meeting_worship_times(meeting, contact)
             elif contact_is_organization:
-                # If organization exists, update
-                # else create new organization
-                # TODO: remove this check since all contacts should already have Drupal Author record
-                # make sure it is resilient to human error in the data
-                organization_exists = Organization.objects.filter(
-                    civicrm_id=contact_id,
-                ).exists()
-
-                if organization_exists:
-                    print("organization exists")
-                    try:
-                        organization = Organization.objects.get(
-                            civicrm_id=contact_id,
-                        )
-                    except MultipleObjectsReturned:
-                        print("Duplicate organization found for:", organization_name)
-
-                    organization.civicrm_id = contact_id
-
-                    organization.save()
-                else:
-                    print("new organization")
-                    organization = Organization(
-                        title=organization_name,
-                        civicrm_id=contact_id,
+                # Make sure we have exactly one record for this organization
+                try:
+                    Organization.objects.get(
+                        civicrm_id=civicrm_id,
                     )
-
-                    organization_index_page.add_child(instance=organization)
-
-                    organization_index_page.save()
+                except MultipleObjectsReturned:
+                    error_message = (
+                        f"Duplicate contact records found for {organization_name}"
+                    )
+                    logger.error(error_message)
+                    continue
+                except Organization.DoesNotExist:
+                    error_message = f"Could not find contact record for organization {organization_name}"
+                    logger.error(error_message)
+                    continue
             else:
-                print(f"Contact type: '{contact_type}'")
+                error_message = (
+                    f"Invalid contact type '{contact_type} for {organization_name}"
+                )
+                logger.error(error_message)
 
         self.stdout.write("All done!")
