@@ -32,7 +32,7 @@ def create_meeting(author):
             meeting = Meeting(
                 title=meeting_name,
                 drupal_author_id=drupal_author_id,
-                civicrm_id=author["civicrm_contact_id"],
+                civicrm_id=author["civicrm_id"],
             )
         except:
             print("Could not create meeting:", drupal_author_id)
@@ -58,7 +58,7 @@ def create_organization(author):
             organization = Organization(
                 title=organization_name,
                 drupal_author_id=drupal_author_id,
-                civicrm_id=author["civicrm_contact_id"],
+                civicrm_id=author["civicrm_id"],
             )
         except:
             print("Could not create organization:", drupal_author_id)
@@ -84,7 +84,7 @@ def create_person(author):
                 given_name=author["given_name"],
                 family_name=author["family_name"],
                 drupal_author_id=drupal_author_id,
-                civicrm_id=author["civicrm_contact_id"],
+                civicrm_id=author["civicrm_id"],
             )
         except:
             print("Could not create person: ", drupal_author_id)
@@ -159,7 +159,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         authors_list = (
-            pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
+            pd.read_excel(options["file"]).replace({np.nan: None}).to_dict("records")
         )
 
         import_primary_author_records(authors_list)
