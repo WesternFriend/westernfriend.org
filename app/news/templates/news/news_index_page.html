@@ -9,12 +9,21 @@
 
     <div class="mb-2">
         {% for year in news_years %}
-            <a 
-                href="?year={{ year }}"
-                class="btn btn-outline-primary"
-            >
-                {{ year }}
-            </a>
+            {% if year == selected_year %}
+                <a 
+                    href="?year={{ year }}"
+                    class="btn btn-primary"
+                >
+                    {{ year }}
+                </a>
+            {% else %}
+                <a 
+                    href="?year={{ year }}"
+                    class="btn btn-outline-primary"
+                >
+                    {{ year }}
+                </a>
+            {% endif %}
         {% endfor %}
     </div>
 
