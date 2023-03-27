@@ -1,8 +1,8 @@
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
 from flatpickr import DatePickerInput
-from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
+from taggit.managers import TaggableManager
 from taggit.models import TaggedItemBase
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import (
@@ -24,12 +24,6 @@ from blocks.blocks import (
 )
 from documents.blocks import DocumentEmbedBlock
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
-
-
-class LibraryItemTag(TaggedItemBase):
-    content_object = ParentalKey(
-        to="LibraryItem", related_name="tagged_items", on_delete=models.CASCADE
-    )
 
 
 class LibraryItem(Page):
@@ -81,7 +75,7 @@ class LibraryItem(Page):
     item_time_period = models.ForeignKey(
         "facets.TimePeriod", on_delete=models.SET_NULL, null=True, blank=True
     )
-    tags = ClusterTaggableManager(through=LibraryItemTag, blank=True)
+    tags = TaggableManager()
     drupal_node_id = models.IntegerField(null=True, blank=True)
 
     content_panels = Page.content_panels + [
