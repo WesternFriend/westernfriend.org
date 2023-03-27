@@ -102,6 +102,7 @@ class NewsItem(Page):
     teaser = models.TextField(
         max_length=100,
         null=True,
+        blank=True,
         help_text="Briefly summarize the news item for display in news lists",
     )
     body = StreamField(
@@ -144,11 +145,15 @@ class NewsItem(Page):
         NewsTopic,
         on_delete=models.PROTECT,
         related_name="news_items",
+        null=True,
+        blank=True,
     )
     news_type = models.ForeignKey(
         NewsType,
         on_delete=models.PROTECT,
         related_name="news_items",
+        null=True,
+        blank=True,
     )
 
     content_panels = Page.content_panels + [
