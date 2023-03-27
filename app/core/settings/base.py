@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     "store",
     "subscription",
     "magazine",
+    "tags",
     "blocks",
     "wf_pages",
     "wagtail.contrib.forms",
