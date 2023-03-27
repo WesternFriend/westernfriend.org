@@ -1,8 +1,11 @@
 import html
 from io import BytesIO
 from itertools import chain
+import re
 from urllib.parse import urlparse
 
+from bs4 import BeautifulSoup
+from bs4 import Tag as BS4_Tag
 import pandas as pd
 import requests
 from django.core.exceptions import ObjectDoesNotExist
@@ -12,8 +15,32 @@ from django.db.models import Q
 from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.images.models import Image
+from wagtail.rich_text import RichText
 
 from contact.models import Meeting, Organization, Person
+
+
+def extract_pullquotes(item: str) -> list[str]:
+    """Get a list of all pullquote strings found within the item"""
+
+    return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item.string)
+
+
+def clean_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
+    """
+    Replace "[pullquote][/pullquote]" tags in string with "<span class='pullquote'></span>"
+    https://stackoverflow.com/a/44593228/1191545
+    """
+
+    replacement_values = [
+        ("[pullquote]", ""),
+        ("[/pullquote]", ""),
+    ]
+
+    for replacement_value in replacement_values:
+        item.string = item.string.replace(*replacement_value)
+
+    return item
 
 
 def parse_media_blocks(media_urls):
@@ -199,3 +226,56 @@ def get_contact_from_author_data(author_data):
             )
 
     return contact
+
+
+def parse_body_blocks(body):
+    article_body_blocks = []
+
+    try:
+        soup = BeautifulSoup(body, "html.parser")
+    except:
+        soup = False
+
+    # Placeholder for gathering successive items
+    rich_text_value = ""
+
+    if soup:
+        for item in soup:
+
+            item_has_value = item.string is not None
+
+            if item_has_value:
+
+                item_contains_pullquote = "pullquote" in item.string
+
+                if item_contains_pullquote:
+                    # Add current rich text value as rich text block, if not empty
+                    if rich_text_value != "":
+                        rich_text_block = ("rich_text", RichText(rich_text_value))
+
+                        article_body_blocks.append(rich_text_block)
+
+                        # reset rich text value
+                        rich_text_value = ""
+
+                    pullquotes = extract_pullquotes(item)
+
+                    # Add Pullquote block(s) to body streamfield
+                    # so they appear above the related rich text field
+                    # i.e. near the paragraph containing the pullquote
+                    for pullquote in pullquotes:
+                        block_content = ("pullquote", pullquote)
+
+                        article_body_blocks.append(block_content)
+
+                    item = clean_pullquote_tags(item)
+
+                rich_text_value += str(item)
+
+        if rich_text_value != "":
+            # Add Paragraph Block with remaining rich text elements
+            rich_text_block = ("rich_text", RichText(rich_text_value))
+
+            article_body_blocks.append(rich_text_block)
+
+    return article_body_blocks
