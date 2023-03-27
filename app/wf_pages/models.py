@@ -1,4 +1,8 @@
 from django.db import models
+
+from modelcluster.fields import ParentalKey
+from modelcluster.contrib.taggit import ClusterTaggableManager
+from taggit.models import TaggedItemBase
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
@@ -33,6 +37,14 @@ class WfPageCollection(Page):
     subpage_types = []
 
     context_object_name = "collection"
+
+
+class WfPageTag(TaggedItemBase):
+    content_object = ParentalKey(
+        "wf_pages.WfPage",
+        on_delete=models.CASCADE,
+        related_name="tagged_items",
+    )
 
 
 class WfPage(Page):
@@ -74,6 +86,10 @@ class WfPage(Page):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="pages",
+    )
+    tags = ClusterTaggableManager(
+        through=WfPageTag,
+        blank=True,
     )
 
     content_panels = Page.content_panels + [
