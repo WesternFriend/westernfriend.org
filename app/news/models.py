@@ -132,6 +132,12 @@ class NewsItem(Page):
         ],
         use_json_field=True,
     )
+    body_migrated = models.TextField(
+        help_text="Used only for content from old Drupal website.",
+        null=True,
+        blank=True,
+    )
+    drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
     publication_date = models.DateField(default=date.today)
 
     news_topic = models.ForeignKey(
