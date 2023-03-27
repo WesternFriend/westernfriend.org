@@ -80,6 +80,18 @@
             {% endfor %}
         </dd>
         {% endif %}
+
+        {% if page.tags.count  %}
+        <dt>
+            Tags
+        </dt>
+        
+        <dd>
+            {% for tag in page.tags.all %}
+                <a href="{{ tag }}">{{ tag }}</a>{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        </dd>
+        {% endif %}
     </dl>
 {% endblock %}
 
