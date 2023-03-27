@@ -21,4 +21,17 @@
             </dd>
         </dl>
     {% endif %}
+
+    {% if page.tags %}
+        <dl>
+            <dt>
+                Tags
+            </dt>
+            <dd>
+                {% for tag in page.tags.all %}
+                    <a href="{%url 'search' %}?query={{ tag }}">{{ tag }}</a>
+                {% endfor %}{% if not forloop.last %},{% endif %}
+            </dd>
+        </dl>
+    {% endif %}
 {% endblock %}
