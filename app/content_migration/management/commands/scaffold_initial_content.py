@@ -151,6 +151,7 @@ class Command(BaseCommand):
         home_page.add_child(instance=board_of_directors_page)
         home_page.add_child(instance=help_wanted_page)
         home_page.add_child(instance=subscribe_newsletter_page)
+        home_page.add_child(instance=podcast_index_page)
 
         home_page.save()
 

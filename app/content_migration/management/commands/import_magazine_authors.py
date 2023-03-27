@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
@@ -15,12 +17,22 @@ from content_migration.management.commands.shared import (
     get_existing_magazine_author_from_db,
 )
 
+logging.basicConfig(
+    filename="magazine_author_import.log",
+    level=logging.ERROR,
+    format="%(message)s",
+    # format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger(__name__)
+
 
 def create_meeting(author):
     meeting_index_page = MeetingIndexPage.objects.get()
 
-    meeting_name = author["meeting_name"]
     drupal_author_id = author["drupal_author_id"]
+
+    if author["civicrm_id"] == None:
+        logger.error(f"Meeting {author['meeting_name']} does not have CiviCRM ID")
 
     meeting_exists = Meeting.objects.filter(
         drupal_author_id=drupal_author_id,
@@ -30,11 +42,12 @@ def create_meeting(author):
     if not meeting_exists:
         try:
             meeting = Meeting(
-                title=meeting_name,
+                title=author["meeting_name"],
                 drupal_author_id=drupal_author_id,
+                civicrm_id=author["civicrm_id"],
             )
         except:
-            print("Could not create meeting:", drupal_author_id)
+            logger.error(f"Could not create meeting for {drupal_author_id}")
 
         meeting_index_page.add_child(instance=meeting)
 
@@ -47,6 +60,9 @@ def create_organization(author):
     organization_name = author["organization_name"]
     drupal_author_id = author["drupal_author_id"]
 
+    if author["civicrm_id"] == None:
+        logger.error(f"Organization {organization_name} does not have CiviCRM ID")
+
     organization_exists = Organization.objects.filter(
         drupal_author_id=drupal_author_id,
     ).exists()
@@ -57,9 +73,10 @@ def create_organization(author):
             organization = Organization(
                 title=organization_name,
                 drupal_author_id=drupal_author_id,
+                civicrm_id=author["civicrm_id"],
             )
         except:
-            print("Could not create organization:", drupal_author_id)
+            logger.error(f"Could not create organization {organization_name}")
 
         organization_index_page.add_child(instance=organization)
 
@@ -82,9 +99,10 @@ def create_person(author):
                 given_name=author["given_name"],
                 family_name=author["family_name"],
                 drupal_author_id=drupal_author_id,
+                civicrm_id=author["civicrm_id"],
             )
         except:
-            print("Could not create person: ", drupal_author_id)
+            logger.error(f"Could not create person ID: {drupal_author_id}")
 
         person_index_page.add_child(instance=person)
 
@@ -107,7 +125,7 @@ def import_primary_author_records(authors_list):
             author_is_meeting is False and author_is_organization is False
         )
 
-        author_is_duplicate = author["duplicate of ID"] != None
+        author_is_duplicate = author["duplicate_of_id"] != None
 
         if author_is_duplicate:
             # Don't import duplicate authors
@@ -121,20 +139,20 @@ def import_primary_author_records(authors_list):
             elif author_is_person:
                 create_person(author)
             else:
-                print("Unknown:", drupal_author_id)
+                logger.error(f"Unknown author type for ID: {drupal_author_id}")
 
 
 def add_duplicate_author_ids_to_primary_author_records(authors_list):
     for author in tqdm(authors_list, desc="Duplicate author IDs", unit="row"):
         drupal_author_id = author["drupal_author_id"]
 
-        author_is_duplicate = author["duplicate of ID"] != None
+        author_is_duplicate = author["duplicate_of_id"] != None
 
         if author_is_duplicate:
             # Update the primary author record
             # to keep track of duplicate author IDs
             primary_contact = get_existing_magazine_author_from_db(
-                author["duplicate of ID"]
+                author["duplicate_of_id"]
             )
             if primary_contact:
                 if drupal_author_id not in primary_contact.drupal_duplicate_author_ids:
@@ -143,8 +161,6 @@ def add_duplicate_author_ids_to_primary_author_records(authors_list):
                     )
                     primary_contact.save()
             else:
-                # log message should be printed in previous function
-                # get_existing_magazine_author_from_db
                 continue
 
 
@@ -156,7 +172,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         authors_list = (
-            pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
+            pd.read_excel(options["file"]).replace({np.nan: None}).to_dict("records")
         )
 
         import_primary_author_records(authors_list)
