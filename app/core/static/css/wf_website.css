@@ -67,6 +67,16 @@ p {
 	font-size: 1rem;
 }
 
+.btn-outline-primary {
+	border-color: #06669a;
+	color: #06669a;
+}
+
+.btn-primary:hover {
+	background-color: #1283bf;
+	border-color: #1283bf;
+}
+
 .btn-primary {
 	background-color: #06669a;
 	color: #fff;
