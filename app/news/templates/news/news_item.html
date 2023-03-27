@@ -14,9 +14,11 @@
         Published {{ page.publication_date }}
     </p>
 
-    <p class="text-muted">
-        Topic <a href="{% pageurl page.news_topic %}">{{ page.news_topic }}</a>
-    </p>
+    {% if page.news_topic %}
+        <p class="text-muted">
+            Topic <a href="{% pageurl page.news_topic %}">{{ page.news_topic }}</a>
+        </p>
+    {% endif %}
 
     {{ page.body }}
 {% endblock %}
