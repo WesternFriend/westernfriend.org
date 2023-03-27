@@ -2,8 +2,26 @@
 {% load wagtailcore_tags %}
 {% block content %}
     <h1>
-        {{ page.title }}
+        {{ selected_year }} {{ page.title }}
     </h1>
 
     {{ page.specific.intro | richtext }}
+
+    <div class="mb-2">
+        {% for year in news_years %}
+            <a 
+                href="?year={{ year }}"
+                class="btn btn-outline-primary"
+            >
+                {{ year }}
+            </a>
+        {% endfor %}
+    </div>
+
+
+    {% for news_item in news_items %}
+        <div class="mb-2">
+            {% include "news/news_item_card.html" with news_item=news_item %}
+        </div>
+    {% endfor %}
 {% endblock content %}
