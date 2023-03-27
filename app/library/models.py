@@ -14,6 +14,7 @@ from wagtail.admin.panels import (
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
+from wagtail.search import index
 
 from blocks.blocks import (
     FormattedImageChooserStructBlock,
@@ -109,6 +110,29 @@ class LibraryItem(Page):
                 FieldPanel("tags"),
             ],
             heading="Categorization",
+        ),
+    ]
+
+    search_fields = Page.search_fields + [
+        index.SearchField("description"),
+        index.SearchField("body"),
+        index.RelatedFields(
+            "item_genre",
+            [
+                index.SearchField("title"),
+            ],
+        ),
+        index.RelatedFields(
+            "tags",
+            [
+                index.SearchField("name"),
+            ],
+        ),
+        index.RelatedFields(
+            "topics",
+            [
+                index.SearchField("topic"),
+            ],
         ),
     ]
 

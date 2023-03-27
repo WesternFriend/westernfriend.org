@@ -8,6 +8,7 @@ from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Page
+from wagtail.search import index
 
 from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
 from documents.blocks import DocumentEmbedBlock
@@ -95,6 +96,17 @@ class WfPage(Page):
     content_panels = Page.content_panels + [
         FieldPanel("body"),
         FieldPanel("collection"),
+        FieldPanel("tags"),
+    ]
+
+    search_fields = Page.search_fields + [
+        index.SearchField("body"),
+        index.RelatedFields(
+            "tags",
+            [
+                index.SearchField("name"),
+            ],
+        ),
     ]
 
     class Meta:
