@@ -67,13 +67,13 @@ p {
 	font-size: 1rem;
 }
 
-.btn {
+.btn-primary {
 	background-color: #06669a;
 	color: #fff;
 	border-color: #06669a;
 }
 
-.btn:hover {
+.btn-primary:hover {
 	background-color: #1283bf;
 	border-color: #1283bf;
 }
