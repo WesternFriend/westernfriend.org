@@ -39,8 +39,12 @@ class NewsItemModelAdmin(ModelAdmin):
     add_to_settings_menu = False
     exclude_from_explorer = False
     list_per_page = 10
-    list_display = ("title",)
+    list_display = (
+        "title",
+        "publication_date",
+    )
     search_fields = ("title",)
+    list_filter = ("publication_date",)
 
 
 class NewsAdminGroup(ModelAdminGroup):
