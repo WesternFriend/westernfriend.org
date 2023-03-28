@@ -21,4 +21,14 @@
     {% endif %}
 
     {{ page.body }}
+
+    {% if page.tags.count  %}
+        <p>
+            Tags: {% for tag in page.tags.all %}
+                {% for tag in page.tags.all %}
+                    <a href="{%url 'search' %}?query={{ tag }}">{{ tag }}</a>
+                {% endfor %}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        </p>
+    {% endif %}    
 {% endblock %}
