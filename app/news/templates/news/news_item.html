@@ -23,12 +23,16 @@
     {{ page.body }}
 
     {% if page.tags.count  %}
-        <p>
-            Tags: {% for tag in page.tags.all %}
+        <div class="tags">
+            {% for tag in page.tags.all %}
                 {% for tag in page.tags.all %}
-                    <a href="{%url 'search' %}?query={{ tag }}">{{ tag }}</a>
+                    <a 
+                        href="{%url 'search' %}?query={{ tag }}"
+                        class="btn btn-outline-primary btn-sm">
+                            {{ tag }}
+                    </a>
                 {% endfor %}{% if not forloop.last %},{% endif %}
             {% endfor %}
-        </p>
+        </div>
     {% endif %}    
 {% endblock %}
