@@ -199,6 +199,7 @@ class NewsItem(Page):
                 FieldPanel("publication_date"),
                 FieldPanel("news_topic"),
                 FieldPanel("news_type"),
+                FieldPanel("tags"),
             ],
         ),
     ]
