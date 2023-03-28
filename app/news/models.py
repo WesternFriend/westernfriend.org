@@ -203,6 +203,23 @@ class NewsItem(Page):
         ),
     ]
 
+    search_fields = Page.search_fields + [
+        index.SearchField("teaser"),
+        index.SearchField("body"),
+        index.RelatedFields(
+            "news_topic",
+            [
+                index.SearchField("title"),
+            ],
+        ),
+        index.RelatedFields(
+            "tags",
+            [
+                index.SearchField("name"),
+            ],
+        ),
+    ]
+
     parent_page_types = [
         "NewsIndexPage",
     ]
