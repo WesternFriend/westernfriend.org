@@ -135,6 +135,7 @@ class NewsItem(Page):
         blank=True,
         help_text="Briefly summarize the news item for display in news lists",
     )
+    publication_date = models.DateField(default=date.today)
     body = StreamField(
         [
             ("heading", HeadingBlock()),
@@ -173,7 +174,6 @@ class NewsItem(Page):
         blank=True,
     )
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
-    publication_date = models.DateField(default=date.today)
 
     news_topic = models.ForeignKey(
         NewsTopic,
