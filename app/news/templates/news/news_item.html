@@ -21,4 +21,18 @@
     {% endif %}
 
     {{ page.body }}
+
+    {% if page.tags.count  %}
+        <div class="tags">
+            {% for tag in page.tags.all %}
+                {% for tag in page.tags.all %}
+                    <a 
+                        href="{%url 'search' %}?query={{ tag }}"
+                        class="btn btn-outline-primary btn-sm">
+                            {{ tag }}
+                    </a>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}    
 {% endblock %}

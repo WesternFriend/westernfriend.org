@@ -60,17 +60,16 @@
         </div>
     </div>
 
-    {% if page.tags.all.count %}
-        <div class="tags">
-            {% for tag in page.tags.all %}
-                <a
-                    href="{% slugurl 'tags' %}?tag={{ tag }}"
-                    class="btn btn-outline-primary btn-sm">
+    {% if page.tags.count  %}
+    <div class="tags">
+        {% for tag in page.tags.all %}
+            <a 
+                href="{%url 'search' %}?query={{ tag }}"
+                class="btn btn-outline-primary btn-sm">
                     {{ tag }}
-                </a>
-            {% endfor %}
-
-        </div>
+            </a>
+        {% endfor %}
+    </div>
     {% endif %}
 
     <p class="mt-3">

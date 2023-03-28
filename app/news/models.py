@@ -2,11 +2,15 @@ from datetime import date, datetime
 
 from django.db import models
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from modelcluster.fields import ParentalKey
+from modelcluster.contrib.taggit import ClusterTaggableManager
+from taggit.models import TaggedItemBase
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
+from wagtail.search import index
 
 from blocks.blocks import (
     FormattedImageChooserStructBlock,
@@ -116,6 +120,14 @@ class NewsType(Page):
     subpage_types = []
 
 
+class NewsItemTag(TaggedItemBase):
+    content_object = ParentalKey(
+        "news.NewsItem",
+        on_delete=models.CASCADE,
+        related_name="tagged_items",
+    )
+
+
 class NewsItem(Page):
     teaser = models.TextField(
         max_length=100,
@@ -123,6 +135,7 @@ class NewsItem(Page):
         blank=True,
         help_text="Briefly summarize the news item for display in news lists",
     )
+    publication_date = models.DateField(default=date.today)
     body = StreamField(
         [
             ("heading", HeadingBlock()),
@@ -151,13 +164,16 @@ class NewsItem(Page):
         ],
         use_json_field=True,
     )
+    tags = ClusterTaggableManager(
+        through=NewsItemTag,
+        blank=True,
+    )
     body_migrated = models.TextField(
         help_text="Used only for content from old Drupal website.",
         null=True,
         blank=True,
     )
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
-    publication_date = models.DateField(default=date.today)
 
     news_topic = models.ForeignKey(
         NewsTopic,
@@ -183,6 +199,24 @@ class NewsItem(Page):
                 FieldPanel("publication_date"),
                 FieldPanel("news_topic"),
                 FieldPanel("news_type"),
+                FieldPanel("tags"),
+            ],
+        ),
+    ]
+
+    search_fields = Page.search_fields + [
+        index.SearchField("teaser"),
+        index.SearchField("body"),
+        index.RelatedFields(
+            "news_topic",
+            [
+                index.SearchField("title"),
+            ],
+        ),
+        index.RelatedFields(
+            "tags",
+            [
+                index.SearchField("name"),
             ],
         ),
     ]

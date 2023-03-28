@@ -80,6 +80,18 @@
             {% endfor %}
         </dd>
         {% endif %}
+
+        {% if page.tags.count  %}
+        <div class="tags">
+            {% for tag in page.tags.all %}
+                <a 
+                    href="{%url 'search' %}?query={{ tag }}"
+                    class="btn btn-outline-primary btn-sm">
+                        {{ tag }}
+                </a>
+            {% endfor %}
+        </div>
+        {% endif %}
     </dl>
 {% endblock %}
 
