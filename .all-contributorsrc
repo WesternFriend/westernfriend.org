@@ -35,6 +35,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "LidiaTre",
+      "name": "Lidia Tregubova",
+      "avatar_url": "https://avatars.githubusercontent.com/u/129381339?v=4",
+      "profile": "https://github.com/LidiaTre",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -42,5 +51,6 @@
   "projectOwner": "WesternFriend",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "skipCi": true
+  "skipCi": true,
+  "commitConvention": "angular"
 }
