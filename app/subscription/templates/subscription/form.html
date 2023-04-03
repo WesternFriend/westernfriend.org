@@ -107,7 +107,9 @@
     </div>
 
     <div class="row mt-3" v-if="subscriptionIncludesPdf">
-        <p class="p-3 mb-2 bg-success text-white col-md-12 rounded-pill">
+        <p 
+            class="p-3 mb-2 text-white col-md-12"
+            style="background-color: #8fa6b8; border-radius: 5px;">
             PDF subscription will be emailed to your login: <b>{{ user.get_username }}
         </p>
     </div>
