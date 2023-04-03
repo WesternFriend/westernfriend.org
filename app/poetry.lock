@@ -1680,14 +1680,14 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "wagtail"
-version = "4.2.1"
+version = "4.2.2"
 description = "A Django content management system."
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "wagtail-4.2.1-py3-none-any.whl", hash = "sha256:cc84a5130620f0f1e9cafd17802e9f1471f339cda82e22bfa80c4509a02adf5e"},
-    {file = "wagtail-4.2.1.tar.gz", hash = "sha256:fbb5e96559a9a34258397ed7a1c766cd2f2d32497e2932472f77d6f848e5658d"},
+    {file = "wagtail-4.2.2-py3-none-any.whl", hash = "sha256:99f6d18ed8ea6a3a825ebd3441899e639f6833abc98f0f1e578f9eacd172035b"},
+    {file = "wagtail-4.2.2.tar.gz", hash = "sha256:b3cf60b371fffc373793a04b6540b800fc83822598f4b7ad580908fa45d04dff"},
 ]
 
 [package.dependencies]
@@ -1881,4 +1881,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "59ae2fea391dffeccae75504e3cb2654e2e375481d1a67fac348d343a6230366"
+content-hash = "2c3c8048645c86a8ba4684717b020807a606dc8c6d5a7199f7961ca1d08ef61a"
