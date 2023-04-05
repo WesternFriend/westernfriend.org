@@ -2,7 +2,9 @@ a:not(.nav-link):not(.wagtail-userbar-link):not(.wagtail-userbar__item>a):not(.c
 	color: #aa3f2e;
 	transition: background-color .5s;
 }
-
+a:visited {
+	color: #aa3f2e;
+}
 body {
 	background-color: #f0f4f7;
 	font-family: Georgia, Cambria, "Times New Roman", Times, serif;
