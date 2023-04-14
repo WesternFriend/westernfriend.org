@@ -4,9 +4,9 @@
     </a>
     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
         {% for item in value.menu_items %}
-        <li>
-            {{ item }}
-        </li>
+            {% if item.value.is_live %}     {# провряем опубликована лми страница #}
+             <li><a class="dropdown-item" href="{{ item.value.href}}">{{ item.value.title}}</a></li>
+            {% endif %}
         {% endfor %}
     </ul>
 </li>
