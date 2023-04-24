@@ -16,19 +16,21 @@ This project is built with [Python](https://www.python.org/), [Django](https://w
 
 1. clone this repository
    - `git clone git@github.com:WesternFriend/WF-website.git`
-2. activate a Poetry virtual environment
+2. Change into the application directory
+   - `cd WF-website/app/`  
+3. activate a Poetry virtual environment
    - `poetry shell`
-3. install the project dependencies
+4. install the project dependencies
    - `poetry install`
-4. activate `autohooks` for automatic code maintenance
+5. activate `autohooks` for automatic code maintenance
    - `poetry run autohooks activate --mode poetry`
-5. start the development database
-   - `docker compose up`
-6. run database migrations
+6. start the development database
+   - `docker compose up --detach`
+7. run database migrations
    - `python manage.py migrate`
-7. create a superuser
+8. create a superuser
    - `python manage.py createsuperuser`  
-8. run the local server
+9.  run the local server
    - `python manage.py runserver`
 
 Once the server is running, you can access it from http://localhost:8000
@@ -52,7 +54,7 @@ We include pgAdmin in our Docker compose setup, which can be useful for explorin
 
 ## Docker UI alternative
 
-If you would like to use an alternative to Docker/Docker UI, try running [Colima](https://github.com/abiosoft/colima). Once Colima is installed, run the following command before running `docker compose up`.
+If you would like to use an alternative to Docker/Docker UI, try running [Colima](https://github.com/abiosoft/colima). Once Colima is installed, run the following command before running `docker compose up --detach`.
 
 ```sh
 colima start
