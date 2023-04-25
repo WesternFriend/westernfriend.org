@@ -32,9 +32,9 @@
                         {% endif %}
 
                         {% for audience in audiences %}
-                        <option 
+                        <option
                             value="{{ audience }}"
-                            {% if request.GET.item_audience__title == audience.title %}selected{% endif %}    
+                            {% if request.GET.item_audience__title == audience.title %}selected{% endif %}
                         >
                             {{ audience }}
                         </option>
@@ -53,9 +53,9 @@
                         {% endif %}
 
                         {% for genre in genres %}
-                        <option 
+                        <option
                             value="{{ genre }}"
-                            {% if request.GET.item_genre__title == genre.title %}selected{% endif %}    
+                            {% if request.GET.item_genre__title == genre.title %}selected{% endif %}
                         >
                             {{ genre }}
                         </option>
@@ -74,9 +74,9 @@
                         {% endif %}
 
                         {% for medium in mediums %}
-                        <option 
+                        <option
                             value="{{ medium }}"
-                            {% if request.GET.item_medium__title == medium.title %}selected{% endif %}    
+                            {% if request.GET.item_medium__title == medium.title %}selected{% endif %}
                         >
                             {{ medium }}
                         </option>
@@ -95,9 +95,9 @@
                         {% endif %}
 
                         {% for time_period in time_periods %}
-                        <option 
+                        <option
                             value="{{ time_period }}"
-                            {% if request.GET.item_time_period__title == time_period.title %}selected{% endif %}    
+                            {% if request.GET.item_time_period__title == time_period.title %}selected{% endif %}
                         >
                             {{ time_period }}
                         </option>
@@ -116,9 +116,9 @@
                         {% endif %}
 
                         {% for topic in topics %}
-                        <option 
+                        <option
                             value="{{ topic }}"
-                            {% if request.GET.topics__topic__title == topic %}selected{% endif %}    
+                            {% if request.GET.topics__topic__title == topic %}selected{% endif %}
                         >
                             {{ topic }}
                         </option>
@@ -139,7 +139,7 @@
                     <div class="row g-1">
                         <div class="col-sm-12 col-md-6 col-lg-4">
                             <label for="author-select-list" class="form-label">Author</label>
-                            <input 
+                            <input
                                 class="form-control"
                                 list="author-select-options"
                                 id="author-select-list"
@@ -151,8 +151,8 @@
                             >
                             <datalist id="author-select-options">
                                 {% for author in authors %}
-                                    <option 
-                                        value="{{ author }}"    
+                                    <option
+                                        value="{{ author }}"
                                     >
                                         {{ author }}
                                     </option>
@@ -161,7 +161,7 @@
                         </div>
                         <div class="col-sm-12 col-md-6 col-lg-5">
                             <label for="title-search" class="form-label">Title</label>
-                            <input 
+                            <input
                                 type="text"
                                 name="title__icontains"
                                 class="form-control"
@@ -189,7 +189,7 @@
             {% for library_item in library_items_page %}
                 {% include "library/library_item_card.html" %}
             {% endfor %}
-            
+
             {% if library_items_page.has_other_pages %}
                 <nav aria-label="Archive issues navigation">
                     <ul class="pagination">
@@ -206,7 +206,7 @@
                         </li>
                         {% endif %}
 
-                        
+
                         {% for i in library_items_page.paginator.page_range %}
                             {% if library_items_page.number == i %}
                                 <li class="active page-item" aria-current="page">
@@ -226,9 +226,9 @@
                                 next
                             </a>
                         </li>
-                        
+
                         <li class="page-item">
-                            <a href="?page={{ library_items_page.paginator.num_pages }}#archive-issues" 
+                            <a href="?page={{ library_items_page.paginator.num_pages }}#archive-issues"
                             class="page-link">
                                 last &raquo;
                             </a>
@@ -250,6 +250,6 @@
     document.getElementById("facetForm").addEventListener("change", function () {
         this.submit();
     });
-    
+
 </script>
 {% endblock %}

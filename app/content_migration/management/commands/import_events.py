@@ -1,9 +1,8 @@
-import csv
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from tqdm import tqdm
 from wagtail.rich_text import RichText
 

@@ -1,5 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
-from wagtail import blocks as wagtail_blocks
+from django.core.management.base import BaseCommand
 from wagtail.models import Page, Site
 from wagtail.blocks import StreamBlock, StreamValue
 
@@ -399,7 +398,7 @@ class Command(BaseCommand):
                         "external_link",
                         {
                             "title": "Other Events",
-                            "url": f"{events_page.relative_url(current_site=site)}?category=other",
+                            "url": f"{events_page.relative_url(current_site=site)}?category=other",  # noqa: E501
                         },
                     ),
                 ],

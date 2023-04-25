@@ -28,7 +28,7 @@ def add_meeting_worship_times(meeting, contact):
     # For a given Meeting model instance,
     # add meeting time(s) from CiviCRM contact data
 
-    if contact["Regular time of Worship on First Day (1)"] != None:
+    if contact["Regular time of Worship on First Day (1)"] is not None:
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="first_day_worship",
@@ -37,7 +37,7 @@ def add_meeting_worship_times(meeting, contact):
 
         worship_time.save()
 
-    if contact["Regular time of Worship on First Day (2)"] != None:
+    if contact["Regular time of Worship on First Day (2)"] is not None:
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="first_day_worship_2nd",
@@ -50,13 +50,13 @@ def add_meeting_worship_times(meeting, contact):
         contact[
             "Regular day and time of Meeting for Worship on the Occassion of Business"
         ]
-        != None
+        is not None
     ):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="business_meeting",
             worship_time=contact[
-                "Regular day and time of Meeting for Worship on the Occassion of Business"
+                "Regular day and time of Meeting for Worship on the Occassion of Business"  # noqa: E501
             ],
         )
 
@@ -64,7 +64,7 @@ def add_meeting_worship_times(meeting, contact):
 
     if (
         contact["Regular day and time of other weekly or monthly public meetings (1)"]
-        != None
+        is not None
     ):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
@@ -197,7 +197,7 @@ class Command(BaseCommand):
                     logger.error(error_message)
                     continue
                 except Organization.DoesNotExist:
-                    error_message = f"Could not find contact record for organization {organization_name}"
+                    error_message = f"Could not find contact record for organization {organization_name}"  # noqa: E501
                     logger.error(error_message)
                     continue
             else:

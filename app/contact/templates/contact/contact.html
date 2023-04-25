@@ -102,7 +102,7 @@
 
     {% if worship_groups %}
         <h3 class="card-title">Worship Groups</h3>
-        
+
         <ul>
             {% for meeting in worship_groups %}
             <li class="list-unstyled">
@@ -114,7 +114,7 @@
         </ul>
     {% endif %}
     </div>
-    
+
 </div>
 
 
@@ -133,7 +133,7 @@
 {% for article in page.archive_articles_authored.all %}
     <li>
         {{ article.article.issue }} -
-        <a 
+        <a
             href="{% pageurl article.article.issue %}?pdf_page_number={{ article.article.pdf_page_number }}">
             {{ article.article.title }}
         </a>

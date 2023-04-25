@@ -4,7 +4,6 @@ from flatpickr import DatePickerInput
 from wagtail.admin.panels import FieldPanel, PageChooserPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
-from wagtail.search import index
 
 from contact.models import Meeting
 

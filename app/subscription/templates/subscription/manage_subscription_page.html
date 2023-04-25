@@ -6,13 +6,13 @@
 
     {{ page.intro | richtext }}
 
-    
+
     {% if request.user.get_active_subscription %}
         <h2>Active subscription details</h2>
 
         {% with active_subscription=request.user.get_active_subscription %}
 
-            
+
             <div class="card">
                 <div class="card-body">
                     <p class="card-title">
@@ -25,11 +25,11 @@
                     <p class="card-subtitle mb-2 text-muted">
                         Recurring: {{ active_subscription.recurring | yesno:"Yes, No" }}
                     </p>
-                    
+
                     <a href="#" class="btn btn-outline-primary">
                         Change postal address
                     </a>
-                    
+
                     {% if active_subscription.recurring %}
                     <a href="#" class="btn btn-outline-secondary">
                         Cancel renewal

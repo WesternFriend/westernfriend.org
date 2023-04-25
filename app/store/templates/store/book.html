@@ -18,7 +18,7 @@
         Price: ${{ page.price }}
     </p>
 
-    <form 
+    <form
         action="{% url "cart:add" page.id %}"
         method="post"
         class="form-inline">
@@ -32,7 +32,7 @@
                 id="update">
 
         <div class="form-group">
-            <label 
+            <label
                 for="quantity"
                 id="quantityLabel"
                 >
@@ -40,7 +40,7 @@
             </label>
 
             <div class="input-group">
-                <input 
+                <input
                 type="number"
                 name="quantity"
                 required=""
@@ -49,9 +49,9 @@
                 id="quantity"
                 aria-describedby="quantityLabel"
                 class="form-control ms-2">
-            
+
                 <div class="input-group-append">
-                    <input 
+                    <input
                         type="submit"
                         value="Add to cart"
                         class="btn btn-outline-primary ms-2"

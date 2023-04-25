@@ -21,7 +21,7 @@
 
         US/Pacific
     </p>
-    
+
     {% if event.sponsors %}
         <dt class="col-sm-2">Sponsor(s):</dt>
         <dd class="col-sm-10">
@@ -35,14 +35,14 @@
             {% endfor %}
         </dd>
     {% endif %}
-    
+
 
     {% if event.body %}
         {{ event.body }}
     {% endif %}
 
     {% if event.website %}
-        <a 
+        <a
             href="{{ event.specific.website }}"
             class="btn btn-primary btn-sm"
             target="blank"

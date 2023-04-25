@@ -53,7 +53,7 @@
             </li>
             {% endif %}
 
-            
+
             {% for i in archive_issues.paginator.page_range %}
                 {% if archive_issues.number == i %}
                     <li class="active page-item" aria-current="page">
@@ -73,9 +73,9 @@
                     next
                 </a>
             </li>
-            
+
             <li class="page-item">
-                <a href="?archive-issues-page={{ archive_issues.paginator.num_pages }}#archive-issues" 
+                <a href="?archive-issues-page={{ archive_issues.paginator.num_pages }}#archive-issues"
                 class="page-link">
                     last &raquo;
                 </a>

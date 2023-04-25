@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load crispy_forms_tags %} 
+{% load crispy_forms_tags %}
 {% load wagtailcore_tags %}
 
 {% block body_class %}template-donatepage{% endblock %}
@@ -12,7 +12,7 @@
 
     <form action="." method="post" id="donation-form">
         <div class="row">
-            <div 
+            <div
                 class="card col m-1"
                 @click="recurrence = 'once'"
                 v-bind:class="{ 'border-success': recurrence == 'once' }"
@@ -23,7 +23,7 @@
                 </div>
             </div>
 
-            <div 
+            <div
                 class="card col m-1"
                 @click="recurrence = 'monthly'"
                 v-bind:class="{ 'border-success': recurrence == 'monthly' }"
@@ -34,7 +34,7 @@
                 </div>
             </div>
 
-            <div 
+            <div
                 class="card col m-1"
                 @click="recurrence = 'yearly'"
                 v-bind:class="{ 'border-success': recurrence == 'yearly' }"
@@ -45,15 +45,15 @@
                 </div>
             </div>
 
-            <input 
-                name="recurrence" 
-                v-model.number="recurrence" 
-                type="hidden" 
+            <input
+                name="recurrence"
+                v-model.number="recurrence"
+                type="hidden"
                 class="form-control">
         </div>
 
         {% if page.suggested_donation_amounts %}
-    
+
             {% for suggestion in page.suggested_donation_amounts %}
                 <div v-if="recurrence == 'once'" class="row text-center">
                     {% for amount in suggestion.value.once %}
@@ -128,7 +128,7 @@
 
                         <input name="amount" v-model.number="donationAmount" type="number" class="form-control" aria-label="Donation amount" aria-describedby="donation-amount-addon">
                     </div>
-                
+
                     <small id="amount-help" class="form-text text-muted">
                         {% if page.suggested_donation_amounts %}
                             Optionally, enter your own donation amount.
@@ -146,11 +146,11 @@
                 <div class="input-group">
                     <span class="input-group-text" id="given-name-addon">Given name*</span>
 
-                    <input 
+                    <input
                         name="donor_given_name"
-                        type="text" 
-                        class="form-control" 
-                        aria-label="Given name" 
+                        type="text"
+                        class="form-control"
+                        aria-label="Given name"
                         aria-describedby="given-name-addon"
                         required>
                 </div>
@@ -165,9 +165,9 @@
 
                     <input
                         name="donor_family_name"
-                        type="text" 
-                        class="form-control" 
-                        aria-label="Family name" 
+                        type="text"
+                        class="form-control"
+                        aria-label="Family name"
                         aria-describedby="family-name-addon"
                         required>
                 </div>
@@ -183,11 +183,11 @@
                     </span>
 
                     <input
-                        name="donor_email" 
-                        type="text" 
-                        class="form-control" 
-                        placeholder="user@example.com" 
-                        aria-label="Email" 
+                        name="donor_email"
+                        type="text"
+                        class="form-control"
+                        placeholder="user@example.com"
+                        aria-label="Email"
                         aria-describedby="email-addon"
                         required>
                 </div>

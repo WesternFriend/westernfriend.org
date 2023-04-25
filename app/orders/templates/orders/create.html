@@ -25,7 +25,7 @@
             {{ item.product_title }}
         </td>
         <td class="text-right">
-            ${{ item.total_price }} 
+            ${{ item.total_price }}
         </td>
     </tr>
     {% endfor %}
@@ -52,7 +52,7 @@
         </div>
         <div class="col-md-3">
             {{ form.purchaser_family_name | as_crispy_field }}
-        </div>   
+        </div>
     </div>
 
     <div class="row">
@@ -61,7 +61,7 @@
         </div>
     </div>
 
-    
+
     <div class="row">
         <div class="col-md-6">
             {{ form.purchaser_email | as_crispy_field }}
@@ -107,7 +107,7 @@
 
     <div class="text-right">
         <div class="btn-group" role="group" aria-label="Cart navigation">
-            <a 
+            <a
                 href="/cart"
                 class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i>

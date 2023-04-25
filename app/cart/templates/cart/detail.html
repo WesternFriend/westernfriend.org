@@ -36,8 +36,8 @@
               </a>
             </td>
             <td>
-              <form 
-                action="{% url "cart:add" product.id %}" 
+              <form
+                action="{% url "cart:add" product.id %}"
                 method="post"
                 class="form-inline"
                 >
@@ -47,7 +47,7 @@
                 {{ item.update_quantity_form.update }}
 
                 <div class="input-group">
-                  <input 
+                  <input
                     type="number"
                     name="quantity"
                     min="1"
@@ -58,9 +58,9 @@
                     value="{{ item.quantity }}"
                     style="max-width: 10em"
                     >
-                  
+
                   <div class="input-group-append">
-                    <input 
+                    <input
                     type="submit"
                     value="Update"
                     aria-label="update quantity"
@@ -70,7 +70,7 @@
               </form>
             </td>
             <td class="align-middle">
-                <a 
+                <a
                   href="{% url "cart:remove" product.id %}"
                   class="btn btn-outline-danger"
                   >
@@ -109,14 +109,14 @@
 
   <div class="text-right">
     <div class="btn-group" role="group" aria-label="Cart navigation">
-      <a 
+      <a
         href="/store"
         class="btn btn-outline-secondary">
           <i class="bi bi-arrow-left"></i>
           Back to bookstore
         </a>
-      <a 
-        href="{% url "orders:order_create" %}" 
+      <a
+        href="{% url "orders:order_create" %}"
         class="btn btn-outline-primary">
           Checkout
           <i class="bi bi-arrow-right"></i>

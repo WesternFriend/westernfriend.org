@@ -28,7 +28,8 @@ def extract_pullquotes(item: str) -> list[str]:
 
 def clean_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
     """
-    Replace "[pullquote][/pullquote]" tags in string with "<span class='pullquote'></span>"
+    Replace "[pullquote][/pullquote]" tags in string
+    with "<span class='pullquote'></span>"
     https://stackoverflow.com/a/44593228/1191545
     """
 
@@ -54,11 +55,12 @@ def parse_media_blocks(media_urls):
             embed_tuple = ("embed", embed)
             media_blocks.append(embed_tuple)
         else:
-            # The default should be to fetch a PDF or image file (i.e. from westernfriend.org)
+            # The default should be to fetch a
+            # PDF or image file (i.e. from westernfriend.org)
 
             try:
                 response = requests.get(url)
-            except:
+            except:  # noqa: E722
                 print(f"Could not GET: '{ url }'")
                 continue
 
@@ -91,7 +93,8 @@ def parse_media_blocks(media_urls):
 
                 image.save()
 
-                # Create an image block with dictionary properties of FormattedImageChooserStructBlock
+                # Create an image block with dictionary properties
+                # of FormattedImageChooserStructBlock
                 image_block = ("image", {"image": image, "width": 800})
 
                 media_blocks.append(image_block)
@@ -170,7 +173,7 @@ def get_existing_magazine_author_by_id(
 
     try:
         author_data = magazine_authors[authors_mask].iloc[0].to_dict()
-    except:
+    except:  # noqa: E722
         print("Could not get author data for author ID:", drupal_author_id)
 
         return None
@@ -204,7 +207,7 @@ def get_contact_from_author_data(author_data):
             )
         except Organization.DoesNotExist:
             print(
-                f"Could not find organization with ID: {author_data['drupal_author_id']}"
+                f"Could not find organization with ID: {author_data['drupal_author_id']}"  # noqa: E501
             )
     elif author_is_meeting:
         try:
@@ -233,7 +236,7 @@ def parse_body_blocks(body):
 
     try:
         soup = BeautifulSoup(body, "html.parser")
-    except:
+    except:  # noqa: E722
         soup = False
 
     # Placeholder for gathering successive items

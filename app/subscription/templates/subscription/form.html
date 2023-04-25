@@ -1,6 +1,6 @@
-{% load wagtailcore_tags %} 
+{% load wagtailcore_tags %}
 
-{% load crispy_forms_tags %} 
+{% load crispy_forms_tags %}
 {{ page.intro |richtext }}
 
 <form action="#" method="post" id="dynamicFields" class="mb-3">
@@ -12,12 +12,12 @@
             <label class="btn btn-outline-success" for="pdfFormat">
                 PDF
             </label>
-          
+
             <input type="radio" class="btn-check" name="magazineFormat" v-model="magazineFormat" value="print" id="printFormat" autocomplete="off">
             <label class="btn btn-outline-success" for="printFormat">
                 Print
             </label>
-          
+
             <input type="radio" class="btn-check" name="magazineFormat" v-model="magazineFormat" value="print_and_pdf" id="printAndPdfFormat" autocomplete="off">
             <label class="btn btn-outline-success" for="printAndPdfFormat">
                 Print & PDF
@@ -65,7 +65,7 @@
         <label for="recurring-checkbox" class="form-check-label">
             Check for automatic annual subscription renewal.
         </label>
-    </div>        
+    </div>
 
     <div class="row mt-2">
         <div class="col-md-6">
@@ -107,7 +107,7 @@
     </div>
 
     <div class="row mt-3" v-if="subscriptionIncludesPdf">
-        <p 
+        <p
             class="p-3 mb-2 text-white col-md-12"
             style="background-color: #8fa6b8; border-radius: 5px;">
             PDF subscription will be emailed to your login: <b>{{ user.get_username }}

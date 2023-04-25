@@ -5,7 +5,6 @@ import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
-from wagtail.models import Page
 
 from content_migration.management.commands.shared import (
     get_existing_magazine_author_from_db,
@@ -53,7 +52,7 @@ def create_archive_article_authors(archive_article, authors):
 
 
 class Command(BaseCommand):
-    help = "Import Archive Articles from Drupal site while linking them to Authors and Issues"
+    help = "Import Archive Articles from Drupal site while linking them to Authors and Issues"  # noqa: E501
 
     def add_arguments(self, parser):
         parser.add_argument("--file", action="store", type=str)
@@ -75,7 +74,7 @@ class Command(BaseCommand):
                     internet_archive_identifier=internet_archive_identifier
                 )
             except ObjectDoesNotExist:
-                error_message = f"Could not find archive issue with identifier: { internet_archive_identifier }"
+                error_message = f"Could not find archive issue with identifier: { internet_archive_identifier }"  # noqa: E501
                 logger.error(error_message)
 
             for index, article_data in issue_articles.iterrows():

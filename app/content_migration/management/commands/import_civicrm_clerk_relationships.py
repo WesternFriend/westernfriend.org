@@ -3,12 +3,11 @@
 # we need to move the existing pages to the correct parent.
 # https://stackoverflow.com/a/57057466/1191545
 
-import csv
 import re
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand, CommandError
-
+from django.core.management.base import BaseCommand
+import pandas as pd
 from contact.models import Meeting, MeetingPresidingClerk, Person, PersonIndexPage
 
 
@@ -69,7 +68,7 @@ class Command(BaseCommand):
 
             contact_ids = extract_contact_ids_from(relationship)
 
-            meeting_exists = Meeting.objects.filter(
+            Meeting.objects.filter(
                 civicrm_id=contact_ids["meeting_id"],
             ).exists()
 
@@ -77,7 +76,7 @@ class Command(BaseCommand):
                 meeting = Meeting.objects.get(civicrm_id=contact_ids["meeting_id"])
             except ObjectDoesNotExist:
                 print(
-                    f"Could not find meeting with CiviCRM ID { contact_ids['meeting_id'] }"
+                    f"Could not find meeting with CiviCRM ID { contact_ids['meeting_id'] }"  # noqa: E501
                 )
                 pass
 
@@ -85,7 +84,7 @@ class Command(BaseCommand):
             #     clerk = Person.objects.get(civicrm_id=contact_ids["clerk_id"])
             # except ObjectDoesNotExist:
             #     print(
-            #         f"Could not find person with CiviCRM ID { contact_ids['clerk_id'] }"
+            #         f"Could not find person with CiviCRM ID { contact_ids['clerk_id'] }"  # noqa: E501
             #     )
             #     pass
 

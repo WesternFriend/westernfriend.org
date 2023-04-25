@@ -261,7 +261,7 @@ class MagazineArticle(Page):
     )
     is_featured = models.BooleanField(
         default=False,
-        help_text="Feature this article in the related issue and allow full access without a subscription?",
+        help_text="Feature this article in the related issue and allow full access without a subscription?",  # noqa: E501
     )
     body_migrated = models.TextField(
         help_text="Used only for content from old Drupal website.",
@@ -290,7 +290,7 @@ class MagazineArticle(Page):
         InlinePanel(
             "authors",
             heading="Authors",
-            help_text="Select one or more authors, who contributed to this article. Note: you must first add contacts in order to select them as authors.",
+            help_text="Select one or more authors, who contributed to this article. Note: you must first add contacts in order to select them as authors.",  # noqa: E501
             min_num=1,
         ),
         MultiFieldPanel(
@@ -413,7 +413,7 @@ class ArchiveArticle(ClusterableModel):
     pdf_page_number = models.PositiveIntegerField(
         null=True,
         blank=True,
-        help_text="Page in the actual PDF file, when it differs from the original document",
+        help_text="Page in the actual PDF file, when it differs from the original document",  # noqa: E501
     )
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True)
 
@@ -427,7 +427,7 @@ class ArchiveArticle(ClusterableModel):
             heading="Page numbers",
         ),
         HelpPanel(
-            content="Add article authors by clicking the '+ Add' button below, if known."
+            content="Add article authors by clicking the '+ Add' button below, if known."  # noqa: E501
         ),
         NestedInlinePanel(
             "archive_authors",
@@ -466,7 +466,7 @@ class ArchiveIssue(Page):
         InlinePanel(
             "archive_articles",
             heading="Table of contents",
-            help_text="Add articles to the table of contents by clicking the '+ Add' button below",
+            help_text="Add articles to the table of contents by clicking the '+ Add' button below",  # noqa: E501
         ),
     ]
 

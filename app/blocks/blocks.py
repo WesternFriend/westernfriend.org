@@ -167,7 +167,7 @@ class PullQuoteBlock(wagtail_blocks.TextBlock):
 
 class SpacerBlock(wagtail_blocks.StructBlock):
     height = wagtail_blocks.DecimalBlock(
-        help_text="The height of this spacer in 'em' values where 1 em is one uppercase M.",
+        help_text="The height of this spacer in 'em' values where 1 em is one uppercase M.",  # noqa: E501
         min_value=0,
         decimal_places=1,
     )

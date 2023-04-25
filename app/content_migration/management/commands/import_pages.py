@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Get references to relevant index pages
-        home_page = HomePage.objects.get()
+        HomePage.objects.get()
         news_index_page = NewsIndexPage.objects.get()
 
         pages = pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")

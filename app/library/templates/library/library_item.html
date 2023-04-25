@@ -71,7 +71,7 @@
         <dt>
             Topic
         </dt>
-        
+
         <dd>
             {% for topic in page.specific.topics.all %}
                 <a href="{% pageurl topic.topic %}">
@@ -84,7 +84,7 @@
         {% if page.tags.count  %}
         <div class="tags">
             {% for tag in page.tags.all %}
-                <a 
+                <a
                     href="{%url 'search' %}?query={{ tag }}"
                     class="btn btn-outline-primary btn-sm">
                         {{ tag }}

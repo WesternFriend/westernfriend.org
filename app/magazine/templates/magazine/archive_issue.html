@@ -7,7 +7,7 @@
     {{ page.title }}
 </h1>
 
-<iframe 
+<iframe
     id="archive-pdf-viewer"
     src="https://archive.org/stream/{{ page.internet_archive_identifier }}?ui=embed#page/n0"
     width="100%"
@@ -30,10 +30,10 @@
     </thead>
 
     {% for article in page.archive_articles.all %}
-    <tr 
+    <tr
         class="article"
         data-pdf-page-number="{{ article.pdf_page_number }}"
-        data-internet-archive-identifier="{{ page.internet_archive_identifier }}" 
+        data-internet-archive-identifier="{{ page.internet_archive_identifier }}"
         onclick="turnPage(this)"
     >
         <td>
@@ -72,7 +72,7 @@
     document.addEventListener('DOMContentLoaded', setInitialPdfPage, false);
     // Get Internet Archive identifier
     const ia_identifier = document.currentScript.getAttribute('data-ia-identifier');
-    
+
     function setInitialPdfPage (event) {
         const urlParams = new URLSearchParams(window.location.search);
         const pdfPageNumber = urlParams.get('pdf_page_number');
@@ -80,7 +80,7 @@
         if (pdfPageNumber) {
             // Construct new string for Internet Archive iframe
             const newSrc = `https://archive.org/stream/${ia_identifier}?ui=embed#page/n${pdfPageNumber}/mode/2up`;
-            
+
 
             // Replace iframe src attribute with new string
             document.getElementById('archive-pdf-viewer').setAttribute('src', newSrc);

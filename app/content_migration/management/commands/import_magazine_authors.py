@@ -29,7 +29,7 @@ def create_meeting(author):
     meeting_name = author["drupal_full_name"]
     drupal_author_id = author["drupal_author_id"]
 
-    if author["civicrm_id"] == None:
+    if author["civicrm_id"] is None:
         logger.error(f"Meeting {meeting_name} does not have CiviCRM ID")
 
     try:
@@ -38,7 +38,7 @@ def create_meeting(author):
             drupal_author_id=drupal_author_id,
             civicrm_id=author["civicrm_id"],
         )
-    except:
+    except:  # noqa: E722
         logger.error(
             f"Could not create meeting for {meeting_name} (ID: {drupal_author_id})"
         )
@@ -54,7 +54,7 @@ def create_organization(author):
     organization_name = author["drupal_full_name"]
     drupal_author_id = author["drupal_author_id"]
 
-    if author["civicrm_id"] == None:
+    if author["civicrm_id"] is None:
         logger.error(f"Organization {organization_name} does not have CiviCRM ID")
 
     try:
@@ -63,9 +63,9 @@ def create_organization(author):
             drupal_author_id=drupal_author_id,
             civicrm_id=author["civicrm_id"],
         )
-    except:
+    except:  # noqa: E722
         logger.error(
-            f"Could not create organization {organization_name} (ID: {drupal_author_id})"
+            f"Could not create organization {organization_name} (ID: {drupal_author_id})"  # noqa: E501
         )
 
         organization_index_page.add_child(instance=organization)
@@ -83,7 +83,7 @@ def create_person(author):
             drupal_author_id=author["drupal_author_id"],
             civicrm_id=author["civicrm_id"],
         )
-    except:
+    except:  # noqa: E722
         logger.error(f"Could not create person ID: { author['drupal_author_id'] }")
 
         person_index_page.add_child(instance=person)
@@ -96,7 +96,7 @@ def import_author_records(authors_list):
 
         # Don't import duplicate authors
         # Instead, clean them up in the Drupal site
-        if author["duplicate_of_id"] != None:
+        if author["duplicate_of_id"] is not None:
             logger.warning(
                 f"Author { author['drupal_author_id'] } is marked as a duplicate"
             )
