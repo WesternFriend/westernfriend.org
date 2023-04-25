@@ -32,7 +32,7 @@ def parse_article_authors(article, article_authors, magazine_authors_data):
         if author_data is not None:
             author = get_contact_from_author_data(author_data)
         else:
-            print(f"Could not find author data for Drupal author ID:", drupal_author_id)
+            print("Could not find author data for Drupal author ID:", drupal_author_id)
             continue
 
         if author is not None:
@@ -58,7 +58,7 @@ def assign_article_to_issue(article, issue_title):
 
 
 class Command(BaseCommand):
-    help = "Import Articles from Drupal site while linking them to Authors, Issues, Deparments, and Keywords"
+    help = "Import Articles from Drupal site while linking them to Authors, Issues, Deparments, and Keywords"  # noqa: E501
 
     def add_arguments(self, parser):
         parser.add_argument(

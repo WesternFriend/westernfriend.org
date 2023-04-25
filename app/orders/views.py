@@ -1,9 +1,6 @@
-from decimal import Decimal
-
 from django.shortcuts import redirect, render, reverse
 
 from cart.cart import Cart
-from shipping.calculator import get_book_shipping_cost
 
 from .forms import OrderCreateForm
 from .models import OrderItem

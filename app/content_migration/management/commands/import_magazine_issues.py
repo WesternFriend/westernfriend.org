@@ -5,7 +5,7 @@ from io import BytesIO
 import pandas as pd
 import requests
 from django.core.files.images import ImageFile
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.utils.timezone import make_aware
 from tqdm import tqdm
 from wagtail.images.models import Image

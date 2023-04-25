@@ -1,7 +1,5 @@
-import csv
-
 import pandas as pd
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
 from magazine.models import ArchiveIssue, DeepArchiveIndexPage

@@ -1,10 +1,7 @@
 import datetime
 import logging
-import os
 
-import braintree
 from django.conf import settings
-from django.contrib.auth import login
 from django.db import models
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
@@ -162,7 +159,7 @@ class Subscription(models.Model):
     braintree_subscription_id = models.CharField(
         max_length=255,
         blank=True,
-        help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.",
+        help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.",  # noqa: E501
     )
 
     panels = [

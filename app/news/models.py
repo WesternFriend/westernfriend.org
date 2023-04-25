@@ -1,7 +1,6 @@
 from datetime import date, datetime
 
 from django.db import models
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from modelcluster.fields import ParentalKey
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase

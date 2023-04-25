@@ -1,28 +1,22 @@
 import numpy as np
 import pandas as pd
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from tqdm import tqdm
-from wagtail.models import Page
 
 from facets.models import (  # TODO: make sure to add library item topics
     Audience,
     Genre,
     Medium,
     TimePeriod,
-    Topic,
 )
 from library.models import (
     LibraryIndexPage,
     LibraryItem,
     LibraryItemAuthor,
-    LibraryItemTopic,
 )
 
 from .shared import (
-    get_contact_from_author_data,
-    get_existing_magazine_author_by_id,
     get_existing_magazine_author_from_db,
-    parse_media_blocks,
 )
 
 
@@ -102,46 +96,47 @@ class Command(BaseCommand):
             library_item.title = import_library_item["title"]
             library_item.description = import_library_item["Description"]
 
-            # # TODO: Remember to uncomment this line when done developing the remaining import script
+            # # TODO: Remember to uncomment this line when done
+            # # developing the remaining import script
             # # library_item.body = parse_media_blocks(import_library_item["Media"])
             library_item.body = None
 
-            if import_library_item["Audience"] != None:
+            if import_library_item["Audience"] is not None:
                 library_item.item_audience = Audience.objects.get(
                     title=import_library_item["Audience"]
                 )
 
-            if import_library_item["Genre"] != None:
+            if import_library_item["Genre"] is not None:
                 library_item.item_genre = Genre.objects.get(
                     title=import_library_item["Genre"]
                 )
 
-            if import_library_item["Medium"] != None:
+            if import_library_item["Medium"] is not None:
                 library_item.item_medium = Medium.objects.get(
                     title=import_library_item["Medium"]
                 )
 
-            if import_library_item["Time Period"] != None:
+            if import_library_item["Time Period"] is not None:
                 library_item.item_time_period = TimePeriod.objects.get(
                     title=import_library_item["Time Period"]
                 )
 
             # Authors
-            if import_library_item["drupal_magazine_author_ids"] != None:
+            if import_library_item["drupal_magazine_author_ids"] is not None:
                 add_library_item_authors(
                     library_item,
                     import_library_item["drupal_magazine_author_ids"],
                 )
 
             # - Keywords
-            if import_library_item["Keywords"] != None:
+            if import_library_item["Keywords"] is not None:
                 add_library_item_keywords(
                     library_item,
                     import_library_item["Keywords"],
                 )
 
             # Website
-            if import_library_item["Website"] != None:
+            if import_library_item["Website"] is not None:
                 url_stream_block = (
                     "url",
                     import_library_item["Website"],

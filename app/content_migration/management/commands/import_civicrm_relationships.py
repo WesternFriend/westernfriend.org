@@ -7,9 +7,8 @@ import re
 
 import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from tqdm import tqdm
-from wagtail.models import Page
 
 from contact.models import Meeting
 
@@ -55,7 +54,7 @@ class Command(BaseCommand):
                 parent = Meeting.objects.get(civicrm_id=contact_ids["parent_id"])
             except ObjectDoesNotExist:
                 print(
-                    f"Could not find 'parent meeting' contact with CiviCRM ID { contact_ids['parent_id'] }"
+                    f"Could not find 'parent meeting' contact with CiviCRM ID { contact_ids['parent_id'] }"  # noqa: E501
                 )
                 print(relationship)
 
@@ -64,7 +63,7 @@ class Command(BaseCommand):
                 child = Meeting.objects.get(civicrm_id=contact_ids["child_id"])
             except ObjectDoesNotExist:
                 print(
-                    f"Could not find 'child meeting' contact with CiviCRM ID { contact_ids['child_id'] }"
+                    f"Could not find 'child meeting' contact with CiviCRM ID { contact_ids['child_id'] }"  # noqa: E501
                 )
                 print(relationship)
 

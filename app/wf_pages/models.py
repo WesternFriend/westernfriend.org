@@ -6,7 +6,6 @@ from taggit.models import TaggedItemBase
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
-from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Page
 from wagtail.search import index
 

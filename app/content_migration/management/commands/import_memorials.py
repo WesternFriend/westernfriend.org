@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pandas as pd
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
 from contact.models import Meeting, Person, PersonIndexPage
@@ -18,7 +18,7 @@ def create_person(memorial_data):
             given_name=memorial_data["First Name"],
             family_name=memorial_data["Last Name"],
         )
-    except:
+    except:  # noqa: E722
         print("Could not create person: ", memorial_data["Article Author ID"])
 
     person_index_page.add_child(instance=person)
@@ -34,7 +34,7 @@ def get_memorial_meeting_or_none(memorial_data):
     if memorial_data["Memorial Meeting"] != "":
         try:
             meeting = Meeting.objects.get(title=memorial_data["Memorial Meeting"])
-        except:
+        except:  # noqa: E722
             print("Could not find memorial meeting:", memorial_data["Memorial Meeting"])
 
             return None
@@ -50,7 +50,7 @@ def get_or_create_memorial_person(memorial_data):
             person = Person.objects.get(
                 drupal_author_id=int(memorial_data["Article Author ID"])
             )
-        except:
+        except:  # noqa: E722
             print(
                 "Could not find existing contact for Drupal ID:",
                 memorial_data["Article Author ID"],
@@ -84,7 +84,7 @@ class Command(BaseCommand):
                 )
             else:
                 memorial = Memorial(
-                    title=f"{ memorial_data['First Name'] } { memorial_data['Last Name'] }",
+                    title=f"{ memorial_data['First Name'] } { memorial_data['Last Name'] }",  # noqa: E501
                     drupal_memorial_id=int(memorial_data["memorial_id"]),
                 )
 

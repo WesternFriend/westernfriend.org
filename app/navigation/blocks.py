@@ -18,7 +18,7 @@ class NavigationExternalLinkBlock(wagtail_blocks.StructBlock):
     url = wagtail_blocks.URLBlock()
     anchor = wagtail_blocks.CharBlock(
         required=False,
-        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",
+        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",  # noqa: E501
     )
 
     class Meta:
@@ -44,7 +44,7 @@ class NavigationPageChooserBlock(wagtail_blocks.StructBlock):
     page = wagtail_blocks.PageChooserBlock()
     anchor = wagtail_blocks.CharBlock(
         required=False,
-        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",
+        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",  # noqa: E501
     )
 
     class Meta:

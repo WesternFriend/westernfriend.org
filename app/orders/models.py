@@ -22,10 +22,10 @@ class Order(ClusterableModel):
         max_length=255,
         blank=True,
         default="",
-        help_text="Enter the meeting or organization name, if this purchaser is a meeting or organization.",
+        help_text="Enter the meeting or organization name, if this purchaser is a meeting or organization.",  # noqa: E501
     )
     purchaser_email = models.EmailField(
-        help_text="Provide an email, so we can communicate any issues regarding this order."
+        help_text="Provide an email, so we can communicate any issues regarding this order."  # noqa: E501
     )
     recipient_name = models.CharField(
         max_length=255,
