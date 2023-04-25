@@ -245,17 +245,27 @@ class LibraryIndexPage(Page):
         # Get page number from request,
         # default to first page
         default_page = 1
-        page = request.GET.get("page", default_page)
+
+        # Make sure any page number value is an integer
+        # since we need an integer for both
+        # paginator.page() get_elided_page_range()
+        try:
+            page_number = int(request.GET.get("page", default_page))
+        except ValueError:
+            page_number = default_page
 
         # Paginate library items
         items_per_page = 10
         paginator = Paginator(library_items, items_per_page)
+
         try:
-            library_items_page = paginator.page(page)
-        except PageNotAnInteger:
-            library_items_page = paginator.page(default_page)
+            library_items_page = paginator.page(page_number)
         except EmptyPage:
             library_items_page = paginator.page(paginator.num_pages)
+
+        library_items_page.adjusted_elided_pages = paginator.get_elided_page_range(
+            page_number
+        )
 
         # Provide filtered, paginated library items
         context["library_items_page"] = library_items_page

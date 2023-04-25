@@ -207,14 +207,22 @@
                         {% endif %}
 
 
-                        {% for i in library_items_page.paginator.page_range %}
-                            {% if library_items_page.number == i %}
+                        {% for page_number in library_items_page.adjusted_elided_pages %}
+                            {% if library_items_page.number == page_number %}
                                 <li class="active page-item" aria-current="page">
-                                    <a href="?page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
+                                    <a href="?page={{ page_number }}#archive-issues" class="page-link">
+                                        {{ page_number }}
+                                    </a>
                                 </li>
+                            {% elif page_number == library_items_page.paginator.ELLIPSIS %}
+                                <span class="mx-2">
+                                    {{ page_number }}
+                                </span>
                             {% else %}
                                 <li class="page-item">
-                                    <a href="?page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
+                                    <a href="?page={{ page_number }}#archive-issues" class="page-link">
+                                        {{ page_number }} 
+                                    </a>
                                 </li>
                             {% endif %}
                         {% endfor %}
