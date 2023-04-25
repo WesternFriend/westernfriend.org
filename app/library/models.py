@@ -247,7 +247,8 @@ class LibraryIndexPage(Page):
         default_page = 1
 
         # Make sure any page number value is an integer
-        # since we need an integer to get_elided_page_range
+        # since we need an integer for both
+        # paginator.page() get_elided_page_range()
         try:
             page_number = int(request.GET.get("page", default_page))
         except ValueError:
