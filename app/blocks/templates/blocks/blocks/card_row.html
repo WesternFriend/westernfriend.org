@@ -1,7 +1,9 @@
 {% load wagtailcore_tags %}
 
-<div class="row">
+<div class="row mb-3">
     {% for block in self %}
-        {% include_block block %}
+        <div class="col">
+            {% include_block block %}
+        </div>
     {% endfor %}
 </div>
