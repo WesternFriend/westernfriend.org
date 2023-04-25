@@ -10,11 +10,11 @@
 
     <form action="{% url 'search' %}" method="get" class="form-inline">
         <div class="input-group mb-3">
-            <input 
+            <input
                 type="text"
                 name="query"{% if search_query %}
                 value="{{ search_query }}"{% endif %}
-                class="form-control form-control-sm me-1" 
+                class="form-control form-control-sm me-1"
                 aria-label="Search query"
                 aria-describedby="search-button"
             >
@@ -28,7 +28,7 @@
 
         {% for result in search_results %}
             {% if result.specific.search_template %}
-                {% include result.specific.search_template with entity=result %}             
+                {% include result.specific.search_template with entity=result %}
             {% else %}
                 <div class="card my-1">
                     <div class="card-body">

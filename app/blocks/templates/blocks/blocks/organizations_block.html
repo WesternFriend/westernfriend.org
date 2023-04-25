@@ -2,7 +2,7 @@
     <div class="list-group">
     {% for organization in organizations %}
         {% if organization.website %}
-            <a 
+            <a
                 href="{{ organization.website }}"
                 class="list-group-item flex-column align-items-start list-group-item-action"
             >
@@ -16,7 +16,7 @@
                 {% endif %}
             </a>
         {% else %}
-            <div 
+            <div
                 class="list-group-item flex-column align-items-start"
             >
                 <p>

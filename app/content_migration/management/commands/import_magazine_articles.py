@@ -16,7 +16,7 @@ from magazine.models import (
     MagazineIssue,
 )
 
-from .shared import parse_media_blocks, parse_body_blocks,
+from .shared import parse_media_blocks, parse_body_blocks
 
 
 def parse_article_authors(article, article_authors, magazine_authors_data):

@@ -17,7 +17,7 @@ This project is built with [Python](https://www.python.org/), [Django](https://w
 1. clone this repository
    - `git clone git@github.com:WesternFriend/WF-website.git`
 2. Change into the application directory
-   - `cd WF-website/app/`  
+   - `cd WF-website/app/`
 3. activate a Poetry virtual environment
    - `poetry shell`
 4. install the project dependencies
@@ -29,7 +29,7 @@ This project is built with [Python](https://www.python.org/), [Django](https://w
 7. run database migrations
    - `python manage.py migrate`
 8. create a superuser
-   - `python manage.py createsuperuser`  
+   - `python manage.py createsuperuser`
 9. run the local server
    - `python manage.py runserver`
 

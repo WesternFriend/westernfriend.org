@@ -27,7 +27,7 @@
                     {{ current_issue.title }}
 
                     {% if current_issue.publication_date %}
-                        
+
                         ({{ current_issue.publication_date | date:"M" }}/{{ current_issue.publication_end_date | date:"M Y" }})
                     {% endif %}
                 </a>

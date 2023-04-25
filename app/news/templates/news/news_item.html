@@ -9,7 +9,7 @@
     <h1>
         {{ page.title }}
     </h1>
-    
+
     <p class="text-muted">
         Published {{ page.publication_date }}
     </p>
@@ -26,7 +26,7 @@
         <div class="tags">
             {% for tag in page.tags.all %}
                 {% for tag in page.tags.all %}
-                    <a 
+                    <a
                         href="{%url 'search' %}?query={{ tag }}"
                         class="btn btn-outline-primary btn-sm">
                             {{ tag }}
@@ -34,5 +34,5 @@
                 {% endfor %}
             {% endfor %}
         </div>
-    {% endif %}    
+    {% endif %}
 {% endblock %}
