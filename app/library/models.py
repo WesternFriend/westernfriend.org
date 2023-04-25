@@ -259,8 +259,6 @@ class LibraryIndexPage(Page):
 
         try:
             library_items_page = paginator.page(page_number)
-        except PageNotAnInteger:
-            library_items_page = paginator.page(default_page)
         except EmptyPage:
             library_items_page = paginator.page(paginator.num_pages)
 
