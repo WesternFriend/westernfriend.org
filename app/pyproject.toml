@@ -56,13 +56,14 @@ arguments = ["-q", "--diff"]
 [tool.black]
 target-version = ['py311']
 
-[tool.isort]
-profile = "black"
-
 [tool.django-stubs]
 django_settings_module = "core.settings.base"
 
+[tool.isort]
+profile = "black"
 
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
 
 [tool.ruff]
 # Same as Black.
