@@ -3,119 +3,119 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-<h1>{{ page.title }}</h1>
+    <h1>{{ page.title }}</h1>
 
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="card-text">
-            {{ page.intro | richtext }}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="card-text">
+                {{ page.intro | richtext }}
+            </div>
         </div>
     </div>
-</div>
 
-<div class="card">
-    <div class="card-header">
-        <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#filter-form"
-            aria-expanded="false" aria-controls="filter-form">
-            Search memorials
-        </button>
+    <div class="card">
+        <div class="card-header">
+            <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#filter-form"
+                aria-expanded="false" aria-controls="filter-form">
+                Search memorials
+            </button>
 
-        <form id="filter-form" class="form collapse">
-            <div class="form-group">
-                <label for="title">Person</label>
-                <input id="title" name="title" type="text" class="form-control" placeholder="Person name">
-            </div>
+            <form id="filter-form" class="form collapse">
+                <div class="form-group">
+                    <label for="title">Person</label>
+                    <input id="title" name="title" type="text" class="form-control" placeholder="Person name">
+                </div>
 
-            <div class="form-group">
-                <label for="meeting">
-                    Meeting
-                </label>
-                <select name="memorial_meeting__title" id="memorial_meeting__title" class="form-control">
-                    <option selected disabled hidden>Choose a meeting...</option>
-                    {% for meeting in meetings %}
-                    <option>{{ meeting }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+                <div class="form-group">
+                    <label for="meeting">
+                        Meeting
+                    </label>
+                    <select name="memorial_meeting__title" id="memorial_meeting__title" class="form-control">
+                        <option selected disabled hidden>Choose a meeting...</option>
+                        {% for meeting in meetings %}
+                            <option>{{ meeting }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <button type="submit" class="btn btn-outline-primary ms-3 align-baseline">Go</button>
+                <button type="submit" class="btn btn-outline-primary ms-3 align-baseline">Go</button>
 
-            <button id="clear-search-button" class="btn btn-outline-warning invisible float-right"
-                onclick="clearSearch()" type="button">Clear
-                search</button>
-        </form>
-    </div>
-
-    {% if memorials %}
-
-    <div class="list-group">
-        {% for memorial in memorials %}
-        <a href="{% pageurl memorial %}" class="list-group-item list-group-item-action">
-            <h2 class="d-flex w-100">
-                {{ memorial.title }}
-            </h2>
-
-            <p class="mb-1">
-                <span class="me-3">
-                    Born: {{ memorial.date_of_birth }}
-                </span>
-
-                <span>
-                    Died: {{ memorial.date_of_death }}
-                </span>
-            </p>
-        </a>
-        {% endfor %}
-
-        <div class="list-group-item d-flex w-100 justify-content-center">
-            {% if memorials.has_previous %}
-            <a href="?page={{ memorials.previous_page_number }}" class="btn btn-outline-primary btn-sm">previous</a>
-            {% endif %}
-
-            <span class="current">
-                Page {{ memorials.number }} of {{ memorials.paginator.num_pages }}
-            </span>
-
-            {% if memorials.has_next %}
-            <a href="?page={{ memorials.next_page_number }}" class="btn btn-outline-primary btn-sm">next</a>
-            {% endif %}
+                <button id="clear-search-button" class="btn btn-outline-warning invisible float-right"
+                    onclick="clearSearch()" type="button">Clear
+                    search</button>
+            </form>
         </div>
+
+        {% if memorials %}
+
+            <div class="list-group">
+                {% for memorial in memorials %}
+                    <a href="{% pageurl memorial %}" class="list-group-item list-group-item-action">
+                        <h2 class="d-flex w-100">
+                            {{ memorial.title }}
+                        </h2>
+
+                        <p class="mb-1">
+                            <span class="me-3">
+                                Born: {{ memorial.date_of_birth }}
+                            </span>
+
+                            <span>
+                                Died: {{ memorial.date_of_death }}
+                            </span>
+                        </p>
+                    </a>
+                {% endfor %}
+
+                <div class="list-group-item d-flex w-100 justify-content-center">
+                    {% if memorials.has_previous %}
+                        <a href="?page={{ memorials.previous_page_number }}" class="btn btn-outline-primary btn-sm">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ memorials.number }} of {{ memorials.paginator.num_pages }}
+                    </span>
+
+                    {% if memorials.has_next %}
+                        <a href="?page={{ memorials.next_page_number }}" class="btn btn-outline-primary btn-sm">next</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="card-body">
+                <p>There are no memorials.</p>
+            </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="card-body">
-        <p>There are no memorials.</p>
-    </div>
-    {% endif %}
-</div>
 
 
 
 {% endblock content %}
 
 {% block extra_js %}
-<script>
-    function clearSearch() {
-        window.location.replace(location.pathname)
-    }
+    <script>
+        function clearSearch() {
+            window.location.replace(location.pathname)
+        }
 
-    // if filter query exists
-    if (window.location.search) {
-        // Display clear filter button
-        var clearFiltersButton = document.getElementById("clear-search-button");
-        clearFiltersButton.classList.toggle("invisible");
+        // if filter query exists
+        if (window.location.search) {
+            // Display clear filter button
+            var clearFiltersButton = document.getElementById("clear-search-button");
+            clearFiltersButton.classList.toggle("invisible");
 
-        // Update search facet fields with value(s) from search parameters
-        var urlParams = new URLSearchParams(window.location.search);
+            // Update search facet fields with value(s) from search parameters
+            var urlParams = new URLSearchParams(window.location.search);
 
-        for (let [key, value] of urlParams) {
-            try {
-                const element = document.getElementById(key);
+            for (let [key, value] of urlParams) {
+                try {
+                    const element = document.getElementById(key);
 
-                element.value = value;
-            } catch (error) {
-                console.log("Form element does not exist with id:", key)
+                    element.value = value;
+                } catch (error) {
+                    console.log("Form element does not exist with id:", key)
+                }
             }
         }
-    }
-</script>
+    </script>
 {% endblock extra_js%}

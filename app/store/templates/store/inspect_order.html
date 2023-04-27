@@ -6,11 +6,11 @@
 
         {% if field.label == "Items"%}
             <ul>
-            {% for order_item in instance.items.all %}
-                <li>
-                    {{ order_item }}
-                </li>
-            {% endfor %}
+                {% for order_item in instance.items.all %}
+                    <li>
+                        {{ order_item }}
+                    </li>
+                {% endfor %}
             </ul>
         {% else %}
             <dd>{{ field.value }}</dd>

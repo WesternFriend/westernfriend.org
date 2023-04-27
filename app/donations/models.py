@@ -57,7 +57,7 @@ class DonatePage(Page):
     ]
 
     parent_page_types = ["home.HomePage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     def serve(self, request, *args, **kwargs):
         # Avoid circular dependency

@@ -5,106 +5,106 @@
 {% block body_class %}template-magazineindexpage{% endblock %}
 
 {% block content %}
-<h1>
-    {{ page.title }}
-</h1>
+    <h1>
+        {{ page.title }}
+    </h1>
 
-<div class="intro">
-    {{ page.intro | richtext }}
-</div>
-
-<h2 id="recent-issues">
-    Recent issues
-</h2>
-
-<div class="row mb-4">
-    {% for issue in recent_issues %}
-    <div class="col-sm-4 mb-4">
-        {% include "magazine/magazine_issue_card.html" %}
+    <div class="intro">
+        {{ page.intro | richtext }}
     </div>
-    {% endfor %}
-</div>
 
-<h2 id="archive-issues">
-    Archive issues
-</h2>
+    <h2 id="recent-issues">
+        Recent issues
+    </h2>
 
-<div class="row">
-    {% for issue in archive_issues %}
-    <div class="col-sm-3 mb-4">
-        {% include "magazine/magazine_issue_card.html" %}
+    <div class="row mb-4">
+        {% for issue in recent_issues %}
+            <div class="col-sm-4 mb-4">
+                {% include "magazine/magazine_issue_card.html" %}
+            </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 
-{% if archive_issues.has_other_pages %}
-    <nav aria-label="Archive issues navigation">
-        <ul class="pagination">
-            {% if archive_issues.has_previous %}
-            <li class="page-item">
-                <a href="?archive-issues-page=1#archive-issues" class="page-link">&laquo; first</a>
-            </li>
+    <h2 id="archive-issues">
+        Archive issues
+    </h2>
 
-            <li class="page-item">
-                <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues"
-                    class="page-link">
-                    previous
-                </a>
-            </li>
-            {% endif %}
+    <div class="row">
+        {% for issue in archive_issues %}
+            <div class="col-sm-3 mb-4">
+                {% include "magazine/magazine_issue_card.html" %}
+            </div>
+        {% endfor %}
+    </div>
 
-
-            {% for i in archive_issues.paginator.page_range %}
-                {% if archive_issues.number == i %}
-                    <li class="active page-item" aria-current="page">
-                        <a href="?archive-issues-page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
-                    </li>
-                {% else %}
+    {% if archive_issues.has_other_pages %}
+        <nav aria-label="Archive issues navigation">
+            <ul class="pagination">
+                {% if archive_issues.has_previous %}
                     <li class="page-item">
-                        <a href="?archive-issues-page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
+                        <a href="?archive-issues-page=1#archive-issues" class="page-link">&laquo; first</a>
+                    </li>
+
+                    <li class="page-item">
+                        <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues"
+                            class="page-link">
+                            previous
+                        </a>
                     </li>
                 {% endif %}
-            {% endfor %}
 
-            {% if archive_issues.has_next %}
-            <li class="page-item">
-                <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues"
-                    class="page-link">
-                    next
-                </a>
-            </li>
 
-            <li class="page-item">
-                <a href="?archive-issues-page={{ archive_issues.paginator.num_pages }}#archive-issues"
-                class="page-link">
-                    last &raquo;
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-{% endif %}
+                {% for i in archive_issues.paginator.page_range %}
+                    {% if archive_issues.number == i %}
+                        <li class="active page-item" aria-current="page">
+                            <a href="?archive-issues-page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a href="?archive-issues-page={{ i }}#archive-issues" class="page-link">{{ i }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
 
-{% if page.deep_archive_page %}
-<h2 id="deep-archive">
-    <i class="bi bi-calendar-heart" aria-hidden="true"></i>
-    Deep archive
-</h2>
-{{ page.deep_archive_intro | richtext }}
+                {% if archive_issues.has_next %}
+                    <li class="page-item">
+                        <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues"
+                            class="page-link">
+                            next
+                        </a>
+                    </li>
 
-<a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline-primary mb-3">
-    <i class="bi bi-eye" aria-hidden="true"></i>
-    View deep archive
-</a>
-<div class="row">
-    <div class="col-sm-4 mb-4">
-        <div class="card">
-            <a href=" {% pageurl page.deep_archive_page %}">
-                <img class="card-img-top"
-                    src="https://archive.org/services/img/{{ page.featured_deep_archive_issue.internet_archive_identifier }}">
-            </a>
+                    <li class="page-item">
+                        <a href="?archive-issues-page={{ archive_issues.paginator.num_pages }}#archive-issues"
+                            class="page-link">
+                            last &raquo;
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+
+    {% if page.deep_archive_page %}
+        <h2 id="deep-archive">
+            <i class="bi bi-calendar-heart" aria-hidden="true"></i>
+            Deep archive
+        </h2>
+        {{ page.deep_archive_intro | richtext }}
+
+        <a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline-primary mb-3">
+            <i class="bi bi-eye" aria-hidden="true"></i>
+            View deep archive
+        </a>
+        <div class="row">
+            <div class="col-sm-4 mb-4">
+                <div class="card">
+                    <a href=" {% pageurl page.deep_archive_page %}">
+                        <img class="card-img-top"
+                            src="https://archive.org/services/img/{{ page.featured_deep_archive_issue.internet_archive_identifier }}">
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-{% endif %}
+    {% endif %}
 {% endblock %}

@@ -12,9 +12,9 @@
     Authored by:
     {% for author in page.specific.authors.all %}
         {% if author.author.live %}
-        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+            <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
         {% else %}
-        {{ author.author }}{% if not forloop.last %},{% endif %}
+            {{ author.author }}{% if not forloop.last %},{% endif %}
         {% endif %}
     {% endfor %}
 
@@ -24,83 +24,83 @@
 
     <dl class="mt-3">
         {% if page.specific.item_audience  %}
-        <dt>
-            Audience:
-        </dt>
-        <dd>
-            <a href="{% pageurl page.specific.item_audience %}">
-                {{ page.specific.item_audience }}
-            </a>
-        </dd>
+            <dt>
+                Audience:
+            </dt>
+            <dd>
+                <a href="{% pageurl page.specific.item_audience %}">
+                    {{ page.specific.item_audience }}
+                </a>
+            </dd>
         {% endif %}
 
         {% if page.specific.item_genre  %}
-        <dt>
-            Genre:
-        </dt>
-        <dd>
-            <a href="{% pageurl page.specific.item_genre %}">
-                {{ page.specific.item_genre }}
-            </a>
-        </dd>
+            <dt>
+                Genre:
+            </dt>
+            <dd>
+                <a href="{% pageurl page.specific.item_genre %}">
+                    {{ page.specific.item_genre }}
+                </a>
+            </dd>
         {% endif %}
 
         {% if page.specific.item_medium  %}
-        <dt>
-            Medium:
-        </dt>
-        <dd>
-            <a href="{% pageurl page.specific.item_medium %}">
-                {{ page.specific.item_medium }}
-            </a>
-        </dd>
+            <dt>
+                Medium:
+            </dt>
+            <dd>
+                <a href="{% pageurl page.specific.item_medium %}">
+                    {{ page.specific.item_medium }}
+                </a>
+            </dd>
         {% endif %}
 
         {% if page.specific.item_time_period  %}
-        <dt>
-            Time period:
-        </dt>
-        <dd>
-            <a href="{% pageurl page.specific.item_time_period %}">
-                {{ page.specific.item_time_period }}
-            </a>
-        </dd>
+            <dt>
+                Time period:
+            </dt>
+            <dd>
+                <a href="{% pageurl page.specific.item_time_period %}">
+                    {{ page.specific.item_time_period }}
+                </a>
+            </dd>
         {% endif %}
 
         {% if page.specific.topics.count  %}
-        <dt>
-            Topic
-        </dt>
+            <dt>
+                Topic
+            </dt>
 
-        <dd>
-            {% for topic in page.specific.topics.all %}
-                <a href="{% pageurl topic.topic %}">
-                    {{ topic.topic }}
-                </a>{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        </dd>
+            <dd>
+                {% for topic in page.specific.topics.all %}
+                    <a href="{% pageurl topic.topic %}">
+                        {{ topic.topic }}
+                    </a>{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            </dd>
         {% endif %}
 
         {% if page.tags.count  %}
-        <div class="tags">
-            {% for tag in page.tags.all %}
-                <a
-                    href="{%url 'search' %}?query={{ tag }}"
-                    class="btn btn-outline-primary btn-sm">
+            <div class="tags">
+                {% for tag in page.tags.all %}
+                    <a
+                        href="{%url 'search' %}?query={{ tag }}"
+                        class="btn btn-outline-primary btn-sm">
                         {{ tag }}
-                </a>
-            {% endfor %}
-        </div>
+                    </a>
+                {% endfor %}
+            </div>
         {% endif %}
     </dl>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/fitvids@2/dist/fitvids.min.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function(event) {
-  // Ensure embedded videos are responsive
-  fitvids(".block-embed");
-});
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/fitvids@2/dist/fitvids.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            // Ensure embedded videos are responsive
+            fitvids(".block-embed");
+        });
+    </script>
 {% endblock extra_js %}

@@ -3,200 +3,200 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
-<h1>{{ page.title }}</h1>
+    <h1>{{ page.title }}</h1>
 
-<div class="row">
-    <div class="col">
-        {{ page.specific.description | richtext }}
+    <div class="row">
+        <div class="col">
+            {{ page.specific.description | richtext }}
 
-        {% if page.specific.phone %}
-        <dt>Phone</dt>
-        <dd>{{ page.specific.phone }}</dd>
-        {% endif %}
+            {% if page.specific.phone %}
+                <dt>Phone</dt>
+                <dd>{{ page.specific.phone }}</dd>
+            {% endif %}
 
-        {% if page.specific.email %}
-        <dt>Email</dt>
-        <dd>{{ page.specific.email }}</dd>
-        {% endif %}
+            {% if page.specific.email %}
+                <dt>Email</dt>
+                <dd>{{ page.specific.email }}</dd>
+            {% endif %}
 
-        {% if page.specific.website %}
-        <dt>Website</dt>
-        <dd>{{ page.specific.website }}</dd>
-        {% endif %}
+            {% if page.specific.website %}
+                <dt>Website</dt>
+                <dd>{{ page.specific.website }}</dd>
+            {% endif %}
 
-        {% if page.addresses.count %}
-        <h2>Address(es)</h2>
+            {% if page.addresses.count %}
+                <h2>Address(es)</h2>
 
-        <dl>
-            {% for address in page.addresses.all %}
-                <dt>{{ address.address_type | title }}</dt>
-                <dd>{{ address }}</dd>
-            {% endfor %}
-        </dl>
-        {% endif %}
+                <dl>
+                    {% for address in page.addresses.all %}
+                        <dt>{{ address.address_type | title }}</dt>
+                        <dd>{{ address }}</dd>
+                    {% endfor %}
+                </dl>
+            {% endif %}
 
-        {% if page.worship_times.count %}
-        <h2>Worship time(s)</h2>
+            {% if page.worship_times.count %}
+                <h2>Worship time(s)</h2>
 
-        <dl>
-            {% for worship_time in page.worship_times.all %}
-                <dt>{{ worship_time.get_worship_type_display | title }}</dt>
-                <dd>{{ worship_time.worship_time }}</dd>
-            {% endfor %}
-        </dl>
-        {% endif %}
+                <dl>
+                    {% for worship_time in page.worship_times.all %}
+                        <dt>{{ worship_time.get_worship_type_display | title }}</dt>
+                        <dd>{{ worship_time.worship_time }}</dd>
+                    {% endfor %}
+                </dl>
+            {% endif %}
 
-        {% if page.online_worship.count %}
-            <strong>Online worship:</strong>
+            {% if page.online_worship.count %}
+                <strong>Online worship:</strong>
 
-            {% with page.online_worship.all|first as online_worship %}
-            <a href="{% pageurl online_worship %}">
-                {{ online_worship.title }}
-            </a>
-            {% endwith %}
-        {% endif %}
+                {% with page.online_worship.all|first as online_worship %}
+                    <a href="{% pageurl online_worship %}">
+                        {{ online_worship.title }}
+                    </a>
+                {% endwith %}
+            {% endif %}
 
-        {% if page.presiding_clerks.count %}
-        <h2>Presiding clerk(s)</h2>
+            {% if page.presiding_clerks.count %}
+                <h2>Presiding clerk(s)</h2>
 
-        <ul class="list-unstyled">
-            {% for presiding_clerk in page.presiding_clerks.all %}
-                <li>{{ presiding_clerk.person }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-    </div>
-
-    <div class="col">
-    {% if quarterly_meetings %}
-
-        <h3>Quarterly Meetings</h3>
-
-        <ul>
-            {% for meeting in quarterly_meetings %}
-            <li class="list-unstyled">
-                <a href="{% pageurl meeting %}">
-                    {{ meeting.title }}
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-
-    {% endif %}
-
-    {% if monthly_meetings %}
-
-        <h3>Monthly Meetings</h3>
-
-        <ul>
-            {% for meeting in monthly_meetings %}
-            <li class="list-unstyled">
-                <a href="{% pageurl meeting %}">
-                    {{ meeting.title }}
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-
-    {% endif %}
-
-    {% if worship_groups %}
-        <h3 class="card-title">Worship Groups</h3>
-
-        <ul>
-            {% for meeting in worship_groups %}
-            <li class="list-unstyled">
-                <a href="{% pageurl meeting %}">
-                    {{ meeting.title }}
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-    </div>
-
-</div>
-
-
-
-{% if page.articles_authored.count %}
-<h2>Articles</h2>
-{% for article in page.articles_authored.all %}
-{% include "magazine/magazine_article_summary.html" with article=article.article %}
-{% endfor %}
-{% endif %}
-
-{% if page.archive_articles_authored.count %}
-<h2>Archive Articles</h2>
-
-<ul>
-{% for article in page.archive_articles_authored.all %}
-    <li>
-        {{ article.article.issue }} -
-        <a
-            href="{% pageurl article.article.issue %}?pdf_page_number={{ article.article.pdf_page_number }}">
-            {{ article.article.title }}
-        </a>
-    </li>
-{% endfor %}
-</ul>
-
-{% endif %}
-
-{% if page.books_authored.count %}
-<h2>Books</h2>
-{% for book_author in page.books_authored.all %}
-{% with book_author.book as book %}
-<div class="card mb-2">
-    <div class="card-body">
-        <div>
-            <a href="{% pageurl book %}" class="card-title lead">
-                {{ book }}
-            </a>
+                <ul class="list-unstyled">
+                    {% for presiding_clerk in page.presiding_clerks.all %}
+                        <li>{{ presiding_clerk.person }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
 
-        {% image book.image max-150x150 class="float-left me-2" %}
+        <div class="col">
+            {% if quarterly_meetings %}
 
-        {% if book.authors.count %}
-        <ul class="list-inline mb-1">
-            <li class="list-inline-item">Authored by:</li>
-            {% for author in book.authors.all %}
-                {% if author.author.live %}
-                    <li class="list-inline-item">
-                        <a href="{% pageurl author.author %}">{{ author.author.title }}</a>{% if not forloop.last %},{% endif %}
-                    </li>
-                {% else %}
-                    {{ author.author }}{% if not forloop.last %},{% endif %}
-                {% endif %}
+                <h3>Quarterly Meetings</h3>
+
+                <ul>
+                    {% for meeting in quarterly_meetings %}
+                        <li class="list-unstyled">
+                            <a href="{% pageurl meeting %}">
+                                {{ meeting.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+            {% endif %}
+
+            {% if monthly_meetings %}
+
+                <h3>Monthly Meetings</h3>
+
+                <ul>
+                    {% for meeting in monthly_meetings %}
+                        <li class="list-unstyled">
+                            <a href="{% pageurl meeting %}">
+                                {{ meeting.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+            {% endif %}
+
+            {% if worship_groups %}
+                <h3 class="card-title">Worship Groups</h3>
+
+                <ul>
+                    {% for meeting in worship_groups %}
+                        <li class="list-unstyled">
+                            <a href="{% pageurl meeting %}">
+                                {{ meeting.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+    </div>
+
+
+
+    {% if page.articles_authored.count %}
+        <h2>Articles</h2>
+        {% for article in page.articles_authored.all %}
+            {% include "magazine/magazine_article_summary.html" with article=article.article %}
+        {% endfor %}
+    {% endif %}
+
+    {% if page.archive_articles_authored.count %}
+        <h2>Archive Articles</h2>
+
+        <ul>
+            {% for article in page.archive_articles_authored.all %}
+                <li>
+                    {{ article.article.issue }} -
+                    <a
+                        href="{% pageurl article.article.issue %}?pdf_page_number={{ article.article.pdf_page_number }}">
+                        {{ article.article.title }}
+                    </a>
+                </li>
             {% endfor %}
         </ul>
-        {% endif %}
 
-        {{ book.description | richtext | truncatewords_html:30 }}
-    </div>
-</div>
-{% endwith %}
-{% endfor %}
-{% endif %}
+    {% endif %}
 
-{% if page.specific.library_items_authored.count %}
-<h2>Library items</h2>
-    {% for item_authored in page.specific.library_items_authored.all %}
-        {% with item_authored.library_item as library_item %}
-            {% include "library/library_item_card.html" %}
-        {% endwith %}
-    {% endfor %}
-{% endif %}
+    {% if page.books_authored.count %}
+        <h2>Books</h2>
+        {% for book_author in page.books_authored.all %}
+            {% with book_author.book as book %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div>
+                            <a href="{% pageurl book %}" class="card-title lead">
+                                {{ book }}
+                            </a>
+                        </div>
 
-{% if page.memorial_minutes.count %}
-<h2>Memorials</h2>
+                        {% image book.image max-150x150 class="float-left me-2" %}
 
-<ul class="list-group">
-    {% for memorial_minute in page.memorial_minutes.all %}
-    <li class="list-group-item">
-        {{ memorial_minute }}
-    </li>
-    {% endfor %}
-</ul>
-{% endif %}
+                        {% if book.authors.count %}
+                            <ul class="list-inline mb-1">
+                                <li class="list-inline-item">Authored by:</li>
+                                {% for author in book.authors.all %}
+                                    {% if author.author.live %}
+                                        <li class="list-inline-item">
+                                            <a href="{% pageurl author.author %}">{{ author.author.title }}</a>{% if not forloop.last %},{% endif %}
+                                        </li>
+                                    {% else %}
+                                        {{ author.author }}{% if not forloop.last %},{% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                        {{ book.description | richtext | truncatewords_html:30 }}
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
+    {% endif %}
+
+    {% if page.specific.library_items_authored.count %}
+        <h2>Library items</h2>
+        {% for item_authored in page.specific.library_items_authored.all %}
+            {% with item_authored.library_item as library_item %}
+                {% include "library/library_item_card.html" %}
+            {% endwith %}
+        {% endfor %}
+    {% endif %}
+
+    {% if page.memorial_minutes.count %}
+        <h2>Memorials</h2>
+
+        <ul class="list-group">
+            {% for memorial_minute in page.memorial_minutes.all %}
+                <li class="list-group-item">
+                    {{ memorial_minute }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock content %}

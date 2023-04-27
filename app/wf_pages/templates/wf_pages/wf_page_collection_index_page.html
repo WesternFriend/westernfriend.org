@@ -9,11 +9,11 @@
     {% if collections.count %}
         <ul>
             {% for collection in collections.all %}
-            <li>
-                <a href="{% pageurl collection %}">
-                    {{ collection }}
-                </a>
-            </li>
+                <li>
+                    <a href="{% pageurl collection %}">
+                        {{ collection }}
+                    </a>
+                </li>
             {% endfor %}
         </ul>
     {% endif %}

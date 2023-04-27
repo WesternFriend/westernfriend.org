@@ -36,7 +36,7 @@ class CommunityPage(Page):
     max_count = 1
 
     parent_page_types = ["home.HomePage"]
-    subpage_types = [
+    subpage_types: list[str] = [
         "contact.MeetingIndexPage",
         "contact.OrganizationIndexPage",
         "contact.PersonIndexPage",
@@ -71,7 +71,7 @@ class OnlineWorship(Page):
     parent_page_types = [
         "community.OnlineWorshipIndexPage",
     ]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     search_template = "search/online_worship.html"
 
@@ -86,7 +86,7 @@ class OnlineWorshipIndexPage(Page):
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
     parent_page_types = ["community.CommunityPage"]
-    subpage_types = ["community.OnlineWorship"]
+    subpage_types: list[str] = ["community.OnlineWorship"]
 
     max_count = 1
 
@@ -106,7 +106,7 @@ class CommunityDirectory(Page):
     parent_page_types = [
         "community.CommunityDirectoryIndexPage",
     ]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     search_template = "search/community_directory.html"
 
@@ -124,7 +124,7 @@ class CommunityDirectoryIndexPage(Page):
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
     parent_page_types = ["community.CommunityPage"]
-    subpage_types = ["community.CommunityDirectory"]
+    subpage_types: list[str] = ["community.CommunityDirectory"]
 
     max_count = 1
 

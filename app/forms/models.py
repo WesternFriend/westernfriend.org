@@ -26,4 +26,4 @@ class ContactFormPage(AbstractForm):
     ]
 
     parent_page_types = ["home.HomePage"]
-    subpage_types = []
+    subpage_types: list[str] = []

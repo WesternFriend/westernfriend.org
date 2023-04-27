@@ -2,19 +2,19 @@
 {% load user_is_subscriber %}
 
 {% for item in menu_items %}
-<li class="{{ item.active_class }} nav-item">
-    <a href="{{ item.href }}" class="nav-link">{{ item.text }}</a>
-</li>
+    <li class="{{ item.active_class }} nav-item">
+        <a href="{{ item.href }}" class="nav-link">{{ item.text }}</a>
+    </li>
 {% endfor %}
 
 {% user_is_subscriber as user_is_subscriber %}
 
 {% if not user_is_subscriber %}
-<li class="nav-item">
-    <a href="/subscribe" class="nav-link">Subscribe</a>
-</li>
+    <li class="nav-item">
+        <a href="/subscribe" class="nav-link">Subscribe</a>
+    </li>
 {% else %}
-<li class="nav-item">
-    <a href="/manage-subscription" class="nav-link">Manage subscription</a>
-</li>
+    <li class="nav-item">
+        <a href="/manage-subscription" class="nav-link">Manage subscription</a>
+    </li>
 {% endif %}

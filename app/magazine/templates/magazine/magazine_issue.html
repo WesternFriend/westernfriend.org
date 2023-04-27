@@ -17,34 +17,34 @@
     <div class="row">
         <div class="col">
             {% if page.featured_articles.count %}
-            <h2 class="h3 ms-4">Featured Articles</h2>
+                <h2 class="h3 ms-4">Featured Articles</h2>
 
-            <ul class="list-unstyled">
-                {% for featured_article in page.featured_articles.all %}
-                    <li class="ms-5 mb-2">
-                        <a href="{% pageurl featured_article %}">
-                            {{ featured_article.title }}
-                        </a>
-                    </li>
-                {% endfor %}
+                <ul class="list-unstyled">
+                    {% for featured_article in page.featured_articles.all %}
+                        <li class="ms-5 mb-2">
+                            <a href="{% pageurl featured_article %}">
+                                {{ featured_article.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
 
-            </ul>
+                </ul>
             {% endif %}
 
             {% regroup articles_by_department by specific.department as departments %}
 
             {% for department in departments %}
                 <h2 class="h3 ms-4">
-                {{ department.grouper }}
+                    {{ department.grouper }}
                 </h2>
 
                 <ul class="list-unstyled ms-5">
                     {% for article in department.list %}
-                    <li class="mb-2">
-                        <a href="{% pageurl article %}">
-                            {{ article }} {% if article.is_featured %}(featured){% endif %}
-                        </a>
-                    </li>
+                        <li class="mb-2">
+                            <a href="{% pageurl article %}">
+                                {{ article }} {% if article.is_featured %}(featured){% endif %}
+                            </a>
+                        </li>
                     {% endfor %}
                 </ul>
             {% endfor %}

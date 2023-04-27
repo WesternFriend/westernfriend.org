@@ -95,7 +95,7 @@ class Event(Page):
     ]
 
     parent_page_types = ["events.EventsIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     class Meta:
         db_table = "events"
@@ -108,7 +108,7 @@ class EventsIndexPage(Page):
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
     parent_page_types = ["home.HomePage"]
-    subpage_types = ["events.Event"]
+    subpage_types: list[str] = ["events.Event"]
 
     max_count = 1
 

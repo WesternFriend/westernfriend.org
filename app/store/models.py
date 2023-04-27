@@ -15,7 +15,7 @@ class StoreIndexPage(Page):
     ]
 
     parent_page_types = ["home.HomePage"]
-    subpage_types = [
+    subpage_types: list[str] = [
         "store.ProductIndexPage",
     ]
 
@@ -36,7 +36,7 @@ class ProductIndexPage(Page):
     parent_page_types = [
         "store.StoreIndexPage",
     ]
-    subpage_types = [
+    subpage_types: list[str] = [
         "store.Book",
     ]
 
@@ -50,7 +50,7 @@ class Product(Page):
     available = models.BooleanField(default=True)
 
     parent_page_types = ["store.ProductIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     content_panels = Page.content_panels + [
         FieldPanel("description", classname="full"),
@@ -78,7 +78,7 @@ class Book(Product):
     parent_page_types = [
         "store.ProductIndexPage",
     ]
-    subpage_types = []
+    subpage_types: list[str] = []
 
 
 class BookAuthor(Orderable):

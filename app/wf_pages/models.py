@@ -18,7 +18,7 @@ class WfPageCollectionIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    subpage_types = ["wf_pages.WfPageCollection"]
+    subpage_types: list[str] = ["wf_pages.WfPageCollection"]
     max_count = 1
 
     def get_context(self, request, *args, **kwargs):
@@ -34,7 +34,7 @@ class WfPageCollection(Page):
     panels = [FieldPanel("title")]
 
     parent_page_types = ["wf_pages.WfPageCollectionIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     context_object_name = "collection"
 

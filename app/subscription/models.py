@@ -209,7 +209,7 @@ class SubscriptionIndexPage(Page):
     ]
 
     parent_page_types = ["home.HomePage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     max_count = 1
 
@@ -260,7 +260,7 @@ class ManageSubscriptionPage(Page):
     ]
 
     parent_page_types = ["home.HomePage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     max_count = 1
 

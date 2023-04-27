@@ -32,7 +32,7 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     "DJANGO_CSRF_TRUSTED_ORIGINS", default_csrf_trusted_origins
 ).split(",")
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 SECURE_REFERRER_POLICY = "strict-origin"
@@ -78,6 +78,7 @@ BraintreeConfiguration.configure(
 # Application definition
 
 INSTALLED_APPS = [
+    # First party (apps from this project)
     "accounts",
     "addresses",
     "cart",
@@ -103,6 +104,14 @@ INSTALLED_APPS = [
     "tags",
     "blocks",
     "wf_pages",
+    # Third party (apps that have been installed)
+    "django_extensions",
+    "crispy_forms",
+    "debug_toolbar",
+    "flatpickr",
+    "modelcluster",
+    "storages",
+    "taggit",
     "wagtail.contrib.forms",
     "wagtail.contrib.modeladmin",
     "wagtail.contrib.redirects",
@@ -118,8 +127,10 @@ INSTALLED_APPS = [
     "wagtail.search",
     "wagtail.admin",
     "wagtail.core",
-    "modelcluster",
-    "taggit",
+    "wagtail_color_panel",
+    "wagtailfontawesome",
+    "wagtailmedia",
+    # Contrib (apps that are included in Django)
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -127,13 +138,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
-    "django_extensions",
-    "crispy_forms",
-    "flatpickr",
-    "storages",
-    "wagtail_color_panel",
-    "wagtailfontawesome",
-    "wagtailmedia",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
@@ -147,6 +151,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -269,3 +274,8 @@ BASE_URL = "http://example.com"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 WAGTAILADMIN_BASE_URL = "/admin"
+
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

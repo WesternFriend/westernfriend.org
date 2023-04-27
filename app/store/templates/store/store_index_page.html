@@ -8,36 +8,36 @@
 
     {% if products.count %}
         {% for product in products.all %}
-        <div class="card mb-2">
-            <div class="card-body">
-                <h2>
-                    <a href="{% pageurl product %}">
-                        {{ product }}
-                    </a>
-                </h2>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-2">
-                            {% image product.image max-150x150 class="float-left me-2" %}
-                        </div>
-                        <div class="col">
-                            {{ product.description | richtext | truncatewords_html:30 }}
-                        </div>
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h2>
+                        <a href="{% pageurl product %}">
+                            {{ product }}
+                        </a>
+                    </h2>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-2">
+                                {% image product.image max-150x150 class="float-left me-2" %}
+                            </div>
+                            <div class="col">
+                                {{ product.description | richtext | truncatewords_html:30 }}
+                            </div>
 
+                        </div>
                     </div>
+
+
+
+
+
+                    <p>
+                        Price ${{ product.price }}
+                    </p>
+
+                    {% include "store/add_to_cart.html" %}
                 </div>
-
-
-
-
-
-                <p>
-                    Price ${{ product.price }}
-                </p>
-
-                {% include "store/add_to_cart.html" %}
             </div>
-        </div>
         {% endfor %}
     {% else %}
         <p>No products available</p>

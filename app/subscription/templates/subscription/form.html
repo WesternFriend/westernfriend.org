@@ -107,10 +107,8 @@
     </div>
 
     <div class="row mt-3" v-if="subscriptionIncludesPdf">
-        <p
-            class="p-3 mb-2 text-white col-md-12"
-            style="background-color: #8fa6b8; border-radius: 5px;">
-            PDF subscription will be emailed to your login: <b>{{ user.get_username }}
+        <p class="p-3 mb-2 text-white col-md-12" style="background-color: #8fa6b8; border-radius: 5px;">
+            PDF subscription will be emailed to your login: <b>{{ user.get_username }}</b>
         </p>
     </div>
 
@@ -123,45 +121,45 @@
 </form>
 
 {% block extra_js %}
-<!-- provide subscription price components for dynamic calculation -->
-{{ subscription_price_components | json_script:"subscriptionPriceComponents" }}
+    <!-- provide subscription price components for dynamic calculation -->
+    {{ subscription_price_components | json_script:"subscriptionPriceComponents" }}
 
-<script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/vue@3"></script>
 
-<script>
-    // get subscription price components provided by server in script tag
-    const subscriptionPriceComponents = JSON.parse(
-        document.getElementById('subscriptionPriceComponents').textContent
-    );
+    <script>
+        // get subscription price components provided by server in script tag
+        const subscriptionPriceComponents = JSON.parse(
+            document.getElementById('subscriptionPriceComponents').textContent
+        );
 
-    var app = Vue.createApp({
-        compilerOptions:{
-            delimiters: ["${", "}"],
-        },
-        data() {
-            return {
-                magazineFormat: "pdf",
-                priceGroup: "normal",
-                recurringSubscription: false,
-            }
-        },
-        computed: {
-            normalComputedPrice: function () {
-                return subscriptionPriceComponents["normal"][this.magazineFormat];
+        var app = Vue.createApp({
+            compilerOptions:{
+                delimiters: ["${", "}"],
             },
-            trueCostComputedPrice: function () {
-                return subscriptionPriceComponents["true_cost"][this.magazineFormat];
+            data() {
+                return {
+                    magazineFormat: "pdf",
+                    priceGroup: "normal",
+                    recurringSubscription: false,
+                }
             },
-            lowIncomeComputedPrice: function () {
-                return subscriptionPriceComponents["low_income"][this.magazineFormat];
+            computed: {
+                normalComputedPrice: function () {
+                    return subscriptionPriceComponents["normal"][this.magazineFormat];
+                },
+                trueCostComputedPrice: function () {
+                    return subscriptionPriceComponents["true_cost"][this.magazineFormat];
+                },
+                lowIncomeComputedPrice: function () {
+                    return subscriptionPriceComponents["low_income"][this.magazineFormat];
+                },
+                internationalComputedPrice: function () {
+                    return subscriptionPriceComponents["international"][this.magazineFormat];
+                },
+                subscriptionIncludesPdf: function () {
+                    return this.magazineFormat === "pdf" || this.magazineFormat === "print_and_pdf";
+                },
             },
-            internationalComputedPrice: function () {
-                return subscriptionPriceComponents["international"][this.magazineFormat];
-            },
-            subscriptionIncludesPdf: function () {
-                return this.magazineFormat === "pdf" || this.magazineFormat === "print_and_pdf";
-            },
-        },
-    }).mount('#dynamicFields');
-</script>
+        }).mount('#dynamicFields');
+    </script>
 {% endblock extra_js %}

@@ -1,4 +1,4 @@
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.paginator import EmptyPage, Paginator
 from django.db import models
 from flatpickr import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager
@@ -137,7 +137,7 @@ class LibraryItem(Page):
     ]
 
     parent_page_types = ["LibraryIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
 
 class LibraryItemAuthor(Orderable):
@@ -193,7 +193,7 @@ class LibraryIndexPage(Page):
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
     parent_page_types = ["home.HomePage"]
-    subpage_types = [
+    subpage_types: list[str] = [
         "library.LibraryItem",
         "facets.FacetIndexPage",
     ]

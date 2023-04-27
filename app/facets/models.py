@@ -3,7 +3,7 @@ from wagtail.models import Page
 
 class FacetIndexPage(Page):
     parent_page_types = ["library.LibraryIndexPage"]
-    subpage_types = [
+    subpage_types: list[str] = [
         "AudienceIndexPage",
         "GenreIndexPage",
         "MediumIndexPage",
@@ -16,62 +16,62 @@ class FacetIndexPage(Page):
 
 class AudienceIndexPage(Page):
     parent_page_types = ["FacetIndexPage"]
-    subpage_types = ["Audience"]
+    subpage_types: list[str] = ["Audience"]
 
     max_count = 1
 
 
 class Audience(Page):
     parent_page_types = ["AudienceIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
 
 class GenreIndexPage(Page):
     parent_page_types = ["FacetIndexPage"]
-    subpage_types = ["Genre"]
+    subpage_types: list[str] = ["Genre"]
 
     max_count = 1
 
 
 class Genre(Page):
     parent_page_types = ["GenreIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
 
 class MediumIndexPage(Page):
     parent_page_types = ["FacetIndexPage"]
-    subpage_types = ["Medium"]
+    subpage_types: list[str] = ["Medium"]
 
     max_count = 1
 
 
 class Medium(Page):
     parent_page_types = ["MediumIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
 
 class TimePeriodIndexPage(Page):
     parent_page_types = ["FacetIndexPage"]
-    subpage_types = ["TimePeriod"]
+    subpage_types: list[str] = ["TimePeriod"]
 
     max_count = 1
 
 
 class TimePeriod(Page):
     parent_page_types = ["TimePeriodIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
 
 class TopicIndexPage(Page):
     parent_page_types = ["FacetIndexPage"]
-    subpage_types = ["Topic"]
+    subpage_types: list[str] = ["Topic"]
 
     max_count = 1
 
 
 class Topic(Page):
     parent_page_types = ["TopicIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     def get_context(self, request, *args, **kwargs):
         # Avoid circular import

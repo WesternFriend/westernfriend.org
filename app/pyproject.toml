@@ -26,6 +26,7 @@ boto3 = "^1.24.46"
 wagtailmedia = "^0.12.0"
 wagtail = "^4.1.1"
 django-extensions = "^3.2.1"
+django-stubs = "^4.2.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7.9"
@@ -37,6 +38,8 @@ black = "^22.3.0"
 autohooks = "^22.11.2"
 autohooks-plugin-black = "^22.11.0"
 autohooks-plugin-isort = "^22.8.0"
+django-debug-toolbar = "^4.0.0"
+django-browser-reload = "^1.8.0"
 
 [build-system]
 requires = ["poetry>=1.0"]
@@ -50,8 +53,17 @@ pre-commit = ["autohooks.plugins.black", "autohooks.plugins.isort"]
 [tool.autohooks.plugins.black]
 arguments = ["-q", "--diff"]
 
+[tool.black]
+target-version = ['py311']
+
+[tool.django-stubs]
+django_settings_module = "core.settings.base"
+
 [tool.isort]
 profile = "black"
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
 
 [tool.ruff]
 # Same as Black.

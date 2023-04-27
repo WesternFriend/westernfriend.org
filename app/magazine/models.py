@@ -62,7 +62,7 @@ class MagazineIndexPage(Page):
         ),
     ]
 
-    subpage_types = [
+    subpage_types: list[str] = [
         "MagazineDepartmentIndexPage",
         "MagazineIssue",
         "MagazineTagIndexPage",
@@ -147,7 +147,7 @@ class MagazineIssue(Page):
     ]
 
     parent_page_types = ["MagazineIndexPage"]
-    subpage_types = ["MagazineArticle"]
+    subpage_types: list[str] = ["MagazineArticle"]
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
@@ -185,7 +185,7 @@ class MagazineDepartmentIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    subpage_types = ["MagazineDepartment"]
+    subpage_types: list[str] = ["MagazineDepartment"]
     max_count = 1
 
     def get_context(self, request, *args, **kwargs):
@@ -201,10 +201,10 @@ class MagazineDepartment(Page):
     content_panels = [FieldPanel("title")]
 
     # Hide the settings panels
-    settings_panels = []
+    settings_panels: list[str] = []
 
     parent_page_types = ["MagazineDepartmentIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     # TODO: Determine whether we still use the autocomplete widget
     # Remove the following code if not using autocomplete
@@ -304,7 +304,7 @@ class MagazineArticle(Page):
     ]
 
     parent_page_types = ["MagazineIssue"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     def get_sitemap_urls(self):
         return [
@@ -471,7 +471,7 @@ class ArchiveIssue(Page):
     ]
 
     parent_page_types = ["DeepArchiveIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     class Meta:
         indexes = [
@@ -484,12 +484,10 @@ class DeepArchiveIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    subpage_types = ["ArchiveIssue"]
-
     max_count = 1
 
     parent_page_types = ["MagazineIndexPage"]
-    subpage_types = ["ArchiveIssue"]
+    subpage_types: list[str] = ["ArchiveIssue"]
 
     def get_publication_years(self):
         publication_dates = ArchiveIssue.objects.dates("publication_date", "year")

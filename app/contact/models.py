@@ -97,7 +97,7 @@ class Person(Page):
         full_name = f"{self.given_name} {self.family_name}"
         self.title = full_name.strip()
 
-        super(Person, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     search_fields = Page.search_fields + [
         index.SearchField(
@@ -114,14 +114,14 @@ class Person(Page):
     ]
 
     parent_page_types = ["contact.PersonIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
 
 class PersonIndexPage(Page):
     max_count = 1
 
     parent_page_types = ["community.CommunityPage"]
-    subpage_types = ["contact.Person"]
+    subpage_types: list[str] = ["contact.Person"]
 
     template = "contact/person_index_page.html"
 
@@ -221,7 +221,7 @@ class Meeting(Page):
     ]
 
     parent_page_types = ["contact.MeetingIndexPage", "Meeting"]
-    subpage_types = ["Meeting"]
+    subpage_types: list[str] = ["Meeting"]
 
     template = "contact/contact.html"
 
@@ -299,7 +299,7 @@ class MeetingIndexPage(Page):
     max_count = 1
 
     parent_page_types = ["community.CommunityPage"]
-    subpage_types = ["contact.Meeting"]
+    subpage_types: list[str] = ["contact.Meeting"]
 
     template = "contact/meeting_index_page.html"
 
@@ -361,7 +361,7 @@ class Organization(Page):
     ]
 
     parent_page_types = ["contact.OrganizationIndexPage"]
-    subpage_types = []
+    subpage_types: list[str] = []
 
     template = "contact/contact.html"
 
@@ -390,4 +390,4 @@ class OrganizationIndexPage(Page):
     max_count = 1
 
     parent_page_types = ["community.CommunityPage"]
-    subpage_types = ["contact.Organization"]
+    subpage_types: list[str] = ["contact.Organization"]

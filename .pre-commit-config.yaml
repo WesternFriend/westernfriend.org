@@ -1,3 +1,6 @@
+default_language_version:
+  python: python3.11
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
@@ -5,6 +8,21 @@ repos:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.31.0
+    hooks:
+      - id: pyupgrade
+        args: [--py311-plus]
+  - repo: https://github.com/adamchainz/django-upgrade
+    rev: 1.4.0
+    hooks:
+      - id: django-upgrade
+        args: [--target-version, "4.0"]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
     rev: "v0.0.262"
@@ -15,3 +33,25 @@ repos:
     rev: 22.10.0
     hooks:
       - id: black
+  - repo: https://github.com/thibaudcolas/curlylint
+    rev: "v0.13.1"
+    hooks:
+      - id: curlylint
+  - repo: https://github.com/rtts/djhtml
+    rev: v1.4.11
+    hooks:
+      - id: djhtml
+    args: [--tabwidth=2]
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.5.1
+    hooks:
+      - id: prettier
+        types_or:
+          - css
+          - javascript
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: "v1.2.0"
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests]
+        exclude: "/migrations/.*\\.py"

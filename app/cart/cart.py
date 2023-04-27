@@ -6,7 +6,7 @@ from shipping.calculator import get_book_shipping_cost
 from store.models import Product
 
 
-class Cart(object):
+class Cart:
     def __init__(self, request):
         """Initialize the cart."""
         self.session = request.session
@@ -67,7 +67,7 @@ class Cart(object):
         )
 
     def get_shipping_cost(self):
-        book_quantity = sum([item["quantity"] for item in self.cart.values()])
+        book_quantity = sum(item["quantity"] for item in self.cart.values())
 
         return get_book_shipping_cost(book_quantity)
 

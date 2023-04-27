@@ -28,7 +28,7 @@
             {% for sponsor in event.sponsors.all %}
                 {% if sponsor.sponsor.live %}
                     <a href="{% pageurl sponsor.sponsor %}">
-                    {{ sponsor.sponsor }}</a>{% if not forloop.last %},{% endif %}
+                        {{ sponsor.sponsor }}</a>{% if not forloop.last %},{% endif %}
                 {% else %}
                     {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
                 {% endif %}

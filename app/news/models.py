@@ -27,7 +27,7 @@ class NewsIndexPage(Page):
     parent_page_types = [
         "home.HomePage",
     ]
-    subpage_types = [
+    subpage_types: list[str] = [
         "NewsTopicIndexPage",
         "NewsTypeIndexPage",
         "NewsItem",
@@ -65,7 +65,7 @@ class NewsTopicIndexPage(Page):
     parent_page_types = [
         "NewsIndexPage",
     ]
-    subpage_types = [
+    subpage_types: list[str] = [
         "NewsTopic",
     ]
     max_count = 1
@@ -80,12 +80,12 @@ class NewsTopic(Page):
     ]
 
     # Hide the settings panels
-    settings_panels = []
+    settings_panels: list[str] = []
 
     parent_page_types = [
         "NewsTopicIndexPage",
     ]
-    subpage_types = []
+    subpage_types: list[str] = []
 
 
 class NewsTypeIndexPage(Page):
@@ -96,7 +96,7 @@ class NewsTypeIndexPage(Page):
     parent_page_types = [
         "NewsIndexPage",
     ]
-    subpage_types = [
+    subpage_types: list[str] = [
         "NewsType",
     ]
     max_count = 1
@@ -111,12 +111,12 @@ class NewsType(Page):
     ]
 
     # Hide the settings panels
-    settings_panels = []
+    settings_panels: list[str] = []
 
     parent_page_types = [
         "NewsTypeIndexPage",
     ]
-    subpage_types = []
+    subpage_types: list[str] = []
 
 
 class NewsItemTag(TaggedItemBase):
@@ -223,4 +223,4 @@ class NewsItem(Page):
     parent_page_types = [
         "NewsIndexPage",
     ]
-    subpage_types = []
+    subpage_types: list[str] = []

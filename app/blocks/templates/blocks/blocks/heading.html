@@ -1,11 +1,11 @@
 <{{ value.heading_level }}
-    {% if self.target_slug %}
+{% if self.target_slug %}
     id="{{ value.target_slug }}"
-    {% endif %}
+{% endif %}
 
-    {% if self.color %}
+{% if self.color %}
     style="color: {{ value.color }}"
-    {% endif %}
+{% endif %}
 >
-    {{ value.heading_text }}
+{{ value.heading_text }}
 </{{ value.heading_level }}>
