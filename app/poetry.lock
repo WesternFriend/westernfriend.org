@@ -494,6 +494,21 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-browser-reload"
+version = "1.8.0"
+description = "Automatically reload your browser in development."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "django_browser_reload-1.8.0-py3-none-any.whl", hash = "sha256:6db7e6c5807fff87e421b53926c50cfa3de0115e438f3c2de6103d3069557adb"},
+    {file = "django_browser_reload-1.8.0.tar.gz", hash = "sha256:054ef5ce8b80f46e0beda1a3c847becdff51272cad6f2bda607e201a7afe7425"},
+]
+
+[package.dependencies]
+Django = ">=3.2"
+
+[[package]]
 name = "django-crispy-forms"
 version = "1.14.0"
 description = "Best way to have Django DRY forms"
@@ -1882,4 +1897,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "26c2d18e98a8bfe3bcb6de2180cc152e6aa9d5ddfde48c643d489a59c0bef388"
+content-hash = "4e0b8eef40b14229a4196d1cee283523c3db589ad7dd3fba17ad0a692d257220"

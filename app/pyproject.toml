@@ -38,6 +38,7 @@ autohooks = "^22.11.2"
 autohooks-plugin-black = "^22.11.0"
 autohooks-plugin-isort = "^22.8.0"
 django-debug-toolbar = "^4.0.0"
+django-browser-reload = "^1.8.0"
 
 [build-system]
 requires = ["poetry>=1.0"]
