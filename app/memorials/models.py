@@ -58,7 +58,7 @@ class MemorialIndexPage(Page):
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
     parent_page_types = ["community.CommunityPage"]
-    subpage_types = [
+    subpage_types: list[str] = [
         "memorials.Memorial",
     ]
 

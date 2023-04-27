@@ -23,7 +23,7 @@ from contact.models import Meeting, Organization, Person
 def extract_pullquotes(item: str) -> list[str]:
     """Get a list of all pullquote strings found within the item"""
 
-    return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item.string)
+    return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item)
 
 
 def clean_pullquote_tags(item: BS4_Tag) -> BS4_Tag:

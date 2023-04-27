@@ -15,7 +15,7 @@ class HomePage(Page):
         FieldPanel("intro", classname="full"),
     ]
 
-    subpage_types = [
+    subpage_types: list[str] = [
         "community.CommunityPage",
         "donations.DonatePage",
         "events.EventsIndexPage",
