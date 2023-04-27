@@ -21,11 +21,17 @@ function generateAutoslug() {
   }
 }
 
-
 function registerNameElementEventListeners() {
-  document.getElementById("id_given_name").addEventListener("change", generateAutoslug);
+  document
+    .getElementById("id_given_name")
+    .addEventListener("change", generateAutoslug);
 
-  document.getElementById("id_family_name").addEventListener("change", generateAutoslug);
-};
+  document
+    .getElementById("id_family_name")
+    .addEventListener("change", generateAutoslug);
+}
 
-document.addEventListener("DOMContentLoaded", registerNameElementEventListeners);
+document.addEventListener(
+  "DOMContentLoaded",
+  registerNameElementEventListeners
+);
