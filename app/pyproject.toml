@@ -59,6 +59,11 @@ target-version = ['py311']
 [tool.isort]
 profile = "black"
 
+[tool.django-stubs]
+django_settings_module = "core.settings.base"
+
+
+
 [tool.ruff]
 # Same as Black.
 line-length = 88
