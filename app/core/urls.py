@@ -1,3 +1,4 @@
+import debug_toolbar
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
@@ -16,6 +17,7 @@ from search import views as search_views
 from subscription import urls as subscription_urls
 
 urlpatterns = [
+    path("__debug__/", include(debug_toolbar.urls)),
     path("django-admin/", admin.site.urls),
     re_path(
         r"^accounts/register/$",

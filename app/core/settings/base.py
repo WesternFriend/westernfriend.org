@@ -129,6 +129,7 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
     "django_extensions",
     "crispy_forms",
+    "debug_toolbar",
     "flatpickr",
     "storages",
     "wagtail_color_panel",
@@ -147,6 +148,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -269,3 +271,8 @@ BASE_URL = "http://example.com"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 WAGTAILADMIN_BASE_URL = "/admin"
+
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
