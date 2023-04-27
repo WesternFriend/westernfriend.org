@@ -67,7 +67,7 @@ class Cart(object):
         )
 
     def get_shipping_cost(self):
-        book_quantity = sum([item["quantity"] for item in self.cart.values()])
+        book_quantity = sum(item["quantity"] for item in self.cart.values())
 
         return get_book_shipping_cost(book_quantity)
 
