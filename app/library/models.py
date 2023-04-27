@@ -1,4 +1,4 @@
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.paginator import EmptyPage, Paginator
 from django.db import models
 from flatpickr import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager
