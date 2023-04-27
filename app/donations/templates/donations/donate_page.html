@@ -105,7 +105,7 @@
             <div class="row">
                 <div class="col">
                     <small id="pre-defined-amount-help" class="form-text text-muted">
-                            Choose from one of the suggested donation amounts above.
+                        Choose from one of the suggested donation amounts above.
                     </small>
                 </div>
             </div>
@@ -229,19 +229,19 @@
 
 {% block extra_js %}
 
-<script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/vue@3"></script>
 
-<script>
-    var vue = Vue.createApp({
-        compilerOptions:{
-            delimiters: ["${", "}"],
-        },
-        data() {
-            return {
-                donationAmount: 10,
-                recurrence: "once",
-            }
-        },
-    }).mount("#donation-form");
-</script>
+    <script>
+        var vue = Vue.createApp({
+            compilerOptions:{
+                delimiters: ["${", "}"],
+            },
+            data() {
+                return {
+                    donationAmount: 10,
+                    recurrence: "once",
+                }
+            },
+        }).mount("#donation-form");
+    </script>
 {% endblock extra_js %}

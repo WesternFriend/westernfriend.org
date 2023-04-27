@@ -44,22 +44,22 @@
 
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2 g-lg-2">
                     {% for event in featured_events.all %}
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <a href="{% pageurl event.event %}"
-                                class="card-title fs-3 fw-bold title-link-no-underline">
-                                    {{ event.event.title }}
-                                </a>
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <a href="{% pageurl event.event %}"
+                                        class="card-title fs-3 fw-bold title-link-no-underline">
+                                        {{ event.event.title }}
+                                    </a>
 
-                                <p class="card-subtitle mt-1 mb-1">{{ event.event.start_date | date:"F d, Y, f A" }} ({{ event.event.timezone }})</p>
+                                    <p class="card-subtitle mt-1 mb-1">{{ event.event.start_date | date:"F d, Y, f A" }} ({{ event.event.timezone }})</p>
 
-                                <div class="card-text">
-                                    {{ event.event.teaser }}
+                                    <div class="card-text">
+                                        {{ event.event.teaser }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     {% endfor %}
                 </div>
             {% endif %}

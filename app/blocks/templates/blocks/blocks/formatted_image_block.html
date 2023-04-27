@@ -3,17 +3,17 @@
 {% image value.image width-800 jpegquality-80 as block_image %}
 
 {% if value.link %}
-<a href="{{ value.link }}">
+    <a href="{{ value.link }}">
 {% endif %}
 <img
     src="{{ block_image.url }}"
     width="{{ value.width }}"
     {% if value.align == "right" %}
-    class="richtext-image right"
+        class="richtext-image right"
     {% elif value.align == "left" %}
-    class="richtext-image left"
+        class="richtext-image left"
     {% endif %}
 />
 {% if value.link %}
-</a>
+    </a>
 {% endif %}

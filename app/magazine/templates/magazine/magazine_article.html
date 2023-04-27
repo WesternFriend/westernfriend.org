@@ -12,38 +12,38 @@
     </h1>
 
     <dl class="row">
-    {% if page.authors.count %}
-        <dt class="col-sm-2">Author(s):</dt>
-        <dd class="col-sm-10">
-            {% for author in page.authors.all %}
-                {% if author.author.live %}
-                    <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                {% else %}
-                    {{ author.author }}{% if not forloop.last %},{% endif %}
-                {% endif %}
-            {% endfor %}
-        </dd>
-    {% endif %}
+        {% if page.authors.count %}
+            <dt class="col-sm-2">Author(s):</dt>
+            <dd class="col-sm-10">
+                {% for author in page.authors.all %}
+                    {% if author.author.live %}
+                        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                    {% else %}
+                        {{ author.author }}{% if not forloop.last %},{% endif %}
+                    {% endif %}
+                {% endfor %}
+            </dd>
+        {% endif %}
 
-    <dt class="col-sm-2">
-        Issue:
-    </dt>
-    <dd class="col-sm-10">
-        <a href="{% pageurl page.get_parent %}" class="card-link">
-            {{ page.get_parent }} ({{ page.get_parent.specific.publication_date| date:"F Y" }})
-        </a>
-    </dd>
-
-    {% if page.department %}
         <dt class="col-sm-2">
-                Department:
+            Issue:
         </dt>
         <dd class="col-sm-10">
-            <a href="{% pageurl page.department %}">
-                {{ page.department }}
+            <a href="{% pageurl page.get_parent %}" class="card-link">
+                {{ page.get_parent }} ({{ page.get_parent.specific.publication_date| date:"F Y" }})
             </a>
         </dd>
-    {% endif %}
+
+        {% if page.department %}
+            <dt class="col-sm-2">
+                Department:
+            </dt>
+            <dd class="col-sm-10">
+                <a href="{% pageurl page.department %}">
+                    {{ page.department }}
+                </a>
+            </dd>
+        {% endif %}
     </dl>
 
     <div class="card mb-2">
@@ -61,15 +61,15 @@
     </div>
 
     {% if page.tags.count  %}
-    <div class="tags">
-        {% for tag in page.tags.all %}
-            <a
-                href="{%url 'search' %}?query={{ tag }}"
-                class="btn btn-outline-primary btn-sm">
+        <div class="tags">
+            {% for tag in page.tags.all %}
+                <a
+                    href="{%url 'search' %}?query={{ tag }}"
+                    class="btn btn-outline-primary btn-sm">
                     {{ tag }}
-            </a>
-        {% endfor %}
-    </div>
+                </a>
+            {% endfor %}
+        </div>
     {% endif %}
 
     <p class="mt-3">

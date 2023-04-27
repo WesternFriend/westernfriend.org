@@ -1,13 +1,13 @@
 <div class="card" >
-        <div class="card-header">
-            {{ value.page.title }}
-        </div>
-        <div class="card-body">
-            {% if value.text %}
-                <p class="card-text">
-                    {{ value.text }}
-                </p>
-            {% endif %}
-        </div>
+    <div class="card-header">
+        {{ value.page.title }}
+    </div>
+    <div class="card-body">
+        {% if value.text %}
+            <p class="card-text">
+                {{ value.text }}
+            </p>
+        {% endif %}
+    </div>
     <a href="{{ value.page.url }}" class="stretched-link"></a>
 </div>

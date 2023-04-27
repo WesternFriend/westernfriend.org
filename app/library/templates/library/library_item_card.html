@@ -9,11 +9,11 @@
         </h3>
         Authored by:
         {% for author in library_item.specific.authors.all %}
-        {% if author.author.live %}
-        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-        {% else %}
-        {{ author.author }}{% if not forloop.last %},{% endif %}
-        {% endif %}
+            {% if author.author.live %}
+                <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+            {% else %}
+                {{ author.author }}{% if not forloop.last %},{% endif %}
+            {% endif %}
         {% endfor %}
     </div>
 </div>

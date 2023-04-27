@@ -1,15 +1,15 @@
 {% load crispy_forms_tags %}
 
 <p>
-  Please register to continue the subscription process.
+    Please register to continue the subscription process.
 </p>
 
 <form method="post">
-  {% csrf_token %}
+    {% csrf_token %}
 
-  {% for field in form %}
-      {{ field | as_crispy_field}}
-  {% endfor %}
+    {% for field in form %}
+        {{ field | as_crispy_field}}
+    {% endfor %}
 
-  <button type="submit" class="btn btn-outline-success float-right">Register</button>
+    <button type="submit" class="btn btn-outline-success float-right">Register</button>
 </form>

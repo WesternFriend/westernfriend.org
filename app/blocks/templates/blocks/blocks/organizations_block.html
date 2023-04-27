@@ -1,34 +1,34 @@
 {% if organizations %}
     <div class="list-group">
-    {% for organization in organizations %}
-        {% if organization.website %}
-            <a
-                href="{{ organization.website }}"
-                class="list-group-item flex-column align-items-start list-group-item-action"
-            >
-                <p>
-                    {{ organization.title }}
-                </p>
-                {% if organization.description %}
+        {% for organization in organizations %}
+            {% if organization.website %}
+                <a
+                    href="{{ organization.website }}"
+                    class="list-group-item flex-column align-items-start list-group-item-action"
+                >
                     <p>
-                        {{ organization.description }}
+                        {{ organization.title }}
                     </p>
-                {% endif %}
-            </a>
-        {% else %}
-            <div
-                class="list-group-item flex-column align-items-start"
-            >
-                <p>
-                    {{ organization.title }}
-                </p>
-                {% if organization.description %}
+                    {% if organization.description %}
+                        <p>
+                            {{ organization.description }}
+                        </p>
+                    {% endif %}
+                </a>
+            {% else %}
+                <div
+                    class="list-group-item flex-column align-items-start"
+                >
                     <p>
-                        {{ organization.description }}
+                        {{ organization.title }}
                     </p>
-                {% endif %}
-            </div>
-        {% endif %}
-    {% endfor %}
+                    {% if organization.description %}
+                        <p>
+                            {{ organization.description }}
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
 {% endif %}
