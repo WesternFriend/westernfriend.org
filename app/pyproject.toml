@@ -52,6 +52,9 @@ pre-commit = ["autohooks.plugins.black", "autohooks.plugins.isort"]
 [tool.autohooks.plugins.black]
 arguments = ["-q", "--diff"]
 
+[tool.black]
+target-version = ['py311']
+
 [tool.isort]
 profile = "black"
 
