@@ -12,11 +12,7 @@
 
     <form action="." method="post" id="donation-form">
         <div class="row">
-            <div
-                class="card col m-1"
-                @click="recurrence = 'once'"
-                v-bind:class="{ 'border-success': recurrence == 'once' }"
-            >
+            <div class="card col m-1" v-on:click="recurrence='once'" v-bind:class="{ 'border-success': recurrence == 'once' }">
                 <div class="card-body text-center">
                     <i v-if="recurrence == 'once'" class="bi bi-check"></i>
                     Once
@@ -25,9 +21,8 @@
 
             <div
                 class="card col m-1"
-                @click="recurrence = 'monthly'"
-                v-bind:class="{ 'border-success': recurrence == 'monthly' }"
-            >
+                v-on:click="recurrence = 'monthly'"
+                v-bind:class="{ 'border-success': recurrence == 'monthly' }">
                 <div class="card-body text-center">
                     <i v-if="recurrence == 'monthly'" class="bi bi-check"></i>
                     Monthly
@@ -36,9 +31,8 @@
 
             <div
                 class="card col m-1"
-                @click="recurrence = 'yearly'"
-                v-bind:class="{ 'border-success': recurrence == 'yearly' }"
-            >
+                v-on:click="recurrence = 'yearly'"
+                v-bind:class="{ 'border-success': recurrence == 'yearly' }">
                 <div class="card-body text-center">
                     <i v-if="recurrence == 'yearly'" class="bi bi-check"></i>
                     Yearly
@@ -59,9 +53,8 @@
                     {% for amount in suggestion.value.once %}
                         <div
                             class="card m-1 col"
-                            @click="donationAmount = {{ amount }}"
-                            v-bind:class="{ 'border-success': donationAmount === {{ amount }} }"
-                        >
+                            v-on:click="donationAmount = {{ amount }}"
+                            v-bind:class="{ 'border-success': donationAmount === {{ amount }} }">
                             <div class="card-body">
                                 <i
                                     v-if="donationAmount === {{ amount }}"
@@ -77,9 +70,8 @@
                     {% for amount in suggestion.value.monthly %}
                         <div
                             class="card m-1 col"
-                            @click="donationAmount = {{ amount }}"
-                            v-bind:class="{ 'border-success': donationAmount === {{ amount }} }"
-                        >
+                            v-on:click="donationAmount = {{ amount }}"
+                            v-bind:class="{ 'border-success': donationAmount === {{ amount }} }">
                             <div class="card-body">
                                 <i
                                     v-if="donationAmount === {{ amount }}"
@@ -95,9 +87,8 @@
                     {% for amount in suggestion.value.yearly %}
                         <div
                             class="card m-1 col"
-                            @click="donationAmount = {{ amount }}"
-                            v-bind:class="{ 'border-success': donationAmount === {{ amount }} }"
-                        >
+                            v-on:click="donationAmount = {{ amount }}"
+                            v-bind:class="{ 'border-success': donationAmount === {{ amount }} }">
                             <div class="card-body">
                                 <i
                                     v-if="donationAmount === {{ amount }}"

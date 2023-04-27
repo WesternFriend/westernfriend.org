@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Pay online{% endblock title %}
+
 {% block content %}
 <h1>Pay online</h1>
 
@@ -10,7 +11,7 @@
 <div id="dropin-container"></div>
 
 <form action="" id="payment-form" method="post">
-    <input type="hidden" id="nonce-input" name="payment_method_nonce" , value="" />
+    <input type="hidden" id="nonce-input" name="payment_method_nonce" value="" />
     {% csrf_token %}
 
     <p>Payment total: ${{ payment_total }}</p>
