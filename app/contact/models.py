@@ -97,7 +97,7 @@ class Person(Page):
         full_name = f"{self.given_name} {self.family_name}"
         self.title = full_name.strip()
 
-        super(Person, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     search_fields = Page.search_fields + [
         index.SearchField(

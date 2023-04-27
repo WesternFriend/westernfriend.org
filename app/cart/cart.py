@@ -6,7 +6,7 @@ from shipping.calculator import get_book_shipping_cost
 from store.models import Product
 
 
-class Cart(object):
+class Cart:
     def __init__(self, request):
         """Initialize the cart."""
         self.session = request.session
