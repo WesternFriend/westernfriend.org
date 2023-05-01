@@ -58,6 +58,7 @@ class Command(BaseCommand):
                     first_published_at=publication_date_tz_aware,
                     issue_number=issue["issue_number"],
                     cover_image=image,
+                    drupal_node_id=issue["drupal_node_id"],
                 )
 
                 # Add issue to site page hiererchy
