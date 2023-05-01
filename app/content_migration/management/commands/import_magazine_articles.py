@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pandas as pd
 
@@ -5,10 +7,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
-from content_migration.management.commands.shared import (
-    get_contact_from_author_data,
-    get_existing_magazine_author_by_id,
-)
 from magazine.models import (
     MagazineArticle,
     MagazineArticleAuthor,
@@ -16,24 +14,28 @@ from magazine.models import (
     MagazineIssue,
 )
 
-from .shared import parse_media_blocks, parse_body_blocks
+from .shared import (
+    get_existing_magazine_author_from_db,
+    parse_media_blocks,
+    parse_body_blocks,
+)
+
+logging.basicConfig(
+    filename="import_log_magazine_articles.log",
+    level=logging.ERROR,
+    format="%(message)s",
+    # format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
-def parse_article_authors(article, article_authors, magazine_authors_data):
-
+def parse_article_authors(article, article_authors):
+    """
+    Fetch all related article authors and create an article relationship.
+    """
     for drupal_author_id in article_authors.split(", "):
         drupal_author_id = int(drupal_author_id)
-
-        author_data = get_existing_magazine_author_by_id(
-            drupal_author_id,
-            magazine_authors_data,
-        )
-
-        if author_data is not None:
-            author = get_contact_from_author_data(author_data)
-        else:
-            print("Could not find author data for Drupal author ID:", drupal_author_id)
-            continue
+        author = get_existing_magazine_author_from_db(drupal_author_id)
 
         if author is not None:
             article_author = MagazineArticleAuthor(
@@ -48,37 +50,36 @@ def parse_article_authors(article, article_authors, magazine_authors_data):
     return article
 
 
-def assign_article_to_issue(article, issue_title):
+def assign_article_to_issue(article, drupal_issue_node_id):
     try:
-        related_issue = MagazineIssue.objects.get(title=issue_title)
+        related_issue = MagazineIssue.objects.get(
+            drupal_node_id=drupal_issue_node_id,
+        )
     except ObjectDoesNotExist:
-        print("Can't find issue: ", issue_title)
+        print("Can't find issue: ", drupal_issue_node_id)
 
-    related_issue.add_child(instance=article)
+    related_issue.add_child(
+        instance=article,
+    )
 
 
 class Command(BaseCommand):
-    help = "Import Articles from Drupal site while linking them to Authors, Issues, Deparments, and Keywords"  # noqa: E501
+    help = "Import Articles from Drupal site while linking them to related content"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--articles_file",
-            action="store",
-            type=str,
-        )
-        parser.add_argument(
-            "--authors_file",
+            "--file",
             action="store",
             type=str,
         )
 
     def handle(self, *args, **options):
-        articles_data = pd.read_csv(options["articles_file"], dtype={"Authors": str})
-        magazine_authors_data = pd.read_csv(options["authors_file"])
+        articles_data = (
+            pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
+        )
 
-        for _index, row in tqdm(
-            articles_data.iterrows(),
-            total=articles_data.shape[0],
+        for row in tqdm(
+            articles_data,
             desc="Articles",
             unit="row",
         ):
@@ -90,18 +91,20 @@ class Command(BaseCommand):
             if article_exists:
                 continue
 
-            department = MagazineDepartment.objects.get(title=row["Department"])
+            department = MagazineDepartment.objects.get(
+                title=row["department"],
+            )
 
             article_body_blocks = []
             body_migrated = None
 
-            if row["Body"] is not np.nan:
-                article_body_blocks = parse_body_blocks(row["Body"])
-                body_migrated = row["Body"]
+            if row["body"] is not None:
+                article_body_blocks = parse_body_blocks(row["body"])
+                body_migrated = row["body"]
 
             # Download and parse article media
-            if row["Media"] is not np.nan:
-                media_blocks = parse_media_blocks(row["Media"])
+            if row["media"] is not None:
+                media_blocks = parse_media_blocks(row["media"])
 
                 # Merge media blocks with article body blocks
                 article_body_blocks += media_blocks
@@ -115,19 +118,21 @@ class Command(BaseCommand):
             )
 
             # Assign article to issue
-            assign_article_to_issue(article, row["related_issue_title"])
+            assign_article_to_issue(
+                article=article,
+                drupal_issue_node_id=row["related_issue_id"],
+            )
 
             # Assign authors to article
-            if row["Authors"] is not np.nan:
+            if row["authors"] is not None:
                 article = parse_article_authors(
                     article,
-                    row["Authors"],
-                    magazine_authors_data,
+                    row["authors"],
                 )
 
             # Assign keywards to article
-            if row["Keywords"] is not np.nan:
-                for keyword in row["Keywords"].split(", "):
+            if row["keywords"] is not None:
+                for keyword in row["keywords"].split(", "):
                     article.tags.add(keyword)
 
             article.save()
