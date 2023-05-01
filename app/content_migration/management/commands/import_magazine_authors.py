@@ -15,7 +15,7 @@ from contact.models import (
 )
 
 logging.basicConfig(
-    filename="magazine_author_import.log",
+    filename="import_log_magazine_authors.log",
     level=logging.ERROR,
     format="%(message)s",
     # format="%(asctime)s %(levelname)s %(name)s %(message)s",
