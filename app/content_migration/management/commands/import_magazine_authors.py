@@ -15,7 +15,7 @@ from contact.models import (
 )
 
 logging.basicConfig(
-    filename="magazine_author_import.log",
+    filename="import_log_magazine_authors.log",
     level=logging.ERROR,
     format="%(message)s",
     # format="%(asctime)s %(levelname)s %(name)s %(message)s",
@@ -23,76 +23,50 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def create_meeting(author):
-    meeting_index_page = MeetingIndexPage.objects.get()
+def create_meeting(author, meeting_index_page):
+    meeting = Meeting(
+        title=author["drupal_full_name"],
+        drupal_author_id=author["drupal_author_id"],
+        civicrm_id=author["civicrm_contact_id"],
+    )
 
-    meeting_name = author["drupal_full_name"]
-    drupal_author_id = author["drupal_author_id"]
+    meeting_index_page.add_child(instance=meeting)
 
-    if author["civicrm_id"] is None:
-        logger.error(f"Meeting {meeting_name} does not have CiviCRM ID")
-
-    try:
-        meeting = Meeting(
-            title=meeting_name,
-            drupal_author_id=drupal_author_id,
-            civicrm_id=author["civicrm_id"],
-        )
-    except:  # noqa: E722
-        logger.error(
-            f"Could not create meeting for {meeting_name} (ID: {drupal_author_id})"
-        )
-
-        meeting_index_page.add_child(instance=meeting)
-
-        meeting_index_page.save()
+    meeting_index_page.save()
 
 
-def create_organization(author):
-    organization_index_page = OrganizationIndexPage.objects.get()
+def create_organization(author, organization_index_page):
+    organization = Organization(
+        title=author["drupal_full_name"],
+        drupal_author_id=author["drupal_author_id"],
+        civicrm_id=author["civicrm_contact_id"],
+    )
 
-    organization_name = author["drupal_full_name"]
-    drupal_author_id = author["drupal_author_id"]
+    organization_index_page.add_child(instance=organization)
 
-    if author["civicrm_id"] is None:
-        logger.error(f"Organization {organization_name} does not have CiviCRM ID")
-
-    try:
-        organization = Organization(
-            title=organization_name,
-            drupal_author_id=drupal_author_id,
-            civicrm_id=author["civicrm_id"],
-        )
-    except:  # noqa: E722
-        logger.error(
-            f"Could not create organization {organization_name} (ID: {drupal_author_id})"  # noqa: E501
-        )
-
-        organization_index_page.add_child(instance=organization)
-
-        organization_index_page.save()
+    organization_index_page.save()
 
 
-def create_person(author):
-    person_index_page = PersonIndexPage.objects.get()
+def create_person(author, person_index_page):
+    person = Person(
+        given_name=author["given_name"],
+        family_name=author["family_name"],
+        drupal_author_id=author["drupal_author_id"],
+        civicrm_id=author["civicrm_contact_id"],
+    )
 
-    try:
-        person = Person(
-            given_name=author["given_name"],
-            family_name=author["family_name"],
-            drupal_author_id=author["drupal_author_id"],
-            civicrm_id=author["civicrm_id"],
-        )
-    except:  # noqa: E722
-        logger.error(f"Could not create person ID: { author['drupal_author_id'] }")
+    person_index_page.add_child(instance=person)
 
-        person_index_page.add_child(instance=person)
-
-        person_index_page.save()
+    person_index_page.save()
 
 
 def import_author_records(authors_list):
+    meeting_index_page = MeetingIndexPage.objects.get()
+    organization_index_page = OrganizationIndexPage.objects.get()
+    person_index_page = PersonIndexPage.objects.get()
+
     for author in tqdm(authors_list, desc="Primary Author records", unit="row"):
+        author_type = author["author_type"]
 
         # Don't import duplicate authors
         # Instead, clean them up in the Drupal site
@@ -104,12 +78,12 @@ def import_author_records(authors_list):
             # continue to next author record
             continue
         else:
-            if author["author_type"] == "meeting":
-                create_meeting(author)
-            elif author["author_type"] == "organization":
-                create_organization(author)
-            elif author["author_type"] == "person":
-                create_person(author)
+            if author_type == "meeting":
+                create_meeting(author, meeting_index_page)
+            elif author_type == "organization":
+                create_organization(author, organization_index_page)
+            elif author_type == "person":
+                create_person(author, person_index_page)
             else:
                 logger.error(
                     f"Unknown author type for ID: { author['drupal_author_id'] }"
@@ -124,7 +98,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         authors_list = (
-            pd.read_excel(options["file"]).replace({np.nan: None}).to_dict("records")
+            pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
         )
 
         import_author_records(authors_list)

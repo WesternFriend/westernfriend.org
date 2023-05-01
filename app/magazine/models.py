@@ -85,10 +85,12 @@ class MagazineIndexPage(Page):
 
         # recent issues are published after the archive threshold
         context["recent_issues"] = published_issues.filter(
-            publication_date__gte=archive_threshold
+            publication_date__gte=archive_threshold,
         )
 
-        archive_issues = published_issues.filter(publication_date__lt=archive_threshold)
+        archive_issues = published_issues.filter(
+            publication_date__lt=archive_threshold,
+        )
 
         # Show three archive issues per page
         paginator = Paginator(archive_issues, 8)
@@ -122,6 +124,7 @@ class MagazineIssue(Page):
         null=True, help_text="Please select the first day of the publication month"
     )
     issue_number = models.PositiveIntegerField(null=True, blank=True)
+    drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
     @property
     def featured_articles(self):
@@ -148,6 +151,11 @@ class MagazineIssue(Page):
 
     parent_page_types = ["MagazineIndexPage"]
     subpage_types: list[str] = ["MagazineArticle"]
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["drupal_node_id"]),
+        ]
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
