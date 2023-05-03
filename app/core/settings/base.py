@@ -126,7 +126,7 @@ INSTALLED_APPS = [
     "wagtail.images",
     "wagtail.search",
     "wagtail.admin",
-    "wagtail.core",
+    "wagtail",
     "wagtail_color_panel",
     "wagtailfontawesome",
     "wagtailmedia",
