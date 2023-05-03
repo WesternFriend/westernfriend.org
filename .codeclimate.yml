@@ -25,6 +25,8 @@ checks:
   return-statements:
     config:
       threshold: 4
+  similar-code:
+    enabled: false
 plugins:
   bandit:
     enabled: true
