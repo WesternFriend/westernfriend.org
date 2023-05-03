@@ -9,9 +9,9 @@ from .models import NewsItem, NewsTopic, NewsType
 
 class NewsTopicModelAdmin(ModelAdmin):
     model = NewsTopic
-    menu_icon = "folder-inverse"
+    menu_icon = "tag"
     menu_label = "Topic"
-    menu_order = 100
+    menu_order = 200
     add_to_settings_menu = False
     exclude_from_explorer = False
     list_per_page = 10
@@ -21,9 +21,9 @@ class NewsTopicModelAdmin(ModelAdmin):
 
 class NewsTypeModelAdmin(ModelAdmin):
     model = NewsType
-    menu_icon = "folder-inverse"
+    menu_icon = "tag"
     menu_label = "Type"
-    menu_order = 100
+    menu_order = 200
     add_to_settings_menu = False
     exclude_from_explorer = False
     list_per_page = 10
@@ -33,7 +33,7 @@ class NewsTypeModelAdmin(ModelAdmin):
 
 class NewsItemModelAdmin(ModelAdmin):
     model = NewsItem
-    menu_icon = "folder-inverse"
+    menu_icon = "list-ul"
     menu_label = "Items"
     menu_order = 100
     add_to_settings_menu = False
@@ -49,12 +49,12 @@ class NewsItemModelAdmin(ModelAdmin):
 
 class NewsAdminGroup(ModelAdminGroup):
     menu_label = "News"
-    menu_icon = "fa-newspaper-o"
+    menu_icon = "comment"
     menu_order = 300
     items = (
+        NewsItemModelAdmin,
         NewsTopicModelAdmin,
         NewsTypeModelAdmin,
-        NewsItemModelAdmin,
     )
 
 

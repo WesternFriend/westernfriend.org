@@ -126,9 +126,8 @@ INSTALLED_APPS = [
     "wagtail.images",
     "wagtail.search",
     "wagtail.admin",
-    "wagtail.core",
+    "wagtail",
     "wagtail_color_panel",
-    "wagtailfontawesome",
     "wagtailmedia",
     # Contrib (apps that are included in Django)
     "django.contrib.admin",
@@ -214,11 +213,17 @@ WAGTAILSEARCH_BACKENDS = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"  # noqa: E501
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa: E501
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 LOGIN_REDIRECT_URL = "/"
@@ -231,6 +236,9 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 
 USE_I18N = True
+WAGTAIL_I18N_ENABLED = True
+
+USE_L10N = True
 
 USE_TZ = True
 
@@ -243,7 +251,9 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-STATICFILES_DIRS = [os.path.join(PROJECT_DIR, "static")]
+STATICFILES_DIRS = [
+    os.path.join(PROJECT_DIR, "static"),
+]
 
 if USE_SPACES:
     STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{AWS_LOCATION}/"

@@ -26,7 +26,7 @@ class PersonModelAdmin(ModelAdmin):
 
 class MeetingModelAdmin(ModelAdmin):
     model = Meeting
-    menu_icon = "group"
+    menu_icon = "home"
     menu_label = "Meetings"
     list_per_page = 10
     ordering = ["title"]
@@ -38,7 +38,7 @@ class MeetingModelAdmin(ModelAdmin):
 
 class OrganizationModelAdmin(ModelAdmin):
     model = Organization
-    menu_icon = "home"
+    menu_icon = "group"
     menu_label = "Organizations"
     list_per_page = 10
     ordering = ["title"]
@@ -52,7 +52,7 @@ class MemorialModelAdmin(ModelAdmin):
 
     model = Memorial
     menu_label = "Memorials"
-    menu_icon = "fa-circle-o-notch"
+    menu_icon = "user"
     menu_order = 295
     add_to_settings_menu = False
     exclude_from_explorer = False
@@ -112,7 +112,7 @@ class CommunityDirectoryModelAdmin(ModelAdmin):
 
 class OnlineWorshipModelAdmin(ModelAdmin):
     model = OnlineWorship
-    menu_icon = "fa-microphone"
+    menu_icon = "globe"
     menu_label = "Online Worship"
     list_per_page = 10
     ordering = [

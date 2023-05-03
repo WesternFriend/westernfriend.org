@@ -223,18 +223,18 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.26.121"
+version = "1.26.125"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "boto3-1.26.121-py3-none-any.whl", hash = "sha256:827342a6b94b18daed937b0743f43958d1d3b9d5423ec995c19ae74b82cd54bc"},
-    {file = "boto3-1.26.121.tar.gz", hash = "sha256:f87d694c351eba1dfd19b5bef5892a1047e7adb09c57c2c00049de209a8ab55d"},
+    {file = "boto3-1.26.125-py3-none-any.whl", hash = "sha256:6648aff15d19927cd26db47eb56362ccd313a1ddbd7aaa3235ef05d05d398252"},
+    {file = "boto3-1.26.125.tar.gz", hash = "sha256:fe8248b80c4f0fdaed8b8779467c4431a5e52177e02ccd137d51ec51194ebb00"},
 ]
 
 [package.dependencies]
-botocore = ">=1.29.121,<1.30.0"
+botocore = ">=1.29.125,<1.30.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -243,14 +243,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.29.121"
+version = "1.29.125"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "botocore-1.29.121-py3-none-any.whl", hash = "sha256:4030b2cde8c8c7b58c657c27e5e4ec0edb7a0cab84e31b0fe752dddee2735d68"},
-    {file = "botocore-1.29.121.tar.gz", hash = "sha256:955c1dd244b6286d9e17dc525d1459a2a74a1c4e519f35006c72f184fbce0760"},
+    {file = "botocore-1.29.125-py3-none-any.whl", hash = "sha256:ac87b63e9aa4231cd28941945024a0c4470c184c60334ebe5e1cae3544c785ed"},
+    {file = "botocore-1.29.125.tar.gz", hash = "sha256:3005a7ffee083315e69938acdf1bfeaf9e21fe1fe1643d6573ee817721f4ffcd"},
 ]
 
 [package.dependencies]
@@ -446,6 +446,18 @@ files = [
 cli = ["click"]
 
 [[package]]
+name = "defusedxml"
+version = "0.7.1"
+description = "XML bomb protection for Python stdlib modules"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+files = [
+    {file = "defusedxml-0.7.1-py2.py3-none-any.whl", hash = "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61"},
+    {file = "defusedxml-0.7.1.tar.gz", hash = "sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69"},
+]
+
+[[package]]
 name = "dill"
 version = "0.3.6"
 description = "serialize all of python"
@@ -474,19 +486,19 @@ files = [
 
 [[package]]
 name = "django"
-version = "4.1.8"
+version = "4.2"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "Django-4.1.8-py3-none-any.whl", hash = "sha256:dba9dd0bf8b748aa9c98d6c679f8b1c0bfa43124844bea9425ad9ba0cd5e65c3"},
-    {file = "Django-4.1.8.tar.gz", hash = "sha256:43253f4b4a2c3a1694cd52d3517847271934c84dbd060ca0e82a9f90e569dab3"},
+    {file = "Django-4.2-py3-none-any.whl", hash = "sha256:ad33ed68db9398f5dfb33282704925bce044bef4261cd4fb59e4e7f9ae505a78"},
+    {file = "Django-4.2.tar.gz", hash = "sha256:c36e2ab12824e2ac36afa8b2515a70c53c7742f0d6eaefa7311ec379558db997"},
 ]
 
 [package.dependencies]
-asgiref = ">=3.5.2,<4"
-sqlparse = ">=0.2.2"
+asgiref = ">=3.6.0,<4"
+sqlparse = ">=0.3.1"
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
 [package.extras]
@@ -785,6 +797,18 @@ python-versions = ">=3.6"
 files = [
     {file = "et_xmlfile-1.1.0-py3-none-any.whl", hash = "sha256:a2ba85d1d6a74ef63837eed693bcb89c3f752169b0e3e7ae5b16ca5e1b3deada"},
     {file = "et_xmlfile-1.1.0.tar.gz", hash = "sha256:8eb9e2bc2f8c97e37a2dc85a09ecdcdec9d8a396530a6d5a33b30b9a92da0c5c"},
+]
+
+[[package]]
+name = "filetype"
+version = "1.2.0"
+description = "Infer file type and MIME type of any file/buffer. No external dependencies."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "filetype-1.2.0-py2.py3-none-any.whl", hash = "sha256:7ce71b6880181241cf7ac8697a2f1eb6a8bd9b429f7ad6d27b8db9ba5f1c2d25"},
+    {file = "filetype-1.2.0.tar.gz", hash = "sha256:66b56cd6474bf41d8c54660347d37afcc3f7d1970648de365c102ef77548aadb"},
 ]
 
 [[package]]
@@ -1324,14 +1348,14 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.3.1)", "pytest-
 
 [[package]]
 name = "pontos"
-version = "23.4.7"
+version = "23.4.9"
 description = "Common utilities and tools maintained by Greenbone Networks"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "pontos-23.4.7-py3-none-any.whl", hash = "sha256:46b19ddc9a25ff4b10b9cbf8f97c4f16b3f6835b7b83997bf8ab208c0040e715"},
-    {file = "pontos-23.4.7.tar.gz", hash = "sha256:1a8add74566a33ebf36fc3d61d8e859cd8ae4bf60d9853f127308cdd7d74d8ed"},
+    {file = "pontos-23.4.9-py3-none-any.whl", hash = "sha256:0cd49beeccb0dae5bebc792748dd4b2d6ac6adb5c35303870d4a5b0a9372f3cc"},
+    {file = "pontos-23.4.9.tar.gz", hash = "sha256:a7a670f7d136a3d6c59ef1129f05d6109b31c426522582295c8856f2fcd34605"},
 ]
 
 [package.dependencies]
@@ -1789,20 +1813,20 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "wagtail"
-version = "4.2.2"
+version = "5.0"
 description = "A Django content management system."
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "wagtail-4.2.2-py3-none-any.whl", hash = "sha256:99f6d18ed8ea6a3a825ebd3441899e639f6833abc98f0f1e578f9eacd172035b"},
-    {file = "wagtail-4.2.2.tar.gz", hash = "sha256:b3cf60b371fffc373793a04b6540b800fc83822598f4b7ad580908fa45d04dff"},
+    {file = "wagtail-5.0-py3-none-any.whl", hash = "sha256:5eed3af83af2fb584d459f9014538b89674852c3439d362e28f66351e28f5061"},
+    {file = "wagtail-5.0.tar.gz", hash = "sha256:cb283fb558a0c94be1685eec23f8bff653f1dfafde96fbf38376782c54502e5b"},
 ]
 
 [package.dependencies]
 anyascii = ">=0.1.5"
 beautifulsoup4 = ">=4.8,<4.12"
-Django = ">=3.2,<4.2"
+Django = ">=3.2,<4.3"
 django-filter = ">=2.2,<23"
 django-modelcluster = ">=6.0,<7.0"
 django-permissionedforms = ">=0.1,<1.0"
@@ -1816,11 +1840,11 @@ openpyxl = ">=3.0.10,<4.0"
 Pillow = ">=4.0.0,<10.0.0"
 requests = ">=2.11.1,<3.0"
 telepath = ">=0.1.1,<1"
-Willow = ">=1.4,<1.5"
+Willow = ">=1.5,<1.6"
 
 [package.extras]
 docs = ["Sphinx (>=1.5.2)", "myst-parser (==0.18.1)", "pyenchant (>=3.1.1,<4)", "sphinx-autobuild (>=0.6.0)", "sphinx-copybutton (>=0.5,<1.0)", "sphinx-wagtail-theme (==6.0.0)", "sphinxcontrib-spelling (>=5.4.0,<6)"]
-testing = ["Jinja2 (>=3.0,<3.2)", "azure-mgmt-cdn (>=12.0,<13.0)", "azure-mgmt-frontdoor (>=1.0,<1.1)", "black (==22.3.0)", "boto3 (>=1.16,<1.17)", "coverage (>=3.7.0)", "curlylint (==0.13.1)", "django-pattern-library (>=0.7,<0.8)", "djhtml (==1.4.13)", "doc8 (==0.8.1)", "elasticsearch (>=5.0,<6.0)", "flake8 (>=3.6.0)", "flake8-assertive (==2.0.0)", "flake8-blind-except (==0.1.1)", "flake8-comprehensions (==3.8.0)", "flake8-print (==5.0.0)", "freezegun (>=0.3.8)", "isort (==5.6.4)", "polib (>=1.1,<2.0)", "python-dateutil (>=2.7)", "pytz (>=2014.7)", "semgrep (==1.3.0)", "wagtail-factories (>=4.0,<5)"]
+testing = ["Jinja2 (>=3.0,<3.2)", "azure-mgmt-cdn (>=12.0,<13.0)", "azure-mgmt-frontdoor (>=1.0,<1.1)", "black (==22.3.0)", "boto3 (>=1.16,<1.17)", "coverage (>=3.7.0)", "curlylint (==0.13.1)", "django-pattern-library (>=0.7,<0.8)", "djhtml (==1.5.2)", "doc8 (==0.8.1)", "elasticsearch (>=5.0,<6.0)", "factory-boy (>=3.2)", "flake8 (>=3.6.0)", "flake8-assertive (==2.0.0)", "flake8-blind-except (==0.1.1)", "flake8-comprehensions (==3.8.0)", "flake8-print (==5.0.0)", "freezegun (>=0.3.8)", "isort (==5.6.4)", "polib (>=1.1,<2.0)", "python-dateutil (>=2.7)", "pytz (>=2014.7)", "semgrep (==1.3.0)"]
 
 [[package]]
 name = "wagtail-color-panel"
@@ -1841,39 +1865,20 @@ wagtail = ">=2.15"
 test = ["pytest", "pytest-django", "wagtail-factories"]
 
 [[package]]
-name = "wagtailfontawesome"
-version = "1.2.1"
-description = "Add FontAwesome icons to StreamField."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "wagtailfontawesome-1.2.1-py2.py3-none-any.whl", hash = "sha256:76b1c64c4f1042d468a83e4352f74b57bda4a4aa09cdfeeb8663dead5ed632be"},
-    {file = "wagtailfontawesome-1.2.1.tar.gz", hash = "sha256:6c1bd2d6061880848de6374ceb75d38a8c9b0debb1d4aef8a2fdc9d565a8f417"},
-]
-
-[package.dependencies]
-Django = ">=1.7.1"
-wagtail = ">=1.4.0"
-
-[[package]]
 name = "wagtailmedia"
-version = "0.12.0"
-description = "A module for Wagtail that provides functionality similar to wagtail.documents module, but for audio and video files."
+version = "0.14.0"
+description = "A Wagtail module for audio and video files."
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 files = [
-    {file = "wagtailmedia-0.12.0-py2.py3-none-any.whl", hash = "sha256:0807515c5d89782666b613de2e4aedab19e9dd358097fad2cb79633c0b5416d3"},
-    {file = "wagtailmedia-0.12.0.tar.gz", hash = "sha256:1d39622c3d7d0191e58ffedf45d05fbef851e3905955513012a72ae4d46a12b0"},
+    {file = "wagtailmedia-0.14.0-py3-none-any.whl", hash = "sha256:3cab17d49328bf22f9fce6373d9eeffe66821e0af69ac8c53b6c996e286120a4"},
+    {file = "wagtailmedia-0.14.0.tar.gz", hash = "sha256:5c90bdcd54b621a35f623f4728e34d62674d96554037e3fdb3cebddbec86875d"},
 ]
 
 [package.dependencies]
 Django = ">=3.2"
-wagtail = ">=2.15"
-
-[package.extras]
-testing = ["coverage (>=3.7.0)", "mock (>=1.0.0)", "tox (>=3.24,<4.0)"]
+Wagtail = ">=4.1"
 
 [[package]]
 name = "webencodings"
@@ -1889,18 +1894,22 @@ files = [
 
 [[package]]
 name = "willow"
-version = "1.4.1"
+version = "1.5"
 description = "A Python image library that sits on top of Pillow, Wand and OpenCV"
 category = "main"
 optional = false
-python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
+python-versions = ">=3.7"
 files = [
-    {file = "Willow-1.4.1-py2.py3-none-any.whl", hash = "sha256:fc4042696d090e75aef922fa1ed26d483c764f005b36cf523cf7c34e69d5dd7a"},
-    {file = "Willow-1.4.1.tar.gz", hash = "sha256:0df8ff528531e00b48d40bf72ed81beac1dc82f2d42e5bbed4aff0218bef8c0d"},
+    {file = "Willow-1.5-py3-none-any.whl", hash = "sha256:8f885ae0e8311ec45a943d5db2af77cc2b44d3c5ba4d6a053012a67e861ca829"},
+    {file = "Willow-1.5.tar.gz", hash = "sha256:3fe42cda9872d8e4f64df301e58a1d8be5b9e66944eb83aadcc50128d3ae658a"},
 ]
 
+[package.dependencies]
+defusedxml = ">=0.7,<1.0"
+filetype = ">=1.0.10,<1.1.0 || >1.1.0"
+
 [package.extras]
-testing = ["Pillow (>=6.0.0,<10.0.0)", "Wand (>=0.6,<1.0)", "mock (>=3.0,<4.0)"]
+testing = ["Pillow (>=9.1.0,<11.0.0)", "Wand (>=0.6,<1.0)", "mock (>=3.0,<4.0)", "pillow-heif (>=0.7.0,<1.0.0)"]
 
 [[package]]
 name = "wrapt"
@@ -1990,4 +1999,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "4d7db72739c13b9f06dc70640de7594414730e6f9b81ab734eeb99214cd3d48a"
+content-hash = "8d6890fc8e30ac0da2f7e100408ebd4ed6a2cbf60a60c170259a081b9fa62250"

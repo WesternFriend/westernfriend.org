@@ -8,7 +8,7 @@ class DonationModelAdmin(ModelAdmin):
 
     model = Donation
     menu_label = "Donations"
-    menu_icon = "fa-gift"
+    menu_icon = "success"
     menu_order = 291
     add_to_settings_menu = False
     exclude_from_explorer = True
