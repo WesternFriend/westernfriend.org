@@ -405,7 +405,7 @@ files = [
 name = "django-debug-toolbar"
 version = "4.0.0"
 description = "A configurable set of panels that display various debug information about the current request/response."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -1606,4 +1606,4 @@ testing = ["Pillow (>=9.1.0,<11.0.0)", "Wand (>=0.6,<1.0)", "mock (>=3.0,<4.0)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "7204af850615580b7d591a5d03fd3b4b82641cdb6266d807cf599c652bb7d848"
+content-hash = "65f32b057c91757416e8180312aabb5cf1dd2cffef6f0829c5f4fe2d3196b7cb"
