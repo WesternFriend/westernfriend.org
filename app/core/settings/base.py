@@ -128,7 +128,6 @@ INSTALLED_APPS = [
     "wagtail.admin",
     "wagtail",
     "wagtail_color_panel",
-    "wagtailfontawesome",
     "wagtailmedia",
     # Contrib (apps that are included in Django)
     "django.contrib.admin",
