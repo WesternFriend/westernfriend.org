@@ -19,10 +19,10 @@ repos:
       - id: pyupgrade
         args: [--py311-plus]
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.4.0
+    rev: 1.13.0
     hooks:
       - id: django-upgrade
-        args: [--target-version, "4.0"]
+        args: [--target-version, "4.2"]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
     rev: "v0.0.262"
