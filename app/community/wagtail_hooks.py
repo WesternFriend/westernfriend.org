@@ -56,11 +56,15 @@ class MemorialModelAdmin(ModelAdmin):
     menu_order = 295
     add_to_settings_menu = False
     exclude_from_explorer = False
-    list_display = ("full_name", "memorial_meeting")
+    list_display = (
+        "full_name",
+        "memorial_meeting",
+    )
+    list_filter = ("memorial_meeting",)
     search_fields = (
-        "user",
-        "given_name",
-        "family_name",
+        "memorial_person__family_name",
+        "memorial_person__given_name",
+        "memorial_meeting__title",
     )
 
 

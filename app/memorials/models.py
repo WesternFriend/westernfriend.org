@@ -27,6 +27,12 @@ class Memorial(Page):
     )
     drupal_memorial_id = models.PositiveIntegerField(null=True, blank=True)
 
+    class Meta:
+        ordering = (
+            "memorial_person__family_name",
+            "memorial_person__given_name",
+        )
+
     def full_name(self):
         return (
             f"{ self.memorial_person.given_name } { self.memorial_person.family_name }"
