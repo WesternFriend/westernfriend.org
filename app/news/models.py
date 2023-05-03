@@ -37,9 +37,14 @@ class NewsIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        earliest = NewsItem.objects.order_by("publication_date")[0]
-        earliest_year = earliest.publication_date.year
         current_year = datetime.now().year
+        earliest = NewsItem.objects.order_by("publication_date").first()
+
+        if earliest is None:
+            earliest_year = current_year
+        else:
+            earliest_year = earliest.publication_date.year
+
         # Get inclusive set of years from earliest to current (hence +1)
         context["news_years"] = range(earliest_year, current_year + 1)
 

@@ -3,9 +3,12 @@ a:not(.nav-link):not(.wagtail-userbar-link):not(.wagtail-userbar__item
   color: #aa3f2e;
   transition: background-color 0.5s;
 }
-a:visited {
+
+a:visited:not(.nav-link):not(.wagtail-userbar-link):not(.wagtail-userbar__item
+    > a):not(.card-link):not(.page-link):not(.btn) {
   color: #aa3f2e;
 }
+
 body {
   background-color: #f0f4f7;
   font-family: Georgia, Cambria, "Times New Roman", Times, serif;
