@@ -76,7 +76,8 @@ class Command(BaseCommand):
                     f"Could not find memorial person contact: {memorial_person_id}"
                 )
                 logger.error(message)
-                # go to next item since all memorials should be linked to an author contact
+                # go to next item
+                # since all memorials should be linked to an author contact
                 continue
 
             memorial.title = full_name
