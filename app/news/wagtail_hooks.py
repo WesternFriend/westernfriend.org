@@ -49,7 +49,7 @@ class NewsItemModelAdmin(ModelAdmin):
 
 class NewsAdminGroup(ModelAdminGroup):
     menu_label = "News"
-    menu_icon = "fa-newspaper-o"
+    menu_icon = "comment"
     menu_order = 300
     items = (
         NewsTopicModelAdmin,

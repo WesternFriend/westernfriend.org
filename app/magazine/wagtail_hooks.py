@@ -64,7 +64,7 @@ class MagazineIssueButtonHelperClass(PageButtonHelper):
 
 class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
     model = MagazineIssue
-    menu_icon = "fa-book"
+    menu_icon = "doc-full-inverse"
     menu_label = "Issues"
     list_per_page = 10
     ordering = [
@@ -113,7 +113,7 @@ class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
 
 class ArchiveIssueModelAdmin(ModelAdmin):
     model = ArchiveIssue
-    menu_icon = "fa-newspaper-o"
+    menu_icon = "doc-full"
     menu_label = "Archive Issues"
     list_per_page = 10
     ordering = [
@@ -145,7 +145,7 @@ class MagazineDepartmentModelAdmin(ModelAdmin):
 
 class MagazineGroup(ModelAdminGroup):
     menu_label = "Magazine"
-    menu_icon = "fa-book"
+    menu_icon = "tablet-alt"
     menu_order = 100
     items = (
         MagazineIssueModelAdmin,

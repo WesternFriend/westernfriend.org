@@ -10,7 +10,7 @@ from store.models import Book
 
 class BookModelAdmin(ModelAdmin):
     model = Book
-    menu_icon = "fa-book"
+    menu_icon = "openquote"
     menu_label = "Books"
     list_per_page = 10
     list_display = ("title",)
@@ -21,7 +21,7 @@ class OrderModelAdmin(ModelAdmin):
 
     model = Order
     menu_label = "Orders"
-    menu_icon = "fa-shopping-cart"
+    menu_icon = "tasks"
     menu_order = 290
     add_to_settings_menu = False
     exclude_from_explorer = False
@@ -52,7 +52,7 @@ class OrderModelAdmin(ModelAdmin):
 
 class StoreGroup(ModelAdminGroup):
     menu_label = "Store"
-    menu_icon = "fa-money"
+    menu_icon = "site"
     menu_order = 300
     items = (
         BookModelAdmin,
