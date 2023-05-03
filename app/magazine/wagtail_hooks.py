@@ -133,7 +133,7 @@ class ArchiveIssueModelAdmin(ModelAdmin):
 
 class MagazineDepartmentModelAdmin(ModelAdmin):
     model = MagazineDepartment
-    menu_icon = "folder-inverse"
+    menu_icon = "tag"
     menu_label = "Departments"
     menu_order = 200
     add_to_settings_menu = False

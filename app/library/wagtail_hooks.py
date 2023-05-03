@@ -10,7 +10,7 @@ from library.models import LibraryItem
 
 class AudienceModelAdmin(ModelAdmin):
     model = Audience
-    menu_icon = "folder"
+    menu_icon = "tag"
     menu_label = "Audiences"
     list_per_page = 10
     list_display = ("title",)
@@ -19,7 +19,7 @@ class AudienceModelAdmin(ModelAdmin):
 
 class GenreModelAdmin(ModelAdmin):
     model = Genre
-    menu_icon = "folder"
+    menu_icon = "tag"
     menu_label = "Genres"
     list_per_page = 10
     ordering = ["title"]
@@ -29,7 +29,7 @@ class GenreModelAdmin(ModelAdmin):
 
 class MediumModelAdmin(ModelAdmin):
     model = Medium
-    menu_icon = "folder"
+    menu_icon = "tag"
     menu_label = "Mediums"
     list_per_page = 10
     ordering = ["title"]
@@ -39,7 +39,7 @@ class MediumModelAdmin(ModelAdmin):
 
 class TimePeriodModelAdmin(ModelAdmin):
     model = TimePeriod
-    menu_icon = "folder"
+    menu_icon = "tag"
     menu_label = "Time Periods"
     list_per_page = 10
     ordering = ["title"]
@@ -49,7 +49,7 @@ class TimePeriodModelAdmin(ModelAdmin):
 
 class TopicModelAdmin(ModelAdmin):
     model = Topic
-    menu_icon = "folder"
+    menu_icon = "tag"
     menu_label = "Topics"
     list_per_page = 10
     ordering = ["title"]
