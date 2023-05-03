@@ -19,8 +19,8 @@ from subscription import urls as subscription_urls
 urlpatterns = [
     path("__debug__/", include(debug_toolbar.urls)),
     path("django-admin/", admin.site.urls),
-    re_path(
-        r"^accounts/register/$",
+    path(
+        "accounts/register/",
         RegistrationView.as_view(form_class=CustomUserForm),
         name="django_registration_register",
     ),
@@ -32,7 +32,7 @@ urlpatterns = [
     path("orders/", include("orders.urls", namespace="orders")),
     path("payment/", include("payment.urls", namespace="payment")),
     path("documents/", include(wagtaildocs_urls)),
-    re_path(r"^search/$", search_views.search, name="search"),
+    path("search/", search_views.search, name="search"),
     path("subscriptions/", include(subscription_urls), name="subscriptions"),
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's page serving mechanism. This should be the last pattern in
