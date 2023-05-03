@@ -1220,7 +1220,7 @@ setuptools = "*"
 name = "numpy"
 version = "1.24.3"
 description = "Fundamental package for array computing in Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -1285,7 +1285,7 @@ files = [
 name = "pandas"
 version = "2.0.1"
 description = "Powerful data structures for data analysis, time series, and statistics"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -2217,4 +2217,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "bbb7ce8e0b51fcf6881ec9d41cf654f03afde336e2aaa3ddad89fd0693eb5057"
+content-hash = "7d37a7b21902d6c7f5e69e53f7c65597060e5552daa8c5576c13d1109419bca6"
