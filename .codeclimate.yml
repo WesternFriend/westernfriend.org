@@ -25,7 +25,13 @@ checks:
   return-statements:
     config:
       threshold: 4
-
+plugins:
+  bandit:
+    enabled: true
+  pep8:
+    enabled: true
+  sonar-python:
+    enabled: true
 exclude_patterns:
   - "app/content_migration/"
   - "app/**/migrations/"
