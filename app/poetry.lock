@@ -1865,22 +1865,6 @@ wagtail = ">=2.15"
 test = ["pytest", "pytest-django", "wagtail-factories"]
 
 [[package]]
-name = "wagtailfontawesome"
-version = "1.2.1"
-description = "Add FontAwesome icons to StreamField."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "wagtailfontawesome-1.2.1-py2.py3-none-any.whl", hash = "sha256:76b1c64c4f1042d468a83e4352f74b57bda4a4aa09cdfeeb8663dead5ed632be"},
-    {file = "wagtailfontawesome-1.2.1.tar.gz", hash = "sha256:6c1bd2d6061880848de6374ceb75d38a8c9b0debb1d4aef8a2fdc9d565a8f417"},
-]
-
-[package.dependencies]
-Django = ">=1.7.1"
-wagtail = ">=1.4.0"
-
-[[package]]
 name = "wagtailmedia"
 version = "0.14.0"
 description = "A Wagtail module for audio and video files."
@@ -2015,4 +1999,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "33ea1d64e197f336b7dada4ff7379fc0c57c75d03ffe3bc359dd999be03fe8c9"
+content-hash = "8d6890fc8e30ac0da2f7e100408ebd4ed6a2cbf60a60c170259a081b9fa62250"
