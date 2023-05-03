@@ -1882,22 +1882,19 @@ wagtail = ">=1.4.0"
 
 [[package]]
 name = "wagtailmedia"
-version = "0.12.0"
-description = "A module for Wagtail that provides functionality similar to wagtail.documents module, but for audio and video files."
+version = "0.14.0"
+description = "A Wagtail module for audio and video files."
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 files = [
-    {file = "wagtailmedia-0.12.0-py2.py3-none-any.whl", hash = "sha256:0807515c5d89782666b613de2e4aedab19e9dd358097fad2cb79633c0b5416d3"},
-    {file = "wagtailmedia-0.12.0.tar.gz", hash = "sha256:1d39622c3d7d0191e58ffedf45d05fbef851e3905955513012a72ae4d46a12b0"},
+    {file = "wagtailmedia-0.14.0-py3-none-any.whl", hash = "sha256:3cab17d49328bf22f9fce6373d9eeffe66821e0af69ac8c53b6c996e286120a4"},
+    {file = "wagtailmedia-0.14.0.tar.gz", hash = "sha256:5c90bdcd54b621a35f623f4728e34d62674d96554037e3fdb3cebddbec86875d"},
 ]
 
 [package.dependencies]
 Django = ">=3.2"
-wagtail = ">=2.15"
-
-[package.extras]
-testing = ["coverage (>=3.7.0)", "mock (>=1.0.0)", "tox (>=3.24,<4.0)"]
+Wagtail = ">=4.1"
 
 [[package]]
 name = "webencodings"
@@ -2018,4 +2015,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "7ad8326833ba7f4b78a763f2c044cbfe0e3d107a4bf2615fead1810fc01db7c3"
+content-hash = "33ea1d64e197f336b7dada4ff7379fc0c57c75d03ffe3bc359dd999be03fe8c9"
