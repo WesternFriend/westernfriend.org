@@ -166,6 +166,8 @@ class Subscription(models.Model):
         FieldPanel("user"),
         FieldPanel("subscriber_given_name"),
         FieldPanel("subscriber_family_name"),
+        FieldPanel("magazine_format"),
+        FieldPanel("price_group"),
         FieldPanel("subscriber_street_address"),
         FieldPanel("subscriber_street_address_line_2"),
         FieldPanel("subscriber_postal_code"),
@@ -175,6 +177,7 @@ class Subscription(models.Model):
         FieldPanel("start_date", widget=DatePickerInput()),
         FieldPanel("end_date", widget=DatePickerInput()),
         FieldPanel("paid"),
+        # TODO: make this field read_only=True with Wagtail 5.1 update
         FieldPanel("braintree_subscription_id"),
     ]
 
