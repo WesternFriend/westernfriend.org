@@ -196,7 +196,9 @@ class Subscription(models.Model):
         return self.price
 
     def save(self, *args, **kwargs):
-        self.price = SUBSCRIPTION_PRICE_COMPONENTS[self.price_group][self.format]
+        self.price = SUBSCRIPTION_PRICE_COMPONENTS[self.price_group][
+            self.magazine_format
+        ]
 
         super().save(*args, **kwargs)
 
