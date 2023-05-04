@@ -218,14 +218,17 @@ class SubscriptionIndexPage(Page):
     template = "subscription/index.html"
 
     def serve(self, request, *args, **kwargs):
-        if request.method == "POST":
+        if request.user.is_authenticated and request.method == "POST":
             # Avoid circular dependency
             from .forms import SubscriptionCreateForm
 
             subscription_form = SubscriptionCreateForm(request.POST)
 
             if subscription_form.is_valid():
-                return process_subscription_form(subscription_form, request)
+                return process_subscription_form(
+                    subscription_form,
+                    request,
+                )
 
             context = self.get_context(request, *args, **kwargs)
 
