@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from flatpickr import DatePickerInput
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
 
@@ -163,22 +163,57 @@ class Subscription(models.Model):
     )
 
     panels = [
-        FieldPanel("user"),
-        FieldPanel("subscriber_given_name"),
-        FieldPanel("subscriber_family_name"),
-        FieldPanel("magazine_format"),
-        FieldPanel("price_group"),
-        FieldPanel("subscriber_street_address"),
-        FieldPanel("subscriber_street_address_line_2"),
-        FieldPanel("subscriber_postal_code"),
-        FieldPanel("subscriber_address_locality"),
-        FieldPanel("subscriber_address_region"),
-        FieldPanel("subscriber_address_country"),
-        FieldPanel("start_date", widget=DatePickerInput()),
-        FieldPanel("end_date", widget=DatePickerInput()),
-        FieldPanel("paid"),
-        # TODO: make this field read_only=True with Wagtail 5.1 update
-        FieldPanel("braintree_subscription_id"),
+        MultiFieldPanel(
+            heading="Subscriber details",
+            children=[
+                FieldPanel("user"),
+                FieldRowPanel(
+                    children=[
+                        FieldPanel("subscriber_given_name"),
+                        FieldPanel("subscriber_family_name"),
+                    ],
+                ),
+            ],
+        ),
+        MultiFieldPanel(
+            heading="Subscription details",
+            children=[
+                FieldRowPanel(
+                    children=[
+                        FieldPanel("magazine_format"),
+                        FieldPanel("price_group"),
+                        FieldPanel("paid"),
+                    ],
+                ),
+                FieldRowPanel(
+                    children=[
+                        FieldPanel("start_date", widget=DatePickerInput()),
+                        FieldPanel("end_date", widget=DatePickerInput()),
+                    ]
+                ),
+                # TODO: make this field read_only=True with Wagtail 5.1 update
+                FieldPanel("braintree_subscription_id"),
+            ],
+        ),
+        MultiFieldPanel(
+            heading="Subscriber postal address",
+            children=[
+                FieldPanel("subscriber_street_address"),
+                FieldPanel("subscriber_street_address_line_2"),
+                FieldRowPanel(
+                    children=[
+                        FieldPanel("subscriber_postal_code"),
+                        FieldPanel("subscriber_address_locality"),
+                    ]
+                ),
+                FieldRowPanel(
+                    children=[
+                        FieldPanel("subscriber_address_region"),
+                        FieldPanel("subscriber_address_country"),
+                    ]
+                ),
+            ],
+        ),
     ]
 
     def __str__(self):
