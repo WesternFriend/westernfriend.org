@@ -86,7 +86,7 @@ def process_subscription_form(subscription_form, request):
 
 
 class Subscription(models.Model):
-    format = models.CharField(
+    magazine_format = models.CharField(
         max_length=255, choices=MAGAZINE_FORMAT_CHOICES, default="pdf"
     )
     price_group = models.CharField(
@@ -224,6 +224,7 @@ class SubscriptionIndexPage(Page):
 
             if subscription_form.is_valid():
                 return process_subscription_form(subscription_form, request)
+
             context = self.get_context(request, *args, **kwargs)
 
             # Send form with validation errors back to client
