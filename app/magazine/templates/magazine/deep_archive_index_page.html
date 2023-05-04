@@ -3,6 +3,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
+    <a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a>
     <h1>{{ page.title }}</h1>
 
     {{ page.intro | richtext }}
