@@ -7,7 +7,7 @@ class SubscriptionCreateForm(forms.ModelForm):
     class Meta:
         model = Subscription
         fields = [
-            "format",
+            "magazine_format",
             "price_group",
             "recurring",
             "subscriber_given_name",

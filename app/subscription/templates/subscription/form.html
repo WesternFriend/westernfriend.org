@@ -4,21 +4,21 @@
 {{ page.intro |richtext }}
 
 <form action="#" method="post" id="dynamicFields" class="mb-3">
-    <h3>Format</h3>
+    <h2>Format</h2>
 
     <div class="row mb-3">
         <div class="btn-group" role="group" aria-label="Magazine format selection">
-            <input type="radio" class="btn-check" name="magazineFormat" v-model="magazineFormat" value="pdf" id="pdfFormat" autocomplete="off" checked>
+            <input type="radio" class="btn-check" name="magazine_format" v-model="magazineFormat" value="pdf" id="pdfFormat" autocomplete="off" checked>
             <label class="btn btn-outline-success" for="pdfFormat">
                 PDF
             </label>
 
-            <input type="radio" class="btn-check" name="magazineFormat" v-model="magazineFormat" value="print" id="printFormat" autocomplete="off">
+            <input type="radio" class="btn-check" name="magazine_format" v-model="magazineFormat" value="print" id="printFormat" autocomplete="off">
             <label class="btn btn-outline-success" for="printFormat">
                 Print
             </label>
 
-            <input type="radio" class="btn-check" name="magazineFormat" v-model="magazineFormat" value="print_and_pdf" id="printAndPdfFormat" autocomplete="off">
+            <input type="radio" class="btn-check" name="magazine_format" v-model="magazineFormat" value="print_and_pdf" id="printAndPdfFormat" autocomplete="off">
             <label class="btn btn-outline-success" for="printAndPdfFormat">
                 Print & PDF
             </label>
@@ -29,22 +29,22 @@
 
     <div class="row mb-3">
         <div class="btn-group" role="group" aria-label="Magazine price selection">
-            <input type="radio" class="btn-check" name="priceGroup" v-model="priceGroup" value="normal" id="normalPrice" autocomplete="off" checked>
+            <input type="radio" class="btn-check" name="price_group" v-model="priceGroup" value="normal" id="normalPrice" autocomplete="off" checked>
             <label class="btn btn-outline-success" for="normalPrice">
                 Normal ($${ normalComputedPrice })
             </label>
 
-            <input type="radio" class="btn-check" name="priceGroup" v-model="priceGroup" value="true_cost" id="trueCostPrice" autocomplete="off" checked>
+            <input type="radio" class="btn-check" name="price_group" v-model="priceGroup" value="true_cost" id="trueCostPrice" autocomplete="off" checked>
             <label class="btn btn-outline-success" for="trueCostPrice">
                 True-cost ($${ trueCostComputedPrice })
             </label>
 
-            <input type="radio" class="btn-check" name="priceGroup" v-model="priceGroup" value="low_income" id="lowIncomePrice" autocomplete="off" checked>
+            <input type="radio" class="btn-check" name="price_group" v-model="priceGroup" value="low_income" id="lowIncomePrice" autocomplete="off" checked>
             <label class="btn btn-outline-success" for="lowIncomePrice">
                 Low-income ($${ lowIncomeComputedPrice })
             </label>
 
-            <input type="radio" class="btn-check" name="priceGroup" v-model="priceGroup" value="international" id="internationalPrice" autocomplete="off" checked>
+            <input type="radio" class="btn-check" name="price_group" v-model="priceGroup" value="international" id="internationalPrice" autocomplete="off" checked>
             <label class="btn btn-outline-success" for="internationalPrice">
                 International ($${ internationalComputedPrice })
             </label>
@@ -66,6 +66,14 @@
             Check for automatic annual subscription renewal.
         </label>
     </div>
+
+    {% if form.errors %}
+        <div class="row">
+            <div class="alert alert-danger col">
+                {{ form.errors }}
+            </div>
+        </div>
+    {% endif %}
 
     <div class="row mt-2">
         <div class="col-md-6">

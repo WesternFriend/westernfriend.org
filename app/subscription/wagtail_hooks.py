@@ -16,7 +16,7 @@ class SubscriptionModelAdmin(ModelAdmin):
         "subscriber_given_name",
         "subscriber_family_name",
         "user",
-        "format",
+        "magazine_format",
         "price_group",
         "price",
         "paid",
@@ -30,7 +30,7 @@ class SubscriptionModelAdmin(ModelAdmin):
     )
     list_filter = (
         "paid",
-        "format",
+        "magazine_format",
         "price_group",
     )
     inspect_view_enabled = True

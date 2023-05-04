@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from flatpickr import DatePickerInput
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
 
@@ -86,7 +86,7 @@ def process_subscription_form(subscription_form, request):
 
 
 class Subscription(models.Model):
-    format = models.CharField(
+    magazine_format = models.CharField(
         max_length=255, choices=MAGAZINE_FORMAT_CHOICES, default="pdf"
     )
     price_group = models.CharField(
@@ -163,19 +163,57 @@ class Subscription(models.Model):
     )
 
     panels = [
-        FieldPanel("user"),
-        FieldPanel("subscriber_given_name"),
-        FieldPanel("subscriber_family_name"),
-        FieldPanel("subscriber_street_address"),
-        FieldPanel("subscriber_street_address_line_2"),
-        FieldPanel("subscriber_postal_code"),
-        FieldPanel("subscriber_address_locality"),
-        FieldPanel("subscriber_address_region"),
-        FieldPanel("subscriber_address_country"),
-        FieldPanel("start_date", widget=DatePickerInput()),
-        FieldPanel("end_date", widget=DatePickerInput()),
-        FieldPanel("paid"),
-        FieldPanel("braintree_subscription_id"),
+        MultiFieldPanel(
+            heading="Subscriber details",
+            children=[
+                FieldPanel("user"),
+                FieldRowPanel(
+                    children=[
+                        FieldPanel("subscriber_given_name"),
+                        FieldPanel("subscriber_family_name"),
+                    ],
+                ),
+            ],
+        ),
+        MultiFieldPanel(
+            heading="Subscription details",
+            children=[
+                FieldRowPanel(
+                    children=[
+                        FieldPanel("magazine_format"),
+                        FieldPanel("price_group"),
+                        FieldPanel("paid"),
+                    ],
+                ),
+                FieldRowPanel(
+                    children=[
+                        FieldPanel("start_date", widget=DatePickerInput()),
+                        FieldPanel("end_date", widget=DatePickerInput()),
+                    ]
+                ),
+                # TODO: make this field read_only=True with Wagtail 5.1 update
+                FieldPanel("braintree_subscription_id"),
+            ],
+        ),
+        MultiFieldPanel(
+            heading="Subscriber postal address",
+            children=[
+                FieldPanel("subscriber_street_address"),
+                FieldPanel("subscriber_street_address_line_2"),
+                FieldRowPanel(
+                    children=[
+                        FieldPanel("subscriber_postal_code"),
+                        FieldPanel("subscriber_address_locality"),
+                    ]
+                ),
+                FieldRowPanel(
+                    children=[
+                        FieldPanel("subscriber_address_region"),
+                        FieldPanel("subscriber_address_country"),
+                    ]
+                ),
+            ],
+        ),
     ]
 
     def __str__(self):
@@ -196,7 +234,9 @@ class Subscription(models.Model):
         return self.price
 
     def save(self, *args, **kwargs):
-        self.price = SUBSCRIPTION_PRICE_COMPONENTS[self.price_group][self.format]
+        self.price = SUBSCRIPTION_PRICE_COMPONENTS[self.price_group][
+            self.magazine_format
+        ]
 
         super().save(*args, **kwargs)
 
@@ -216,14 +256,18 @@ class SubscriptionIndexPage(Page):
     template = "subscription/index.html"
 
     def serve(self, request, *args, **kwargs):
-        if request.method == "POST":
+        if request.user.is_authenticated and request.method == "POST":
             # Avoid circular dependency
             from .forms import SubscriptionCreateForm
 
             subscription_form = SubscriptionCreateForm(request.POST)
 
             if subscription_form.is_valid():
-                return process_subscription_form(subscription_form, request)
+                return process_subscription_form(
+                    subscription_form,
+                    request,
+                )
+
             context = self.get_context(request, *args, **kwargs)
 
             # Send form with validation errors back to client
