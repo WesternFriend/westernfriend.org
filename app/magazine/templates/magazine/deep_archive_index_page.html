@@ -2,9 +2,10 @@
 
 {% load wagtailcore_tags %}
 
-{% block content %}
-    <a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a>
+{% block content %} 
     <h1>{{ page.title }}</h1>
+
+    <a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a>
 
     {{ page.intro | richtext }}
 
@@ -44,7 +45,7 @@
         </div>
         <div class="col-sm-5 mb-3"></div>
         {% for issue in archive_issues %}
-            <div class="col-sm-4 mb-4">
+            <div class="col-sm-3 mb-4">
                 <div class="card">
                     <a href=" {% pageurl issue %}">
                         <img class="card-img-top"
