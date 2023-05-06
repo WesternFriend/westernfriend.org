@@ -100,15 +100,15 @@ class Person(Page):
         super().save(*args, **kwargs)
 
     search_fields = Page.search_fields + [
-        index.SearchField(
+        index.AutocompleteField(
             "given_name",
             partial_match=True,
         ),
-        index.SearchField(
+        index.AutocompleteField(
             "family_name",
             partial_match=True,
         ),
-        index.SearchField(
+        index.AutocompleteField(
             "drupal_author_id",
         ),
     ]
