@@ -228,7 +228,7 @@ class Meeting(Page):
     search_template = "search/meeting.html"
 
     search_fields = Page.search_fields + [
-        index.SearchField(
+        index.AutocompleteField(
             "description",
             partial_match=True,
         ),
@@ -368,7 +368,7 @@ class Organization(Page):
     search_template = "search/organization.html"
 
     search_fields = Page.search_fields + [
-        index.SearchField(
+        index.AutocompleteField(
             "description",
             partial_match=True,
         ),

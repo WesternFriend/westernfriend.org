@@ -289,7 +289,11 @@ class MagazineArticle(Page):
 
     search_template = "search/magazine_article.html"
 
-    search_fields = Page.search_fields + [index.SearchField("body")]
+    search_fields = Page.search_fields + [
+        index.SearchField(
+            "body",
+        ),
+    ]
 
     content_panels = Page.content_panels + [
         FieldPanel("teaser", classname="full"),
