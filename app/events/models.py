@@ -91,9 +91,8 @@ class Event(Page):
     search_template = "search/event.html"
 
     search_fields = Page.search_fields + [
-        index.AutocompleteField(
+        index.SearchField(
             "body",
-            partial_match=True,
         ),
     ]
 

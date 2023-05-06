@@ -100,15 +100,13 @@ class Person(Page):
         super().save(*args, **kwargs)
 
     search_fields = Page.search_fields + [
-        index.AutocompleteField(
+        index.SearchField(
             "given_name",
-            partial_match=True,
         ),
-        index.AutocompleteField(
+        index.SearchField(
             "family_name",
-            partial_match=True,
         ),
-        index.AutocompleteField(
+        index.SearchField(
             "drupal_author_id",
         ),
     ]
@@ -228,9 +226,8 @@ class Meeting(Page):
     search_template = "search/meeting.html"
 
     search_fields = Page.search_fields + [
-        index.AutocompleteField(
+        index.SearchField(
             "description",
-            partial_match=True,
         ),
         index.SearchField(
             "drupal_author_id",
@@ -368,9 +365,8 @@ class Organization(Page):
     search_template = "search/organization.html"
 
     search_fields = Page.search_fields + [
-        index.AutocompleteField(
+        index.SearchField(
             "description",
-            partial_match=True,
         ),
         index.SearchField(
             "drupal_author_id",
