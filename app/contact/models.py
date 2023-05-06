@@ -102,11 +102,9 @@ class Person(Page):
     search_fields = Page.search_fields + [
         index.SearchField(
             "given_name",
-            partial_match=True,
         ),
         index.SearchField(
             "family_name",
-            partial_match=True,
         ),
         index.SearchField(
             "drupal_author_id",
@@ -230,7 +228,6 @@ class Meeting(Page):
     search_fields = Page.search_fields + [
         index.SearchField(
             "description",
-            partial_match=True,
         ),
         index.SearchField(
             "drupal_author_id",
@@ -370,7 +367,6 @@ class Organization(Page):
     search_fields = Page.search_fields + [
         index.SearchField(
             "description",
-            partial_match=True,
         ),
         index.SearchField(
             "drupal_author_id",
