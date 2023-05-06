@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField
@@ -44,7 +44,7 @@ class HomePage(Page):
         context["featured_events"] = (
             Event.objects.live()
             .filter(
-                start_date__gte=datetime.now(),
+                start_date__gte=timezone.now(),
                 is_featured=True,
             )
             .order_by("start_date")[:3]
