@@ -7,7 +7,7 @@ from wagtail.fields import StreamField
 from blocks import blocks as wf_blocks
 
 
-class BoardDocument(Page):
+class PublicBoardDocument(Page):
     class DocmentCategoryChoices(models.TextChoices):
         CORPORATION_DOCUMENTS = (
             "corporation_documents",
