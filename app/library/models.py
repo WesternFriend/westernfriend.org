@@ -42,7 +42,10 @@ class LibraryItem(Page):
     description = RichTextField(null=True, blank=True)
     body = StreamField(
         [
-            ("heading", HeadingBlock()),
+            (
+                "heading",
+                HeadingBlock(),
+            ),
             (
                 "rich_text",
                 wagtail_blocks.RichTextBlock(
@@ -58,32 +61,75 @@ class LibraryItem(Page):
                     ],
                 ),
             ),
-            ("image", FormattedImageChooserStructBlock(classname="full title")),
-            ("document", DocumentEmbedBlock()),
-            ("media", MediaBlock(icon="media")),
-            ("embed", EmbedBlock()),
-            ("url", WfURLBlock()),
-            ("quote", wagtail_blocks.BlockQuoteBlock()),
-            ("spacer", SpacerBlock()),
+            (
+                "image",
+                FormattedImageChooserStructBlock(
+                    classname="full title",
+                ),
+            ),
+            (
+                "document",
+                DocumentEmbedBlock(),
+            ),
+            (
+                "media",
+                MediaBlock(
+                    icon="media",
+                ),
+            ),
+            (
+                "embed",
+                EmbedBlock(),
+            ),
+            (
+                "url",
+                WfURLBlock(),
+            ),
+            (
+                "quote",
+                wagtail_blocks.BlockQuoteBlock(),
+            ),
+            (
+                "spacer",
+                SpacerBlock(),
+            ),
         ],
         null=True,
         blank=True,
         use_json_field=True,
     )
     item_audience = models.ForeignKey(
-        "facets.Audience", on_delete=models.SET_NULL, null=True, blank=True
+        "facets.Audience",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     item_genre = models.ForeignKey(
-        "facets.Genre", on_delete=models.SET_NULL, null=True, blank=True
+        "facets.Genre",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     item_medium = models.ForeignKey(
-        "facets.Medium", on_delete=models.SET_NULL, null=True, blank=True
+        "facets.Medium",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     item_time_period = models.ForeignKey(
-        "facets.TimePeriod", on_delete=models.SET_NULL, null=True, blank=True
+        "facets.TimePeriod",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
-    tags = ClusterTaggableManager(through=LibraryItemTag, blank=True)
-    drupal_node_id = models.IntegerField(null=True, blank=True)
+    tags = ClusterTaggableManager(
+        through=LibraryItemTag,
+        blank=True,
+    )
+    drupal_node_id = models.IntegerField(
+        null=True,
+        blank=True,
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
@@ -95,8 +141,13 @@ class LibraryItem(Page):
         FieldPanel("body"),
         MultiFieldPanel(
             children=[
-                FieldPanel("publication_date", widget=DatePickerInput()),
-                FieldPanel("publication_date_is_approximate"),
+                FieldPanel(
+                    "publication_date",
+                    widget=DatePickerInput(),
+                ),
+                FieldPanel(
+                    "publication_date_is_approximate",
+                ),
             ],
             heading="Publication date",
         ),
@@ -106,7 +157,10 @@ class LibraryItem(Page):
                 FieldPanel("item_genre"),
                 FieldPanel("item_medium"),
                 FieldPanel("item_time_period"),
-                InlinePanel("topics", label="topics"),
+                InlinePanel(
+                    "topics",
+                    label="topics",
+                ),
                 FieldPanel("tags"),
             ],
             heading="Categorization",
