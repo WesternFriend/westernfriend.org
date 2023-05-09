@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    {% if page.intro %}
+        <p>{{ page.intro | richtext }}</p>
+    {% endif %}
+
+    {% regroup page.get_children by specific.get_category_display as documents_by_category %}
+
+    {% for category in documents_by_category %}
+        <h2>{{ category.grouper }}</h2>
+        <ul>
+            {% for document in category.list %}
+                <li>
+                    <a href="{% pageurl document %}">
+                        {{ document.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+{% endblock content %}
