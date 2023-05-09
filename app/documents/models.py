@@ -1,5 +1,6 @@
 from django.db import models
 from wagtail import blocks as wagtail_blocks
+from wagtail.admin.panels import FieldPanel
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.models import Page
 from wagtail.fields import StreamField, RichTextField
@@ -8,10 +9,25 @@ from blocks import blocks as wf_blocks
 
 
 class PublicBoardDocumentIndexPage(Page):
-    intro = RichTextField(blank=True)
+    intro = RichTextField(
+        blank=True,
+        null=True,
+        features=[
+            "bold",
+            "italic",
+            "ol",
+            "ul",
+            "hr",
+            "link",
+        ],
+    )
 
     parent_page_types = ["home.HomePage"]
-    child_page_types = ["documents.PublicBoardDocument"]
+    subpage_types = ["documents.PublicBoardDocument"]
+
+    content_panels = Page.content_panels + [
+        FieldPanel("intro", classname="full"),
+    ]
 
 
 class PublicBoardDocument(Page):
@@ -34,7 +50,7 @@ class PublicBoardDocument(Page):
         null=True,
         blank=True,
     )
-    category = models.TextField(
+    category = models.CharField(
         choices=DocmentCategoryChoices.choices,
     )
     body = StreamField(
@@ -84,4 +100,10 @@ class PublicBoardDocument(Page):
     )
 
     parent_page_types = ["documents.PublicBoardDocumentIndexPage"]
-    child_page_types: list[str] = []
+    subpage_types: list[str] = []
+
+    content_panels = Page.content_panels + [
+        FieldPanel("category"),
+        FieldPanel("publication_date"),
+        FieldPanel("body"),
+    ]
