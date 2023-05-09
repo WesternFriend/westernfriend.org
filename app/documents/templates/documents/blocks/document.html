@@ -8,9 +8,11 @@
 <div id="pdf-container-{{ value.id }}"></div>
 
 <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.6/pdfobject.min.js"
-    integrity="sha512-B+t1szGNm59mEke9jCc5nSYZTsNXIadszIDSLj79fEV87QtNGFNrD6L+kjMSmYGBLzapoiR9Okz3JJNNyS2TSg=="
+    src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.10/pdfobject.min.js"
+    integrity="sha512-PbBrCXuRbRoA9SFV/DOeiOylVLIqmNxnJUyDJKd1uvXjeMqDYh/DLpkV2Jm0W7J1E1RDdopARnwTamdOFzEfLA=="
     crossorigin="anonymous"
     referrerpolicy="no-referrer"></script>
 
-<script>PDFObject.embed("{{ value.url }}", "#pdf-container-{{ value.id }}");</script>
+<script>
+    PDFObject.embed("{{ value.url }}", "#pdf-container-{{ value.id }}");
+</script>
