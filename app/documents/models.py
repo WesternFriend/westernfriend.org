@@ -2,9 +2,16 @@ from django.db import models
 from wagtail import blocks as wagtail_blocks
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.models import Page
-from wagtail.fields import StreamField
+from wagtail.fields import StreamField, RichTextField
 
 from blocks import blocks as wf_blocks
+
+
+class PublicBoardDocumentIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    parent_page_types = ["home.HomePage"]
+    child_page_types = ["documents.PublicBoardDocument"]
 
 
 class PublicBoardDocument(Page):
@@ -75,3 +82,6 @@ class PublicBoardDocument(Page):
         ],
         use_json_field=True,
     )
+
+    parent_page_types = ["documents.PublicBoardDocumentIndexPage"]
+    child_page_types: list[str] = []
