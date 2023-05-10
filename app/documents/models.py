@@ -32,9 +32,13 @@ class PublicBoardDocumentIndexPage(Page):
 
 class PublicBoardDocument(Page):
     class DocmentCategoryChoices(models.TextChoices):
-        CORPORATION_DOCUMENTS = (
-            "corporation_documents",
-            "Corporation Documents",
+        CORPORATION_DOCUMENTS_CURRENT_YEAR = (
+            "corporation_documents_current_year",
+            "Corporation Documents - current year",
+        )
+        CORPORATION_DOCUMENTS_PRIOR_YEARS = (
+            "corporation_documents_prior_years",
+            "Corporation Documents - prior years",
         )
         ANNUAL_REPORTS = (
             "annual_reports",
