@@ -9,7 +9,7 @@ from news.models import NewsIndexPage, NewsItem
 
 
 class Command(BaseCommand):
-    help = "Import all memorial minutes"
+    help = "Import all Drupal pages"
 
     def add_arguments(self, parser):
         parser.add_argument("--file", action="store", type=str)
