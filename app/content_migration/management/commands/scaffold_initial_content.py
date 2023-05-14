@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from wagtail.models import Page, Site
 from wagtail.blocks import StreamBlock, StreamValue
+from documents.models import PublicBoardDocumentIndexPage
 
 from community.models import (
     CommunityDirectoryIndexPage,
@@ -134,6 +135,9 @@ class Command(BaseCommand):
             title="Podcasts",
             show_in_menus=True,
         )
+        public_board_documents_index_page = PublicBoardDocumentIndexPage(
+            title="Board Documents",
+        )
 
         home_page.add_child(instance=community_page)
         home_page.add_child(instance=contact_form_page)
@@ -151,6 +155,7 @@ class Command(BaseCommand):
         home_page.add_child(instance=help_wanted_page)
         home_page.add_child(instance=subscribe_newsletter_page)
         home_page.add_child(instance=podcast_index_page)
+        home_page.add_child(instance=public_board_documents_index_page)
 
         home_page.save()
 
