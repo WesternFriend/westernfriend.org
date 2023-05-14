@@ -31,7 +31,7 @@ class PublicBoardDocumentIndexPage(Page):
 
 
 class PublicBoardDocument(Page):
-    class DocmentCategoryChoices(models.TextChoices):
+    class PublicBoardDocmentCategoryChoices(models.TextChoices):
         CORPORATION_DOCUMENTS_CURRENT_YEAR = (
             "corporation_documents_current_year",
             "Corporation Documents - current year",
@@ -55,7 +55,7 @@ class PublicBoardDocument(Page):
         blank=True,
     )
     category = models.CharField(
-        choices=DocmentCategoryChoices.choices,
+        choices=PublicBoardDocmentCategoryChoices.choices,
     )
     body = StreamField(
         [
