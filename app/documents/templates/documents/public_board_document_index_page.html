@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    {% if page.intro %}
+        <p>{{ page.intro | richtext }}</p>
+    {% endif %}
+    {% comment "" %}
+    This code is a bit hard to decipher, but it's basically saying:
+    "Get all the children of this page, sort them by category, and then group them by category."
+    https://docs.djangoproject.com/en/4.2/ref/templates/builtins/#regroup
+    {% endcomment %}
+    {% regroup page.get_children|dictsort:"specific.category" by specific.get_category_display as documents_by_category %}
+
+    {% for category, documents in documents_by_category %}
+        <h2>{{ category }}</h2>
+        <ul>
+            {% for document in documents %}
+                <li>
+                    <a href="{% pageurl document %}">
+                        {{ document.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+{% endblock content %}

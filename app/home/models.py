@@ -17,6 +17,7 @@ class HomePage(Page):
 
     subpage_types: list[str] = [
         "community.CommunityPage",
+        "documents.PublicBoardDocumentIndexPage",
         "donations.DonatePage",
         "events.EventsIndexPage",
         "facets.FacetIndexPage",

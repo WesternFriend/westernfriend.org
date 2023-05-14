@@ -44,8 +44,8 @@ def clean_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
     return item
 
 
-def parse_media_blocks(media_urls):
-    media_blocks = []
+def parse_media_blocks(media_urls) -> list:
+    media_blocks: list[tuple] = []
 
     for url in media_urls.split(", "):
         domain = urlparse(url).netloc
@@ -231,7 +231,7 @@ def get_contact_from_author_data(author_data):
     return contact
 
 
-def parse_body_blocks(body):
+def parse_body_blocks(body: str) -> list:
     article_body_blocks = []
 
     try:
@@ -244,11 +244,9 @@ def parse_body_blocks(body):
 
     if soup:
         for item in soup:
-
             item_has_value = item.string is not None
 
             if item_has_value:
-
                 item_contains_pullquote = "pullquote" in item.string
 
                 if item_contains_pullquote:
