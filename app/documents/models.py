@@ -1,9 +1,9 @@
 from django.db import models
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel
-from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.models import Page
 from wagtail.fields import StreamField, RichTextField
+from documents.blocks import DocumentEmbedBlock
 
 from blocks import blocks as wf_blocks
 
@@ -73,7 +73,6 @@ class PublicBoardDocument(Page):
                         "ul",
                         "hr",
                         "link",
-                        "document-link",
                         "superscript",
                         "superscript",
                         "strikethrough",
@@ -87,7 +86,7 @@ class PublicBoardDocument(Page):
             ),
             (
                 "document",
-                DocumentChooserBlock(),
+                DocumentEmbedBlock(),
             ),
             (
                 "image",
