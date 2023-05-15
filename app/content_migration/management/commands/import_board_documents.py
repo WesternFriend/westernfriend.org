@@ -66,13 +66,12 @@ class Command(BaseCommand):
                     title=document_data["title"],
                     publication_date=document_data["publication_date"],
                     drupal_node_id=document_data["drupal_node_id"],
-                    category=document_data["board_document_category"],
                 )
 
                 # Convert the board document category TextChoice label
                 # to a BoardDocumentCategory key
                 board_document.category = get_board_document_category_key(
-                    board_document.category
+                    document_data["board_document_category"]
                 )
 
                 # Parse the document's body, if it is not empty
