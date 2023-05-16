@@ -29,6 +29,11 @@ class MeetingDocumentIndexPage(Page):
         FieldPanel("intro", classname="full"),
     ]
 
+    def get_context(self, request):
+        context = super().get_context(request)
+        context["meeting_documents"] = MeetingDocument.objects.live().public()
+        return context
+
 
 class MeetingDocument(Page):
     class MeetingDocmentTypeChoices(models.TextChoices):
