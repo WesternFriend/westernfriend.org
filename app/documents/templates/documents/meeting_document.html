@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a>: {{ page.title }}
+    <h1>{{ page.title }}</h1>
+    <p>{{ page.publication_date }}</p>
+    <p>{{ page.get_document_type_display }}</p>
+    {{ page.body }}
+{% endblock content %}

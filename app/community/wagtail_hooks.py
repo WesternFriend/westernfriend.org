@@ -9,7 +9,7 @@ from wagtail import hooks
 
 from community.models import CommunityDirectory, OnlineWorship
 from contact.models import Meeting, Organization, Person
-from documents.models import PublicBoardDocument
+from documents.models import MeetingDocument, PublicBoardDocument
 from events.models import Event
 from memorials.models import Memorial
 
@@ -137,6 +137,29 @@ class PublicBoardDocumentModelAdmin(ModelAdmin):
     search_fields = ("title",)
 
 
+class MeetingDocumentModelAdmin(ModelAdmin):
+    model = MeetingDocument
+    menu_icon = "doc-full"
+    menu_label = "Meeting Documents"
+    list_per_page = 10
+    ordering = [
+        "title",
+    ]
+    list_display = (
+        "title",
+        "publication_date",
+        "publishing_meeting",
+        "document_type",
+    )
+    empty_value_display = "-"
+    search_fields = ("title",)
+    list_filter = (
+        "publication_date",
+        "document_type",
+        "live",
+    )
+
+
 class CommunityGroup(ModelAdminGroup):
     menu_label = "Community"
     menu_icon = "snippet"
@@ -150,6 +173,7 @@ class CommunityGroup(ModelAdminGroup):
         CommunityDirectoryModelAdmin,
         OnlineWorshipModelAdmin,
         PublicBoardDocumentModelAdmin,
+        MeetingDocumentModelAdmin,
     )
 
 
