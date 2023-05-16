@@ -145,9 +145,19 @@ class MeetingDocumentModelAdmin(ModelAdmin):
     ordering = [
         "title",
     ]
-    list_display = ("title",)
+    list_display = (
+        "title",
+        "publication_date",
+        "publishing_meeting",
+        "document_type",
+    )
     empty_value_display = "-"
     search_fields = ("title",)
+    list_filter = (
+        "publication_date",
+        "document_type",
+        "live",
+    )
 
 
 class CommunityGroup(ModelAdminGroup):
