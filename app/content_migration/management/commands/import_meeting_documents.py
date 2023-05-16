@@ -7,6 +7,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from wagtail.contrib.redirects.models import Redirect
+from contact.models import Meeting
 from content_migration.management.commands.shared import (
     parse_body_blocks,
     parse_media_blocks,
@@ -58,6 +59,17 @@ class Command(BaseCommand):
                 drupal_node_id=document_data["drupal_node_id"]
             ).exists()
 
+            try:
+                publishing_meeting = Meeting.objects.get(
+                    drupal_author_id=document_data["publishing_meeting_drupal_id"]
+                )
+            except Meeting.DoesNotExist:
+                print(
+                    "Can't find publishing meeting for document: ",
+                    document_data["drupal_node_id"],
+                )
+                continue
+
             if not meeting_document_exists:
                 # Create a new meeting document
                 meeting_document = MeetingDocument(
@@ -65,6 +77,9 @@ class Command(BaseCommand):
                     publication_date=document_data["publication_date"],
                     drupal_node_id=document_data["drupal_node_id"],
                 )
+
+                # Link the meeting document to the publishing meeting
+                meeting_document.publishing_meeting = publishing_meeting
 
                 # Convert the meeting document category TextChoice label
                 # to a MeetingDocumentType key
@@ -98,7 +113,7 @@ class Command(BaseCommand):
                     # since we can't add a document to the index page without a category
                     continue
 
-                # # create a Wagtail redirect from the old url to the new one
+                # create a Wagtail redirect from the old url to the new one
                 try:
                     Redirect.objects.create(
                         old_path=document_data["url_path"],  # the old path from Drupal
