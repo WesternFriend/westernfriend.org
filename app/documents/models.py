@@ -113,6 +113,16 @@ class MeetingDocument(Page):
         FieldPanel("body"),
     ]
 
+    class Meta:
+        ordering = [
+            "-publication_date",
+            "publishing_meeting",
+            "document_type",
+        ]
+        indexes = [
+            models.Index(fields=["publication_date"]),
+        ]
+
 
 class PublicBoardDocumentIndexPage(Page):
     intro = RichTextField(
