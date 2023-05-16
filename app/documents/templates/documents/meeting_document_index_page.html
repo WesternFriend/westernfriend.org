@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    {% if page.intro %}
+        <p>{{ page.intro | richtext }}</p>
+    {% endif %}
+    <!--
+        Create a list of all documents, grouped by year, document type, and meeting. The year should be in h2 tags, the document type in h3 tags, and the meeting in h4 tags. The document title should be a link to the document.
+    -->
+    {% regroup meeting_documents by specific.publication_date|date:"Y" as documents_by_year %}
+    {% for year, year_documents in documents_by_year %}
+        <h2>{{ year }}</h2>
+        {% regroup year_documents|dictsort:"specific.publishing_meeting.title" by specific.publishing_meeting.title as documents_by_meeting %}
+
+        {% for meeting, meeting_documents in documents_by_meeting %}
+            <h3 class="ms-2">{{ meeting }}</h3>
+            {% regroup meeting_documents|dictsort:"specific.document_type" by specific.get_document_type_display as documents_by_type %}
+
+            {% for document_type, document_type_documents in documents_by_type %}
+                <h4 class="ms-4">
+                    {{ document_type }}
+                </h4>
+
+                <ul class="ms-2">
+                    {% for document in document_type_documents %}
+                        <li>
+                            <a href="{% pageurl document %}">
+                                {{ document.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+
+{% endblock %}
+
+{% comment "" %}
+
+{% endcomment %}
