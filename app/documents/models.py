@@ -123,6 +123,7 @@ class MeetingDocument(Page):
             "-publication_date",
             "publishing_meeting",
             "document_type",
+            "title",
         ]
         indexes = [
             models.Index(fields=["publication_date"]),

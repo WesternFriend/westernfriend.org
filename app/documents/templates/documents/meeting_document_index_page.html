@@ -26,7 +26,7 @@
                 </h4>
 
                 <ul class="ms-2">
-                    {% for document in document_type_documents %}
+                    {% for document in document_type_documents|dictsort:"title" %}
                         <li>
                             <a href="{% pageurl document %}">
                                 {{ document.title }}
