@@ -120,6 +120,9 @@ class MollyWingateBlogPage(WfPage):
         FieldPanel("publication_date"),
     ]
 
+    parent_page_types = ["wf_pages.MollyWingateBlogIndexPage"]
+    subpage_types: list[str] = []
+
     class Meta:
         verbose_name = "Molly Wingate Blog Post"
         verbose_name_plural = "Molly Wingate Blog Posts"
@@ -130,5 +133,6 @@ class MollyWingateBlogIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
+    parent_page_types = ["home.HomePage"]
     subpage_types: list[str] = ["wf_pages.MollyWingateBlogPage"]
     max_count = 1
