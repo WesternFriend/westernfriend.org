@@ -80,6 +80,11 @@ class WfPage(Page):
         null=True,
         blank=True,
     )
+    drupal_node_id = models.IntegerField(
+        help_text="Used only for content from old Drupal website.",
+        null=True,
+        blank=True,
+    )
     collection = models.ForeignKey(
         WfPageCollection,
         null=True,
