@@ -111,3 +111,12 @@ class WfPage(Page):
     class Meta:
         verbose_name = "Page"
         verbose_name_plural = "Pages"
+
+
+class MollyWingateBlogIndex(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("intro")]
+
+    subpage_types: list[str] = ["wf_pages.WfPage"]
+    max_count = 1
