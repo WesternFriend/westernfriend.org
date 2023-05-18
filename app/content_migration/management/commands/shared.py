@@ -232,51 +232,55 @@ def get_contact_from_author_data(author_data):
 
 
 def parse_body_blocks(body: str) -> list:
-    article_body_blocks = []
+    article_body_blocks: list[tuple] = []
 
     try:
         soup = BeautifulSoup(body, "html.parser")
     except:  # noqa: E722
         soup = False
 
+    if not soup:
+        return article_body_blocks
+
     # Placeholder for gathering successive items
     rich_text_value = ""
 
-    if soup:
-        for item in soup:
-            item_has_value = item.string is not None
+    for item in soup:
+        item_has_value = item.string is not None
 
-            if item_has_value:
-                item_contains_pullquote = "pullquote" in item.string
+        if not item_has_value:
+            continue
 
-                if item_contains_pullquote:
-                    # Add current rich text value as rich text block, if not empty
-                    if rich_text_value != "":
-                        rich_text_block = ("rich_text", RichText(rich_text_value))
+        item_contains_pullquote = "pullquote" in item.string
 
-                        article_body_blocks.append(rich_text_block)
+        if item_contains_pullquote:
+            # Add current rich text value as rich text block, if not empty
+            if rich_text_value != "":
+                rich_text_block = ("rich_text", RichText(rich_text_value))
 
-                        # reset rich text value
-                        rich_text_value = ""
+                article_body_blocks.append(rich_text_block)
 
-                    pullquotes = extract_pullquotes(item)
+                # reset rich text value
+                rich_text_value = ""
 
-                    # Add Pullquote block(s) to body streamfield
-                    # so they appear above the related rich text field
-                    # i.e. near the paragraph containing the pullquote
-                    for pullquote in pullquotes:
-                        block_content = ("pullquote", pullquote)
+            pullquotes = extract_pullquotes(item)
 
-                        article_body_blocks.append(block_content)
+            # Add Pullquote block(s) to body streamfield
+            # so they appear above the related rich text field
+            # i.e. near the paragraph containing the pullquote
+            for pullquote in pullquotes:
+                block_content = ("pullquote", pullquote)
 
-                    item = clean_pullquote_tags(item)
+                article_body_blocks.append(block_content)
 
-                rich_text_value += str(item)
+            item = clean_pullquote_tags(item)
 
-        if rich_text_value != "":
-            # Add Paragraph Block with remaining rich text elements
-            rich_text_block = ("rich_text", RichText(rich_text_value))
+        rich_text_value += str(item)
 
-            article_body_blocks.append(rich_text_block)
+    if rich_text_value != "":
+        # Add Paragraph Block with remaining rich text elements
+        rich_text_block = ("rich_text", RichText(rich_text_value))
+
+        article_body_blocks.append(rich_text_block)
 
     return article_body_blocks
