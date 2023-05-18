@@ -285,9 +285,8 @@ def parse_body_blocks(body: str) -> list:
     rich_text_value = ""
 
     for item in soup:
-        item_has_value = item.string is not None
-
-        if not item_has_value:
+        # Skip empty items
+        if item.string is None:
             continue
 
         item_contains_pullquote = "pullquote" in item.string
