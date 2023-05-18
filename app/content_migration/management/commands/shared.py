@@ -281,7 +281,8 @@ def parse_body_blocks(body: str) -> list:
     if not soup:
         return article_body_blocks
 
-    # Placeholder for gathering successive items
+    # Start with an empty string to collect
+    # cleaned HTML elements
     rich_text_value = ""
 
     for item in soup:
