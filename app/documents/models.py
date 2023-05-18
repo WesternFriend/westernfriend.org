@@ -22,6 +22,8 @@ class MeetingDocumentIndexPage(Page):
         ],
     )
 
+    max_count = 1
+
     parent_page_types = ["home.HomePage"]
     subpage_types = ["documents.MeetingDocument"]
 
@@ -144,6 +146,8 @@ class PublicBoardDocumentIndexPage(Page):
             "link",
         ],
     )
+
+    max_count = 1
 
     parent_page_types = ["home.HomePage"]
     subpage_types = ["documents.PublicBoardDocument"]
