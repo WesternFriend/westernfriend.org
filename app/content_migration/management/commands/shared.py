@@ -20,6 +20,46 @@ from wagtail.rich_text import RichText
 from contact.models import Meeting, Organization, Person
 
 
+def remove_illegal_html_tags(html_string: str) -> str:
+    # Remove <br> tags, including any atributes and self closing tags
+    html_string = re.sub(r"<br\s*\/?>", "", html_string)
+
+    return html_string
+
+
+def clean_html_whitespace(html_string: str) -> str:
+    """Clean HTML string by removing extra spaces and newlines"""
+
+    # Remove extra spaces
+    html_string = re.sub(r"\s+", " ", html_string)
+
+    # Remove extra newlines
+    html_string = re.sub(r"\n+", "\n", html_string)
+
+    # Remove extra spaces before and after newlines
+    html_string = re.sub(r"\n\s+", "\n", html_string)
+    html_string = re.sub(r"\s+\n", "\n", html_string)
+
+    # Remove padding spaces before and after HTML tags
+    html_string = re.sub(r"\s+<", "<", html_string)
+    html_string = re.sub(r">\s+", ">", html_string)
+
+    # Remove leading and trailing whitespace
+    html_string = html_string.strip()
+
+    return html_string
+
+
+def clean_html_string(html_string: str) -> str:
+    """Clean HTML string by removing extra spaces and newlines"""
+
+    html_string = clean_html_whitespace(html_string)
+
+    html_string = remove_illegal_html_tags(html_string)
+
+    return html_string
+
+
 def extract_pullquotes(item: str) -> list[str]:
     """Get a list of all pullquote strings found within the item"""
 
