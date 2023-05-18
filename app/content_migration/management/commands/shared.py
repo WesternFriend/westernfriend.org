@@ -330,9 +330,7 @@ def parse_body_blocks(body: str) -> list:
         if item.string is None:
             continue
 
-        item_contains_pullquote = "pullquote" in item.string
-
-        if item_contains_pullquote:
+        if "pullquote" in item.string:
             # Add current rich text value as rich text block, if not empty
             if rich_text_value != "":
                 rich_text_block = ("rich_text", RichText(rich_text_value))
