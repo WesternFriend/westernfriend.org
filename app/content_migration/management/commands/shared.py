@@ -270,8 +270,19 @@ def get_contact_from_author_data(author_data):
     return contact
 
 
-def parse_item_with_pullquotes(item: BS4_Tag, article_body_blocks: list) -> tuple:
+def parse_item_with_pullquotes(
+    item: BS4_Tag,
+    article_body_blocks: list,
+    rich_text_value: str,
+) -> tuple:
     """Parse an item that contains pullquotes"""
+    if rich_text_value != "":
+        rich_text_block = ("rich_text", RichText(rich_text_value))
+
+        article_body_blocks.append(rich_text_block)
+
+        # reset rich text value
+        rich_text_value = ""
 
     # Get a list of all pullquote strings found within the item
     pullquotes = extract_pullquotes(item.string)
@@ -287,10 +298,13 @@ def parse_item_with_pullquotes(item: BS4_Tag, article_body_blocks: list) -> tupl
     for pullquote in pullquotes:
         article_body_blocks.append(("pullquote", pullquote))
 
-    return item, article_body_blocks
+    return item, article_body_blocks, rich_text_value
 
 
-def parse_item_with_images(item: BS4_Tag, article_body_blocks: list) -> tuple:
+def parse_item_with_images(
+    item: BS4_Tag,
+    article_body_blocks: list,
+) -> tuple:
     # Get all image tags
     image_tags = item.find_all("img")
 
@@ -331,26 +345,11 @@ def parse_body_blocks(body: str) -> list:
             continue
 
         if "pullquote" in item.string:
-            # Add current rich text value as rich text block, if not empty
-            if rich_text_value != "":
-                rich_text_block = ("rich_text", RichText(rich_text_value))
-
-                article_body_blocks.append(rich_text_block)
-
-                # reset rich text value
-                rich_text_value = ""
-
-            pullquotes = extract_pullquotes(item)
-
-            # Add Pullquote block(s) to body streamfield
-            # so they appear above the related rich text field
-            # i.e. near the paragraph containing the pullquote
-            for pullquote in pullquotes:
-                block_content = ("pullquote", pullquote)
-
-                article_body_blocks.append(block_content)
-
-            item = clean_pullquote_tags(item)
+            item, article_body_blocks, rich_text_value = parse_item_with_pullquotes(
+                item,
+                article_body_blocks,
+                rich_text_value,
+            )
 
         rich_text_value += str(item)
 
