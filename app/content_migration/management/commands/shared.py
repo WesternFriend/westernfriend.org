@@ -351,6 +351,8 @@ def parse_body_blocks(body: str) -> list:
                 rich_text_value,
             )
 
+        # TODO: determine how to parse images
+
         rich_text_value += str(item)
 
     if rich_text_value != "":
