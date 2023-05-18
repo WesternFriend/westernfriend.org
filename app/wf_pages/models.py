@@ -113,7 +113,7 @@ class WfPage(Page):
         verbose_name_plural = "Pages"
 
 
-class MollyWingateBlogIndex(Page):
+class MollyWingateBlogIndexPage(Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
