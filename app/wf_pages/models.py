@@ -113,6 +113,18 @@ class WfPage(Page):
         verbose_name_plural = "Pages"
 
 
+class MollyWingateBlogPage(WfPage):
+    publication_date = models.DateField("Publication date")
+
+    content_panels = WfPage.content_panels + [
+        FieldPanel("publication_date"),
+    ]
+
+    class Meta:
+        verbose_name = "Molly Wingate Blog Post"
+        verbose_name_plural = "Molly Wingate Blog Posts"
+
+
 class MollyWingateBlogIndexPage(Page):
     intro = RichTextField(blank=True)
 
