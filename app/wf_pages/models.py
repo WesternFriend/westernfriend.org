@@ -130,5 +130,5 @@ class MollyWingateBlogIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
-    subpage_types: list[str] = ["wf_pages.WfPage"]
+    subpage_types: list[str] = ["wf_pages.MollyWingateBlogPage"]
     max_count = 1
