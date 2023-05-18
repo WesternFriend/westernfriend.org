@@ -83,7 +83,7 @@ def clean_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
     return item
 
 
-def parse_media_blocks(media_urls) -> list:
+def parse_media_blocks(media_urls: str) -> list:
     media_blocks: list[tuple] = []
 
     for url in media_urls.split(", "):
