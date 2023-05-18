@@ -1,11 +1,10 @@
-# noqa: E501
 from django.test import SimpleTestCase
 from content_migration.management.commands.shared import parse_body_blocks
 
 test_data = [
     {
-        "input_html": """<p><strong><span style="color:rgb(34, 34, 34); font-family:roboto,arial,sans-serif; font-size:small">~</span></strong></p>""",  # noqa: E501
-        "expected_html": """<p><strong><span style="color:rgb(34, 34, 34); font-family:roboto,arial,sans-serif; font-size:small">~</span></strong></p>""",  # noqa: E501
+        "input_html": """<p><strong><span style="color:rgb(34, 34, 34); font-family:roboto,arial,sans-serif; font-size:small">~</span></strong></p>""",
+        "expected_html": """<p><strong><span style="color:rgb(34, 34, 34); font-family:roboto,arial,sans-serif; font-size:small">~</span></strong></p>""",
     },
 ]
 
