@@ -270,6 +270,46 @@ def get_contact_from_author_data(author_data):
     return contact
 
 
+def parse_item_with_pullquotes(item: BS4_Tag, article_body_blocks: list) -> tuple:
+    """Parse an item that contains pullquotes"""
+
+    # Get a list of all pullquote strings found within the item
+    pullquotes = extract_pullquotes(item.string)
+
+    # Replace "[pullquote][/pullquote]" tags in string
+    # with "<span class='pullquote'></span>"
+    item = clean_pullquote_tags(item)
+
+    # Add the item string to the article body blocks
+    article_body_blocks.append(("rich_text", RichText(item.string)))
+
+    # Add a pullquote block for each pullquote
+    for pullquote in pullquotes:
+        article_body_blocks.append(("pullquote", pullquote))
+
+    return item, article_body_blocks
+
+
+def parse_item_with_images(item: BS4_Tag, article_body_blocks: list) -> tuple:
+    # Get all image tags
+    image_tags = item.find_all("img")
+
+    # Get all image URLs
+    image_urls = [image_tag["src"] for image_tag in image_tags]
+
+    # Parse media blocks
+    media_blocks = parse_media_blocks(", ".join(image_urls))
+
+    # Add media blocks to article body blocks
+    article_body_blocks += media_blocks
+
+    # Remove image tags from item string
+    for image_tag in image_tags:
+        image_tag.decompose()
+
+    return item, article_body_blocks
+
+
 def parse_body_blocks(body: str) -> list:
     article_body_blocks: list[tuple] = []
 
