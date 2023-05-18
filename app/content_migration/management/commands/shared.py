@@ -68,8 +68,7 @@ def extract_pullquotes(item: str) -> list[str]:
 
 def clean_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
     """
-    Replace "[pullquote][/pullquote]" tags in string
-    with "<span class='pullquote'></span>"
+    Remove "[pullquote][/pullquote]" tags in string
     https://stackoverflow.com/a/44593228/1191545
     """
 
