@@ -185,13 +185,6 @@ NOT_COLLECTING_STATICFILES = len(sys.argv) > 0 and sys.argv[1] != "collectstatic
 
 if DATABASE_URL:
     DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
-elif "test" in sys.argv or "test_coverage" in sys.argv:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": ":memory:",
-        }
-    }
 else:
     # Default to using local development environment
     if NOT_COLLECTING_STATICFILES:
