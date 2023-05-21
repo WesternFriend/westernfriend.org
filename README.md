@@ -1,4 +1,4 @@
-# Western Friend website (prototype)
+# Western Friend website
 [![Maintainability](https://api.codeclimate.com/v1/badges/76ea96b836b6b622c71c/maintainability)](https://codeclimate.com/github/WesternFriend/WF-website/maintainability)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
