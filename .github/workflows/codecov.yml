@@ -48,7 +48,7 @@ jobs:
       working-directory: ./app
       run: |
         pip install coverage
-        source .venv/bin/activate
+        poetry shell
         coverage run manage.py test app
     - name: Codecov action
       uses: codecov/codecov-action@v3
