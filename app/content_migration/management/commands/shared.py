@@ -116,10 +116,13 @@ def create_image_block(file_name: str, file_bytes: BytesIO) -> tuple:
     return media_item_block
 
 
-def parse_media_blocks(media_urls) -> list:
+def parse_media_blocks(media_urls: str) -> list:
     media_blocks: list[tuple] = []
 
     for url in media_urls.split(", "):
+        if url == "":
+            continue
+
         domain = urlparse(url).netloc
 
         if domain in MEDIA_EMBED_DOMAINS:
