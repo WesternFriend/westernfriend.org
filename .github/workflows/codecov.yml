@@ -75,9 +75,9 @@ jobs:
       working-directory: ./app
       run: |
         poetry run coverage run manage.py test
-        poetry run coverage json
+        poetry run coverage xml
     - name: Codecov action
       uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        directory: ./app
+        files: ./app/coverage.xml
