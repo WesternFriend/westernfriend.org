@@ -3,7 +3,7 @@ from django.test import SimpleTestCase
 from content_migration.management.commands.shared import extract_pullquotes
 
 
-class TestPullquotesSimpleTestCase(SimpleTestCase):
+class TestExtractPullquotesSimpleTestCase(SimpleTestCase):
     def test_extract_pullquotes(self):
         input_html = """<p>Some text[pullquote]with a pullquote[/pullquote]</p>"""
         output_pullquotes = extract_pullquotes(input_html)
