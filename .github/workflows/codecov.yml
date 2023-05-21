@@ -1,11 +1,30 @@
 name: CodeCov
-on: [push, pull_request]
+#on: [push, pull_request]
+on: [pull_request]
 jobs:
-  run:
+  runner-job:
+    # You must use a Linux environment when using service containers or container jobs
     runs-on: ubuntu-latest
-    env:
-      OS: ubuntu-latest
-      PYTHON: '3.11'
+
+    # Service containers to run with `runner-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+
     steps:
     #----------------------------------------------
     #       check-out repo and set-up python
@@ -46,10 +65,7 @@ jobs:
     #----------------------------------------------
     - name: Generate Report
       working-directory: ./app
-      run: |
-        pip install coverage
-        poetry shell
-        coverage run manage.py test
+      run: poetry run coverage run manage.py test
     - name: Codecov action
       uses: codecov/codecov-action@v3
       with:
