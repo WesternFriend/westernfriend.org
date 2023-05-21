@@ -14,10 +14,26 @@ from django.core.files.images import ImageFile
 from django.db.models import Q
 from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
+from wagtail.embeds.models import Embed
 from wagtail.images.models import Image
 from wagtail.rich_text import RichText
 
 from contact.models import Meeting, Organization, Person
+
+MEDIA_EMBED_DOMAINS = [
+    "youtube.com",
+    "youtu.be",
+    "vimeo.com",
+    "flickr.com",
+    "instagram.com",
+    "twitter.com",
+    "facebook.com",
+    "soundcloud.com",
+    "spotify.com",
+    "w.soundcloud.com",
+    "player.vimeo.com",
+    "open.spotify.com",
+]
 
 
 def extract_pullquotes(item: str) -> list[str]:
@@ -26,22 +42,78 @@ def extract_pullquotes(item: str) -> list[str]:
     return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item)
 
 
-def clean_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
+def remove_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
     """
-    Replace "[pullquote][/pullquote]" tags in string
-    with "<span class='pullquote'></span>"
+    Remove "[pullquote]" and "[/pullquote]" tags in string
+
     https://stackoverflow.com/a/44593228/1191545
     """
 
-    replacement_values = [
+    replacement_values: list = [
         ("[pullquote]", ""),
         ("[/pullquote]", ""),
     ]
 
-    for replacement_value in replacement_values:
-        item.string = item.string.replace(*replacement_value)
+    if item:
+        for replacement_value in replacement_values:
+            item.string = item.string.replace(*replacement_value)
 
     return item
+
+
+def create_document_link_block(file_name: str, file_bytes: BytesIO) -> tuple:
+    """Create a document link block from a file name and bytes
+
+    Returns a tuple of the form: ("document", document)
+    """
+
+    document_file: File = File(
+        bytes=file_bytes,
+        name=file_name,
+    )
+
+    document: Document = Document(
+        title=file_name,
+        file=document_file,
+    )
+
+    document.save()
+
+    return ("document", document)
+
+
+def create_media_embed_block(url: str) -> tuple:
+    """Create a media embed block from a URL
+
+    Returns a tuple of the form: ("embed", embed)
+    """
+    # TODO: add unit test, once database issues are sorted out
+    embed: Embed = get_embed(url)
+
+    embed_block = ("embed", embed)
+
+    return embed_block
+
+
+def create_image_block(file_name: str, file_bytes: BytesIO) -> tuple:
+    # create image
+    image_file: ImageFile = ImageFile(
+        file_bytes=file_bytes,
+        name=file_name,
+    )
+
+    image = Image(
+        title=file_name,
+        file=image_file,
+    )
+
+    image.save()
+
+    # Create an image block with dictionary properties
+    # of FormattedImageChooserStructBlock
+    media_item_block = ("image", {"image": image, "width": 800})
+
+    return media_item_block
 
 
 def parse_media_blocks(media_urls) -> list:
@@ -50,10 +122,9 @@ def parse_media_blocks(media_urls) -> list:
     for url in media_urls.split(", "):
         domain = urlparse(url).netloc
 
-        if domain in ["vimeo.com", "www.youtube.com"]:
-            embed = get_embed(url)
-            embed_tuple = ("embed", embed)
-            media_blocks.append(embed_tuple)
+        if domain in MEDIA_EMBED_DOMAINS:
+            embed_block = create_media_embed_block(url)
+            media_blocks.append(embed_block)
         else:
             # The default should be to fetch a
             # PDF or image file (i.e. from westernfriend.org)
@@ -64,44 +135,26 @@ def parse_media_blocks(media_urls) -> list:
                 print(f"Could not GET: '{ url }'")
                 continue
 
-            content_type = response.headers["content-type"]
-            file_name = html.unescape(url.split("/")[-1])
-            file_bytes = BytesIO(response.content)
+            content_type: str = response.headers["content-type"]
+            file_name: str = html.unescape(url.split("/")[-1])
+            file_bytes: BytesIO = BytesIO(response.content)
 
             if content_type == "application/pdf":
-                # Create file
-                document_file = File(file_bytes, name=file_name)
-
-                document = Document(
-                    title=file_name,
-                    file=document_file,
+                media_item_block: tuple = create_document_link_block(
+                    file_name=file_name,
+                    file_bytes=file_bytes,
                 )
-
-                document.save()
-
-                document_link_block = ("document", document)
-
-                media_blocks.append(document_link_block)
             elif content_type in ["image/jpeg", "image/png"]:
-                # create image
-                image_file = ImageFile(file_bytes, name=file_name)
-
-                image = Image(
-                    title=file_name,
-                    file=image_file,
+                media_item_block = create_image_block(
+                    file_name=file_name,
+                    file_bytes=file_bytes,
                 )
-
-                image.save()
-
-                # Create an image block with dictionary properties
-                # of FormattedImageChooserStructBlock
-                image_block = ("image", {"image": image, "width": 800})
-
-                media_blocks.append(image_block)
             else:
                 print(url)
                 print(content_type)
                 print("-----")
+
+            media_blocks.append(media_item_block)
 
     return media_blocks
 
@@ -269,7 +322,7 @@ def parse_body_blocks(body: str) -> list:
 
                         article_body_blocks.append(block_content)
 
-                    item = clean_pullquote_tags(item)
+                    item = remove_pullquote_tags(item)
 
                 rich_text_value += str(item)
 
