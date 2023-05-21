@@ -29,6 +29,7 @@ jobs:
     #       load cached venv if cache exists
     #----------------------------------------------
     - name: Load cached venv
+      working-directory: ./app
       id: cached-poetry-dependencies
       uses: actions/cache@v3
       with:
@@ -38,15 +39,17 @@ jobs:
     # install dependencies if cache does not exist
     #----------------------------------------------
     - name: Install dependencies
+      working-directory: ./app
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: poetry install --no-interaction --no-root
     #----------------------------------------------
     # Run tests, generate and upload code coverage report
     #----------------------------------------------
     - name: Generate Report
+      working-directory: ./app
       run: |
         pip install coverage
-        coverage run --source='./app/' app/manage.py test app
+        coverage run manage.py test app
     - name: Codecov action
       uses: codecov/codecov-action@v3
       with:
