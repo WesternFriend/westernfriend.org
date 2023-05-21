@@ -73,7 +73,9 @@ jobs:
     #----------------------------------------------
     - name: Generate Report
       working-directory: ./app
-      run: poetry run coverage run manage.py test
+      run: |
+        poetry run coverage run manage.py test
+        poetry run coverage json
     - name: Codecov action
       uses: codecov/codecov-action@v3
       with:
