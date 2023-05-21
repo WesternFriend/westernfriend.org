@@ -19,4 +19,4 @@ jobs:
         pip install coverage
         coverage run --source='./app/' app/manage.py test app
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
