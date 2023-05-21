@@ -47,9 +47,8 @@ jobs:
     - name: Generate Report
       working-directory: ./app
       run: |
-        pip install coverage
-        poetry shell
-        COLUMNS=80 coverage run manage.py test
+        poetry install coveraage
+        poetry run coverage run manage.py test
     - name: Codecov action
       uses: codecov/codecov-action@v3
       with:
