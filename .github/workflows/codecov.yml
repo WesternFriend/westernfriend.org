@@ -18,5 +18,7 @@ jobs:
       run: |
         pip install coverage
         coverage run --source='./app/' app/manage.py test app
-    - name: Upload Coverage to Codecov
+    - name: Codecov action
       uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
