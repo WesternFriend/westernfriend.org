@@ -125,10 +125,10 @@ def create_image_block(file_name: str, file_bytes: BytesIO) -> tuple[str, Image]
     return media_item_block
 
 
-def parse_media_blocks(media_urls: str) -> list[tuple]:
+def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
     media_blocks: list[tuple] = []
 
-    for url in media_urls.split(", "):
+    for url in media_urls:
         if url == "":
             continue
 

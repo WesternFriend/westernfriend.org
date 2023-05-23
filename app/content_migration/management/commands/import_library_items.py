@@ -96,9 +96,12 @@ class Command(BaseCommand):
             library_item.title = import_library_item["title"]
             library_item.description = import_library_item["Description"]
 
-            # # TODO: Remember to uncomment this line when done
-            # # developing the remaining import script
-            # # library_item.body = parse_media_blocks(import_library_item["Media"])
+            # TODO: Remember to uncomment this line when done
+            # developing the remaining import script
+            # library_item.body = parse_media_blocks(import_library_item["Media"].split(", "))  # noqa: E501
+
+            # TODO: Remember to delete this line
+            # when uncommenting the parse_media_blocks line above
             library_item.body = None
 
             if import_library_item["Audience"] is not None:

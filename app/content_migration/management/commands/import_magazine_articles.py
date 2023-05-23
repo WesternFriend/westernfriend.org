@@ -104,7 +104,7 @@ class Command(BaseCommand):
 
             # Download and parse article media
             if row["media"] is not None:
-                media_blocks = parse_media_blocks(row["media"])
+                media_blocks = parse_media_blocks(row["media"].split(", "))
 
                 # Merge media blocks with article body blocks
                 article_body_blocks += media_blocks
