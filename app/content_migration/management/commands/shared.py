@@ -1,6 +1,7 @@
 import html
 from io import BytesIO
 from itertools import chain
+import logging
 import re
 from urllib.parse import urlparse
 
@@ -33,6 +34,8 @@ MEDIA_EMBED_DOMAINS = [
     "open.spotify.com",
 ]
 
+logger = logging.getLogger(__name__)
+
 
 def extract_pullquotes(item: str) -> list[str]:
     """Get a list of all pullquote strings found within the item"""
@@ -59,14 +62,16 @@ def remove_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
     return item
 
 
-def create_document_link_block(file_name: str, file_bytes: BytesIO) -> tuple:
+def create_document_link_block(
+    file_name: str, file_bytes: BytesIO
+) -> tuple[str, Document]:
     """Create a document link block from a file name and bytes
 
     Returns a tuple of the form: ("document", document)
     """
 
     document_file: File = File(
-        bytes=file_bytes,
+        file_bytes,
         name=file_name,
     )
 
@@ -80,7 +85,7 @@ def create_document_link_block(file_name: str, file_bytes: BytesIO) -> tuple:
     return ("document", document)
 
 
-def create_media_embed_block(url: str) -> tuple:
+def create_media_embed_block(url: str) -> tuple[str, Embed]:
     """Create a media embed block from a URL
 
     Returns a tuple of the form: ("embed", embed)
@@ -93,10 +98,10 @@ def create_media_embed_block(url: str) -> tuple:
     return embed_block
 
 
-def create_image_block(file_name: str, file_bytes: BytesIO) -> tuple:
+def create_image_block(file_name: str, file_bytes: BytesIO) -> tuple[str, Image]:
     # create image
     image_file: ImageFile = ImageFile(
-        file_bytes=file_bytes,
+        file_bytes,
         name=file_name,
     )
 
@@ -109,12 +114,18 @@ def create_image_block(file_name: str, file_bytes: BytesIO) -> tuple:
 
     # Create an image block with dictionary properties
     # of FormattedImageChooserStructBlock
-    media_item_block = ("image", {"image": image, "width": 800})
+    media_item_block = (
+        "image",
+        {
+            "image": image,
+            "width": 800,
+        },
+    )
 
     return media_item_block
 
 
-def parse_media_blocks(media_urls: str) -> list:
+def parse_media_blocks(media_urls: str) -> list[tuple]:
     media_blocks: list[tuple] = []
 
     for url in media_urls.split(", "):
@@ -132,8 +143,8 @@ def parse_media_blocks(media_urls: str) -> list:
 
             try:
                 response = requests.get(url)
-            except:  # noqa: E722
-                print(f"Could not GET: '{ url }'")
+            except requests.exceptions.RequestException:
+                logger.error(f"Could not GET: '{ url }'")
                 continue
 
             content_type: str = response.headers["content-type"]
@@ -151,16 +162,17 @@ def parse_media_blocks(media_urls: str) -> list:
                     file_bytes=file_bytes,
                 )
             else:
-                print(url)
-                print(content_type)
-                print("-----")
+                logger.error(f"Could not parse {content_type} media item: { url }")
+                continue
 
             media_blocks.append(media_item_block)
 
     return media_blocks
 
 
-def get_existing_magazine_author_from_db(drupal_author_id):
+def get_existing_magazine_author_from_db(
+    drupal_author_id: str,
+) -> Person | Meeting | Organization | None:
     """
     Given a Drupal Author ID,
     Search across all types of contacts for a matching result.
@@ -176,33 +188,22 @@ def get_existing_magazine_author_from_db(drupal_author_id):
     # Include a query to check `duplicate_author_ids` column,
     # since we are relying on that column to locate the "original" record
     # and the Library item authors data may reference duplicate authors
-    person = Person.objects.filter(
-        Q(drupal_author_id=drupal_author_id)
-        | Q(drupal_duplicate_author_ids__contains=[drupal_author_id])
-    )
-    meeting = Meeting.objects.filter(
-        Q(drupal_author_id=drupal_author_id)
-        | Q(drupal_duplicate_author_ids__contains=[drupal_author_id])
-    )
-    organization = Organization.objects.filter(
-        Q(drupal_author_id=drupal_author_id)
-        | Q(drupal_duplicate_author_ids__contains=[drupal_author_id])
-    )
+    person = Person.objects.filter(Q(drupal_author_id=drupal_author_id))
+    meeting = Meeting.objects.filter(Q(drupal_author_id=drupal_author_id))
+    organization = Organization.objects.filter(Q(drupal_author_id=drupal_author_id))
 
     results = list(chain(person, meeting, organization))
 
-    magazine_author = None
-
     if len(results) == 0:
-        print(f"Could not find magazine author by ID: { int(drupal_author_id) }")
+        logger.error(f"Could not find magazine author by ID: { int(drupal_author_id) }")
     elif len(results) > 1:
-        print(
+        logger.error(
             f"Duplicate authors found for magazine author ID: { int(drupal_author_id) }"
         )
     else:
-        magazine_author = results[0]
+        return results[0]
 
-    return magazine_author
+    return None
 
 
 def parse_body_blocks(body: str) -> list:
@@ -211,41 +212,42 @@ def parse_body_blocks(body: str) -> list:
     try:
         soup = BeautifulSoup(body, "html.parser")
     except:  # noqa: E722
-        soup = False
+        logger.error(f"Could not parse body: { body }")
 
     # Placeholder for gathering successive items
     rich_text_value = ""
 
     if soup:
-        for item in soup:
-            item_has_value = item.string is not None
+        for item in soup.contents:
+            item_is_empty = item.string is None
 
-            if item_has_value:
-                item_contains_pullquote = "pullquote" in item.string
+            if item_is_empty:
+                continue
 
-                if item_contains_pullquote:
-                    # Add current rich text value as rich text block, if not empty
-                    if rich_text_value != "":
-                        rich_text_block = ("rich_text", RichText(rich_text_value))
+            item_contains_pullquote = "pullquote" in item.string
+            if item_contains_pullquote:
+                # Add current rich text value as rich text block, if not empty
+                if rich_text_value != "":
+                    rich_text_block = ("rich_text", RichText(rich_text_value))
 
-                        article_body_blocks.append(rich_text_block)
+                    article_body_blocks.append(rich_text_block)
 
-                        # reset rich text value
-                        rich_text_value = ""
+                    # reset rich text value
+                    rich_text_value = ""
 
-                    pullquotes = extract_pullquotes(item)
+                pullquotes = extract_pullquotes(item)
 
-                    # Add Pullquote block(s) to body streamfield
-                    # so they appear above the related rich text field
-                    # i.e. near the paragraph containing the pullquote
-                    for pullquote in pullquotes:
-                        block_content = ("pullquote", pullquote)
+                # Add Pullquote block(s) to body streamfield
+                # so they appear above the related rich text field
+                # i.e. near the paragraph containing the pullquote
+                for pullquote in pullquotes:
+                    block_content = ("pullquote", pullquote)
 
-                        article_body_blocks.append(block_content)
+                    article_body_blocks.append(block_content)
 
-                    item = remove_pullquote_tags(item)
+                item = remove_pullquote_tags(item)
 
-                rich_text_value += str(item)
+            rich_text_value += str(item)
 
         if rich_text_value != "":
             # Add Paragraph Block with remaining rich text elements
