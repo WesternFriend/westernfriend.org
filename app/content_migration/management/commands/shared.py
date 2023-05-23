@@ -207,44 +207,6 @@ def get_existing_magazine_author_from_db(drupal_author_id):
     return magazine_author
 
 
-def get_existing_magazine_author_by_id(
-    drupal_author_id,
-    magazine_authors,
-):
-    """Get an author and check if it is duplicate. Return existing author"""
-
-    authors_mask = magazine_authors["drupal_author_id"] == drupal_author_id
-
-    # Make sure author exists in data
-    if authors_mask.sum() == 0:
-        print("Author row not found in DataFrame:", drupal_author_id)
-        return None
-
-    # Make sure author is not in duplicate rows
-    if authors_mask.sum() > 1:
-        print("Duplicate DataFrame rows found with same author ID:", drupal_author_id)
-        return None
-
-    author_data = None
-
-    try:
-        author_data = magazine_authors[authors_mask].iloc[0].to_dict()
-    except:  # noqa: E722
-        print("Could not get author data for author ID:", drupal_author_id)
-
-        return None
-
-    # Get primary author row,
-    # if this author row is marked as a duplicate
-    if not pd.isnull(author_data["duplicate of ID"]):
-        author_data = get_existing_magazine_author_by_id(
-            author_data["duplicate of ID"],
-            magazine_authors,
-        )
-
-    return author_data
-
-
 def get_contact_from_author_data(author_data):
     contact = None
 
