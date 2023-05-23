@@ -6,9 +6,7 @@ from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 from bs4 import Tag as BS4_Tag
-import pandas as pd
 import requests
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 from django.core.files.images import ImageFile
 from django.db.models import Q
@@ -205,48 +203,6 @@ def get_existing_magazine_author_from_db(drupal_author_id):
         magazine_author = results[0]
 
     return magazine_author
-
-
-def get_contact_from_author_data(author_data):
-    contact = None
-
-    author_is_organization = not pd.isnull(
-        author_data["organization_name"],
-    )
-
-    author_is_meeting = not pd.isnull(
-        author_data["meeting_name"],
-    )
-
-    if author_is_organization:
-        try:
-            contact = Organization.objects.get(
-                drupal_author_id=author_data["drupal_author_id"]
-            )
-        except Organization.DoesNotExist:
-            print(
-                f"Could not find organization with ID: {author_data['drupal_author_id']}"  # noqa: E501
-            )
-    elif author_is_meeting:
-        try:
-            contact = Meeting.objects.get(
-                drupal_author_id=author_data["drupal_author_id"],
-            )
-        except Meeting.DoesNotExist:
-            print(f"Could not find meeting with ID: {author_data['drupal_author_id']}")
-    else:
-        try:
-            contact = Person.objects.get(
-                drupal_author_id=author_data["drupal_author_id"]
-            )
-
-        except ObjectDoesNotExist:
-            print(
-                "Could not find person with ID:",
-                f'"{ author_data["drupal_author_id"] }"',
-            )
-
-    return contact
 
 
 def parse_body_blocks(body: str) -> list:
