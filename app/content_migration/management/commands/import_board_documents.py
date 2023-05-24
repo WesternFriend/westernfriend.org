@@ -82,7 +82,9 @@ class Command(BaseCommand):
                 if document_data["media"] is not None:
                     # download media from URL, convert it to a list of blocks,
                     # and append it to the document's body
-                    board_document.body += parse_media_blocks(document_data["media"])
+                    board_document.body += parse_media_blocks(
+                        document_data["media"].split(", ")
+                    )
 
                 # Add the document to the index page
                 # catch a Validation Error if the category is null
