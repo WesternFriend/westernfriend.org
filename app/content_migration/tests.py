@@ -1,11 +1,10 @@
 from django.test import TestCase, SimpleTestCase
-from wagtail.rich_text import RichText
-from blocks.blocks import PullQuoteBlock
 
 from bs4 import BeautifulSoup
 
 from content_migration.management.commands.shared import (
     extract_image_urls,
+    fetch_file_bytes,
     parse_body_blocks,
     remove_pullquote_tags,
     create_media_embed_block,
@@ -20,7 +19,7 @@ class RemovePullquoteTagsSimpleTestCase(SimpleTestCase):
             "html.parser",
         )  # noqa: E501
         input_bs4_tag = soup_context.find("p")
-        output_bs4_tag = remove_pullquote_tags(input_bs4_tag)
+        output_bs4_tag = remove_pullquote_tags(input_bs4_tag)  # type: ignore
         expected_bs4_tag = BeautifulSoup(
             """<p>Some textwith a pullquote</p>""",
             "html.parser",
@@ -93,20 +92,28 @@ class ParseBodyBlocksTestCase(TestCase):
         expected_blocks = [
             (
                 "pullquote",
-                PullQuoteBlock("with a pullquote"),
+                "with a pullquote",
             ),
             (
                 "rich_text",
-                RichText("Some text with a pullquote"),
+                """<p>Some textwith a pullquote</p>""",
             ),
         ]
+
         self.assertEqual(
-            output_blocks[0][0],
-            expected_blocks[0][0],
+            output_blocks,
+            expected_blocks,
         )
-        # TODO: Figure out how to compare
-        # rendered output for PullQuoteBlock
-        # self.assertEqual(
-        #     type(output_blocks[0][1]),
-        #     type(expected_blocks[0][1]),
-        # )
+
+
+class FetchFileBytesTestCase(TestCase):
+    def test_fetch_file_bytes(self) -> None:
+        self.MaxDiff = None
+        input_url = "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
+        output_file_bytes = fetch_file_bytes(input_url)
+        expected_file_name = "logo-2020-%20transparency-120px_0.png"
+
+        self.assertEqual(
+            output_file_bytes.file_name,
+            expected_file_name,
+        )

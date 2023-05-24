@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import html
 from io import BytesIO
 from itertools import chain
@@ -32,6 +33,14 @@ MEDIA_EMBED_DOMAINS = [
     "player.vimeo.com",
     "open.spotify.com",
 ]
+
+
+@dataclass
+class FileBytesWithMimeType:
+    file_bytes: BytesIO
+    file_name: str
+    content_type: str
+
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +133,21 @@ def create_image_block(file_name: str, file_bytes: BytesIO) -> tuple[str, Image]
     return media_item_block
 
 
+def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
+    """Fetch a file from a URL and return the file bytes"""
+    try:
+        response = requests.get(url)
+    except requests.exceptions.RequestException as exception:
+        logger.error(f"Could not GET: '{ url }'")
+        raise exception
+
+    return FileBytesWithMimeType(
+        file_bytes=BytesIO(response.content),
+        file_name=html.unescape(url.split("/")[-1]),
+        content_type=response.headers["content-type"],
+    )
+
+
 def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
     media_blocks: list[tuple] = []
 
@@ -141,27 +165,24 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
             # PDF or image file (i.e. from westernfriend.org)
 
             try:
-                response = requests.get(url)
+                fetched_file = fetch_file_bytes(url)
             except requests.exceptions.RequestException:
-                logger.error(f"Could not GET: '{ url }'")
                 continue
 
-            content_type: str = response.headers["content-type"]
-            file_name: str = html.unescape(url.split("/")[-1])
-            file_bytes: BytesIO = BytesIO(response.content)
-
-            if content_type == "application/pdf":
+            if fetched_file.content_type == "application/pdf":
                 media_item_block: tuple = create_document_link_block(
-                    file_name=file_name,
-                    file_bytes=file_bytes,
+                    file_name=fetched_file.file_name,
+                    file_bytes=fetched_file.file_bytes,
                 )
-            elif content_type in ["image/jpeg", "image/png"]:
+            elif fetched_file.content_type in ["image/jpeg", "image/png"]:
                 media_item_block = create_image_block(
-                    file_name=file_name,
-                    file_bytes=file_bytes,
+                    file_name=fetched_file.file_name,
+                    file_bytes=fetched_file.file_bytes,
                 )
             else:
-                logger.error(f"Could not parse {content_type} media item: { url }")
+                logger.error(
+                    f"Could not parse {fetched_file.content_type} media item: { url }"
+                )
                 continue
 
             media_blocks.append(media_item_block)
