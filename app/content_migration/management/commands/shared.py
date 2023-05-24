@@ -244,8 +244,8 @@ def parse_body_blocks(body: str) -> list:
     try:
         soup = BeautifulSoup(body, "html.parser")
     except TypeError:
-        print("Could not parse body: ", body)
         logger.error(f"Could not parse body: { body }")
+        return article_body_blocks
 
     # Placeholder for gathering successive items
     rich_text_value = ""

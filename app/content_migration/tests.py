@@ -105,6 +105,17 @@ class ParseBodyBlocksTestCase(TestCase):
             expected_blocks,
         )
 
+    def test_parse_body_blocks_witn_none_as_input(self) -> None:
+        input_html = ""
+
+        ouptut_blocks = parse_body_blocks(input_html)
+        expected_blocks: list = []
+
+        self.assertEqual(
+            ouptut_blocks,
+            expected_blocks,
+        )
+
 
 class FetchFileBytesTestCase(TestCase):
     def test_fetch_file_bytes(self) -> None:
