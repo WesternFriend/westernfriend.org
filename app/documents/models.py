@@ -62,6 +62,7 @@ class MeetingDocument(Page):
     )
     document_type = models.CharField(
         choices=MeetingDocmentTypeChoices.choices,
+        max_length=100,
     )
     body = StreamField(
         [
@@ -179,6 +180,7 @@ class PublicBoardDocument(Page):
     )
     category = models.CharField(
         choices=PublicBoardDocmentCategoryChoices.choices,
+        max_length=100,
     )
     body = StreamField(
         [
