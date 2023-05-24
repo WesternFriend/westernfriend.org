@@ -3,6 +3,7 @@ from django.test import TestCase, SimpleTestCase
 from bs4 import BeautifulSoup
 
 from content_migration.management.commands.shared import (
+    create_document_link_block,
     extract_image_urls,
     fetch_file_bytes,
     parse_body_blocks,
@@ -127,4 +128,23 @@ class FetchFileBytesTestCase(TestCase):
         self.assertEqual(
             output_file_bytes.file_name,
             expected_file_name,
+        )
+
+
+class TestCreateDocumentLinkBlock(TestCase):
+    def test_create_document_link_block(self) -> None:
+        input_url = "https://ia600400.us.archive.org/33/items/friendsbulletinp525unse_2/friendsbulletinp525unse_2.pdf"
+        input_file_name = "friendsbulletinp525unse_2.pdf"
+
+        file_bytes = fetch_file_bytes(input_url)
+
+        output_document_link_block = create_document_link_block(
+            input_file_name,
+            file_bytes.file_bytes,
+        )
+        output_file_name = output_document_link_block[1].title
+
+        self.assertEqual(
+            output_file_name,
+            input_file_name,
         )
