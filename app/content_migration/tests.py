@@ -1,8 +1,12 @@
 from django.test import TestCase, SimpleTestCase
+from wagtail.rich_text import RichText
+from blocks.blocks import PullQuoteBlock
 
 from bs4 import BeautifulSoup
 
 from content_migration.management.commands.shared import (
+    extract_image_urls,
+    parse_body_blocks,
     remove_pullquote_tags,
     create_media_embed_block,
     extract_pullquotes,
@@ -18,7 +22,8 @@ class RemovePullquoteTagsSimpleTestCase(SimpleTestCase):
         input_bs4_tag = soup_context.find("p")
         output_bs4_tag = remove_pullquote_tags(input_bs4_tag)
         expected_bs4_tag = BeautifulSoup(
-            """<p>Some textwith a pullquote</p>""", "html.parser"
+            """<p>Some textwith a pullquote</p>""",
+            "html.parser",
         ).find("p")
 
         self.assertEqual(output_bs4_tag, expected_bs4_tag)
@@ -68,3 +73,40 @@ class CreateMediaEmbedBlockTestCase(TestCase):
             output_media_embed_block[1].url,
             input_url,
         )
+
+
+class TestExtractImages(SimpleTestCase):
+    def test_extract_image_urls(self) -> None:
+        input_html = (
+            """<p>Some text<img src="https://www.example.com/image.jpg" /></p>"""
+        )
+        output_images = extract_image_urls(input_html)
+        expected_images = ["https://www.example.com/image.jpg"]
+        self.assertEqual(output_images, expected_images)
+
+
+class ParseBodyBlocksTestCase(TestCase):
+    def test_parse_body_blocks(self) -> None:
+        self.MaxDiff = None
+        input_html = """<p>Some text[pullquote]with a pullquote[/pullquote]</p>"""
+        output_blocks = parse_body_blocks(input_html)
+        expected_blocks = [
+            (
+                "pullquote",
+                PullQuoteBlock("with a pullquote"),
+            ),
+            (
+                "rich_text",
+                RichText("Some text with a pullquote"),
+            ),
+        ]
+        self.assertEqual(
+            output_blocks[0][0],
+            expected_blocks[0][0],
+        )
+        # TODO: Figure out how to compare
+        # rendered output for PullQuoteBlock
+        # self.assertEqual(
+        #     type(output_blocks[0][1]),
+        #     type(expected_blocks[0][1]),
+        # )

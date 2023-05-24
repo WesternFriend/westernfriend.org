@@ -5,7 +5,7 @@ import logging
 import re
 from urllib.parse import urlparse
 
-from bs4 import BeautifulSoup, PageElement
+from bs4 import BeautifulSoup
 from bs4 import Tag as BS4_Tag
 import requests
 from django.core.files import File
@@ -15,7 +15,6 @@ from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.embeds.models import Embed
 from wagtail.images.models import Image
-from wagtail.rich_text import RichText
 
 from contact.models import Meeting, Organization, Person
 
@@ -206,17 +205,20 @@ def get_existing_magazine_author_from_db(
     return None
 
 
-def extract_images(item: str) -> list[Image]:
+def extract_image_urls(item: str) -> list[Image]:
     """Parse images from HTML string"""
 
-    # Get all image URLs from src attribute of img tags
-    image_urls: list[str] = re.findall(r'<img.*?src="(.*?)"', item)
+    # parse images from HTML string containing <img> tags
+    soup = BeautifulSoup(item, "html.parser")
+    image_tags = soup.findAll("img")
+    # Get a list of image URLs
+    image_urls = [image_tag["src"] for image_tag in image_tags]
 
-    return parse_media_blocks(image_urls)
+    return image_urls
 
 
 def parse_body_blocks(body: str) -> list:
-    article_body_blocks = []
+    article_body_blocks: list[tuple] = []
 
     try:
         soup = BeautifulSoup(body, "html.parser")
@@ -227,12 +229,7 @@ def parse_body_blocks(body: str) -> list:
     # Placeholder for gathering successive items
     rich_text_value = ""
 
-    item: BS4_Tag
-    for item in soup.contents:
-        item_is_tag: bool = isinstance(item, PageElement)
-        if not item_is_tag:
-            continue
-
+    for item in soup.findAll():
         item_is_empty: bool = item.string == ""
 
         if item_is_empty:
@@ -242,16 +239,20 @@ def parse_body_blocks(body: str) -> list:
         item_contains_image = "img" in str(item)
 
         if item_contains_pullquote:
-            # Add current rich text value as rich text block, if not empty
+            # store the accumulated rich text value
             if rich_text_value != "":
-                rich_text_block = ("rich_text", RichText(rich_text_value))
-
-                article_body_blocks.append(rich_text_block)
+                article_body_blocks.append(
+                    (
+                        "rich_text",
+                        rich_text_value,
+                    )
+                )
 
                 # reset rich text value
                 rich_text_value = ""
 
-            pullquotes = extract_pullquotes(item)
+            # process the pullquotes
+            pullquotes = extract_pullquotes(item.string)
 
             # Add Pullquote block(s) to body streamfield
             # so they appear above the related rich text field
@@ -263,25 +264,37 @@ def parse_body_blocks(body: str) -> list:
 
             item = remove_pullquote_tags(item)
         elif item_contains_image:
+            # store the accumulated rich text value
             if rich_text_value != "":
-                rich_text_block = ("rich_text", RichText(rich_text_value))
-
-                article_body_blocks.append(rich_text_block)
+                article_body_blocks.append(
+                    (
+                        "rich_text",
+                        rich_text_value,
+                    )
+                )
 
                 # reset rich text value
                 rich_text_value = ""
-            images = extract_images(str(item))
+
+            # process the images
+            image_urls = extract_image_urls(str(item))
+            images = parse_media_blocks(image_urls)
 
             for image in images:
-                block_content = ("image", image)
+                article_body_blocks.append(
+                    (
+                        "image",
+                        image,
+                    )
+                )
 
-                article_body_blocks.append(block_content)
+        # Add the current item to the rich text value
+        # to continue accumulating items
         rich_text_value += str(item)
 
     if rich_text_value != "":
-        # Add Paragraph Block with remaining rich text elements
-        rich_text_block = ("rich_text", RichText(rich_text_value))
-
-        article_body_blocks.append(rich_text_block)
+        article_body_blocks.append(
+            ("rich_text", rich_text_value),
+        )
 
     return article_body_blocks
