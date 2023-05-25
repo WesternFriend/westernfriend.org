@@ -14,6 +14,7 @@ from contact.models import (
 )
 from content_migration.management.commands.errors import (
     CouldNotFindMatchingContactError,
+    DuplicateContactError,
 )
 
 from content_migration.management.commands.shared import (
@@ -197,23 +198,27 @@ class CreateImageBlockTestCase(TestCase):
 class GetExistingContactFromDbTestCase(TestCase):
     def setUp(self) -> None:
         try:
-            root_page = Page.objects.get(id=1)
+            self.root_page = Page.objects.get(id=1)
         except Page.DoesNotExist:
-            root_page = Page(id=1).save()
+            self.root_page = Page(id=1).save()
 
-        home_page = HomePage(
+        self.home_page = HomePage(
             title="Welcome",
         )
 
-        root_page.add_child(instance=home_page)
-        root_page.save()
+        self.root_page.add_child(
+            instance=self.home_page,
+        )
+        self.root_page.save()
 
-        community_page = CommunityPage(
+        self.community_page = CommunityPage(
             title="Community",
             show_in_menus=True,
         )
-        home_page.add_child(instance=community_page)
-        home_page.save()
+        self.home_page.add_child(
+            instance=self.community_page,
+        )
+        self.home_page.save()
 
         self.organization_index_page = OrganizationIndexPage(
             title="Organizations",
@@ -224,10 +229,16 @@ class GetExistingContactFromDbTestCase(TestCase):
         self.meeting_index_page = MeetingIndexPage(
             title="Meetings",
         )
-        community_page.add_child(instance=self.meeting_index_page)
-        community_page.add_child(instance=self.organization_index_page)
-        community_page.add_child(instance=self.person_index_page)
-        community_page.save()
+        self.community_page.add_child(
+            instance=self.meeting_index_page,
+        )
+        self.community_page.add_child(
+            instance=self.organization_index_page,
+        )
+        self.community_page.add_child(
+            instance=self.person_index_page,
+        )
+        self.community_page.save()
 
         self.person_drupal_author_id = "1"
         self.organization_drupal_author_id = "2"
@@ -238,17 +249,23 @@ class GetExistingContactFromDbTestCase(TestCase):
             given_name="Test",
             family_name="Person",
         )
-        self.person_index_page.add_child(instance=self.person)
+        self.person_index_page.add_child(
+            instance=self.person,
+        )
         self.organization = Organization(
             drupal_author_id=self.organization_drupal_author_id,
             title="Test Organization",
         )
-        self.organization_index_page.add_child(instance=self.organization)
+        self.organization_index_page.add_child(
+            instance=self.organization,
+        )
         self.meeting = Meeting(
             drupal_author_id=self.meeting_drupal_author_id,
             title="Test Meeting",
         )
-        self.meeting_index_page.add_child(instance=self.meeting)
+        self.meeting_index_page.add_child(
+            instance=self.meeting,
+        )
 
     def test_get_existing_person_from_db(self) -> None:
         output_person = get_existing_magazine_author_from_db(
@@ -287,6 +304,34 @@ class GetExistingContactFromDbTestCase(TestCase):
             get_existing_magazine_author_from_db(
                 drupal_author_id=input_drupal_author_id,
             )
+
+    def test_duplicate_raises_exception(self) -> None:
+        meeting_with_duplicate_person_id = Meeting(
+            drupal_author_id=self.person_drupal_author_id,
+            title="Test Meeting",
+        )
+        self.meeting_index_page.add_child(instance=meeting_with_duplicate_person_id)
+
+        with self.assertRaises(DuplicateContactError):
+            get_existing_magazine_author_from_db(
+                drupal_author_id=self.person_drupal_author_id,
+            )
+
+        meeting_with_duplicate_person_id.delete()
+
+    def tearDown(self) -> None:
+        self.person.delete()
+        self.organization.delete()
+        self.meeting.delete()
+
+        self.person_index_page.delete()
+        self.organization_index_page.delete()
+        self.meeting_index_page.delete()
+
+        self.community_page.delete()
+        self.home_page.delete()
+
+        self.root_page.delete()
 
 
 # TODO: add command tests
