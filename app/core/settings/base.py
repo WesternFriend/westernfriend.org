@@ -23,6 +23,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Disable logging while running tests
 if len(sys.argv) > 1 and sys.argv[1] == "test":
     logging.disable(logging.CRITICAL)
 
