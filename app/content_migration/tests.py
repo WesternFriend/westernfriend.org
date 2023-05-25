@@ -1,6 +1,7 @@
 from django.test import TestCase, SimpleTestCase
 
 from bs4 import BeautifulSoup
+import requests
 
 from content_migration.management.commands.shared import (
     create_document_link_block,
@@ -12,6 +13,7 @@ from content_migration.management.commands.shared import (
     create_media_embed_block,
     extract_pullquotes,
 )
+
 
 WESTERN_FRIEND_LOGO = "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
 WESTERN_FRIEND_LOGO_FILE_NAME = "logo-2020-%20transparency-120px_0.png"
@@ -132,6 +134,14 @@ class FetchFileBytesTestCase(TestCase):
             output_file_bytes.file_name,
             WESTERN_FRIEND_LOGO_FILE_NAME,
         )
+
+    def test_fetch_file_bytes_raises_exception(self) -> None:
+        input_url = (
+            "https://doesntexistyetbutmaybesomedaypleasedontbreakmytest.com/image.jpg"
+        )
+
+        with self.assertRaises(requests.exceptions.RequestException):
+            fetch_file_bytes(input_url)
 
 
 class TestCreateDocumentLinkBlock(TestCase):
