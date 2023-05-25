@@ -12,6 +12,9 @@ from contact.models import (
     Person,
     PersonIndexPage,
 )
+from content_migration.management.commands.errors import (
+    CouldNotFindMatchingContactError,
+)
 
 from content_migration.management.commands.shared import (
     create_document_link_block,
@@ -212,18 +215,18 @@ class GetExistingContactFromDbTestCase(TestCase):
         home_page.add_child(instance=community_page)
         home_page.save()
 
-        organization_index_page = OrganizationIndexPage(
+        self.organization_index_page = OrganizationIndexPage(
             title="Organizations",
         )
-        person_index_page = PersonIndexPage(
+        self.person_index_page = PersonIndexPage(
             title="People",
         )
-        meeting_index_page = MeetingIndexPage(
+        self.meeting_index_page = MeetingIndexPage(
             title="Meetings",
         )
-        community_page.add_child(instance=meeting_index_page)
-        community_page.add_child(instance=organization_index_page)
-        community_page.add_child(instance=person_index_page)
+        community_page.add_child(instance=self.meeting_index_page)
+        community_page.add_child(instance=self.organization_index_page)
+        community_page.add_child(instance=self.person_index_page)
         community_page.save()
 
         self.person_drupal_author_id = "1"
@@ -235,17 +238,17 @@ class GetExistingContactFromDbTestCase(TestCase):
             given_name="Test",
             family_name="Person",
         )
-        person_index_page.add_child(instance=self.person)
+        self.person_index_page.add_child(instance=self.person)
         self.organization = Organization(
             drupal_author_id=self.organization_drupal_author_id,
             title="Test Organization",
         )
-        organization_index_page.add_child(instance=self.organization)
+        self.organization_index_page.add_child(instance=self.organization)
         self.meeting = Meeting(
             drupal_author_id=self.meeting_drupal_author_id,
             title="Test Meeting",
         )
-        meeting_index_page.add_child(instance=self.meeting)
+        self.meeting_index_page.add_child(instance=self.meeting)
 
     def test_get_existing_person_from_db(self) -> None:
         output_person = get_existing_magazine_author_from_db(
@@ -276,3 +279,21 @@ class GetExistingContactFromDbTestCase(TestCase):
             output_meeting,
             self.meeting,
         )
+
+    def test_get_existing_magazine_author_from_db_raises_exception(self) -> None:
+        input_drupal_author_id = "4"
+
+        with self.assertRaises(CouldNotFindMatchingContactError):
+            get_existing_magazine_author_from_db(
+                drupal_author_id=input_drupal_author_id,
+            )
+
+
+# TODO: add command tests
+# from django.core.management import call_command
+# from django.test import TestCase
+
+# class CommandTest(TestCase):
+#     def test_my_command(self):
+#         call_command('my_command', 'arg1', 'arg2')
+#         # Now assert that the command has done what it's supposed to do
