@@ -2,3 +2,6 @@
 omit =
     # exclude migrations
     */migrations/*
+
+source =
+    content_migration/management/commands/*
