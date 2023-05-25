@@ -1,18 +1,30 @@
 from django.test import TestCase, SimpleTestCase
+from wagtail.models import Page
 
 from bs4 import BeautifulSoup
 import requests
+from community.models import CommunityPage
+from contact.models import (
+    Meeting,
+    MeetingIndexPage,
+    Organization,
+    OrganizationIndexPage,
+    Person,
+    PersonIndexPage,
+)
 
 from content_migration.management.commands.shared import (
     create_document_link_block,
     create_image_block,
     extract_image_urls,
     fetch_file_bytes,
+    get_existing_magazine_author_from_db,
     parse_body_blocks,
     remove_pullquote_tags,
     create_media_embed_block,
     extract_pullquotes,
 )
+from home.models import HomePage
 
 
 WESTERN_FRIEND_LOGO = "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
@@ -176,4 +188,91 @@ class CreateImageBlockTestCase(TestCase):
         self.assertEqual(
             output_filename_start,
             expected_filename_start,
+        )
+
+
+class GetExistingContactFromDbTestCase(TestCase):
+    def setUp(self) -> None:
+        try:
+            root_page = Page.objects.get(id=1)
+        except Page.DoesNotExist:
+            root_page = Page(id=1).save()
+
+        home_page = HomePage(
+            title="Welcome",
+        )
+
+        root_page.add_child(instance=home_page)
+        root_page.save()
+
+        community_page = CommunityPage(
+            title="Community",
+            show_in_menus=True,
+        )
+        home_page.add_child(instance=community_page)
+        home_page.save()
+
+        organization_index_page = OrganizationIndexPage(
+            title="Organizations",
+        )
+        person_index_page = PersonIndexPage(
+            title="People",
+        )
+        meeting_index_page = MeetingIndexPage(
+            title="Meetings",
+        )
+        community_page.add_child(instance=meeting_index_page)
+        community_page.add_child(instance=organization_index_page)
+        community_page.add_child(instance=person_index_page)
+        community_page.save()
+
+        self.person_drupal_author_id = "1"
+        self.organization_drupal_author_id = "2"
+        self.meeting_drupal_author_id = "3"
+
+        self.person = Person(
+            drupal_author_id=self.person_drupal_author_id,
+            given_name="Test",
+            family_name="Person",
+        )
+        person_index_page.add_child(instance=self.person)
+        self.organization = Organization(
+            drupal_author_id=self.organization_drupal_author_id,
+            title="Test Organization",
+        )
+        organization_index_page.add_child(instance=self.organization)
+        self.meeting = Meeting(
+            drupal_author_id=self.meeting_drupal_author_id,
+            title="Test Meeting",
+        )
+        meeting_index_page.add_child(instance=self.meeting)
+
+    def test_get_existing_person_from_db(self) -> None:
+        output_person = get_existing_magazine_author_from_db(
+            drupal_author_id=self.person_drupal_author_id,
+        )
+
+        self.assertEqual(
+            output_person,
+            self.person,
+        )
+
+    def test_get_existing_organization_from_db(self) -> None:
+        output_organization = get_existing_magazine_author_from_db(
+            drupal_author_id=self.organization_drupal_author_id,
+        )
+
+        self.assertEqual(
+            output_organization,
+            self.organization,
+        )
+
+    def test_get_existing_meeting_from_db(self) -> None:
+        output_meeting = get_existing_magazine_author_from_db(
+            drupal_author_id=self.meeting_drupal_author_id,
+        )
+
+        self.assertEqual(
+            output_meeting,
+            self.meeting,
         )
