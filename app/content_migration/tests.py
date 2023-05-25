@@ -197,10 +197,7 @@ class CreateImageBlockTestCase(TestCase):
 
 class GetExistingContactFromDbTestCase(TestCase):
     def setUp(self) -> None:
-        try:
-            self.root_page = Page.objects.get(id=1)
-        except Page.DoesNotExist:
-            self.root_page = Page(id=1).save()
+        self.root_page = Page(id=1).save()
 
         self.home_page = HomePage(
             title="Welcome",
