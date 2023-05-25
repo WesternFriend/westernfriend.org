@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 
 from content_migration.management.commands.shared import (
     create_document_link_block,
+    create_image_block,
     extract_image_urls,
     fetch_file_bytes,
     parse_body_blocks,
@@ -11,6 +12,9 @@ from content_migration.management.commands.shared import (
     create_media_embed_block,
     extract_pullquotes,
 )
+
+WESTERN_FRIEND_LOGO = "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
+WESTERN_FRIEND_LOGO_FILE_NAME = "logo-2020-%20transparency-120px_0.png"
 
 
 class RemovePullquoteTagsSimpleTestCase(SimpleTestCase):
@@ -121,13 +125,12 @@ class ParseBodyBlocksTestCase(TestCase):
 class FetchFileBytesTestCase(TestCase):
     def test_fetch_file_bytes(self) -> None:
         self.MaxDiff = None
-        input_url = "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
-        output_file_bytes = fetch_file_bytes(input_url)
-        expected_file_name = "logo-2020-%20transparency-120px_0.png"
+
+        output_file_bytes = fetch_file_bytes(WESTERN_FRIEND_LOGO)
 
         self.assertEqual(
             output_file_bytes.file_name,
-            expected_file_name,
+            WESTERN_FRIEND_LOGO_FILE_NAME,
         )
 
 
@@ -147,4 +150,20 @@ class TestCreateDocumentLinkBlock(TestCase):
         self.assertEqual(
             output_file_name,
             input_file_name,
+        )
+
+
+class CreateImageBlockTestCase(TestCase):
+    def test_create_image_block(self) -> None:
+        file_bytes = fetch_file_bytes(WESTERN_FRIEND_LOGO)
+        output_image_block = create_image_block(
+            file_name=file_bytes.file_name,
+            file_bytes=file_bytes.file_bytes,
+        )
+        output_filename_start = output_image_block[1]["image"].filename[:5]
+        expected_filename_start = WESTERN_FRIEND_LOGO_FILE_NAME[:5]
+
+        self.assertEqual(
+            output_filename_start,
+            expected_filename_start,
         )
