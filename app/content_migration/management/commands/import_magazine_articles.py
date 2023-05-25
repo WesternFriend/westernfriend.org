@@ -6,6 +6,10 @@ import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
+from content_migration.management.commands.errors import (
+    CouldNotFindMatchingContactError,
+    DuplicateContactError,
+)
 
 from magazine.models import (
     MagazineArticle,
@@ -34,18 +38,25 @@ def parse_article_authors(article, article_authors):
     Fetch all related article authors and create an article relationship.
     """
     for drupal_author_id in article_authors.split(", "):
-        drupal_author_id = int(drupal_author_id)
-        author = get_existing_magazine_author_from_db(drupal_author_id)
-
-        if author is not None:
-            article_author = MagazineArticleAuthor(
-                article=article,
-                author=author,
+        try:
+            author = get_existing_magazine_author_from_db(
+                drupal_author_id,
             )
+        except (
+            CouldNotFindMatchingContactError,
+            DuplicateContactError,
+        ):
+            logger.error(
+                f"Could not find author from Drupal ID: { drupal_author_id }",
+            )
+            continue
 
-            article.authors.add(article_author)
-        else:
-            print("Could not find author from Drupal ID:", drupal_author_id)
+        article_author = MagazineArticleAuthor(
+            article=article,
+            author=author,
+        )
+
+        article.authors.add(article_author)
 
     return article
 

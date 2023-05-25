@@ -18,6 +18,10 @@ from wagtail.embeds.models import Embed
 from wagtail.images.models import Image
 
 from contact.models import Meeting, Organization, Person
+from content_migration.management.commands.errors import (
+    CouldNotFindMatchingContactError,
+    DuplicateContactError,
+)
 
 MEDIA_EMBED_DOMAINS = [
     "youtube.com",
@@ -191,8 +195,8 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
 
 
 def get_existing_magazine_author_from_db(
-    drupal_author_id: str,
-) -> Person | Meeting | Organization | None:
+    drupal_author_id: str | int,
+) -> Person | Meeting | Organization:
     """
     Given a Drupal Author ID,
     Search across all types of contacts for a matching result.
@@ -204,6 +208,9 @@ def get_existing_magazine_author_from_db(
     - the matching author or
     - None if no author was found.
     """
+    # convert to int, if necessary
+    drupal_author_id = int(drupal_author_id)
+
     # Query against primary drupal author ID column
     # Include a query to check `duplicate_author_ids` column,
     # since we are relying on that column to locate the "original" record
@@ -215,15 +222,14 @@ def get_existing_magazine_author_from_db(
     results = list(chain(person, meeting, organization))
 
     if len(results) == 0:
-        logger.error(f"Could not find magazine author by ID: { int(drupal_author_id) }")
+        raise CouldNotFindMatchingContactError()
     elif len(results) > 1:
         logger.error(
             f"Duplicate authors found for magazine author ID: { int(drupal_author_id) }"
         )
+        raise DuplicateContactError()
     else:
         return results[0]
-
-    return None
 
 
 def extract_image_urls(item: str) -> list[Image]:

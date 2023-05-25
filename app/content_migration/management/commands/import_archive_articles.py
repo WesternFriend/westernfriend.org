@@ -5,6 +5,11 @@ import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
+from content_migration.management.commands.errors import (
+    CouldNotFindMatchingContactError,
+    DuplicateContactError,
+)
+
 
 from content_migration.management.commands.shared import (
     get_existing_magazine_author_from_db,
@@ -12,14 +17,17 @@ from content_migration.management.commands.shared import (
 from magazine.models import ArchiveArticle, ArchiveArticleAuthor, ArchiveIssue
 
 logging.basicConfig(
-    filename="archive_article_import.log",
+    filename="import_archive_articles.log",
     level=logging.DEBUG,
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 logger = logging.getLogger(__name__)
 
 
-def create_archive_article_authors(archive_article, authors):
+def create_archive_article_authors(
+    archive_article: ArchiveArticle,
+    authors: str,
+) -> None:
     """Create an ArchiveArticleAuthor instance for each author, if any"""
 
     if authors is not np.nan:
@@ -27,28 +35,35 @@ def create_archive_article_authors(archive_article, authors):
         # assigning articles to each ToC item
 
         # Get each author ID as an integer
-        authors_list = map(int, authors.split(", "))
+        authors_list = list(map(int, authors.split(", ")))
 
-        if authors_list is not None:
-            for drupal_author_id in authors_list:
+        if len(authors_list) == 0:
+            # Create an ArchiveArticleAuthor instance for each author
+            return
+
+        for drupal_author_id in authors_list:
+            try:
                 contact = get_existing_magazine_author_from_db(
                     drupal_author_id,
                 )
+            except (
+                CouldNotFindMatchingContactError,
+                DuplicateContactError,
+            ):
+                continue
 
-                if contact is not None:
+            article_author_exists = ArchiveArticleAuthor.objects.filter(
+                article=archive_article,
+                author=contact,
+            ).exists()
 
-                    article_author_exists = ArchiveArticleAuthor.objects.filter(
-                        article=archive_article,
-                        author=contact,
-                    ).exists()
+            if not article_author_exists:
+                article_author = ArchiveArticleAuthor(
+                    article=archive_article,
+                    author=contact,
+                )
 
-                    if not article_author_exists:
-                        article_author = ArchiveArticleAuthor(
-                            article=archive_article,
-                            author=contact,
-                        )
-
-                        article_author.save()
+                article_author.save()
 
 
 class Command(BaseCommand):
@@ -78,7 +93,6 @@ class Command(BaseCommand):
                 logger.error(error_message)
 
             for index, article_data in issue_articles.iterrows():
-
                 # Create archive article instance with initial fields
                 pdf_page_number = None
 
@@ -116,4 +130,9 @@ class Command(BaseCommand):
 
                 archive_article.save()
 
-                create_archive_article_authors(archive_article, article_data["authors"])
+                # Create an ArchiveArticleAuthor instance for each author
+                if article_data["authors"] is not np.nan:
+                    create_archive_article_authors(
+                        archive_article,
+                        article_data["authors"],
+                    )
