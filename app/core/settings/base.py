@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import logging
 import os
 import sys
 
@@ -21,6 +22,9 @@ from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
 load_dotenv()
+
+if len(sys.argv) > 1 and sys.argv[1] == "test":
+    logging.disable(logging.CRITICAL)
 
 default_allowed_hosts = "127.0.0.1,localhost,westernfriend.eu.ngrok.io"
 
