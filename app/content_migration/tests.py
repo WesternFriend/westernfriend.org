@@ -24,6 +24,7 @@ from content_migration.management.commands.shared import (
     fetch_file_bytes,
     get_existing_magazine_author_from_db,
     parse_body_blocks,
+    parse_media_blocks,
     remove_pullquote_tags,
     create_media_embed_block,
     extract_pullquotes,
@@ -386,6 +387,19 @@ class GetExistingContactFromDbTestCase(TestCase):
         self.home_page.delete()
 
         self.root_page.delete()
+
+
+class ParseMediaBlocksTestCase(TestCase):
+    def test_parse_media_blocks_with_youtube_url(self) -> None:
+        input_media_urls = ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
+        output_media_blocks = parse_media_blocks(input_media_urls)
+        output_media_block_type = output_media_blocks[0][0]
+        expected_media_block_type = "embed"
+
+        self.assertEqual(
+            output_media_block_type,
+            expected_media_block_type,
+        )
 
 
 # TODO: add command tests
