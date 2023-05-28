@@ -150,6 +150,31 @@ class ParseBodyBlocksTestCase(TestCase):
             expected_blocks,
         )
 
+    def test_parse_body_blocks_with_multiple_paragraphs_and_a_pullquote(self) -> None:
+        self.MaxDiff = None
+        input_html = """<p>One paragraph.</p><p>Another paragraph.</p><p>[pullquote]A pullquote[/pullquote] inside of a paragraph</p>"""  # noqa: E501
+
+        output_blocks = parse_body_blocks(input_html)
+        expected_blocks = [
+            (
+                "rich_text",
+                """<p>One paragraph.</p><p>Another paragraph.</p>""",  # noqa: E501
+            ),
+            (
+                "pullquote",
+                "A pullquote",
+            ),
+            (
+                "rich_text",
+                """<p>A pullquote inside of a paragraph</p>""",
+            ),
+        ]
+
+        self.assertEqual(
+            output_blocks,
+            expected_blocks,
+        )
+
     def test_parse_body_blocks_witn_none_as_input(self) -> None:
         input_html = ""
 
