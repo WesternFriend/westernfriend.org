@@ -67,7 +67,7 @@ def remove_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
         ("[/pullquote]", ""),
     ]
 
-    if item:
+    if item and item.string:
         for replacement_value in replacement_values:
             item.string = item.string.replace(*replacement_value)
 
@@ -278,12 +278,13 @@ def parse_body_blocks(body: str) -> list:
         if not isinstance(item, BS4_Tag):
             continue
 
+        item_string = str(item)
         # skip empty items
-        if item.string == "":
+        if item_string == "":
             continue
 
-        item_contains_pullquote = "pullquote" in str(item)
-        item_contains_image = "img" in str(item)
+        item_contains_pullquote = "pullquote" in item_string
+        item_contains_image = "img" in item_string
 
         if item_contains_pullquote or item_contains_image:
             # store the accumulated rich text value
@@ -301,7 +302,7 @@ def parse_body_blocks(body: str) -> list:
                 rich_text_value = ""
 
             if item_contains_pullquote:
-                pullquote_blocks = generate_pullquote_blocks(str(item))
+                pullquote_blocks = generate_pullquote_blocks(item_string)
 
                 # Add Pullquote block(s) to body streamfield
                 # so they appear above the related rich text field
