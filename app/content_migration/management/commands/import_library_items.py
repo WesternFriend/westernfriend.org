@@ -1,7 +1,12 @@
+import logging
 import numpy as np
 import pandas as pd
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
+from content_migration.management.commands.errors import (
+    CouldNotFindMatchingContactError,
+    DuplicateContactError,
+)
 
 from facets.models import (  # TODO: make sure to add library item topics
     Audience,
@@ -19,6 +24,13 @@ from .shared import (
     get_existing_magazine_author_from_db,
 )
 
+logging.basicConfig(
+    filename="import_library_items.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger(__name__)
+
 
 def add_library_item_authors(
     library_item,
@@ -29,7 +41,20 @@ def add_library_item_authors(
     ]
 
     for drupal_author_id in drupal_author_ids_int:
-        author = get_existing_magazine_author_from_db(drupal_author_id)
+        try:
+            author = get_existing_magazine_author_from_db(
+                drupal_author_id,
+            )
+        except CouldNotFindMatchingContactError:
+            logger.error(
+                f"Could not find magazine author by ID: { int(drupal_author_id) }"
+            )
+            continue
+        except DuplicateContactError:
+            logger.error(
+                f"Found multiple magazine authors by ID: { int(drupal_author_id) }"
+            )
+            continue
 
         if author:
             library_item_author_exists = LibraryItemAuthor.objects.filter(
