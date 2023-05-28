@@ -1,5 +1,5 @@
 from django.test import TestCase, SimpleTestCase
-from wagtail.models import Page
+from wagtail.models import Page, Site
 
 from bs4 import BeautifulSoup
 import requests
@@ -197,7 +197,17 @@ class CreateImageBlockTestCase(TestCase):
 
 class GetExistingContactFromDbTestCase(TestCase):
     def setUp(self) -> None:
-        self.root_page = Page(id=1).save()
+        self.site = Site.objects.get(is_default_site=True)
+
+        try:
+            self.root_page = Page.objects.get(id=1)
+        except Page.DoesNotExist:
+            self.root_page = Page(
+                id=1,
+                title="Root",
+            )
+
+        self.site.root_page = self.root_page
 
         self.home_page = HomePage(
             title="Welcome",
