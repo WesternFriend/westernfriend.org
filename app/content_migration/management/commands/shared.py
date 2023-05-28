@@ -244,6 +244,23 @@ def extract_image_urls(item: str) -> list[Image]:
     return image_urls
 
 
+def generate_pullquote_blocks(item: str) -> list[tuple[str, str]]:
+    """Generate a list of pullquote blocks from a string"""
+    pullquotes = extract_pullquotes(item)
+
+    pullquote_blocks = []
+
+    for pullquote in pullquotes:
+        pullquote_blocks.append(
+            (
+                "pullquote",
+                pullquote,
+            )
+        )
+
+    return pullquote_blocks
+
+
 def parse_body_blocks(body: str) -> list:
     article_body_blocks: list[tuple] = []
 
@@ -257,16 +274,21 @@ def parse_body_blocks(body: str) -> list:
     rich_text_value = ""
 
     for item in soup.findAll():
-        item_is_empty: bool = item.string == ""
+        # skip non-Tag items
+        if not isinstance(item, BS4_Tag):
+            continue
 
-        if item_is_empty:
+        # skip empty items
+        if item.string == "":
             continue
 
         item_contains_pullquote = "pullquote" in str(item)
         item_contains_image = "img" in str(item)
 
-        if item_contains_pullquote:
+        if item_contains_pullquote or item_contains_image:
             # store the accumulated rich text value
+            # if it is not empty
+            # and then reset the rich text value
             if rich_text_value != "":
                 article_body_blocks.append(
                     (
@@ -278,42 +300,27 @@ def parse_body_blocks(body: str) -> list:
                 # reset rich text value
                 rich_text_value = ""
 
-            # process the pullquotes
-            pullquotes = extract_pullquotes(item.string)
+            if item_contains_pullquote:
+                pullquote_blocks = generate_pullquote_blocks(str(item))
 
-            # Add Pullquote block(s) to body streamfield
-            # so they appear above the related rich text field
-            # i.e. near the paragraph containing the pullquote
-            for pullquote in pullquotes:
-                block_content = ("pullquote", pullquote)
+                # Add Pullquote block(s) to body streamfield
+                # so they appear above the related rich text field
+                # i.e. near the paragraph containing the pullquote
+                article_body_blocks.extend(pullquote_blocks)
 
-                article_body_blocks.append(block_content)
+                item = remove_pullquote_tags(item)
+            elif item_contains_image:
+                # process the images
+                image_urls = extract_image_urls(str(item))
+                images = parse_media_blocks(image_urls)
 
-            item = remove_pullquote_tags(item)
-        elif item_contains_image:
-            # store the accumulated rich text value
-            if rich_text_value != "":
-                article_body_blocks.append(
-                    (
-                        "rich_text",
-                        rich_text_value,
+                for image in images:
+                    article_body_blocks.append(
+                        (
+                            "image",
+                            image,
+                        )
                     )
-                )
-
-                # reset rich text value
-                rich_text_value = ""
-
-            # process the images
-            image_urls = extract_image_urls(str(item))
-            images = parse_media_blocks(image_urls)
-
-            for image in images:
-                article_body_blocks.append(
-                    (
-                        "image",
-                        image,
-                    )
-                )
 
         # Add the current item to the rich text value
         # to continue accumulating items
