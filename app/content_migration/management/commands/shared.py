@@ -150,9 +150,9 @@ def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
     """Fetch a file from a URL and return the file bytes"""
     try:
         response = requests.get(url)
-    except requests.exceptions.RequestException as exception:
+    except requests.exceptions.RequestException:
         logger.error(f"Could not GET: '{ url }'")
-        raise exception
+        raise
 
     return FileBytesWithMimeType(
         file_bytes=BytesIO(response.content),

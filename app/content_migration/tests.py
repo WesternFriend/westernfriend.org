@@ -401,6 +401,54 @@ class ParseMediaBlocksTestCase(TestCase):
             expected_media_block_type,
         )
 
+    def test_parse_media_blocks_with_pdf_url(self) -> None:
+        input_media_urls = [
+            "https://ia600400.us.archive.org/33/items/friendsbulletinp525unse_2/friendsbulletinp525unse_2.pdf"
+        ]
+        output_media_blocks = parse_media_blocks(input_media_urls)
+        output_media_block_type = output_media_blocks[0][0]
+        expected_media_block_type = "document"
+
+        self.assertEqual(
+            output_media_block_type,
+            expected_media_block_type,
+        )
+
+    def test_parse_media_blocks_with_image_url(self) -> None:
+        input_media_urls = [
+            "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
+        ]
+        output_media_blocks = parse_media_blocks(input_media_urls)
+        output_media_block_type = output_media_blocks[0][0]
+        expected_media_block_type = "image"
+
+        self.assertEqual(
+            output_media_block_type,
+            expected_media_block_type,
+        )
+
+    def test_parse_media_blocks_with_invalid_url(self) -> None:
+        input_media_urls = ["https://www.sadflasdoöifr.com/image.jpg"]
+
+        output_media_blocks = parse_media_blocks(input_media_urls)
+        expected_media_blocks: list = []
+
+        self.assertEqual(
+            output_media_blocks,
+            expected_media_blocks,
+        )
+
+    def test_parse_media_blocks_with_empty_string_as_input(self) -> None:
+        input_media_urls = [""]
+
+        output_media_blocks = parse_media_blocks(input_media_urls)
+        expected_media_blocks: list = []
+
+        self.assertEqual(
+            output_media_blocks,
+            expected_media_blocks,
+        )
+
 
 # TODO: add command tests
 # from django.core.management import call_command
