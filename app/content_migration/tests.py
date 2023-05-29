@@ -438,6 +438,17 @@ class ParseMediaBlocksTestCase(TestCase):
             expected_media_blocks,
         )
 
+    def test_parse_media_blocks_with_empty_string_as_input(self) -> None:
+        input_media_urls = [""]
+
+        output_media_blocks = parse_media_blocks(input_media_urls)
+        expected_media_blocks: list = []
+
+        self.assertEqual(
+            output_media_blocks,
+            expected_media_blocks,
+        )
+
 
 # TODO: add command tests
 # from django.core.management import call_command
