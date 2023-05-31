@@ -1,9 +1,12 @@
+import re
 from dataclasses import dataclass
+from io import BytesIO
 import logging
 
 from bs4 import BeautifulSoup, Tag
-
-from content_migration.management.commands.shared import extract_pullquotes
+from django.core.files.images import ImageFile
+import requests
+from wagtail.images.models import Image
 
 logger = logging.getLogger(__name__)
 
@@ -21,19 +24,73 @@ def extract_image_urls(block_content: str) -> list[str]:
     return image_srcs
 
 
-def create_image_block(block_content: str) -> str:
-    image_urls = extract_image_urls(block_content)
+def extract_pullquotes(item: str) -> list[str]:
+    """Get a list of all pullquote strings found within the item"""
 
-    if len(image_urls) == 0:
-        return ""
+    return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item)
 
-    # TODO: implement function to return Wagtial image block
-    return ""
+
+def remove_pullquote_tags(item_string: str) -> str:
+    """
+    Remove "[pullquote]" and "[/pullquote]" tags in string
+
+    https://stackoverflow.com/a/44593228/1191545
+    """
+
+    replacement_values: list = [
+        ("[pullquote]", ""),
+        ("[/pullquote]", ""),
+    ]
+
+    if item_string != "":
+        for replacement_value in replacement_values:
+            item_string = item_string.replace(*replacement_value)
+
+    return item_string
+
+
+def create_image_block(image_url: str) -> dict:
+    # download file bytes
+    # create an ImageFile object
+    # create a Wagtial image block
+    #
+    # return Wagtial image block
+
+    # download file bytes with requests
+    try:
+        response = requests.get(image_url)
+    except requests.exceptions.RequestException:
+        logger.error(f"Could not download image: { image_url }")
+        raise
+    file_bytes = BytesIO(response.content)
+
+    # create an ImageFile object
+    file_name = image_url.split("/")[-1]
+    image_file = ImageFile(
+        file_bytes,
+        name=file_name,
+    )
+
+    # create and save a Wagtial image instance
+    image = Image(
+        title=file_name,
+        file=image_file,
+    )
+    image.save()
+
+    # Create a dictionary with properties
+    # of FormattedImageChooserStructBlock
+    image_chooser_block = {
+        "image": image,
+        "width": 800,
+    }
+
+    return image_chooser_block
 
 
 class BlockFactory:
     @staticmethod
-    def create_block(generic_block: GenericBlock) -> tuple[str, str]:
+    def create_block(generic_block: GenericBlock) -> tuple[str, str | dict]:
         if generic_block.block_type == "rich_text":
             return (
                 generic_block.block_type,
@@ -72,7 +129,7 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
 
         item_string = str(item)
         # skip empty items
-        if item_string == "":
+        if item_string == "" or item_string is None:
             continue
 
         item_contains_pullquote = "pullquote" in item_string
@@ -104,15 +161,21 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                         )
                     )
 
+                item_string = remove_pullquote_tags(item_string)
+
             if item_contains_image:
-                generic_blocks.append(
-                    GenericBlock(
-                        block_type="image",
-                        block_content=item_string,
+                image_urls = extract_image_urls(item_string)
+
+                for image_url in image_urls:
+                    generic_blocks.append(
+                        GenericBlock(
+                            block_type="image",
+                            block_content=item_string,
+                        )
                     )
-                )
         else:
-            rich_text_value += item_string
+            if item_string != "":
+                rich_text_value += item_string
 
     # store the accumulated rich text value
     # if it is not empty
