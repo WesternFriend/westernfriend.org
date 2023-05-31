@@ -101,6 +101,11 @@ class BlockFactory:
                 generic_block.block_type,
                 create_image_block(generic_block.block_content),
             )
+        elif generic_block.block_type == "pullquote":
+            return (
+                generic_block.block_type,
+                generic_block.block_content,
+            )
         else:
             raise ValueError(f"Invalid block type: {generic_block.block_type}")
 
