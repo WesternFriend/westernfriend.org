@@ -85,4 +85,5 @@ jobs:
       env:
         CC_TEST_REPORTER_ID: 15a71e71a294b41066a953a4ad40a936918f4e34dc5824cc558b26174962702d
       with:
-        coverageLocations: ${{github.workspace}}/app/coverage.xml
+        coverageLocations: |
+          ${{github.workspace}}/app/coverage.xml:coverage.py
