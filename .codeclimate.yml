@@ -35,3 +35,4 @@ plugins:
 exclude_patterns:
   - "app/content_migration/"
   - "app/**/migrations/"
+  - "app/**/**/__init__.py"
