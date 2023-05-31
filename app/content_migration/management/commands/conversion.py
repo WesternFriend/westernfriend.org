@@ -116,9 +116,6 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
     # function, but instead of returning a list of tuples,
     # it should return a list of GenericBlock objects
 
-    # Placeholder for gathering successive items
-    rich_text_value = ""
-
     generic_blocks: list[GenericBlock] = []
 
     try:
@@ -127,7 +124,10 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
         logger.error(f"Could not parse body: { html_string }")
         return generic_blocks
 
-    for item in soup.findAll():
+    # Placeholder for gathering successive items
+    rich_text_value = ""
+    soup_contents = soup.contents
+    for item in soup_contents:
         # skip non-Tag items
         if not isinstance(item, Tag):
             continue
@@ -175,12 +175,17 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                     generic_blocks.append(
                         GenericBlock(
                             block_type="image",
-                            block_content=item_string,
+                            block_content=image_url,
                         )
                     )
-        else:
-            if item_string != "":
-                rich_text_value += item_string
+
+                # reset item string,
+                # since the image block has been created
+                # and we don't expect any more blocks
+                item_string = ""
+
+        if item_string != "":
+            rich_text_value += item_string
 
     # store the accumulated rich text value
     # if it is not empty

@@ -8,33 +8,6 @@ from .conversion import (
 )
 
 
-class AdaptHtmlToGenericBlocksTest(SimpleTestCase):
-    def test_adapt_html_to_generic_blocks(self) -> None:
-        html_string = """<p>Some text</p><p>Some more text</p>"""
-
-        generic_blocks = adapt_html_to_generic_blocks(html_string)
-
-        self.assertEqual(len(generic_blocks), 1)
-        self.assertEqual(generic_blocks[0].block_type, "rich_text")
-        self.assertEqual(generic_blocks[0].block_content, html_string)
-
-    def test_adapt_html_to_generic_blocks_with_image(self) -> None:
-        html_string = """<p>Some text</p><p>Some more text</p><img src="https://example.com/image.jpg">"""
-
-        generic_blocks = adapt_html_to_generic_blocks(html_string)
-
-        self.assertEqual(len(generic_blocks), 2)
-        self.assertEqual(generic_blocks[0].block_type, "rich_text")
-        self.assertEqual(
-            generic_blocks[0].block_content, """<p>Some text</p><p>Some more text</p>"""
-        )
-        self.assertEqual(generic_blocks[1].block_type, "image")
-        self.assertEqual(
-            generic_blocks[1].block_content,
-            """<img src="https://example.com/image.jpg"/>""",
-        )
-
-
 class RemovePullquoteTagsSimpleTestCase(SimpleTestCase):
     def test_remove_pullquote_tags(self) -> None:
         input_html = """<p>Some text[pullquote]with a pullquote[/pullquote]</p>"""
@@ -70,3 +43,48 @@ class ExtractPullquotesSimpleTestCase(SimpleTestCase):
 
         with self.assertRaises(TypeError):
             extract_pullquotes(input_html)  # type: ignore
+
+
+class AdaptHtmlToGenericBlockTest(SimpleTestCase):
+    def test_adapt_html_to_generic_blocks(self) -> None:
+        html_string = """<p>Some text</p><p>Some more text</p>"""
+
+        generic_blocks = adapt_html_to_generic_blocks(html_string)
+
+        self.assertEqual(len(generic_blocks), 1)
+        self.assertEqual(generic_blocks[0].block_type, "rich_text")
+        self.assertEqual(generic_blocks[0].block_content, html_string)
+
+    def test_adapt_html_to_generic_blocks_with_pullquote(self) -> None:
+        html_string = """<p>Some text</p><p>Some more text</p><p>A paragraph with [pullquote]a pullquote[/pullquote] that should be extracted</p>"""  # noqa: E501
+
+        generic_blocks = adapt_html_to_generic_blocks(html_string)
+
+        self.assertEqual(len(generic_blocks), 3)
+        self.assertEqual(generic_blocks[0].block_type, "rich_text")
+        self.assertEqual(
+            generic_blocks[0].block_content, """<p>Some text</p><p>Some more text</p>"""
+        )
+        self.assertEqual(generic_blocks[1].block_type, "pullquote")
+        self.assertEqual(generic_blocks[1].block_content, "a pullquote")
+        self.assertEqual(generic_blocks[2].block_type, "rich_text")
+        self.assertEqual(
+            generic_blocks[2].block_content,
+            "<p>A paragraph with a pullquote that should be extracted</p>",
+        )
+
+    def test_adapt_html_to_generic_blocks_with_image(self) -> None:
+        html_string = (
+            """<p>Some text</p><p><img src="https://www.example.com/image.jpg" /></p>"""
+        )
+
+        generic_blocks = adapt_html_to_generic_blocks(html_string)
+
+        self.assertEqual(len(generic_blocks), 2)
+        self.assertEqual(generic_blocks[0].block_type, "rich_text")
+        self.assertEqual(generic_blocks[0].block_content, """<p>Some text</p>""")
+        self.assertEqual(generic_blocks[1].block_type, "image")
+        self.assertEqual(
+            generic_blocks[1].block_content,
+            "https://www.example.com/image.jpg",
+        )
