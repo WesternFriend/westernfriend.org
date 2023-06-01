@@ -4,3 +4,7 @@ class CouldNotFindMatchingContactError(Exception):
 
 class DuplicateContactError(Exception):
     pass
+
+
+class BlockFactoryError(Exception):
+    pass

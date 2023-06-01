@@ -8,6 +8,10 @@ from django.core.files.images import ImageFile
 import requests
 from wagtail.images.models import Image
 
+from content_migration.management.commands.errors import (
+    BlockFactoryError,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,6 +66,10 @@ def create_image_block(image_url: str) -> dict:
     except requests.exceptions.RequestException:
         logger.error(f"Could not download image: { image_url }")
         raise
+    except (requests.exceptions.MissingSchema, requests.exceptions.InvalidSchema):
+        logger.error(f"Invalid image URL: { image_url }")
+        raise
+
     file_bytes = BytesIO(response.content)
 
     # create an ImageFile object
@@ -97,9 +105,13 @@ class BlockFactory:
                 generic_block.block_content,
             )
         elif generic_block.block_type == "image":
+            try:
+                image_block = create_image_block(generic_block.block_content)
+            except requests.exceptions.MissingSchema:
+                raise BlockFactoryError("Invalid image URL: missing schema")
             return (
                 generic_block.block_type,
-                create_image_block(generic_block.block_content),
+                image_block,
             )
         elif generic_block.block_type == "pullquote":
             return (

@@ -17,6 +17,7 @@ from wagtail.images.models import Image
 
 from contact.models import Meeting, Organization, Person
 from content_migration.management.commands.errors import (
+    BlockFactoryError,
     CouldNotFindMatchingContactError,
     DuplicateContactError,
 )
@@ -241,9 +242,12 @@ def parse_body_blocks(body: str) -> list:
     generic_blocks = adapt_html_to_generic_blocks(body)
 
     for generic_block in generic_blocks:
-        streamfield_block = BlockFactory.create_block(
-            generic_block=generic_block,
-        )
+        try:
+            streamfield_block = BlockFactory.create_block(
+                generic_block=generic_block,
+            )
+        except BlockFactoryError:
+            continue
 
         article_body_blocks.append(streamfield_block)
 

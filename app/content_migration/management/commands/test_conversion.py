@@ -1,8 +1,15 @@
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
+import requests
 from content_migration.management.commands.conversion import (
     adapt_html_to_generic_blocks,
+    create_image_block,
+    extract_image_urls,
     remove_pullquote_tags,
     extract_pullquotes,
+)
+from content_migration.management.commands.constants import (
+    WESTERN_FRIEND_LOGO_URL,
+    WESTERN_FRIEND_LOGO_FILE_NAME,
 )
 
 
@@ -86,3 +93,27 @@ class AdaptHtmlToGenericBlockTest(SimpleTestCase):
             generic_blocks[1].block_content,
             "https://www.example.com/image.jpg",
         )
+
+
+class CreateImageBlockTestCase(TestCase):
+    def test_create_image_block(self) -> None:
+        # use existing WesternFriend logo URL
+        input_html = (
+            f"""<p><img src="{ WESTERN_FRIEND_LOGO_URL }" /></p>"""  # noqa: E501
+        )
+
+        image_urls = extract_image_urls(input_html)
+
+        image_block = create_image_block(image_urls[0])
+
+        # self.assertEqual(image_block.block_type, "image")  # type: ignore
+        self.assertEqual(
+            image_block["image"].title,
+            WESTERN_FRIEND_LOGO_FILE_NAME,
+        )  # type: ignore
+
+    def test_create_image_block_with_none_as_input(self) -> None:
+        input_html = None
+
+        with self.assertRaises(requests.exceptions.MissingSchema):
+            create_image_block(input_html)  # type: ignore

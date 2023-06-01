@@ -31,9 +31,10 @@ from content_migration.management.commands.shared import (
 
 from home.models import HomePage
 
-
-WESTERN_FRIEND_LOGO = "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
-WESTERN_FRIEND_LOGO_FILE_NAME = "logo-2020-%20transparency-120px_0.png"
+from content_migration.management.commands.constants import (
+    WESTERN_FRIEND_LOGO_URL,
+    WESTERN_FRIEND_LOGO_FILE_NAME,
+)
 
 
 class CreateMediaEmbedBlockTestCase(TestCase):
@@ -142,7 +143,7 @@ class FetchFileBytesTestCase(TestCase):
     def test_fetch_file_bytes(self) -> None:
         self.MaxDiff = None
 
-        output_file_bytes = fetch_file_bytes(WESTERN_FRIEND_LOGO)
+        output_file_bytes = fetch_file_bytes(WESTERN_FRIEND_LOGO_URL)
 
         self.assertEqual(
             output_file_bytes.file_name,
@@ -179,7 +180,7 @@ class TestCreateDocumentLinkBlock(TestCase):
 
 class CreateImageBlockTestCase(TestCase):
     def test_create_image_block(self) -> None:
-        file_bytes = fetch_file_bytes(WESTERN_FRIEND_LOGO)
+        file_bytes = fetch_file_bytes(WESTERN_FRIEND_LOGO_URL)
         output_image_block = create_image_block(
             file_name=file_bytes.file_name,
             file_bytes=file_bytes.file_bytes,
