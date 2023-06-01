@@ -2,8 +2,10 @@ from django.test import SimpleTestCase, TestCase
 import requests
 from content_migration.management.commands.conversion import (
     adapt_html_to_generic_blocks,
+    BlockFactory,
     create_image_block,
     extract_image_urls,
+    GenericBlock,
     remove_pullquote_tags,
     extract_pullquotes,
 )
@@ -123,3 +125,17 @@ class CreateImageBlockTestCase(TestCase):
 
         with self.assertRaises(requests.exceptions.MissingSchema):
             create_image_block(input_html)
+
+
+class BlockFactorySimpleTestCase(SimpleTestCase):
+    # it should raise a ValueError if the block type is not supported
+    def test_block_factory_with_invalid_block_type(self) -> None:
+        generic_block = GenericBlock(
+            "invalid_block_type",
+            "some content",
+        )
+
+        with self.assertRaises(ValueError):
+            BlockFactory.create_block(
+                generic_block=generic_block,
+            )
