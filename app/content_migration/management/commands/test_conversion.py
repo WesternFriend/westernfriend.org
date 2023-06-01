@@ -117,3 +117,9 @@ class CreateImageBlockTestCase(TestCase):
 
         with self.assertRaises(requests.exceptions.MissingSchema):
             create_image_block(input_html)  # type: ignore
+
+    def test_create_image_block_with_invalid_url(self) -> None:
+        input_html = "/image.jpg"
+
+        with self.assertRaises(requests.exceptions.MissingSchema):
+            create_image_block(input_html)
