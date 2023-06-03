@@ -1,0 +1,76 @@
+[project]
+name = "Western-Friend-website"
+version = "0.1.0"
+description = "Website for Western Friend (westernfriend.org)"
+authors = [{ name = "Brylie Christopher Oxley", email = "brylie@amble.fi" }]
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+dependencies = [
+    "arrow",
+    "braintree",
+    "django-crispy-forms",
+    "django-registration",
+    "django-flatpickr",
+    "dj-database-url",
+    "pandas",
+    "psycopg2-binary",
+    "python-dotenv",
+    "tqdm",
+    "django-timezone-field",
+    "tzdata",
+    "wagtail-color-panel",
+    "django-storages",
+    "boto3",
+    "wagtailmedia",
+    "wagtail",
+    "django-extensions",
+    "django-stubs",
+    "django",
+]
+
+
+[project.optional-dependencies]
+dev = [
+    "django-browser-reload",
+    "pre-commit",
+    "django-debug-toolbar",
+    "coverage",
+    "pre-commit",
+    "black",
+    "pandas-stubs",
+    "types-requests",
+    "types-beautifulsoup4",
+    "coverage",
+]
+
+[tool.black]
+target-version = ['py311']
+
+[tool.django-stubs]
+django_settings_module = "core.settings.base"
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
+[[tool.mypy.overrides]]
+module = "wagtail.*"
+ignore_missing_imports = true
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "**/migrations"
+]
+
+# Assume Python 3.11
+target-version = "py311"
