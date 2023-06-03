@@ -1,7 +1,5 @@
 [run]
-omit =
-    # exclude migrations
-    */migrations/*
+omit = */migrations/*, *tests*, *test*
 
 source =
     content_migration/management/commands/*
