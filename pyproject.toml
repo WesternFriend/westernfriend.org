@@ -133,6 +133,9 @@ dependencies = [
     "django-extensions",
     "django-stubs",
     "django",
+    # TODO: move this to dev dependencies
+    # and load it conditionally in development environments only
+    "django-debug-toolbar",
 ]
 
 [project.urls]
