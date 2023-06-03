@@ -63,11 +63,14 @@ def create_image_block(image_url: str) -> dict:
     # download file bytes with requests
     try:
         response = requests.get(image_url)
+    except requests.exceptions.MissingSchema:
+        logger.error(f"Invalid image URL, missing schema: { image_url }")
+        raise
+    except requests.exceptions.InvalidSchema:
+        logger.error(f"Invalid image URL, invalid schema: { image_url }")
+        raise
     except requests.exceptions.RequestException:
         logger.error(f"Could not download image: { image_url }")
-        raise
-    except (requests.exceptions.MissingSchema, requests.exceptions.InvalidSchema):
-        logger.error(f"Invalid image URL: { image_url }")
         raise
 
     file_bytes = BytesIO(response.content)
@@ -109,6 +112,8 @@ class BlockFactory:
                 image_block = create_image_block(generic_block.block_content)
             except requests.exceptions.MissingSchema:
                 raise BlockFactoryError("Invalid image URL: missing schema")
+            except requests.exceptions.InvalidSchema:
+                raise BlockFactoryError("Invalid image URL: invalid schema")
             return (
                 generic_block.block_type,
                 image_block,
