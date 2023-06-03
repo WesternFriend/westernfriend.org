@@ -1,4 +1,4 @@
-name: CodeCov
+name: Tests and Coverage
 on:
   push:
     branches:
@@ -62,12 +62,6 @@ jobs:
         python -m venv .venv
         source .venv/bin/activate
         pip install -r requirements.txt -r requirements-dev.txt
-    #----------------------------------------------
-    # activate the virtual environment
-    #----------------------------------------------
-    - name: Activate virtual environment
-      run: |
-        source .venv/bin/activate
     #----------------------------------------------
     # Run tests, generate and upload code coverage report
     #----------------------------------------------
