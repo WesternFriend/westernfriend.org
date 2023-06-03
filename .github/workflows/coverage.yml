@@ -87,8 +87,9 @@ jobs:
         coverageLocations: |
           ${{github.workspace}}/coverage.xml:coverage.py
     - name: Upload to DeepSource
-      uses: deepsourcelabs/test-coverage-action@master
-      with:
-        key: python
-        coverage-file: coverage.xml
-        dsn: ${{ secrets.DEEPSOURCE_DSN }}
+      run: |
+        # Install the CLI
+        curl https://deepsource.io/cli | sh
+
+        # Send the report to DeepSource
+        ./bin/deepsource report --analyzer test-coverage --key python --value-file coverage.xml
