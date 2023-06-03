@@ -21,3 +21,7 @@ enabled = true
 exclude_patterns = [
   "**/migrations/*"
 ]
+
+[[analyzers]]
+name = "test-coverage"
+enabled = true
