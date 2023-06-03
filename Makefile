@@ -12,10 +12,14 @@ update-deps: .venv/bin/python
 	python -m piptools compile --extra dev --upgrade --resolver backtracking -o requirements-dev.txt pyproject.toml
 	python -m pip check
 
+compile-deps: .venv/bin/python
+	python -m piptools compile --resolver backtracking -o requirements.txt pyproject.toml
+	python -m piptools compile --extra dev --resolver backtracking -o requirements-dev.txt pyproject.toml
+
 init: .venv/.install.stamp
 	pre-commit install
 
 test: .venv/.install.stamp
 	.venv/bin/python app/manage.py test app
 
-.PHONY: update-deps init test
+.PHONY: update-deps compile-deps init test
