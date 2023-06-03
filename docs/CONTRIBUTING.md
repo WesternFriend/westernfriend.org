@@ -16,21 +16,26 @@ The following sections will guide you through a minimal development setup.
 
 ### Prerequisites
 
-This project is built with [Python](https://www.python.org/), [Django](https://www.djangoproject.com/), and [Wagtail CMS](https://wagtail.io/). We now use [Poetry](https://python-poetry.org/) for dependency / virtual environment management.
+This project is built with [Python](https://www.python.org/), [Django](https://www.djangoproject.com/), and [Wagtail CMS](https://wagtail.io/).
+
+Please make sure you have at least Python 3.10 installed. If you are developing on Windows, make sure to use PowerShell.
 
 ### Install
 
-After [installing Poetry](https://python-poetry.org/docs/#installation), you can set up a development environment with the following steps:
+You can set up a development environment with the following steps:
 
 1. clone this repository
    - `git clone git@github.com:WesternFriend/WF-website.git`
 2. Change into the application directory
-   - `cd WF-website/app/`
-3. activate a Poetry virtual environment
-   - `poetry shell`
-4. install the project dependencies
-   - `poetry install`
-5. activate `pre-commit` for automatic code maintenance
+   - `cd WF-website/`
+3. create a virtual environment
+   - `python -m venv .venv`
+4. activate the virtual environment
+  - Mac/Linux: `source .venv/bin/activate`
+  - Windows PowerShell: `.venv\Scripts\Activate.ps1`
+5. install the project dependencies
+   - `pip install .`
+6. activate `pre-commit` for automatic code maintenance
    - `pre-commit install`
 
 ### Running the background services
