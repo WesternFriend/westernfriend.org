@@ -80,6 +80,8 @@ et-xmlfile==1.1.0
     # via openpyxl
 filetype==1.2.0
     # via willow
+gunicorn==20.1.0
+    # via Western-Friend-website (pyproject.toml)
 html5lib==1.1
     # via wagtail
 idna==3.4
@@ -163,3 +165,6 @@ webencodings==0.5.1
     # via html5lib
 willow==1.5
     # via wagtail
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
