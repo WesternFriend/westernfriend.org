@@ -147,7 +147,6 @@ Repository = "https://github.com/WesternFriend/WF-website"
 dev = [
     "django-browser-reload",
     "pre-commit",
-    "django-debug-toolbar",
     "coverage",
     "pre-commit",
     "black",
@@ -156,6 +155,7 @@ dev = [
     "types-beautifulsoup4",
     "coverage",
     "validate-pyproject",
+    "pip-tools",
 ]
 
 [tool.black]
