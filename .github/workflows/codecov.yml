@@ -76,14 +76,21 @@ jobs:
         source .venv/bin/activate
         coverage run manage.py test
         coverage xml
-    - name: Codecov action
+    - name: Codecov
       uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: .coverage.xml
-    - uses: paambaati/codeclimate-action@v4.0.0
+    - name: Code Climate
+      uses: paambaati/codeclimate-action@v4.0.0
       env:
         CC_TEST_REPORTER_ID: 15a71e71a294b41066a953a4ad40a936918f4e34dc5824cc558b26174962702d
       with:
         coverageLocations: |
           ${{github.workspace}}/coverage.xml:coverage.py
+    - name: DeepSource
+      uses: deepsourcelabs/test-coverage-action@master
+      with:
+        key: python
+        coverage-file: coverage.xml
+        dsn: ${{ secrets.DEEPSOURCE_DSN }}
