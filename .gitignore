@@ -112,3 +112,6 @@ wf_website/env
 .vscode/
 media/
 .data
+
+# Mac stuff
+*.DS_Store
