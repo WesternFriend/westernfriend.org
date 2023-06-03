@@ -35,6 +35,7 @@ django==4.2.1
     #   Western-Friend-website (pyproject.toml)
     #   dj-database-url
     #   django-crispy-forms
+    #   django-debug-toolbar
     #   django-extensions
     #   django-filter
     #   django-flatpickr
@@ -42,14 +43,14 @@ django==4.2.1
     #   django-permissionedforms
     #   django-registration
     #   django-storages
-    #   django-stubs
-    #   django-stubs-ext
     #   django-taggit
     #   django-treebeard
     #   djangorestframework
     #   wagtail
     #   wagtailmedia
 django-crispy-forms==2.0
+    # via Western-Friend-website (pyproject.toml)
+django-debug-toolbar==4.1.0
     # via Western-Friend-website (pyproject.toml)
 django-extensions==3.2.1
     # via Western-Friend-website (pyproject.toml)
@@ -65,10 +66,6 @@ django-registration==3.3
     # via Western-Friend-website (pyproject.toml)
 django-storages==1.13.2
     # via Western-Friend-website (pyproject.toml)
-django-stubs==4.2.1
-    # via Western-Friend-website (pyproject.toml)
-django-stubs-ext==4.2.1
-    # via django-stubs
 django-taggit==3.1.0
     # via wagtail
 django-timezone-field==5.0
@@ -93,10 +90,6 @@ jmespath==1.0.1
     #   botocore
 l18n==2021.3
     # via wagtail
-mypy==1.3.0
-    # via django-stubs
-mypy-extensions==1.0.0
-    # via mypy
 numpy==1.24.3
     # via pandas
 openpyxl==3.1.2
@@ -137,22 +130,17 @@ six==1.16.0
 soupsieve==2.4.1
     # via beautifulsoup4
 sqlparse==0.4.4
-    # via django
+    # via
+    #   django
+    #   django-debug-toolbar
 telepath==0.3
     # via wagtail
 tqdm==4.65.0
     # via Western-Friend-website (pyproject.toml)
-types-pytz==2023.3.0.0
-    # via django-stubs
-types-pyyaml==6.0.12.10
-    # via django-stubs
 typing-extensions==4.6.3
     # via
     #   dj-database-url
     #   django-flatpickr
-    #   django-stubs
-    #   django-stubs-ext
-    #   mypy
     #   pydantic
 tzdata==2023.3
     # via

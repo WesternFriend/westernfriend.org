@@ -85,7 +85,7 @@ django-registration==3.3
     # via Western-Friend-website (pyproject.toml)
 django-storages==1.13.2
     # via Western-Friend-website (pyproject.toml)
-django-stubs==4.2.1
+django-stubs[compatible-mypy]==4.2.1
     # via Western-Friend-website (pyproject.toml)
 django-stubs-ext==4.2.1
     # via django-stubs
