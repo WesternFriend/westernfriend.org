@@ -34,7 +34,7 @@ You can set up a development environment with the following steps:
   - Mac/Linux: `source .venv/bin/activate`
   - Windows PowerShell: `.venv\Scripts\Activate.ps1`
 5. install the project dependencies
-   - `pip install dev-requirements.txt`
+   - `pip install -r requirements.txt -r requirements-dev.txt`
 6. activate `pre-commit` for automatic code maintenance
    - `pre-commit install`
 
@@ -97,18 +97,18 @@ colima start
 
 ## Dependency management
 
-Generating main requirements.txt
+### Generating requirements files
 
+```sh
+make compile-deps
 ```
-pip frez
+
+### Updating
+
+```sh
+make update-deps
 ```
 
-Installing development
+### Adding and removing packages
 
-
-
-Updating
-
-Freezing
-
-Uninstalling
+To add or remove dependencies, simply add them to the `dependencies` list in `pyproject.toml`.
