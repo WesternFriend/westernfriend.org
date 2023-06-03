@@ -34,7 +34,7 @@ You can set up a development environment with the following steps:
   - Mac/Linux: `source .venv/bin/activate`
   - Windows PowerShell: `.venv\Scripts\Activate.ps1`
 5. install the project dependencies
-   - `pip install .`
+   - `pip install dev-requirements.txt`
 6. activate `pre-commit` for automatic code maintenance
    - `pre-commit install`
 
@@ -94,3 +94,21 @@ If you would like to use an alternative to Docker/Docker UI, try running [Colima
 ```sh
 colima start
 ```
+
+## Dependency management
+
+Generating main requirements.txt
+
+```
+pip frez
+```
+
+Installing development
+
+
+
+Updating
+
+Freezing
+
+Uninstalling
