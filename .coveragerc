@@ -1,5 +1,2 @@
 [run]
 omit = */migrations/*, *tests*, *test*
-
-source =
-    content_migration/management/commands/*
