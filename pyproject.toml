@@ -1,7 +1,7 @@
 [project]
 name = "Western-Friend-website"
 version = "0.1.0"
-description = "Website for Western Friend (westernfriend.org)"
+description = "A website for Western Friend (westernfriend.org), a Quaker publication that provides resources and support for Quaker communities and individuals seeking to live out their faith in the world."
 readme = "README.md"
 keywords = [
     "django",

@@ -6,7 +6,8 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-Prototype website for [Western Friend](https://westernfriend.org), part of the Religious Society of Friends.
+A website for [Western Friend](https://westernfriend.org), a Quaker publication that provides resources and support for Quaker communities and individuals seeking to live out their faith in the world. Western Friend is part of the Religious Society of Friends.
+
 
 ## Attribution
 
