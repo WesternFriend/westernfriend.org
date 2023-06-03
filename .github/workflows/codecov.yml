@@ -40,6 +40,7 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
     - name: Set up Python
+      id: setup-python
       uses: actions/setup-python@master
       with:
         python-version: 3.11
@@ -47,11 +48,11 @@ jobs:
     #       load cached venv if cache exists
     #----------------------------------------------
     - name: Load cached venv
-      id: cached--dependencies
+      id: cached-dependencies
       uses: actions/cache@v3
       with:
         path: .venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/requirements.txt') }}
+        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/requirements*.txt') }}
     #----------------------------------------------
     # install dependencies if cache does not exist
     #----------------------------------------------
@@ -73,6 +74,7 @@ jobs:
     - name: Generate Report
       working-directory: ./app
       run: |
+        source ../.venv/bin/activate
         coverage run manage.py test
         coverage xml
     - name: Codecov action
