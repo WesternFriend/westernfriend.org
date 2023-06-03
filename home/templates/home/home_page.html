@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-homepage{% endblock %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    {{ page.intro|richtext }}
+
+    <div class="row mt-1">
+        <div class="col">
+            {% if current_issue.featured_articles.count %}
+                <h2>Featured articles</h2>
+                {% for article in current_issue.featured_articles.all %}
+                    {% include "home/home_magazine_article_summary.html" with article=article %}
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="col-sm-4 col-lg-5 col-xl-5 mt-2">
+            {% if current_issue %}
+                <a href="{% pageurl current_issue %}" class="home-page-featured-issue">
+                    {% image current_issue.cover_image max-800x600 %}
+                    <br />
+                    {{ current_issue.title }}
+
+                    {% if current_issue.publication_date %}
+
+                        ({{ current_issue.publication_date | date:"M" }}/{{ current_issue.publication_end_date | date:"M Y" }})
+                    {% endif %}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% if featured_events.count %}
+                <h2>
+                    Featured events
+                </h2>
+
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2 g-lg-2">
+                    {% for event in featured_events.all %}
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <a href="{% pageurl event.event %}"
+                                       class="card-title fs-3 fw-bold title-link-no-underline">
+                                        {{ event.event.title }}
+                                    </a>
+
+                                    <p class="card-subtitle mt-1 mb-1">{{ event.event.start_date | date:"F d, Y, f A" }} ({{ event.event.timezone }})</p>
+
+                                    <div class="card-text">
+                                        {{ event.event.teaser }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

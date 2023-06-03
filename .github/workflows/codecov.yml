@@ -40,50 +40,50 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
     - name: Set up Python
+      id: setup-python
       uses: actions/setup-python@master
       with:
         python-version: 3.11
     #----------------------------------------------
-    #  -----  install & configure poetry  -----
-    #----------------------------------------------
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-    #----------------------------------------------
     #       load cached venv if cache exists
     #----------------------------------------------
     - name: Load cached venv
-      id: cached-poetry-dependencies
+      id: cached-dependencies
       uses: actions/cache@v3
       with:
-        path: ./app/.venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+        path: .venv
+        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/requirements*.txt') }}
     #----------------------------------------------
     # install dependencies if cache does not exist
     #----------------------------------------------
     - name: Install dependencies
-      working-directory: ./app
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
+      if: steps.cached-dependencies.outputs.cache-hit != 'true'
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install -r requirements.txt -r requirements-dev.txt
+    #----------------------------------------------
+    # activate the virtual environment
+    #----------------------------------------------
+    - name: Activate virtual environment
+      run: |
+        source .venv/bin/activate
     #----------------------------------------------
     # Run tests, generate and upload code coverage report
     #----------------------------------------------
     - name: Generate Report
-      working-directory: ./app
       run: |
-        poetry run coverage run manage.py test
-        poetry run coverage xml
+        source .venv/bin/activate
+        coverage run manage.py test
+        coverage xml
     - name: Codecov action
       uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./app/coverage.xml
+        files: .coverage.xml
     - uses: paambaati/codeclimate-action@v4.0.0
       env:
         CC_TEST_REPORTER_ID: 15a71e71a294b41066a953a4ad40a936918f4e34dc5824cc558b26174962702d
       with:
         coverageLocations: |
-          ${{github.workspace}}/app/coverage.xml:coverage.py
+          ${{github.workspace}}/coverage.xml:coverage.py

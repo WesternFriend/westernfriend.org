@@ -41,7 +41,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - Source directory: app/
    - Auto deploy: true
 2. Under Resources
-   - keep the Dockerfile Web Service
+   - keep the Dockerfile Web Service (TODO: remove this item, since we are switching away from the Dockerfile)
    - delete the Python Web Service
 3. Edit the plan
    - select Basic during staging
@@ -68,12 +68,6 @@ Set up the site by following the steps below. The order of steps matters. So, be
       2. Set the Region to San Francisco, so it is closer to most WesternFriend community
 7. configure a domain (or subdomain) to point to the deployed app
 
-Note: if you get a "deployment failed" error where the build process could not find the Dockerfile, click on settings and then edit the App Spec. Make sure the Dockerfile path looks like the following.
-
-```yaml
-services:
-- dockerfile_path: app/Dockerfile
-```
 
 ### Example Configuration
 
@@ -82,7 +76,7 @@ Below is an example configuration for our staging setup.
 ```yaml
 App
 - wf-website-staging
-   - wf-website: Web Service / Dockerfile
+   - wf-website: Web Service
    - db: Dev Database
 
 Environment Variables
