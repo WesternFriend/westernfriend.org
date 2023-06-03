@@ -1,6 +1,6 @@
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
-from flatpickr import DatePickerInput
+from django_flatpickr.widgets import DatePickerInput
 from wagtail.admin.panels import FieldPanel, PageChooserPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page

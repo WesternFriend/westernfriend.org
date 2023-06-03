@@ -1,6 +1,6 @@
 from django.core.paginator import EmptyPage, Paginator
 from django.db import models
-from flatpickr import DatePickerInput
+from django_flatpickr.widgets import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase

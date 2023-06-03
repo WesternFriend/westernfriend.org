@@ -4,7 +4,7 @@ from datetime import timedelta
 import arrow
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
-from flatpickr import DatePickerInput
+from django_flatpickr.widgets import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel

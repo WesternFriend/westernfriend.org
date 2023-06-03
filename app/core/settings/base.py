@@ -113,7 +113,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "crispy_forms",
     "debug_toolbar",
-    "flatpickr",
+    "django_flatpickr",
     "modelcluster",
     "storages",
     "taggit",

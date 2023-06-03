@@ -6,7 +6,7 @@ from django.db import models
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from flatpickr import DatePickerInput
+from django_flatpickr.widgets import DatePickerInput
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
