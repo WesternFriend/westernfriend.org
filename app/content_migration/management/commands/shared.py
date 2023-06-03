@@ -3,11 +3,9 @@ import html
 from io import BytesIO
 from itertools import chain
 import logging
-import re
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
-from bs4 import Tag as BS4_Tag
 import requests
 from django.core.files import File
 from django.core.files.images import ImageFile
@@ -19,8 +17,13 @@ from wagtail.images.models import Image
 
 from contact.models import Meeting, Organization, Person
 from content_migration.management.commands.errors import (
+    BlockFactoryError,
     CouldNotFindMatchingContactError,
     DuplicateContactError,
+)
+from content_migration.management.commands.conversion import (
+    adapt_html_to_generic_blocks,
+    BlockFactory,
 )
 
 MEDIA_EMBED_DOMAINS = [
@@ -58,33 +61,9 @@ class FileBytesWithMimeType:
 logger = logging.getLogger(__name__)
 
 
-def extract_pullquotes(item: str) -> list[str]:
-    """Get a list of all pullquote strings found within the item"""
-
-    return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item)
-
-
-def remove_pullquote_tags(item: BS4_Tag) -> BS4_Tag:
-    """
-    Remove "[pullquote]" and "[/pullquote]" tags in string
-
-    https://stackoverflow.com/a/44593228/1191545
-    """
-
-    replacement_values: list = [
-        ("[pullquote]", ""),
-        ("[/pullquote]", ""),
-    ]
-
-    if item and item.string:
-        for replacement_value in replacement_values:
-            item.string = item.string.replace(*replacement_value)
-
-    return item
-
-
 def create_document_link_block(
-    file_name: str, file_bytes: BytesIO
+    file_name: str,
+    file_bytes: BytesIO,
 ) -> tuple[str, Document]:
     """Create a document link block from a file name and bytes
 
@@ -119,7 +98,11 @@ def create_media_embed_block(url: str) -> tuple[str, Embed]:
     return embed_block
 
 
-def create_image_block(file_name: str, file_bytes: BytesIO) -> tuple[str, Image]:
+# TODO: remove this function,
+def create_image_block(
+    file_name: str,
+    file_bytes: BytesIO,
+) -> tuple[str, Image]:
     # create image
     image_file: ImageFile = ImageFile(
         file_bytes,
@@ -253,92 +236,19 @@ def extract_image_urls(item: str) -> list[Image]:
     return image_urls
 
 
-def generate_pullquote_blocks(item: str) -> list[tuple[str, str]]:
-    """Generate a list of pullquote blocks from a string"""
-    pullquotes = extract_pullquotes(item)
-
-    pullquote_blocks = []
-
-    for pullquote in pullquotes:
-        pullquote_blocks.append(
-            (
-                "pullquote",
-                pullquote,
-            )
-        )
-
-    return pullquote_blocks
-
-
 def parse_body_blocks(body: str) -> list:
     article_body_blocks: list[tuple] = []
 
-    try:
-        soup = BeautifulSoup(body, "html.parser")
-    except TypeError:
-        logger.error(f"Could not parse body: { body }")
-        return article_body_blocks
+    generic_blocks = adapt_html_to_generic_blocks(body)
 
-    # Placeholder for gathering successive items
-    rich_text_value = ""
-
-    for item in soup.findAll():
-        # skip non-Tag items
-        if not isinstance(item, BS4_Tag):
+    for generic_block in generic_blocks:
+        try:
+            streamfield_block = BlockFactory.create_block(
+                generic_block=generic_block,
+            )
+        except BlockFactoryError:
             continue
 
-        item_string = str(item)
-        # skip empty items
-        if item_string == "":
-            continue
-
-        item_contains_pullquote = "pullquote" in item_string
-        item_contains_image = "img" in item_string
-
-        if item_contains_pullquote or item_contains_image:
-            # store the accumulated rich text value
-            # if it is not empty
-            # and then reset the rich text value
-            if rich_text_value != "":
-                article_body_blocks.append(
-                    (
-                        "rich_text",
-                        rich_text_value,
-                    )
-                )
-
-                # reset rich text value
-                rich_text_value = ""
-
-            if item_contains_pullquote:
-                pullquote_blocks = generate_pullquote_blocks(item_string)
-
-                # Add Pullquote block(s) to body streamfield
-                # so they appear above the related rich text field
-                # i.e. near the paragraph containing the pullquote
-                article_body_blocks.extend(pullquote_blocks)
-
-                item = remove_pullquote_tags(item)
-            elif item_contains_image:
-                # process the images
-                image_urls = extract_image_urls(str(item))
-                images = parse_media_blocks(image_urls)
-
-                for image in images:
-                    article_body_blocks.append(
-                        (
-                            "image",
-                            image,
-                        )
-                    )
-
-        # Add the current item to the rich text value
-        # to continue accumulating items
-        rich_text_value += str(item)
-
-    if rich_text_value != "":
-        article_body_blocks.append(
-            ("rich_text", rich_text_value),
-        )
+        article_body_blocks.append(streamfield_block)
 
     return article_body_blocks
