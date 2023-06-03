@@ -77,7 +77,6 @@ class Command(BaseCommand):
                 print(
                     f"Could not find meeting with CiviCRM ID { contact_ids['meeting_id'] }"  # noqa: E501
                 )
-                pass
 
             # try:
             #     clerk = Person.objects.get(civicrm_id=contact_ids["clerk_id"])
