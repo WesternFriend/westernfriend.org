@@ -13,7 +13,6 @@ import documents.blocks
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("wf_pages", "0013_alter_wfpage_body"),
     ]

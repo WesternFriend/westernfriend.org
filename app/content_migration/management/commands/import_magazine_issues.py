@@ -26,7 +26,6 @@ class Command(BaseCommand):
         issues_list = pd.read_csv(options["file"]).to_dict("records")
 
         for issue in tqdm(issues_list, desc="Issues", unit="row"):
-
             issue_exists = MagazineIssue.objects.filter(
                 title=issue["title"],
             ).exists()

@@ -65,7 +65,6 @@ class Command(BaseCommand):
         relationships = pd.read_csv(options["file"]).to_dict("records")
 
         for relationship in relationships:
-
             contact_ids = extract_contact_ids_from(relationship)
 
             Meeting.objects.filter(

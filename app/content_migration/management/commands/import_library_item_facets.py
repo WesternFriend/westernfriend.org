@@ -51,7 +51,6 @@ class Command(BaseCommand):
         parser.add_argument("--folder", action="store", type=str)
 
     def handle(self, *args, **options):
-
         for facet in tqdm(facets, desc="Library item facets", unit="taxonomy"):
             # Get the only index page instance for this facet
             facet_index_page = facet["index_page"].objects.get()

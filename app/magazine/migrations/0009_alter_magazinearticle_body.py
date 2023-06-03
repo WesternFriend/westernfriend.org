@@ -14,7 +14,6 @@ import blocks.blocks
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("magazine", "0008_alter_magazinearticle_body"),
     ]

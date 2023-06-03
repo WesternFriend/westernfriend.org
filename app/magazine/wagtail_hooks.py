@@ -24,7 +24,6 @@ class MagazineIssueAdminURLHelper(PageAdminURLHelper):
 
 
 class MagazineIssueButtonHelperClass(PageButtonHelper):
-
     add_child_button_classnames = ["add-child"]
 
     def add_child_button(self, pk, classnames_add=[], classnames_exclude=[]):

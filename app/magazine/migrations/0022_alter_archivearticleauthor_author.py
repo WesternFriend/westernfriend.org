@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("wagtailcore", "0083_workflowcontenttype"),
         ("magazine", "0021_alter_archivearticleauthor_article"),

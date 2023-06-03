@@ -47,7 +47,7 @@
 
                     <li class="page-item">
                         <a href="?archive-issues-page={{ archive_issues.previous_page_number }}#archive-issues"
-                            class="page-link">
+                           class="page-link">
                             previous
                         </a>
                     </li>
@@ -69,14 +69,14 @@
                 {% if archive_issues.has_next %}
                     <li class="page-item">
                         <a href="?archive-issues-page={{ archive_issues.next_page_number }}#archive-issues"
-                            class="page-link">
+                           class="page-link">
                             next
                         </a>
                     </li>
 
                     <li class="page-item">
                         <a href="?archive-issues-page={{ archive_issues.paginator.num_pages }}#archive-issues"
-                            class="page-link">
+                           class="page-link">
                             last &raquo;
                         </a>
                     </li>
@@ -101,7 +101,7 @@
                 <div class="card">
                     <a href=" {% pageurl page.deep_archive_page %}">
                         <img class="card-img-top"
-                            src="https://archive.org/services/img/{{ page.featured_deep_archive_issue.internet_archive_identifier }}">
+                             src="https://archive.org/services/img/{{ page.featured_deep_archive_issue.internet_archive_identifier }}">
                     </a>
                 </div>
             </div>

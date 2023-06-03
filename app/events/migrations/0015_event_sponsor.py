@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("wagtailcore", "0083_workflowcontenttype"),
         ("events", "0014_alter_event_body"),

@@ -7,7 +7,6 @@ import modelcluster.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("taggit", "0005_auto_20220424_2025"),
         ("news", "0018_alter_newsitem_news_topic_alter_newsitem_news_type_and_more"),

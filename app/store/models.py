@@ -31,7 +31,6 @@ class StoreIndexPage(Page):
 
 
 class ProductIndexPage(Page):
-
     max_count = 1
     parent_page_types = [
         "store.StoreIndexPage",

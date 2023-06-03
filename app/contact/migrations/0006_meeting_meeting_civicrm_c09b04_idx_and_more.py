@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("contact", "0005_meeting_meeting_drupal__cf6e0d_idx_and_more"),
     ]

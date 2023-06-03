@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("contact", "0006_meeting_meeting_civicrm_c09b04_idx_and_more"),
     ]

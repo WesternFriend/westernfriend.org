@@ -14,7 +14,6 @@ import blocks.blocks
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("magazine", "0013_alter_magazinearticle_drupal_node_id"),
     ]

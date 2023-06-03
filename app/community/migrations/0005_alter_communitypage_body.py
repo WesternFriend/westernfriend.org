@@ -11,7 +11,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("community", "0004_alter_communitypage_body"),
     ]

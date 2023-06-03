@@ -14,7 +14,6 @@ import documents.blocks
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("library", "0001_initial"),
     ]

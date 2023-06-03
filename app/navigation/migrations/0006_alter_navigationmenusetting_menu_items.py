@@ -6,7 +6,6 @@ import wagtail.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("navigation", "0005_rename_items_navigationmenusetting_menu_items"),
     ]

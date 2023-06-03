@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("magazine", "0020_archivearticle_magazine_ar_drupal__fd3a5b_idx"),
     ]

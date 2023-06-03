@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("navigation", "0004_alter_navigationmenusetting_items"),
     ]

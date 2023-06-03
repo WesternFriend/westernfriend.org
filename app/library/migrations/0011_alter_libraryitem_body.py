@@ -15,7 +15,6 @@ import documents.blocks
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("library", "0010_alter_libraryitemtag_tag"),
     ]

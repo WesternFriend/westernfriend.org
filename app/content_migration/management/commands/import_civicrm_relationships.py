@@ -47,7 +47,6 @@ class Command(BaseCommand):
             desc="Relationships",
             unit="row",
         ):
-
             contact_ids = extract_contact_ids_from(relationship)
 
             try:

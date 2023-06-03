@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("taggit", "0005_auto_20220424_2025"),
         ("magazine", "0010_alter_magazinearticle_body"),

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("magazine", "0012_alter_magazinearticle_body"),
     ]

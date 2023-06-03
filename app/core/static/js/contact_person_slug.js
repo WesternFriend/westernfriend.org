@@ -38,5 +38,5 @@ function registerNameElementEventListeners() {
 
 document.addEventListener(
   "DOMContentLoaded",
-  registerNameElementEventListeners
+  registerNameElementEventListeners,
 );

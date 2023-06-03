@@ -49,7 +49,6 @@ class Command(BaseCommand):
         parser.add_argument("--file", action="store", type=str)
 
     def handle(self, *args, **options):
-
         addresses = pd.read_csv(options["file"]).to_dict("records")
 
         for row in addresses:

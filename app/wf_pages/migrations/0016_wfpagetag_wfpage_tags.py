@@ -7,7 +7,6 @@ import modelcluster.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("taggit", "0005_auto_20220424_2025"),
         ("wf_pages", "0015_alter_wfpage_body"),

@@ -11,7 +11,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("events", "0010_event_is_featured"),
     ]

@@ -15,7 +15,6 @@ import documents.blocks
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("library", "0005_alter_libraryitem_body"),
     ]
