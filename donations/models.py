@@ -66,10 +66,10 @@ class DonatePage(Page):
         donor_address_form = DonorAddressForm(request.POST)
         donation_form = DonationForm(request.POST)
 
-        if request.method == "POST":
-            if donation_form.is_valid():
-                return process_donation_request(
-                    request, donation_form, donor_address_form
+        if request.method == "POST" and donation_form.is_valid():
+           
+            return process_donation_request(
+                request, donation_form, donor_address_form
                 )
 
         # Send donor address form to client
