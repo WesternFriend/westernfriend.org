@@ -70,6 +70,7 @@ jobs:
         source .venv/bin/activate
         coverage run manage.py test
     - name: Generate Coverage Report
+      working-directory: ${{ github.workspace }}
       run: |
         source .venv/bin/activate
         coverage xml
