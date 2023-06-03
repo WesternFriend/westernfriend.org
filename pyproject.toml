@@ -135,6 +135,10 @@ dependencies = [
     "django",
 ]
 
+[project.urls]
+Homepage = "https://westernfriend.org"
+Repository = "https://github.com/WesternFriend/WF-website"
+
 
 [project.optional-dependencies]
 dev = [
