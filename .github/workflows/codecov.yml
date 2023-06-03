@@ -72,16 +72,15 @@ jobs:
     # Run tests, generate and upload code coverage report
     #----------------------------------------------
     - name: Generate Report
-      working-directory: ./app
       run: |
-        source ../.venv/bin/activate
+        source .venv/bin/activate
         coverage run manage.py test
         coverage xml
     - name: Codecov action
       uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./app/coverage.xml
+        files: coverage.xml
     - uses: paambaati/codeclimate-action@v4.0.0
       env:
         CC_TEST_REPORTER_ID: 15a71e71a294b41066a953a4ad40a936918f4e34dc5824cc558b26174962702d
