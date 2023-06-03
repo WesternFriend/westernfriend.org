@@ -131,7 +131,6 @@ dependencies = [
     "wagtailmedia",
     "wagtail",
     "django-extensions",
-    "django-stubs",
     "django",
     # TODO: move this to dev dependencies
     # and load it conditionally in development environments only
@@ -151,6 +150,7 @@ dev = [
     "pre-commit",
     "black",
     "pandas-stubs",
+    "django-stubs[compatible-mypy]",
     "types-requests",
     "types-beautifulsoup4",
     "coverage",
@@ -167,8 +167,9 @@ django_settings_module = "core.settings.base"
 [tool.isort]
 profile = "black"
 
-[tool.mypy]
-plugins = ["mypy_django_plugin.main"]
+# TODO: add this back in when we figure out how to make it work
+# [tool.mypy]
+# plugins = ["mypy_django_plugin.main"]
 
 [[tool.mypy.overrides]]
 module = "wagtail.*"
