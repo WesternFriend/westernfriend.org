@@ -11,9 +11,9 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("--file", action="store", type=str)
 
+
     def handle(self, *args: tuple, **options: dict[str, str]) -> None:
         file_name = options["file"]
-
         handle_import_civicrm_clerk_relationships(file_name)  # type: ignore
 
         self.stdout.write("All done!")
