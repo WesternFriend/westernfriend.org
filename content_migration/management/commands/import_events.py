@@ -13,4 +13,5 @@ class Command(BaseCommand):
 
     def handle(self, *args: tuple, **options: dict) -> None:
         handle_import_events(file_name=options["file"])
+
         self.stdout.write("All done!")

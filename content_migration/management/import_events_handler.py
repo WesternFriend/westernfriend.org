@@ -12,7 +12,7 @@ from events.models import Event, EventsIndexPage
 date_format = "%Y-%m-%dT%H:%M:%S%z"
 
 
-def handle_import_events(file_name) -> None:
+def handle_import_events(file_name: str) -> None:
     # Get the only instance of Magazine Department Index Page
     events_index_page = EventsIndexPage.objects.get()
 
