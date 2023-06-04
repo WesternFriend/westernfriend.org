@@ -11,7 +11,7 @@ from addresses.models import Address
 
 
 def process_donation_request(request, donation_form, donor_address_form):
-    """Process a donation form and redirecto to payment."""
+    """Process a donation form and redirect to payment."""
     # Create a temporary donation object to modify it's fields
     donation = donation_form.save(commit=False)
 
@@ -117,11 +117,8 @@ class Donation(models.Model):
         return self.amount
 
     def recurring(self):
-        """
-        Determine whether Donation is recurring.
-
-        Return True if Donation recurrence is "monthly" or "yearly", otherwise False
-        """
+        """Determine whether Donation is recurring.
+        Return True if Donation recurrence is "monthly" or "yearly", otherwise False"""
 
         return self.recurrence in (
             self.DonationRecurrenceChoices.MONTHLY,

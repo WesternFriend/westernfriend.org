@@ -34,9 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_article_authors(article, article_authors):
-    """
-    Fetch all related article authors and create an article relationship.
-    """
+    """Fetch all related article authors and create an article relationship."""
     for drupal_author_id in article_authors.split(", "):
         try:
             author = get_existing_magazine_author_from_db(

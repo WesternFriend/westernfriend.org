@@ -87,9 +87,7 @@ def create_document_link_block(
 
 def create_media_embed_block(url: str) -> tuple[str, Embed]:
     """Create a media embed block from a URL
-
-    Returns a tuple of the form: ("embed", embed)
-    """
+    Returns a tuple of the form: ("embed", embed)"""
     # TODO: add unit test, once database issues are sorted out
     embed: Embed = get_embed(url)
 

@@ -53,6 +53,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "lokeshkadem",
+      "name": "kadem lokesh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/130270325?v=4",
+      "profile": "https://github.com/lokeshkadem",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -61,5 +70,6 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "skipCi": true,
-  "commitConvention": "angular"
+  "commitConvention": "angular",
+  "commitType": "docs"
 }
