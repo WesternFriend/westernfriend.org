@@ -1,26 +1,15 @@
-from django.core.management import call_command
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandParser
+
+from content_migration.management.import_library_handler import handle_import_library
 
 
 class Command(BaseCommand):
     help = "Import all Library content"
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("--data-directory", action="store", type=str)
 
-    def handle(self, *args, **options):
+    def handle(self, *args: tuple, **options: dict[str, str]) -> None:
         directory = options["data_directory"]
 
-        if not directory.endswith("/"):
-            directory += "/"
-
-        library_items_filename = "library_items.csv"
-
-        call_command(
-            "import_library_item_facets",
-            folder=f"{ directory }",
-        )
-        call_command(
-            "import_library_items",
-            file=f"{ directory }{ library_items_filename }",
-        )
+        handle_import_library(directory)  # type: ignore

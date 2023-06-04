@@ -1,32 +1,17 @@
-import pandas as pd
-from django.core.management.base import BaseCommand
-from tqdm import tqdm
+from django.core.management.base import BaseCommand, CommandParser
 
-from magazine.models import MagazineDepartment, MagazineDepartmentIndexPage
+from content_migration.management.import_magazine_departments_handler import (
+    handle_import_magazine_departments,
+)
 
 
 class Command(BaseCommand):
     help = "Import Departments from Drupal site"
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("--file", action="store", type=str)
 
-    def handle(self, *args, **options):
-        # Get the only instance of Magazine Department Index Page
-        magazine_department_index_page = MagazineDepartmentIndexPage.objects.get()
+    def handle(self, *args: tuple, **options: dict[str, str]) -> None:
+        file_name = options["file"]
 
-        departments_list = pd.read_csv(options["file"]).to_dict("records")
-
-        for department in tqdm(departments_list, desc="Departments", unit="row"):
-            department_exists = MagazineDepartment.objects.filter(
-                title=department["title"],
-            ).exists()
-
-            if not department_exists:
-                import_department = MagazineDepartment(
-                    title=department["title"],
-                )
-
-                # Add department to site page hiererchy
-                magazine_department_index_page.add_child(instance=import_department)
-                magazine_department_index_page.save()
+        handle_import_magazine_departments(file_name)  # type: ignore

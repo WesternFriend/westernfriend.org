@@ -208,6 +208,8 @@ types-pyyaml==6.0.12.10
     # via django-stubs
 types-requests==2.31.0.1
     # via Western-Friend-website (pyproject.toml)
+types-tqdm==4.65.0.1
+    # via Western-Friend-website (pyproject.toml)
 types-urllib3==1.26.25.13
     # via types-requests
 typing-extensions==4.6.3

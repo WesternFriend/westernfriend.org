@@ -98,6 +98,7 @@ dev = [
     "pandas-stubs",
     "django-stubs[compatible-mypy]",
     "types-requests",
+    "types-tqdm",
     "types-beautifulsoup4",
     "coverage",
     "validate-pyproject",
