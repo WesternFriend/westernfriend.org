@@ -2,15 +2,13 @@ from decimal import Decimal
 
 
 def get_book_shipping_cost(book_quantity=1):
-    """
-    Calculate shipping costs for books in a cart/order.
+    """Calculate shipping costs for books in a cart/order.
 
     The shipping rules are flat rate for each book,
     with discounts offered for ordering more books.
 
     The product set can contain other product types,
-    so this function should only consider the quantity of books.
-    """
+    so this function should only consider the quantity of books."""
 
     # Apply shipping rules based on total number of books
     # one book is four dollars
