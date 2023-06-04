@@ -28,7 +28,7 @@ def create_archive_article_authors(
     archive_article: ArchiveArticle,
     authors: str,
 ) -> None:
-    """Create an ArchiveArticleAuthor instance for each author, if any"""
+    "Create an ArchiveArticleAuthor instance for each author, if any"
 
     if authors is not np.nan:
         # Create table of contents
