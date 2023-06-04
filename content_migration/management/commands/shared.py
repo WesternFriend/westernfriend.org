@@ -128,7 +128,7 @@ def create_image_block(
 
 
 def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
-    """Fetch a file from a URL and return the file bytes"""
+    "Fetch a file from a URL and return the file bytes"
     try:
         response = requests.get(url)
     except requests.exceptions.RequestException:
@@ -223,7 +223,7 @@ def get_existing_magazine_author_from_db(
 
 
 def extract_image_urls(item: str) -> list[Image]:
-    """Parse images from HTML string"""
+    "Parse images from HTML string"
 
     # parse images from HTML string containing <img> tags
     soup = BeautifulSoup(item, "html.parser")
