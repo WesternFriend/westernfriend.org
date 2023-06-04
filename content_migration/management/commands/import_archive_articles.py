@@ -92,7 +92,7 @@ class Command(BaseCommand):
                 error_message = f"Could not find archive issue with identifier: { internet_archive_identifier }"  # noqa: E501
                 logger.error(error_message)
 
-            for index, article_data in issue_articles.iterrows():
+            for _, article_data in issue_articles.iterrows():
                 # Create archive article instance with initial fields
                 pdf_page_number = None
 
