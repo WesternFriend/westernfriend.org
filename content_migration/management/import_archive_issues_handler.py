@@ -1,5 +1,5 @@
 import pandas as pd
-from tqdm import tqdm
+from tqdm import tqdm  # type: ignore
 
 from magazine.models import ArchiveIssue, DeepArchiveIndexPage
 
