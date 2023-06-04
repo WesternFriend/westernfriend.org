@@ -68,7 +68,6 @@ class Command(BaseCommand):
                     print(
                         f"Could not find contact with CiviCRM ID { row['Contact ID'] }"
                     )
-                    pass
 
                 create_meeting_addresses(meeting, row)
 
