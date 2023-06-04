@@ -84,7 +84,6 @@ class Command(BaseCommand):
             #     print(
             #         f"Could not find person with CiviCRM ID { contact_ids['clerk_id'] }"  # noqa: E501
             #     )
-            #     pass
 
             family_name, given_name = extract_given_and_family_name(
                 relationship["Contact A"]
