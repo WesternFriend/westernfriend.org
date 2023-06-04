@@ -4,7 +4,7 @@
 [![DeepSource](https://app.deepsource.com/gh/WesternFriend/WF-website.svg/?label=active+issues&show_trend=true&token=c_pMTKZ7L0V6APJzlHrbytpc)](https://app.deepsource.com/gh/WesternFriend/WF-website/?ref=repository-badge)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 A website for [Western Friend](https://westernfriend.org), a Quaker publication that provides resources and support for Quaker communities and individuals seeking to live out their faith in the world. Western Friend is part of the Religious Society of Friends.
@@ -31,6 +31,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
       <td align="center" valign="top" width="14.28%"><a href="https://dhelbegor.github.io/"><img src="https://avatars3.githubusercontent.com/u/7838804?v=4?s=100" width="100px;" alt="Adailton Nascimento"/><br /><sub><b>Adailton Nascimento</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=dhelbegor" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/LidiaTre"><img src="https://avatars.githubusercontent.com/u/129381339?v=4?s=100" width="100px;" alt="Lidia Tregubova"/><br /><sub><b>Lidia Tregubova</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=LidiaTre" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/werberger"><img src="https://avatars.githubusercontent.com/u/106753124?v=4?s=100" width="100px;" alt="werb"/><br /><sub><b>werb</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=werberger" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/lokeshkadem"><img src="https://avatars.githubusercontent.com/u/130270325?v=4?s=100" width="100px;" alt="kadem lokesh"/><br /><sub><b>kadem lokesh</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=lokeshkadem" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
