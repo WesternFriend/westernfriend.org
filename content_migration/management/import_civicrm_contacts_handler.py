@@ -6,7 +6,7 @@ import logging
 import numpy as np
 import pandas as pd
 from django.core.exceptions import MultipleObjectsReturned
-from tqdm import tqdm
+from tqdm import tqdm  # type: ignore
 
 from contact.models import (
     Meeting,

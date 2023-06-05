@@ -17,7 +17,7 @@ from magazine.models import (
     MagazineIssue,
 )
 
-from content_migration.management.commands.shared import (
+from content_migration.management.shared import (
     get_existing_magazine_author_from_db,
     parse_media_blocks,
     parse_body_blocks,

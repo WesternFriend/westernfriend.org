@@ -7,7 +7,7 @@ from tqdm import tqdm  # type: ignore
 
 from wagtail.contrib.redirects.models import Redirect
 from contact.models import Meeting
-from content_migration.management.commands.shared import (
+from content_migration.management.shared import (
     parse_body_blocks,
     parse_media_blocks,
 )

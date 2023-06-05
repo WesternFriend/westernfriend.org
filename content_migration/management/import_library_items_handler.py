@@ -2,7 +2,7 @@ import logging
 import numpy as np
 import pandas as pd
 from tqdm import tqdm  # type: ignore
-from content_migration.management.commands.errors import (
+from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
     DuplicateContactError,
 )

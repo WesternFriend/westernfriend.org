@@ -4,11 +4,11 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from tqdm import tqdm  # type: ignore
-from content_migration.management.commands.errors import (
+from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
     DuplicateContactError,
 )
-from content_migration.management.commands.shared import (
+from content_migration.management.shared import (
     get_existing_magazine_author_from_db,
 )
 

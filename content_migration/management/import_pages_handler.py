@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm  # type: ignore
-from content_migration.management.commands.shared import parse_body_blocks
+from content_migration.management.shared import parse_body_blocks
 
 from home.models import HomePage
 from news.models import NewsIndexPage, NewsItem

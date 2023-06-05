@@ -6,7 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from wagtail.contrib.redirects.models import Redirect
-from content_migration.management.commands.shared import (
+from content_migration.management.shared import (
     parse_body_blocks,
     parse_media_blocks,
 )
