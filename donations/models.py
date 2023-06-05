@@ -11,7 +11,7 @@ from addresses.models import Address
 
 
 def process_donation_request(request, donation_form, donor_address_form):
-    "Process a donation form and redirect to payment."
+    """Process a donation form and redirect to payment."""
     # Create a temporary donation object to modify it's fields
     donation = donation_form.save(commit=False)
 
