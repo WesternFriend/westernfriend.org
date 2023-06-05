@@ -67,10 +67,7 @@ class DonatePage(Page):
         donation_form = DonationForm(request.POST)
 
         if request.method == "POST" and donation_form.is_valid():
-           
-            return process_donation_request(
-                request, donation_form, donor_address_form
-                )
+            return process_donation_request(request, donation_form, donor_address_form)
 
         # Send donor address form to client
         # Note, we manually create the donation form in the template
