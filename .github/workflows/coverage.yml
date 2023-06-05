@@ -80,7 +80,7 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: .coverage.xml
+        files: ${{github.workspace}}/coverage.xml
     - name: Upload to Code Climate
       uses: paambaati/codeclimate-action@v4.0.0
       env:
