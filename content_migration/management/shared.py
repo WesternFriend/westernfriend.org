@@ -16,12 +16,12 @@ from wagtail.embeds.models import Embed
 from wagtail.images.models import Image
 
 from contact.models import Meeting, Organization, Person
-from content_migration.management.commands.errors import (
+from content_migration.management.errors import (
     BlockFactoryError,
     CouldNotFindMatchingContactError,
     DuplicateContactError,
 )
-from content_migration.management.commands.conversion import (
+from content_migration.management.conversion import (
     adapt_html_to_generic_blocks,
     BlockFactory,
 )

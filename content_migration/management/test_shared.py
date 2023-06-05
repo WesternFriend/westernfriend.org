@@ -12,12 +12,12 @@ from contact.models import (
     Person,
     PersonIndexPage,
 )
-from content_migration.management.commands.errors import (
+from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
     DuplicateContactError,
 )
 
-from content_migration.management.commands.shared import (
+from content_migration.management.shared import (
     create_document_link_block,
     create_image_block,
     extract_image_urls,
@@ -31,7 +31,7 @@ from content_migration.management.commands.shared import (
 
 from home.models import HomePage
 
-from content_migration.management.commands.constants import (
+from content_migration.management.constants import (
     WESTERN_FRIEND_LOGO_URL,
     WESTERN_FRIEND_LOGO_FILE_NAME,
 )

@@ -1,63 +1,17 @@
-from datetime import datetime
+from django.core.management.base import BaseCommand, CommandParser
 
-import numpy as np
-import pandas as pd
-from django.core.management.base import BaseCommand
-from tqdm import tqdm
-from wagtail.rich_text import RichText
-
-from events.models import Event, EventsIndexPage
-
-# Event dates are in ISO 8601 format
-date_format = "%Y-%m-%dT%H:%M:%S%z"
+from content_migration.management.handlers.import_events_handler import (
+    handle_import_events,
+)
 
 
 class Command(BaseCommand):
-    help = "Import Departments from Drupal site"
+    help = "Import Events from Drupal site"
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("--file", action="store", type=str)
 
-    def handle(self, *args, **options):
-        # Get the only instance of Magazine Department Index Page
-        events_index_page = EventsIndexPage.objects.get()
-
-        events_list = (
-            pd.read_csv(options["file"]).replace({np.nan: None}).to_dict("records")
-        )
-
-        for event in tqdm(events_list, desc="events", unit="row"):
-            event_exists = Event.objects.filter(
-                drupal_node_id=event["drupal_node_id"],
-            ).exists()
-
-            if not event_exists:
-                # Convert event date strings into Python dates
-                start_date = datetime.strptime(event["start_date"], date_format)
-                end_date = datetime.strptime(event["end_date"], date_format)
-
-                # Get teaser, max length is 100 characters
-                teaser = None
-                if event["body"]:
-                    teaser = event["body"][0:99]
-
-                event_body_blocks = []
-                # Create rich text block for event body blocks list
-                rich_text_block = ("rich_text", RichText(event["body"]))
-                event_body_blocks.append(rich_text_block)
-
-                import_event = Event(
-                    title=event["title"],
-                    body=event_body_blocks,
-                    teaser=teaser,
-                    start_date=start_date,
-                    end_date=end_date,
-                    website=event["event_link"],
-                    category=Event.EventCategoryChoices.WESTERN,
-                )
-
-                # # Add event to site page hiererchy
-                events_index_page.add_child(instance=import_event)
-                events_index_page.save()
+    def handle(self, *args: tuple, **options: dict) -> None:
+        handle_import_events(file_name=options["file"])
 
         self.stdout.write("All done!")

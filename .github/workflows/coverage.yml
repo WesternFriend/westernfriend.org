@@ -88,10 +88,3 @@ jobs:
       with:
         coverageLocations: |
           ${{github.workspace}}/coverage.xml:coverage.py
-    - name: Upload to DeepSource
-      run: |
-        # Install the CLI
-        curl https://deepsource.io/cli | sh
-
-        # Send the report to DeepSource
-        ./bin/deepsource report --analyzer test-coverage --key python --value-file coverage.xml
