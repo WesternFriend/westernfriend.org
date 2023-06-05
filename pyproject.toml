@@ -90,6 +90,7 @@ Repository = "https://github.com/WesternFriend/WF-website"
 
 [project.optional-dependencies]
 dev = [
+    "mypy",
     "django-browser-reload",
     "pre-commit",
     "coverage",
@@ -108,9 +109,6 @@ dev = [
 [tool.black]
 target-version = ['py311']
 
-[tool.django-stubs]
-django_settings_module = "core.settings.base"
-
 [tool.isort]
 profile = "black"
 
@@ -121,6 +119,9 @@ profile = "black"
 [[tool.mypy.overrides]]
 module = "wagtail.*"
 ignore_missing_imports = true
+
+# [tool.django-stubs]
+# django_settings_module = "core.settings.base"
 
 [tool.ruff]
 # Same as Black.
