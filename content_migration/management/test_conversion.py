@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from django.test import SimpleTestCase, TestCase
 import requests
-from content_migration.management.commands.conversion import (
+from content_migration.management.conversion import (
     adapt_html_to_generic_blocks,
     BlockFactory,
     create_image_block,
@@ -10,11 +10,11 @@ from content_migration.management.commands.conversion import (
     remove_pullquote_tags,
     extract_pullquotes,
 )
-from content_migration.management.commands.constants import (
+from content_migration.management.constants import (
     WESTERN_FRIEND_LOGO_URL,
     WESTERN_FRIEND_LOGO_FILE_NAME,
 )
-from content_migration.management.commands.errors import BlockFactoryError
+from content_migration.management.errors import BlockFactoryError
 
 
 class RemovePullquoteTagsSimpleTestCase(SimpleTestCase):
