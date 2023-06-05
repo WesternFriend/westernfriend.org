@@ -4,7 +4,7 @@
 [![DeepSource](https://app.deepsource.com/gh/WesternFriend/WF-website.svg/?label=active+issues&show_trend=true&token=c_pMTKZ7L0V6APJzlHrbytpc)](https://app.deepsource.com/gh/WesternFriend/WF-website/?ref=repository-badge)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 A website for [Western Friend](https://westernfriend.org), a Quaker publication that provides resources and support for Quaker communities and individuals seeking to live out their faith in the world. Western Friend is part of the Religious Society of Friends.
@@ -33,6 +33,9 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/werberger"><img src="https://avatars.githubusercontent.com/u/106753124?v=4?s=100" width="100px;" alt="werb"/><br /><sub><b>werb</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=werberger" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lokeshkadem"><img src="https://avatars.githubusercontent.com/u/130270325?v=4?s=100" width="100px;" alt="kadem lokesh"/><br /><sub><b>kadem lokesh</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=lokeshkadem" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/viktoriussuwandi"><img src="https://avatars.githubusercontent.com/u/68414300?v=4?s=100" width="100px;" alt="Viktorius Suwandi"/><br /><sub><b>Viktorius Suwandi</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=viktoriussuwandi" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Harshal662"><img src="https://avatars.githubusercontent.com/u/79760384?v=4?s=100" width="100px;" alt="Harshal Abak"/><br /><sub><b>Harshal Abak</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=Harshal662" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
