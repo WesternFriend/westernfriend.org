@@ -3,7 +3,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from tqdm import tqdm
+from tqdm import tqdm  # type: ignore
 from wagtail.rich_text import RichText
 
 from events.models import Event, EventsIndexPage

@@ -3,7 +3,7 @@ from django.db import IntegrityError
 
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
+from tqdm import tqdm  # type: ignore
 
 from wagtail.contrib.redirects.models import Redirect
 from content_migration.management.shared import (
@@ -14,7 +14,7 @@ from content_migration.management.shared import (
 from documents.models import PublicBoardDocument, PublicBoardDocumentIndexPage
 
 
-def get_board_document_category_key(category_label):
+def get_board_document_category_key(category_label: str) -> str | None:
     category_value = None
 
     if category_label == "Corporation Documents - current year":

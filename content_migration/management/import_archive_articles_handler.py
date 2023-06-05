@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from tqdm import tqdm
-from content_migration.management.commands.errors import (
+from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
     DuplicateContactError,
 )

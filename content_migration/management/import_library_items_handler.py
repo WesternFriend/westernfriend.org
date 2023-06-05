@@ -19,7 +19,7 @@ from library.models import (
     LibraryItemAuthor,
 )
 
-from content_migration.management.commands.shared import (
+from content_migration.management.shared import (
     get_existing_magazine_author_from_db,
 )
 
