@@ -6,7 +6,6 @@ class UserManager(BaseUserManager):
     """
     Custom user model manager where email is the unique identifiers
     for authentication instead of usernames.
-
     Source: https://testdriven.io/blog/django-custom-user-model/
     """
 
