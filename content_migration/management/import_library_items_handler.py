@@ -1,6 +1,4 @@
 import logging
-import numpy as np
-import pandas as pd
 from tqdm import tqdm  # type: ignore
 from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
@@ -21,6 +19,7 @@ from library.models import (
 
 from content_migration.management.shared import (
     get_existing_magazine_author_from_db,
+    parse_csv_file,
 )
 
 logging.basicConfig(
@@ -82,7 +81,7 @@ def handle_import_library_items(file_name: str) -> None:
     # Get the only instance of Magazine Department Index Page
     library_item_index_page = LibraryIndexPage.objects.get()
 
-    library_items = pd.read_csv(file_name).replace({np.nan: None}).to_dict("records")
+    library_items = parse_csv_file(file_name)
 
     for import_library_item in tqdm(
         library_items,

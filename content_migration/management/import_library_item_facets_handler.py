@@ -1,5 +1,5 @@
-import pandas as pd
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
+from content_migration.management.shared import parse_csv_file
 
 from facets.models import (
     Audience,
@@ -46,19 +46,19 @@ facets = [
 def handle_import_library_item_facets(folder: str) -> None:
     for facet in tqdm(facets, desc="Library item facets", unit="taxonomy"):
         # Get the only index page instance for this facet
-        facet_index_page = facet["index_page"].objects.get()
+        facet_index_page = facet["index_page"].objects.get()  # type: ignore
 
-        file_path = folder + facet["file_name"]
+        file_path = folder + facet["file_name"]  # type: ignore
 
-        facet_items = pd.read_csv(file_path).to_dict("records")
+        facet_items = parse_csv_file(file_path)
 
         for facet_item in facet_items:
             if (
-                not facet["facet_class"]
+                not facet["facet_class"]  # type: ignore
                 .objects.filter(title=facet_item["drupal_full_name"])
                 .exists()
             ):
-                facet_instance = facet["facet_class"](
+                facet_instance = facet["facet_class"](  # type: ignore
                     title=facet_item["drupal_full_name"]
                 )
 

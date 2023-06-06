@@ -1,10 +1,7 @@
 import logging
 
-import numpy as np
-import pandas as pd
-
 from django.core.exceptions import ObjectDoesNotExist
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
     DuplicateContactError,
@@ -19,6 +16,7 @@ from magazine.models import (
 
 from content_migration.management.shared import (
     get_existing_magazine_author_from_db,
+    parse_csv_file,
     parse_media_blocks,
     parse_body_blocks,
 )
@@ -77,7 +75,7 @@ def assign_article_to_issue(
 
 
 def handle_import_magazine_articles(file_name: str) -> None:
-    articles_data = pd.read_csv(file_name).replace({np.nan: None}).to_dict("records")
+    articles_data = parse_csv_file(file_name)
 
     for row in tqdm(
         articles_data,

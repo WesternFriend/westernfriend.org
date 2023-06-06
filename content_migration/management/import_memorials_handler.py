@@ -1,15 +1,14 @@
 import logging
 from datetime import datetime
 
-import numpy as np
-import pandas as pd
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
     DuplicateContactError,
 )
 from content_migration.management.shared import (
     get_existing_magazine_author_from_db,
+    parse_csv_file,
 )
 
 
@@ -28,7 +27,7 @@ def handle_import_memorials(file_name: str) -> None:
     # Get the only instance of Magazine Department Index Page
     memorial_index_page = MemorialIndexPage.objects.get()
 
-    memorials = pd.read_csv(file_name).replace({np.nan: None}).to_dict("records")
+    memorials = parse_csv_file(file_name)
 
     for memorial_data in tqdm(memorials, desc="Memorials", unit="row"):
         memorial_exists = Memorial.objects.filter(

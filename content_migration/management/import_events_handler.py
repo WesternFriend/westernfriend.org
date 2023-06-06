@@ -1,10 +1,8 @@
 from datetime import datetime
 
-import numpy as np
-import pandas as pd
-
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 from wagtail.rich_text import RichText
+from content_migration.management.shared import parse_csv_file
 
 from events.models import Event, EventsIndexPage
 
@@ -16,7 +14,7 @@ def handle_import_events(file_name: str) -> None:
     # Get the only instance of Magazine Department Index Page
     events_index_page = EventsIndexPage.objects.get()
 
-    events_list = pd.read_csv(file_name).replace({np.nan: None}).to_dict("records")
+    events_list = parse_csv_file(file_name)
 
     for event in tqdm(events_list, desc="events", unit="row"):
         event_exists = Event.objects.filter(

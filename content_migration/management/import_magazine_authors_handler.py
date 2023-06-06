@@ -1,8 +1,6 @@
 import logging
 
-import numpy as np
-import pandas as pd
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 
 from contact.models import (
     Meeting,
@@ -12,6 +10,7 @@ from contact.models import (
     Person,
     PersonIndexPage,
 )
+from content_migration.management.shared import parse_csv_file
 
 logging.basicConfig(
     filename="import_log_magazine_authors.log",
@@ -99,6 +98,6 @@ def import_author_records(authors_list: list[dict]) -> None:
 
 
 def handle_import_magazine_authors(file_name: str) -> None:
-    authors_list = pd.read_csv(file_name).replace({np.nan: None}).to_dict("records")
+    authors_list = parse_csv_file(file_name)
 
     import_author_records(authors_list)

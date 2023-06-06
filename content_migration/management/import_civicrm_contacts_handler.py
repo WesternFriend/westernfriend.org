@@ -3,16 +3,15 @@
 
 import logging
 
-import numpy as np
-import pandas as pd
 from django.core.exceptions import MultipleObjectsReturned
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 
 from contact.models import (
     Meeting,
     MeetingWorshipTime,
     Organization,
 )
+from content_migration.management.shared import parse_csv_file
 
 logging.basicConfig(
     filename="civicrm_contact_import.log",
@@ -97,7 +96,7 @@ def determine_meeting_type(contact_type: str) -> str:
 
 
 def handle_import_civicrm_contacts(file_name: str) -> None:
-    contacts = pd.read_csv(file_name).replace({np.nan: None}).to_dict("records")
+    contacts = parse_csv_file(file_name)
 
     for contact in tqdm(
         contacts,

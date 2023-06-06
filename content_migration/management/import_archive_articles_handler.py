@@ -1,7 +1,5 @@
 import logging
 
-import numpy as np
-import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from tqdm import tqdm
 from content_migration.management.errors import (
@@ -10,7 +8,9 @@ from content_migration.management.errors import (
 )
 
 from content_migration.management.shared import (
+    create_group_by,
     get_existing_magazine_author_from_db,
+    parse_csv_file,
 )
 from magazine.models import ArchiveArticle, ArchiveArticleAuthor, ArchiveIssue
 
@@ -28,7 +28,7 @@ def create_archive_article_authors(
 ) -> None:
     """Create an ArchiveArticleAuthor instance for each author, if any"""
 
-    if authors is not np.nan:
+    if authors != "":
         # Create table of contents
         # assigning articles to each ToC item
 
@@ -65,16 +65,18 @@ def create_archive_article_authors(
 
 
 def handle_import_archive_articles(file_name: str) -> None:
-    articles = pd.read_csv(
-        file_name,
-        dtype={"authors": str},
-    )
+    articles = parse_csv_file(file_name)
 
-    grouped_articles = articles.groupby("internet_archive_identifier")
+    grouped_articles = create_group_by(
+        "internet_archive_identifier",
+        articles,
+    )
 
     # for issue in tqdm(issues, desc="Archive issues", unit="row"):
     for internet_archive_identifier, issue_articles in tqdm(
-        grouped_articles, desc="Archive articles", unit="row"
+        grouped_articles,
+        desc="Archive articles",
+        unit="row",
     ):
         try:
             issue = ArchiveIssue.objects.get(
@@ -84,16 +86,16 @@ def handle_import_archive_articles(file_name: str) -> None:
             error_message = f"Could not find archive issue with identifier: { internet_archive_identifier }"  # noqa: E501
             logger.error(error_message)
 
-        for index, article_data in issue_articles.iterrows():
+        for article_data in issue_articles:
             # Create archive article instance with initial fields
             pdf_page_number = None
 
-            if not np.isnan(article_data["pdf_page_number"]):
+            if article_data["pdf_page_number"] != "":
                 pdf_page_number = article_data["pdf_page_number"]
 
             toc_page_number = None
 
-            if not np.isnan(article_data["toc_page_number"]):
+            if article_data["toc_page_number"] != "":
                 toc_page_number = article_data["toc_page_number"]
 
             article_exists = ArchiveArticle.objects.filter(
@@ -123,7 +125,7 @@ def handle_import_archive_articles(file_name: str) -> None:
             archive_article.save()
 
             # Create an ArchiveArticleAuthor instance for each author
-            if article_data["authors"] is not np.nan:
+            if article_data["authors"] != "":
                 create_archive_article_authors(
                     archive_article,
                     article_data["authors"],

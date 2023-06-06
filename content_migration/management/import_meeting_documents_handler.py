@@ -1,14 +1,13 @@
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
-import numpy as np
-import pandas as pd
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 
 from wagtail.contrib.redirects.models import Redirect
 from contact.models import Meeting
 from content_migration.management.shared import (
     parse_body_blocks,
+    parse_csv_file,
     parse_media_blocks,
 )
 
@@ -37,9 +36,7 @@ def handle_import_meeting_documents(file_name: str) -> None:
     # get a reference to the root site
     root_site = meeting_documents_index.get_site()
 
-    meeting_docs_data = (
-        pd.read_csv(file_name).replace({np.nan: None}).to_dict("records")
-    )
+    meeting_docs_data = parse_csv_file(file_name)
 
     for document_data in tqdm(
         meeting_docs_data,

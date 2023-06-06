@@ -1,7 +1,5 @@
-import numpy as np
-import pandas as pd
-from tqdm import tqdm  # type: ignore
-from content_migration.management.shared import parse_body_blocks
+from tqdm import tqdm
+from content_migration.management.shared import parse_body_blocks, parse_csv_file
 
 from home.models import HomePage
 from news.models import NewsIndexPage, NewsItem
@@ -12,7 +10,7 @@ def handle_import_pages(file_name: str) -> None:
     HomePage.objects.get()
     news_index_page = NewsIndexPage.objects.get()
 
-    pages = pd.read_csv(file_name).replace({np.nan: None}).to_dict("records")
+    pages = parse_csv_file(file_name)
 
     for page in tqdm(
         pages,
