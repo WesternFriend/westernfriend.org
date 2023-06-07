@@ -21,7 +21,9 @@ def handle_file_downloads(data_directory_url: str) -> None:
         download_url = f"{data_directory_url}{filename}"
         local_file_path = f"{LOCAL_MIGRATION_DATA_DIRECTORY}{filename}"
 
-        urllib.request.urlretrieve(
-            url=download_url,
-            filename=local_file_path,
-        )
+        # make sure URL starts with https
+        if download_url.startswith("https://"):
+            urllib.request.urlretrieve(
+                url=download_url,
+                filename=local_file_path,
+            )
