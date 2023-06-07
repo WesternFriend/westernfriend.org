@@ -1,5 +1,6 @@
 import os
 import requests
+from tqdm import tqdm
 
 from content_migration.management.constants import (
     IMPORT_FILENAMES,
@@ -17,7 +18,11 @@ def handle_file_downloads(data_directory_url: str) -> None:
         os.makedirs(LOCAL_MIGRATION_DATA_DIRECTORY)
 
     # download files
-    for filename in IMPORT_FILENAMES.values():
+    for filename in tqdm(
+        IMPORT_FILENAMES.values(),
+        desc="Downloading files",
+        unit="file",
+    ):
         download_url = f"{data_directory_url}{filename}"
         local_file_path = f"{LOCAL_MIGRATION_DATA_DIRECTORY}{filename}"
 
