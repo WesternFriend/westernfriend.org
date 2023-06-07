@@ -114,8 +114,8 @@ class Donation(models.Model):
         return self.amount
 
     def recurring(self):
-        """
-        Determine whether Donation is recurring.
+        """Determine whether Donation is recurring
+        
         Return True if Donation recurrence is "monthly" or "yearly", otherwise False
         """
 
