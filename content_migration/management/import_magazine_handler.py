@@ -22,5 +22,4 @@ def handle_import_magazine(directory: str) -> None:
         call_command(
             "import_magazine_articles",
             articles_file=f"{ directory }{ IMPORT_FILENAMES['magazine_articles'] }",
-            authors_file=f"{ directory }{ IMPORT_FILENAMES['magazine_authors'] }",
         )
