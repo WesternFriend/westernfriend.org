@@ -65,7 +65,6 @@ dependencies = [
     "django-flatpickr",
     "dj-database-url",
     "gunicorn",
-    "pandas",
     "psycopg2-binary",
     "python-dotenv",
     "tqdm",
@@ -90,14 +89,15 @@ Repository = "https://github.com/WesternFriend/WF-website"
 
 [project.optional-dependencies]
 dev = [
+    "mypy",
     "django-browser-reload",
     "pre-commit",
     "coverage",
     "pre-commit",
     "black",
-    "pandas-stubs",
     "django-stubs[compatible-mypy]",
     "types-requests",
+    "types-tqdm",
     "types-beautifulsoup4",
     "coverage",
     "validate-pyproject",
@@ -106,9 +106,6 @@ dev = [
 
 [tool.black]
 target-version = ['py311']
-
-[tool.django-stubs]
-django_settings_module = "core.settings.base"
 
 [tool.isort]
 profile = "black"
@@ -120,6 +117,9 @@ profile = "black"
 [[tool.mypy.overrides]]
 module = "wagtail.*"
 ignore_missing_imports = true
+
+# [tool.django-stubs]
+# django_settings_module = "core.settings.base"
 
 [tool.ruff]
 # Same as Black.

@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from django.test import SimpleTestCase, TestCase
 import requests
-from content_migration.management.commands.conversion import (
+from content_migration.management.conversion import (
     adapt_html_to_generic_blocks,
     BlockFactory,
     create_image_block,
@@ -10,11 +10,11 @@ from content_migration.management.commands.conversion import (
     remove_pullquote_tags,
     extract_pullquotes,
 )
-from content_migration.management.commands.constants import (
+from content_migration.management.constants import (
     WESTERN_FRIEND_LOGO_URL,
     WESTERN_FRIEND_LOGO_FILE_NAME,
 )
-from content_migration.management.commands.errors import BlockFactoryError
+from content_migration.management.errors import BlockFactoryError
 
 
 class RemovePullquoteTagsSimpleTestCase(SimpleTestCase):
@@ -142,20 +142,20 @@ class BlockFactorySimpleTestCase(SimpleTestCase):
                 generic_block=generic_block,
             )
 
-    def test_create_block_invalid_image_url_missing_schema(self):
+    def test_create_block_invalid_image_url_missing_schema(self) -> None:
         invalid_url_block = GenericBlock("image", "invalid_url")
         with patch(
-            "content_migration.management.commands.conversion.create_image_block"
+            "content_migration.management.conversion.create_image_block"
         ) as mock_create_image_block:
             mock_create_image_block.side_effect = requests.exceptions.MissingSchema
             with self.assertRaises(BlockFactoryError) as cm:
                 BlockFactory.create_block(invalid_url_block)
             self.assertEqual(str(cm.exception), "Invalid image URL: missing schema")
 
-    def test_create_block_invalid_image_url_invalid_schema(self):
+    def test_create_block_invalid_image_url_invalid_schema(self) -> None:
         invalid_url_block = GenericBlock("image", "invalid_url")
         with patch(
-            "content_migration.management.commands.conversion.create_image_block"
+            "content_migration.management.conversion.create_image_block"
         ) as mock_create_image_block:
             mock_create_image_block.side_effect = requests.exceptions.InvalidSchema
             with self.assertRaises(BlockFactoryError) as cm:

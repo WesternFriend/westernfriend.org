@@ -33,6 +33,6 @@ plugins:
   sonar-python:
     enabled: true
 exclude_patterns:
-  - "app/content_migration/"
-  - "app/**/migrations/"
-  - "app/**/**/__init__.py"
+  - "content_migration/"
+  - "**/migrations/"
+  - "**/**/__init__.py"

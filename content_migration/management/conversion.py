@@ -8,7 +8,7 @@ from django.core.files.images import ImageFile
 import requests
 from wagtail.images.models import Image
 
-from content_migration.management.commands.errors import (
+from content_migration.management.errors import (
     BlockFactoryError,
 )
 

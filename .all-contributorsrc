@@ -4,6 +4,7 @@
   ],
   "imageSize": 100,
   "commit": false,
+  "contributorsSortAlphabetically": true,
   "contributors": [
     {
       "login": "NehemiasEC",
@@ -53,6 +54,43 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "lokeshkadem",
+      "name": "kadem lokesh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/130270325?v=4",
+      "profile": "https://github.com/lokeshkadem",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "viktoriussuwandi",
+      "name": "Viktorius Suwandi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/68414300?v=4",
+      "profile": "https://github.com/viktoriussuwandi",
+      "contributions": [
+        "code",
+        "doc"
+      ]
+    },
+    {
+      "login": "Harshal662",
+      "name": "Harshal Abak",
+      "avatar_url": "https://avatars.githubusercontent.com/u/79760384?v=4",
+      "profile": "https://github.com/Harshal662",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "P-Pole",
+      "name": "Pawel Poleszczuk",
+      "avatar_url": "https://avatars.githubusercontent.com/u/94129321?v=4",
+      "profile": "https://www.linkedin.com/in/software-developer-engineer/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -61,5 +99,6 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "skipCi": true,
-  "commitConvention": "angular"
+  "commitConvention": "angular",
+  "commitType": "docs"
 }

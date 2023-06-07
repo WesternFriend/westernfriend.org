@@ -66,11 +66,8 @@ class DonatePage(Page):
         donor_address_form = DonorAddressForm(request.POST)
         donation_form = DonationForm(request.POST)
 
-        if request.method == "POST":
-            if donation_form.is_valid():
-                return process_donation_request(
-                    request, donation_form, donor_address_form
-                )
+        if request.method == "POST" and donation_form.is_valid():
+            return process_donation_request(request, donation_form, donor_address_form)
 
         # Send donor address form to client
         # Note, we manually create the donation form in the template
@@ -117,8 +114,10 @@ class Donation(models.Model):
         return self.amount
 
     def recurring(self):
-        """Determine whether Donation is recurring.
-        Return True if Donation recurrence is "monthly" or "yearly", otherwise False"""
+        """Determine whether Donation is recurring
+        
+        Return True if Donation recurrence is "monthly" or "yearly", otherwise False
+        """
 
         return self.recurrence in (
             self.DonationRecurrenceChoices.MONTHLY,

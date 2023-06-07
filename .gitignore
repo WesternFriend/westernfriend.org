@@ -115,3 +115,6 @@ media/
 
 # Mac stuff
 *.DS_Store
+
+# Data migration
+migration_data/

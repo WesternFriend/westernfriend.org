@@ -34,7 +34,7 @@ class MagazineIssueButtonHelperClass(PageButtonHelper):
             "url": self.url_helper.get_action_url("add-child", pk),
             "label": "Add Article",
             "classname": final_classnames,
-            "title": "Add article under this %s" % self.verbose_name,
+            "title": f"Add article under this {self.verbose_name}",
         }
 
     def get_buttons_for_obj(

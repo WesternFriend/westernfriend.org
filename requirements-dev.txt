@@ -122,25 +122,21 @@ jmespath==1.0.1
 l18n==2021.3
     # via wagtail
 mypy==1.3.0
-    # via django-stubs
+    # via
+    #   Western-Friend-website (pyproject.toml)
+    #   django-stubs
 mypy-extensions==1.0.0
     # via
     #   black
     #   mypy
 nodeenv==1.8.0
     # via pre-commit
-numpy==1.24.3
-    # via pandas
 openpyxl==3.1.2
     # via wagtail
 packaging==23.1
     # via
     #   black
     #   build
-pandas==2.0.2
-    # via Western-Friend-website (pyproject.toml)
-pandas-stubs==2.0.1.230501
-    # via Western-Friend-website (pyproject.toml)
 pathspec==0.11.1
     # via black
 pillow==9.5.0
@@ -163,7 +159,6 @@ python-dateutil==2.8.2
     # via
     #   arrow
     #   botocore
-    #   pandas
 python-dotenv==1.0.0
     # via Western-Friend-website (pyproject.toml)
 pytz==2023.3
@@ -172,7 +167,6 @@ pytz==2023.3
     #   django-timezone-field
     #   djangorestframework
     #   l18n
-    #   pandas
 pyyaml==6.0
     # via pre-commit
 requests==2.31.0
@@ -201,12 +195,12 @@ types-beautifulsoup4==4.12.0.5
 types-html5lib==1.1.11.14
     # via types-beautifulsoup4
 types-pytz==2023.3.0.0
-    # via
-    #   django-stubs
-    #   pandas-stubs
+    # via django-stubs
 types-pyyaml==6.0.12.10
     # via django-stubs
 types-requests==2.31.0.1
+    # via Western-Friend-website (pyproject.toml)
+types-tqdm==4.65.0.1
     # via Western-Friend-website (pyproject.toml)
 types-urllib3==1.26.25.13
     # via types-requests
@@ -219,9 +213,7 @@ typing-extensions==4.6.3
     #   mypy
     #   pydantic
 tzdata==2023.3
-    # via
-    #   Western-Friend-website (pyproject.toml)
-    #   pandas
+    # via Western-Friend-website (pyproject.toml)
 urllib3==1.26.16
     # via
     #   botocore
