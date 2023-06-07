@@ -19,11 +19,13 @@ from content_migration.management.errors import (
 
 from content_migration.management.shared import (
     create_document_link_block,
+    create_group_by,
     create_image_block,
     extract_image_urls,
     fetch_file_bytes,
     get_existing_magazine_author_from_db,
     parse_body_blocks,
+    parse_csv_file,
     parse_media_blocks,
     create_media_embed_block,
 )
@@ -398,6 +400,63 @@ class ParseMediaBlocksTestCase(TestCase):
         self.assertEqual(
             output_media_blocks,
             expected_media_blocks,
+        )
+
+
+class ParseCsvFileSimpleTestCase(SimpleTestCase):
+    def test_parse_csv_file(self) -> None:
+        input_csv_file_path = "content_migration/management/test_parse_csv_file.csv"
+        output_parsed_csv_file = parse_csv_file(input_csv_file_path)
+        expected_parsed_csv_file = [
+            {
+                "column_one": "value one",
+                "column_two": "value two",
+            }
+        ]
+
+        self.assertEqual(
+            output_parsed_csv_file,
+            expected_parsed_csv_file,
+        )
+
+
+class CreateGroupBySimpleTestCase(SimpleTestCase):
+    def test_create_group_by(self) -> None:
+        input_list = [
+            {
+                "column_one": "value one",
+                "column_two": "value two",
+            },
+            {
+                "column_one": "value one",
+                "column_two": "value two",
+            },
+            {
+                "column_one": "value one",
+                "column_two": "value two",
+            },
+        ]
+        output_grouped_list = create_group_by("column_one", input_list)
+        expected_grouped_list = {
+            "value one": [
+                {
+                    "column_one": "value one",
+                    "column_two": "value two",
+                },
+                {
+                    "column_one": "value one",
+                    "column_two": "value two",
+                },
+                {
+                    "column_one": "value one",
+                    "column_two": "value two",
+                },
+            ]
+        }
+
+        self.assertEqual(
+            output_grouped_list,
+            expected_grouped_list,
         )
 
 
