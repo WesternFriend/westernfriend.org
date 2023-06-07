@@ -1,5 +1,5 @@
 import os
-import urllib.request
+import requests
 
 from content_migration.management.constants import (
     IMPORT_FILENAMES,
@@ -21,9 +21,6 @@ def handle_file_downloads(data_directory_url: str) -> None:
         download_url = f"{data_directory_url}{filename}"
         local_file_path = f"{LOCAL_MIGRATION_DATA_DIRECTORY}{filename}"
 
-        # make sure URL starts with https
-        if download_url.startswith("https://"):
-            urllib.request.urlretrieve(
-                url=download_url,
-                filename=local_file_path,
-            )
+        response = requests.get(download_url)
+        with open(local_file_path, "wb") as f:
+            f.write(response.content)
