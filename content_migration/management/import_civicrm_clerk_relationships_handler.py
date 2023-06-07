@@ -5,8 +5,8 @@
 import re
 
 from django.core.exceptions import ObjectDoesNotExist
-import pandas as pd
 from contact.models import Meeting, MeetingPresidingClerk, Person, PersonIndexPage
+from content_migration.management.shared import parse_csv_file
 
 
 def extract_contact_id_from(contact_name: str) -> int:
@@ -54,7 +54,7 @@ def extract_contact_ids_from(relationship: dict) -> dict[str, int]:
 
 
 def handle_import_civicrm_clerk_relationships(file_name: str) -> None:
-    relationships = pd.read_csv(file_name).to_dict("records")
+    relationships = parse_csv_file(file_name)
 
     for relationship in relationships:
         contact_ids = extract_contact_ids_from(relationship)

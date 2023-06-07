@@ -2,12 +2,12 @@ import html
 from datetime import datetime
 from io import BytesIO
 
-import pandas as pd
 import requests
 from django.core.files.images import ImageFile
 from django.utils.timezone import make_aware
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 from wagtail.images.models import Image
+from content_migration.management.shared import parse_csv_file
 
 from magazine.models import MagazineIndexPage, MagazineIssue
 
@@ -16,7 +16,7 @@ def handle_import_magazine_issues(file_name: str) -> None:
     # Get the only instance of Magazine Index Page
     magazine_index_page = MagazineIndexPage.objects.get()
 
-    issues_list = pd.read_csv(file_name).to_dict("records")
+    issues_list = parse_csv_file(file_name)
 
     for issue in tqdm(issues_list, desc="Issues", unit="row"):
         issue_exists = MagazineIssue.objects.filter(

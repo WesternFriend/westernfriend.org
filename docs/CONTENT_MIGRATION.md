@@ -45,6 +45,18 @@ The general import order should be:
    3. Items
 5. Memorials
 
+## Migration Data
+
+The migration data need to reside in the `migration_data/` directory, or whatever directory is defined in `content_migration/management/constants.py` by the `LOCAL_MIGRATION_DATA_DIRECTORY`constant. Manually place the data in the local migration data directory, or use the download script described below.
+
+### Download
+
+The migration data can be kept in a remote or local folder. In the case of a remote folder, run the following command to place the migration data in the correct `migration_data/` directory.
+
+```sh
+python manage.py download_migration_data <http://url-to-data>
+```
+
 ## Pre-processing
 
 Some data must be pre-processed and manually cleaned prior to import.

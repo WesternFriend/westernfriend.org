@@ -1,3 +1,4 @@
+import csv
 from dataclasses import dataclass
 import html
 from io import BytesIO
@@ -220,6 +221,28 @@ def get_existing_magazine_author_from_db(
         raise DuplicateContactError()
     else:
         return results[0]
+
+
+def parse_csv_file(csv_file_path: str) -> list[dict]:
+    """Parse a CSV file into a list of dictionaries"""
+    with open(csv_file_path) as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        return list(csv_reader)
+
+
+def create_group_by(group_by_key: str, items: list[dict]) -> dict:
+    """Group a list of dictionaries by a key"""
+    grouped_items: dict = {}
+
+    for item in items:
+        key = item[group_by_key]
+
+        if key not in grouped_items:
+            grouped_items[key] = []
+
+        grouped_items[key].append(item)
+
+    return grouped_items
 
 
 def extract_image_urls(item: str) -> list[Image]:

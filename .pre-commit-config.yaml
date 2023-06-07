@@ -52,5 +52,5 @@ repos:
     rev: "v1.3.0"
     hooks:
       - id: mypy
-        additional_dependencies: [types-requests]
+        additional_dependencies: [types-requests, django-stubs, dj-database-url]
         exclude: "/migrations/.*\\.py"

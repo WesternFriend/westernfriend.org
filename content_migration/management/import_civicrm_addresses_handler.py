@@ -1,7 +1,7 @@
-import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 
 from contact.models import Meeting, MeetingAddress
+from content_migration.management.shared import parse_csv_file
 
 
 def create_meeting_addresses(meeting: Meeting, row: dict) -> None:
@@ -42,7 +42,7 @@ def create_meeting_addresses(meeting: Meeting, row: dict) -> None:
 
 
 def handle_import_civicrm_addresses(file_name: str) -> None:
-    addresses = pd.read_csv(file_name).to_dict("records")
+    addresses = parse_csv_file(file_name)
 
     for row in addresses:
         contact_subtype = row["Contact Subtype"]

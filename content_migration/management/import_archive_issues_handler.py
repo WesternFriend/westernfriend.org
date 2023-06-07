@@ -1,5 +1,5 @@
-import pandas as pd
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
+from content_migration.management.shared import parse_csv_file
 
 from magazine.models import ArchiveIssue, DeepArchiveIndexPage
 
@@ -8,9 +8,13 @@ def handle_import_archive_issues(file_name: str) -> None:
     # Get the only instance of Deep Archive Index Page
     deep_archive_index_page = DeepArchiveIndexPage.objects.get()
 
-    issues = pd.read_csv(file_name).to_dict("records")
+    issues = parse_csv_file(file_name)
 
-    for issue in tqdm(issues, desc="Archive issues", unit="row"):
+    for issue in tqdm(
+        issues,
+        desc="Archive issues",
+        unit="row",
+    ):
         issue_exists = ArchiveIssue.objects.filter(
             internet_archive_identifier=issue["internet_archive_identifier"]
         ).exists()
