@@ -10,12 +10,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
-            "data_directory_url",
+            "url",
             type=str,
             help="Data directory URL",
         )
 
     def handle(self, *args: tuple, **options: dict[str, str]) -> None:
-        data_directory_url: str = options["data_directory_url"]  # type: ignore
+        data_directory_url: str = options["url"]  # type: ignore
 
         handle_file_downloads(data_directory_url)
