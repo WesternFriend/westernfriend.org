@@ -43,7 +43,7 @@ from wf_pages.models import WfPage
 class Command(BaseCommand):
     help = "Create initial site structure"
 
-    def handle(self, *args: tuple, **options: dict[str, str]) -> None:
+    def handle(self, *args: tuple, _: dict[str, str]) -> None:
         try:
             root_page = Page.objects.get(id=1)
         except Page.DoesNotExist:
