@@ -28,7 +28,9 @@ def create_meeting(
     meeting = Meeting(
         title=author["drupal_full_name"],
         drupal_author_id=author["drupal_author_id"],
-        civicrm_id=author["civicrm_contact_id"],
+        civicrm_id=author["civicrm_contact_id"]
+        if author["civicrm_contact_id"] != ""
+        else None,
     )
 
     meeting_index_page.add_child(instance=meeting)
@@ -43,7 +45,9 @@ def create_organization(
     organization = Organization(
         title=author["drupal_full_name"],
         drupal_author_id=author["drupal_author_id"],
-        civicrm_id=author["civicrm_contact_id"],
+        civicrm_id=author["civicrm_contact_id"]
+        if author["civicrm_contact_id"] != ""
+        else None,
     )
 
     organization_index_page.add_child(instance=organization)
@@ -59,7 +63,9 @@ def create_person(
         given_name=author["given_name"],
         family_name=author["family_name"],
         drupal_author_id=author["drupal_author_id"],
-        civicrm_id=author["civicrm_contact_id"],
+        civicrm_id=author["civicrm_contact_id"]
+        if author["civicrm_contact_id"] != ""
+        else None,
     )
 
     person_index_page.add_child(instance=person)
@@ -72,12 +78,19 @@ def import_author_records(authors_list: list[dict]) -> None:
     organization_index_page = OrganizationIndexPage.objects.get()
     person_index_page = PersonIndexPage.objects.get()
 
-    for author in tqdm(authors_list, desc="Primary Author records", unit="row"):
+    if not meeting_index_page or not organization_index_page or not person_index_page:
+        raise Exception("Could not find author index pages")
+
+    for author in tqdm(
+        authors_list,
+        desc="Primary Author records",
+        unit="row",
+    ):
         author_type = author["author_type"]
 
         # Don't import duplicate authors
         # Instead, clean them up in the Drupal site
-        if author["duplicate_of_id"] is not None:
+        if author["duplicate_of_id"] != "":
             logger.warning(
                 f"Author { author['drupal_author_id'] } is marked as a duplicate"
             )
