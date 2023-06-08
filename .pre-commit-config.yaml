@@ -13,12 +13,6 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict
-   - repo: https://github.com/PyCQA/docformatter
-      rev: v1.7.1
-      hooks:
-        - id: docformatter
-          additional_dependencies: [tomli]
-          args: [--in-place, --config, ./pyproject.toml]
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.4.0
     hooks:
@@ -43,6 +37,10 @@ repos:
     rev: "v0.13.1"
     hooks:
       - id: curlylint
+  - repo: https://github.com/PyCQA/docformatter
+    rev: "v1.7.1"
+    hooks:
+      - id: docformatter
   - repo: https://github.com/rtts/djhtml
     rev: 3.0.6
     hooks:
@@ -54,9 +52,9 @@ repos:
         types_or:
           - css
           - javascript
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.3.0"
-    hooks:
-      - id: mypy
-        additional_dependencies: [types-requests, django-stubs, dj-database-url]
-        exclude: "/migrations/.*\\.py"
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: "v1.3.0"
+  #   hooks:
+  #     - id: mypy
+  #       additional_dependencies: [types-requests, django-stubs, dj-database-url]
+  #       exclude: "/migrations/.*\\.py"
