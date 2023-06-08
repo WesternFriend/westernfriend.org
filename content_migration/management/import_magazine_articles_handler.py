@@ -98,12 +98,12 @@ def handle_import_magazine_articles(file_name: str) -> None:
         article_body_blocks = []
         body_migrated = None
 
-        if row["body"] is not None:
+        if row["body"] != "":
             article_body_blocks = parse_body_blocks(row["body"])
             body_migrated = row["body"]
 
         # Download and parse article media
-        if row["media"] is not None:
+        if row["media"] != "":
             media_blocks = parse_media_blocks(row["media"].split(", "))
 
             # Merge media blocks with article body blocks
@@ -124,14 +124,14 @@ def handle_import_magazine_articles(file_name: str) -> None:
         )
 
         # Assign authors to article
-        if row["authors"] is not None:
+        if row["authors"] != "":
             article = parse_article_authors(
                 article,
                 row["authors"],
             )
 
         # Assign keywards to article
-        if row["keywords"] is not None:
+        if row["keywords"] != "":
             for keyword in row["keywords"].split(", "):
                 article.tags.add(keyword)
 
