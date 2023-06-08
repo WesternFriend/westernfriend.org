@@ -2,8 +2,8 @@ from wagtail.admin.panels import InlinePanel
 
 
 class NestedInlinePanel(InlinePanel):
-    """
-    Temporary fix so that page chooser renders correctly in nested inline panels.
+    """Temporary fix so that page chooser renders correctly in nested inline
+    panels.
 
     Issue: https://github.com/wagtail/wagtail/issues/5126
     """

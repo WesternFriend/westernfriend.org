@@ -24,8 +24,7 @@ def extract_given_name(given_name_with_contact_id: str) -> str:
 
 
 def extract_given_and_family_name(contact_name: str) -> list[str]:
-    """
-    Extract given and family names from a CiviCRM contact name string.
+    """Extract given and family names from a CiviCRM contact name string.
 
     CiviCRM contact export contains name in the following format.
 

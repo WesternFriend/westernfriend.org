@@ -66,7 +66,7 @@ def create_document_link_block(
     file_name: str,
     file_bytes: BytesIO,
 ) -> tuple[str, Document]:
-    """Create a document link block from a file name and bytes
+    """Create a document link block from a file name and bytes.
 
     Returns a tuple of the form: ("document", document)
     """
@@ -129,7 +129,7 @@ def create_image_block(
 
 
 def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
-    """Fetch a file from a URL and return the file bytes"""
+    """Fetch a file from a URL and return the file bytes."""
     try:
         response = requests.get(url)
     except requests.exceptions.RequestException:
@@ -188,10 +188,9 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
 def get_existing_magazine_author_from_db(
     drupal_author_id: str | int,
 ) -> Person | Meeting | Organization:
-    """
-    Given a Drupal Author ID,
-    Search across all types of contacts for a matching result.
-    If the author is a duplicate, return the primary author record.
+    """Given a Drupal Author ID, Search across all types of contacts for a
+    matching result. If the author is a duplicate, return the primary author
+    record.
 
     Verify that any matches are unique.
 
@@ -224,14 +223,14 @@ def get_existing_magazine_author_from_db(
 
 
 def parse_csv_file(csv_file_path: str) -> list[dict]:
-    """Parse a CSV file into a list of dictionaries"""
+    """Parse a CSV file into a list of dictionaries."""
     with open(csv_file_path) as csv_file:
         csv_reader = csv.DictReader(csv_file)
         return list(csv_reader)
 
 
 def create_group_by(group_by_key: str, items: list[dict]) -> dict:
-    """Group a list of dictionaries by a key"""
+    """Group a list of dictionaries by a key."""
     grouped_items: dict = {}
 
     for item in items:
@@ -246,7 +245,7 @@ def create_group_by(group_by_key: str, items: list[dict]) -> dict:
 
 
 def extract_image_urls(item: str) -> list[Image]:
-    """Parse images from HTML string"""
+    """Parse images from HTML string."""
 
     # parse images from HTML string containing <img> tags
     soup = BeautifulSoup(item, "html.parser")

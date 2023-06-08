@@ -329,8 +329,8 @@ class MagazineArticle(Page):
 
     @property
     def is_public_access(self):
-        """Check whether article should be accessible to all readers
-        or only subscribers based on issue publication date."""
+        """Check whether article should be accessible to all readers or only
+        subscribers based on issue publication date."""
         parent_issue = self.get_parent()
 
         today = arrow.utcnow()

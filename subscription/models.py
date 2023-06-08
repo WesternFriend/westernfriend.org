@@ -56,7 +56,8 @@ SUBSCRIPTION_PRICE_COMPONENTS = {
 def process_subscription_form(subscription_form, request):
     """Given a valid subscription form, will save and associate with a user.
 
-    TODO: determine how to share this function with the "manage subscription" page"""
+    TODO: determine how to share this function with the "manage subscription" page
+    """
     # Create a temporary subscription object to modify it's fields
     subscription = subscription_form.save(commit=False)
 

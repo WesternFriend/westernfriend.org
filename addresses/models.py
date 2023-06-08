@@ -7,8 +7,7 @@ ADDRESS_TYPE_CHOICES = (("mailing", "Mailing"), ("worship", "Worship"))
 
 
 class Address(models.Model):
-    """
-    Model representing a street or post office address.
+    """Model representing a street or post office address.
 
     Properties are modelled after Microformats specification.
     http://microformats.org/wiki/adr

@@ -29,14 +29,13 @@ def extract_image_urls(block_content: str) -> list[str]:
 
 
 def extract_pullquotes(item: str) -> list[str]:
-    """Get a list of all pullquote strings found within the item"""
+    """Get a list of all pullquote strings found within the item."""
 
     return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item)
 
 
 def remove_pullquote_tags(item_string: str) -> str:
-    """
-    Remove "[pullquote]" and "[/pullquote]" tags in string
+    """Remove "[pullquote]" and "[/pullquote]" tags in string.
 
     https://stackoverflow.com/a/44593228/1191545
     """

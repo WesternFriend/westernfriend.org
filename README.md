@@ -13,7 +13,7 @@ A website for [Western Friend](https://westernfriend.org), a Quaker publication 
 
 We welcome contributors of all backgrounds and interests, including design, testing, accessibility, community building, and writing code. Please stop by the [community discussions](https://github.com/WesternFriend/WF-website/discussions) to introduce yourself and see what we're working on.
 
-If you would like to contribute code, feel free to check out our [contributing guide](docs/CONTRIBUTING.md). Stop by the 
+If you would like to contribute code, feel free to check out our [contributing guide](docs/CONTRIBUTING.md).
 
 ## Contributors ✨
 
