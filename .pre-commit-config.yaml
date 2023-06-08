@@ -13,6 +13,12 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict
+   - repo: https://github.com/PyCQA/docformatter
+      rev: v1.7.1
+      hooks:
+        - id: docformatter
+          additional_dependencies: [tomli]
+          args: [--in-place, --config, ./pyproject.toml]
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.4.0
     hooks:
