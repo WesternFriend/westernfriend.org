@@ -52,9 +52,9 @@ repos:
         types_or:
           - css
           - javascript
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: "v1.3.0"
-  #   hooks:
-  #     - id: mypy
-  #       additional_dependencies: [types-requests, django-stubs, dj-database-url]
-  #       exclude: "/migrations/.*\\.py"
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: "v1.3.0"
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests, django-stubs, dj-database-url]
+        exclude: "/migrations/.*\\.py"
