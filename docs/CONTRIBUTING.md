@@ -95,6 +95,12 @@ If you would like to use an alternative to Docker/Docker UI, try running [Colima
 colima start
 ```
 
+If Colima fails to start with an error about `ha.sock`, run the following command before running `colima start`
+
+```sh
+limactl stop -f colima
+```
+
 ## Dependency management
 
 ### Generating requirements files
