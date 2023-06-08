@@ -9,12 +9,11 @@
 
 A website for [Western Friend](https://westernfriend.org), a Quaker publication that provides resources and support for Quaker communities and individuals seeking to live out their faith in the world. Western Friend is part of the Religious Society of Friends.
 
+## Contributing
 
-## Attribution
+We welcome contributors of all backgrounds and interests, including design, testing, accessibility, community building, and writing code. Please stop by the [community discussions](https://github.com/WesternFriend/WF-website/discussions) to introduce yourself and see what we're working on.
 
-Portions of code for the Store and Cart apps come used, with permission, from the book [Django 2 by Example](https://www.packtpub.com/application-development/django-2-example) by Antonio Melé.
-
-Portions of help text are borrowed from the California Community Colleges Accessibility Center [HTML Headings article](https://cccaccessibility.org/web-1/web-developer-tutorials/html-headings).
+If you would like to contribute code, feel free to check out our [contributing guide](docs/CONTRIBUTING.md). Stop by the 
 
 ## Contributors ✨
 
@@ -48,3 +47,9 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+## Attribution
+
+Portions of code for the Store and Cart apps come used, with permission, from the book [Django 2 by Example](https://www.packtpub.com/application-development/django-2-example) by Antonio Melé.
+
+Portions of help text are borrowed from the California Community Colleges Accessibility Center [HTML Headings article](https://cccaccessibility.org/web-1/web-developer-tutorials/html-headings).
