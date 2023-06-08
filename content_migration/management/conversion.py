@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup, Tag
 from django.core.files.images import ImageFile
 import requests
 from wagtail.images.models import Image
+from wagtail.rich_text import RichText
 
 from content_migration.management.errors import (
     BlockFactoryError,
@@ -104,7 +105,7 @@ class BlockFactory:
         if generic_block.block_type == "rich_text":
             return (
                 generic_block.block_type,
-                generic_block.block_content,
+                RichText(generic_block.block_content),
             )
         elif generic_block.block_type == "image":
             try:
