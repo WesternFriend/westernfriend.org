@@ -91,6 +91,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "ErnstBas",
+      "name": "Bas Ernst",
+      "avatar_url": "https://avatars.githubusercontent.com/u/50556177?v=4",
+      "profile": "https://github.com/ErnstBas",
+      "contributions": [
+        "code",
+        "security"
+      ]
     }
   ],
   "contributorsPerLine": 7,
