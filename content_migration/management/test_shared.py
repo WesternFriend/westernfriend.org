@@ -1,5 +1,6 @@
 from django.test import TestCase, SimpleTestCase
 from wagtail.models import Page, Site
+from wagtail.rich_text import RichText
 
 
 import requests
@@ -65,6 +66,8 @@ class ParseBodyBlocksTestCase(TestCase):
     def test_parse_body_blocks(self) -> None:
         self.MaxDiff = None
         input_html = """<p>Some text[pullquote]with a pullquote[/pullquote]</p>"""
+        expected_output_html = """<p>Some textwith a pullquote</p>"""
+
         output_blocks = parse_body_blocks(input_html)
         expected_blocks = [
             (
@@ -73,13 +76,26 @@ class ParseBodyBlocksTestCase(TestCase):
             ),
             (
                 "rich_text",
-                """<p>Some textwith a pullquote</p>""",
+                RichText(expected_output_html),
             ),
         ]
 
+        # Make sure first output block matches first expected block
         self.assertEqual(
-            output_blocks,
-            expected_blocks,
+            output_blocks[0],
+            expected_blocks[0],
+        )
+
+        # Make sure second output block matches second expected block
+        # by comparing the .source attribute on the RichText objects
+        # and the block type is rich_text
+        self.assertEqual(
+            output_blocks[1][1].source,
+            expected_blocks[1][1].source,
+        )
+        self.assertEqual(
+            output_blocks[1][0],
+            expected_blocks[1][0],
         )
 
     def test_parse_body_blocks_with_multiple_pullquotes(self) -> None:
@@ -95,13 +111,19 @@ class ParseBodyBlocksTestCase(TestCase):
         expected_blocks = [
             (
                 "rich_text",
-                """<p>One paragraph.</p><p>Another paragraph.</p>""",
+                RichText("""<p>One paragraph.</p><p>Another paragraph.</p>"""),
             ),
         ]
 
+        # assert that outblocks rich text source matches the input html
         self.assertEqual(
-            output_blocks,
-            expected_blocks,
+            output_blocks[0][1].source,
+            expected_blocks[0][1].source,
+        )
+        # Assert that the block type is rich_text
+        self.assertEqual(
+            output_blocks[0][0],
+            expected_blocks[0][0],
         )
 
     def test_parse_body_blocks_with_multiple_paragraphs_and_a_pullquote(self) -> None:
@@ -112,7 +134,7 @@ class ParseBodyBlocksTestCase(TestCase):
         expected_blocks = [
             (
                 "rich_text",
-                """<p>One paragraph.</p><p>Another paragraph.</p>""",  # noqa: E501
+                RichText("""<p>One paragraph.</p><p>Another paragraph.</p>"""),
             ),
             (
                 "pullquote",
@@ -120,13 +142,41 @@ class ParseBodyBlocksTestCase(TestCase):
             ),
             (
                 "rich_text",
-                """<p>A pullquote inside of a paragraph</p>""",
+                RichText("""<p>A pullquote inside of a paragraph</p>"""),
             ),
         ]
 
+        # The first block should be a rich_text block
         self.assertEqual(
-            output_blocks,
-            expected_blocks,
+            output_blocks[0][0],
+            expected_blocks[0][0],
+        )
+        # The first block should have a source that matches the input html
+        self.assertEqual(
+            output_blocks[0][1].source,
+            expected_blocks[0][1].source,
+        )
+
+        # The second block should be a pullquote block
+        self.assertEqual(
+            output_blocks[1][0],
+            expected_blocks[1][0],
+        )
+        # The second block should have a source that matches the input html
+        self.assertEqual(
+            output_blocks[1][1],
+            expected_blocks[1][1],
+        )
+
+        # The third block should be a rich_text block
+        self.assertEqual(
+            output_blocks[2][0],
+            expected_blocks[2][0],
+        )
+        # The third block should have a source that matches the input html
+        self.assertEqual(
+            output_blocks[2][1].source,
+            expected_blocks[2][1].source,
         )
 
     def test_parse_body_blocks_witn_none_as_input(self) -> None:
