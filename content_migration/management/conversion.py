@@ -26,6 +26,16 @@ class GenericBlock:
     block_content: str
 
 
+def convert_relative_image_url_to_absolute(image_url: str) -> str:
+    # Check if the URL starts with / and append the site base URL
+    # ensuring there are not double // characters
+    # TODO: move this to a shared function
+    if image_url is not None and image_url.startswith("/"):
+        image_url = SITE_BASE_URL + image_url.lstrip("/")
+
+    return image_url
+
+
 def extract_image_urls(block_content: str) -> list[str]:
     # extract image src URLs from HTML string
     soup = BeautifulSoup(block_content, "html.parser")
@@ -66,11 +76,6 @@ def create_image_block(image_url: str) -> dict:
 
     # download file bytes with requests
     try:
-        # Check if the URL starts with / and append the site base URL
-        # ensuring there are not double // characters
-        # TODO: move this to a shared function
-        if image_url.startswith("/"):
-            image_url = SITE_BASE_URL + image_url.lstrip("/")
         response = requests.get(image_url)
     except requests.exceptions.MissingSchema:
         logger.error(f"Invalid image URL, missing schema: { image_url }")
@@ -198,6 +203,8 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                 image_urls = extract_image_urls(item_string)
 
                 for image_url in image_urls:
+                    image_url = convert_relative_image_url_to_absolute(image_url)
+
                     generic_blocks.append(
                         GenericBlock(
                             block_type="image",
