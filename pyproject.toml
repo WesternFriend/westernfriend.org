@@ -111,15 +111,15 @@ target-version = ['py311']
 profile = "black"
 
 # TODO: add this back in when we figure out how to make it work
-# [tool.mypy]
-# plugins = ["mypy_django_plugin.main"]
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
 
 [[tool.mypy.overrides]]
 module = "wagtail.*"
 ignore_missing_imports = true
 
-# [tool.django-stubs]
-# django_settings_module = "core.settings.base"
+[tool.django-stubs]
+django_settings_module = "core.settings.base"
 
 [tool.ruff]
 # Same as Black.

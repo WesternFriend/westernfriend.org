@@ -31,8 +31,10 @@ You can set up a development environment with the following steps:
 3. create a virtual environment
    - `python -m venv .venv`
 4. activate the virtual environment
-  - Mac/Linux: `source .venv/bin/activate`
-  - Windows PowerShell: `.venv\Scripts\Activate.ps1`
+
+- Mac/Linux: `source .venv/bin/activate`
+- Windows PowerShell: `.venv\Scripts\Activate.ps1`
+
 5. install the project dependencies
    - `pip install -r requirements.txt -r requirements-dev.txt`
 6. activate `pre-commit` for automatic code maintenance
@@ -58,9 +60,10 @@ Run database migrations to update the database structure to the latest changes.
 python manage.py migrate
 ```
 
- ### Create a superuser
+### Create a superuser
 
 Create a superuser that will be used to manage website content.
+
 ```sh
 python manage.py createsuperuser
 ```
