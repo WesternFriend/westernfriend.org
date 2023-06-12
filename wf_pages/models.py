@@ -13,6 +13,16 @@ from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, Spacer
 from documents.blocks import DocumentEmbedBlock
 
 
+class MollyWingateBlogIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("intro")]
+
+    parent_page_types = ["home.HomePage"]
+    subpage_types: list[str] = ["wf_pages.MollyWingateBlogPage"]
+    max_count = 1
+
+
 class WfPageCollectionIndexPage(Page):
     intro = RichTextField(blank=True)
 
@@ -80,6 +90,11 @@ class WfPage(Page):
         null=True,
         blank=True,
     )
+    drupal_node_id = models.IntegerField(
+        help_text="Used only for content from old Drupal website.",
+        null=True,
+        blank=True,
+    )
     collection = models.ForeignKey(
         WfPageCollection,
         null=True,
@@ -111,3 +126,18 @@ class WfPage(Page):
     class Meta:
         verbose_name = "Page"
         verbose_name_plural = "Pages"
+
+
+class MollyWingateBlogPage(WfPage):
+    publication_date = models.DateField("Publication date")
+
+    content_panels = WfPage.content_panels + [
+        FieldPanel("publication_date"),
+    ]
+
+    parent_page_types = ["wf_pages.MollyWingateBlogIndexPage"]
+    subpage_types: list[str] = []
+
+    class Meta:
+        verbose_name = "Molly Wingate Blog Post"
+        verbose_name_plural = "Molly Wingate Blog Posts"

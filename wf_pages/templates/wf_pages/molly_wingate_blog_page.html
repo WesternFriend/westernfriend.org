@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>
+        {{ page.title }}
+    </h1>
+
+    <!--
+        comma separated tags witout trailing comma
+        each tag is a link to the search page with that
+        tag as a query parameter
+    -->
+    <p>
+        {% for tag in page.tags.all %}
+            <a href="{% url 'search' %}?query={{ tag|urlencode }}">
+                {{ tag }}
+            </a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+
+    <p>
+        <small>
+            Published on {{ page.publication_date }}
+        </small>
+    </p>
+
+    {{ page.body }}
+{% endblock content %}
