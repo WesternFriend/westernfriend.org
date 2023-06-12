@@ -22,6 +22,9 @@ from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
     DuplicateContactError,
 )
+from content_migration.management.constants import (
+    SITE_BASE_URL,
+)
 from content_migration.management.conversion import (
     adapt_html_to_generic_blocks,
     BlockFactory,
@@ -130,6 +133,7 @@ def create_image_block(
 
 def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
     """Fetch a file from a URL and return the file bytes."""
+
     try:
         response = requests.get(url)
     except requests.exceptions.RequestException:
@@ -149,6 +153,11 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
     for url in media_urls:
         if url == "":
             continue
+
+        # Check if the URL starts with / and append the site base URL
+        # ensuring there are not double // characters
+        if url.startswith("/"):
+            url = SITE_BASE_URL + url.lstrip("/")
 
         domain = urlparse(url).netloc
 
