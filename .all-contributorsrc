@@ -101,6 +101,16 @@
         "code",
         "security"
       ]
+    },
+    {
+      "login": "alhcomer",
+      "name": "Aidan Comer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/65968889?v=4",
+      "profile": "https://github.com/alhcomer",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
