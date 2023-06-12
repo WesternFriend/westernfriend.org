@@ -8,6 +8,7 @@ from django.core.files.images import ImageFile
 import requests
 from wagtail.images.models import Image
 from wagtail.rich_text import RichText
+from content_migration.management.constants import SITE_BASE_URL
 
 from content_migration.management.errors import (
     BlockFactoryError,
@@ -62,6 +63,11 @@ def create_image_block(image_url: str) -> dict:
 
     # download file bytes with requests
     try:
+        # Check if the URL starts with / and append the site base URL
+        # ensuring there are not double // characters
+        # TODO: move this to a shared function
+        if image_url.startswith("/"):
+            image_url = SITE_BASE_URL + image_url.lstrip("/")
         response = requests.get(image_url)
     except requests.exceptions.MissingSchema:
         logger.error(f"Invalid image URL, missing schema: { image_url }")
