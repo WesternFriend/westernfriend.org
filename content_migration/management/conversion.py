@@ -16,6 +16,9 @@ from content_migration.management.errors import (
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_IMAGE_WIDTH = 350
+DEFAULT_IMAGE_ALIGN = "left"
+
 
 @dataclass
 class GenericBlock:
@@ -95,11 +98,11 @@ def create_image_block(image_url: str) -> dict:
     )
     image.save()
 
-    # Create a dictionary with properties
-    # of FormattedImageChooserStructBlock
+    # Create an image block with dictionary properties
     image_chooser_block = {
         "image": image,
-        "width": 800,
+        "width": DEFAULT_IMAGE_WIDTH,
+        "align": DEFAULT_IMAGE_ALIGN,
     }
 
     return image_chooser_block
