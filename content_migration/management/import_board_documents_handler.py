@@ -1,10 +1,9 @@
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 
 from tqdm import tqdm
 
-from wagtail.contrib.redirects.models import Redirect
 from content_migration.management.shared import (
+    create_permanent_redirect,
     parse_body_blocks,
     parse_csv_file,
     parse_media_blocks,
@@ -35,7 +34,7 @@ def handle_import_board_documents(file_name: str) -> None:
     public_board_documents_index = PublicBoardDocumentIndexPage.objects.get()
 
     # get a reference to the root site
-    root_site = public_board_documents_index.get_site()
+    public_board_documents_index.get_site()
 
     board_docs_data = parse_csv_file(file_name)
 
@@ -93,17 +92,7 @@ def handle_import_board_documents(file_name: str) -> None:
                 continue
 
             # # create a Wagtail redirect from the old url to the new one
-            try:
-                Redirect.objects.create(
-                    old_path=document_data["url_path"],  # the old path from Drupal
-                    site=root_site,  # the root site
-                    redirect_page=board_document,  # the new page
-                    is_permanent=True,  # permanent redirect
-                ).save()
-            except IntegrityError:
-                print(
-                    "Redirect already exists for: ",
-                    document_data["url_path"],
-                    " to ",
-                    board_document,
-                )
+            create_permanent_redirect(
+                redirect_path=document_data["url_path"],  # the old path from Drupal
+                redirect_entity=board_document,  # the new page
+            )

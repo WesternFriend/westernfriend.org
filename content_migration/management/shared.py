@@ -7,6 +7,7 @@ import logging
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
+from django.db import IntegrityError
 import requests
 from django.core.files import File
 from django.core.files.images import ImageFile
@@ -15,6 +16,8 @@ from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.embeds.models import Embed
 from wagtail.images.models import Image
+from wagtail.models import Page
+from wagtail.contrib.redirects.models import Redirect
 
 from contact.models import Meeting, Organization, Person
 from content_migration.management.errors import (
@@ -281,3 +284,23 @@ def parse_body_blocks(body: str) -> list:
         article_body_blocks.append(streamfield_block)
 
     return article_body_blocks
+
+
+def create_permanent_redirect(
+    redirect_path: str,
+    redirect_entity: Page,
+) -> None:
+    try:
+        Redirect.objects.create(
+            old_path=redirect_path,  # the old path from Drupal
+            site=redirect_entity.get_site(),
+            redirect_page=redirect_entity,  # the new page
+            is_permanent=True,
+        ).save()
+    except IntegrityError:
+        print(
+            "Redirect already exists for: ",
+            redirect_path,
+            " to ",
+            redirect_entity.title,
+        )
