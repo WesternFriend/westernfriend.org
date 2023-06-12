@@ -61,6 +61,7 @@ dependencies = [
     "arrow",
     "braintree",
     "django-crispy-forms",
+    "crispy-bootstrap5",
     "django-registration",
     "django-flatpickr",
     "dj-database-url",

@@ -26,6 +26,8 @@ charset-normalizer==3.1.0
     # via requests
 confusable-homoglyphs==3.2.0
     # via django-registration
+crispy-bootstrap5==0.7
+    # via Western-Friend-website (pyproject.toml)
 defusedxml==0.7.1
     # via willow
 dj-database-url==2.0.0
@@ -33,6 +35,7 @@ dj-database-url==2.0.0
 django==4.2.1
     # via
     #   Western-Friend-website (pyproject.toml)
+    #   crispy-bootstrap5
     #   dj-database-url
     #   django-crispy-forms
     #   django-debug-toolbar
@@ -49,7 +52,9 @@ django==4.2.1
     #   wagtail
     #   wagtailmedia
 django-crispy-forms==2.0
-    # via Western-Friend-website (pyproject.toml)
+    # via
+    #   Western-Friend-website (pyproject.toml)
+    #   crispy-bootstrap5
 django-debug-toolbar==4.1.0
     # via Western-Friend-website (pyproject.toml)
 django-extensions==3.2.1

@@ -111,6 +111,7 @@ INSTALLED_APPS = [
     # Third party (apps that have been installed)
     "django_extensions",
     "crispy_forms",
+    "crispy_bootstrap5",
     "debug_toolbar",
     "django_flatpickr",
     "modelcluster",
@@ -143,7 +144,8 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
 ]
 
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
