@@ -39,7 +39,7 @@ def handle_import_molly_wingate_blog() -> None:
         molly_wingate_blog_index_page.add_child(instance=molly_wingate_blog_page)
 
         create_permanent_redirect(
-            redirect_path=page["drupal_path"],
+            redirect_path=page["url_path"],
             redirect_entity=molly_wingate_blog_page,
         )
 
