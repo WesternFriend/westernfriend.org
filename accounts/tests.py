@@ -66,7 +66,7 @@ class UserModelTest(TestCase):
     def test_is_subscriber(self):
         # Test if is_subscriber returns true if user has subscription
         self.assertEqual(self.user.is_subscriber, True)
-        
+
     def test_is_not_subscriber(self):
         # Test if is_subscriber returns False if user has no subscription
         self.user.subscriptions.all().delete()
