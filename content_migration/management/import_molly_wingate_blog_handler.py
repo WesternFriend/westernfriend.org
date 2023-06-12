@@ -1,6 +1,10 @@
 """Parse and import the Molly Wingate blog."""
 from tqdm import tqdm
-from content_migration.management.shared import parse_body_blocks, parse_csv_file
+from content_migration.management.shared import (
+    create_permanent_redirect,
+    parse_body_blocks,
+    parse_csv_file,
+)
 from content_migration.management.constants import (
     IMPORT_FILENAMES,
     LOCAL_MIGRATION_DATA_DIRECTORY,
@@ -9,11 +13,13 @@ from content_migration.management.constants import (
 from wf_pages.models import MollyWingateBlogIndexPage, MollyWingateBlogPage
 
 
-def handle_import_molly_wingate_blog():
+def handle_import_molly_wingate_blog() -> None:
     """Parse and import the Molly Wingate blog."""
     # Get references to relevant index pages
     molly_wingate_blog_index_page = MollyWingateBlogIndexPage.objects.get()
+
     file_name = LOCAL_MIGRATION_DATA_DIRECTORY + IMPORT_FILENAMES["molly_wingate_blog"]
+
     pages = parse_csv_file(file_name)
 
     for page in tqdm(
@@ -31,3 +37,10 @@ def handle_import_molly_wingate_blog():
         )
 
         molly_wingate_blog_index_page.add_child(instance=molly_wingate_blog_page)
+
+        create_permanent_redirect(
+            redirect_path=page["drupal_path"],
+            redirect_entity=molly_wingate_blog_page,
+        )
+
+    molly_wingate_blog_index_page.save()
