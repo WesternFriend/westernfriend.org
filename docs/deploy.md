@@ -23,8 +23,8 @@ Before creating the app, we need a space to store static files. For that, we wil
 Origin: https://<domain.TLD>
 Allowed Methods: GET
 Allowed Headers:
-- Access-Control-Allow-Origin
-- Referer
+  - Access-Control-Allow-Origin
+  - Referer
 Access Control Max Age: 600
 ```
 
@@ -64,10 +64,9 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `BRAINTREE_PUBLIC_KEY` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
    - `BRAINTREE_PRIVATE_KEY` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
 6. Edit the App Info with the following settings
-      1. Give the app a meaningful name
-      2. Set the Region to San Francisco, so it is closer to most WesternFriend community
+   1. Give the app a meaningful name
+   2. Set the Region to San Francisco, so it is closer to most WesternFriend community
 7. configure a domain (or subdomain) to point to the deployed app
-
 
 ### Example Configuration
 
@@ -99,7 +98,7 @@ Add a domain name [under the app settings](https://docs.digitalocean.com/product
 Access the app console via DigitalOcean admin UI, and run the following commands to initialize the app.
 
 1. Run migrations
-    - `python manage.py migrate`
+   - `python manage.py migrate`
 2. Create a superuser
    - `python manage.py createsuperuser`
 3. Collect static files

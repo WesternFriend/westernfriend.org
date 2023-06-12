@@ -1,10 +1,13 @@
 # Western Friend website
+
 [![Maintainability](https://api.codeclimate.com/v1/badges/76ea96b836b6b622c71c/maintainability)](https://codeclimate.com/github/WesternFriend/WF-website/maintainability)
 [![Test Coverage](https://codecov.io/gh/WesternFriend/WF-website/branch/main/graph/badge.svg?token=2GCLOZ9PIE)](https://codecov.io/gh/WesternFriend/WF-website)
 [![DeepSource](https://app.deepsource.com/gh/WesternFriend/WF-website.svg/?label=active+issues&show_trend=true&token=c_pMTKZ7L0V6APJzlHrbytpc)](https://app.deepsource.com/gh/WesternFriend/WF-website/?ref=repository-badge)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-11-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 A website for [Western Friend](https://westernfriend.org), a Quaker publication that provides resources and support for Quaker communities and individuals seeking to live out their faith in the world. Western Friend is part of the Religious Society of Friends.

@@ -2,10 +2,10 @@ name: Tests and Coverage
 on:
   push:
     branches:
-    - main
+      - main
   pull_request:
     branches:
-    - main
+      - main
 env:
   DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
 concurrency:
@@ -36,55 +36,55 @@ jobs:
           - 5432:5432
 
     steps:
-    #----------------------------------------------
-    #       check-out repo and set-up python
-    #----------------------------------------------
-    - name: Check out repository
-      uses: actions/checkout@v3
-    - name: Set up Python
-      id: setup-python
-      uses: actions/setup-python@master
-      with:
-        python-version: 3.11
-    #----------------------------------------------
-    #       load cached venv if cache exists
-    #----------------------------------------------
-    - name: Load cached venv
-      id: cached-dependencies
-      uses: actions/cache@v3
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/requirements*.txt') }}
-    #----------------------------------------------
-    # install dependencies if cache does not exist
-    #----------------------------------------------
-    - name: Install dependencies
-      if: steps.cached-dependencies.outputs.cache-hit != 'true'
-      run: |
-        python -m venv .venv
-        source .venv/bin/activate
-        pip install -r requirements.txt -r requirements-dev.txt
-    #----------------------------------------------
-    # Run tests, generate and upload code coverage report
-    #----------------------------------------------
-    - name: Run Tests
-      run: |
-        source .venv/bin/activate
-        coverage run manage.py test
-    - name: Generate Coverage Report
-      working-directory: ${{ github.workspace }}
-      run: |
-        source .venv/bin/activate
-        coverage xml
-    - name: Upload to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: ${{github.workspace}}/coverage.xml
-    - name: Upload to Code Climate
-      uses: paambaati/codeclimate-action@v4.0.0
-      env:
-        CC_TEST_REPORTER_ID: 15a71e71a294b41066a953a4ad40a936918f4e34dc5824cc558b26174962702d
-      with:
-        coverageLocations: |
-          ${{github.workspace}}/coverage.xml:coverage.py
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@master
+        with:
+          python-version: 3.11
+      #----------------------------------------------
+      #       load cached venv if cache exists
+      #----------------------------------------------
+      - name: Load cached venv
+        id: cached-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+      #----------------------------------------------
+      # install dependencies if cache does not exist
+      #----------------------------------------------
+      - name: Install dependencies
+        if: steps.cached-dependencies.outputs.cache-hit != 'true'
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt -r requirements-dev.txt
+      #----------------------------------------------
+      # Run tests, generate and upload code coverage report
+      #----------------------------------------------
+      - name: Run Tests
+        run: |
+          source .venv/bin/activate
+          coverage run manage.py test
+      - name: Generate Coverage Report
+        working-directory: ${{ github.workspace }}
+        run: |
+          source .venv/bin/activate
+          coverage xml
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{github.workspace}}/coverage.xml
+      - name: Upload to Code Climate
+        uses: paambaati/codeclimate-action@v4.0.0
+        env:
+          CC_TEST_REPORTER_ID: 15a71e71a294b41066a953a4ad40a936918f4e34dc5824cc558b26174962702d
+        with:
+          coverageLocations: |
+            ${{github.workspace}}/coverage.xml:coverage.py

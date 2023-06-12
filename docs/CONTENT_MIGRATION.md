@@ -233,7 +233,7 @@ python manage.py import_library_items --file /path/to/file
 
 ## Troubleshooting
 
-### AttributeError: 'NoneType' object has no attribute '_inc_path'
+### AttributeError: 'NoneType' object has no attribute '\_inc_path'
 
 When encountering the `AttributeError: 'NoneType' object has no attribute '_inc_path'` error, run the following command:
 
