@@ -40,3 +40,21 @@ document.addEventListener(
   "DOMContentLoaded",
   registerNameElementEventListeners,
 );
+
+function cleanForSlug(text, allow_unicode) {
+  /*
+  Clean text for use in a URL.
+  */
+  const slug_text = text
+    .toLowerCase()
+    // replace spaces with hyphens
+    .replace(/ /g, "-")
+    // remove all non-word chars
+    .replace(/[^\w-]+/g, "");
+
+  if (allow_unicode) {
+    return slug_text;
+  }
+  // replace unicode chars with ascii equivalents
+  return slug_text.replace(/-{2,}/g, "-");
+}
