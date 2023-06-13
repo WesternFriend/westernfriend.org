@@ -1,11 +1,10 @@
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 
 from tqdm import tqdm
 
-from wagtail.contrib.redirects.models import Redirect
 from contact.models import Meeting
 from content_migration.management.shared import (
+    create_permanent_redirect,
     parse_body_blocks,
     parse_csv_file,
     parse_media_blocks,
@@ -34,7 +33,7 @@ def handle_import_meeting_documents(file_name: str) -> None:
     meeting_documents_index = MeetingDocumentIndexPage.objects.get()
 
     # get a reference to the root site
-    root_site = meeting_documents_index.get_site()
+    meeting_documents_index.get_site()
 
     meeting_docs_data = parse_csv_file(file_name)
 
@@ -104,17 +103,7 @@ def handle_import_meeting_documents(file_name: str) -> None:
                 continue
 
             # create a Wagtail redirect from the old url to the new one
-            try:
-                Redirect.objects.create(
-                    old_path=document_data["url_path"],  # the old path from Drupal
-                    site=root_site,  # the root site
-                    redirect_page=meeting_document,  # the new page
-                    is_permanent=True,  # permanent redirect
-                ).save()
-            except IntegrityError:
-                print(
-                    "Redirect already exists for: ",
-                    document_data["url_path"],
-                    " to ",
-                    meeting_document,
-                )
+            create_permanent_redirect(
+                redirect_path=document_data["url_path"],
+                redirect_entity=meeting_document,
+            )

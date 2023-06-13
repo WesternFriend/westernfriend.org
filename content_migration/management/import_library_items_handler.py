@@ -18,8 +18,10 @@ from library.models import (
 )
 
 from content_migration.management.shared import (
+    create_permanent_redirect,
     get_existing_magazine_author_from_db,
     parse_csv_file,
+    parse_media_blocks,
 )
 
 logging.basicConfig(
@@ -110,50 +112,67 @@ def handle_import_library_items(file_name: str) -> None:
         library_item.title = import_library_item["title"]
         library_item.description = import_library_item["Description"]
 
-        # TODO: Remember to uncomment this line when done
-        # developing the remaining import script
-        # library_item.body = parse_media_blocks(import_library_item["Media"].split(", "))  # noqa: E501
+        library_item.body = parse_media_blocks(
+            import_library_item["Media"].split(", "),
+        )
 
-        # TODO: Remember to delete this line
-        # when uncommenting the parse_media_blocks line above
-        library_item.body = None
+        # # Facets
+        if import_library_item["Audience"] != "":
+            try:
+                library_item.item_audience = Audience.objects.get(
+                    title=import_library_item["Audience"]
+                )
+            except Audience.DoesNotExist:
+                logger.error(
+                    f"Could not find audience by title: { import_library_item['Audience'] }"  # noqa: E501
+                )
 
-        if import_library_item["Audience"] is not None:
-            library_item.item_audience = Audience.objects.get(
-                title=import_library_item["Audience"]
-            )
+        if import_library_item["Genre"] != "":
+            try:
+                library_item.item_genre = Genre.objects.get(
+                    title=import_library_item["Genre"]
+                )
+            except Genre.DoesNotExist:
+                logger.error(
+                    f"Could not find genre by title: { import_library_item['Genre'] }"
+                )
 
-        if import_library_item["Genre"] is not None:
-            library_item.item_genre = Genre.objects.get(
-                title=import_library_item["Genre"]
-            )
+        if import_library_item["Medium"] != "":
+            try:
+                library_item.item_medium = Medium.objects.get(
+                    title=import_library_item["Medium"]
+                )
+            except Medium.DoesNotExist:
+                logger.error(
+                    f"Could not find medium by title: { import_library_item['Medium'] }"
+                )
 
-        if import_library_item["Medium"] is not None:
-            library_item.item_medium = Medium.objects.get(
-                title=import_library_item["Medium"]
-            )
+        if import_library_item["Time Period"] != "":
+            try:
+                library_item.item_time_period = TimePeriod.objects.get(
+                    title=import_library_item["Time Period"]
+                )
+            except TimePeriod.DoesNotExist:
+                logger.error(
+                    f"Could not find time period by title: { import_library_item['Time Period'] }"  # noqa: E501
+                )
 
-        if import_library_item["Time Period"] is not None:
-            library_item.item_time_period = TimePeriod.objects.get(
-                title=import_library_item["Time Period"]
-            )
-
-        # Authors
-        if import_library_item["drupal_magazine_author_ids"] is not None:
+        # # Authors
+        if import_library_item["drupal_magazine_author_ids"] != "":
             add_library_item_authors(
                 library_item,
                 import_library_item["drupal_magazine_author_ids"],
             )
 
-        # - Keywords
-        if import_library_item["Keywords"] is not None:
+        # # Keywords
+        if import_library_item["Keywords"] != "":
             add_library_item_keywords(
                 library_item,
                 import_library_item["Keywords"],
             )
 
-        # Website
-        if import_library_item["Website"] is not None:
+        # # Website
+        if import_library_item["Website"] != "":
             url_stream_block = (
                 "url",
                 import_library_item["Website"],
@@ -163,3 +182,9 @@ def handle_import_library_items(file_name: str) -> None:
             library_item.body.append(url_stream_block)  # type: ignore
 
         library_item.save()
+
+        # create redirect to library item
+        create_permanent_redirect(
+            redirect_path=import_library_item["url_path"],
+            redirect_entity=library_item,
+        )
