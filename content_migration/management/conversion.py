@@ -24,6 +24,8 @@ DEFAULT_IMAGE_ALIGN = "left"
 
 @dataclass
 class GenericBlock:
+    """Generic block dataclass that represents a Wagtail block tuple."""
+
     block_type: str
     block_content: str
 
