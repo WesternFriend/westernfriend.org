@@ -1,3 +1,5 @@
+"""Shared functions for content migration."""
+
 import csv
 import html
 import logging
@@ -67,6 +69,8 @@ MEDIA_EMBED_DOMAINS = [
 
 @dataclass
 class FileBytesWithMimeType:
+    """A dataclass for holding file bytes and a MIME type."""
+
     file_bytes: BytesIO
     file_name: str
     content_type: str
@@ -158,6 +162,8 @@ def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
 
 
 def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
+    """Given a list of media URLs, return a list of media blocks."""
+
     media_blocks: list[tuple] = []
 
     for url in media_urls:
@@ -217,6 +223,7 @@ def get_existing_magazine_author_from_db(
     - the matching author or
     - None if no author was found.
     """
+
     # convert to int, if necessary
     drupal_author_id = int(drupal_author_id)
 
@@ -276,6 +283,7 @@ def extract_image_urls(item: str) -> list[Image]:
 
 
 def parse_body_blocks(body: str) -> list:
+    """Parse the body field into a list of StreamField blocks."""
     article_body_blocks: list[tuple] = []
 
     generic_blocks = adapt_html_to_generic_blocks(body)
@@ -297,6 +305,8 @@ def create_permanent_redirect(
     redirect_path: str,
     redirect_entity: Page,
 ) -> None:
+    """Create a permanent redirect from the old path to the new page."""
+
     try:
         Redirect.objects.create(
             old_path=redirect_path,  # the old path from Drupal
