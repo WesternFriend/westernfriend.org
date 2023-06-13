@@ -1,14 +1,16 @@
 import csv
-from dataclasses import dataclass
 import html
+import logging
+from dataclasses import dataclass
 from io import BytesIO
 from itertools import chain
-import logging
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 from django.db import IntegrityError
+
 import requests
+from bs4 import BeautifulSoup
 from django.core.files import File
 from django.core.files.images import ImageFile
 from django.db.models import Q
@@ -20,6 +22,10 @@ from wagtail.models import Page
 from wagtail.contrib.redirects.models import Redirect
 
 from contact.models import Meeting, Organization, Person
+from content_migration.management.conversion import (
+    BlockFactory,
+    adapt_html_to_generic_blocks,
+)
 from content_migration.management.errors import (
     BlockFactoryError,
     CouldNotFindMatchingContactError,
@@ -32,6 +38,7 @@ from content_migration.management.conversion import (
     adapt_html_to_generic_blocks,
     BlockFactory,
 )
+
 
 MEDIA_EMBED_DOMAINS = [
     "youtube.com",
