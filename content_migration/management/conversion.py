@@ -1,3 +1,5 @@
+"""Conversion functions for converting HTML to Wagtail blocks."""
+
 import re
 from dataclasses import dataclass
 from io import BytesIO
@@ -8,6 +10,7 @@ from django.core.files.images import ImageFile
 import requests
 from wagtail.images.models import Image
 from wagtail.rich_text import RichText
+from content_migration.management.constants import SITE_BASE_URL
 
 from content_migration.management.errors import (
     BlockFactoryError,
@@ -15,15 +18,28 @@ from content_migration.management.errors import (
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_IMAGE_WIDTH = 350
+DEFAULT_IMAGE_ALIGN = "left"
+
 
 @dataclass
 class GenericBlock:
+    """Generic block dataclass that represents a Wagtail block tuple."""
+
     block_type: str
     block_content: str
 
 
+def convert_relative_image_url_to_absolute(image_url: str) -> str:
+    """Convert a relative image URL to an absolute image URL."""
+    if image_url is not None and image_url.startswith("/"):
+        image_url = SITE_BASE_URL + image_url.lstrip("/")
+
+    return image_url
+
+
 def extract_image_urls(block_content: str) -> list[str]:
-    # extract image src URLs from HTML string
+    """Get a list of all image URLs found within the block_content."""
     soup = BeautifulSoup(block_content, "html.parser")
     image_srcs = [img["src"] for img in soup.findAll("img")]
     return image_srcs
@@ -54,13 +70,8 @@ def remove_pullquote_tags(item_string: str) -> str:
 
 
 def create_image_block(image_url: str) -> dict:
-    # download file bytes
-    # create an ImageFile object
-    # create a Wagtial image block
-    #
-    # return Wagtial image block
+    """Create a Wagtial image block from an image URL."""
 
-    # download file bytes with requests
     try:
         response = requests.get(image_url)
     except requests.exceptions.MissingSchema:
@@ -89,17 +100,19 @@ def create_image_block(image_url: str) -> dict:
     )
     image.save()
 
-    # Create a dictionary with properties
-    # of FormattedImageChooserStructBlock
+    # Create an image block with dictionary properties
     image_chooser_block = {
         "image": image,
-        "width": 800,
+        "width": DEFAULT_IMAGE_WIDTH,
+        "align": DEFAULT_IMAGE_ALIGN,
     }
 
     return image_chooser_block
 
 
 class BlockFactory:
+    """Factory class for creating Wagtail blocks."""
+
     @staticmethod
     def create_block(generic_block: GenericBlock) -> tuple[str, str | dict]:
         if generic_block.block_type == "rich_text":
@@ -128,10 +141,7 @@ class BlockFactory:
 
 
 def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
-    # parse the HTML string and return a list of GenericBlock objects
-    # the function should be have exactly like the original parse_body_blocks
-    # function, but instead of returning a list of tuples,
-    # it should return a list of GenericBlock objects
+    """Adapt HTML string to a list of generic blocks."""
 
     generic_blocks: list[GenericBlock] = []
 
@@ -189,6 +199,8 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                 image_urls = extract_image_urls(item_string)
 
                 for image_url in image_urls:
+                    image_url = convert_relative_image_url_to_absolute(image_url)
+
                     generic_blocks.append(
                         GenericBlock(
                             block_type="image",

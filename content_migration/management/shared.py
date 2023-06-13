@@ -1,3 +1,5 @@
+"""Shared functions for content migration."""
+
 import csv
 import html
 import logging
@@ -5,6 +7,9 @@ from dataclasses import dataclass
 from io import BytesIO
 from itertools import chain
 from urllib.parse import urlparse
+
+from bs4 import BeautifulSoup
+from django.db import IntegrityError
 
 import requests
 from bs4 import BeautifulSoup
@@ -15,6 +20,8 @@ from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.embeds.models import Embed
 from wagtail.images.models import Image
+from wagtail.models import Page
+from wagtail.contrib.redirects.models import Redirect
 
 from contact.models import Meeting, Organization, Person
 from content_migration.management.conversion import (
@@ -26,6 +33,14 @@ from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
     DuplicateContactError,
 )
+from content_migration.management.constants import (
+    SITE_BASE_URL,
+)
+from content_migration.management.conversion import (
+    adapt_html_to_generic_blocks,
+    BlockFactory,
+)
+
 
 MEDIA_EMBED_DOMAINS = [
     "youtube.com",
@@ -54,6 +69,8 @@ MEDIA_EMBED_DOMAINS = [
 
 @dataclass
 class FileBytesWithMimeType:
+    """A dataclass for holding file bytes and a MIME type."""
+
     file_bytes: BytesIO
     file_name: str
     content_type: str
@@ -130,6 +147,7 @@ def create_image_block(
 
 def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
     """Fetch a file from a URL and return the file bytes."""
+
     try:
         response = requests.get(url)
     except requests.exceptions.RequestException:
@@ -144,11 +162,18 @@ def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
 
 
 def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
+    """Given a list of media URLs, return a list of media blocks."""
+
     media_blocks: list[tuple] = []
 
     for url in media_urls:
         if url == "":
             continue
+
+        # Check if the URL starts with / and append the site base URL
+        # ensuring there are not double // characters
+        if url.startswith("/"):
+            url = SITE_BASE_URL + url.lstrip("/")
 
         domain = urlparse(url).netloc
 
@@ -198,6 +223,7 @@ def get_existing_magazine_author_from_db(
     - the matching author or
     - None if no author was found.
     """
+
     # convert to int, if necessary
     drupal_author_id = int(drupal_author_id)
 
@@ -257,6 +283,7 @@ def extract_image_urls(item: str) -> list[Image]:
 
 
 def parse_body_blocks(body: str) -> list:
+    """Parse the body field into a list of StreamField blocks."""
     article_body_blocks: list[tuple] = []
 
     generic_blocks = adapt_html_to_generic_blocks(body)
@@ -272,3 +299,25 @@ def parse_body_blocks(body: str) -> list:
         article_body_blocks.append(streamfield_block)
 
     return article_body_blocks
+
+
+def create_permanent_redirect(
+    redirect_path: str,
+    redirect_entity: Page,
+) -> None:
+    """Create a permanent redirect from the old path to the new page."""
+
+    try:
+        Redirect.objects.create(
+            old_path=redirect_path,  # the old path from Drupal
+            site=redirect_entity.get_site(),
+            redirect_page=redirect_entity,  # the new page
+            is_permanent=True,
+        ).save()
+    except IntegrityError:
+        print(
+            "Redirect already exists for: ",
+            redirect_path,
+            " to ",
+            redirect_entity.title,
+        )

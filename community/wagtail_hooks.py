@@ -12,6 +12,7 @@ from contact.models import Meeting, Organization, Person
 from documents.models import MeetingDocument, PublicBoardDocument
 from events.models import Event
 from memorials.models import Memorial
+from wf_pages.models import MollyWingateBlogPage
 
 
 class PersonModelAdmin(ModelAdmin):
@@ -66,6 +67,26 @@ class MemorialModelAdmin(ModelAdmin):
         "memorial_person__family_name",
         "memorial_person__given_name",
         "memorial_meeting__title",
+    )
+
+
+class MollyWingateBlogPageModelAdmin(ModelAdmin):
+    model = MollyWingateBlogPage
+    menu_icon = "doc-full"
+    menu_label = "Molly Wingate Blog"
+    list_per_page = 10
+    ordering = [
+        "title",
+    ]
+    list_display = (
+        "title",
+        "publication_date",
+    )
+    empty_value_display = "-"
+    search_fields = ("title",)
+    list_filter = (
+        "publication_date",
+        "live",
     )
 
 
@@ -174,6 +195,7 @@ class CommunityGroup(ModelAdminGroup):
         OnlineWorshipModelAdmin,
         PublicBoardDocumentModelAdmin,
         MeetingDocumentModelAdmin,
+        MollyWingateBlogPageModelAdmin,
     )
 
 

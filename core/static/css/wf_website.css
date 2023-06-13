@@ -114,6 +114,16 @@ p {
   font-family: var(--bs-font-sans-serif);
 }
 
+.richtext-image.left {
+  float: left;
+  margin-right: 1em;
+}
+
+.richtext-image.right {
+  float: right;
+  margin-left: 1em;
+}
+
 .title-link-no-underline:link {
   text-decoration: none;
 }
@@ -128,14 +138,6 @@ p {
 
 .title-link-no-underline:active {
   text-decoration: none;
-}
-
-.richtext-image.left {
-  float: left;
-}
-
-.richtext-image.right {
-  float: right;
 }
 
 .pdfobject-container {

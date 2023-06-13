@@ -37,7 +37,7 @@ from navigation.blocks import (
 from news.models import NewsIndexPage, NewsTopicIndexPage, NewsTypeIndexPage
 from store.models import ProductIndexPage, StoreIndexPage
 from subscription.models import ManageSubscriptionPage, SubscriptionIndexPage
-from wf_pages.models import WfPage
+from wf_pages.models import MollyWingateBlogIndexPage, WfPage
 
 
 class Command(BaseCommand):
@@ -141,6 +141,9 @@ class Command(BaseCommand):
         meeting_documents_index_page = MeetingDocumentIndexPage(
             title="Meeting Documents",
         )
+        molly_wingate_blog_index_page = MollyWingateBlogIndexPage(
+            title="Molly Wingate Blog",
+        )
 
         home_page.add_child(instance=community_page)
         home_page.add_child(instance=contact_form_page)
@@ -160,6 +163,7 @@ class Command(BaseCommand):
         home_page.add_child(instance=podcast_index_page)
         home_page.add_child(instance=public_board_documents_index_page)
         home_page.add_child(instance=meeting_documents_index_page)
+        home_page.add_child(instance=molly_wingate_blog_index_page)
 
         home_page.save()
 

@@ -1,8 +1,9 @@
 from django.db import models
+from django.http import HttpRequest
 
-from modelcluster.fields import ParentalKey
-from modelcluster.contrib.taggit import ClusterTaggableManager
-from taggit.models import TaggedItemBase
+from modelcluster.fields import ParentalKey  # type: ignore
+from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
+from taggit.models import TaggedItemBase  # type: ignore
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
@@ -13,6 +14,16 @@ from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, Spacer
 from documents.blocks import DocumentEmbedBlock
 
 
+class MollyWingateBlogIndexPage(Page):
+    intro = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [FieldPanel("intro")]
+
+    parent_page_types = ["home.HomePage"]
+    subpage_types: list[str] = ["wf_pages.MollyWingateBlogPage"]
+    max_count = 1
+
+
 class WfPageCollectionIndexPage(Page):
     intro = RichTextField(blank=True)
 
@@ -21,7 +32,7 @@ class WfPageCollectionIndexPage(Page):
     subpage_types: list[str] = ["wf_pages.WfPageCollection"]
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(self, request: HttpRequest, *args, **kwargs) -> dict:
         context = super().get_context(request)
 
         collections = WfPageCollection.objects.all()
@@ -80,6 +91,11 @@ class WfPage(Page):
         null=True,
         blank=True,
     )
+    drupal_node_id = models.IntegerField(
+        help_text="Used only for content from old Drupal website.",
+        null=True,
+        blank=True,
+    )
     collection = models.ForeignKey(
         WfPageCollection,
         null=True,
@@ -111,3 +127,18 @@ class WfPage(Page):
     class Meta:
         verbose_name = "Page"
         verbose_name_plural = "Pages"
+
+
+class MollyWingateBlogPage(WfPage):
+    publication_date = models.DateField("Publication date")
+
+    content_panels = WfPage.content_panels + [
+        FieldPanel("publication_date"),
+    ]
+
+    parent_page_types = ["wf_pages.MollyWingateBlogIndexPage"]
+    subpage_types: list[str] = []
+
+    class Meta:
+        verbose_name = "Molly Wingate Blog Post"
+        verbose_name_plural = "Molly Wingate Blog Posts"

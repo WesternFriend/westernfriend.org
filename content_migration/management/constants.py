@@ -1,5 +1,5 @@
 LOCAL_MIGRATION_DATA_DIRECTORY = "migration_data/"
-
+SITE_BASE_URL = "https://westernfriend.org/"
 WESTERN_FRIEND_LOGO_URL = "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
 WESTERN_FRIEND_LOGO_FILE_NAME = "logo-2020-%20transparency-120px_0.png"
 
@@ -12,7 +12,7 @@ IMPORT_FILENAMES = {
     "archive_issues": "archive_issues.csv",
     "board_documents": "board_documents.csv",
     "civicrm_meeting_relationships": "CiviCRM_meeting_relationships.csv",
-    "civicrm_organizations": "cCiviCRM_organizations.csv",
+    "civicrm_organizations": "CiviCRM_organizations.csv",
     "events": "events.csv",
     "extra_extra": "extra_extra.csv",
     "library_item_audience": "library_item_audience.csv",
@@ -27,7 +27,7 @@ IMPORT_FILENAMES = {
     "magazine_issues": "magazine_issues.csv",
     "meeting_documents": "meeting_documents.csv",
     "memorials": "memorials.csv",
-    "molly_wingate": "molly_wingate.csv",
+    "molly_wingate_blog": "molly_wingate.csv",
     "online_worship": "online_worship.csv",
     "pages": "pages.csv",
 }

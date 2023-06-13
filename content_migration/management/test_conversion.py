@@ -5,6 +5,7 @@ from content_migration.management.conversion import (
     adapt_html_to_generic_blocks,
     BlockFactory,
     create_image_block,
+    convert_relative_image_url_to_absolute,
     extract_image_urls,
     GenericBlock,
     remove_pullquote_tags,
@@ -13,6 +14,7 @@ from content_migration.management.conversion import (
 from content_migration.management.constants import (
     WESTERN_FRIEND_LOGO_URL,
     WESTERN_FRIEND_LOGO_FILE_NAME,
+    SITE_BASE_URL,
 )
 from content_migration.management.errors import BlockFactoryError
 
@@ -161,3 +163,19 @@ class BlockFactorySimpleTestCase(SimpleTestCase):
             with self.assertRaises(BlockFactoryError) as cm:
                 BlockFactory.create_block(invalid_url_block)
             self.assertEqual(str(cm.exception), "Invalid image URL: invalid schema")
+
+
+class ConvertRelativeImageUrlToAbsoluteSimpleTestCase(SimpleTestCase):
+    def test_convert_relative_image_url_to_absolute(self) -> None:
+        relative_image_url = (
+            "/sites/default/files/logo-2020-%20transparency-120px_0.png"
+        )
+        absolute_image_url = convert_relative_image_url_to_absolute(relative_image_url)
+        # without double slashes
+        expected_absolute_image_url = (
+            f"{ SITE_BASE_URL }{ relative_image_url.lstrip('/') }"
+        )
+        self.assertEqual(
+            absolute_image_url,
+            expected_absolute_image_url,
+        )
