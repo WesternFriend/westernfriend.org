@@ -8,6 +8,10 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
+    <a href="{% pageurl page.get_parent %}?caegory={{ page.category }}">
+        Events
+    </a>
+
     <h1>{{ event.title }}</h1>
 
     <p class="font-weight-bold mb-2">
