@@ -14,10 +14,14 @@ class Command(BaseCommand):
         call_command("import_archive", interactive=False)
         call_command("import_memorials", interactive=False)
         call_command("import_events", interactive=False)
+        call_command("import_board_documents", interactive=False)
+        call_command("import_molly_wingate_blog", interactive=False)
         # TODO: add remaining importers
         # - news
         # - pages
-        # - board documents
         # - meeting documents
-        # - CiviCRM cintacts, addresses, clerk relationships, relationshipd
-        # - molly wingate blog
+        # - CiviCRM
+        #   - contacts,
+        #   - addresses,
+        #   - clerk relationships,
+        #   - meeting relationships
