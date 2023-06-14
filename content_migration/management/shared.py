@@ -6,26 +6,25 @@ import logging
 from dataclasses import dataclass
 from io import BytesIO
 from itertools import chain
+import re
 from urllib.parse import urlparse
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from django.core.files import File
 from django.core.files.images import ImageFile
 from django.db import IntegrityError
 from django.db.models import Q
+from wagtail.contrib.redirects.models import Redirect
 from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.embeds.models import Embed
 from wagtail.images.models import Image
 from wagtail.models import Page
-from wagtail.contrib.redirects.models import Redirect
+from wagtail.rich_text import RichText
 
 from contact.models import Meeting, Organization, Person
-from content_migration.management.conversion import (
-    BlockFactory,
-    adapt_html_to_generic_blocks,
-)
+
 from content_migration.management.errors import (
     BlockFactoryError,
     CouldNotFindMatchingContactError,
@@ -33,6 +32,8 @@ from content_migration.management.errors import (
     DuplicateContactError,
 )
 from content_migration.management.constants import (
+    DEFAULT_IMAGE_ALIGN,
+    DEFAULT_IMAGE_WIDTH,
     SITE_BASE_URL,
 )
 
@@ -80,6 +81,192 @@ class ArchiveIssueData:
     archive_articles: list[dict]
 
 
+@dataclass
+class GenericBlock:
+    """Generic block dataclass that represents a Wagtail block tuple."""
+
+    block_type: str
+    block_content: str
+
+
+def create_image_block(image_url: str) -> dict:
+    """Create a Wagtial image block from an image URL."""
+
+    try:
+        response = requests.get(image_url)
+    except requests.exceptions.MissingSchema:
+        logger.error(f"Invalid image URL, missing schema: { image_url }")
+        raise
+    except requests.exceptions.InvalidSchema:
+        logger.error(f"Invalid image URL, invalid schema: { image_url }")
+        raise
+    except requests.exceptions.RequestException:
+        logger.error(f"Could not download image: { image_url }")
+        raise
+
+    file_bytes = BytesIO(response.content)
+
+    # create an ImageFile object
+    file_name = image_url.split("/")[-1]
+    image_file = ImageFile(
+        file_bytes,
+        name=file_name,
+    )
+
+    # create and save a Wagtial image instance
+    image = Image(
+        title=file_name,
+        file=image_file,
+    )
+    image.save()
+
+    # Create an image block with dictionary properties
+    image_chooser_block = {
+        "image": image,
+        "width": DEFAULT_IMAGE_WIDTH,
+        "align": DEFAULT_IMAGE_ALIGN,
+    }
+
+    return image_chooser_block
+
+
+class BlockFactory:
+    """Factory class for creating Wagtail blocks."""
+
+    @staticmethod
+    def create_block(generic_block: GenericBlock) -> tuple[str, str | dict]:
+        if generic_block.block_type == "rich_text":
+            return (
+                generic_block.block_type,
+                RichText(generic_block.block_content),
+            )
+        elif generic_block.block_type == "image":
+            try:
+                image_block = create_image_block(generic_block.block_content)
+            except requests.exceptions.MissingSchema:
+                raise BlockFactoryError("Invalid image URL: missing schema")
+            except requests.exceptions.InvalidSchema:
+                raise BlockFactoryError("Invalid image URL: invalid schema")
+            return (
+                generic_block.block_type,
+                image_block,
+            )
+        elif generic_block.block_type == "pullquote":
+            return (
+                generic_block.block_type,
+                generic_block.block_content,
+            )
+        else:
+            raise ValueError(f"Invalid block type: {generic_block.block_type}")
+
+
+def remove_pullquote_tags(item_string: str) -> str:
+    """Remove "[pullquote]" and "[/pullquote]" tags in string.
+
+    https://stackoverflow.com/a/44593228/1191545
+    """
+
+    replacement_values: list = [
+        ("[pullquote]", ""),
+        ("[/pullquote]", ""),
+    ]
+
+    if item_string != "":
+        for replacement_value in replacement_values:
+            item_string = item_string.replace(*replacement_value)
+
+    return item_string
+
+
+def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
+    """Adapt HTML string to a list of generic blocks."""
+
+    generic_blocks: list[GenericBlock] = []
+
+    try:
+        soup = BeautifulSoup(html_string, "html.parser")
+    except TypeError:
+        logger.error(f"Could not parse body: { html_string }")
+        return generic_blocks
+
+    # Placeholder for gathering successive items
+    rich_text_value = ""
+    soup_contents = soup.contents
+    for item in soup_contents:
+        # skip non-Tag items
+        if not isinstance(item, Tag):
+            continue
+
+        item_string = str(item)
+        # skip empty items
+        if item_string == "" or item_string is None:
+            continue
+
+        item_contains_pullquote = "pullquote" in item_string
+        item_contains_image = "img" in item_string
+
+        if item_contains_pullquote or item_contains_image:
+            # store the accumulated rich text value
+            # if it is not empty
+            # and then reset the rich text value
+            if rich_text_value != "":
+                generic_blocks.append(
+                    GenericBlock(
+                        block_type="rich_text",
+                        block_content=rich_text_value,
+                    )
+                )
+
+                # reset rich text value
+                rich_text_value = ""
+
+            if item_contains_pullquote:
+                pullquotes = extract_pullquotes(item_string)
+
+                for pullquote in pullquotes:
+                    generic_blocks.append(
+                        GenericBlock(
+                            block_type="pullquote",
+                            block_content=pullquote,
+                        )
+                    )
+
+                item_string = remove_pullquote_tags(item_string)
+
+            if item_contains_image:
+                image_urls = extract_image_urls(item_string)
+
+                for image_url in image_urls:
+                    image_url = ensure_absolute_url(image_url)
+
+                    generic_blocks.append(
+                        GenericBlock(
+                            block_type="image",
+                            block_content=image_url,
+                        )
+                    )
+
+                # reset item string,
+                # since the image block has been created
+                # and we don't expect any more blocks
+                item_string = ""
+
+        if item_string != "":
+            rich_text_value += item_string
+
+    # store the accumulated rich text value
+    # if it is not empty
+    if rich_text_value != "":
+        generic_blocks.append(
+            GenericBlock(
+                block_type="rich_text",
+                block_content=rich_text_value,
+            )
+        )
+
+    return generic_blocks
+
+
 def create_document_link_block(
     file_name: str,
     file_bytes: BytesIO,
@@ -116,7 +303,7 @@ def create_media_embed_block(url: str) -> tuple[str, Embed]:
 
 
 # TODO: remove this function,
-def create_image_block(
+def create_image_block_from_file_bytes(
     file_name: str,
     file_bytes: BytesIO,
 ) -> tuple[str, Image]:
@@ -146,6 +333,12 @@ def create_image_block(
     return media_item_block
 
 
+def extract_pullquotes(item: str) -> list[str]:
+    """Get a list of all pullquote strings found within the item."""
+
+    return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item)
+
+
 def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
     """Fetch a file from a URL and return the file bytes."""
 
@@ -162,6 +355,33 @@ def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
     )
 
 
+def parse_media_string_to_list(media_string: str) -> list[str]:
+    """Parse a media string to a list of media URLs."""
+
+    media_urls = media_string.split(", ")
+
+    # Remove empty strings
+    media_urls = list(filter(None, media_urls))
+
+    return media_urls
+
+
+def ensure_absolute_url(url: str) -> str:
+    # Check if the URL starts with / and append the site base URL
+    # ensuring there are not double // characters
+    if url.startswith("/"):
+        url = SITE_BASE_URL + url.lstrip("/")
+
+    return url
+
+
+def extract_image_urls(block_content: str) -> list[str]:
+    """Get a list of all image URLs found within the block_content."""
+    soup = BeautifulSoup(block_content, "html.parser")
+    image_srcs = [img["src"] for img in soup.findAll("img")]
+    return image_srcs
+
+
 def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
     """Given a list of media URLs, return a list of media blocks."""
 
@@ -171,10 +391,7 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
         if url == "":
             continue
 
-        # Check if the URL starts with / and append the site base URL
-        # ensuring there are not double // characters
-        if url.startswith("/"):
-            url = SITE_BASE_URL + url.lstrip("/")
+        url = ensure_absolute_url(url)
 
         domain = urlparse(url).netloc
 
@@ -196,7 +413,7 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
                     file_bytes=fetched_file.file_bytes,
                 )
             elif fetched_file.content_type in ["image/jpeg", "image/png"]:
-                media_item_block = create_image_block(
+                media_item_block = create_image_block_from_file_bytes(
                     file_name=fetched_file.file_name,
                     file_bytes=fetched_file.file_bytes,
                 )
@@ -292,18 +509,6 @@ def create_archive_issues_from_articles_dicts(
         archive_issues.append(issue_data)
 
     return archive_issues
-
-
-def extract_image_urls(item: str) -> list[Image]:
-    """Parse images from HTML string."""
-
-    # parse images from HTML string containing <img> tags
-    soup = BeautifulSoup(item, "html.parser")
-    image_tags = soup.findAll("img")
-    # Get a list of image URLs
-    image_urls = [image_tag["src"] for image_tag in image_tags]
-
-    return image_urls
 
 
 def parse_body_blocks(body: str) -> list:

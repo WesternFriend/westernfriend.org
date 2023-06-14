@@ -7,6 +7,7 @@ from content_migration.management.shared import (
     parse_body_blocks,
     parse_csv_file,
     parse_media_blocks,
+    parse_media_string_to_list,
 )
 
 from documents.models import PublicBoardDocument, PublicBoardDocumentIndexPage
@@ -59,7 +60,7 @@ def handle_import_board_documents(file_name: str) -> None:
 
             # Convert the board document category TextChoice label
             # to a BoardDocumentCategory key
-            board_document.category = get_board_document_category_key(
+            board_document.category = get_board_document_category_key(  # type: ignore
                 document_data["board_document_category"]
             )
 
@@ -72,7 +73,7 @@ def handle_import_board_documents(file_name: str) -> None:
                 # download media from URL, convert it to a list of blocks,
                 # and append it to the document's body
                 board_document.body += parse_media_blocks(
-                    document_data["media"].split(", ")
+                    parse_media_string_to_list(document_data["media"])
                 )
 
             # Add the document to the index page

@@ -1,3 +1,6 @@
+DEFAULT_IMAGE_WIDTH = 350
+DEFAULT_IMAGE_ALIGN = "left"
+
 LOCAL_MIGRATION_DATA_DIRECTORY = "migration_data/"
 SITE_BASE_URL = "https://westernfriend.org/"
 WESTERN_FRIEND_LOGO_URL = "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
