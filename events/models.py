@@ -3,6 +3,7 @@ from datetime import date
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
 from django.db.models import Q
+from django.http import Http404, HttpRequest
 from modelcluster.fields import ParentalKey
 from timezone_field import TimeZoneField
 from wagtail import blocks as wagtail_blocks
@@ -114,34 +115,40 @@ class EventsIndexPage(Page):
 
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         context = super().get_context(request)
-        request_c = request.GET.get("category", None)
+        request_category = request.GET.get("category", None)
 
-        if request_c:
+        if request_category:
             # Note: using the querystring parameter directly in the filter object
             # seems safe since Django querysets are protected from SQL injection
             # https://docs.djangoproject.com/en/4.1/topics/security/#sql-injection-protection
             # Adding this note to reappraise the security of this code if needed.
-            filter_c = request_c
-            event_category_title = request_c.capitalize()
+
+            # ensure the category is valid
+            filter_category = request_category.lower()
+            if filter_category not in Event.EventCategoryChoices.values:
+                raise Http404
         else:
             # Default to Western events
-            western_c = Event.EventCategoryChoices.WESTERN
-            filter_c = western_c
-            event_category_title = western_c.label
+            filter_category = Event.EventCategoryChoices.WESTERN
 
         upcoming_events = (
             Event.objects.all()
             .filter(
                 Q(start_date__gt=date.today()),
-                Q(category=filter_c),
+                Q(category=filter_category),
             )
             .order_by("start_date")
         )
 
         # Show three archive issues per page
-        paginator = Paginator(upcoming_events, 3)
+        paginator = Paginator(upcoming_events, 10)
 
         upcoming_events_page = request.GET.get("page")
 
@@ -155,6 +162,6 @@ class EventsIndexPage(Page):
             paginated_events = paginator.page(paginator.num_pages)
 
         context["events"] = paginated_events
-        context["event_category_title"] = event_category_title
+        context["event_category_title"] = filter_category.capitalize()
 
         return context
