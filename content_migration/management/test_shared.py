@@ -19,6 +19,7 @@ from content_migration.management.errors import (
 )
 
 from content_migration.management.shared import (
+    create_archive_issues_from_articles_dicts,
     create_document_link_block,
     create_group_by,
     create_image_block,
@@ -508,6 +509,20 @@ class CreateGroupBySimpleTestCase(SimpleTestCase):
             output_grouped_list,
             expected_grouped_list,
         )
+
+
+class CreateArchiveIssuesFromArticlesDictsSimpleTest(SimpleTestCase):
+    def test_create_archive_issues_from_articles_dicts(self) -> None:
+        input_articles_dicts = [
+            {
+                "internet_archive_identifier": "friendsbulletinp525unse_2",
+            },
+            {
+                "internet_archive_identifier": "friendsbulletinp525unse_2",
+            },
+        ]
+
+        create_archive_issues_from_articles_dicts(input_articles_dicts)
 
 
 # TODO: add command tests
