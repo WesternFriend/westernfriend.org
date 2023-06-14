@@ -8,6 +8,7 @@ from content_migration.management.shared import (
     parse_body_blocks,
     parse_csv_file,
     parse_media_blocks,
+    parse_media_string_to_list,
 )
 
 from documents.models import MeetingDocument, MeetingDocumentIndexPage
@@ -88,8 +89,9 @@ def handle_import_meeting_documents(file_name: str) -> None:
                 # and append it to the document's body
 
                 # get media urls from the media column
-                media_urls = document_data["media"].split(",")
-                meeting_document.body += parse_media_blocks(media_urls)
+                meeting_document.body += parse_media_blocks(
+                    parse_media_string_to_list(document_data["media"]),
+                )
 
             # Add the document to the index page
             # catch a Validation Error if the category is null

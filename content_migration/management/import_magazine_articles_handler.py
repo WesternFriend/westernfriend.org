@@ -19,6 +19,7 @@ from content_migration.management.shared import (
     parse_csv_file,
     parse_media_blocks,
     parse_body_blocks,
+    parse_media_string_to_list,
 )
 
 logging.basicConfig(
@@ -104,7 +105,9 @@ def handle_import_magazine_articles(file_name: str) -> None:
 
         # Download and parse article media
         if row["media"] != "":
-            media_blocks = parse_media_blocks(row["media"].split(", "))
+            media_blocks = parse_media_blocks(
+                parse_media_string_to_list(row["media"]),
+            )
 
             # Merge media blocks with article body blocks
             article_body_blocks += media_blocks

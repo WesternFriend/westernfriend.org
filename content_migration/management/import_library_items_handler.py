@@ -22,6 +22,7 @@ from content_migration.management.shared import (
     get_existing_magazine_author_from_db,
     parse_csv_file,
     parse_media_blocks,
+    parse_media_string_to_list,
 )
 
 logging.basicConfig(
@@ -113,7 +114,7 @@ def handle_import_library_items(file_name: str) -> None:
         library_item.description = import_library_item["Description"]
 
         library_item.body = parse_media_blocks(
-            import_library_item["Media"].split(", "),
+            parse_media_string_to_list(import_library_item["Media"]),
         )
 
         # # Facets

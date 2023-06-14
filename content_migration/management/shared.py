@@ -358,7 +358,7 @@ def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
 def parse_media_string_to_list(media_string: str) -> list[str]:
     """Parse a media string to a list of media URLs."""
 
-    media_urls = media_string.split("\n")
+    media_urls = media_string.split(", ")
 
     # Remove empty strings
     media_urls = list(filter(None, media_urls))

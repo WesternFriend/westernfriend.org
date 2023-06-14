@@ -39,6 +39,7 @@ from content_migration.management.shared import (
     parse_csv_file,
     parse_media_blocks,
     create_media_embed_block,
+    parse_media_string_to_list,
     remove_pullquote_tags,
 )
 
@@ -706,6 +707,21 @@ class ConvertRelativeImageUrlToAbsoluteSimpleTestCase(SimpleTestCase):
             absolute_image_url,
             expected_absolute_image_url,
         )
+
+
+class ParseMediaStringToListSimpleTest(SimpleTestCase):
+    def test_parse_media_string_to_list(self) -> None:
+        # create a media string with several URLs
+        media_string = f"{ WESTERN_FRIEND_LOGO_URL }, { WESTERN_FRIEND_LOGO_URL }, { WESTERN_FRIEND_LOGO_URL }"  # noqa: E501
+
+        media_urls = parse_media_string_to_list(media_string)
+        expected_media_urls = [
+            WESTERN_FRIEND_LOGO_URL,
+            WESTERN_FRIEND_LOGO_URL,
+            WESTERN_FRIEND_LOGO_URL,
+        ]
+
+        self.assertEqual(media_urls, expected_media_urls)
 
 
 # TODO: add command tests
