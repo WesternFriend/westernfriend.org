@@ -12,8 +12,8 @@ class Command(BaseCommand):
         call_command("import_magazine", interactive=False)
         call_command("import_library", interactive=False)
         call_command("import_archive", interactive=False)
+        call_command("import_memorials", interactive=False)
         # TODO: add remaining importers
-        # - memorials
         # - events
         # - news
         # - pages
