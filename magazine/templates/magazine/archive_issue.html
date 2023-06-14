@@ -3,6 +3,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
+    <a href="{% pageurl page.get_parent %}">Archive</a>
     <h1>
         {{ page.title }}
     </h1>
@@ -29,7 +30,7 @@
             </tr>
         </thead>
 
-        {% for article in page.archive_articles.all %}
+        {% for article in page.archive_articles.all|dictsort:"pdf_page_number" %}
             <tr
                 class="article"
                 data-pdf-page-number="{{ article.pdf_page_number }}"

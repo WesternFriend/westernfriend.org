@@ -3,47 +3,52 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
+    <a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a>
     <h1>{{ page.title }}</h1>
 
-    <a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a>
-
     {{ page.intro | richtext }}
-
     <div class="row">
-        <div class="col-sm-7 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <form class="form-inline">
-                        <div class="form-group">
-                            <label for="meeting">
-                                Filter by year
-                            </label>
-                            <select name="publication_date__year" id="publication_date__year" class="form-control">
-                                <option selected disabled hidden>Choose a year</option>
-                                {% for year in publication_years %}
-                                    <option>{{ year }}</option>
-                                {% endfor %}
-                            </select>
+        <div class="card mb-3">
+            <div class="card-body">
+                <form class="form">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="meeting">
+                                    Filter by year
+                                </label>
+                                <select name="publication_date__year" id="publication_date__year" class="form-control">
+                                    <option selected disabled hidden>Choose a year</option>
+                                    {% for year in publication_years %}
+                                        <option>{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
 
-                        <button
-                            type="submit"
-                            class="btn btn-outline-primary ms-3 me-1 align-baseline">
-                            Go
-                        </button>
+                        <div class="col-1">
+                            <button
+                                type="submit"
+                                class="btn btn-outline-primary mt-4">
+                                Go
+                            </button>
+                        </div>
 
-                        <button
-                            id="clear-search-button"
-                            class="btn btn-outline-primary invisible float-right"
-                            onclick="clearSearch()"
-                            type="button">
-                            Clear search
-                        </button>
-                    </form>
-                </div>
+                        <div class="col-1">
+                            <button
+                                id="clear-search-button"
+                                class="btn btn-outline-primary mt-4"
+                                onclick="clearSearch()"
+                                type="button">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="col-sm-5 mb-3"></div>
+    </div>
+    <div class="row">
         {% for issue in archive_issues %}
             <div class="col-sm-3 mb-4">
                 <div class="card">
@@ -83,10 +88,6 @@
 
         // if filter query exists
         if (window.location.search) {
-            // Display clear filter button
-            var clearSearchButton = document.getElementById("clear-search-button");
-            clearSearchButton.classList.toggle("invisible");
-
             // Update search facet fields with value(s) from search parameters
             var urlParams = new URLSearchParams(window.location.search);
 
