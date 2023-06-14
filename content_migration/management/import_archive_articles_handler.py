@@ -8,7 +8,7 @@ from content_migration.management.errors import (
 )
 
 from content_migration.management.shared import (
-    create_group_by,
+    create_archive_issues_from_articles_dicts,
     get_existing_magazine_author_from_db,
     parse_csv_file,
 )
@@ -67,26 +67,25 @@ def create_archive_article_authors(
 def handle_import_archive_articles(file_name: str) -> None:
     articles = parse_csv_file(file_name)
 
-    grouped_articles = create_group_by(
-        "internet_archive_identifier",
-        articles,
+    archive_issues = create_archive_issues_from_articles_dicts(
+        articles=articles,
     )
 
     # for issue in tqdm(issues, desc="Archive issues", unit="row"):
-    for internet_archive_identifier, issue_articles in tqdm(
-        grouped_articles,
+    for archive_issue in tqdm(
+        archive_issues,
         desc="Archive articles",
         unit="row",
     ):
         try:
             issue = ArchiveIssue.objects.get(
-                internet_archive_identifier=internet_archive_identifier
+                internet_archive_identifier=archive_issue.internet_archive_identifier
             )
         except ObjectDoesNotExist:
-            error_message = f"Could not find archive issue with identifier: { internet_archive_identifier }"  # noqa: E501
+            error_message = f"Could not find archive issue with identifier: { archive_issue.internet_archive_identifier }"  # noqa: E501
             logger.error(error_message)
 
-        for article_data in issue_articles:
+        for article_data in archive_issue.archive_articles:
             # Create archive article instance with initial fields
             pdf_page_number = None
 
