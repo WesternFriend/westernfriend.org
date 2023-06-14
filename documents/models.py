@@ -172,6 +172,10 @@ class PublicBoardDocument(Page):
             "relations_with_monthly_meetings",
             "Relations with Monthly Meetings",
         )
+        BOARD_PHOTOS = (
+            "board_photos",
+            "Board Photos",
+        )
 
     publication_date = models.DateField()
     drupal_node_id = models.PositiveIntegerField(
