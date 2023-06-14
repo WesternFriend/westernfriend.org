@@ -191,3 +191,4 @@ def clear_payment_session_vars(request):
     # without polluting the view code
     request.session["order_id"] = None
     request.session["subscription_id"] = None
+    return None
