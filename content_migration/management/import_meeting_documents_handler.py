@@ -72,8 +72,10 @@ def handle_import_meeting_documents(file_name: str) -> None:
 
             # Convert the meeting document category TextChoice label
             # to a MeetingDocumentType key
-            meeting_document.document_type = get_meeting_document_type_key(
-                document_data["meeting_document_type"]
+            meeting_document.document_type = (
+                get_meeting_document_type_key(  # type: ignore
+                    document_data["meeting_document_type"]
+                )
             )
 
             # Parse the document's body, if it is not empty
@@ -84,7 +86,10 @@ def handle_import_meeting_documents(file_name: str) -> None:
             if document_data["media"] is not None:
                 # download media from URL, convert it to a list of blocks,
                 # and append it to the document's body
-                meeting_document.body += parse_media_blocks(document_data["media"])
+
+                # get media urls from the media column
+                media_urls = document_data["media"].split(",")
+                meeting_document.body += parse_media_blocks(media_urls)
 
             # Add the document to the index page
             # catch a Validation Error if the category is null
