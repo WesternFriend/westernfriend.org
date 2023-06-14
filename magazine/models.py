@@ -141,6 +141,7 @@ class MagazineIssue(Page):
             # Note: this should probably add more than one month,
             # since the magazine is not published monthly
             return self.publication_date + timedelta(days=+31)
+        return None
 
     search_template = "search/magazine_issue.html"
 
