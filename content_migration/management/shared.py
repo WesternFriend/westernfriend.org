@@ -29,6 +29,7 @@ from content_migration.management.conversion import (
 from content_migration.management.errors import (
     BlockFactoryError,
     CouldNotFindMatchingContactError,
+    CouldNotParseAuthorIdError,
     DuplicateContactError,
 )
 from content_migration.management.constants import (
@@ -225,7 +226,10 @@ def get_existing_magazine_author_from_db(
     """
 
     # convert to int, if necessary
-    drupal_author_id = int(drupal_author_id)
+    try:
+        drupal_author_id = int(drupal_author_id)
+    except ValueError:
+        raise CouldNotParseAuthorIdError()
 
     # Query against primary drupal author ID column
     # Include a query to check `duplicate_author_ids` column,

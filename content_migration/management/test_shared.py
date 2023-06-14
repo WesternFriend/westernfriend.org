@@ -15,6 +15,7 @@ from contact.models import (
 )
 from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
+    CouldNotParseAuthorIdError,
     DuplicateContactError,
 )
 
@@ -377,6 +378,16 @@ class GetExistingContactFromDbTestCase(TestCase):
             )
 
         meeting_with_duplicate_person_id.delete()
+
+    def test_get_existing_magazine_author_from_db_with_invalid_drupal_author_id(
+        self,
+    ) -> None:
+        input_drupal_author_id = "invalid"
+
+        with self.assertRaises(CouldNotParseAuthorIdError):
+            get_existing_magazine_author_from_db(
+                drupal_author_id=input_drupal_author_id,
+            )
 
     def tearDown(self) -> None:
         self.person.delete()

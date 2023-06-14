@@ -5,56 +5,71 @@
 {% block content %}
     <h1>{{ page.title }}</h1>
 
-    <div class="card mb-3">
+    {% if page.intro %}
+        {{ page.intro | richtext }}
+    {% endif %}
+
+
+    <div class="card">
         <div class="card-body">
-            <div class="card-text">
-                {{ page.intro | richtext }}
-            </div>
+            <form id="filter-form">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="title">Person</label>
+                            <input id="title" name="title" type="text" class="form-control" placeholder="Person name">
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="meeting">
+                                Meeting
+                            </label>
+                            <select name="memorial_meeting__title" id="memorial_meeting__title" class="form-control">
+                                <option selected disabled hidden>Choose a meeting...</option>
+                                {% for meeting in meetings %}
+                                    <option>{{ meeting }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-1">
+                        <button
+                            type="submit"
+                            class="btn btn-outline-primary align-baseline mt-4">
+                            Go
+                        </button>
+                    </div>
+
+                    <div class="col-1 me-3">
+                        <button
+                            id="clear-search-button"
+                            class="btn btn-outline-primary mt-4"
+                            onclick="clearSearch()"
+                            type="button">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+            </form>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#filter-form"
-                    aria-expanded="false" aria-controls="filter-form">
-                Search memorials
-            </button>
 
-            <form id="filter-form" class="form collapse">
-                <div class="form-group">
-                    <label for="title">Person</label>
-                    <input id="title" name="title" type="text" class="form-control" placeholder="Person name">
-                </div>
+    {% if memorials %}
 
-                <div class="form-group">
-                    <label for="meeting">
-                        Meeting
-                    </label>
-                    <select name="memorial_meeting__title" id="memorial_meeting__title" class="form-control">
-                        <option selected disabled hidden>Choose a meeting...</option>
-                        {% for meeting in meetings %}
-                            <option>{{ meeting }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+        <div class="list-group">
+            {% for memorial in memorials %}
+                <!-- Bootstrap 5 card with memorial title for heading -->
+                <div class="card mt-2">
 
-                <button type="submit" class="btn btn-outline-primary ms-3 align-baseline">Go</button>
-
-                <button id="clear-search-button" class="btn btn-outline-warning invisible float-right"
-                        onclick="clearSearch()" type="button">Clear
-                    search</button>
-            </form>
-        </div>
-
-        {% if memorials %}
-
-            <div class="list-group">
-                {% for memorial in memorials %}
-                    <a href="{% pageurl memorial %}" class="list-group-item list-group-item-action">
+                    <div class="card-body">
                         <h2 class="d-flex w-100">
                             {{ memorial.title }}
                         </h2>
-
                         <p class="mb-1">
                             <span class="me-3">
                                 Born: {{ memorial.date_of_birth }}
@@ -64,29 +79,35 @@
                                 Died: {{ memorial.date_of_death }}
                             </span>
                         </p>
-                    </a>
-                {% endfor %}
 
-                <div class="list-group-item d-flex w-100 justify-content-center">
-                    {% if memorials.has_previous %}
-                        <a href="?page={{ memorials.previous_page_number }}" class="btn btn-outline-primary btn-sm">previous</a>
-                    {% endif %}
-
-                    <span class="current">
-                        Page {{ memorials.number }} of {{ memorials.paginator.num_pages }}
-                    </span>
-
-                    {% if memorials.has_next %}
-                        <a href="?page={{ memorials.next_page_number }}" class="btn btn-outline-primary btn-sm">next</a>
-                    {% endif %}
+                        <a
+                            href="{% pageurl memorial %}"
+                            class="btn btn-primary btn-sm stretched-link">
+                            View
+                        </a>
+                    </div>
                 </div>
+            {% endfor %}
+
+            <div class="list-group-item d-flex w-100 justify-content-center mt-2">
+                {% if memorials.has_previous %}
+                    <a href="?page={{ memorials.previous_page_number }}" class="btn btn-outline-primary btn-sm me-2">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ memorials.number }} of {{ memorials.paginator.num_pages }}
+                </span>
+
+                {% if memorials.has_next %}
+                    <a href="?page={{ memorials.next_page_number }}" class="btn btn-outline-primary btn-sm ms-2">next</a>
+                {% endif %}
             </div>
-        {% else %}
-            <div class="card-body">
-                <p>There are no memorials.</p>
-            </div>
-        {% endif %}
-    </div>
+        </div>
+    {% else %}
+        <div class="card-body">
+            <p>There are no memorials.</p>
+        </div>
+    {% endif %}
 
 
 
@@ -102,7 +123,6 @@
         if (window.location.search) {
             // Display clear filter button
             var clearFiltersButton = document.getElementById("clear-search-button");
-            clearFiltersButton.classList.toggle("invisible");
 
             // Update search facet fields with value(s) from search parameters
             var urlParams = new URLSearchParams(window.location.search);

@@ -4,6 +4,7 @@ from datetime import datetime
 from tqdm import tqdm
 from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
+    CouldNotParseAuthorIdError,
     DuplicateContactError,
 )
 from content_migration.management.shared import (
@@ -31,16 +32,22 @@ def handle_import_memorials(file_name: str) -> None:
 
     for memorial_data in tqdm(memorials, desc="Memorials", unit="row"):
         memorial_exists = Memorial.objects.filter(
-            drupal_memorial_id=int(memorial_data["memorial_id"])
+            drupal_memorial_id=int(
+                memorial_data["memorial_id"],
+            )
         ).exists()
 
         if memorial_exists:
             memorial = Memorial.objects.get(
-                drupal_memorial_id=int(memorial_data["memorial_id"])
+                drupal_memorial_id=int(
+                    memorial_data["memorial_id"],
+                )
             )
         else:
             memorial = Memorial(
-                drupal_memorial_id=int(memorial_data["memorial_id"]),
+                drupal_memorial_id=int(
+                    memorial_data["memorial_id"],
+                ),
             )
 
         full_name = f'{memorial_data["First Name"]} {memorial_data["Last Name"]}'
@@ -57,16 +64,25 @@ def handle_import_memorials(file_name: str) -> None:
             memorial.memorial_meeting = get_existing_magazine_author_from_db(
                 meeting_author_id
             )
-        except (
-            CouldNotFindMatchingContactError,
-            DuplicateContactError,
-        ):
+        except CouldNotFindMatchingContactError:
+            message = f"Could not find memorial meeting contact: {meeting_author_id}"
+            logger.error(message)
+            continue
+        except DuplicateContactError:
+            message = f"Duplicate memorial meeting contact: {meeting_author_id}"
+            logger.error(message)
+            continue
+        except CouldNotParseAuthorIdError:
+            message = f"Could not parse memorial meeting ID: {meeting_author_id}"
+            logger.error(message)
             continue
 
         # Make sure we can find the related memorial person contact
         # otherwise, we can't link the memorial to a contact
         try:
-            get_existing_magazine_author_from_db(memorial_data["drupal_author_id"])
+            memorial.memorial_person = get_existing_magazine_author_from_db(
+                memorial_data["drupal_author_id"]
+            )
         except CouldNotFindMatchingContactError:
             message = f"Could not find memorial person contact: {memorial_data['drupal_author_id']}"  # noqa: E501
             logger.error(message)
@@ -88,26 +104,27 @@ def handle_import_memorials(file_name: str) -> None:
         datetime_format = "%Y-%m-%dT%X"
 
         # Dates are optional
-        if memorial_data["Date of Birth"] is not None:
+        if memorial_data["Date of Birth"] != "":
             memorial.date_of_birth = datetime.strptime(
                 memorial_data["Date of Birth"], datetime_format
             )
 
-        if memorial_data["Date of Death"] is not None:
+        if memorial_data["Date of Death"] != "":
             memorial.date_of_death = datetime.strptime(
                 memorial_data["Date of Death"], datetime_format
             )
 
-        if memorial_data["Dates are approximate"] is not None:
+        if memorial_data["Dates are approximate"] != "":
             memorial.dates_are_approximate = True
 
         if not memorial_exists:
             # Add memorial to memorials collection
             try:
                 memorial_index_page.add_child(instance=memorial)
-            except AttributeError:
-                print("Could not add memorial as child of memorial index page")
+                memorial_index_page.save()
+            except AttributeError as error:
+                # log the error message
+                logger.error(error)
 
-            memorial_index_page.save()
         else:
             memorial.save()

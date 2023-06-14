@@ -192,9 +192,11 @@
         <h2>Memorials</h2>
 
         <ul class="list-group">
-            {% for memorial_minute in page.memorial_minutes.all %}
+            {% for memorial_minute in page.memorial_minutes.all|dictsort:"memorial_person.family_name" %}
                 <li class="list-group-item">
-                    {{ memorial_minute }}
+                    <a href="{% pageurl memorial_minute %}">
+                        {{ memorial_minute.memorial_person }}
+                    </a>
                 </li>
             {% endfor %}
         </ul>
