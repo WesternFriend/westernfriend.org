@@ -15,11 +15,11 @@ class Command(BaseCommand):
         call_command("import_memorials", interactive=False)
         call_command("import_events", interactive=False)
         call_command("import_board_documents", interactive=False)
+        call_command("import_meeting_documents", interactive=False)
         call_command("import_molly_wingate_blog", interactive=False)
         # TODO: add remaining importers
         # - news
         # - pages
-        # - meeting documents
         # - CiviCRM
         #   - contacts,
         #   - addresses,
