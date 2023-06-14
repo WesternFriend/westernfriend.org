@@ -25,52 +25,104 @@ def create_meeting(
     author: dict,
     meeting_index_page: MeetingIndexPage,
 ) -> None:
-    meeting = Meeting(
-        title=author["drupal_full_name"],
-        drupal_author_id=author["drupal_author_id"],
-        civicrm_id=author["civicrm_contact_id"]
-        if author["civicrm_contact_id"] != ""
-        else None,
-    )
+    # check if meeting already exists
+    # if it does, update it
+    # if it doesn't, create it
+    meeting_exists = Meeting.objects.filter(
+        drupal_author_id=author["drupal_author_id"]
+    ).exists()
 
-    meeting_index_page.add_child(instance=meeting)
+    if meeting_exists:
+        meeting = Meeting.objects.get(
+            drupal_author_id=author["drupal_author_id"],
+        )
 
-    meeting_index_page.save()
+        meeting.title = author["drupal_full_name"]
+        meeting.civicrm_id = (
+            author["civicrm_contact_id"] if author["civicrm_contact_id"] != "" else None
+        )
+
+        meeting.save()
+    else:
+        meeting = Meeting(
+            title=author["drupal_full_name"],
+            drupal_author_id=author["drupal_author_id"],
+            civicrm_id=author["civicrm_contact_id"]
+            if author["civicrm_contact_id"] != ""
+            else None,
+        )
+
+        meeting_index_page.add_child(instance=meeting)
+
+        meeting_index_page.save()
 
 
 def create_organization(
     author: dict,
     organization_index_page: OrganizationIndexPage,
 ) -> None:
-    organization = Organization(
-        title=author["drupal_full_name"],
-        drupal_author_id=author["drupal_author_id"],
-        civicrm_id=author["civicrm_contact_id"]
-        if author["civicrm_contact_id"] != ""
-        else None,
-    )
+    organization_exists = Organization.objects.filter(
+        drupal_author_id=author["drupal_author_id"]
+    ).exists()
 
-    organization_index_page.add_child(instance=organization)
+    if organization_exists:
+        organization = Organization.objects.get(
+            drupal_author_id=author["drupal_author_id"],
+        )
 
-    organization_index_page.save()
+        organization.title = author["drupal_full_name"]
+        organization.civicrm_id = (
+            author["civicrm_contact_id"] if author["civicrm_contact_id"] != "" else None
+        )
+
+        organization.save()
+    else:
+        organization = Organization(
+            title=author["drupal_full_name"],
+            drupal_author_id=author["drupal_author_id"],
+            civicrm_id=author["civicrm_contact_id"]
+            if author["civicrm_contact_id"] != ""
+            else None,
+        )
+
+        organization_index_page.add_child(instance=organization)
+
+        organization_index_page.save()
 
 
 def create_person(
     author: dict,
     person_index_page: PersonIndexPage,
 ) -> None:
-    person = Person(
-        given_name=author["given_name"],
-        family_name=author["family_name"],
-        drupal_author_id=author["drupal_author_id"],
-        civicrm_id=author["civicrm_contact_id"]
-        if author["civicrm_contact_id"] != ""
-        else None,
-    )
+    person_exists = Person.objects.filter(
+        drupal_author_id=author["drupal_author_id"]
+    ).exists()
 
-    person_index_page.add_child(instance=person)
+    if person_exists:
+        person = Person.objects.get(
+            drupal_author_id=author["drupal_author_id"],
+        )
 
-    person_index_page.save()
+        person.given_name = author["given_name"]
+        person.family_name = author["family_name"]
+        person.civicrm_id = (
+            author["civicrm_contact_id"] if author["civicrm_contact_id"] != "" else None
+        )
+
+        person.save()
+    else:
+        person = Person(
+            given_name=author["given_name"],
+            family_name=author["family_name"],
+            drupal_author_id=author["drupal_author_id"],
+            civicrm_id=author["civicrm_contact_id"]
+            if author["civicrm_contact_id"] != ""
+            else None,
+        )
+
+        person_index_page.add_child(instance=person)
+
+        person_index_page.save()
 
 
 def import_author_records(authors_list: list[dict]) -> None:
