@@ -41,6 +41,7 @@ def order_create(request):
             return redirect(
                 reverse("payment:process", kwargs={"previous_page": "bookstore_order"})
             )
+        return None
 
     else:
         form = OrderCreateForm()
