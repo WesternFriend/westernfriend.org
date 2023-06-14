@@ -99,7 +99,7 @@ class EventModelAdmin(ModelAdmin):
     exclude_from_explorer = False
     list_per_page = 10
     ordering = [
-        "start_date",
+        "-start_date",
     ]
     list_display = (
         "title",
