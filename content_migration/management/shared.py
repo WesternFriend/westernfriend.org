@@ -12,7 +12,8 @@ import requests
 from bs4 import BeautifulSoup
 from django.core.files import File
 from django.core.files.images import ImageFile
-from django.db.models import IntegrityError, Q
+from django.db import IntegrityError
+from django.db.models import Q
 from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.embeds.models import Embed
