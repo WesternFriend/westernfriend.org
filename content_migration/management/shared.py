@@ -8,14 +8,11 @@ from io import BytesIO
 from itertools import chain
 from urllib.parse import urlparse
 
-from bs4 import BeautifulSoup
-from django.db import IntegrityError
-
 import requests
 from bs4 import BeautifulSoup
 from django.core.files import File
 from django.core.files.images import ImageFile
-from django.db.models import Q
+from django.db.models import IntegrityError, Q
 from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.embeds.models import Embed
@@ -35,10 +32,6 @@ from content_migration.management.errors import (
 )
 from content_migration.management.constants import (
     SITE_BASE_URL,
-)
-from content_migration.management.conversion import (
-    adapt_html_to_generic_blocks,
-    BlockFactory,
 )
 
 
@@ -77,6 +70,12 @@ class FileBytesWithMimeType:
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ArchiveIssueData:
+    internet_archive_identifier: str
+    archive_articles: list[dict]
 
 
 def create_document_link_block(
@@ -268,6 +267,26 @@ def create_group_by(group_by_key: str, items: list[dict]) -> dict:
         grouped_items[key].append(item)
 
     return grouped_items
+
+
+def create_archive_issues_from_articles_dicts(
+    articles: list[dict],
+) -> list[ArchiveIssueData]:
+    """Create ArchiveIssue objects from a list of article dictionaries."""
+
+    # Group articles by issue
+    issues = create_group_by("internet_archive_identifier", articles)
+
+    archive_issues: list[ArchiveIssueData] = []
+
+    for issue in issues:
+        issue_data = ArchiveIssueData(
+            internet_archive_identifier=issue,
+            archive_articles=issues[issue],
+        )
+        archive_issues.append(issue_data)
+
+    return archive_issues
 
 
 def extract_image_urls(item: str) -> list[Image]:
