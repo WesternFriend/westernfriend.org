@@ -13,8 +13,8 @@ class Command(BaseCommand):
         call_command("import_library", interactive=False)
         call_command("import_archive", interactive=False)
         call_command("import_memorials", interactive=False)
+        call_command("import_events", interactive=False)
         # TODO: add remaining importers
-        # - events
         # - news
         # - pages
         # - board documents
