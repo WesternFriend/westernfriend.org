@@ -4,7 +4,7 @@ from content_migration.management.constants import (
     LOCAL_MIGRATION_DATA_DIRECTORY,
 )
 
-from content_migration.management.handlers.import_events_handler import (
+from content_migration.management.import_events_handler import (
     handle_import_events,
 )
 
