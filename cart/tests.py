@@ -8,9 +8,11 @@ from store.models import Product
 class CartTestCase(unittest.TestCase):
     def setUp(self):
         self.factory = RequestFactory()
+        self.request = self.factory.get('/')
+        self.request.session = {}
 
     def test_cart_initialization(self):
-        request = self.factory.get('/')
+        
         cart = Cart(request)
 
         self.assertEqual(len(cart), 0)
