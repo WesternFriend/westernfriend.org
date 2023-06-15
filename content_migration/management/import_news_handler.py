@@ -6,8 +6,9 @@ from content_migration.management.shared import (
     parse_media_blocks,
     parse_media_string_to_list,
 )
-from content_migration.management.constants import construct_import_file_path
+
 from content_migration.management.shared import (
+    construct_import_file_path,
     parse_body_blocks,
 )
 

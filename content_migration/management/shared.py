@@ -33,6 +33,8 @@ from content_migration.management.errors import (
 from content_migration.management.constants import (
     DEFAULT_IMAGE_ALIGN,
     DEFAULT_IMAGE_WIDTH,
+    IMPORT_FILENAMES,
+    LOCAL_MIGRATION_DATA_DIRECTORY,
     SITE_BASE_URL,
 )
 
@@ -68,6 +70,11 @@ MEDIA_EMBED_DOMAINS = [
     "player.vimeo.com",
     "open.spotify.com",
 ]
+
+
+def construct_import_file_path(file_key: str) -> str:
+    """Construct the path to a file to import."""
+    return f"{LOCAL_MIGRATION_DATA_DIRECTORY}{IMPORT_FILENAMES[file_key]}"
 
 
 @dataclass

@@ -34,8 +34,3 @@ IMPORT_FILENAMES = {
     "online_worship": "online_worship.csv",
     "pages": "pages.csv",
 }
-
-
-def construct_import_file_path(file_key: str) -> str:
-    """Construct the path to a file to import."""
-    return f"{LOCAL_MIGRATION_DATA_DIRECTORY}{IMPORT_FILENAMES[file_key]}"
