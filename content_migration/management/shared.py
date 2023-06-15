@@ -36,6 +36,14 @@ from content_migration.management.constants import (
     SITE_BASE_URL,
 )
 
+EMPTY_ITEM_VALUES = [
+    "",
+    "~",
+    "&nbsp;",
+    " ",
+    None,
+]
+
 
 MEDIA_EMBED_DOMAINS = [
     "youtube.com",
@@ -198,7 +206,7 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
 
         item_string = str(item)
         # skip empty items
-        if item_string == "" or item_string is None:
+        if item_string in EMPTY_ITEM_VALUES:
             continue
 
         item_contains_pullquote = "pullquote" in item_string
