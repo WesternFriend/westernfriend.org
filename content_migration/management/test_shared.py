@@ -25,6 +25,7 @@ from content_migration.management.shared import (
     BlockFactory,
     GenericBlock,
     adapt_html_to_generic_blocks,
+    construct_import_file_path,
     create_archive_issues_from_articles_dicts,
     create_document_link_block,
     create_group_by,
@@ -47,6 +48,8 @@ from content_migration.management.shared import (
 from home.models import HomePage
 
 from content_migration.management.constants import (
+    IMPORT_FILENAMES,
+    LOCAL_MIGRATION_DATA_DIRECTORY,
     SITE_BASE_URL,
     WESTERN_FRIEND_LOGO_URL,
     WESTERN_FRIEND_LOGO_FILE_NAME,
@@ -722,6 +725,18 @@ class ParseMediaStringToListSimpleTest(SimpleTestCase):
         ]
 
         self.assertEqual(media_urls, expected_media_urls)
+
+
+class ConstructImportFilePathSimpleTest(SimpleTestCase):
+    def test_construct_import_file_path(self) -> None:
+        # construct a file path for a file in the test data directory
+        file_key = "extra_extra"
+        import_file_path = construct_import_file_path(file_key)
+        expected_import_file_path = (
+            f"{LOCAL_MIGRATION_DATA_DIRECTORY}{IMPORT_FILENAMES[file_key]}"
+        )
+
+        self.assertEqual(import_file_path, expected_import_file_path)
 
 
 # TODO: add command tests

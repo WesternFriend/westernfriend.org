@@ -25,11 +25,6 @@ def handle_import_events(file_name: str) -> None:
         rich_text_block = ("rich_text", RichText(event["body"]))
         event_body_blocks.append(rich_text_block)
 
-        # Get teaser, max length is 100 characters
-        teaser = None
-        if event["body"]:
-            teaser = event["body"][0:99]
-
         # Convert event date strings into Python dates
         start_date = datetime.strptime(event["start_date"], date_format)
         end_date = datetime.strptime(event["end_date"], date_format)
@@ -42,7 +37,7 @@ def handle_import_events(file_name: str) -> None:
             import_event = Event(
                 title=event["title"],
                 body=event_body_blocks,
-                teaser=teaser,
+                teaser="",
                 start_date=start_date,
                 end_date=end_date,
                 website=event["event_link"],
@@ -59,7 +54,7 @@ def handle_import_events(file_name: str) -> None:
 
             import_event.title = event["title"]
             import_event.body = event_body_blocks
-            import_event.teaser = teaser
+            import_event.teaser = ""
             import_event.start_date = start_date
             import_event.end_date = end_date
             import_event.website = event["event_link"]

@@ -1,12 +1,13 @@
 from datetime import date, datetime
 
 from django.db import models
+from django.http import HttpRequest
 from modelcluster.fields import ParentalKey
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
-from wagtail.documents.blocks import DocumentChooserBlock
+from wagtail.embeds.blocks import EmbedBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
@@ -17,6 +18,7 @@ from blocks.blocks import (
     PullQuoteBlock,
     SpacerBlock,
 )
+from documents.blocks import DocumentEmbedBlock
 
 
 class NewsIndexPage(Page):
@@ -34,7 +36,12 @@ class NewsIndexPage(Page):
     ]
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict[str, list]:
         context = super().get_context(request)
 
         current_year = datetime.now().year
@@ -163,8 +170,9 @@ class NewsItem(Page):
             ),
             ("pullquote", PullQuoteBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
-            ("document", DocumentChooserBlock()),
+            ("document", DocumentEmbedBlock()),
             ("spacer", SpacerBlock()),
+            ("embed", EmbedBlock()),
         ],
         use_json_field=True,
     )

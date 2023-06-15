@@ -6,6 +6,7 @@
 {% block body_class %}template-newsitem{% endblock %}
 
 {% block content %}
+    <a href="{% pageurl page.get_parent %}">News</a>
     <h1>
         {{ page.title }}
     </h1>

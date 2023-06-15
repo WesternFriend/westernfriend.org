@@ -65,11 +65,11 @@ def handle_import_board_documents(file_name: str) -> None:
             )
 
             # Parse the document's body, if it is not empty
-            if document_data["body"] is not None:
+            if document_data["body"] != "":
                 board_document.body = parse_body_blocks(document_data["body"])
 
             # Append media to the document's body
-            if document_data["media"] is not None:
+            if document_data["media"] != "":
                 # download media from URL, convert it to a list of blocks,
                 # and append it to the document's body
                 board_document.body += parse_media_blocks(
