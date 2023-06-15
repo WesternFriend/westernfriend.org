@@ -17,8 +17,9 @@ class Command(BaseCommand):
         call_command("import_board_documents")
         call_command("import_meeting_documents")
         call_command("import_molly_wingate_blog")
+        call_command("import_news")
         # TODO: add remaining importers
-        # - news
+        # - online worship
         # - pages
         # - CiviCRM
         #   - contacts,
