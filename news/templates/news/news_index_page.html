@@ -29,8 +29,6 @@
 
 
     {% for news_item in news_items %}
-        <div class="mb-2">
-            {% include "news/news_item_card.html" with news_item=news_item %}
-        </div>
+        {% include "news/news_item_card.html" with news_item=news_item %}
     {% endfor %}
 {% endblock content %}
