@@ -13,7 +13,6 @@ import requests
 from bs4 import BeautifulSoup, Tag
 from django.core.files import File
 from django.core.files.images import ImageFile
-from django.db import IntegrityError
 from django.db.models import Q
 from wagtail.contrib.redirects.models import Redirect
 from wagtail.documents.models import Document
@@ -536,17 +535,12 @@ def create_permanent_redirect(
 ) -> None:
     """Create a permanent redirect from the old path to the new page."""
 
-    try:
+    redirect_exists = Redirect.objects.filter(old_path=redirect_path).exists()
+
+    if not redirect_exists:
         Redirect.objects.create(
             old_path=redirect_path,  # the old path from Drupal
             site=redirect_entity.get_site(),
             redirect_page=redirect_entity,  # the new page
             is_permanent=True,
         ).save()
-    except IntegrityError:
-        print(
-            "Redirect already exists for: ",
-            redirect_path,
-            " to ",
-            redirect_entity.title,
-        )
