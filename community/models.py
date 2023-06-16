@@ -61,6 +61,10 @@ class OnlineWorship(Page):
 
     website = models.URLField(null=True, blank=True)
 
+    drupal_node_id = models.IntegerField(null=True, blank=True)
+    drupal_body_migrated = models.TextField(null=True, blank=True)
+    drupal_path = models.CharField(max_length=255, null=True, blank=True)
+
     content_panels = Page.content_panels + [
         FieldPanel("description"),
         PageChooserPanel("hosted_by", ["contact.Meeting", "contact.Organization"]),
