@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 
-def get_book_shipping_cost(book_quantity=1):
+def get_book_shipping_cost(book_quantity: int = 1) -> Decimal:
     """Calculate shipping costs for books in a cart/order.
 
     The shipping rules are flat rate for each book, with discounts
