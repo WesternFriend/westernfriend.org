@@ -111,6 +111,16 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "josh-bristow",
+      "name": "Josh Bristow",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45632384?v=4",
+      "profile": "https://github.com/josh-bristow",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
