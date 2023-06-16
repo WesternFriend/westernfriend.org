@@ -42,7 +42,11 @@ class ProductIndexPage(Page):
 
 class Product(Page):
     image = models.ForeignKey(
-        "wagtailimages.Image", on_delete=models.SET_NULL, null=True, related_name="+"
+        "wagtailimages.Image",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,  # note, making this required will break the tests
+        related_name="+",
     )
     description = RichTextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
