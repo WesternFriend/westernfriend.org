@@ -20,10 +20,6 @@ class CartTestCase(TestCase):
 
         # get Site Root
         root_page = Page.objects.get(id=1)
-        # try:
-        #     root_page = Page.objects.get(id=1)
-        # except Page.DoesNotExist:
-        #     root_page = Page(id=1).save()
 
         # Create HomePage
         home_page = HomePage(
@@ -56,21 +52,6 @@ class CartTestCase(TestCase):
         )
         product_index_page.add_child(instance=self.product1)
         product_index_page.add_child(instance=self.product2)
-
-        # self.product1 = Product.objects.create(
-        #     id=1, title="Product 1", price=Decimal("9.99")
-        # )
-        # self.product2 = Product.objects.create(
-        #     id=2, title="Product 2", price=Decimal("19.99")
-        # )
-
-        # self.product1 = Mock(spec=Product, id=1)
-        # self.product1.title = "Product 1"
-        # self.product1.price = Decimal("9.99")
-
-        # self.product2: Product = Mock(spec=Product, id=2)
-        # self.product2.title = "Product 2"
-        # self.product2.price = Decimal("19.99")
 
     def test_cart_initialization(self) -> None:
         cart = Cart(self.request)
@@ -162,9 +143,5 @@ class CartTestCase(TestCase):
     def tearDown(self) -> None:
         # delete all pages
         Page.objects.all().delete()
-
-        # delete product1 and product2
-        # self.product1.delete()
-        # self.product2.delete()
 
         return super().tearDown()
