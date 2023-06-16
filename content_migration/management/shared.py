@@ -152,7 +152,7 @@ class BlockFactory:
         if generic_block.block_type == "rich_text":
             return (
                 generic_block.block_type,
-                RichText(generic_block.block_content),
+                RichText(generic_block.block_content),  # type: ignore
             )
         elif generic_block.block_type == "image":
             try:
@@ -316,11 +316,12 @@ def create_media_embed_block(url: str) -> tuple[str, Embed]:
     return embed_block
 
 
-# TODO: remove this function,
+# TODO: refactor this function to make it
+# less redundant with create_image_block
 def create_image_block_from_file_bytes(
     file_name: str,
     file_bytes: BytesIO,
-) -> tuple[str, Image]:
+) -> tuple[str, dict]:
     # create image
     image_file: ImageFile = ImageFile(
         file_bytes,
@@ -350,7 +351,7 @@ def create_image_block_from_file_bytes(
 def extract_pullquotes(item: str) -> list[str]:
     """Get a list of all pullquote strings found within the item."""
 
-    return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item)
+    return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item)  # type: ignore
 
 
 def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
