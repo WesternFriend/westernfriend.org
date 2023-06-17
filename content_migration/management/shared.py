@@ -474,12 +474,16 @@ def get_existing_magazine_author_from_db(
     results = list(chain(person, meeting, organization))
 
     if len(results) == 0:
-        raise CouldNotFindMatchingContactError()
+        error_message = f"Could not find matching author for magazine author ID: { int(drupal_author_id) }"  # noqa: E501
+        logger.error(error_message)
+
+        raise CouldNotFindMatchingContactError(error_message)
     elif len(results) > 1:
-        logger.error(
+        error_message = (
             f"Duplicate authors found for magazine author ID: { int(drupal_author_id) }"
         )
-        raise DuplicateContactError()
+        logger.error(error_message)
+        raise DuplicateContactError(error_message)
     else:
         return results[0]
 
