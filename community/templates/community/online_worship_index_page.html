@@ -11,47 +11,58 @@
 
     {{ page.intro | richtext }}
 
-    <div class="list-group">
-        {% for online_worship in self.get_children %}
-            {% if online_worship.specific.website %}
-                <a href="{{ online_worship.specific.website }}" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h3 class="mb-1">{{ online_worship.title }}</h3>
-                    </div>
+    {% for online_worship in self.get_children|dictsort:"title" %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="card-title fs-3">{{ online_worship.title }}</h2>
 
-                    {% if online_worship.specific.description %}
-                        <span>
-                            {{ online_worship.specific.description | richtext }}
-                        </span>
-                    {% endif %}
+                {% if online_worship.specific.times_of_worship %}
+                    <p class="card-text">
+                        <strong>Times of worship:</strong>&nbsp;
+                        {{ online_worship.specific.times_of_worship | richtext }}
+                    </p>
+                {% endif %}
 
-                    {% if online_worship.specific.times_of_worship %}
-                        <span>
-                            <strong>Times of worship:</strong>&nbsp;
-                            {{ online_worship.specific.times_of_worship | richtext }}
-                        </span>
-                    {% endif %}
-                </a>
-            {% else %}
-                <div class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h3 class="mb-1">{{ online_worship.title }}</h3>
-                    </div>
+                {% if online_worship.specific.hosted_by %}
+                    <p>
+                        <strong>Hosted by:</strong>&nbsp;
+                        {{ online_worship.specific.hosted_by  }}
+                    </p>
+                {% endif %}
 
-                    {% if online_worship.specific.description %}
-                        <span>
-                            {{ online_worship.specific.description | richtext }}
-                        </span>
-                    {% endif %}
+                {% if online_worship.specific.online_worship_day %}
+                    <p>
+                        <strong>Online worship day:</strong>&nbsp;
+                        {{ online_worship.specific.online_worship_day  }}
+                    </p>
+                {% endif %}
 
-                    {% if online_worship.specific.times_of_worship %}
-                        <span>
-                            <strong>Times of worship:</strong>&nbsp;
-                            {{ online_worship.specific.times_of_worship | richtext }}
-                        </span>
-                    {% endif %}
-                </div>
-            {% endif %}
-        {% endfor %}
-    </div>
+                {% if online_worship.specific.online_worship_time %}
+                    <p>
+                        <strong>Online worship time:</strong>&nbsp;
+                        {{ online_worship.specific.online_worship_time  }}
+                        {% if online_worship.specific.online_worship_timezone %}
+                            ({{ online_worship.specific.online_worship_timezone }})
+                        {% endif %}
+                    </p>
+                {% endif %}
+
+                {% if online_worship.specific.online_worship_url %}
+                    <p>
+                        <strong>Online worship URL:</strong>&nbsp;
+                        {{ online_worship.specific.online_worship_url  }}
+                    </p>
+                {% endif %}
+
+                {% if online_worship.specific.online_worship_notes %}
+                    <p>
+                        <strong>Online worship notes:</strong>&nbsp;
+                        {{ online_worship.specific.online_worship_notes  }}
+                    </p>
+                {% endif %}
+                <a href="{{ online_worship.url }}" class="btn btn-primary stretched-link">View details</a>
+            </div>
+        </div>
+    {% endfor %}
+
 {% endblock %}

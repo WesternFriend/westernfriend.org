@@ -6,6 +6,8 @@ from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Page
 from wagtail.search import index
 
+from timezone_field import TimeZoneField  # type: ignore
+
 from blocks import blocks as wf_blocks
 
 
@@ -47,6 +49,15 @@ class CommunityPage(Page):
 
 
 class OnlineWorship(Page):
+    class OnlineWorshipDayChoices(models.TextChoices):
+        SUNDAY = "Sunday", "Sunday"
+        MONDAY = "Monday", "Monday"
+        TUESDAY = "Tuesday", "Tuesday"
+        WEDNESDAY = "Wednesday", "Wednesday"
+        THURSDAY = "Thursday", "Thursday"
+        FRIDAY = "Friday", "Friday"
+        SATURDAY = "Saturday", "Saturday"
+
     description = RichTextField(blank=True)
 
     hosted_by = models.ForeignKey(
@@ -56,10 +67,26 @@ class OnlineWorship(Page):
         on_delete=models.SET_NULL,
         related_name="online_worship",
     )
-
+    # TODO: Define a custom, orderable model for this
+    # to allow for multiple times of worship.
     times_of_worship = RichTextField(blank=True)
+    online_worship_day = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        choices=OnlineWorshipDayChoices.choices,
+    )
+    online_worship_time = models.TimeField(null=True, blank=True)
+    online_worship_timezone = TimeZoneField(
+        null=True,
+        blank=True,
+    )
 
     website = models.URLField(null=True, blank=True)
+
+    drupal_node_id = models.IntegerField(null=True, blank=True)
+    drupal_body_migrated = models.TextField(null=True, blank=True)
+    drupal_url_path = models.CharField(max_length=255, null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
