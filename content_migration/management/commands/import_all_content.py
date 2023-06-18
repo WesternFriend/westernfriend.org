@@ -20,9 +20,7 @@ class Command(BaseCommand):
         call_command("import_news")
         call_command("import_online_worship")
         call_command("import_pages")
+        call_command("import_civicrm_contacts")
+        call_command("import_civicrm_relationships")
         # TODO: add remaining importers
-        # - CiviCRM
-        #   - contacts,
-        #   - addresses,
-        #   - clerk relationships,
-        #   - meeting relationships
+        # - CiviCRM clerk relationships (are we planning to use these going forward?)
