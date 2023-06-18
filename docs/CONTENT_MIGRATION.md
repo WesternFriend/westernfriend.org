@@ -110,15 +110,7 @@ CiviCRM stores contacts that are used in our Community Directory.
 Import the contacts with the following command.
 
 ```sh
-python manage.py import_civicrm_contacts --file path/to/file.csv
-```
-
-### Addresses
-
-Organization addresses can be imported with the same CSV downloaded in the previous section, by running the following command.
-
-```py
-python manage.py import_civicrm_addresses --file path/to/file.csv
+python manage.py import_civicrm_contacts
 ```
 
 ### Relationships
@@ -136,8 +128,8 @@ python manage.py import_civicrm_addresses --file path/to/file.csv
 
 Import the relationships with the following command.
 
-```py
-python manage.py import_civicrm_relationships --file path/to/file.csv
+```sh
+python manage.py import_civicrm_relationships
 ```
 
 ### Clerk relationships
