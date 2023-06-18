@@ -8,13 +8,14 @@ from tqdm import tqdm
 
 from contact.models import (
     Meeting,
+    MeetingAddress,
     MeetingWorshipTime,
     Organization,
 )
 from content_migration.management.shared import parse_csv_file
 
 logging.basicConfig(
-    filename="civicrm_contact_import.log",
+    filename="import_civicrm_contacts.log",
     level=logging.ERROR,
     format="%(message)s",
     # format="%(asctime)s %(levelname)s %(name)s %(message)s",
@@ -22,11 +23,51 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def add_meeting_worship_times(meeting: Meeting, contact: dict[str, str]) -> None:
+def create_meeting_addresses(meeting: Meeting, row: dict) -> None:
+    row_has_mailing_address = row["Mailing-State"] != ""
+    row_has_worship_address = row["Worship-State"] != ""
+
+    if row_has_mailing_address:
+        mailing_address = MeetingAddress(
+            street_address=row["Mailing-Street Address"],
+            extended_address=row["Mailing-Supplemental Address 1"],
+            locality=row["Mailing-City"],
+            region=row["Mailing-State"],
+            postal_code=row["Mailing-Postal Code"],
+            address_type="mailing",
+            page=meeting,
+        )
+
+        mailing_address.save()
+
+    if row_has_worship_address:
+        latitude = row["Worship-Latitude"] if row["Worship-Latitude"] != "" else None
+        longitude = row["Worship-Longitude"] if row["Worship-Longitude"] != "" else None
+
+        worship_address = MeetingAddress(
+            street_address=row["Worship-Street Address"],
+            extended_address=row["Worship-Supplemental Address 1"],
+            locality=row["Worship-City"],
+            region=row["Worship-State"],
+            postal_code=row["Worship-Postal Code"],
+            country=row["Worship-Country"],
+            address_type="worship",
+            latitude=latitude,
+            longitude=longitude,
+            page=meeting,
+        )
+
+        worship_address.save()
+
+
+def add_meeting_worship_times(
+    meeting: Meeting,
+    contact: dict[str, str],
+) -> None:
     # For a given Meeting model instance,
     # add meeting time(s) from CiviCRM contact data
 
-    if contact["Regular time of Worship on First Day (1)"] is not None:
+    if contact["Regular time of Worship on First Day (1)"] != "":
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="first_day_worship",
@@ -35,7 +76,7 @@ def add_meeting_worship_times(meeting: Meeting, contact: dict[str, str]) -> None
 
         worship_time.save()
 
-    if contact["Regular time of Worship on First Day (2)"] is not None:
+    if contact["Regular time of Worship on First Day (2)"] != "":
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="first_day_worship_2nd",
@@ -48,7 +89,7 @@ def add_meeting_worship_times(meeting: Meeting, contact: dict[str, str]) -> None
         contact[
             "Regular day and time of Meeting for Worship on the Occassion of Business"
         ]
-        is not None
+        != ""
     ):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
@@ -62,7 +103,7 @@ def add_meeting_worship_times(meeting: Meeting, contact: dict[str, str]) -> None
 
     if (
         contact["Regular day and time of other weekly or monthly public meetings (1)"]
-        is not None
+        != ""
     ):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
@@ -75,7 +116,9 @@ def add_meeting_worship_times(meeting: Meeting, contact: dict[str, str]) -> None
         worship_time.save()
 
 
-def determine_meeting_type(contact_type: str) -> str:
+def determine_meeting_type(
+    contact_type: str,
+) -> str:
     # Meeting Subtypes include
     # - Monthly_Meeting_Worship_Group
     # - Quarterly_Regional_Meeting
@@ -95,7 +138,9 @@ def determine_meeting_type(contact_type: str) -> str:
     return meeting_types[contact_type]
 
 
-def handle_import_civicrm_contacts(file_name: str) -> None:
+def handle_import_civicrm_contacts(
+    file_name: str,
+) -> None:
     contacts = parse_csv_file(file_name)
 
     for contact in tqdm(
@@ -139,7 +184,10 @@ def handle_import_civicrm_contacts(file_name: str) -> None:
         # because contacts without a value
         # are organizations in the spreadsheet
         # Make sure empty string catches the contacts without subtype.
-        organization_types = ["Quaker_Organization", ""]
+        organization_types = [
+            "Quaker_Organization",
+            "",
+        ]
 
         contact_is_meeting = contact_type in meeting_types
         contact_is_organization = contact_type in organization_types
@@ -174,6 +222,7 @@ def handle_import_civicrm_contacts(file_name: str) -> None:
             meeting.save()
 
             add_meeting_worship_times(meeting, contact)
+            create_meeting_addresses(meeting, contact)
         elif contact_is_organization:
             # Make sure we have exactly one record for this organization
             try:
