@@ -14,7 +14,7 @@ from contact.models import (
 from content_migration.management.shared import parse_csv_file
 
 logging.basicConfig(
-    filename="civicrm_contact_import.log",
+    filename="import_civicrm_contacts.log",
     level=logging.ERROR,
     format="%(message)s",
     # format="%(asctime)s %(levelname)s %(name)s %(message)s",
@@ -22,7 +22,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def add_meeting_worship_times(meeting: Meeting, contact: dict[str, str]) -> None:
+def add_meeting_worship_times(
+    meeting: Meeting,
+    contact: dict[str, str],
+) -> None:
     # For a given Meeting model instance,
     # add meeting time(s) from CiviCRM contact data
 
@@ -75,7 +78,9 @@ def add_meeting_worship_times(meeting: Meeting, contact: dict[str, str]) -> None
         worship_time.save()
 
 
-def determine_meeting_type(contact_type: str) -> str:
+def determine_meeting_type(
+    contact_type: str,
+) -> str:
     # Meeting Subtypes include
     # - Monthly_Meeting_Worship_Group
     # - Quarterly_Regional_Meeting
@@ -95,7 +100,9 @@ def determine_meeting_type(contact_type: str) -> str:
     return meeting_types[contact_type]
 
 
-def handle_import_civicrm_contacts(file_name: str) -> None:
+def handle_import_civicrm_contacts(
+    file_name: str,
+) -> None:
     contacts = parse_csv_file(file_name)
 
     for contact in tqdm(
@@ -139,7 +146,10 @@ def handle_import_civicrm_contacts(file_name: str) -> None:
         # because contacts without a value
         # are organizations in the spreadsheet
         # Make sure empty string catches the contacts without subtype.
-        organization_types = ["Quaker_Organization", ""]
+        organization_types = [
+            "Quaker_Organization",
+            "",
+        ]
 
         contact_is_meeting = contact_type in meeting_types
         contact_is_organization = contact_type in organization_types
