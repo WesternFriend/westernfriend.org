@@ -11,7 +11,6 @@ from contact.models import (
     PersonIndexPage,
 )
 from content_migration.management.shared import (
-    create_permanent_redirect,
     parse_csv_file,
 )
 
@@ -147,7 +146,6 @@ def import_author_records(authors_list: list[dict]) -> None:
         desc="Primary Author records",
         unit="row",
     ):
-        author_entity = None
         author_type = author["author_type"]
 
         # Don't import duplicate authors
@@ -161,21 +159,15 @@ def import_author_records(authors_list: list[dict]) -> None:
             continue
         else:
             if author_type == "meeting":
-                author_entity = create_meeting(author, meeting_index_page)
+                create_meeting(author, meeting_index_page)
             elif author_type == "organization":
-                author_entity = create_organization(author, organization_index_page)
+                create_organization(author, organization_index_page)
             elif author_type == "person":
-                author_entity = create_person(author, person_index_page)
+                create_person(author, person_index_page)
             else:
                 logger.error(
                     f"Unknown author type for ID: { author['drupal_author_id'] }"
                 )
-
-        if author_entity is not None:
-            create_permanent_redirect(
-                redirect_path=author["url_path"],
-                redirect_entity=author_entity,
-            )
 
 
 def handle_import_magazine_authors(file_name: str) -> None:
