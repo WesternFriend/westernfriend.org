@@ -55,8 +55,26 @@ class Address(models.Model):
         FieldPanel("longitude"),
     ]
 
-    def __str__(self):
-        return f"{self.street_address}, {self.locality}, {self.region} {self.country}"
+    def __str__(self) -> str:
+        """Return a string representation of the address."""
+
+        # Construct the address string using
+        # street_address, locality, region, and country
+        # adding commas and spaces as needed
+        # e.g. 123 Main St, Anytown, CA, 12345, United States
+        address_string = ""
+        if self.street_address != "":
+            address_string += f"{ self.street_address }, "
+        if self.locality != "":
+            address_string += f"{ self.locality }, "
+        if self.region != "":
+            address_string += f"{ self.region }, "
+        if self.postal_code != "":
+            address_string += f"{ self.postal_code }, "
+        if self.country != "":
+            address_string += f"{ self.country }"
+
+        return address_string
 
     class Meta:
         abstract = True
