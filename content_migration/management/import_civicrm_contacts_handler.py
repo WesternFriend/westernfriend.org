@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 from contact.models import (
     Meeting,
+    MeetingAddress,
     MeetingWorshipTime,
     Organization,
 )
@@ -22,6 +23,43 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def create_meeting_addresses(meeting: Meeting, row: dict) -> None:
+    row_has_mailing_address = row["Mailing-State"] != ""
+    row_has_worship_address = row["Worship-State"] != ""
+
+    if row_has_mailing_address:
+        mailing_address = MeetingAddress(
+            street_address=row["Mailing-Street Address"],
+            extended_address=row["Mailing-Supplemental Address 1"],
+            locality=row["Mailing-City"],
+            region=row["Mailing-State"],
+            postal_code=row["Mailing-Postal Code"],
+            address_type="mailing",
+            page=meeting,
+        )
+
+        mailing_address.save()
+
+    if row_has_worship_address:
+        latitude = row["Worship-Latitude"] if row["Worship-Latitude"] != "" else None
+        longitude = row["Worship-Longitude"] if row["Worship-Longitude"] != "" else None
+
+        worship_address = MeetingAddress(
+            street_address=row["Worship-Street Address"],
+            extended_address=row["Worship-Supplemental Address 1"],
+            locality=row["Worship-City"],
+            region=row["Worship-State"],
+            postal_code=row["Worship-Postal Code"],
+            country=row["Worship-Country"],
+            address_type="worship",
+            latitude=latitude,
+            longitude=longitude,
+            page=meeting,
+        )
+
+        worship_address.save()
+
+
 def add_meeting_worship_times(
     meeting: Meeting,
     contact: dict[str, str],
@@ -29,7 +67,7 @@ def add_meeting_worship_times(
     # For a given Meeting model instance,
     # add meeting time(s) from CiviCRM contact data
 
-    if contact["Regular time of Worship on First Day (1)"] is not None:
+    if contact["Regular time of Worship on First Day (1)"] != "":
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="first_day_worship",
@@ -38,7 +76,7 @@ def add_meeting_worship_times(
 
         worship_time.save()
 
-    if contact["Regular time of Worship on First Day (2)"] is not None:
+    if contact["Regular time of Worship on First Day (2)"] != "":
         worship_time = MeetingWorshipTime(
             meeting=meeting,
             worship_type="first_day_worship_2nd",
@@ -51,7 +89,7 @@ def add_meeting_worship_times(
         contact[
             "Regular day and time of Meeting for Worship on the Occassion of Business"
         ]
-        is not None
+        != ""
     ):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
@@ -65,7 +103,7 @@ def add_meeting_worship_times(
 
     if (
         contact["Regular day and time of other weekly or monthly public meetings (1)"]
-        is not None
+        != ""
     ):
         worship_time = MeetingWorshipTime(
             meeting=meeting,
@@ -184,6 +222,7 @@ def handle_import_civicrm_contacts(
             meeting.save()
 
             add_meeting_worship_times(meeting, contact)
+            create_meeting_addresses(meeting, contact)
         elif contact_is_organization:
             # Make sure we have exactly one record for this organization
             try:
