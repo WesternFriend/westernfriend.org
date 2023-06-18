@@ -42,6 +42,7 @@ def handle_import_civicrm_relationships(file_name: str) -> None:
         unit="row",
     ):
         contact_ids = extract_contact_ids_from(relationship)
+        parent, child = None, None
 
         try:
             parent = Meeting.objects.get(civicrm_id=contact_ids["parent_id"])
@@ -51,7 +52,8 @@ def handle_import_civicrm_relationships(file_name: str) -> None:
             )
             print(relationship)
 
-            pass
+            continue
+
         try:
             child = Meeting.objects.get(civicrm_id=contact_ids["child_id"])
         except ObjectDoesNotExist:
@@ -60,7 +62,7 @@ def handle_import_civicrm_relationships(file_name: str) -> None:
             )
             print(relationship)
 
-            pass
+            continue
 
         if parent and child:
             try:
