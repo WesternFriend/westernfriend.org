@@ -10,7 +10,9 @@ from contact.models import (
     Person,
     PersonIndexPage,
 )
-from content_migration.management.shared import parse_csv_file
+from content_migration.management.shared import (
+    parse_csv_file,
+)
 
 logging.basicConfig(
     filename="import_log_magazine_authors.log",
@@ -24,7 +26,7 @@ logger = logging.getLogger(__name__)
 def create_meeting(
     author: dict,
     meeting_index_page: MeetingIndexPage,
-) -> None:
+) -> Meeting:
     # check if meeting already exists
     # if it does, update it
     # if it doesn't, create it
@@ -56,11 +58,13 @@ def create_meeting(
 
         meeting_index_page.save()
 
+    return meeting
+
 
 def create_organization(
     author: dict,
     organization_index_page: OrganizationIndexPage,
-) -> None:
+) -> Organization:
     organization_exists = Organization.objects.filter(
         drupal_author_id=author["drupal_author_id"]
     ).exists()
@@ -89,11 +93,13 @@ def create_organization(
 
         organization_index_page.save()
 
+    return organization
+
 
 def create_person(
     author: dict,
     person_index_page: PersonIndexPage,
-) -> None:
+) -> Person:
     person_exists = Person.objects.filter(
         drupal_author_id=author["drupal_author_id"]
     ).exists()
@@ -123,6 +129,8 @@ def create_person(
         person_index_page.add_child(instance=person)
 
         person_index_page.save()
+
+    return person
 
 
 def import_author_records(authors_list: list[dict]) -> None:

@@ -8,6 +8,7 @@ from content_migration.management.errors import (
     DuplicateContactError,
 )
 from content_migration.management.shared import (
+    create_permanent_redirect,
     get_existing_magazine_author_from_db,
     parse_csv_file,
 )
@@ -128,3 +129,9 @@ def handle_import_memorials(file_name: str) -> None:
 
         else:
             memorial.save()
+
+        # Create a permanent redirect from the old URL to the new one
+        create_permanent_redirect(
+            redirect_path=memorial_data["url_path"],
+            redirect_entity=memorial,
+        )

@@ -15,6 +15,7 @@ from magazine.models import (
 )
 
 from content_migration.management.shared import (
+    create_permanent_redirect,
     get_existing_magazine_author_from_db,
     parse_csv_file,
     parse_media_blocks,
@@ -68,8 +69,10 @@ def assign_article_to_issue(
         related_issue = MagazineIssue.objects.get(
             drupal_node_id=drupal_issue_node_id,
         )
-    except ObjectDoesNotExist:
-        print("Can't find issue: ", drupal_issue_node_id)
+    except ObjectDoesNotExist as error:
+        error_message = f"Could not find issue from Drupal ID: { drupal_issue_node_id }"
+        logger.error(error_message)
+        raise ObjectDoesNotExist(error_message) from error
 
     related_issue.add_child(
         instance=article,
@@ -139,3 +142,8 @@ def handle_import_magazine_articles(file_name: str) -> None:
                 article.tags.add(keyword)
 
         article.save()
+
+        create_permanent_redirect(
+            redirect_path=row["url_path"],
+            redirect_entity=article,
+        )

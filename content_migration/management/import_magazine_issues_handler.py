@@ -7,7 +7,10 @@ from django.core.files.images import ImageFile
 from django.utils.timezone import make_aware
 from tqdm import tqdm
 from wagtail.images.models import Image
-from content_migration.management.shared import parse_csv_file
+from content_migration.management.shared import (
+    create_permanent_redirect,
+    parse_csv_file,
+)
 
 from magazine.models import MagazineIndexPage, MagazineIssue
 
@@ -56,3 +59,8 @@ def handle_import_magazine_issues(file_name: str) -> None:
             # Add issue to site page hiererchy
             magazine_index_page.add_child(instance=import_issue)
             magazine_index_page.save()
+
+            create_permanent_redirect(
+                redirect_path=issue["url_path"],
+                redirect_entity=import_issue,
+            )
