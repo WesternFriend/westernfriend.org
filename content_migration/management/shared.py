@@ -6,7 +6,6 @@ import logging
 from dataclasses import dataclass
 from io import BytesIO
 from itertools import chain
-import re
 from urllib.parse import urlparse
 
 import requests
@@ -175,21 +174,23 @@ class BlockFactory:
 
 
 def remove_pullquote_tags(item_string: str) -> str:
-    """Remove "[pullquote]" and "[/pullquote]" tags in string.
+    """Remove the span with class 'pullquote' from a string, preserving the
+    contents of the span.
 
-    https://stackoverflow.com/a/44593228/1191545
+    Note:
+    There may be multiple pullquotes in a string.
+
+    Warning:
+    There could be other spans that we don't want to remove, so we
+    need to be careful to only remove the pullquote spans.
     """
 
-    replacement_values: list = [
-        ("[pullquote]", ""),
-        ("[/pullquote]", ""),
-    ]
+    # Remove the pullquote spans
+    soup = BeautifulSoup(item_string, "html.parser")
+    for pullquote in soup.find_all("span", {"class": "pullquote"}):
+        pullquote.unwrap()
 
-    if item_string != "":
-        for replacement_value in replacement_values:
-            item_string = item_string.replace(*replacement_value)
-
-    return item_string
+    return str(soup)
 
 
 def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
@@ -349,9 +350,19 @@ def create_image_block_from_file_bytes(
 
 
 def extract_pullquotes(item: str) -> list[str]:
-    """Get a list of all pullquote strings found within the item."""
+    """Get a list of all pullquote strings found within the item, excluding the
+    pullquote spans.
 
-    return re.findall(r"\[pullquote\](.+?)\[\/pullquote\]", item)  # type: ignore
+    The pullquote strings are wrapped in a span with class 'pullquote'.
+    """
+
+    pullquotes = []
+
+    soup = BeautifulSoup(item, "html.parser")
+    for pullquote in soup.find_all("span", {"class": "pullquote"}):
+        pullquotes.append(pullquote.string)
+
+    return pullquotes
 
 
 def fetch_file_bytes(url: str) -> FileBytesWithMimeType:
