@@ -78,11 +78,13 @@ class TestExtractImages(SimpleTestCase):
         self.assertEqual(output_images, expected_images)
 
 
-class ParseBodyBlocksTestCase(TestCase):
-    def test_parse_body_blocks(self) -> None:
+class ParseBodyBlocksSimpleTestCase(SimpleTestCase):
+    def test_parse_body_blocks_with_pullquote(self) -> None:
         self.MaxDiff = None
-        input_html = """<p>Some text[pullquote]with a pullquote[/pullquote]</p>"""
-        expected_output_html = """<p>Some textwith a pullquote</p>"""
+        input_html = (
+            """<p>Some text <span class="pullquote">with a pullquote</span></p>"""
+        )
+        expected_output_html = """<p>Some text with a pullquote</p>"""
 
         output_blocks = parse_body_blocks(input_html)
         expected_blocks = [
@@ -116,8 +118,57 @@ class ParseBodyBlocksTestCase(TestCase):
 
     def test_parse_body_blocks_with_multiple_pullquotes(self) -> None:
         self.MaxDiff = None
-        input_html = """<p>Some text[pullquote]with a pullquote[/pullquote] and [pullquote]another pullquote[/pullquote].</p>"""  # noqa: E501
-        parse_body_blocks(input_html)
+        input_html = """<p>Some text <span class="pullquote">with a pullquote</span> and <span class="pullquote">another pullquote</span>.</p>"""  # noqa: E501
+        output_blocks = parse_body_blocks(input_html)
+
+        expected_blocks = [
+            (
+                "pullquote",
+                "with a pullquote",
+            ),
+            (
+                "pullquote",
+                "another pullquote",
+            ),
+            (
+                "rich_text",
+                RichText(
+                    """<p>Some text with a pullquote and another pullquote.</p>"""
+                ),
+            ),
+        ]
+
+        # Make sure first pullquote block matches the first expected pullquote block
+        self.assertEqual(
+            output_blocks[0][0],
+            expected_blocks[0][0],
+        )
+        self.assertEqual(
+            output_blocks[0][1],
+            expected_blocks[0][1],
+        )
+
+        # Make sure second output block matches second expected block
+        self.assertEqual(
+            output_blocks[1][0],
+            expected_blocks[1][0],
+        )
+        self.assertEqual(
+            output_blocks[1][1],
+            expected_blocks[1][1],
+        )
+
+        # Make sure third output block matches third expected block
+        # by comparing the .source attribute on the RichText objects
+        # and the block type is rich_text
+        self.assertEqual(
+            output_blocks[2][1].source,
+            expected_blocks[2][1].source,
+        )
+        self.assertEqual(
+            output_blocks[2][0],
+            expected_blocks[2][0],
+        )
 
     def test_parse_body_blocks_with_multiple_consecutive_paragraphs(self) -> None:
         self.MaxDiff = None
@@ -144,7 +195,7 @@ class ParseBodyBlocksTestCase(TestCase):
 
     def test_parse_body_blocks_with_multiple_paragraphs_and_a_pullquote(self) -> None:
         self.MaxDiff = None
-        input_html = """<p>One paragraph.</p><p>Another paragraph.</p><p>[pullquote]A pullquote[/pullquote] inside of a paragraph</p>"""  # noqa: E501
+        input_html = """<p>One paragraph.</p><p>Another paragraph.</p><p><span class="pullquote">A pullquote</span> inside of a paragraph</p>"""  # noqa: E501
 
         output_blocks = parse_body_blocks(input_html)
         expected_blocks = [
@@ -552,15 +603,17 @@ class CreateArchiveIssuesFromArticlesDictsSimpleTest(SimpleTestCase):
 
 class RemovePullquoteTagsSimpleTestCase(SimpleTestCase):
     def test_remove_pullquote_tags(self) -> None:
-        input_html = """<p>Some text[pullquote]with a pullquote[/pullquote]</p>"""
+        input_html = (
+            """<p>Some text <span class="pullquote">with a pullquote</span></p>"""
+        )
         output_html = remove_pullquote_tags(input_html)
 
-        expected_html = """<p>Some textwith a pullquote</p>"""
+        expected_html = """<p>Some text with a pullquote</p>"""
 
         self.assertEqual(output_html, expected_html)
 
     def test_remove_pullquote_tags_with_multiple_pullquotes(self) -> None:
-        input_html = """<p>Some text [pullquote]with a pullquote[/pullquote] and another [pullquote]with a pullquote[/pullquote]</p>"""  # noqa: E501
+        input_html = """<p>Some text <span class="pullquote">with a pullquote</span> and another <span class="pullquote">with a pullquote</span></p>"""  # noqa: E501
         output_html = remove_pullquote_tags(input_html)
         expected_html = """<p>Some text with a pullquote and another with a pullquote</p>"""  # noqa: E501
 
@@ -569,13 +622,15 @@ class RemovePullquoteTagsSimpleTestCase(SimpleTestCase):
 
 class ExtractPullquotesSimpleTestCase(SimpleTestCase):
     def test_extract_pullquotes(self) -> None:
-        input_html = """<p>Some text[pullquote]with a pullquote[/pullquote]</p>"""
+        input_html = (
+            """<p>Some text<span class="pullquote">with a pullquote</span></p>"""
+        )
         output_pullquotes = extract_pullquotes(input_html)
         expected_pullquotes = ["with a pullquote"]
         self.assertEqual(output_pullquotes, expected_pullquotes)
 
     def test_extract_pullquotes_with_multiple_pullquotes(self) -> None:
-        input_html = """<p>Some text[pullquote]with a pullquote[/pullquote] and another [pullquote]with a pullquote[/pullquote]</p>"""  # noqa: E501
+        input_html = """<p>Some text<span class="pullquote">with a pullquote</span> and another <span class="pullquote">with a pullquote</span></p>"""  # noqa: E501
         output_pullquotes = extract_pullquotes(input_html)
         expected_pullquotes = ["with a pullquote", "with a pullquote"]
         self.assertEqual(output_pullquotes, expected_pullquotes)
@@ -598,7 +653,7 @@ class AdaptHtmlToGenericBlockTest(SimpleTestCase):
         self.assertEqual(generic_blocks[0].block_content, html_string)
 
     def test_adapt_html_to_generic_blocks_with_pullquote(self) -> None:
-        html_string = """<p>Some text</p><p>Some more text</p><p>A paragraph with [pullquote]a pullquote[/pullquote] that should be extracted</p>"""  # noqa: E501
+        html_string = """<p>Some text</p><p>Some more text</p><p>A paragraph with <span class="pullquote">a pullquote</span> that should be extracted</p>"""  # noqa: E501
 
         generic_blocks = adapt_html_to_generic_blocks(html_string)
 
