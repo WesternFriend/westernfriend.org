@@ -15,6 +15,15 @@ from wagtail.search import index
 from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
 
 
+class DrupalFields(models.Model):
+    drupal_node_id = models.IntegerField(null=True, blank=True)
+    drupal_body_migrated = models.TextField(null=True, blank=True)
+    drupal_path = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
 class EventSponsor(Orderable):
     event = ParentalKey(
         "events.Event",
@@ -34,7 +43,7 @@ class EventSponsor(Orderable):
     ]
 
 
-class Event(Page):
+class Event(DrupalFields, Page):
     class EventCategoryChoices(models.TextChoices):
         WESTERN = ("western", "Western")
         OTHER = ("other", "Other")
@@ -105,7 +114,7 @@ class Event(Page):
         ordering = ["start_date"]
 
 
-class EventsIndexPage(Page):
+class EventsIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]

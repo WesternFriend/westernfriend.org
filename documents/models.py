@@ -8,7 +8,16 @@ from documents.blocks import DocumentEmbedBlock
 from blocks import blocks as wf_blocks
 
 
-class MeetingDocumentIndexPage(Page):
+class DrupalFields(models.Model):
+    drupal_node_id = models.IntegerField(null=True, blank=True)
+    drupal_body_migrated = models.TextField(null=True, blank=True)
+    drupal_path = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class MeetingDocumentIndexPage(DrupalFields, Page):
     intro = RichTextField(
         blank=True,
         null=True,
@@ -35,7 +44,7 @@ class MeetingDocumentIndexPage(Page):
         return context
 
 
-class MeetingDocument(Page):
+class MeetingDocument(DrupalFields, Page):
     class MeetingDocmentTypeChoices(models.TextChoices):
         EPISTLE = (
             "epistle",
@@ -132,7 +141,7 @@ class MeetingDocument(Page):
         ]
 
 
-class PublicBoardDocumentIndexPage(Page):
+class PublicBoardDocumentIndexPage(DrupalFields, Page):
     intro = RichTextField(
         blank=True,
         null=True,
@@ -154,7 +163,7 @@ class PublicBoardDocumentIndexPage(Page):
     ]
 
 
-class PublicBoardDocument(Page):
+class PublicBoardDocument(DrupalFields, Page):
     class PublicBoardDocmentCategoryChoices(models.TextChoices):
         CORPORATION_DOCUMENTS_CURRENT_YEAR = (
             "corporation_documents_current_year",

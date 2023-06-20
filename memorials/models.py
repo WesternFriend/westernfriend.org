@@ -8,7 +8,16 @@ from wagtail.models import Page
 from contact.models import Meeting
 
 
-class Memorial(Page):
+class DrupalFields(models.Model):
+    drupal_node_id = models.IntegerField(null=True, blank=True)
+    drupal_body_migrated = models.TextField(null=True, blank=True)
+    drupal_path = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class Memorial(DrupalFields, Page):
     memorial_person = models.ForeignKey(
         to="contact.Person",
         on_delete=models.PROTECT,
@@ -56,7 +65,7 @@ class Memorial(Page):
     # search_fields = []
 
 
-class MemorialIndexPage(Page):
+class MemorialIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     max_count = 1

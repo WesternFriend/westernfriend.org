@@ -33,7 +33,16 @@ from documents.blocks import DocumentEmbedBlock
 from .panels import NestedInlinePanel
 
 
-class MagazineIndexPage(Page):
+class DrupalFields(models.Model):
+    drupal_node_id = models.IntegerField(null=True, blank=True)
+    drupal_body_migrated = models.TextField(null=True, blank=True)
+    drupal_path = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class MagazineIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
     deep_archive_intro = RichTextField(blank=True)
     deep_archive_page = models.ForeignKey(
@@ -112,7 +121,7 @@ class MagazineIndexPage(Page):
         return context
 
 
-class MagazineIssue(Page):
+class MagazineIssue(DrupalFields, Page):
     cover_image = models.ForeignKey(
         "wagtailimages.Image",
         on_delete=models.SET_NULL,
@@ -176,7 +185,7 @@ class MagazineArticleTag(TaggedItemBase):
     )
 
 
-class MagazineTagIndexPage(Page):
+class MagazineTagIndexPage(DrupalFields, Page):
     max_count = 1
 
     def get_context(self, request, *args, **kwargs):
@@ -189,7 +198,7 @@ class MagazineTagIndexPage(Page):
         return context
 
 
-class MagazineDepartmentIndexPage(Page):
+class MagazineDepartmentIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
@@ -206,7 +215,7 @@ class MagazineDepartmentIndexPage(Page):
         return context
 
 
-class MagazineDepartment(Page):
+class MagazineDepartment(DrupalFields, Page):
     content_panels = [FieldPanel("title")]
 
     # Hide the settings panels
@@ -228,7 +237,7 @@ class MagazineDepartment(Page):
         return self.title
 
 
-class MagazineArticle(Page):
+class MagazineArticle(DrupalFields, Page):
     teaser = RichTextField(
         blank=True,
         help_text="Try to keep teaser to a couple dozen words.",
@@ -455,7 +464,7 @@ class ArchiveArticle(ClusterableModel):
         ]
 
 
-class ArchiveIssue(Page):
+class ArchiveIssue(DrupalFields, Page):
     publication_date = models.DateField(
         null=True, help_text="Please select the first day of the publication month"
     )
@@ -492,7 +501,7 @@ class ArchiveIssue(Page):
         ]
 
 
-class DeepArchiveIndexPage(Page):
+class DeepArchiveIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]

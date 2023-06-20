@@ -19,7 +19,16 @@ from blocks.blocks import (
 from documents.blocks import DocumentEmbedBlock
 
 
-class MollyWingateBlogIndexPage(Page):
+class DrupalFields(models.Model):
+    drupal_node_id = models.IntegerField(null=True, blank=True)
+    drupal_body_migrated = models.TextField(null=True, blank=True)
+    drupal_path = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class MollyWingateBlogIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
@@ -29,7 +38,7 @@ class MollyWingateBlogIndexPage(Page):
     max_count = 1
 
 
-class WfPageCollectionIndexPage(Page):
+class WfPageCollectionIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
@@ -46,7 +55,7 @@ class WfPageCollectionIndexPage(Page):
         return context
 
 
-class WfPageCollection(Page):
+class WfPageCollection(DrupalFields, Page):
     panels = [FieldPanel("title")]
 
     parent_page_types = ["wf_pages.WfPageCollectionIndexPage"]
@@ -63,7 +72,7 @@ class WfPageTag(TaggedItemBase):
     )
 
 
-class WfPage(Page):
+class WfPage(DrupalFields, Page):
     body = StreamField(
         [
             ("heading", HeadingBlock()),

@@ -28,13 +28,22 @@ from documents.blocks import DocumentEmbedBlock
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
 
 
+class DrupalFields(models.Model):
+    drupal_node_id = models.IntegerField(null=True, blank=True)
+    drupal_body_migrated = models.TextField(null=True, blank=True)
+    drupal_path = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
 class LibraryItemTag(TaggedItemBase):
     content_object = ParentalKey(
         to="LibraryItem", related_name="tagged_items", on_delete=models.CASCADE
     )
 
 
-class LibraryItem(Page):
+class LibraryItem(DrupalFields, Page):
     publication_date = models.DateField("Publication date", null=True, blank=True)
     publication_date_is_approximate = models.BooleanField(
         default=False,
@@ -222,7 +231,7 @@ class LibraryItemTopic(Orderable):
     ]
 
 
-class LibraryIndexPage(Page):
+class LibraryIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]

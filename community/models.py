@@ -11,7 +11,16 @@ from timezone_field import TimeZoneField  # type: ignore
 from blocks import blocks as wf_blocks
 
 
-class CommunityPage(Page):
+class DrupalFields(models.Model):
+    drupal_node_id = models.IntegerField(null=True, blank=True)
+    drupal_body_migrated = models.TextField(null=True, blank=True)
+    drupal_path = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class CommunityPage(DrupalFields, Page):
     body = StreamField(
         [
             ("heading", wf_blocks.HeadingBlock()),
@@ -48,7 +57,7 @@ class CommunityPage(Page):
     ]
 
 
-class OnlineWorship(Page):
+class OnlineWorship(DrupalFields, Page):
     class OnlineWorshipDayChoices(models.TextChoices):
         SUNDAY = "Sunday", "Sunday"
         MONDAY = "Monday", "Monday"
@@ -109,7 +118,7 @@ class OnlineWorship(Page):
     ]
 
 
-class OnlineWorshipIndexPage(Page):
+class OnlineWorshipIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
@@ -122,7 +131,7 @@ class OnlineWorshipIndexPage(Page):
     template = "community/online_worship_index_page.html"
 
 
-class CommunityDirectory(Page):
+class CommunityDirectory(DrupalFields, Page):
     description = RichTextField(blank=True)
 
     website = models.URLField(null=True, blank=True)
@@ -149,7 +158,7 @@ class CommunityDirectory(Page):
         verbose_name_plural = "community directories"
 
 
-class CommunityDirectoryIndexPage(Page):
+class CommunityDirectoryIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
