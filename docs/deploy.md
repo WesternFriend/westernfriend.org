@@ -70,30 +70,10 @@ Set up the site by following the steps below. The order of steps matters. So, be
 6. Edit the App Info with the following settings
    1. Give the app a meaningful name
    2. Set the Region to San Francisco, so it is closer to most WesternFriend community
-7. configure a domain (or subdomain) on our registrar that points to the deployed app
-
-### Example Configuration
-
-Below is an example configuration for our staging setup.
-
-```yaml
-App
-- wf-website-staging
-   - wf-website: Web Service
-   - db: Dev Database
-
-Environment Variables
-- Global: 0 environment variables
-   - wf-website: 9 environment variables
-
-Info
-   - Name: wf-website-staging
-   - Region: San Francisco
-
-Project: Western Friend
-```
 
 ## Domain
+
+After the initial app is deployed, configure a domain (or subdomain) on our registrar that points to the deployed app via a CNAME record.
 
 Add a domain name [under the app settings](https://docs.digitalocean.com/products/app-platform/how-to/manage-domains). Be sure to add a corresponding CNAME record to the domain DNS configuration. DNS settings are managed wherever the domain is registered.
 
