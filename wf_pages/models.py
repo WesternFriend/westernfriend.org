@@ -10,7 +10,12 @@ from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
 
-from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
+from blocks.blocks import (
+    FormattedImageChooserStructBlock,
+    HeadingBlock,
+    PullQuoteBlock,
+    SpacerBlock,
+)
 from documents.blocks import DocumentEmbedBlock
 
 
@@ -79,7 +84,7 @@ class WfPage(Page):
                     ]
                 ),
             ),
-            ("quote", wagtail_blocks.BlockQuoteBlock()),
+            ("pullquote", PullQuoteBlock()),
             ("document", DocumentEmbedBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("spacer", SpacerBlock()),

@@ -20,6 +20,7 @@ from blocks.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,
     MediaBlock,
+    PullQuoteBlock,
     SpacerBlock,
     WfURLBlock,
 )
@@ -42,16 +43,11 @@ class LibraryItem(Page):
     description = RichTextField(null=True, blank=True)
     body = StreamField(
         [
-            (
-                "heading",
-                HeadingBlock(),
-            ),
+            ("heading", HeadingBlock()),
             (
                 "rich_text",
                 wagtail_blocks.RichTextBlock(
                     features=[
-                        "h2",
-                        "h3",
                         "bold",
                         "italic",
                         "ol",
@@ -67,32 +63,17 @@ class LibraryItem(Page):
                     classname="full title",
                 ),
             ),
-            (
-                "document",
-                DocumentEmbedBlock(),
-            ),
+            ("document", DocumentEmbedBlock()),
             (
                 "media",
                 MediaBlock(
                     icon="media",
                 ),
             ),
-            (
-                "embed",
-                EmbedBlock(),
-            ),
-            (
-                "url",
-                WfURLBlock(),
-            ),
-            (
-                "quote",
-                wagtail_blocks.BlockQuoteBlock(),
-            ),
-            (
-                "spacer",
-                SpacerBlock(),
-            ),
+            ("embed", EmbedBlock()),
+            ("url", WfURLBlock()),
+            ("pullquote", PullQuoteBlock()),
+            ("spacer", SpacerBlock()),
         ],
         null=True,
         blank=True,

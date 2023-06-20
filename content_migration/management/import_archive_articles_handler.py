@@ -1,6 +1,7 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from tqdm import tqdm
 from content_migration.management.errors import (
     CouldNotFindMatchingContactError,
@@ -41,6 +42,7 @@ def create_archive_article_authors(
 
         for drupal_author_id in authors_list:
             try:
+                # TODO: determine if this is the cause of importer slowness
                 contact = get_existing_magazine_author_from_db(
                     drupal_author_id,
                 )
@@ -50,18 +52,21 @@ def create_archive_article_authors(
             ):
                 continue
 
-            article_author_exists = ArchiveArticleAuthor.objects.filter(
-                article=archive_article,
-                author=contact,
-            ).exists()
-
-            if not article_author_exists:
+            # TODO: determine if this is the cause of importer slowness
+            # For performance reasons,
+            # check if the ArchiveArticleAuthor instance already exists
+            # using the unique together constraint (implicit check)
+            try:
                 article_author = ArchiveArticleAuthor(
                     article=archive_article,
                     author=contact,
                 )
 
                 article_author.save()
+            # handle unique together constraint exception
+            except IntegrityError as e:
+                logger.error(e)
+                continue
 
 
 def handle_import_archive_articles(file_name: str) -> None:

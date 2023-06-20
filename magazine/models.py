@@ -18,7 +18,6 @@ from wagtail.admin.panels import (
     MultiFieldPanel,
     PageChooserPanel,
 )
-from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
@@ -29,6 +28,7 @@ from blocks.blocks import (
     PullQuoteBlock,
     SpacerBlock,
 )
+from documents.blocks import DocumentEmbedBlock
 
 from .panels import NestedInlinePanel
 
@@ -257,12 +257,11 @@ class MagazineArticle(Page):
                         "superscript",
                         "superscript",
                         "strikethrough",
-                        "blockquote",
                     ]
                 ),
             ),
             ("pullquote", PullQuoteBlock()),
-            ("document", DocumentChooserBlock()),
+            ("document", DocumentEmbedBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("spacer", SpacerBlock()),
         ],
@@ -403,6 +402,9 @@ class ArchiveArticleAuthor(Orderable):
             "author", ["contact.Person", "contact.Meeting", "contact.Organization"]
         )
     ]
+
+    class Meta:
+        unique_together = ("article", "author")
 
 
 class ArchiveArticle(ClusterableModel):
