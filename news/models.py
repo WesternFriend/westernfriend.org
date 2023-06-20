@@ -30,7 +30,7 @@ class DrupalFields(models.Model):
         abstract = True
 
 
-class NewsIndexPage(Page):
+class NewsIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
@@ -78,7 +78,7 @@ class NewsIndexPage(Page):
         return context
 
 
-class NewsTopicIndexPage(Page):
+class NewsTopicIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
@@ -92,7 +92,7 @@ class NewsTopicIndexPage(Page):
     max_count = 1
 
 
-class NewsTopic(Page):
+class NewsTopic(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = [
@@ -109,7 +109,7 @@ class NewsTopic(Page):
     subpage_types: list[str] = []
 
 
-class NewsTypeIndexPage(Page):
+class NewsTypeIndexPage(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
@@ -123,7 +123,7 @@ class NewsTypeIndexPage(Page):
     max_count = 1
 
 
-class NewsType(Page):
+class NewsType(DrupalFields, Page):
     intro = RichTextField(blank=True)
 
     content_panels = [
@@ -148,7 +148,7 @@ class NewsItemTag(TaggedItemBase):
     )
 
 
-class NewsItem(Page):
+class NewsItem(DrupalFields, Page):
     teaser = models.TextField(
         max_length=100,
         null=True,
