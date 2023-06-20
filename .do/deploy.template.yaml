@@ -1,0 +1,77 @@
+spec:
+  alerts:
+    - rule: DEPLOYMENT_FAILED
+    - rule: DOMAIN_FAILED
+  databases:
+    - engine: PG
+      name: wf-website-db
+      num_nodes: 1
+      size: professional-xs
+      version: "15"
+  domains:
+    - domain: preview.westernfriend.org
+      type: PRIMARY
+  ingress:
+    rules:
+      - component:
+          name: wf-website
+        match:
+          path:
+            prefix: /
+  name: wf-website-preview
+  region: sfo3
+  services:
+    - environment_slug: python
+      envs:
+        - key: DATABASE_URL
+          scope: RUN_TIME
+          value: ${wf-website-db.DATABASE_URL}
+        - key: DJANGO_CORS_ALLOWED_ORIGINS
+          scope: RUN_TIME
+          value: https://change.me
+        - key: DJANGO_ALLOWED_HOSTS
+          scope: RUN_TIME
+          value: change.me
+        - key: DJANGO_CSRF_TRUSTED_ORIGINS
+          scope: RUN_TIME
+          value: https://change.me
+        - key: DJANGO_SECRET_KEY
+          scope: RUN_TIME
+          value: change-me
+        - key: DJANGO_DEBUG
+          scope: RUN_TIME
+          value: "False"
+        - key: DJANGO_USE_SPACES
+          scope: RUN_TIME
+          value: "True"
+        - key: AWS_ACCESS_KEY_ID
+          scope: RUN_TIME
+          value: change-me
+        - key: AWS_SECRET_ACCESS_KEY
+          scope: RUN_TIME
+          value: change-me
+        - key: AWS_S3_REGION_NAME
+          scope: RUN_TIME
+          value: sfo3
+        - key: AWS_STORAGE_BUCKET_NAME
+          scope: RUN_TIME
+          value: change-me
+        - key: BRAINTREE_MERCHANT_ID
+          scope: RUN_TIME
+          value: change-me
+        - key: BRAINTREE_PUBLIC_KEY
+          scope: RUN_TIME
+          value: change-me
+        - key: BRAINTREE_PRIVATE_KEY
+          scope: RUN_TIME
+          value: change-me
+      github:
+        branch: main
+        deploy_on_push: true
+        repo: WesternFriend/WF-website
+      http_port: 8080
+      instance_count: 1
+      instance_size_slug: professional-xs
+      name: wf-website
+      run_command: python manage.py migrate && gunicorn core.wsgi --log-file -
+      source_dir: /
