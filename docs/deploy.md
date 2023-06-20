@@ -108,7 +108,7 @@ Access the app console via DigitalOcean admin UI, and run the following commands
 3. Collect static files
    - `python manage.py collectstatic --no-input`
 
-At this point, make sure to check the DigitalOcean Space where static files should be stored, to ensure the app has access to the storage space.
+**NOTE:** At this point, make sure to check the DigitalOcean Space where static files should be stored, to ensure the app has access to the storage space. If the staticfiles are not uploaded to the storage space, check the Spaces and App configurations and try again before proceeding with further steps.
 
 ## Scaffold Initial Content
 
