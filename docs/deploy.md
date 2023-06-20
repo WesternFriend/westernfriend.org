@@ -17,7 +17,7 @@ Before creating the app, we need a space to store static files. For that, we wil
 
 1. Create a [Spaces Object Storage Bucket](https://cloud.digitalocean.com/spaces)
 2. Edit the [Spaces CORS settings](https://docs.digitalocean.com/products/spaces/how-to/configure-cors/) with the following values
-3. [Create an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key) - save these values as they are used later
+3. [Create an Access Key](https://docs.digitalocean.com/products/spaces/how-to/manage-access/#access-keys) - save these values as they are used later
 
 ```yaml
 Origin: https://<domain.TLD>
@@ -38,14 +38,18 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - Create Resource from Source Code: GitHub
    - Repository: WesternFriend/WF-website
    - Branch: main
-   - Source directory: app/
+   - Source directory: /
    - Auto deploy: true
 2. Under Resources
-   - keep the Dockerfile Web Service (TODO: remove this item, since we are switching away from the Dockerfile)
-   - delete the Python Web Service
+   - make sure there is a wf-website Web Service
+     1. Python Buildpack,
+     2. Procfile Buildpack,
+     3. Custom Build Command
+   - run command should be auto-configured as follows
+     - `python manage.py migrate && gunicorn core.wsgi --log-file -`
 3. Edit the plan
    - select Basic during staging
-   - select Pro when deploying the production site
+   - select Pro (1 container) when deploying the preview/production site
 4. Click Add Resource
    - add a dev database during staging (named `wf-staging-db`)
    - add a prod database when deploying the production site (named `wf-prod-db`)
@@ -54,8 +58,8 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `DJANGO_ALLOWED_HOSTS` - each allowed host needs only the domain (and subdomain if relevant), no protocol
    - `DJANGO_CSRF_TRUSTED_ORIGINS`- each origin should begin with a protocol, e.g., `https://...`
    - `DJANGO_SECRET_KEY` - [random generated key](https://stackoverflow.com/a/67423892)
-   - `DEBUG` - "True" or "False", should be "False" for production
-   - `USE_SPACES` - "True" or "False", whether to use DO Spaces for static files. In this case, use "True".
+   - `DJANGO_DEBUG` - "True" or "False", should be "False" for production
+   - `DJANGO_USE_SPACES` - "True" or "False", whether to use DO Spaces for static files. In this case, use "True".
    - `AWS_ACCESS_KEY_ID` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key)
    - `AWS_SECRET_ACCESS_KEY` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key)
    - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
@@ -66,7 +70,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
 6. Edit the App Info with the following settings
    1. Give the app a meaningful name
    2. Set the Region to San Francisco, so it is closer to most WesternFriend community
-7. configure a domain (or subdomain) to point to the deployed app
+7. configure a domain (or subdomain) on our registrar that points to the deployed app
 
 ### Example Configuration
 
@@ -119,4 +123,17 @@ python manage.py scaffold_initial_content
 Refer to the [content migration](CONTENT_MIGRATION.md) guide for further details about preparing data for import. Once the data have been prepared, use the following steps to import them to the online website.
 
 1. copy all import files (CSV format) to the DO Spaces bucket for import data
-2. run the import commands via the DO App console, using the bucket location (HTTPS) as a target
+2. run the import commands below via the DO App console, using the bucket location (HTTPS) as a target
+   - of particular importance, make sure to open and re-save the CiviCRM CSV files using LibreOffice since they cause errors when exported directly from CiviCRM
+
+First, download all migration data.
+
+```sh
+python manage.py download_migration_data <https://bucket-location.url>
+```
+
+Then, run all importers with a single command. Note: this may take 30-60 minutes.
+
+```sh
+python manage.py import_all_content
+```
