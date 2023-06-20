@@ -24,6 +24,8 @@ def get_board_document_category_key(category_label: str) -> str | None:
         category_value = "annual_reports"
     elif category_label == "Relations with Monthly Meetings":
         category_value = "relations_with_monthly_meetings"
+    elif category_label == "Board Photos":
+        category_value = "board_photos"
     else:
         print("Unknown category label:", category_label)
 
