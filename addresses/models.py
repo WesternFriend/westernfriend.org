@@ -1,10 +1,6 @@
 from django.db import models
 from wagtail.admin.panels import FieldPanel
 
-# TODO: convert to a models.TextChoices class
-# e.g. in donations/models.py
-ADDRESS_TYPE_CHOICES = (("mailing", "Mailing"), ("worship", "Worship"))
-
 
 class Address(models.Model):
     """Model representing a street or post office address.
@@ -12,6 +8,12 @@ class Address(models.Model):
     Properties are modelled after Microformats specification.
     http://microformats.org/wiki/adr
     """
+
+    class AddressTypeChoices(models.TextChoices):
+        """Choices for the type of address."""
+
+        MAILING = "mailing", "Mailing"
+        WORSHIP = "worship", "Worship"
 
     street_address = models.CharField(
         max_length=255,
@@ -24,23 +26,47 @@ class Address(models.Model):
         default="",
     )
     po_box_number = models.CharField(
-        max_length=32, blank=True, default="", help_text="P.O. Box, if relevant"
+        max_length=32,
+        blank=True,
+        default="",
+        help_text="P.O. Box, if relevant",
     )
     locality = models.CharField(
-        max_length=255, help_text="Locality or city", null=True, blank=True
+        max_length=255,
+        help_text="Locality or city",
+        null=True,
+        blank=True,
     )
     region = models.CharField(
-        max_length=255, help_text="State or region", blank=True, default=""
+        max_length=255,
+        help_text="State or region",
+        blank=True,
+        default="",
     )
     postal_code = models.CharField(
-        max_length=16, help_text="Postal code (or zipcode)", null=True, blank=True
+        max_length=16,
+        help_text="Postal code (or zipcode)",
+        null=True,
+        blank=True,
     )
     country = models.CharField(
-        max_length=255, default="United States", null=True, blank=True
+        max_length=255,
+        default="United States",
+        null=True,
+        blank=True,
     )
-    address_type = models.CharField(max_length=255, choices=ADDRESS_TYPE_CHOICES)
-    latitude = models.FloatField(null=True, blank=True)
-    longitude = models.FloatField(null=True, blank=True)
+    address_type = models.CharField(
+        max_length=255,
+        choices=AddressTypeChoices.choices,
+    )
+    latitude = models.FloatField(
+        null=True,
+        blank=True,
+    )
+    longitude = models.FloatField(
+        null=True,
+        blank=True,
+    )
 
     panels = [
         FieldPanel("address_type"),
