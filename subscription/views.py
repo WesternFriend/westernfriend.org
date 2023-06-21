@@ -1,8 +1,10 @@
+from datetime import datetime
 import json
 import os
 from datetime import timedelta
 
 import braintree
+from braintree import Subscription as BraintreeSubscription
 from braintree import WebhookNotification
 from django.http import HttpRequest, HttpResponse
 from django.http.response import HttpResponseBase
@@ -30,34 +32,40 @@ braintree_gateway = braintree.BraintreeGateway(
 
 
 def handle_subscription_webhook(
-    webhook_notification: WebhookNotification,
+    braintree_subscription: BraintreeSubscription,
 ) -> None:
-    braintree_subscription = webhook_notification.subscription
-
     # Make sure we can find the subscription
     subscription = get_object_or_404(
         Subscription,
-        braintree_subscription_id=braintree_subscription.id,
+        # TODO: determine why mypy cannot find the `braintree_subscription.id` property
+        braintree_subscription_id=braintree_subscription.id,  # type: ignore
     )
 
-    # webhook_notification.kind should be available on the notification object
-    # https://developer.paypal.com/braintree/docs/reference/general/webhooks/subscription/python
-    if webhook_notification.kind == "subscription_charged_successfully":  # type: ignore
-        # Grace period so subscribers maintain access
-        grace_period = timedelta(days=5)
+    # Grace period so subscribers maintain access
+    grace_period = timedelta(days=5)
 
-        # Use Braintree paid through date (with grace period), if available
-        if braintree_subscription.get("paid_through_date"):
-            subscription.end_date = (
-                braintree_subscription.paid_through_date + grace_period
-            )
-        # Otherwise extend by one year with grace period
-        else:
-            one_year_with_grace: timedelta = timedelta(days=365) + grace_period
+    # Use Braintree paid through date (with grace period), if available
+    # TODO: determine why mypy can't find the `paid_through_date` property
+    if (
+        hasattr(braintree_subscription, "paid_through_date")
+        and braintree_subscription.paid_through_date is not None
+    ):  # type: ignore
+        # create new paid_through_date
+        # by parsing braintree_subscription.paid_through_date
+        # to a datetime object
+        paid_through_date = datetime.strptime(
+            braintree_subscription.paid_through_date,  # type: ignore
+            "%Y-%m-%d",
+        ).date()
 
-            subscription.end_date = subscription.end_date + one_year_with_grace
+        subscription.end_date = paid_through_date + grace_period  # type: ignore
+    # Otherwise extend by one year with grace period
+    else:
+        one_year_with_grace: timedelta = timedelta(days=365) + grace_period
 
-        subscription.save()  # type: ignore
+        subscription.end_date = subscription.end_date + one_year_with_grace
+
+    subscription.save()  # type: ignore
 
 
 class SubscriptionWebhookView(View):
@@ -86,9 +94,11 @@ class SubscriptionWebhookView(View):
             )
         )
 
-        if webhook_notification.subscription:
+        # webhook_notification.kind should be available on the notification object
+        # https://developer.paypal.com/braintree/docs/reference/general/webhooks/subscription/python  # noqa: E501
+        if webhook_notification.kind == "subscription_charged_successfully":  # type: ignore # noqa: E501
             handle_subscription_webhook(
-                webhook_notification=webhook_notification,
+                braintree_subscription=webhook_notification.subscription,
             )
 
         return HttpResponse()
