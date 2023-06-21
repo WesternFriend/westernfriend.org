@@ -51,7 +51,6 @@ class Address(models.Model):
     )
     country = models.CharField(
         max_length=255,
-        default="United States",
         null=True,
         blank=True,
     )
@@ -84,21 +83,27 @@ class Address(models.Model):
     def __str__(self) -> str:
         """Return a string representation of the address."""
 
-        # Construct the address string using
-        # street_address, locality, region, and country
-        # adding commas and spaces as needed
-        # e.g. 123 Main St, Anytown, CA, 12345, United States
         address_string = ""
-        if self.street_address != "":
-            address_string += f"{ self.street_address }, "
-        if self.locality != "":
-            address_string += f"{ self.locality }, "
-        if self.region != "":
-            address_string += f"{ self.region }, "
-        if self.postal_code != "":
-            address_string += f"{ self.postal_code }, "
-        if self.country != "":
-            address_string += f"{ self.country }"
+
+        # construct an address components list
+        address_components: list[str | None] = [
+            self.street_address,
+            self.extended_address,
+            self.locality,
+            self.region,
+            self.postal_code,
+            self.country,
+        ]
+
+        # filter out empty components
+        filtered_address_components = list(
+            filter(lambda x: x is not None and x != "", address_components)
+        )
+
+        # if the filtered components list isn't empty
+        # join the components into a string separated by commas
+        if filtered_address_components:
+            address_string = ", ".join(filtered_address_components)  # type: ignore
 
         return address_string
 
