@@ -197,6 +197,8 @@ tqdm==4.65.0
     # via Western-Friend-website (pyproject.toml)
 types-beautifulsoup4==4.12.0.5
     # via Western-Friend-website (pyproject.toml)
+types-braintree==4.20.0.0
+    # via Western-Friend-website (pyproject.toml)
 types-html5lib==1.1.11.14
     # via types-beautifulsoup4
 types-pytz==2023.3.0.0
