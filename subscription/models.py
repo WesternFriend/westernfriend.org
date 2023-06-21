@@ -53,6 +53,10 @@ SUBSCRIPTION_PRICE_COMPONENTS = {
 }
 
 
+def one_year_from_today() -> datetime.date:
+    return datetime.date.today() + datetime.timedelta(days=365)
+
+
 def process_subscription_form(subscription_form, request):
     """Given a valid subscription form, will save and associate with a user.
 
@@ -93,8 +97,12 @@ class Subscription(models.Model):
     )
     price = models.IntegerField(editable=False)
     recurring = models.BooleanField(default=True)
-    start_date = models.DateField(null=True)
-    end_date = models.DateField(null=True)
+    start_date = models.DateField(
+        default=datetime.date.today,
+    )
+    end_date = models.DateField(
+        default=one_year_from_today,
+    )
     subscriber_given_name = models.CharField(
         max_length=255,
         default="",
