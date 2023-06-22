@@ -28,6 +28,7 @@ from blocks.blocks import (
     PullQuoteBlock,
     SpacerBlock,
 )
+from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
 
 from .panels import NestedInlinePanel
@@ -112,7 +113,7 @@ class MagazineIndexPage(Page):
         return context
 
 
-class MagazineIssue(Page):
+class MagazineIssue(Page, DrupalFields):
     cover_image = models.ForeignKey(
         "wagtailimages.Image",
         on_delete=models.SET_NULL,
@@ -228,7 +229,7 @@ class MagazineDepartment(Page):
         return self.title
 
 
-class MagazineArticle(Page):
+class MagazineArticle(Page, DrupalFields):
     teaser = RichTextField(
         blank=True,
         help_text="Try to keep teaser to a couple dozen words.",
@@ -455,7 +456,7 @@ class ArchiveArticle(ClusterableModel):
         ]
 
 
-class ArchiveIssue(Page):
+class ArchiveIssue(Page, DrupalFields):
     publication_date = models.DateField(
         null=True, help_text="Please select the first day of the publication month"
     )

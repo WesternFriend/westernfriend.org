@@ -18,6 +18,7 @@ from blocks.blocks import (
     PullQuoteBlock,
     SpacerBlock,
 )
+from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
 
 
@@ -139,7 +140,7 @@ class NewsItemTag(TaggedItemBase):
     )
 
 
-class NewsItem(Page):
+class NewsItem(Page, DrupalFields):
     teaser = models.TextField(
         max_length=100,
         null=True,

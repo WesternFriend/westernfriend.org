@@ -6,6 +6,7 @@ from wagtail.fields import StreamField, RichTextField
 from documents.blocks import DocumentEmbedBlock
 
 from blocks import blocks as wf_blocks
+from common.models import DrupalFields
 
 
 class MeetingDocumentIndexPage(Page):
@@ -35,7 +36,7 @@ class MeetingDocumentIndexPage(Page):
         return context
 
 
-class MeetingDocument(Page):
+class MeetingDocument(Page, DrupalFields):
     class MeetingDocmentTypeChoices(models.TextChoices):
         EPISTLE = (
             "epistle",
@@ -154,7 +155,7 @@ class PublicBoardDocumentIndexPage(Page):
     ]
 
 
-class PublicBoardDocument(Page):
+class PublicBoardDocument(Page, DrupalFields):
     class PublicBoardDocmentCategoryChoices(models.TextChoices):
         CORPORATION_DOCUMENTS_CURRENT_YEAR = (
             "corporation_documents_current_year",

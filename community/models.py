@@ -9,6 +9,7 @@ from wagtail.search import index
 from timezone_field import TimeZoneField  # type: ignore
 
 from blocks import blocks as wf_blocks
+from common.models import DrupalFields
 
 
 class CommunityPage(Page):
@@ -48,7 +49,7 @@ class CommunityPage(Page):
     ]
 
 
-class OnlineWorship(Page):
+class OnlineWorship(Page, DrupalFields):
     class OnlineWorshipDayChoices(models.TextChoices):
         SUNDAY = "Sunday", "Sunday"
         MONDAY = "Monday", "Monday"

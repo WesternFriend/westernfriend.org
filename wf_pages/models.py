@@ -16,6 +16,7 @@ from blocks.blocks import (
     PullQuoteBlock,
     SpacerBlock,
 )
+from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
 
 
@@ -63,7 +64,7 @@ class WfPageTag(TaggedItemBase):
     )
 
 
-class WfPage(Page):
+class WfPage(Page, DrupalFields):
     body = StreamField(
         [
             ("heading", HeadingBlock()),
@@ -134,7 +135,7 @@ class WfPage(Page):
         verbose_name_plural = "Pages"
 
 
-class MollyWingateBlogPage(WfPage):
+class MollyWingateBlogPage(WfPage, DrupalFields):
     publication_date = models.DateField("Publication date")
 
     content_panels = WfPage.content_panels + [
