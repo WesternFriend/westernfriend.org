@@ -9,7 +9,7 @@ from contact.models import Meeting
 from common.models import DrupalFields
 
 
-class Memorial(Page, DrupalFields):
+class Memorial(DrupalFields, Page):
     memorial_person = models.ForeignKey(
         to="contact.Person",
         on_delete=models.PROTECT,

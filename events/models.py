@@ -35,7 +35,7 @@ class EventSponsor(Orderable):
     ]
 
 
-class Event(Page, DrupalFields):
+class Event(DrupalFields, Page):
     class EventCategoryChoices(models.TextChoices):
         WESTERN = ("western", "Western")
         OTHER = ("other", "Other")

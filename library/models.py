@@ -35,7 +35,7 @@ class LibraryItemTag(TaggedItemBase):
     )
 
 
-class LibraryItem(Page, DrupalFields):
+class LibraryItem(DrupalFields, Page):
     publication_date = models.DateField("Publication date", null=True, blank=True)
     publication_date_is_approximate = models.BooleanField(
         default=False,

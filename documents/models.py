@@ -36,7 +36,7 @@ class MeetingDocumentIndexPage(Page):
         return context
 
 
-class MeetingDocument(Page, DrupalFields):
+class MeetingDocument(DrupalFields, Page):
     class MeetingDocmentTypeChoices(models.TextChoices):
         EPISTLE = (
             "epistle",
@@ -155,7 +155,7 @@ class PublicBoardDocumentIndexPage(Page):
     ]
 
 
-class PublicBoardDocument(Page, DrupalFields):
+class PublicBoardDocument(DrupalFields, Page):
     class PublicBoardDocmentCategoryChoices(models.TextChoices):
         CORPORATION_DOCUMENTS_CURRENT_YEAR = (
             "corporation_documents_current_year",

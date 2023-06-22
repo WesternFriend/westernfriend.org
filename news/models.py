@@ -140,7 +140,7 @@ class NewsItemTag(TaggedItemBase):
     )
 
 
-class NewsItem(Page, DrupalFields):
+class NewsItem(DrupalFields, Page):
     teaser = models.TextField(
         max_length=100,
         null=True,

@@ -113,7 +113,7 @@ class MagazineIndexPage(Page):
         return context
 
 
-class MagazineIssue(Page, DrupalFields):
+class MagazineIssue(DrupalFields, Page):
     cover_image = models.ForeignKey(
         "wagtailimages.Image",
         on_delete=models.SET_NULL,
@@ -229,7 +229,7 @@ class MagazineDepartment(Page):
         return self.title
 
 
-class MagazineArticle(Page, DrupalFields):
+class MagazineArticle(DrupalFields, Page):
     teaser = RichTextField(
         blank=True,
         help_text="Try to keep teaser to a couple dozen words.",
@@ -456,7 +456,7 @@ class ArchiveArticle(ClusterableModel):
         ]
 
 
-class ArchiveIssue(Page, DrupalFields):
+class ArchiveIssue(DrupalFields, Page):
     publication_date = models.DateField(
         null=True, help_text="Please select the first day of the publication month"
     )

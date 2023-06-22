@@ -64,7 +64,7 @@ class WfPageTag(TaggedItemBase):
     )
 
 
-class WfPage(Page, DrupalFields):
+class WfPage(DrupalFields, Page):
     body = StreamField(
         [
             ("heading", HeadingBlock()),
