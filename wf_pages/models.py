@@ -135,7 +135,7 @@ class WfPage(DrupalFields, Page):
         verbose_name_plural = "Pages"
 
 
-class MollyWingateBlogPage(WfPage, DrupalFields):
+class MollyWingateBlogPage(DrupalFields, WfPage):
     publication_date = models.DateField("Publication date")
 
     content_panels = WfPage.content_panels + [
