@@ -49,7 +49,7 @@ class CommunityPage(Page):
     ]
 
 
-class OnlineWorship(Page, DrupalFields):
+class OnlineWorship(DrupalFields, Page):
     class OnlineWorshipDayChoices(models.TextChoices):
         SUNDAY = "Sunday", "Sunday"
         MONDAY = "Monday", "Monday"
