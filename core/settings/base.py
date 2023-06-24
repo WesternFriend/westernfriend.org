@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     "accounts",
     "addresses",
     "cart",
+    "common",
     "community",
     "contact",
     "content_migration",

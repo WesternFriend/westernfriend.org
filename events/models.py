@@ -13,6 +13,7 @@ from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
+from common.models import DrupalFields
 
 
 class EventSponsor(Orderable):
@@ -34,7 +35,7 @@ class EventSponsor(Orderable):
     ]
 
 
-class Event(Page):
+class Event(DrupalFields, Page):
     class EventCategoryChoices(models.TextChoices):
         WESTERN = ("western", "Western")
         OTHER = ("other", "Other")

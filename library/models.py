@@ -24,6 +24,7 @@ from blocks.blocks import (
     SpacerBlock,
     WfURLBlock,
 )
+from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
 
@@ -34,7 +35,7 @@ class LibraryItemTag(TaggedItemBase):
     )
 
 
-class LibraryItem(Page):
+class LibraryItem(DrupalFields, Page):
     publication_date = models.DateField("Publication date", null=True, blank=True)
     publication_date_is_approximate = models.BooleanField(
         default=False,

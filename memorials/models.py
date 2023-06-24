@@ -6,9 +6,10 @@ from wagtail.fields import RichTextField
 from wagtail.models import Page
 
 from contact.models import Meeting
+from common.models import DrupalFields
 
 
-class Memorial(Page):
+class Memorial(DrupalFields, Page):
     memorial_person = models.ForeignKey(
         to="contact.Person",
         on_delete=models.PROTECT,

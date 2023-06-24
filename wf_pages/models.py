@@ -16,6 +16,7 @@ from blocks.blocks import (
     PullQuoteBlock,
     SpacerBlock,
 )
+from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
 
 
@@ -63,7 +64,7 @@ class WfPageTag(TaggedItemBase):
     )
 
 
-class WfPage(Page):
+class WfPage(DrupalFields, Page):
     body = StreamField(
         [
             ("heading", HeadingBlock()),
