@@ -9,26 +9,26 @@ class BookShippingTest(SimpleTestCase):
     def test_book_shipping_cost(self) -> None:
         # define a mapping of book_quantity to expected shipping_cost
         quantity_cost_expectations = {
-            # book_quantity >= 16 = 0 * book_quantity = 0
+            # 16 or more books shipping is free
             16: Decimal("0.00"),
-            # range(11, 16) = 1 * book_quantity´
+            # 11 through 15 books, the shipping cost is 1 * book_quantity
             15: Decimal("15.00"),
             14: Decimal("14.00"),
             13: Decimal("13.00"),
             12: Decimal("12.00"),
             11: Decimal("11.00"),
-            # range(5, 11) = 2 * book_quantity
+            # 5 through 10 books, the shipping cost is 2 * book_quantity
             10: Decimal("20.00"),
             9: Decimal("18.00"),
             8: Decimal("16.00"),
             7: Decimal("14.00"),
             6: Decimal("12.00"),
             5: Decimal("10.00"),
-            # range(2, 5) = 3 * book_quantity
+            # 2 through 4 books, the shipping cost is 3 * book_quantity
             4: Decimal("12.00"),
             3: Decimal("9.00"),
             2: Decimal("6.00"),
-            # < 2 = 4 * book_quantity
+            # for one book, the shipping cost is 4
             1: Decimal("4.00"),
         }
 
