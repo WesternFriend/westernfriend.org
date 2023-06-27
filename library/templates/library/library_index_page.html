@@ -93,7 +93,6 @@
                             {% if not request.GET.item_time_period__title %}
                                 <option selected disabled hidden>Select...</option>
                             {% endif %}
-
                             {% for time_period in time_periods %}
                                 <option
                                     value="{{ time_period }}"
@@ -122,8 +121,7 @@
                                 >
                                     {{ topic }}
                                 </option>
-
-                            {% endfor %}
+                                {% endfor %}
                         </select>
                     </div>
                 </form>
@@ -166,6 +164,9 @@
                                     name="title__icontains"
                                     class="form-control"
                                     id="title-search"
+                                    {% if request.GET.title__icontains %}
+                                        value="{{ request.GET.title__icontains }}"
+                                    {% endif %}
                                 >
                             </div>
                             <div class="col-sm-12 col-md-12 col-lg-3 align-self-end">
@@ -195,11 +196,10 @@
                         <ul class="pagination">
                             {% if library_items_page.has_previous %}
                                 <li class="page-item">
-                                    <a href="?page={{ library_items_page.previous_page_number }}{{ request.GET.q }}" class="page-link">&laquo; first</a>
+                                    <a href="?page={{ library_items_page.previous_page_number }}&{{ request.GET.urlencode }}" class="page-link">&laquo; first</a>
                                 </li>
-
                                 <li class="page-item">
-                                    <a href="?page={{ library_items_page.previous_page_number }}{{ request.GET.q }}"
+                                    <a href="?page={{ library_items_page.previous_page_number }}&{{ request.GET.urlencode }}"
                                        class="page-link">
                                         previous
                                     </a>
@@ -210,7 +210,7 @@
                             {% for page_number in library_items_page.adjusted_elided_pages %}
                                 {% if library_items_page.number == page_number %}
                                     <li class="active page-item" aria-current="page">
-                                        <a href="?page={{ page_number }}{{ request.GET.q }}" class="page-link">
+                                        <a href="?page={{ page_number }}&{{ request.GET.urlencode }}" class="page-link">
                                             {{ page_number }}
                                         </a>
                                     </li>
@@ -220,7 +220,7 @@
                                     </span>
                                 {% else %}
                                     <li class="page-item">
-                                        <a href="?page={{ page_number }}{{ request.GET.q }}" class="page-link">
+                                        <a href="?page={{ page_number }}&{{ request.GET.urlencode }}" class="page-link">
                                             {{ page_number }}
                                         </a>
                                     </li>
@@ -229,14 +229,14 @@
 
                             {% if library_items_page.has_next %}
                                 <li class="page-item">
-                                    <a href="?page={{ library_items_page.next_page_number }}{{ request.GET.q }}"
+                                    <a href="?page={{ library_items_page.next_page_number }}&{{ request.GET.urlencode }}"
                                        class="page-link">
                                         next
                                     </a>
                                 </li>
 
                                 <li class="page-item">
-                                    <a href="?page={{ library_items_page.paginator.num_pages }}{{ request.GET.q }}"
+                                    <a href="?page={{ library_items_page.paginator.num_pages }}&{{ request.GET.urlencode }}"
                                        class="page-link">
                                         last &raquo;
                                     </a>
