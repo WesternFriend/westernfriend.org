@@ -191,7 +191,7 @@
                 {% endfor %}
 
                 {% if library_items_page.has_other_pages %}
-                    <nav aria-label="Archive issues navigation">
+                    <nav aria-label="Library items navigation">
                         <ul class="pagination">
                             {% if library_items_page.has_previous %}
                                 <li class="page-item">
@@ -199,7 +199,7 @@
                                 </li>
 
                                 <li class="page-item">
-                                    <a href="?page={{ library_items_page.previous_page_number }}#archive-issues"
+                                    <a href="?page={{ library_items_page.previous_page_number }}"
                                        class="page-link">
                                         previous
                                     </a>
@@ -210,7 +210,7 @@
                             {% for page_number in library_items_page.adjusted_elided_pages %}
                                 {% if library_items_page.number == page_number %}
                                     <li class="active page-item" aria-current="page">
-                                        <a href="?page={{ page_number }}#archive-issues" class="page-link">
+                                        <a href="?page={{ page_number }}" class="page-link">
                                             {{ page_number }}
                                         </a>
                                     </li>
@@ -220,7 +220,7 @@
                                     </span>
                                 {% else %}
                                     <li class="page-item">
-                                        <a href="?page={{ page_number }}#archive-issues" class="page-link">
+                                        <a href="?page={{ page_number }}" class="page-link">
                                             {{ page_number }}
                                         </a>
                                     </li>
