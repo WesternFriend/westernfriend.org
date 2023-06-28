@@ -283,14 +283,11 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
     return generic_blocks
 
 
-def create_document_link_block(
+def create_document_from_file_bytes(
     file_name: str,
     file_bytes: BytesIO,
-) -> tuple[str, Document]:
-    """Create a document link block from a file name and bytes.
-
-    Returns a tuple of the form: ("document", document)
-    """
+) -> Document:
+    """Create a document from a file name and bytes."""
 
     document_file: File = File(
         file_bytes,
@@ -303,6 +300,23 @@ def create_document_link_block(
     )
 
     document.save()
+
+    return document
+
+
+def create_document_link_block(
+    file_name: str,
+    file_bytes: BytesIO,
+) -> tuple[str, Document]:
+    """Create a document link block from a file name and bytes.
+
+    Returns a tuple of the form: ("document", document)
+    """
+
+    document = create_document_from_file_bytes(
+        file_name=file_name,
+        file_bytes=file_bytes,
+    )
 
     return ("document", document)
 
