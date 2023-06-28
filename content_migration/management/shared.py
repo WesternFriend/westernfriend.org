@@ -37,6 +37,18 @@ from content_migration.management.constants import (
     SITE_BASE_URL,
 )
 
+ALLOWED_AUDIO_CONTENT_TYPES = [
+    "audio/mpeg",
+    "audio/mp4",
+    "audio/ogg",
+    "audio/wav",
+    "audio/webm",
+]
+
+ALLOWED_DOCUMENT_CONTENT_TYPES = [
+    "application/pdf",
+]
+
 ALLOWED_IMAGE_CONTENT_TYPES = [
     "image/jpeg",
     "image/png",
@@ -480,7 +492,7 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
             except requests.exceptions.RequestException:
                 continue
 
-            if fetched_file.content_type == "application/pdf":
+            if fetched_file.content_type in ALLOWED_DOCUMENT_CONTENT_TYPES:
                 media_item_block: tuple = create_document_link_block(
                     file_name=fetched_file.file_name,
                     file_bytes=fetched_file.file_bytes,
