@@ -12,9 +12,9 @@ asgiref==3.7.2
     # via django
 beautifulsoup4==4.11.2
     # via wagtail
-boto3==1.26.146
+boto3==1.26.162
     # via Western-Friend-website (pyproject.toml)
-botocore==1.29.146
+botocore==1.29.162
     # via
     #   boto3
     #   s3transfer
@@ -32,7 +32,7 @@ defusedxml==0.7.1
     # via willow
 dj-database-url==2.0.0
     # via Western-Friend-website (pyproject.toml)
-django==4.2.1
+django==4.2.2
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
@@ -47,6 +47,7 @@ django==4.2.1
     #   django-registration
     #   django-storages
     #   django-taggit
+    #   django-timezone-field
     #   django-treebeard
     #   djangorestframework
     #   wagtail
@@ -57,7 +58,7 @@ django-crispy-forms==2.0
     #   crispy-bootstrap5
 django-debug-toolbar==4.1.0
     # via Western-Friend-website (pyproject.toml)
-django-extensions==3.2.1
+django-extensions==3.2.3
     # via Western-Friend-website (pyproject.toml)
 django-filter==22.1
     # via wagtail
@@ -73,7 +74,7 @@ django-storages==1.13.2
     # via Western-Friend-website (pyproject.toml)
 django-taggit==3.1.0
     # via wagtail
-django-timezone-field==5.0
+django-timezone-field==5.1
     # via Western-Friend-website (pyproject.toml)
 django-treebeard==4.7
     # via wagtail
@@ -103,7 +104,7 @@ pillow==9.5.0
     # via wagtail
 psycopg2-binary==2.9.6
     # via Western-Friend-website (pyproject.toml)
-pydantic==1.10.8
+pydantic==1.10.9
     # via django-flatpickr
 python-dateutil==2.8.2
     # via
@@ -134,7 +135,7 @@ sqlparse==0.4.4
     # via
     #   django
     #   django-debug-toolbar
-telepath==0.3
+telepath==0.3.1
     # via wagtail
 tqdm==4.65.0
     # via Western-Friend-website (pyproject.toml)
@@ -149,14 +150,14 @@ urllib3==1.26.16
     # via
     #   botocore
     #   requests
-wagtail==5.0.1
+wagtail==5.0.2
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail-color-panel
     #   wagtailmedia
 wagtail-color-panel==1.4.1
     # via Western-Friend-website (pyproject.toml)
-wagtailmedia==0.14.1
+wagtailmedia==0.14.2
     # via Western-Friend-website (pyproject.toml)
 webencodings==0.5.1
     # via html5lib

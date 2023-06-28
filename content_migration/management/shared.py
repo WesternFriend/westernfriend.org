@@ -20,6 +20,7 @@ from wagtail.embeds.models import Embed
 from wagtail.images.models import Image
 from wagtail.models import Page
 from wagtail.rich_text import RichText
+from wagtailmedia.models import Media
 
 from contact.models import Meeting, Organization, Person
 
@@ -36,6 +37,26 @@ from content_migration.management.constants import (
     LOCAL_MIGRATION_DATA_DIRECTORY,
     SITE_BASE_URL,
 )
+
+ALLOWED_AUDIO_CONTENT_TYPES = [
+    "audio/mpeg",
+    "audio/mp4",
+    "audio/ogg",
+    "audio/wav",
+    "audio/webm",
+]
+
+ALLOWED_DOCUMENT_CONTENT_TYPES = [
+    "application/pdf",
+]
+
+ALLOWED_IMAGE_CONTENT_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/svg+xml",
+    "image/webp",
+]
 
 EMPTY_ITEM_VALUES = [
     "",
@@ -102,7 +123,7 @@ class GenericBlock:
     block_content: str
 
 
-def create_image_block(image_url: str) -> dict:
+def create_image_block_from_url(image_url: str) -> dict:
     """Create a Wagtial image block from an image URL."""
 
     try:
@@ -120,18 +141,11 @@ def create_image_block(image_url: str) -> dict:
     file_bytes = BytesIO(response.content)
 
     # create an ImageFile object
-    file_name = image_url.split("/")[-1]
-    image_file = ImageFile(
-        file_bytes,
-        name=file_name,
+    file_name = image_url.split(sep="/")[-1]
+    image = create_image_from_file_bytes(
+        file_name=file_name,
+        file_bytes=file_bytes,
     )
-
-    # create and save a Wagtial image instance
-    image = Image(
-        title=file_name,
-        file=image_file,
-    )
-    image.save()
 
     # Create an image block with dictionary properties
     image_chooser_block = {
@@ -155,7 +169,7 @@ class BlockFactory:
             )
         elif generic_block.block_type == "image":
             try:
-                image_block = create_image_block(generic_block.block_content)
+                image_block = create_image_block_from_url(generic_block.block_content)
             except requests.exceptions.MissingSchema:
                 raise BlockFactoryError("Invalid image URL: missing schema")
             except requests.exceptions.InvalidSchema:
@@ -282,14 +296,11 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
     return generic_blocks
 
 
-def create_document_link_block(
+def create_document_from_file_bytes(
     file_name: str,
     file_bytes: BytesIO,
-) -> tuple[str, Document]:
-    """Create a document link block from a file name and bytes.
-
-    Returns a tuple of the form: ("document", document)
-    """
+) -> Document:
+    """Create a document from a file name and bytes."""
 
     document_file: File = File(
         file_bytes,
@@ -303,7 +314,45 @@ def create_document_link_block(
 
     document.save()
 
+    return document
+
+
+def create_document_link_block(
+    file_name: str,
+    file_bytes: BytesIO,
+) -> tuple[str, Document]:
+    """Create a document link block from a file name and bytes.
+
+    Returns a tuple of the form: ("document", document)
+    """
+
+    document = create_document_from_file_bytes(
+        file_name=file_name,
+        file_bytes=file_bytes,
+    )
+
     return ("document", document)
+
+
+def create_image_from_file_bytes(
+    file_name: str,
+    file_bytes: BytesIO,
+) -> Image:
+    """Create an image from a file name and bytes."""
+
+    image_file: ImageFile = ImageFile(
+        file_bytes,
+        name=file_name,
+    )
+
+    image: Image = Image(
+        title=file_name,
+        file=image_file,
+    )
+
+    image.save()
+
+    return image
 
 
 def create_media_embed_block(url: str) -> tuple[str, Embed]:
@@ -317,24 +366,19 @@ def create_media_embed_block(url: str) -> tuple[str, Embed]:
     return embed_block
 
 
-# TODO: refactor this function to make it
-# less redundant with create_image_block
 def create_image_block_from_file_bytes(
     file_name: str,
     file_bytes: BytesIO,
 ) -> tuple[str, dict]:
-    # create image
-    image_file: ImageFile = ImageFile(
-        file_bytes,
-        name=file_name,
-    )
+    """Create an image block from a file name and bytes.
 
-    image = Image(
-        title=file_name,
-        file=image_file,
-    )
+    Returns a tuple of the form: ("image", image_block)
+    """
 
-    image.save()
+    image = create_image_from_file_bytes(
+        file_name=file_name,
+        file_bytes=file_bytes,
+    )
 
     # Create an image block with dictionary properties
     # of FormattedImageChooserStructBlock
@@ -349,11 +393,67 @@ def create_image_block_from_file_bytes(
     return media_item_block
 
 
+def create_media_from_file_bytes(
+    file_name: str,
+    file_bytes: BytesIO,
+    file_type: str,
+) -> Media:
+    """Create a media item from a file name and bytes."""
+
+    media_file: File = File(
+        file_bytes,
+        name=file_name,
+    )
+
+    media: Media = Media(
+        title=file_name,
+        file=media_file,
+        type=file_type,
+    )
+
+    media.save()
+
+    return media
+
+
+def create_media_block_from_file_bytes(
+    file_name: str,
+    file_bytes: BytesIO,
+    file_type: str,
+) -> tuple[str, Media]:
+    """Create a media item block from a file name and bytes.
+
+    Returns a tuple of the form: ("media", media_block)
+    """
+
+    media = create_media_from_file_bytes(
+        file_name=file_name,
+        file_bytes=file_bytes,
+        file_type=file_type,
+    )
+
+    # Create a media item block with dictionary properties
+    # of AbstractMediaChooserBlock
+    media_block = (
+        "media",
+        media,
+    )
+
+    return media_block
+
+
 def extract_pullquotes(item: str) -> list[str]:
     """Get a list of all pullquote strings found within the item, excluding the
     pullquote spans.
 
     The pullquote strings are wrapped in a span with class 'pullquote'.
+
+    Example:
+    <span class="pullquote">This is a pullquote</span>
+    Will return:
+    ["This is a pullquote"]
+
+    Returns a list of pullquote strings.
     """
 
     pullquotes = []
@@ -393,6 +493,15 @@ def parse_media_string_to_list(media_string: str) -> list[str]:
 
 
 def ensure_absolute_url(url: str) -> str:
+    """Ensure that the URL is absolute.
+
+    Example:
+    /media/images/image.jpg
+
+    Will be converted to:
+    https://<site_base_url>/media/images/image.jpg
+    """
+
     # Check if the URL starts with / and append the site base URL
     # ensuring there are not double // characters
     if url.startswith("/"):
@@ -433,15 +542,21 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
             except requests.exceptions.RequestException:
                 continue
 
-            if fetched_file.content_type == "application/pdf":
+            if fetched_file.content_type in ALLOWED_DOCUMENT_CONTENT_TYPES:
                 media_item_block: tuple = create_document_link_block(
                     file_name=fetched_file.file_name,
                     file_bytes=fetched_file.file_bytes,
                 )
-            elif fetched_file.content_type in ["image/jpeg", "image/png"]:
+            elif fetched_file.content_type in ALLOWED_IMAGE_CONTENT_TYPES:
                 media_item_block = create_image_block_from_file_bytes(
                     file_name=fetched_file.file_name,
                     file_bytes=fetched_file.file_bytes,
+                )
+            elif fetched_file.content_type in ALLOWED_AUDIO_CONTENT_TYPES:
+                media_item_block = create_media_block_from_file_bytes(
+                    file_name=fetched_file.file_name,
+                    file_bytes=fetched_file.file_bytes,
+                    file_type="audio",
                 )
             else:
                 logger.error(
@@ -482,7 +597,7 @@ def get_existing_magazine_author_from_db(
     meeting = Meeting.objects.filter(Q(drupal_author_id=drupal_author_id))
     organization = Organization.objects.filter(Q(drupal_author_id=drupal_author_id))
 
-    results = list(chain(person, meeting, organization))
+    results = list(chain(person, meeting, organization))  # type: ignore
 
     if len(results) == 0:
         error_message = f"Could not find matching author for magazine author ID: { int(drupal_author_id) }"  # noqa: E501

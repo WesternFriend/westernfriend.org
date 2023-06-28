@@ -1,3 +1,4 @@
+from io import BytesIO
 from unittest.mock import patch
 from django.test import TestCase, SimpleTestCase
 from wagtail.models import Page, Site
@@ -29,8 +30,10 @@ from content_migration.management.shared import (
     create_archive_issues_from_articles_dicts,
     create_document_link_block,
     create_group_by,
-    create_image_block,
+    create_image_block_from_url,
     create_image_block_from_file_bytes,
+    create_media_from_file_bytes,
+    create_media_block_from_file_bytes,
     ensure_absolute_url,
     extract_image_urls,
     extract_pullquotes,
@@ -529,6 +532,19 @@ class ParseMediaBlocksTestCase(TestCase):
             expected_media_blocks,
         )
 
+    def test_parse_media_blocks_with_audio_url(self) -> None:
+        input_media_urls = [
+            "https://westernfriend.org/sites/default/files/library/EvilWhyTalkAboutItByBruceFolsom.mp3"
+        ]
+        output_media_blocks = parse_media_blocks(input_media_urls)
+        output_media_block_type = output_media_blocks[0][0]
+        expected_media_block_type = "media"
+
+        self.assertEqual(
+            output_media_block_type,
+            expected_media_block_type,
+        )
+
 
 class ParseCsvFileSimpleTestCase(SimpleTestCase):
     def test_parse_csv_file(self) -> None:
@@ -696,7 +712,7 @@ class CreateImageBlockTestCase(TestCase):
 
         image_urls = extract_image_urls(input_html)
 
-        image_block = create_image_block(image_urls[0])
+        image_block = create_image_block_from_url(image_urls[0])
 
         # self.assertEqual(image_block.block_type, "image")  # type: ignore
         self.assertEqual(
@@ -708,13 +724,13 @@ class CreateImageBlockTestCase(TestCase):
         input_html = None
 
         with self.assertRaises(requests.exceptions.MissingSchema):
-            create_image_block(input_html)  # type: ignore
+            create_image_block_from_url(input_html)  # type: ignore
 
     def test_create_image_block_with_invalid_url(self) -> None:
         input_html = "/image.jpg"
 
         with self.assertRaises(requests.exceptions.MissingSchema):
-            create_image_block(input_html)
+            create_image_block_from_url(input_html)
 
 
 class BlockFactorySimpleTestCase(SimpleTestCase):
@@ -733,7 +749,7 @@ class BlockFactorySimpleTestCase(SimpleTestCase):
     def test_create_block_invalid_image_url_missing_schema(self) -> None:
         invalid_url_block = GenericBlock("image", "invalid_url")
         with patch(
-            "content_migration.management.shared.create_image_block"
+            "content_migration.management.shared.create_image_block_from_url"
         ) as mock_create_image_block:
             mock_create_image_block.side_effect = requests.exceptions.MissingSchema
             with self.assertRaises(BlockFactoryError) as cm:
@@ -743,7 +759,7 @@ class BlockFactorySimpleTestCase(SimpleTestCase):
     def test_create_block_invalid_image_url_invalid_schema(self) -> None:
         invalid_url_block = GenericBlock("image", "invalid_url")
         with patch(
-            "content_migration.management.shared.create_image_block"
+            "content_migration.management.shared.create_image_block_from_url"
         ) as mock_create_image_block:
             mock_create_image_block.side_effect = requests.exceptions.InvalidSchema
             with self.assertRaises(BlockFactoryError) as cm:
@@ -802,3 +818,33 @@ class ConstructImportFilePathSimpleTest(SimpleTestCase):
 #     def test_my_command(self):
 #         call_command('my_command', 'arg1', 'arg2')
 #         # Now assert that the command has done what it's supposed to do
+
+
+class CreateMediaFromFileBytesTestCase(TestCase):
+    def test_create_media_from_file_bytes(self) -> None:
+        # create a media file from a file in the test data directory
+        file_path = "test_data/test.mp3"
+        with open(file_path, "rb") as f:
+            file_bytes = BytesIO(f.read())
+
+            media = create_media_from_file_bytes(
+                file_name="test.mp3",
+                file_bytes=file_bytes,
+                file_type="audio",
+            )
+
+            self.assertEqual(media.file_extension, "mp3")
+
+    def test_create_media_block_from_file_bytes(self) -> None:
+        # create a media file from a file in the test data directory
+        file_path = "test_data/test.mp3"
+        with open(file_path, "rb") as f:
+            file_bytes = BytesIO(f.read())
+
+            media_block = create_media_block_from_file_bytes(
+                file_name="test.mp3",
+                file_bytes=file_bytes,
+                file_type="audio",
+            )
+
+            self.assertEqual(media_block[0], "media")

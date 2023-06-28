@@ -19,7 +19,10 @@ compile-deps: .venv/bin/python
 init: .venv/.install.stamp
 	pre-commit install
 
+install: .venv/bin/python requirements.txt requirements-dev.txt
+	.venv/bin/python -m pip install -r requirements.txt -r requirements-dev.txt
+
 test: .venv/.install.stamp
 	.venv/bin/python app/manage.py test app
 
-.PHONY: update-deps compile-deps init test
+.PHONY: update-deps compile-deps init install test
