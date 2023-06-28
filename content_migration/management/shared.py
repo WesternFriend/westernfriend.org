@@ -353,12 +353,15 @@ def create_media_embed_block(url: str) -> tuple[str, Embed]:
     return embed_block
 
 
-# TODO: refactor this function to make it
-# less redundant with create_image_block
 def create_image_block_from_file_bytes(
     file_name: str,
     file_bytes: BytesIO,
 ) -> tuple[str, dict]:
+    """Create an image block from a file name and bytes.
+
+    Returns a tuple of the form: ("image", image_block)
+    """
+
     image = create_image_from_file_bytes(
         file_name=file_name,
         file_bytes=file_bytes,
@@ -382,6 +385,13 @@ def extract_pullquotes(item: str) -> list[str]:
     pullquote spans.
 
     The pullquote strings are wrapped in a span with class 'pullquote'.
+
+    Example:
+    <span class="pullquote">This is a pullquote</span>
+    Will return:
+    ["This is a pullquote"]
+
+    Returns a list of pullquote strings.
     """
 
     pullquotes = []
@@ -421,6 +431,15 @@ def parse_media_string_to_list(media_string: str) -> list[str]:
 
 
 def ensure_absolute_url(url: str) -> str:
+    """Ensure that the URL is absolute.
+
+    Example:
+    /media/images/image.jpg
+
+    Will be converted to:
+    https://<site_base_url>/media/images/image.jpg
+    """
+
     # Check if the URL starts with / and append the site base URL
     # ensuring there are not double // characters
     if url.startswith("/"):
