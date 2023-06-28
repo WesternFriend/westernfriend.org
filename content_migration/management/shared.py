@@ -37,6 +37,14 @@ from content_migration.management.constants import (
     SITE_BASE_URL,
 )
 
+ALLOWED_IMAGE_CONTENT_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/svg+xml",
+    "image/webp",
+]
+
 EMPTY_ITEM_VALUES = [
     "",
     "~",
@@ -102,7 +110,7 @@ class GenericBlock:
     block_content: str
 
 
-def create_image_block(image_url: str) -> dict:
+def create_image_block_from_url(image_url: str) -> dict:
     """Create a Wagtial image block from an image URL."""
 
     try:
@@ -120,18 +128,11 @@ def create_image_block(image_url: str) -> dict:
     file_bytes = BytesIO(response.content)
 
     # create an ImageFile object
-    file_name = image_url.split("/")[-1]
-    image_file = ImageFile(
-        file_bytes,
-        name=file_name,
+    file_name = image_url.split(sep="/")[-1]
+    image = create_image_from_file_bytes(
+        file_name=file_name,
+        file_bytes=file_bytes,
     )
-
-    # create and save a Wagtial image instance
-    image = Image(
-        title=file_name,
-        file=image_file,
-    )
-    image.save()
 
     # Create an image block with dictionary properties
     image_chooser_block = {
@@ -155,7 +156,7 @@ class BlockFactory:
             )
         elif generic_block.block_type == "image":
             try:
-                image_block = create_image_block(generic_block.block_content)
+                image_block = create_image_block_from_url(generic_block.block_content)
             except requests.exceptions.MissingSchema:
                 raise BlockFactoryError("Invalid image URL: missing schema")
             except requests.exceptions.InvalidSchema:
@@ -306,6 +307,27 @@ def create_document_link_block(
     return ("document", document)
 
 
+def create_image_from_file_bytes(
+    file_name: str,
+    file_bytes: BytesIO,
+) -> Image:
+    """Create an image from a file name and bytes."""
+
+    image_file: ImageFile = ImageFile(
+        file_bytes,
+        name=file_name,
+    )
+
+    image: Image = Image(
+        title=file_name,
+        file=image_file,
+    )
+
+    image.save()
+
+    return image
+
+
 def create_media_embed_block(url: str) -> tuple[str, Embed]:
     """Create a media embed block from a URL
     Returns a tuple of the form: ("embed", embed)"""
@@ -323,18 +345,10 @@ def create_image_block_from_file_bytes(
     file_name: str,
     file_bytes: BytesIO,
 ) -> tuple[str, dict]:
-    # create image
-    image_file: ImageFile = ImageFile(
-        file_bytes,
-        name=file_name,
+    image = create_image_from_file_bytes(
+        file_name=file_name,
+        file_bytes=file_bytes,
     )
-
-    image = Image(
-        title=file_name,
-        file=image_file,
-    )
-
-    image.save()
 
     # Create an image block with dictionary properties
     # of FormattedImageChooserStructBlock
@@ -438,7 +452,7 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
                     file_name=fetched_file.file_name,
                     file_bytes=fetched_file.file_bytes,
                 )
-            elif fetched_file.content_type in ["image/jpeg", "image/png"]:
+            elif fetched_file.content_type in ALLOWED_IMAGE_CONTENT_TYPES:
                 media_item_block = create_image_block_from_file_bytes(
                     file_name=fetched_file.file_name,
                     file_bytes=fetched_file.file_bytes,
