@@ -420,7 +420,7 @@ def create_media_block_from_file_bytes(
     file_name: str,
     file_bytes: BytesIO,
     file_type: str,
-) -> tuple[str, dict]:
+) -> tuple[str, Media]:
     """Create a media item block from a file name and bytes.
 
     Returns a tuple of the form: ("media", media_block)
@@ -436,9 +436,7 @@ def create_media_block_from_file_bytes(
     # of AbstractMediaChooserBlock
     media_block = (
         "media",
-        {
-            "media": media,
-        },
+        media,
     )
 
     return media_block
