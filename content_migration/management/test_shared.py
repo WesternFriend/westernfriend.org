@@ -33,6 +33,7 @@ from content_migration.management.shared import (
     create_image_block_from_url,
     create_image_block_from_file_bytes,
     create_media_from_file_bytes,
+    create_media_block_from_file_bytes,
     ensure_absolute_url,
     extract_image_urls,
     extract_pullquotes,
@@ -820,3 +821,17 @@ class CreateMediaFromFileBytesTestCase(TestCase):
             )
 
             self.assertEqual(media.file_extension, "mp3")
+
+    def test_create_media_block_from_file_bytes(self) -> None:
+        # create a media file from a file in the test data directory
+        file_path = "test_data/test.mp3"
+        with open(file_path, "rb") as f:
+            file_bytes = BytesIO(f.read())
+
+            media_block = create_media_block_from_file_bytes(
+                file_name="test.mp3",
+                file_bytes=file_bytes,
+                file_type="audio",
+            )
+
+            self.assertEqual(media_block[0], "media")
