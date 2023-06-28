@@ -1,3 +1,4 @@
+from io import BytesIO
 from unittest.mock import patch
 from django.test import TestCase, SimpleTestCase
 from wagtail.models import Page, Site
@@ -31,6 +32,7 @@ from content_migration.management.shared import (
     create_group_by,
     create_image_block_from_url,
     create_image_block_from_file_bytes,
+    create_media_from_file_bytes,
     ensure_absolute_url,
     extract_image_urls,
     extract_pullquotes,
@@ -802,3 +804,19 @@ class ConstructImportFilePathSimpleTest(SimpleTestCase):
 #     def test_my_command(self):
 #         call_command('my_command', 'arg1', 'arg2')
 #         # Now assert that the command has done what it's supposed to do
+
+
+class CreateMediaFromFileBytesTestCase(TestCase):
+    def test_create_media_from_file_bytes(self) -> None:
+        # create a media file from a file in the test data directory
+        file_path = "test_data/test.mp3"
+        with open(file_path, "rb") as f:
+            file_bytes = BytesIO(f.read())
+
+            media = create_media_from_file_bytes(
+                file_name="test.mp3",
+                file_bytes=file_bytes,
+                file_type="audio",
+            )
+
+            self.assertEqual(media.file_extension, "mp3")

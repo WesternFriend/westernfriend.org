@@ -20,6 +20,7 @@ from wagtail.embeds.models import Embed
 from wagtail.images.models import Image
 from wagtail.models import Page
 from wagtail.rich_text import RichText
+from wagtailmedia.models import Media
 
 from contact.models import Meeting, Organization, Person
 
@@ -392,6 +393,57 @@ def create_image_block_from_file_bytes(
     return media_item_block
 
 
+def create_media_from_file_bytes(
+    file_name: str,
+    file_bytes: BytesIO,
+    file_type: str,
+) -> Media:
+    """Create a media item from a file name and bytes."""
+
+    media_file: File = File(
+        file_bytes,
+        name=file_name,
+    )
+
+    media: Media = Media(
+        title=file_name,
+        file=media_file,
+        type=file_type,
+    )
+
+    media.save()
+
+    return media
+
+
+def create_media_block_from_file_bytes(
+    file_name: str,
+    file_bytes: BytesIO,
+    file_type: str,
+) -> tuple[str, dict]:
+    """Create a media item block from a file name and bytes.
+
+    Returns a tuple of the form: ("media", media_block)
+    """
+
+    media = create_media_from_file_bytes(
+        file_name=file_name,
+        file_bytes=file_bytes,
+        file_type=file_type,
+    )
+
+    # Create a media item block with dictionary properties
+    # of AbstractMediaChooserBlock
+    media_block = (
+        "media",
+        {
+            "media": media,
+        },
+    )
+
+    return media_block
+
+
 def extract_pullquotes(item: str) -> list[str]:
     """Get a list of all pullquote strings found within the item, excluding the
     pullquote spans.
@@ -502,6 +554,12 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
                     file_name=fetched_file.file_name,
                     file_bytes=fetched_file.file_bytes,
                 )
+            elif fetched_file.content_type in ALLOWED_AUDIO_CONTENT_TYPES:
+                media_item_block = create_media_block_from_file_bytes(
+                    file_name=fetched_file.file_name,
+                    file_bytes=fetched_file.file_bytes,
+                    file_type="audio",
+                )
             else:
                 logger.error(
                     f"Could not parse {fetched_file.content_type} media item: { url }"
@@ -541,7 +599,7 @@ def get_existing_magazine_author_from_db(
     meeting = Meeting.objects.filter(Q(drupal_author_id=drupal_author_id))
     organization = Organization.objects.filter(Q(drupal_author_id=drupal_author_id))
 
-    results = list(chain(person, meeting, organization))
+    results = list(chain(person, meeting, organization))  # type: ignore
 
     if len(results) == 0:
         error_message = f"Could not find matching author for magazine author ID: { int(drupal_author_id) }"  # noqa: E501
