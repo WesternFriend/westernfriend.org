@@ -14,18 +14,18 @@ repos:
       - id: check-toml
       - id: check-merge-conflict
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.6.0
+    rev: v3.7.0
     hooks:
       - id: pyupgrade
         args: [--py311-plus]
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.13.0
+    rev: 1.14.0
     hooks:
       - id: django-upgrade
         args: [--target-version, "4.2"]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: "v0.0.272"
+    rev: "v0.0.275"
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -38,7 +38,7 @@ repos:
     hooks:
       - id: curlylint
   - repo: https://github.com/PyCQA/docformatter
-    rev: "v1.7.2"
+    rev: "v1.7.3"
     hooks:
       - id: docformatter
   - repo: https://github.com/rtts/djhtml
