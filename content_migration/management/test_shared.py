@@ -532,6 +532,19 @@ class ParseMediaBlocksTestCase(TestCase):
             expected_media_blocks,
         )
 
+    def test_parse_media_blocks_with_audio_url(self) -> None:
+        input_media_urls = [
+            "https://westernfriend.org/sites/default/files/library/EvilWhyTalkAboutItByBruceFolsom.mp3"
+        ]
+        output_media_blocks = parse_media_blocks(input_media_urls)
+        output_media_block_type = output_media_blocks[0][0]
+        expected_media_block_type = "media"
+
+        self.assertEqual(
+            output_media_block_type,
+            expected_media_block_type,
+        )
+
 
 class ParseCsvFileSimpleTestCase(SimpleTestCase):
     def test_parse_csv_file(self) -> None:
