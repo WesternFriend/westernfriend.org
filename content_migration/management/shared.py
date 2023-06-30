@@ -120,10 +120,18 @@ class GenericBlock:
     """Generic block dataclass that represents a Wagtail block tuple."""
 
     block_type: str
-    block_content: str
+    block_content: str | dict
 
 
-def create_image_block_from_url(image_url: str) -> dict:
+@dataclass
+class GenericFormattedImageBlock:
+    """Generic block dataclass that represents a Wagtail block tuple."""
+
+    image_url: str
+    link_url: str | None
+
+
+def create_image_block_from_url(image_url: str, link_url: str | None = None) -> dict:
     """Create a Wagtial image block from an image URL."""
 
     try:
@@ -152,6 +160,7 @@ def create_image_block_from_url(image_url: str) -> dict:
         "image": image,
         "width": DEFAULT_IMAGE_WIDTH,
         "align": DEFAULT_IMAGE_ALIGN,
+        "link": link_url,
     }
 
     return image_chooser_block
@@ -168,8 +177,17 @@ class BlockFactory:
                 RichText(generic_block.block_content),  # type: ignore
             )
         elif generic_block.block_type == "image":
+            image_url: str = generic_block.block_content["image"]
+            link_url: str | None = (
+                generic_block.block_content["link"]
+                if generic_block.block_content["link"] is not None
+                else None
+            )
             try:
-                image_block = create_image_block_from_url(generic_block.block_content)
+                image_block = create_image_block_from_url(
+                    image_url=image_url,
+                    link_url=link_url,  # type: ignore
+                )
             except requests.exceptions.MissingSchema:
                 raise BlockFactoryError("Invalid image URL: missing schema")
             except requests.exceptions.InvalidSchema:
@@ -181,7 +199,7 @@ class BlockFactory:
         elif generic_block.block_type == "pullquote":
             return (
                 generic_block.block_type,
-                generic_block.block_content,
+                str(generic_block.block_content),
             )
         else:
             raise ValueError(f"Invalid block type: {generic_block.block_type}")
@@ -221,12 +239,12 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
     # Placeholder for gathering successive items
     rich_text_value = ""
     soup_contents = soup.contents
-    for item in soup_contents:
+    for soup_item in soup_contents:
         # skip non-Tag items
-        if not isinstance(item, Tag):
+        if not isinstance(soup_item, Tag):
             continue
 
-        item_string = str(item)
+        item_string = str(soup_item)
         # skip empty items
         if item_string in EMPTY_ITEM_VALUES:
             continue
@@ -263,22 +281,49 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                 item_string = remove_pullquote_tags(item_string)
 
             if item_contains_image:
-                image_urls = extract_image_urls(item_string)
+                print("found image")
+                # use beautiful soup to get an iterable of image Tag objects
+                image_tags = soup_item.find_all("img")
 
-                for image_url in image_urls:
+                for image_tag in image_tags:
+                    # check if image tag has a src attribute
+                    if "src" not in image_tag.attrs:
+                        continue
+
+                    # get image src
+                    image_url = image_tag["src"]
                     image_url = ensure_absolute_url(image_url)
+                    print("--------------------------")
+                    print(image_url)
+                    print("--------------------------")
+                    # make sure the URL contains westernfriend.org
+                    if "westernfriend.org" not in image_url:
+                        raise ValueError(
+                            f"Image URL must contain westernfriend.org: {image_url}"
+                        )
+
+                    # check if image is wrapped in a link
+                    if image_tag.parent.name == "a":
+                        image_link_url = image_tag.parent["href"]
+                    else:
+                        image_link_url = None
+
+                    image_chooser_block_content = {
+                        "image": image_url,
+                        "link": image_link_url,
+                    }
 
                     generic_blocks.append(
                         GenericBlock(
                             block_type="image",
-                            block_content=image_url,
+                            block_content=image_chooser_block_content,
                         )
                     )
 
-                # reset item string,
-                # since the image block has been created
-                # and we don't expect any more blocks
-                item_string = ""
+                    # reset item string,
+                    # since the image block has been created
+                    # and we don't expect any more blocks
+                    item_string = ""
 
         if item_string != "":
             rich_text_value += item_string
@@ -493,7 +538,8 @@ def parse_media_string_to_list(media_string: str) -> list[str]:
 
 
 def ensure_absolute_url(url: str) -> str:
-    """Ensure that the URL is absolute.
+    """Ensure that the URL is absolute and belongs to the WesternFriend.org
+    domain.
 
     Example:
     /media/images/image.jpg

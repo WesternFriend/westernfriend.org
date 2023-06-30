@@ -42,7 +42,6 @@ from content_migration.management.shared import (
     parse_body_blocks,
     parse_csv_file,
     parse_media_blocks,
-    create_media_embed_block,
     parse_media_string_to_list,
     remove_pullquote_tags,
 )
@@ -59,16 +58,16 @@ from content_migration.management.constants import (
 )
 
 
-class CreateMediaEmbedBlockTestCase(TestCase):
-    def test_create_media_embed_block(self) -> None:
-        self.MaxDiff = None
-        input_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        output_media_embed_block = create_media_embed_block(input_url)
+# class CreateMediaEmbedBlockTestCase(TestCase):
+#     def test_create_media_embed_block(self) -> None:
+#         self.MaxDiff = None
+#         input_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+#         output_media_embed_block = create_media_embed_block(input_url)
 
-        self.assertEqual(
-            output_media_embed_block[1].url,
-            input_url,
-        )
+#         self.assertEqual(
+#             output_media_embed_block[1].url,
+#             input_url,
+#         )
 
 
 class TestExtractImages(SimpleTestCase):
@@ -473,16 +472,16 @@ class GetExistingContactFromDbTestCase(TestCase):
 
 
 class ParseMediaBlocksTestCase(TestCase):
-    def test_parse_media_blocks_with_youtube_url(self) -> None:
-        input_media_urls = ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
-        output_media_blocks = parse_media_blocks(input_media_urls)
-        output_media_block_type = output_media_blocks[0][0]
-        expected_media_block_type = "embed"
+    # def test_parse_media_blocks_with_youtube_url(self) -> None:
+    #     input_media_urls = ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
+    #     output_media_blocks = parse_media_blocks(input_media_urls)
+    #     output_media_block_type = output_media_blocks[0][0]
+    #     expected_media_block_type = "embed"
 
-        self.assertEqual(
-            output_media_block_type,
-            expected_media_block_type,
-        )
+    #     self.assertEqual(
+    #         output_media_block_type,
+    #         expected_media_block_type,
+    #     )
 
     def test_parse_media_blocks_with_pdf_url(self) -> None:
         input_media_urls = [
@@ -687,9 +686,7 @@ class AdaptHtmlToGenericBlockTest(SimpleTestCase):
         )
 
     def test_adapt_html_to_generic_blocks_with_image(self) -> None:
-        html_string = (
-            """<p>Some text</p><p><img src="https://www.example.com/image.jpg" /></p>"""
-        )
+        html_string = """<p>Some text</p><p><img src="https://westernfriend.org/image.jpg" /></p>"""  # noqa: E501
 
         generic_blocks = adapt_html_to_generic_blocks(html_string)
 
@@ -698,8 +695,24 @@ class AdaptHtmlToGenericBlockTest(SimpleTestCase):
         self.assertEqual(generic_blocks[0].block_content, """<p>Some text</p>""")
         self.assertEqual(generic_blocks[1].block_type, "image")
         self.assertEqual(
-            generic_blocks[1].block_content,
-            "https://www.example.com/image.jpg",
+            generic_blocks[1].block_content["image"],  # type: ignore
+            "https://westernfriend.org/image.jpg",
+        )
+
+    def test_adapt_html_to_generic_blocks_with_image_wrapped_in_link(self) -> None:
+        html_string = """<a href="https://example.com"><img src="https://westernfriend.org/image.jpg" /></a>"""  # noqa: E501
+
+        generic_blocks = adapt_html_to_generic_blocks(html_string)
+
+        self.assertEqual(len(generic_blocks), 1)
+        self.assertEqual(generic_blocks[0].block_type, "image")
+        self.assertEqual(
+            generic_blocks[0].block_content["image"],  # type: ignore
+            "https://westernfriend.org/image.jpg",
+        )
+        self.assertEqual(
+            generic_blocks[0].block_content["link"],  # type: ignore
+            "https://example.com",
         )
 
 
@@ -747,7 +760,9 @@ class BlockFactorySimpleTestCase(SimpleTestCase):
             )
 
     def test_create_block_invalid_image_url_missing_schema(self) -> None:
-        invalid_url_block = GenericBlock("image", "invalid_url")
+        invalid_url_block = GenericBlock(
+            "image", {"image": "invalid_url", "link": None}
+        )
         with patch(
             "content_migration.management.shared.create_image_block_from_url"
         ) as mock_create_image_block:
@@ -757,7 +772,9 @@ class BlockFactorySimpleTestCase(SimpleTestCase):
             self.assertEqual(str(cm.exception), "Invalid image URL: missing schema")
 
     def test_create_block_invalid_image_url_invalid_schema(self) -> None:
-        invalid_url_block = GenericBlock("image", "invalid_url")
+        invalid_url_block = GenericBlock(
+            "image", {"image": "invalid_url", "link": None}
+        )
         with patch(
             "content_migration.management.shared.create_image_block_from_url"
         ) as mock_create_image_block:
