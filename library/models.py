@@ -41,7 +41,6 @@ class LibraryItem(DrupalFields, Page):
         default=False,
         help_text="This field indicates when a library item wasn't published on a specific publication date.",  # noqa: E501
     )
-    description = RichTextField(null=True, blank=True)
     body = StreamField(
         [
             ("heading", HeadingBlock()),
@@ -114,7 +113,6 @@ class LibraryItem(DrupalFields, Page):
     )
 
     content_panels = Page.content_panels + [
-        FieldPanel("description"),
         InlinePanel(
             "authors",
             heading="Authors",
@@ -150,7 +148,6 @@ class LibraryItem(DrupalFields, Page):
     ]
 
     search_fields = Page.search_fields + [
-        index.SearchField("description"),
         index.SearchField("body"),
         index.RelatedFields(
             "item_genre",
