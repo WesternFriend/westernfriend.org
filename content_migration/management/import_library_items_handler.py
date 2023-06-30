@@ -20,6 +20,7 @@ from library.models import (
 from content_migration.management.shared import (
     create_permanent_redirect,
     get_existing_magazine_author_from_db,
+    parse_body_blocks,
     parse_csv_file,
     parse_media_blocks,
     parse_media_string_to_list,
@@ -111,9 +112,9 @@ def handle_import_library_items(file_name: str) -> None:
             library_item_index_page.save()
 
         library_item.title = import_library_item["title"]
-        library_item.description = import_library_item["Description"]
+        library_item.body = parse_body_blocks(import_library_item["Description"])
 
-        library_item.body = parse_media_blocks(
+        library_item.body += parse_media_blocks(
             parse_media_string_to_list(import_library_item["Media"]),
         )
 
