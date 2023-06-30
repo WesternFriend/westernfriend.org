@@ -281,7 +281,6 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                 item_string = remove_pullquote_tags(item_string)
 
             if item_contains_image:
-                print("found image")
                 # use beautiful soup to get an iterable of image Tag objects
                 image_tags = soup_item.find_all("img")
 
@@ -293,9 +292,7 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                     # get image src
                     image_url = image_tag["src"]
                     image_url = ensure_absolute_url(image_url)
-                    print("--------------------------")
-                    print(image_url)
-                    print("--------------------------")
+
                     # make sure the URL contains westernfriend.org
                     if "westernfriend.org" not in image_url:
                         raise ValueError(
