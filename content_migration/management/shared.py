@@ -20,7 +20,7 @@ from wagtail.embeds.models import Embed
 from wagtail.images.models import Image
 from wagtail.models import Page
 from wagtail.rich_text import RichText
-from wagtailmedia.models import Media
+from wagtailmedia.models import Media  # type: ignore
 
 from contact.models import Meeting, Organization, Person
 
