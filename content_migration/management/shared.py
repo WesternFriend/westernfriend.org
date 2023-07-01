@@ -177,10 +177,10 @@ class BlockFactory:
                 RichText(generic_block.block_content),  # type: ignore
             )
         elif generic_block.block_type == "image":
-            image_url: str = generic_block.block_content["image"]
+            image_url: str = generic_block.block_content["image"]  # type: ignore
             link_url: str | None = (
-                generic_block.block_content["link"]
-                if generic_block.block_content["link"] is not None
+                generic_block.block_content["link"]  # type: ignore
+                if generic_block.block_content["link"] is not None  # type: ignore
                 else None
             )
             try:
