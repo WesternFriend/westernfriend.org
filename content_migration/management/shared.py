@@ -502,7 +502,12 @@ def extract_pullquotes(item: str) -> list[str]:
 
     soup = BeautifulSoup(item, "html.parser")
     for pullquote in soup.find_all("span", {"class": "pullquote"}):
-        pullquotes.append(pullquote.string)
+        # within the pullquote span, there may be other HTML tags
+        # e.g. <span class="pullquote">This is a <strong>pullquote</strong></span>
+        # so we need to get the string of the pullquote span
+        # without the HTML tags
+        pullquote_string = pullquote.get_text()
+        pullquotes.append(pullquote_string)
 
     return pullquotes
 
