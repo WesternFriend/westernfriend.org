@@ -1,3 +1,4 @@
+from django.http import HttpRequest
 from django.utils import timezone
 
 from wagtail.admin.panels import FieldPanel
@@ -37,7 +38,7 @@ class HomePage(Page):
 
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(self, request: HttpRequest, *args: tuple, **kwargs: dict) -> dict:
         context = super().get_context(request)
 
         context["current_issue"] = (
