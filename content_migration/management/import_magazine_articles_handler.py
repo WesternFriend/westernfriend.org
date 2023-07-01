@@ -1,5 +1,6 @@
 import logging
 
+from bs4 import BeautifulSoup
 from django.core.exceptions import ObjectDoesNotExist
 from tqdm import tqdm
 from content_migration.management.errors import (
@@ -105,6 +106,27 @@ def parse_article_body_blocks(row: dict, article: MagazineArticle) -> list[tuple
     return article_body_blocks
 
 
+def parse_teaser_from_body(body: str) -> str:
+    """Parse article body with beautiful soup.
+
+    Extract the first paragraph and return it as a teaser. Make sure to
+    only return the first paragraph, since there may be multipe
+    paragraphs.
+
+    Return the paragraph as a string.
+    """
+    soup = BeautifulSoup(body, "html.parser")
+
+    # find the first paragraph
+    # aong multiple paragraphs
+    teaser = soup.find("p")
+
+    if teaser is None:
+        return ""
+
+    return teaser.text
+
+
 def handle_import_magazine_articles(file_name: str) -> None:
     articles_data = parse_csv_file(file_name)
 
@@ -134,6 +156,7 @@ def handle_import_magazine_articles(file_name: str) -> None:
         article.department = MagazineDepartment.objects.get(
             title=row["department"],
         )
+        article.teaser = parse_teaser_from_body(row["body"])
 
         # Parse article body
         article.body = parse_article_body_blocks(row, article)
