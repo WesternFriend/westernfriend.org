@@ -51,12 +51,18 @@ def parse_article_authors(
             )
             continue
 
+        # check if author already exists
+        if article.authors.filter(  # type: ignore
+            author=author,
+        ).exists():
+            continue
+
         article_author = MagazineArticleAuthor(
             article=article,
             author=author,
         )
 
-        article.authors.add(article_author)
+        article.authors.add(article_author)  # type: ignore
 
     return article
 
@@ -79,6 +85,26 @@ def assign_article_to_issue(
     )
 
 
+def parse_article_body_blocks(row: dict, article: MagazineArticle) -> list[tuple]:
+    """Parse article body and media blocks."""
+
+    article_body_blocks = []
+
+    if row["body"] != "":
+        article_body_blocks = parse_body_blocks(row["body"])
+
+    # Download and parse article media
+    if row["media"] != "":
+        media_blocks = parse_media_blocks(
+            parse_media_string_to_list(row["media"]),
+        )
+
+        # Merge media blocks with article body blocks
+        article_body_blocks += media_blocks
+
+    return article_body_blocks
+
+
 def handle_import_magazine_articles(file_name: str) -> None:
     articles_data = parse_csv_file(file_name)
 
@@ -93,41 +119,33 @@ def handle_import_magazine_articles(file_name: str) -> None:
 
         # Skip import for existing articles
         if article_exists:
-            continue
+            # get existing article
+            article = MagazineArticle.objects.get(
+                drupal_node_id=row["node_id"],
+            )
+        else:
+            # create a new article instance
+            article = MagazineArticle()
 
-        department = MagazineDepartment.objects.get(
+        article.title = row["title"]
+        article.drupal_node_id = row["node_id"]
+        article.is_featured = bool(row["is_featured"])
+
+        article.department = MagazineDepartment.objects.get(
             title=row["department"],
         )
 
-        article_body_blocks = []
-        body_migrated = None
+        # Parse article body
+        article.body = parse_article_body_blocks(row, article)
 
-        if row["body"] != "":
-            article_body_blocks = parse_body_blocks(row["body"])
-            body_migrated = row["body"]
-
-        # Download and parse article media
-        if row["media"] != "":
-            media_blocks = parse_media_blocks(
-                parse_media_string_to_list(row["media"]),
-            )
-
-            # Merge media blocks with article body blocks
-            article_body_blocks += media_blocks
-
-        article = MagazineArticle(
-            title=row["title"],
-            body=article_body_blocks,
-            body_migrated=body_migrated,
-            department=department,
-            drupal_node_id=row["node_id"],
-        )
+        article.body_migrated = row["body"]
 
         # Assign article to issue
-        assign_article_to_issue(
-            article=article,
-            drupal_issue_node_id=row["related_issue_id"],
-        )
+        if not article_exists:
+            assign_article_to_issue(
+                article=article,
+                drupal_issue_node_id=row["related_issue_id"],
+            )
 
         # Assign authors to article
         if row["authors"] != "":
