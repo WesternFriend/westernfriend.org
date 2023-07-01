@@ -656,6 +656,13 @@ class ExtractPullquotesSimpleTestCase(SimpleTestCase):
         with self.assertRaises(TypeError):
             extract_pullquotes(input_html)  # type: ignore
 
+    def test_extract_pullquotes_with_sub_tag(self) -> None:
+        input_html = """<p><span class="pullquote">a pullquote and 2<sup>nd</sup> tag</span></p>"""  # noqa: E501
+        output_pullquotes = extract_pullquotes(input_html)
+
+        expected_pullquotes = ["a pullquote and 2nd tag"]
+        self.assertEqual(output_pullquotes, expected_pullquotes)
+
 
 class AdaptHtmlToGenericBlockTest(SimpleTestCase):
     def test_adapt_html_to_generic_blocks(self) -> None:
