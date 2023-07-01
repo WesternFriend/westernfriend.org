@@ -129,7 +129,7 @@ def handle_import_magazine_articles(file_name: str) -> None:
 
         article.title = row["title"]
         article.drupal_node_id = row["node_id"]
-        article.is_featured = bool(row["is_featured"])
+        article.is_featured = row["is_featured"] == "True"
 
         article.department = MagazineDepartment.objects.get(
             title=row["department"],
