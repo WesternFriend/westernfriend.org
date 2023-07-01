@@ -5,10 +5,10 @@ import arrow
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
 from django_flatpickr.widgets import DatePickerInput
-from modelcluster.contrib.taggit import ClusterTaggableManager
-from modelcluster.fields import ParentalKey
-from modelcluster.models import ClusterableModel
-from taggit.models import TaggedItemBase
+from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
+from modelcluster.fields import ParentalKey  # type: ignore
+from modelcluster.models import ClusterableModel  # type: ignore
+from taggit.models import TaggedItemBase  # type: ignore
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import (
     FieldPanel,
@@ -230,14 +230,13 @@ class MagazineDepartment(Page):
 
 
 class MagazineArticle(DrupalFields, Page):
-    teaser = RichTextField(
+    teaser = RichTextField(  # type: ignore
         blank=True,
         help_text="Try to keep teaser to a couple dozen words.",
         features=[
             "bold",
             "italic",
             "link",
-            "document-link",
             "strikethrough",
         ],
     )
