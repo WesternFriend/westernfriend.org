@@ -1,9 +1,9 @@
 import datetime
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
+from subscription.models import Subscription
 from .managers import UserManager
 
 
@@ -19,22 +19,24 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.email
 
-    def get_active_subscription(self):
+    # TODO: refactor this to `get_active_subscriptions`
+    # and return a list of active subscriptions
+    # so we can allow use-cases where a user can have multiple active subscriptions
+    # such as managing subscriptions for a Meeting or a Group
+    def get_active_subscription(self) -> Subscription | None:
         """Get subscription that isn't expired for this user."""
         today = datetime.datetime.today()
 
-        try:
-            active_subscription = self.subscriptions.get(end_date__gte=today)
-        except ObjectDoesNotExist:
-            return None
-
-        return active_subscription
+        # using filter.first() instead of get() because get() throws an exception
+        # if there are multiple active subscriptions
+        # TODO: determine how to handle multiple active subscriptions
+        return self.subscriptions.filter(end_date__gte=today).first()  # type: ignore
 
     @property
-    def is_subscriber(self):
+    def is_subscriber(self) -> bool:
         """Check whether user has active subscription."""
 
         if self.get_active_subscription() is not None:
