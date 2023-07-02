@@ -22,27 +22,25 @@ Please make sure you have at least Python 3.10 installed. If you are developing 
 
 ### Install
 
-You can set up a development environment with the following steps:
+You can set up a development environment with the following steps. **Note:** some Python installations provide a `python` command instead of `python3`, so you may need to substitute `python` in the instructions below.
 
 1. clone this repository
    - `git clone git@github.com:WesternFriend/WF-website.git`
 2. Change into the application directory
    - `cd WF-website/`
-3. create a virtual environment
-   - `python -m venv .venv`
+3. create a virtual environment (using `python` or `python3`)
+   - `python3 -m venv .venv`
 4. activate the virtual environment
-
-- Mac/Linux: `source .venv/bin/activate`
-- Windows PowerShell: `.venv\Scripts\Activate.ps1`
-
-5. install the project dependencies
+   - **Mac/Linux**: `source .venv/bin/activate`
+   - **Windows PowerShell**: `.venv\Scripts\Activate.ps1`
+5. install the project dependencies (using `pip` or `pip3`)
    - `pip install -r requirements.txt -r requirements-dev.txt`
 6. activate `pre-commit` for automatic code maintenance
    - `pre-commit install`
 
 ### Running the background services
 
-Start the development database and management UI.
+This project uses Docker to run a Postgres database, so we don't need to install Postgres locally. Start the development database and management UI.
 
 ```sh
 docker compose up --detach
@@ -54,7 +52,7 @@ We include pgAdmin in our Docker compose setup, which can be useful for explorin
 
 ### Database migrations
 
-Run database migrations to update the database structure to the latest changes.
+Run database migrations to update the database structure to the latest changes. Use `python` or `python3`, depending on your system.
 
 ```sh
 python manage.py migrate
@@ -70,7 +68,7 @@ python manage.py createsuperuser
 
 ### Run the server
 
-Run the local server
+Run the local server, using `python` or `python3` command depending on your system.
 
 ```sh
 python manage.py runserver
@@ -84,6 +82,12 @@ From there, you can begin adding the basic content. For convenience, there is a 
 
 ```sh
 python manage.py scaffold_initial_content
+```
+
+or
+
+```sh
+python3 manage.py scaffold_initial_content
 ```
 
 ## Get help
