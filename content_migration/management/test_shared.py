@@ -887,7 +887,6 @@ class CreateMediaFromFileBytesTestCase(TestCase):
 
 class GetImageAlignFromStyleSimpleTestCase(SimpleTestCase):
     def test_get_image_align_from_style(self) -> None:
-        # create a media file from a file in the test data directory
         style = "float: left; margin-right: 10px; margin-bottom: 10px;"
         image_align = get_image_align_from_style(style)
 
