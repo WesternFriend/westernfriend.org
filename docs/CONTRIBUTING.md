@@ -20,6 +20,8 @@ This project is built with [Python](https://www.python.org/), [Django](https://w
 
 Please make sure you have at least Python 3.10 installed. If you are developing on Windows, make sure to use PowerShell.
 
+:warning: some Python installations provide only the `python3` command instead of `python`. If you get errors that the `python` command cannot be found, try running the same command using `python3`. This is an unfortunate consequence of the transition from Python 2 to 3.
+
 ### Install
 
 You can set up a development environment with the following steps. **Note:** some Python installations provide a `python` command instead of `python3`, so you may need to substitute `python` in the instructions below.
