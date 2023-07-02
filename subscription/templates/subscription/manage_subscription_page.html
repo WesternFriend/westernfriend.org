@@ -9,10 +9,13 @@
 
     {% if request.user.get_active_subscription %}
         <h2>Active subscription details</h2>
-
+        <!--
+            TODO: allow multiple active subscriptions
+            e.g. user.get_active_subscriptions
+            since we can't currently limit to only one
+            and we may have use cases where users manage multiple subscriptions
+        -->
         {% with active_subscription=request.user.get_active_subscription %}
-
-
             <div class="card">
                 <div class="card-body">
                     <p class="card-title">
