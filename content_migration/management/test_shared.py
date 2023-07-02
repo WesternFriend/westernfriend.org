@@ -768,7 +768,12 @@ class BlockFactorySimpleTestCase(SimpleTestCase):
 
     def test_create_block_invalid_image_url_missing_schema(self) -> None:
         invalid_url_block = GenericBlock(
-            "image", {"image": "invalid_url", "link": None}
+            "image",
+            {
+                "image": "invalid_url",
+                "link": None,
+                "align": None,
+            },
         )
         with patch(
             "content_migration.management.shared.create_image_block_from_url"
@@ -780,7 +785,12 @@ class BlockFactorySimpleTestCase(SimpleTestCase):
 
     def test_create_block_invalid_image_url_invalid_schema(self) -> None:
         invalid_url_block = GenericBlock(
-            "image", {"image": "invalid_url", "link": None}
+            "image",
+            {
+                "image": "invalid_url",
+                "link": None,
+                "align": None,
+            },
         )
         with patch(
             "content_migration.management.shared.create_image_block_from_url"
