@@ -20,6 +20,6 @@
             </ul>
         {% endif %}
 
-        {{ article.teaser | richtext }}
+        {{ article.teaser | richtext|truncatewords:50 }}
     </div>
 </div>
