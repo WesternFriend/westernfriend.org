@@ -1,7 +1,7 @@
 {% load wagtailcore_tags %}
 <div class="card mb-2">
     <div class="card-body">
-        <a href="{% pageurl article %}" class="card-title fs-3 fw-bold title-link-no-underline">
+        <a href="{% pageurl article %}" class="card-title fs-3 fw-bold title-link-no-underline stretched-link">
             {{ article.title }}
         </a>
 
@@ -20,6 +20,6 @@
             </ul>
         {% endif %}
 
-        {{ article.teaser | richtext|truncatewords:50 }}
+        {{ article.teaser | richtext| truncatewords_html:50 }}
     </div>
 </div>
