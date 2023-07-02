@@ -39,6 +39,7 @@ from content_migration.management.shared import (
     extract_pullquotes,
     fetch_file_bytes,
     get_existing_magazine_author_from_db,
+    get_image_align_from_style,
     parse_body_blocks,
     parse_csv_file,
     parse_media_blocks,
@@ -882,3 +883,22 @@ class CreateMediaFromFileBytesTestCase(TestCase):
             )
 
             self.assertEqual(media_block[0], "media")
+
+
+class GetImageAlignFromStyleSimpleTestCase(SimpleTestCase):
+    def test_get_image_align_from_style(self) -> None:
+        # create a media file from a file in the test data directory
+        style = "float: left; margin-right: 10px; margin-bottom: 10px;"
+        image_align = get_image_align_from_style(style)
+
+        self.assertEqual(image_align, "left")
+
+        style_right = "float: right; margin-left: 10px; margin-bottom: 10px;"
+        image_align_right = get_image_align_from_style(style_right)
+
+        self.assertEqual(image_align_right, "right")
+
+        style_none = "margin-left: 10px; margin-bottom: 10px;"
+        image_align_none = get_image_align_from_style(style_none)
+
+        self.assertEqual(image_align_none, None)
