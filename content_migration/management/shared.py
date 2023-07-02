@@ -131,7 +131,11 @@ class GenericFormattedImageBlock:
     link_url: str | None
 
 
-def create_image_block_from_url(image_url: str, link_url: str | None = None) -> dict:
+def create_image_block_from_url(
+    image_url: str,
+    link_url: str | None = None,
+    align: str | None = None,
+) -> dict:
     """Create a Wagtial image block from an image URL."""
 
     try:
@@ -159,7 +163,7 @@ def create_image_block_from_url(image_url: str, link_url: str | None = None) -> 
     image_chooser_block = {
         "image": image,
         "width": DEFAULT_IMAGE_WIDTH,
-        "align": DEFAULT_IMAGE_ALIGN,
+        "align": align,
         "link": link_url,
     }
 
@@ -183,10 +187,16 @@ class BlockFactory:
                 if generic_block.block_content["link"] is not None  # type: ignore
                 else None
             )
+            align: str = (
+                generic_block.block_content["align"]  # type: ignore
+                if generic_block.block_content["align"] is not None  # type: ignore
+                else DEFAULT_IMAGE_ALIGN
+            )
             try:
                 image_block = create_image_block_from_url(
                     image_url=image_url,
                     link_url=link_url,  # type: ignore
+                    align=align,  # type: ignore
                 )
             except requests.exceptions.MissingSchema:
                 raise BlockFactoryError("Invalid image URL: missing schema")
@@ -223,6 +233,17 @@ def remove_pullquote_tags(item_string: str) -> str:
         pullquote.unwrap()
 
     return str(soup)
+
+
+def get_image_align_from_style(style_string: str) -> str | None:
+    """Get the image alignment from the style string."""
+
+    if "float:left" in style_string or "float: left" in style_string:
+        return "left"
+    elif "float:right" in style_string or "float: right" in style_string:
+        return "right"
+    else:
+        return DEFAULT_IMAGE_ALIGN
 
 
 def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
@@ -293,6 +314,13 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                     image_url = image_tag["src"]
                     image_url = ensure_absolute_url(image_url)
 
+                    # get image alignment from style attribute float property
+                    if "style" in image_tag.attrs:
+                        image_style = image_tag["style"]
+                        image_align = get_image_align_from_style(image_style)
+                    else:
+                        image_align = DEFAULT_IMAGE_ALIGN
+
                     # make sure the URL contains westernfriend.org
                     if "westernfriend.org" not in image_url:
                         raise ValueError(
@@ -308,6 +336,7 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                     image_chooser_block_content = {
                         "image": image_url,
                         "link": image_link_url,
+                        "align": image_align,
                     }
 
                     generic_blocks.append(

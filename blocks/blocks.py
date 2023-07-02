@@ -50,7 +50,7 @@ class FormattedImageChooserStructBlock(wagtail_blocks.StructBlock):
         help_text="Enter the desired image width value in pixels up to 800 max.",
     )
     align = wagtail_blocks.ChoiceBlock(
-        help_test="Optionally align image left or right",
+        help_test="Optionally align image left or right. Will default to block alignment.",  # noqa: E501
         choices=(
             ("left", "Left"),
             ("right", "Right"),
