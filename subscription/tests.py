@@ -20,7 +20,7 @@ class SubscriptionWebhookTestCase(TestCase):
             gateway=braintree.BraintreeGateway(braintree_configuration),
             attributes={
                 "id": "test_subscription_id",
-                "paid_through_date": "2022-07-01",
+                "paid_through_date": datetime.date(2022, 7, 1),
             },
         )
 
