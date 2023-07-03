@@ -1,7 +1,7 @@
 from django.test import TestCase, RequestFactory
 from .forms import DonationForm, DonorAddressForm
 from django.urls import reverse
-from .models import process_donation_request, DonatePage, Donation
+from .models import process_donation_forms, DonatePage, Donation
 from django.http import HttpResponseRedirect
 from wagtail.models import Page
 
@@ -40,7 +40,7 @@ class DonationModelTest(TestCase):
         )
 
         # Create response using completed form objects
-        response = process_donation_request(
+        response = process_donation_forms(
             self.client, donation_form, donor_address_form
         )
 

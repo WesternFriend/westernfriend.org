@@ -1,4 +1,6 @@
+from typing import TYPE_CHECKING
 from django.db import models
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -9,8 +11,14 @@ from wagtail.models import Page
 
 from addresses.models import Address
 
+if TYPE_CHECKING:
+    from .forms import DonationForm, DonorAddressForm
 
-def process_donation_request(request, donation_form, donor_address_form):
+
+def process_donation_forms(
+    donation_form: "DonationForm",
+    donor_address_form: "DonorAddressForm",
+):
     """Process a donation form and redirect to payment."""
     # Create a temporary donation object to modify it's fields
     donation = donation_form.save(commit=False)
@@ -25,11 +33,15 @@ def process_donation_request(request, donation_form, donor_address_form):
     # Save donation with associated address
     donation.save()
 
-    # set the donation ID in the session
-    request.session["donation_id"] = donation.id
-
     # redirect for payment
-    return redirect(reverse("payment:process", kwargs={"previous_page": "donate"}))
+    return redirect(
+        reverse(
+            "payment:process_donation_payment",
+            kwargs={
+                "donation_id": donation.id,
+            },
+        ),
+    )
 
 
 class SuggestedDonationAmountsBlock(StructBlock):
@@ -42,7 +54,12 @@ class DonatePage(Page):
     intro = RichTextField(blank=True)
     suggested_donation_amounts = StreamField(
         StreamBlock(
-            [("suggested_donation_amounts", SuggestedDonationAmountsBlock(max_num=1))],
+            [
+                (
+                    "suggested_donation_amounts",
+                    SuggestedDonationAmountsBlock(max_num=1),
+                ),
+            ],
             max_num=1,
         ),
         null=True,
@@ -59,7 +76,12 @@ class DonatePage(Page):
     parent_page_types = ["home.HomePage"]
     subpage_types: list[str] = []
 
-    def serve(self, request, *args, **kwargs):
+    def serve(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> HttpResponse:
         # Avoid circular dependency
         from .forms import DonationForm, DonorAddressForm
 
@@ -67,15 +89,28 @@ class DonatePage(Page):
         donation_form = DonationForm(request.POST)
 
         if request.method == "POST" and donation_form.is_valid():
-            return process_donation_request(request, donation_form, donor_address_form)
+            return process_donation_forms(
+                donation_form,
+                donor_address_form,
+            )
 
         # Send donor address form to client
         # Note, we manually create the donation form in the template
-        context = self.get_context(request, *args, **kwargs)
+        context = self.get_context(
+            request,
+            *args,
+            **kwargs,
+        )
         context["donor_address_form"] = donor_address_form
 
         return TemplateResponse(
-            request, self.get_template(request, *args, **kwargs), context
+            request,
+            self.get_template(
+                request,
+                *args,
+                **kwargs,
+            ),
+            context,
         )
 
 
@@ -97,23 +132,44 @@ class Donation(models.Model):
         choices=DonationRecurrenceChoices.choices,
         default=DonationRecurrenceChoices.ONCE,
     )
-    donor_given_name = models.CharField(max_length=255)
-    donor_family_name = models.CharField(max_length=255)
-    donor_organization = models.CharField(max_length=255, null=True, blank=True)
-    donor_email = models.EmailField(help_text="Please enter your email")
+    donor_given_name = models.CharField(
+        max_length=255,
+    )
+    donor_family_name = models.CharField(
+        max_length=255,
+    )
+    donor_organization = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    donor_email = models.EmailField(
+        help_text="Please enter your email",
+    )
     donor_address = models.ForeignKey(
-        to=DonorAddress, null=True, blank=True, on_delete=models.SET_NULL
+        to=DonorAddress,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
     )
     paid = models.BooleanField(default=False)
-    braintree_transaction_id = models.CharField(max_length=255, null=True, blank=True)
-    braintree_subscription_id = models.CharField(max_length=255, null=True, blank=True)
+    braintree_transaction_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    braintree_subscription_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     # TODO: add date fields for created, payment_completed, updated
 
-    def get_total_cost(self):
+    def get_total_cost(self) -> int:
         # Add get_total_cost method to conform to payment page
         return self.amount
 
-    def recurring(self):
+    def recurring(self) -> bool:
         """Determine whether Donation is recurring.
 
         Return True if Donation recurrence is "monthly" or "yearly",
