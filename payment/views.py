@@ -1,3 +1,4 @@
+import logging
 import os
 
 import braintree
@@ -16,6 +17,8 @@ RECURRING_DONATION_PLAN_IDS = {
 }
 
 MAGAZINE_SUBSCRIPTION_PLAN_ID = "magazine-subscription"
+
+logger = logging.getLogger(__name__)
 
 braintree_gateway = braintree.BraintreeGateway(
     braintree.Configuration(
@@ -249,8 +252,11 @@ def process_subscription_payment(
             subscription.save()
 
             return redirect("payment:done")
-
-        return redirect("payment:canceled")
+        else:
+            logger.warning(
+                "Braintree subscription failed: %s", braintree_result.message
+            )  # noqa: E501
+            return redirect("payment:canceled")
     else:
         return render_payment_processing_page(
             request=request,
