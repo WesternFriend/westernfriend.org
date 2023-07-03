@@ -254,8 +254,9 @@ def process_subscription_payment(
             return redirect("payment:done")
         else:
             logger.warning(
-                "Braintree subscription failed: %s", braintree_result.message
-            )  # noqa: E501
+                "Braintree subscription failed: %s",
+                braintree_result.message,  # type: ignore
+            )
             return redirect("payment:canceled")
     else:
         return render_payment_processing_page(
