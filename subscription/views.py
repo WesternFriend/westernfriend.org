@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 import json
 import os
 from datetime import timedelta
@@ -44,15 +44,7 @@ def calculate_end_date_from_braintree_subscription(
         hasattr(braintree_subscription, "paid_through_date")
         and braintree_subscription.paid_through_date is not None  # type: ignore
     ):
-        # create new paid_through_date
-        # by parsing braintree_subscription.paid_through_date
-        # to a datetime object
-        paid_through_date = datetime.strptime(
-            braintree_subscription.paid_through_date,  # type: ignore
-            "%Y-%m-%d",
-        ).date()
-
-        return paid_through_date + GRACE_PERIOD_DAYS  # type: ignore
+        return braintree_subscription.paid_through_date + GRACE_PERIOD_DAYS  # type: ignore  # noqa: E501
     # Otherwise extend by one year with grace period
     else:
         return current_subscription_end_date + ONE_YEAR_WITH_GRACE_PERIOD
