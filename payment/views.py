@@ -1,12 +1,14 @@
 import os
 
-import arrow
 import braintree
+from braintree import SuccessfulResult
+from braintree import ErrorResult
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from donations.models import Donation
 from orders.models import Order
-from subscription.models import Subscription
+
 
 RECURRING_DONATION_PLAN_IDS = {
     "monthly": "monthly-recurring-donation",
@@ -15,32 +17,43 @@ RECURRING_DONATION_PLAN_IDS = {
 
 MAGAZINE_SUBSCRIPTION_PLAN_ID = "magazine-subscription"
 
+braintree_gateway = braintree.BraintreeGateway(
+    braintree.Configuration(
+        braintree.Environment.Sandbox,  # type: ignore
+        merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
+        public_key=os.environ.get("BRAINTREE_PUBLIC_KEY"),
+        private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
+    )
+)
 
-def get_braintree_gateway():
-    return braintree.BraintreeGateway(
-        braintree.Configuration(
-            braintree.Environment.Sandbox,
-            merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
-            public_key=os.environ.get("BRAINTREE_PUBLIC_KEY"),
-            private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
-        )
+
+def render_payment_processing_page(
+    request: HttpRequest,
+    payment_total: int,
+) -> HttpResponse:
+    client_token = braintree.ClientToken.generate()
+
+    return render(
+        request,
+        "payment/process.html",
+        {
+            "client_token": client_token,
+            "payment_total": payment_total,
+        },
     )
 
 
-def process_braintree_subscription(request, entity, nonce):
-    gateway = get_braintree_gateway()
+def process_braintree_subscription(
+    first_name: str,
+    last_name: str,
+    plan_id: str,
+    price: int,
+    recurring: bool,
+    nonce: str,
+) -> SuccessfulResult | ErrorResult:
+    """Process a subscription payment with Braintree."""
 
-    # Check whether entity is Donation or Subscription
-    if entity._meta.model_name == "subscription":
-        first_name = entity.subscriber_given_name
-        last_name = entity.subscriber_family_name
-        plan_id = MAGAZINE_SUBSCRIPTION_PLAN_ID
-    elif entity._meta.model_name == "donation":
-        first_name = entity.donor_given_name
-        last_name = entity.donor_family_name
-        plan_id = RECURRING_DONATION_PLAN_IDS[entity.recurrence]
-
-    customer_result = gateway.customer.create(
+    customer_result = braintree_gateway.customer.create(
         {
             "first_name": first_name,
             "last_name": last_name,
@@ -51,144 +64,207 @@ def process_braintree_subscription(request, entity, nonce):
     if customer_result.is_success:
         # TODO: add notification/logging for error in this step
 
-        # TODO: determine how to allow users to select "yearly" or "monthly"
-        # for recurring donations
-
-        # activate a subscription instance
         subscription_properties = {
             "payment_method_token": customer_result.customer.payment_methods[0].token,
-            # TODO: figure out how to do this without hard-coding the subscription ID
             "plan_id": plan_id,
-            "price": entity.get_total_cost(),
+            "price": price,
         }
 
-        if not entity.recurring:
+        if not recurring:
             # Subscription should only be charged once since it is not recurring
             subscription_properties["number_of_billing_cycles"] = 1
 
-        # TODO: check whether subscription should recur and set value accordingly
-        subscription_result = gateway.subscription.create(subscription_properties)
-
-        if subscription_result.is_success:
-            # TODO: add notification/logging for error in this step
-
-            # mark order as paid
-            entity.paid = True
-
-            # store Braintree Subscription ID
-            entity.braintree_subscription_id = subscription_result.subscription.id
-
-            if entity._meta.model_name == "subscription":
-                # Extend subscription end date by one year from today
-                # as both one-time and recurring subscriptions
-                # start with a single year interval
-                today = arrow.utcnow()
-                entity.end_date = today.shift(years=+1).date()
-
-            entity.save()
-
-            # Make sure order and payment IDs are
-            # removed from session, to prevent errors
-            clear_payment_session_vars(request)
-
-            return redirect("payment:done")
+        return braintree_gateway.subscription.create(subscription_properties)
     else:
-        return redirect("payment:canceled")
+        return customer_result
 
 
-def process_braintree_transaction(request, entity, nonce):
-    # create and submit transaction
-    result = braintree.Transaction.sale(
+def process_braintree_transaction(
+    amount: int,
+    nonce: str,
+) -> SuccessfulResult | ErrorResult:
+    return braintree.Transaction.sale(
         {
-            "amount": entity.get_total_cost(),
+            "amount": amount,
             "payment_method_nonce": nonce,
-            "options": {"submit_for_settlement": True},
+            "options": {
+                "submit_for_settlement": True,
+            },
         }
     )
 
-    if result.is_success:
-        # mark order as paid
-        entity.paid = True
 
-        # store Braintree transaction ID
-        entity.braintree_transaction_id = result.transaction.id
+def process_braintree_recurring_donation(
+    donation: Donation,
+    nonce: str,
+) -> HttpResponse:
+    """Process a recurring donation payment as a Braintree subscription."""
 
-        entity.save()
+    braintree_result = process_braintree_subscription(
+        first_name=donation.donor_given_name,
+        last_name=donation.donor_family_name,
+        # Ignoring the following type warning since we know that the
+        # donation.recurrence value is a valid key in the
+        # RECURRING_DONATION_PLAN_IDS dictionary
+        plan_id=RECURRING_DONATION_PLAN_IDS[donation.recurrence],  # type: ignore
+        price=donation.amount,
+        recurring=donation.recurring(),
+        nonce=nonce,
+    )
 
-        # Make sure order and payment IDs are
-        # removed from session, to prevent errors
-        clear_payment_session_vars(request)
+    if braintree_result is not None and braintree_result.is_success:
+        donation.paid = True
+
+        # ignoring the following type warning since we know that the
+        # braintree_result.subscription.id value should exist
+        donation.braintree_subscription_id = braintree_result.subscription.id  # type: ignore  # noqa: E501
+
+        donation.save()
 
         return redirect("payment:done")
+
     return redirect("payment:canceled")
 
 
-def payment_process(request, previous_page):
-    # TODO: consider whether to separate these code paths now
-    # since we are using different payment methods for subscriptions
-    # and bookstore orders
-    #
-    # NOTE: for now, I am leaving the code with partially duplicate lines
-    # in case it seems desirable to separate out the code paths
+def process_braintree_single_donation(
+    donation: Donation,
+    nonce: str,
+) -> HttpResponse:
+    """Process a one-time donation payment as a Braintree transaction."""
 
-    processing_bookstore_order = previous_page == "bookstore_order"
-    processing_donation = previous_page == "donate"
-    processing_subscription = previous_page == "subscribe"
+    amount = donation.amount
 
-    if processing_bookstore_order:
-        order_id = request.session.get("order_id")
+    braintree_result = process_braintree_transaction(
+        amount,
+        nonce,
+    )
 
-        entity = get_object_or_404(Order, id=order_id)
-    elif processing_subscription:
-        subscription_id = request.session.get("subscription_id")
+    if braintree_result.is_success:
+        donation.paid = True
 
-        entity = get_object_or_404(Subscription, id=subscription_id)
-    elif processing_donation:
-        donation_id = request.session.get("donation_id")
+        donation.braintree_transaction_id = braintree_result.transaction.id  # type: ignore  # noqa: E501
 
-        entity = get_object_or_404(Donation, id=donation_id)
+        donation.save()
+
+        return redirect("payment:done")
+
+    return redirect("payment:canceled")
+
+
+def process_donation_payment(
+    request: HttpRequest,
+    donation_id: int,
+) -> HttpResponse:
+    """Process a payment for a donation."""
+
+    donation = get_object_or_404(Donation, id=donation_id)
 
     if request.method == "POST":
-        # retrieve payment nonce
         nonce = request.POST.get("payment_method_nonce", None)
 
-        if processing_bookstore_order:
-            return process_braintree_transaction(request, entity, nonce)
+        if nonce is None:
+            return redirect("payment:canceled")
 
-        if processing_donation:
-            # Recurring donations happen more than once
-            # and should be treated as a subscription
-            # since only Braintree subscriptions can recur
-            if entity.recurrence != "once":
-                return process_braintree_subscription(request, entity, nonce)
+        if donation.recurring is True:
+            return process_braintree_recurring_donation(donation, nonce)
 
-            # Otherwise, treate the donation as a single-time transaction
-            return process_braintree_transaction(request, entity, nonce)
-
-        if processing_subscription:
-            return process_braintree_subscription(request, entity, nonce)
+        return process_braintree_single_donation(donation, nonce)
     else:
-        client_token = braintree.ClientToken.generate()
-
-        return render(
-            request,
-            "payment/process.html",
-            {"client_token": client_token, "payment_total": entity.get_total_cost()},
+        return render_payment_processing_page(
+            request=request,
+            payment_total=donation.get_total_cost(),
         )
 
 
-def payment_done(request):
+def process_bookstore_order_payment(
+    request: HttpRequest,
+    order_id: int,
+) -> HttpResponse:
+    """Process a payment for a bookstore order."""
+
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == "POST":
+        nonce = request.POST.get("payment_method_nonce", None)
+
+        if nonce is not None:
+            braintree_result = process_braintree_transaction(
+                amount=order.get_total_cost(),
+                nonce=nonce,
+            )
+
+            if braintree_result.is_success:
+                order.paid = True
+
+                order.braintree_transaction_id = braintree_result.transaction.id  # type: ignore  # noqa: E501
+
+                order.save()
+
+                return redirect("payment:done")
+
+        return redirect("payment:canceled")
+    else:
+        return render_payment_processing_page(
+            request=request,
+            payment_total=order.get_total_cost(),
+        )
+
+
+def process_subscription_payment(
+    request: HttpRequest,
+    subscription_id: int,
+) -> HttpResponse:
+    """Process a payment for a subscription."""
+
+    from subscription.models import Subscription
+    from subscription.views import calculate_end_date_from_braintree_subscription
+
+    subscription = get_object_or_404(Subscription, id=subscription_id)
+
+    if request.method == "POST":
+        nonce = request.POST.get("payment_method_nonce", None)
+
+        if nonce is None:
+            return redirect("payment:canceled")
+
+        braintree_result = process_braintree_subscription(
+            first_name=subscription.subscriber_given_name,
+            last_name=subscription.subscriber_family_name,
+            plan_id=MAGAZINE_SUBSCRIPTION_PLAN_ID,
+            price=subscription.price,
+            recurring=subscription.recurring,
+            nonce=nonce,
+        )
+
+        if braintree_result.is_success:
+            subscription.paid = True
+
+            subscription.braintree_subscription_id = braintree_result.subscription.id  # type: ignore  # noqa: E501
+
+            subscription.end_date = calculate_end_date_from_braintree_subscription(
+                # Ignoring the following type warning since we assume that the
+                # braintree_result.subscription value should exist
+                braintree_subscription=braintree_result.subscription,  # type: ignore
+                current_subscription_end_date=subscription.end_date,
+            )
+            subscription.save()
+
+            return redirect("payment:done")
+
+        return redirect("payment:canceled")
+    else:
+        return render_payment_processing_page(
+            request=request,
+            payment_total=subscription.get_total_cost(),
+        )
+
+
+def payment_done(
+    request: HttpRequest,
+) -> HttpResponse:
     return render(request, "payment/done.html")
 
 
-def payment_canceled(request):
+def payment_canceled(
+    request: HttpRequest,
+) -> HttpResponse:
     return render(request, "payment/canceled.html")
-
-
-def clear_payment_session_vars(request):
-    # Clear out session variables
-    # TODO: see if there is a better way of doing this
-    # without polluting the view code
-    request.session["order_id"] = None
-    request.session["subscription_id"] = None
-    return None
