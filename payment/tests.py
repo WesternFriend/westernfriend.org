@@ -1,3 +1,4 @@
+from datetime import date
 from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 from braintree import ErrorResult, SuccessfulResult, Transaction
@@ -110,7 +111,7 @@ class TestProcessBraintreeSubscription(TestCase):
         mock_result.is_success = True
         mock_result.transaction.id = "test_id"
         mock_result.subscription = Mock()
-        mock_result.subscription.paid_through_date = "2023-12-31"
+        mock_result.subscription.paid_through_date = date(2023, 12, 31)
         mock_process_subscription.return_value = mock_result
 
         # Act
