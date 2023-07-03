@@ -1,10 +1,15 @@
+from typing import Any
 from django import forms
 
 from .models import Order
 
 
 class OrderCreateForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.fields["shipping_cost"].widget = forms.HiddenInput()
 

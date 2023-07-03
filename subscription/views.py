@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 import json
 import os
 from datetime import timedelta
@@ -14,6 +14,10 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
 from subscription.models import Subscription
+
+# Grace period so subscribers maintain access
+GRACE_PERIOD_DAYS = timedelta(days=5)
+ONE_YEAR_WITH_GRACE_PERIOD: timedelta = timedelta(days=365) + GRACE_PERIOD_DAYS
 
 braintree_environment = (
     braintree.Environment.Production  # type: ignore
@@ -31,6 +35,29 @@ braintree_gateway = braintree.BraintreeGateway(
 )
 
 
+def calculate_end_date_from_braintree_subscription(
+    braintree_subscription: BraintreeSubscription,
+    current_subscription_end_date: date,
+) -> date:
+    # Use Braintree paid through date (with grace period), if available
+    if (
+        hasattr(braintree_subscription, "paid_through_date")
+        and braintree_subscription.paid_through_date is not None  # type: ignore
+    ):
+        # create new paid_through_date
+        # by parsing braintree_subscription.paid_through_date
+        # to a datetime object
+        paid_through_date = datetime.strptime(
+            braintree_subscription.paid_through_date,  # type: ignore
+            "%Y-%m-%d",
+        ).date()
+
+        return paid_through_date + GRACE_PERIOD_DAYS  # type: ignore
+    # Otherwise extend by one year with grace period
+    else:
+        return current_subscription_end_date + ONE_YEAR_WITH_GRACE_PERIOD
+
+
 def handle_subscription_webhook(
     braintree_subscription: BraintreeSubscription,
 ) -> None:
@@ -41,29 +68,10 @@ def handle_subscription_webhook(
         braintree_subscription_id=braintree_subscription.id,  # type: ignore
     )
 
-    # Grace period so subscribers maintain access
-    grace_period = timedelta(days=5)
-
-    # Use Braintree paid through date (with grace period), if available
-    # TODO: determine why mypy can't find the `paid_through_date` property
-    if (
-        hasattr(braintree_subscription, "paid_through_date")
-        and braintree_subscription.paid_through_date is not None
-    ):  # type: ignore
-        # create new paid_through_date
-        # by parsing braintree_subscription.paid_through_date
-        # to a datetime object
-        paid_through_date = datetime.strptime(
-            braintree_subscription.paid_through_date,  # type: ignore
-            "%Y-%m-%d",
-        ).date()
-
-        subscription.end_date = paid_through_date + grace_period  # type: ignore
-    # Otherwise extend by one year with grace period
-    else:
-        one_year_with_grace: timedelta = timedelta(days=365) + grace_period
-
-        subscription.end_date = subscription.end_date + one_year_with_grace
+    subscription.end_date = calculate_end_date_from_braintree_subscription(
+        braintree_subscription=braintree_subscription,
+        current_subscription_end_date=subscription.end_date,
+    )
 
     subscription.save()  # type: ignore
 

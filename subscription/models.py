@@ -1,8 +1,10 @@
 import datetime
 import logging
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.db import models
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -10,6 +12,9 @@ from django_flatpickr.widgets import DatePickerInput
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
+
+if TYPE_CHECKING:
+    from .forms import SubscriptionCreateForm
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +62,10 @@ def one_year_from_today() -> datetime.date:
     return datetime.date.today() + datetime.timedelta(days=365)
 
 
-def process_subscription_form(subscription_form, request):
+def process_subscription_form(
+    subscription_form: "SubscriptionCreateForm",
+    request: HttpRequest,
+) -> HttpResponse:
     """Given a valid subscription form, will save and associate with a user.
 
     TODO: determine how to share this function with the "manage subscription" page
@@ -81,22 +89,34 @@ def process_subscription_form(subscription_form, request):
 
     subscription.save()
 
-    # set the order in the session
-    request.session["subscription_id"] = subscription.id
-
     # redirect for payment
-    return redirect(reverse("payment:process", kwargs={"previous_page": "subscribe"}))
+    return redirect(
+        reverse(
+            "payment:process_subscription_payment",
+            kwargs={
+                "subscription_id": subscription.id,
+            },
+        )
+    )
 
 
 class Subscription(models.Model):
     magazine_format = models.CharField(
-        max_length=255, choices=MAGAZINE_FORMAT_CHOICES, default="pdf"
+        max_length=255,
+        choices=MAGAZINE_FORMAT_CHOICES,
+        default="pdf",
     )
     price_group = models.CharField(
-        max_length=255, choices=MAGAZINE_PRICE_GROUP_CHOICES, default="normal"
+        max_length=255,
+        choices=MAGAZINE_PRICE_GROUP_CHOICES,
+        default="normal",
     )
-    price = models.IntegerField(editable=False)
-    recurring = models.BooleanField(default=True)
+    price = models.IntegerField(
+        editable=False,
+    )
+    recurring = models.BooleanField(
+        default=True,
+    )
     start_date = models.DateField(
         default=datetime.date.today,
     )
@@ -113,7 +133,11 @@ class Subscription(models.Model):
         default="",
         help_text="Enter the family (last) name for the subscriber.",
     )
-    subscriber_organization = models.CharField(max_length=255, null=True, blank=True)
+    subscriber_organization = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     subscriber_street_address = models.CharField(
         max_length=255,
         blank=True,
@@ -151,7 +175,7 @@ class Subscription(models.Model):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        verbose_name="subscriber email",
+        verbose_name="subscriber",
         # TODO: determine whether we want these to be nullable
         # e.g. for tracking subscriptions created offline
         # null=True,
@@ -194,8 +218,14 @@ class Subscription(models.Model):
                 ),
                 FieldRowPanel(
                     children=[
-                        FieldPanel("start_date", widget=DatePickerInput()),
-                        FieldPanel("end_date", widget=DatePickerInput()),
+                        FieldPanel(
+                            "start_date",
+                            widget=DatePickerInput(),
+                        ),
+                        FieldPanel(
+                            "end_date",
+                            widget=DatePickerInput(),
+                        ),
                     ]
                 ),
                 # TODO: make this field read_only=True with Wagtail 5.1 update
@@ -223,11 +253,11 @@ class Subscription(models.Model):
         ),
     ]
 
-    def __str__(self):
-        return f"subscription {self.id}"
+    def __str__(self) -> str:
+        return f"subscription {self.id}"  # type: ignore
 
     @property
-    def subscriber_full_name(self):
+    def subscriber_full_name(self) -> str:
         full_name = ""
 
         if self.subscriber_given_name:
@@ -237,10 +267,10 @@ class Subscription(models.Model):
 
         return full_name.rstrip()
 
-    def get_total_cost(self):
+    def get_total_cost(self) -> int:
         return self.price
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         self.price = SUBSCRIPTION_PRICE_COMPONENTS[self.price_group][
             self.magazine_format
         ]
@@ -262,7 +292,12 @@ class SubscriptionIndexPage(Page):
 
     template = "subscription/index.html"
 
-    def serve(self, request, *args, **kwargs):
+    def serve(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> HttpResponse:
         if request.user.is_authenticated and request.method == "POST":
             # Avoid circular dependency
             from .forms import SubscriptionCreateForm
@@ -286,7 +321,12 @@ class SubscriptionIndexPage(Page):
         else:
             return super().serve(request)
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict[str, Any]:
         # avoid circular dependency
         from .forms import SubscriptionCreateForm
 
@@ -315,7 +355,12 @@ class ManageSubscriptionPage(Page):
 
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict[str, Any]:
         context = super().get_context(request)
 
         if request.user.is_authenticated:

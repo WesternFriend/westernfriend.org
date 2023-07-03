@@ -1,6 +1,7 @@
+from decimal import Decimal
 from django.db import models
-from modelcluster.fields import ParentalKey
-from modelcluster.models import ClusterableModel
+from modelcluster.fields import ParentalKey  # type: ignore
+from modelcluster.models import ClusterableModel  # type: ignore
 from wagtail.admin.panels import FieldPanel, InlinePanel
 from wagtail.models import Orderable
 
@@ -25,7 +26,7 @@ class Order(ClusterableModel):
         help_text="Enter the meeting or organization name, if this purchaser is a meeting or organization.",  # noqa: E501
     )
     purchaser_email = models.EmailField(
-        help_text="Provide an email, so we can communicate any issues regarding this order."  # noqa: E501
+        help_text="Provide an email, so we can communicate any issues regarding this order.",  # noqa: E501
     )
     recipient_name = models.CharField(
         max_length=255,
@@ -42,10 +43,14 @@ class Order(ClusterableModel):
         max_length=16, help_text="Postal code for the shipping address."
     )
     recipient_po_box_number = models.CharField(
-        max_length=32, blank=True, default="", help_text="P.O. Box, if relevant."
+        max_length=32,
+        blank=True,
+        default="",
+        help_text="P.O. Box, if relevant.",
     )
     recipient_address_locality = models.CharField(
-        max_length=255, help_text="City for the shipping address."
+        max_length=255,
+        help_text="City for the shipping address.",
     )
     recipient_address_region = models.CharField(
         max_length=255,
@@ -56,9 +61,16 @@ class Order(ClusterableModel):
     recipient_address_country = models.CharField(
         max_length=255, default="United States", help_text="Country for shipping."
     )
-    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    shipping_cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+    )
     paid = models.BooleanField(default=False)
-    braintree_transaction_id = models.CharField(max_length=255, null=True, blank=True)
+    braintree_transaction_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
 
     panels = [
         FieldPanel("purchaser_given_name"),
@@ -77,14 +89,17 @@ class Order(ClusterableModel):
         InlinePanel("items", label="Order items"),
     ]
 
-    def __str__(self):
-        return f"Order {self.id}"
+    def __str__(self) -> str:
+        return f"Order {self.id}"  # type: ignore
 
-    def get_total_cost(self):
+    def get_total_cost(self) -> int:
+        """Return the sum of all order items' costs."""
+        # order.items is of type list[OrderItem]
+
         return sum(item.get_cost() for item in self.items.all())
 
     @property
-    def purchaser_full_name(self):
+    def purchaser_full_name(self) -> str:
         full_name = ""
 
         if self.purchaser_given_name:
@@ -99,17 +114,33 @@ class Order(ClusterableModel):
 
 class OrderItem(Orderable):
     order = ParentalKey(
-        Order, related_name="items", on_delete=models.CASCADE, blank=False
+        Order,
+        related_name="items",
+        on_delete=models.CASCADE,
+        blank=False,
     )
-    product_title = models.CharField(max_length=255)
-    product_id = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity = models.PositiveIntegerField(default=1)
+    product_title = models.CharField(
+        max_length=255,
+    )
+    product_id = models.PositiveIntegerField(
+        default=1,
+    )
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+    )
+    quantity = models.PositiveIntegerField(
+        default=1,
+    )
 
-    panels = [FieldPanel("product_title"), FieldPanel("price"), FieldPanel("quantity")]
+    panels = [
+        FieldPanel("product_title"),
+        FieldPanel("price"),
+        FieldPanel("quantity"),
+    ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.quantity}x {self.product_title} @ { self.price}"
 
-    def get_cost(self):
+    def get_cost(self) -> Decimal:
         return self.price * self.quantity

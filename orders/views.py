@@ -1,21 +1,25 @@
-from django.shortcuts import redirect, render, reverse
+from django.http import HttpRequest, HttpResponse, QueryDict
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
 from cart.cart import Cart
 
-from .forms import OrderCreateForm
 from .models import OrderItem
 
 
-def order_create(request):
+def order_create(request: HttpRequest) -> HttpResponse:
+    # Avoid circular import
+    from .forms import OrderCreateForm
+
     cart = Cart(request)
 
     if request.method == "POST":
         # Create copy of cart,
         # so we can modify shipping cost
-        cart_order = request.POST.copy()
+        cart_order: QueryDict = request.POST.copy()
 
         # Calculate shipping cost, to prevent users from changing value
-        cart_order["shipping_cost"] = cart.get_shipping_cost()
+        cart_order["shipping_cost"] = str(cart.get_shipping_cost())
 
         # Instantiate form with updated cart order (incl. shipping cost)
         form = OrderCreateForm(cart_order)
@@ -32,16 +36,29 @@ def order_create(request):
                     quantity=item["quantity"],
                 )
 
+            # TODO: consider moving this to the payment app
+            # so it can be cleared after successful payment.
+            # That way, the user can retry checkout if payment fails.
             cart.clear()
-
-            # set the order in the session
-            request.session["order_id"] = order.id
 
             # redirect for payment
             return redirect(
-                reverse("payment:process", kwargs={"previous_page": "bookstore_order"})
+                reverse(
+                    "payment:process_bookstore_order_payment",
+                    kwargs={
+                        "order_id": order.id,
+                    },
+                )
             )
-        return None
+        else:
+            return render(
+                request,
+                template_name="orders/create.html",
+                context={
+                    "cart": cart,
+                    "form": form,
+                },
+            )
 
     else:
         form = OrderCreateForm()
@@ -49,5 +66,8 @@ def order_create(request):
         return render(
             request,
             template_name="orders/create.html",
-            context={"cart": cart, "form": form},
+            context={
+                "cart": cart,
+                "form": form,
+            },
         )
