@@ -227,6 +227,9 @@ def process_subscription_payment(
         nonce = request.POST.get("payment_method_nonce", None)
 
         if nonce is None:
+            logger.warning(
+                "Braintree subscription failed: nonce is None",
+            )
             return redirect("payment:canceled")
 
         braintree_result = process_braintree_subscription(
