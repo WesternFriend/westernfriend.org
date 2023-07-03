@@ -238,7 +238,7 @@ def process_subscription_payment(
             nonce=nonce,
         )
 
-        if braintree_result.is_success:
+        if braintree_result.is_success is True:
             subscription.paid = True
 
             subscription.braintree_subscription_id = braintree_result.subscription.id  # type: ignore  # noqa: E501
