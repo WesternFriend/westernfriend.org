@@ -12,13 +12,13 @@ from wagtail.models import Page
 from addresses.models import Address
 
 if TYPE_CHECKING:
-    from .forms import DonationForm, DonorAddressForm
+    from .forms import DonationForm, DonorAddressForm  # pragma: no cover
 
 
 def process_donation_forms(
     donation_form: "DonationForm",
     donor_address_form: "DonorAddressForm",
-):
+) -> HttpResponse:
     """Process a donation form and redirect to payment."""
     # Create a temporary donation object to modify it's fields
     donation = donation_form.save(commit=False)
