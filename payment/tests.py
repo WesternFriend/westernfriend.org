@@ -85,6 +85,48 @@ class TestProcessBraintreeSubscription(TestCase):
         # Test if the subscription is created
         self.assertEqual(subscription.subscription.id, "fake_subscription")  # type: ignore  # noqa: E501
 
+    @patch("payment.views.get_object_or_404")
+    @patch("payment.views.process_braintree_subscription")
+    @patch("payment.views.redirect")
+    def test_process_braintree_subscription_non_recurring(
+        self,
+        mock_redirect: Mock,
+        mock_process_subscription: Mock,
+        mock_get_object_or_404: Mock,
+    ) -> None:
+        # Arrange
+        mock_request = HttpRequest()
+        mock_request.method = "POST"
+        mock_request.POST["payment_method_nonce"] = "fake_nonce"
+
+        mock_subscription = Mock(spec=Subscription)
+        mock_subscription.subscriber_given_name = "Test"
+        mock_subscription.subscriber_family_name = "User"
+        mock_subscription.price = 10
+        mock_subscription.recurring = False
+        mock_get_object_or_404.return_value = mock_subscription
+
+        mock_result = Mock()
+        mock_result.is_success = True
+        mock_result.transaction.id = "test_id"
+        mock_result.subscription = Mock()
+        mock_result.subscription.paid_through_date = "2023-12-31"
+        mock_process_subscription.return_value = mock_result
+
+        # Act
+        response = process_subscription_payment(mock_request, 1)
+
+        # Assert
+        mock_process_subscription.assert_called_once_with(
+            first_name="Test",
+            last_name="User",
+            plan_id=MAGAZINE_SUBSCRIPTION_PLAN_ID,
+            price=10,
+            recurring=False,
+            nonce="fake_nonce",
+        )
+        self.assertEqual(response, mock_redirect.return_value)
+
 
 class TestProcessBraintreeTransaction(TestCase):
     @patch.object(Transaction, "sale")
