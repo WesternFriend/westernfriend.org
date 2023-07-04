@@ -5,7 +5,7 @@ from braintree import ErrorResult, SuccessfulResult, Transaction
 from braintree import Subscription as BraintreeSubscription
 from django.http import HttpRequest, HttpResponse
 
-from django.test import Client, RequestFactory
+from django.test import Client, RequestFactory, SimpleTestCase
 from django.urls import reverse
 
 from donations.models import Donation
@@ -14,6 +14,7 @@ from subscription.models import Subscription
 from .views import (
     MAGAZINE_SUBSCRIPTION_PLAN_ID,
     RECURRING_DONATION_PLAN_IDS,
+    construct_subscription_properties,
     render_payment_processing_page,
     process_braintree_subscription,
     process_braintree_transaction,
@@ -540,7 +541,10 @@ class TestProcessBookstoreOrderPayment(TestCase):
 
 class TestProcessSubscriptionPayment(TestCase):
     @patch("payment.views.braintree_gateway.customer.create")
-    def test_process_braintree_subscription_customer_error(self, mock_create_customer):
+    def test_process_braintree_subscription_customer_error(
+        self,
+        mock_create_customer: Mock,
+    ) -> None:
         # Arrange
         first_name = "Test"
         last_name = "User"
@@ -576,7 +580,7 @@ class TestProcessSubscriptionPayment(TestCase):
             }
         )
         self.assertIsInstance(result, ErrorResult)
-        self.assertEqual(result.message, "Error message")
+        self.assertEqual(result.message, "Error message")  # type: ignore
 
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.process_braintree_subscription")
@@ -750,3 +754,56 @@ class TestPaymentViews(TestCase):
     def test_payment_canceled_view(self) -> None:
         response = self.client.get(reverse("payment:canceled"))
         self.assertEqual(response.status_code, 200)
+
+
+class TestConstructSubscriptionProperties(SimpleTestCase):
+    def test_construct_subscription_properties_recurring_true(self) -> None:
+        # Define the input parameters
+        payment_method_token = "payment_token"
+        plan_id = "plan_id"
+        price = 10
+        recurring = True
+
+        # Expected output
+        expected_output = {
+            "payment_method_token": payment_method_token,
+            "plan_id": plan_id,
+            "price": price,
+        }
+
+        # Call the function with the input parameters
+        output = construct_subscription_properties(
+            payment_method_token,
+            plan_id,
+            price,
+            recurring,
+        )
+
+        # Assert that the output is as expected
+        self.assertEqual(output, expected_output)
+
+    def test_construct_subscription_properties_recurring_false(self) -> None:
+        # Define the input parameters
+        payment_method_token = "payment_token"
+        plan_id = "plan_id"
+        price = 10
+        recurring = False
+
+        # Expected output
+        expected_output = {
+            "payment_method_token": payment_method_token,
+            "plan_id": plan_id,
+            "price": price,
+            "number_of_billing_cycles": 1,
+        }
+
+        # Call the function with the input parameters
+        output = construct_subscription_properties(
+            payment_method_token,
+            plan_id,
+            price,
+            recurring,
+        )
+
+        # Assert that the output is as expected
+        self.assertEqual(output, expected_output)

@@ -46,6 +46,27 @@ def render_payment_processing_page(
     )
 
 
+def construct_subscription_properties(
+    payment_method_token: str,
+    plan_id: str,
+    price: int,
+    recurring: bool,
+) -> dict[str, str | int]:
+    """Construct a dictionary of properties for a Braintree subscription."""
+
+    subscription_properties: dict[str, str | int] = {
+        "payment_method_token": payment_method_token,
+        "plan_id": plan_id,
+        "price": price,
+    }
+
+    if not recurring:
+        # Subscription should only be charged once since it is not recurring
+        subscription_properties["number_of_billing_cycles"] = 1
+
+    return subscription_properties
+
+
 def process_braintree_subscription(
     first_name: str,
     last_name: str,
@@ -67,15 +88,12 @@ def process_braintree_subscription(
     if customer_result.is_success:
         # TODO: add notification/logging for error in this step
 
-        subscription_properties = {
-            "payment_method_token": customer_result.customer.payment_methods[0].token,
-            "plan_id": plan_id,
-            "price": price,
-        }
-
-        if not recurring:
-            # Subscription should only be charged once since it is not recurring
-            subscription_properties["number_of_billing_cycles"] = 1
+        subscription_properties = construct_subscription_properties(
+            payment_method_token=customer_result.customer.payment_methods[0].token,  # type: ignore  # noqa: E501
+            plan_id=plan_id,
+            price=price,
+            recurring=recurring,
+        )
 
         return braintree_gateway.subscription.create(subscription_properties)
     else:
