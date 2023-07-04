@@ -183,10 +183,12 @@ class TestProcessBraintreeRecurringDonation(TestCase):
     ) -> None:
         # Create a mock donation object
         mock_donation = MagicMock()
-        mock_donation.amount = 100
+        mock_donation.get_total_cost.return_value = 100
         mock_donation.recurrence = "monthly"
-        mock_donation.recurring.return_value = True
+        mock_donation.recurring = True
         mock_donation.paid = False
+        mock_donation.donor_given_name = "John"
+        mock_donation.donor_family_name = "Doe"
 
         # Mock SuccessfulResult from Braintree
         mock_result = SuccessfulResult({"subscription": MagicMock(id="test_id")})
@@ -206,8 +208,8 @@ class TestProcessBraintreeRecurringDonation(TestCase):
             first_name=mock_donation.donor_given_name,
             last_name=mock_donation.donor_family_name,
             plan_id=RECURRING_DONATION_PLAN_IDS[mock_donation.recurrence],
-            price=mock_donation.amount,
-            recurring=True,
+            price=mock_donation.get_total_cost.return_value,
+            recurring=mock_donation.recurring,
             nonce="fake_nonce",
         )
 
@@ -222,14 +224,17 @@ class TestProcessBraintreeRecurringDonation(TestCase):
         mock_process_subscription: Mock,
     ) -> None:
         # Create a mock donation object
-        mock_donation = MagicMock()
-        mock_donation.amount = 100
+        mock_donation = MagicMock(spec=Donation)
+        mock_donation.get_total_cost.return_value = 100
         mock_donation.recurrence = "monthly"
-        mock_donation.recurring.return_value = True
+        mock_donation.recurring = True
         mock_donation.paid = False
+        mock_donation.donor_given_name = "John"
+        mock_donation.donor_family_name = "Doe"
+        mock_donation.braintree_subscription_id = None
 
-        # Mock ErrorResult from Braintree
-        mock_result = ErrorResult(None, {"message": "Error message", "errors": {}})
+        # Mock ValidationError from Braintree
+        mock_result = ErrorResult(None, {"errors": {}, "message": "Error message"})
         mock_process_subscription.return_value = mock_result
 
         # Mock redirect
@@ -239,14 +244,15 @@ class TestProcessBraintreeRecurringDonation(TestCase):
 
         # Assert donation has not been paid
         self.assertFalse(mock_donation.paid)
+        self.assertIsNone(mock_donation.braintree_subscription_id)
 
         # Assert process_braintree_subscription has been called with correct parameters
         mock_process_subscription.assert_called_once_with(
             first_name=mock_donation.donor_given_name,
             last_name=mock_donation.donor_family_name,
             plan_id=RECURRING_DONATION_PLAN_IDS[mock_donation.recurrence],
-            price=mock_donation.amount,
-            recurring=True,
+            price=mock_donation.get_total_cost.return_value,
+            recurring=mock_donation.recurring,
             nonce="fake_nonce",
         )
 
@@ -331,10 +337,12 @@ class TestProcessDonationPayment(TestCase):
         self.assertEqual(response, mock_render_page.return_value)
 
     @patch("payment.views.get_object_or_404")
-    @patch("payment.views.redirect")
+    @patch("payment.views.render_payment_processing_page")
+    @patch("payment.views.process_braintree_transaction")
     def test_process_donation_payment_POST_no_nonce(
         self,
-        mock_redirect: Mock,
+        mock_process_transaction: Mock,
+        mock_render_payment_page: Mock,
         mock_get_donation: Mock,
     ) -> None:
         mock_request = MagicMock(spec=HttpRequest)
@@ -344,10 +352,16 @@ class TestProcessDonationPayment(TestCase):
         mock_donation = Mock(spec=Donation)
         mock_get_donation.return_value = mock_donation
 
+        mock_response = Mock(spec=HttpResponse)
+        mock_render_payment_page.return_value = mock_response
+
         response = process_donation_payment(mock_request, 1)
 
-        mock_redirect.assert_called_once_with("payment:canceled")
-        self.assertEqual(response, mock_redirect.return_value)
+        mock_render_payment_page.assert_called_once_with(
+            request=mock_request,
+            payment_total=mock_donation.get_total_cost.return_value,
+        )
+        self.assertEqual(response, mock_render_payment_page.return_value)
 
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.process_braintree_recurring_donation")
@@ -413,12 +427,12 @@ class TestProcessBookstoreOrderPayment(TestCase):
         self.assertEqual(response, mock_render_page.return_value)
 
     @patch("payment.views.get_object_or_404")
-    @patch("payment.views.redirect")
+    @patch("payment.views.render_payment_processing_page")
     @patch("payment.views.process_braintree_transaction")
     def test_process_bookstore_order_payment_POST_no_nonce(
         self,
         mock_process_transaction: Mock,
-        mock_redirect: Mock,
+        mock_render_payment_page: Mock,
         mock_get_order: Mock,
     ) -> None:
         mock_request = MagicMock(spec=HttpRequest)
@@ -426,12 +440,19 @@ class TestProcessBookstoreOrderPayment(TestCase):
         mock_request.POST = {}
 
         mock_order = Mock(spec=Order)
+        mock_order.get_total_cost.return_value = 123
         mock_get_order.return_value = mock_order
+
+        mock_response = Mock(spec=HttpResponse)
+        mock_render_payment_page.return_value = mock_response
 
         response = process_bookstore_order_payment(mock_request, 1)
 
-        mock_redirect.assert_called_once_with("payment:canceled")
-        self.assertEqual(response, mock_redirect.return_value)
+        mock_render_payment_page.assert_called_once_with(
+            request=mock_request,
+            payment_total=mock_order.get_total_cost.return_value,
+        )
+        self.assertEqual(response, mock_render_payment_page.return_value)
 
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.redirect")
