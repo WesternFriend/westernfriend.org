@@ -539,6 +539,47 @@ class TestProcessBookstoreOrderPayment(TestCase):
 
 
 class TestProcessSubscriptionPayment(TestCase):
+    @patch("payment.views.braintree_gateway.customer.create")
+    def test_process_braintree_subscription_customer_error(self, mock_create_customer):
+        # Arrange
+        first_name = "Test"
+        last_name = "User"
+        plan_id = "test_plan_id"
+        price = 10
+        recurring = False
+        nonce = "fake_nonce"
+
+        # Create an instance of ErrorResult
+
+        customer_error_result = ErrorResult(
+            None,
+            {"message": "Error message", "errors": {}},
+        )
+
+        # Mock the create function to return an error
+        mock_create_customer.return_value = customer_error_result
+
+        # Act
+        result = process_braintree_subscription(
+            first_name=first_name,
+            last_name=last_name,
+            plan_id=plan_id,
+            price=price,
+            recurring=recurring,
+            nonce=nonce,
+        )
+
+        # Assert
+        mock_create_customer.assert_called_once_with(
+            {
+                "first_name": first_name,
+                "last_name": last_name,
+                "payment_method_nonce": nonce,
+            }
+        )
+        self.assertIsInstance(result, ErrorResult)
+        self.assertEqual(result.message, "Error message")
+
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.process_braintree_subscription")
     @patch("payment.views.redirect")
