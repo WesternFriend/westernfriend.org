@@ -336,6 +336,7 @@ class TestProcessDonationPayment(TestCase):
         )
         self.assertEqual(response, mock_render_page.return_value)
 
+    @patch("payment.views.logger")
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.render_payment_processing_page")
     @patch("payment.views.process_braintree_transaction")
@@ -344,6 +345,7 @@ class TestProcessDonationPayment(TestCase):
         mock_process_transaction: Mock,
         mock_render_payment_page: Mock,
         mock_get_donation: Mock,
+        mock_logger: Mock,
     ) -> None:
         mock_request = MagicMock(spec=HttpRequest)
         mock_request.method = "POST"
@@ -360,6 +362,10 @@ class TestProcessDonationPayment(TestCase):
         mock_render_payment_page.assert_called_once_with(
             request=mock_request,
             payment_total=mock_donation.get_total_cost.return_value,
+        )
+        # Assert logger.warning was called
+        mock_logger.warning.assert_called_once_with(
+            msg="Braintree donation payment failed: nonce is None"
         )
         self.assertEqual(response, mock_render_payment_page.return_value)
 
@@ -426,6 +432,7 @@ class TestProcessBookstoreOrderPayment(TestCase):
         )
         self.assertEqual(response, mock_render_page.return_value)
 
+    @patch("payment.views.logger")
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.render_payment_processing_page")
     @patch("payment.views.process_braintree_transaction")
@@ -434,6 +441,7 @@ class TestProcessBookstoreOrderPayment(TestCase):
         mock_process_transaction: Mock,
         mock_render_payment_page: Mock,
         mock_get_order: Mock,
+        mock_logger: Mock,
     ) -> None:
         mock_request = MagicMock(spec=HttpRequest)
         mock_request.method = "POST"
@@ -451,6 +459,10 @@ class TestProcessBookstoreOrderPayment(TestCase):
         mock_render_payment_page.assert_called_once_with(
             request=mock_request,
             payment_total=mock_order.get_total_cost.return_value,
+        )
+        # Assert logger.warning was called
+        mock_logger.warning.assert_called_once_with(
+            msg="Braintree order payment failed: nonce is None"
         )
         self.assertEqual(response, mock_render_payment_page.return_value)
 
@@ -611,6 +623,54 @@ class TestProcessSubscriptionPayment(TestCase):
         self.assertFalse(mock_subscription.paid)  # Now, this assertion should pass.
         mock_redirect.assert_called_once_with("payment:canceled")
         self.assertEqual(response, mock_redirect.return_value)
+
+    @patch("subscription.views.calculate_end_date_from_braintree_subscription")
+    @patch("payment.views.get_object_or_404")
+    @patch("payment.views.render_payment_processing_page")
+    @patch("payment.views.logger")
+    def test_process_subscription_payment_POST_no_nonce(
+        self,
+        mock_logger: MagicMock,
+        mock_render: MagicMock,
+        mock_get_object_or_404: MagicMock,
+        mock_calculate_end_date: MagicMock,
+    ) -> None:
+        # Mock subscription
+        mock_subscription = MagicMock()
+        mock_subscription.get_total_cost.return_value = 100
+        mock_subscription.paid = False
+        mock_subscription.braintree_subscription_id = None
+        mock_subscription.id = 1  # Set the return value for mock_subscription.id
+
+        # Make get_object_or_404 return the mock_subscription when called.
+        mock_get_object_or_404.return_value = mock_subscription
+
+        # Mock request
+        mock_request = MagicMock(spec=HttpRequest)
+        mock_request.method = "POST"
+        mock_request.POST = {}  # No "payment_method_nonce" in POST data
+
+        # Mock render
+        mock_render.return_value = HttpResponse()
+
+        response = process_subscription_payment(mock_request, mock_subscription.id)
+
+        # Assert subscription has not been paid
+        self.assertFalse(mock_subscription.paid)
+        self.assertIsNone(mock_subscription.braintree_subscription_id)
+
+        # Assert logger.warning was called
+        mock_logger.warning.assert_called_once_with(
+            msg="Braintree subscription payment failed: nonce is None"
+        )
+
+        # Assert render_payment_processing_page was called
+        mock_render.assert_called_once_with(
+            request=mock_request, payment_total=mock_subscription.get_total_cost()
+        )
+
+        # Assert response is instance of HttpResponse
+        self.assertIsInstance(response, HttpResponse)
 
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.render_payment_processing_page")
