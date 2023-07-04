@@ -479,6 +479,52 @@ class TestProcessBookstoreOrderPayment(TestCase):
         mock_redirect.assert_called_once_with("payment:done")
         self.assertEqual(response, mock_redirect.return_value)
 
+    @patch("payment.views.get_object_or_404")
+    @patch("payment.views.process_braintree_transaction")
+    @patch("payment.views.redirect")
+    def test_process_bookstore_order_payment_POST_failure(
+        self,
+        mock_redirect: MagicMock,
+        mock_process_transaction: MagicMock,
+        mock_get_object_or_404: MagicMock,
+    ) -> None:
+        # Mock order
+        mock_order = MagicMock()
+        mock_order.get_total_cost.return_value = 100
+        mock_order.paid = False
+        mock_order.braintree_transaction_id = None
+        mock_order.id = 1
+
+        # Make get_object_or_404 return the mock_order when called.
+        mock_get_object_or_404.return_value = mock_order
+
+        # Mock request
+        mock_request = MagicMock(spec=HttpRequest)
+        mock_request.method = "POST"
+        mock_request.POST = {"payment_method_nonce": "fake_nonce"}
+
+        # Mock unsuccessful Braintree transaction
+        mock_result = ErrorResult(None, {"message": "Error message", "errors": {}})
+        mock_process_transaction.return_value = mock_result
+
+        # Mock redirect
+        mock_redirect.return_value = HttpResponse()
+
+        process_bookstore_order_payment(mock_request, mock_order.id)
+
+        # Assert order has not been paid
+        self.assertFalse(mock_order.paid)
+        self.assertIsNone(mock_order.braintree_transaction_id)
+
+        # Assert process_braintree_transaction has been called with correct parameters
+        mock_process_transaction.assert_called_once_with(
+            amount=mock_order.get_total_cost.return_value,
+            nonce=mock_request.POST.get("payment_method_nonce"),
+        )
+
+        # Assert redirect function was called with 'payment:canceled'
+        mock_redirect.assert_called_once_with("payment:canceled")
+
 
 class TestProcessSubscriptionPayment(TestCase):
     @patch("payment.views.get_object_or_404")
