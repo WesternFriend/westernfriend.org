@@ -53,7 +53,7 @@ class DonationModelTest(TestCase):
             "payment:process_donation_payment",
             kwargs={"donation_id": "3"},
         )
-        self.assertEqual(response.url, expected_url)
+        self.assertEqual(response.url, expected_url)  # type: ignore
 
     def test_total_cost_method(self) -> None:
         # Create donation object with specified amount
@@ -75,11 +75,11 @@ class DonationModelTest(TestCase):
         )
 
         # Test that recurring() returns True for monthly and yearly donations
-        self.assertTrue(donation_monthly.recurring())
-        self.assertTrue(donation_yearly.recurring())
+        self.assertTrue(donation_monthly.recurring)
+        self.assertTrue(donation_yearly.recurring)
 
         # Test that recurring() returns False for once donation
-        self.assertFalse(donation_once.recurring())
+        self.assertFalse(donation_once.recurring)
 
 
 class DonatePageTest(TestCase):

@@ -110,8 +110,8 @@ def process_braintree_recurring_donation(
         # donation.recurrence value is a valid key in the
         # RECURRING_DONATION_PLAN_IDS dictionary
         plan_id=RECURRING_DONATION_PLAN_IDS[donation.recurrence],  # type: ignore
-        price=donation.amount,
-        recurring=donation.recurring(),
+        price=donation.get_total_cost(),
+        recurring=donation.recurring,
         nonce=nonce,
     )
 
@@ -135,11 +135,9 @@ def process_braintree_single_donation(
 ) -> HttpResponse:
     """Process a one-time donation payment as a Braintree transaction."""
 
-    amount = donation.amount
-
     braintree_result = process_braintree_transaction(
-        amount,
-        nonce,
+        amount=donation.get_total_cost(),
+        nonce=nonce,
     )
 
     if braintree_result.is_success:
@@ -167,7 +165,7 @@ def process_donation_payment(
 
         if nonce is None:
             logger.warning(
-                "Braintree donation payment failed: nonce is None",
+                msg="Braintree donation payment failed: nonce is None",
             )
             return render_payment_processing_page(
                 request=request,
@@ -197,7 +195,7 @@ def process_bookstore_order_payment(
 
         if nonce is None:
             logger.warning(
-                "Braintree order payment failed: nonce is None",
+                msg="Braintree order payment failed: nonce is None",
             )
             return render_payment_processing_page(
                 request=request,
@@ -242,7 +240,7 @@ def process_subscription_payment(
 
         if nonce is None:
             logger.warning(
-                "Braintree subscription payment failed: nonce is None",
+                msg="Braintree subscription payment failed: nonce is None",
             )
             return render_payment_processing_page(
                 request=request,
@@ -274,8 +272,7 @@ def process_subscription_payment(
             return redirect("payment:done")
         else:
             logger.warning(
-                "Braintree subscription failed: %s",
-                braintree_result.message,  # type: ignore
+                msg=f"Braintree subscription failed: {braintree_result.message}",  # type: ignore  # noqa: E501
             )
             return redirect("payment:canceled")
     else:

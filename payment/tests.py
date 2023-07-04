@@ -183,10 +183,12 @@ class TestProcessBraintreeRecurringDonation(TestCase):
     ) -> None:
         # Create a mock donation object
         mock_donation = MagicMock()
-        mock_donation.amount = 100
+        mock_donation.get_total_cost.return_value = 100
         mock_donation.recurrence = "monthly"
-        mock_donation.recurring.return_value = True
+        mock_donation.recurring = True
         mock_donation.paid = False
+        mock_donation.donor_given_name = "John"
+        mock_donation.donor_family_name = "Doe"
 
         # Mock SuccessfulResult from Braintree
         mock_result = SuccessfulResult({"subscription": MagicMock(id="test_id")})
@@ -206,8 +208,8 @@ class TestProcessBraintreeRecurringDonation(TestCase):
             first_name=mock_donation.donor_given_name,
             last_name=mock_donation.donor_family_name,
             plan_id=RECURRING_DONATION_PLAN_IDS[mock_donation.recurrence],
-            price=mock_donation.amount,
-            recurring=True,
+            price=mock_donation.get_total_cost.return_value,
+            recurring=mock_donation.recurring,
             nonce="fake_nonce",
         )
 
@@ -222,14 +224,17 @@ class TestProcessBraintreeRecurringDonation(TestCase):
         mock_process_subscription: Mock,
     ) -> None:
         # Create a mock donation object
-        mock_donation = MagicMock()
-        mock_donation.amount = 100
+        mock_donation = MagicMock(spec=Donation)
+        mock_donation.get_total_cost.return_value = 100
         mock_donation.recurrence = "monthly"
-        mock_donation.recurring.return_value = True
+        mock_donation.recurring = True
         mock_donation.paid = False
+        mock_donation.donor_given_name = "John"
+        mock_donation.donor_family_name = "Doe"
+        mock_donation.braintree_subscription_id = None
 
-        # Mock ErrorResult from Braintree
-        mock_result = ErrorResult(None, {"message": "Error message", "errors": {}})
+        # Mock ValidationError from Braintree
+        mock_result = ErrorResult(None, {"errors": {}, "message": "Error message"})
         mock_process_subscription.return_value = mock_result
 
         # Mock redirect
@@ -239,14 +244,15 @@ class TestProcessBraintreeRecurringDonation(TestCase):
 
         # Assert donation has not been paid
         self.assertFalse(mock_donation.paid)
+        self.assertIsNone(mock_donation.braintree_subscription_id)
 
         # Assert process_braintree_subscription has been called with correct parameters
         mock_process_subscription.assert_called_once_with(
             first_name=mock_donation.donor_given_name,
             last_name=mock_donation.donor_family_name,
             plan_id=RECURRING_DONATION_PLAN_IDS[mock_donation.recurrence],
-            price=mock_donation.amount,
-            recurring=True,
+            price=mock_donation.get_total_cost.return_value,
+            recurring=mock_donation.recurring,
             nonce="fake_nonce",
         )
 
@@ -330,12 +336,16 @@ class TestProcessDonationPayment(TestCase):
         )
         self.assertEqual(response, mock_render_page.return_value)
 
+    @patch("payment.views.logger")
     @patch("payment.views.get_object_or_404")
-    @patch("payment.views.redirect")
+    @patch("payment.views.render_payment_processing_page")
+    @patch("payment.views.process_braintree_transaction")
     def test_process_donation_payment_POST_no_nonce(
         self,
-        mock_redirect: Mock,
+        mock_process_transaction: Mock,
+        mock_render_payment_page: Mock,
         mock_get_donation: Mock,
+        mock_logger: Mock,
     ) -> None:
         mock_request = MagicMock(spec=HttpRequest)
         mock_request.method = "POST"
@@ -344,10 +354,20 @@ class TestProcessDonationPayment(TestCase):
         mock_donation = Mock(spec=Donation)
         mock_get_donation.return_value = mock_donation
 
+        mock_response = Mock(spec=HttpResponse)
+        mock_render_payment_page.return_value = mock_response
+
         response = process_donation_payment(mock_request, 1)
 
-        mock_redirect.assert_called_once_with("payment:canceled")
-        self.assertEqual(response, mock_redirect.return_value)
+        mock_render_payment_page.assert_called_once_with(
+            request=mock_request,
+            payment_total=mock_donation.get_total_cost.return_value,
+        )
+        # Assert logger.warning was called
+        mock_logger.warning.assert_called_once_with(
+            msg="Braintree donation payment failed: nonce is None"
+        )
+        self.assertEqual(response, mock_render_payment_page.return_value)
 
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.process_braintree_recurring_donation")
@@ -412,26 +432,39 @@ class TestProcessBookstoreOrderPayment(TestCase):
         )
         self.assertEqual(response, mock_render_page.return_value)
 
+    @patch("payment.views.logger")
     @patch("payment.views.get_object_or_404")
-    @patch("payment.views.redirect")
+    @patch("payment.views.render_payment_processing_page")
     @patch("payment.views.process_braintree_transaction")
     def test_process_bookstore_order_payment_POST_no_nonce(
         self,
         mock_process_transaction: Mock,
-        mock_redirect: Mock,
+        mock_render_payment_page: Mock,
         mock_get_order: Mock,
+        mock_logger: Mock,
     ) -> None:
         mock_request = MagicMock(spec=HttpRequest)
         mock_request.method = "POST"
         mock_request.POST = {}
 
         mock_order = Mock(spec=Order)
+        mock_order.get_total_cost.return_value = 123
         mock_get_order.return_value = mock_order
+
+        mock_response = Mock(spec=HttpResponse)
+        mock_render_payment_page.return_value = mock_response
 
         response = process_bookstore_order_payment(mock_request, 1)
 
-        mock_redirect.assert_called_once_with("payment:canceled")
-        self.assertEqual(response, mock_redirect.return_value)
+        mock_render_payment_page.assert_called_once_with(
+            request=mock_request,
+            payment_total=mock_order.get_total_cost.return_value,
+        )
+        # Assert logger.warning was called
+        mock_logger.warning.assert_called_once_with(
+            msg="Braintree order payment failed: nonce is None"
+        )
+        self.assertEqual(response, mock_render_payment_page.return_value)
 
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.redirect")
@@ -458,8 +491,93 @@ class TestProcessBookstoreOrderPayment(TestCase):
         mock_redirect.assert_called_once_with("payment:done")
         self.assertEqual(response, mock_redirect.return_value)
 
+    @patch("payment.views.get_object_or_404")
+    @patch("payment.views.process_braintree_transaction")
+    @patch("payment.views.redirect")
+    def test_process_bookstore_order_payment_POST_failure(
+        self,
+        mock_redirect: MagicMock,
+        mock_process_transaction: MagicMock,
+        mock_get_object_or_404: MagicMock,
+    ) -> None:
+        # Mock order
+        mock_order = MagicMock()
+        mock_order.get_total_cost.return_value = 100
+        mock_order.paid = False
+        mock_order.braintree_transaction_id = None
+        mock_order.id = 1
+
+        # Make get_object_or_404 return the mock_order when called.
+        mock_get_object_or_404.return_value = mock_order
+
+        # Mock request
+        mock_request = MagicMock(spec=HttpRequest)
+        mock_request.method = "POST"
+        mock_request.POST = {"payment_method_nonce": "fake_nonce"}
+
+        # Mock unsuccessful Braintree transaction
+        mock_result = ErrorResult(None, {"message": "Error message", "errors": {}})
+        mock_process_transaction.return_value = mock_result
+
+        # Mock redirect
+        mock_redirect.return_value = HttpResponse()
+
+        process_bookstore_order_payment(mock_request, mock_order.id)
+
+        # Assert order has not been paid
+        self.assertFalse(mock_order.paid)
+        self.assertIsNone(mock_order.braintree_transaction_id)
+
+        # Assert process_braintree_transaction has been called with correct parameters
+        mock_process_transaction.assert_called_once_with(
+            amount=mock_order.get_total_cost.return_value,
+            nonce=mock_request.POST.get("payment_method_nonce"),
+        )
+
+        # Assert redirect function was called with 'payment:canceled'
+        mock_redirect.assert_called_once_with("payment:canceled")
+
 
 class TestProcessSubscriptionPayment(TestCase):
+    @patch("payment.views.braintree_gateway.customer.create")
+    def test_process_braintree_subscription_customer_error(self, mock_create_customer):
+        # Arrange
+        first_name = "Test"
+        last_name = "User"
+        plan_id = "test_plan_id"
+        price = 10
+        recurring = False
+        nonce = "fake_nonce"
+
+        customer_error_result = ErrorResult(
+            None,
+            {"message": "Error message", "errors": {}},
+        )
+
+        # Mock the create function to return an error
+        mock_create_customer.return_value = customer_error_result
+
+        # Act
+        result = process_braintree_subscription(
+            first_name=first_name,
+            last_name=last_name,
+            plan_id=plan_id,
+            price=price,
+            recurring=recurring,
+            nonce=nonce,
+        )
+
+        # Assert
+        mock_create_customer.assert_called_once_with(
+            {
+                "first_name": first_name,
+                "last_name": last_name,
+                "payment_method_nonce": nonce,
+            }
+        )
+        self.assertIsInstance(result, ErrorResult)
+        self.assertEqual(result.message, "Error message")
+
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.process_braintree_subscription")
     @patch("payment.views.redirect")
@@ -544,6 +662,54 @@ class TestProcessSubscriptionPayment(TestCase):
         self.assertFalse(mock_subscription.paid)  # Now, this assertion should pass.
         mock_redirect.assert_called_once_with("payment:canceled")
         self.assertEqual(response, mock_redirect.return_value)
+
+    @patch("subscription.views.calculate_end_date_from_braintree_subscription")
+    @patch("payment.views.get_object_or_404")
+    @patch("payment.views.render_payment_processing_page")
+    @patch("payment.views.logger")
+    def test_process_subscription_payment_POST_no_nonce(
+        self,
+        mock_logger: MagicMock,
+        mock_render: MagicMock,
+        mock_get_object_or_404: MagicMock,
+        mock_calculate_end_date: MagicMock,
+    ) -> None:
+        # Mock subscription
+        mock_subscription = MagicMock()
+        mock_subscription.get_total_cost.return_value = 100
+        mock_subscription.paid = False
+        mock_subscription.braintree_subscription_id = None
+        mock_subscription.id = 1  # Set the return value for mock_subscription.id
+
+        # Make get_object_or_404 return the mock_subscription when called.
+        mock_get_object_or_404.return_value = mock_subscription
+
+        # Mock request
+        mock_request = MagicMock(spec=HttpRequest)
+        mock_request.method = "POST"
+        mock_request.POST = {}  # No "payment_method_nonce" in POST data
+
+        # Mock render
+        mock_render.return_value = HttpResponse()
+
+        response = process_subscription_payment(mock_request, mock_subscription.id)
+
+        # Assert subscription has not been paid
+        self.assertFalse(mock_subscription.paid)
+        self.assertIsNone(mock_subscription.braintree_subscription_id)
+
+        # Assert logger.warning was called
+        mock_logger.warning.assert_called_once_with(
+            msg="Braintree subscription payment failed: nonce is None"
+        )
+
+        # Assert render_payment_processing_page was called
+        mock_render.assert_called_once_with(
+            request=mock_request, payment_total=mock_subscription.get_total_cost()
+        )
+
+        # Assert response is instance of HttpResponse
+        self.assertIsInstance(response, HttpResponse)
 
     @patch("payment.views.get_object_or_404")
     @patch("payment.views.render_payment_processing_page")
