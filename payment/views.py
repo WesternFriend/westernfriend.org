@@ -166,7 +166,13 @@ def process_donation_payment(
         nonce = request.POST.get("payment_method_nonce", None)
 
         if nonce is None:
-            return redirect("payment:canceled")
+            logger.warning(
+                "Braintree donation payment failed: nonce is None",
+            )
+            return render_payment_processing_page(
+                request=request,
+                payment_total=donation.get_total_cost(),
+            )
 
         if donation.recurring is True:
             return process_braintree_recurring_donation(donation, nonce)
@@ -189,20 +195,28 @@ def process_bookstore_order_payment(
     if request.method == "POST":
         nonce = request.POST.get("payment_method_nonce", None)
 
-        if nonce is not None:
-            braintree_result = process_braintree_transaction(
-                amount=order.get_total_cost(),
-                nonce=nonce,
+        if nonce is None:
+            logger.warning(
+                "Braintree order payment failed: nonce is None",
+            )
+            return render_payment_processing_page(
+                request=request,
+                payment_total=order.get_total_cost(),
             )
 
-            if braintree_result.is_success:
-                order.paid = True
+        braintree_result = process_braintree_transaction(
+            amount=order.get_total_cost(),
+            nonce=nonce,
+        )
 
-                order.braintree_transaction_id = braintree_result.transaction.id  # type: ignore  # noqa: E501
+        if braintree_result.is_success is True:
+            order.paid = True
 
-                order.save()
+            order.braintree_transaction_id = braintree_result.transaction.id  # type: ignore  # noqa: E501
 
-                return redirect("payment:done")
+            order.save()
+
+            return redirect("payment:done")
 
         return redirect("payment:canceled")
     else:
@@ -228,9 +242,12 @@ def process_subscription_payment(
 
         if nonce is None:
             logger.warning(
-                "Braintree subscription failed: nonce is None",
+                "Braintree subscription payment failed: nonce is None",
             )
-            return redirect("payment:canceled")
+            return render_payment_processing_page(
+                request=request,
+                payment_total=subscription.get_total_cost(),
+            )
 
         braintree_result = process_braintree_subscription(
             first_name=subscription.subscriber_given_name,
