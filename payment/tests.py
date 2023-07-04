@@ -549,8 +549,6 @@ class TestProcessSubscriptionPayment(TestCase):
         recurring = False
         nonce = "fake_nonce"
 
-        # Create an instance of ErrorResult
-
         customer_error_result = ErrorResult(
             None,
             {"message": "Error message", "errors": {}},
