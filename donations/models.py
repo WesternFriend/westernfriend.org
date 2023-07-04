@@ -181,3 +181,19 @@ class Donation(models.Model):
             self.DonationRecurrenceChoices.MONTHLY,
             self.DonationRecurrenceChoices.YEARLY,
         )
+
+    panels = [
+        FieldPanel("amount"),
+        FieldPanel("recurrence"),
+        FieldPanel("donor_given_name"),
+        FieldPanel("donor_family_name"),
+        FieldPanel("donor_organization"),
+        FieldPanel("donor_email"),
+        FieldPanel("donor_address"),
+        FieldPanel("paid"),
+        # TODO: mark this as read_only=True
+        FieldPanel("braintree_transaction_id"),
+        # TODO: after Wagtail 5.1 upgrade,
+        # mark this as read_only=True
+        FieldPanel("braintree_subscription_id"),
+    ]
