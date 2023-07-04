@@ -169,6 +169,7 @@ class Donation(models.Model):
         # Add get_total_cost method to conform to payment page
         return self.amount
 
+    @property
     def recurring(self) -> bool:
         """Determine whether Donation is recurring.
 
