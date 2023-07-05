@@ -1,11 +1,19 @@
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from wagtail.images.models import Image
 
 from store.models import Book
 
 from content_migration.management.shared import get_or_create_image
+
+
+def cents_to_dollars(cents: str) -> Decimal:
+    try:
+        dollars = Decimal(cents) / 100
+    except InvalidOperation:
+        raise TypeError("The input to cents_to_dollars must be a numeric string.")
+    return round(dollars, 2)
 
 
 @dataclass
@@ -29,13 +37,12 @@ class RawBook:
     ) -> "RawBook":
         return cls(
             title=row["title"],
-            drupal_node_id=row["node_id"],
+            drupal_node_id=int(row["node_id"]),
             drupal_path=row["url_path"],
             drupal_body_migrated=row["description"],
             description=row["description"],
             image_url=row["cover_image"],
-            # row price is in cents, so divide by 100 to get dollars
-            price=Decimal(row["price"]) / 100,
+            price=cents_to_dollars(row["price"]),
             authors=[int(author_id) for author_id in row["authors"].split(",")],
         )
 
