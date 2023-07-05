@@ -44,7 +44,7 @@ class RawBookTest(TestCase):
         drupal_path = "/test/path"
         drupal_body_migrated = "Test body"
         description = "Test description"
-        image_url = "http://example.com/image.jpg"
+        image_url = "https://example.com/image.jpg"
         price = Decimal("10.00")
         authors = [1, 2, 3]
 
@@ -84,7 +84,7 @@ class RawBookTest(TestCase):
         mock_get_or_create_image: Mock,
     ) -> None:
         # Given
-        image_url = "http://example.com/image.jpg"
+        image_url = "https://example.com/image.jpg"
         raw_book = RawBook(
             title="Test Title",
             drupal_node_id=123,
