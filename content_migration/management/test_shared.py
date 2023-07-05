@@ -46,6 +46,7 @@ from content_migration.management.shared import (
     get_file_bytes_from_url,
     get_image_align_from_style,
     get_or_create_book_author,
+    get_or_create_image,
     get_or_create_site_root_page,
     parse_body_blocks,
     parse_csv_file,
@@ -1058,3 +1059,49 @@ class GetFileBytesFromUrlTest(SimpleTestCase):
 
         with self.assertRaises(RequestException):
             get_file_bytes_from_url(WESTERN_FRIEND_LOGO_URL)
+
+
+class GetOrCreateImageTest(SimpleTestCase):
+    @patch("wagtail.images.models.Image.objects.filter")
+    @patch("content_migration.management.shared.get_file_bytes_from_url")
+    @patch("content_migration.management.shared.create_image_from_file_bytes")
+    def test_image_does_not_exist(
+        self,
+        mock_create_image_from_file_bytes: Mock,
+        mock_get_file_bytes_from_url: Mock,
+        mock_filter: Mock,
+    ) -> None:
+        # Prepare the mocks
+        image_url = "https://example.com/image.png"
+        file_name = "image.png"
+        file_bytes = BytesIO(b"some content")
+        mock_image = Mock(title=file_name)
+        mock_get_file_bytes_from_url.return_value = file_bytes
+        mock_create_image_from_file_bytes.return_value = mock_image
+        mock_filter.return_value.exists.return_value = False
+
+        # Call the function
+        result = get_or_create_image(image_url)
+
+        # Check the result
+        self.assertEqual(result, mock_image)
+
+    @patch("wagtail.images.models.Image.objects.filter")
+    @patch("wagtail.images.models.Image.objects.get")
+    def test_image_exists(
+        self,
+        mock_get: Mock,
+        mock_filter: Mock,
+    ) -> None:
+        # Prepare the mocks
+        image_url = "https://example.com/image.png"
+        file_name = "image.png"
+        mock_image = Mock(title=file_name)
+        mock_get.return_value = mock_image
+        mock_filter.return_value.exists.return_value = True
+
+        # Call the function
+        result = get_or_create_image(image_url)
+
+        # Check the result
+        self.assertEqual(result, mock_image)
