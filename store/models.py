@@ -47,7 +47,7 @@ class ProductIndexPage(Page):
     ]
 
 
-class Product(DrupalFields, Page):
+class Product(DrupalFields, Page):  # type: ignore
     image = models.ForeignKey(
         "wagtailimages.Image",
         on_delete=models.SET_NULL,
