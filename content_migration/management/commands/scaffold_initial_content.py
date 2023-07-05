@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from wagtail.models import Page, Site
 from wagtail.blocks import StreamBlock, StreamValue
+from content_migration.management.shared import get_or_create_site_root_page
 from documents.models import MeetingDocumentIndexPage, PublicBoardDocumentIndexPage
 
 from community.models import (
@@ -44,10 +45,7 @@ class Command(BaseCommand):
     help = "Create initial site structure"
 
     def handle(self, *args: tuple, **options: dict[str, str]) -> None:
-        try:
-            root_page = Page.objects.get(id=1)
-        except Page.DoesNotExist:
-            root_page = Page(id=1).save()
+        root_page = get_or_create_site_root_page()
 
         home_page = HomePage(
             title="Welcome",
