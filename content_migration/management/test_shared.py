@@ -1,5 +1,7 @@
+from decimal import Decimal
 from io import BytesIO
-from unittest.mock import patch
+from unittest import mock
+from unittest.mock import Mock, patch
 from django.test import TestCase, SimpleTestCase
 from wagtail.models import Page, Site
 from wagtail.rich_text import RichText
@@ -40,6 +42,8 @@ from content_migration.management.shared import (
     fetch_file_bytes,
     get_existing_magazine_author_from_db,
     get_image_align_from_style,
+    get_or_create_book_author,
+    get_or_create_site_root_page,
     parse_body_blocks,
     parse_csv_file,
     parse_media_blocks,
@@ -57,6 +61,7 @@ from content_migration.management.constants import (
     WESTERN_FRIEND_LOGO_URL,
     WESTERN_FRIEND_LOGO_FILE_NAME,
 )
+from store.models import Book, BookAuthor, ProductIndexPage, StoreIndexPage
 
 
 # class CreateMediaEmbedBlockTestCase(TestCase):
@@ -901,3 +906,111 @@ class GetImageAlignFromStyleSimpleTestCase(SimpleTestCase):
         image_align_none = get_image_align_from_style(style_none)
 
         self.assertEqual(image_align_none, None)
+
+
+class GetOrCreateBookAuthorTest(TestCase):
+    def setUp(self) -> None:
+        self.root_page = get_or_create_site_root_page()
+
+        self.home_page = HomePage(
+            title="Welcome",
+        )
+
+        self.root_page.add_child(
+            instance=self.home_page,
+        )
+        self.root_page.save()
+
+        self.store_index_page = StoreIndexPage(
+            title="Bookstore",
+            show_in_menus=True,
+        )
+        self.community_page = CommunityPage(
+            title="Community",
+            show_in_menus=True,
+        )
+
+        self.home_page.add_child(
+            instance=self.store_index_page,
+        )
+        self.home_page.add_child(
+            instance=self.community_page,
+        )
+
+        self.product_index_page = ProductIndexPage(
+            title="Products",
+        )
+
+        self.store_index_page.add_child(
+            instance=self.product_index_page,
+        )
+
+        self.book = self.product_index_page.add_child(
+            instance=Book(
+                title="book_title",
+                slug="book_slug",
+                price=Decimal(10),
+            ),
+        )
+
+        self.person_index_page = PersonIndexPage(
+            title="People",
+        )
+        self.community_page.add_child(
+            instance=self.person_index_page,
+        )
+        self.author = self.person_index_page.add_child(
+            instance=Person(
+                given_name="John",
+                family_name="Doe",
+                drupal_author_id=123,
+            )
+        )
+
+    @mock.patch("store.models.BookAuthor.objects.filter")
+    @mock.patch(
+        "content_migration.management.shared.get_existing_magazine_author_from_db"
+    )
+    def test_book_author_exists(
+        self,
+        mock_get_author: Mock,
+        mock_filter: Mock,
+    ) -> None:
+        book_author = BookAuthor.objects.create(
+            book=self.book,
+            author=self.author,
+        )
+        mock_get_author.return_value = self.author
+        mock_filter.return_value.exists.return_value = True
+        mock_filter.return_value.get.return_value = self.author
+
+        result = get_or_create_book_author(self.book, 123)
+
+        mock_get_author.assert_called_once_with(drupal_author_id=123)
+        mock_filter.assert_called_once_with(
+            book=self.book,
+            author=self.author,
+        )
+
+        self.assertEqual(result, book_author)
+
+    @mock.patch("store.models.BookAuthor.objects.filter")
+    @mock.patch(
+        "content_migration.management.shared.get_existing_magazine_author_from_db"
+    )
+    def test_book_author_does_not_exist(
+        self,
+        mock_get_author: Mock,
+        mock_filter: Mock,
+    ) -> None:
+        mock_get_author.return_value = self.author
+        mock_filter.return_value.exists.return_value = False
+
+        result = get_or_create_book_author(self.book, 123)
+
+        mock_get_author.assert_called_once_with(drupal_author_id=123)
+        mock_filter.assert_called_once_with(book=self.book, author=self.author)
+
+        self.assertIsInstance(result, BookAuthor)
+        self.assertEqual(result.book, self.book)
+        self.assertEqual(result.author, self.author)
