@@ -1,10 +1,12 @@
 from django.db import models
-from modelcluster.fields import ParentalKey
+from django.http import HttpRequest
+from modelcluster.fields import ParentalKey  # type: ignore
 from wagtail.admin.panels import FieldPanel, InlinePanel, PageChooserPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Orderable, Page
 
 from cart.forms import CartAddProductForm
+from common.models import DrupalFields
 
 
 class StoreIndexPage(Page):
@@ -21,7 +23,12 @@ class StoreIndexPage(Page):
 
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         context = super().get_context(request)
 
         context["products"] = Product.objects.all()
@@ -40,7 +47,7 @@ class ProductIndexPage(Page):
     ]
 
 
-class Product(Page):
+class Product(DrupalFields, Page):  # type: ignore
     image = models.ForeignKey(
         "wagtailimages.Image",
         on_delete=models.SET_NULL,
@@ -62,7 +69,12 @@ class Product(Page):
         FieldPanel("image"),
     ]
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         context = super().get_context(request)
 
         context["cart_add_product_form"] = CartAddProductForm
@@ -70,7 +82,7 @@ class Product(Page):
         return context
 
 
-class Book(Product):
+class Book(Product):  # type: ignore
     content_panels = Product.content_panels + [
         InlinePanel(
             "authors",

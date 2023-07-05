@@ -37,6 +37,7 @@ from content_migration.management.constants import (
     LOCAL_MIGRATION_DATA_DIRECTORY,
     SITE_BASE_URL,
 )
+from store.models import Book, BookAuthor
 
 ALLOWED_AUDIO_CONTENT_TYPES = [
     "audio/mpeg",
@@ -92,6 +93,48 @@ MEDIA_EMBED_DOMAINS = [
 ]
 
 
+def get_or_create_site_root_page() -> Page:
+    root_page: Page
+    try:
+        root_page = Page.objects.get(
+            id=1,
+        )
+    except Page.DoesNotExist:
+        root_page = Page.objects.create(
+            id=1,
+        ).save()
+
+    return root_page
+
+
+def get_or_create_book_author(
+    book: Book,
+    drupal_author_id: int,
+) -> BookAuthor:
+    """Create a BookAuthor object from a Book and a Drupal author ID."""
+    author = get_existing_magazine_author_from_db(drupal_author_id=drupal_author_id)
+
+    book_author_exists = BookAuthor.objects.filter(
+        book=book,
+        author=author,
+    ).exists()
+
+    if book_author_exists:
+        return BookAuthor.objects.get(
+            book=book,
+            author=author,
+        )
+    else:
+        book_author = BookAuthor(
+            book=book,
+            author=author,
+        )
+
+        book_author.save()
+
+        return book_author
+
+
 def construct_import_file_path(file_key: str) -> str:
     """Construct the path to a file to import."""
     return f"{LOCAL_MIGRATION_DATA_DIRECTORY}{IMPORT_FILENAMES[file_key]}"
@@ -138,19 +181,7 @@ def create_image_block_from_url(
 ) -> dict:
     """Create a Wagtial image block from an image URL."""
 
-    try:
-        response = requests.get(image_url)
-    except requests.exceptions.MissingSchema:
-        logger.error(f"Invalid image URL, missing schema: { image_url }")
-        raise
-    except requests.exceptions.InvalidSchema:
-        logger.error(f"Invalid image URL, invalid schema: { image_url }")
-        raise
-    except requests.exceptions.RequestException:
-        logger.error(f"Could not download image: { image_url }")
-        raise
-
-    file_bytes = BytesIO(response.content)
+    file_bytes = get_file_bytes_from_url(file_url=image_url)
 
     # create an ImageFile object
     file_name = image_url.split(sep="/")[-1]
@@ -213,6 +244,47 @@ class BlockFactory:
             )
         else:
             raise ValueError(f"Invalid block type: {generic_block.block_type}")
+
+
+def get_file_bytes_from_url(file_url: str) -> BytesIO:
+    """Get file bytes from a URL."""
+
+    try:
+        response = requests.get(file_url)
+    except requests.exceptions.MissingSchema:
+        logger.error(f"Invalid URL, missing schema: { file_url }")
+        raise
+    except requests.exceptions.InvalidSchema:
+        logger.error(f"Invalid URL, invalid schema: { file_url }")
+        raise
+    except requests.exceptions.RequestException:
+        logger.error(f"Could not download file: { file_url }")
+        raise
+
+    return BytesIO(response.content)
+
+
+def get_or_create_image(
+    image_url: str,
+) -> Image:
+    """Get or create an image from an image URL."""
+
+    # Check if the image already exists
+    file_name = image_url.split(sep="/")[-1]
+
+    image_exists = Image.objects.filter(title=file_name).exists()
+
+    if image_exists:
+        return Image.objects.get(title=file_name)
+    else:
+        # Download the image
+        file_bytes = get_file_bytes_from_url(file_url=image_url)
+
+        # create an ImageFile object
+        return create_image_from_file_bytes(
+            file_name=file_name,
+            file_bytes=file_bytes,
+        )
 
 
 def remove_pullquote_tags(item_string: str) -> str:
