@@ -93,7 +93,24 @@ MEDIA_EMBED_DOMAINS = [
 ]
 
 
-def get_or_create_book_author(book: Book, drupal_author_id: int) -> BookAuthor:
+def get_or_create_site_root_page() -> Page:
+    root_page: Page
+    try:
+        root_page = Page.objects.get(
+            id=1,
+        )
+    except Page.DoesNotExist:
+        root_page = Page.objects.create(
+            id=1,
+        ).save()
+
+    return root_page
+
+
+def get_or_create_book_author(
+    book: Book,
+    drupal_author_id: int,
+) -> BookAuthor:
     """Create a BookAuthor object from a Book and a Drupal author ID."""
     author = get_existing_magazine_author_from_db(drupal_author_id=drupal_author_id)
 
