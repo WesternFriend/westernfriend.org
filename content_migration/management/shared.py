@@ -37,6 +37,7 @@ from content_migration.management.constants import (
     LOCAL_MIGRATION_DATA_DIRECTORY,
     SITE_BASE_URL,
 )
+from store.models import Book, BookAuthor
 
 ALLOWED_AUDIO_CONTENT_TYPES = [
     "audio/mpeg",
@@ -90,6 +91,31 @@ MEDIA_EMBED_DOMAINS = [
     "player.vimeo.com",
     "open.spotify.com",
 ]
+
+
+def get_or_create_book_author(book: Book, drupal_author_id: int) -> BookAuthor:
+    """Create a BookAuthor object from a Book and a Drupal author ID."""
+    author = get_existing_magazine_author_from_db(drupal_author_id=drupal_author_id)
+
+    book_author_exists = BookAuthor.objects.filter(
+        book=book,
+        author=author,
+    ).exists()
+
+    if book_author_exists:
+        return BookAuthor.objects.get(
+            book=book,
+            author=author,
+        )
+    else:
+        book_author = BookAuthor(
+            book=book,
+            author=author,
+        )
+
+        book_author.save()
+
+        return book_author
 
 
 def construct_import_file_path(file_key: str) -> str:
