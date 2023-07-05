@@ -181,19 +181,7 @@ def create_image_block_from_url(
 ) -> dict:
     """Create a Wagtial image block from an image URL."""
 
-    try:
-        response = requests.get(image_url)
-    except requests.exceptions.MissingSchema:
-        logger.error(f"Invalid image URL, missing schema: { image_url }")
-        raise
-    except requests.exceptions.InvalidSchema:
-        logger.error(f"Invalid image URL, invalid schema: { image_url }")
-        raise
-    except requests.exceptions.RequestException:
-        logger.error(f"Could not download image: { image_url }")
-        raise
-
-    file_bytes = BytesIO(response.content)
+    file_bytes = get_file_bytes_from_url(file_url=image_url)
 
     # create an ImageFile object
     file_name = image_url.split(sep="/")[-1]
