@@ -215,6 +215,24 @@ class BlockFactory:
             raise ValueError(f"Invalid block type: {generic_block.block_type}")
 
 
+def get_file_bytes_from_url(file_url: str) -> BytesIO:
+    """Get file bytes from a URL."""
+
+    try:
+        response = requests.get(file_url)
+    except requests.exceptions.MissingSchema:
+        logger.error(f"Invalid URL, missing schema: { file_url }")
+        raise
+    except requests.exceptions.InvalidSchema:
+        logger.error(f"Invalid URL, invalid schema: { file_url }")
+        raise
+    except requests.exceptions.RequestException:
+        logger.error(f"Could not download file: { file_url }")
+        raise
+
+    return BytesIO(response.content)
+
+
 def remove_pullquote_tags(item_string: str) -> str:
     """Remove the span with class 'pullquote' from a string, preserving the
     contents of the span.
