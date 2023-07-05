@@ -233,6 +233,29 @@ def get_file_bytes_from_url(file_url: str) -> BytesIO:
     return BytesIO(response.content)
 
 
+def get_or_create_image(
+    image_url: str,
+) -> Image:
+    """Get or create an image from an image URL."""
+
+    # Check if the image already exists
+    file_name = image_url.split(sep="/")[-1]
+
+    image_exists = Image.objects.filter(title=file_name).exists()
+
+    if image_exists:
+        return Image.objects.get(title=file_name)
+    else:
+        # Download the image
+        file_bytes = get_file_bytes_from_url(file_url=image_url)
+
+        # create an ImageFile object
+        return create_image_from_file_bytes(
+            file_name=file_name,
+            file_bytes=file_bytes,
+        )
+
+
 def remove_pullquote_tags(item_string: str) -> str:
     """Remove the span with class 'pullquote' from a string, preserving the
     contents of the span.
