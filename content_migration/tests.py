@@ -22,6 +22,7 @@ class RawBookTest(TestCase):
 
         # Check the result
         self.assertEqual(raw_book.title, "Test Book")
+        self.assertEqual(str(raw_book), "Test Book")
         self.assertEqual(raw_book.drupal_node_id, 123)
         self.assertEqual(raw_book.drupal_path, "/test-book")
         self.assertEqual(raw_book.drupal_body_migrated, "This is a test book.")
