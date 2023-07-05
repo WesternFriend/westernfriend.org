@@ -3,6 +3,8 @@ from io import BytesIO
 from unittest import mock
 from unittest.mock import Mock, patch
 from django.test import TestCase, SimpleTestCase
+from requests.exceptions import MissingSchema, InvalidSchema, RequestException
+
 from wagtail.models import Page, Site
 from wagtail.rich_text import RichText
 
@@ -41,6 +43,7 @@ from content_migration.management.shared import (
     extract_pullquotes,
     fetch_file_bytes,
     get_existing_magazine_author_from_db,
+    get_file_bytes_from_url,
     get_image_align_from_style,
     get_or_create_book_author,
     get_or_create_site_root_page,
@@ -1014,3 +1017,44 @@ class GetOrCreateBookAuthorTest(TestCase):
         self.assertIsInstance(result, BookAuthor)
         self.assertEqual(result.book, self.book)
         self.assertEqual(result.author, self.author)
+
+
+class GetFileBytesFromUrlTest(SimpleTestCase):
+    def test_success(self) -> None:
+        result = get_file_bytes_from_url(WESTERN_FRIEND_LOGO_URL)
+
+        response = requests.get(WESTERN_FRIEND_LOGO_URL)
+        expected_result = BytesIO(response.content)
+
+        self.assertIsInstance(result, BytesIO)
+        self.assertEqual(result.getvalue(), expected_result.getvalue())
+
+    @patch("requests.get")
+    def test_missing_schema(
+        self,
+        mock_get: Mock,
+    ) -> None:
+        mock_get.side_effect = MissingSchema
+
+        with self.assertRaises(MissingSchema):
+            get_file_bytes_from_url("invalid_url")
+
+    @patch("requests.get")
+    def test_invalid_schema(
+        self,
+        mock_get: Mock,
+    ) -> None:
+        mock_get.side_effect = InvalidSchema
+
+        with self.assertRaises(InvalidSchema):
+            get_file_bytes_from_url("invalid_url")
+
+    @patch("requests.get")
+    def test_request_exception(
+        self,
+        mock_get: Mock,
+    ) -> None:
+        mock_get.side_effect = RequestException
+
+        with self.assertRaises(RequestException):
+            get_file_bytes_from_url(WESTERN_FRIEND_LOGO_URL)
