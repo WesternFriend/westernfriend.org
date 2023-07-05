@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unittest.mock import Mock, patch
 from django.test import SimpleTestCase, TestCase
 
 from content_migration.models import RawBook, cents_to_dollars
@@ -30,6 +31,30 @@ class RawBookTest(TestCase):
         self.assertEqual(raw_book.image_url, "https://example.com/test-book.jpg")
         self.assertEqual(raw_book.price, Decimal("19.99"))
         self.assertEqual(raw_book.authors, [1, 2, 3])
+
+    @patch("content_migration.models.get_or_create_image")
+    def test_get_or_create_image(
+        self,
+        mock_get_or_create_image: Mock,
+    ) -> None:
+        # Given
+        image_url = "http://example.com/image.jpg"
+        raw_book = RawBook(
+            title="Test Title",
+            drupal_node_id=123,
+            drupal_path="/test/path",
+            drupal_body_migrated="Test body",
+            description="Test description",
+            image_url=image_url,
+            price=Decimal(10.00),
+            authors=[1, 2, 3],
+        )
+
+        # When
+        raw_book.get_or_create_image()
+
+        # Then
+        mock_get_or_create_image.assert_called_once_with(image_url=image_url)
 
 
 class TestCentsToDollars(SimpleTestCase):
