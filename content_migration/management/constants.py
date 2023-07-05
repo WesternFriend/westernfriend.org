@@ -14,6 +14,7 @@ IMPORT_FILENAMES = {
     "archive_articles": "archive_articles.csv",
     "archive_issues": "archive_issues.csv",
     "board_documents": "board_documents.csv",
+    "books": "books.csv",
     "civicrm_relationships": "CiviCRM_meeting_relationships.csv",
     "civicrm_contacts": "CiviCRM_Contacts.csv",
     "events": "events.csv",
