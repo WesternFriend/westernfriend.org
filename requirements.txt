@@ -32,7 +32,7 @@ defusedxml==0.7.1
     # via willow
 dj-database-url==2.0.0
     # via Western-Friend-website (pyproject.toml)
-django==4.2.2
+django==4.2.3
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
