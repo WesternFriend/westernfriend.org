@@ -41,6 +41,8 @@ class OrderModelAdmin(ModelAdmin):
     inspect_view_enabled = True
     inspect_view_fields = [
         "id",
+        "paid",
+        "braintree_transaction_id",
         "purchaser_given_name",
         "purchaser_family_name",
         "purchaser_meeting_or_organization",
