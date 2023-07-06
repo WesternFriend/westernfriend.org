@@ -104,6 +104,8 @@ dev = [
     "coverage",
     "validate-pyproject",
     "pip-tools",
+    "factory_boy",
+    "types-factory-boy",
 ]
 
 [tool.black]

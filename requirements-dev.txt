@@ -107,6 +107,12 @@ draftjs-exporter==2.1.7
     # via wagtail
 et-xmlfile==1.1.0
     # via openpyxl
+factory-boy==3.2.1
+    # via
+    #   Western-Friend-website (pyproject.toml)
+    #   types-factory-boy
+faker==18.11.2
+    # via factory-boy
 fastjsonschema==2.17.1
     # via validate-pyproject
 filelock==3.12.2
@@ -165,6 +171,7 @@ python-dateutil==2.8.2
     # via
     #   arrow
     #   botocore
+    #   faker
 python-dotenv==1.0.0
     # via Western-Friend-website (pyproject.toml)
 pytz==2023.3
@@ -200,6 +207,8 @@ types-beautifulsoup4==4.12.0.5
     # via Western-Friend-website (pyproject.toml)
 types-braintree==4.20.0.0
     # via Western-Friend-website (pyproject.toml)
+types-factory-boy==0.4.1
+    # via Western-Friend-website (pyproject.toml)
 types-html5lib==1.1.11.14
     # via types-beautifulsoup4
 types-pytz==2023.3.0.0
@@ -220,6 +229,7 @@ typing-extensions==4.7.1
     #   django-stubs-ext
     #   mypy
     #   pydantic
+    #   types-factory-boy
 tzdata==2023.3
     # via Western-Friend-website (pyproject.toml)
 urllib3==1.26.16
