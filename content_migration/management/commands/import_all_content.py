@@ -22,5 +22,6 @@ class Command(BaseCommand):
         call_command("import_pages")
         call_command("import_civicrm_contacts")
         call_command("import_civicrm_relationships")
+        call_command("import_books")
         # TODO: add remaining importers
         # - CiviCRM clerk relationships (are we planning to use these going forward?)

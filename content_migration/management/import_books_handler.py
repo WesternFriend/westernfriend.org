@@ -8,9 +8,7 @@ from store.models import Book, ProductIndexPage
 
 
 def handle_import_books(file_name: str) -> None:
-    # Get reference to ProductIndexPage
     product_index_page = ProductIndexPage.objects.get()
-    print(product_index_page)
 
     with open(file_name) as csv_file:
         reader = csv.DictReader(csv_file)
@@ -29,7 +27,7 @@ def handle_import_books(file_name: str) -> None:
                 book = Book.objects.get(
                     drupal_node_id=raw_book.drupal_node_id,
                 )
-                print("fetched book", book)
+
                 book.title = raw_book.title
                 book.description = raw_book.description
                 book.price = raw_book.price
@@ -40,7 +38,6 @@ def handle_import_books(file_name: str) -> None:
                 book.save()
             else:
                 book = raw_book.to_book()
-                print("created book", book)
 
                 product_index_page.add_child(instance=book)
 
