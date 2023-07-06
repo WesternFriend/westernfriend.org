@@ -12,9 +12,9 @@ asgiref==3.7.2
     # via django
 beautifulsoup4==4.11.2
     # via wagtail
-boto3==1.26.162
+boto3==1.27.1
     # via Western-Friend-website (pyproject.toml)
-botocore==1.29.162
+botocore==1.30.1
     # via
     #   boto3
     #   s3transfer
@@ -32,7 +32,7 @@ defusedxml==0.7.1
     # via willow
 dj-database-url==2.0.0
     # via Western-Friend-website (pyproject.toml)
-django==4.2.2
+django==4.2.3
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
@@ -62,13 +62,13 @@ django-extensions==3.2.3
     # via Western-Friend-website (pyproject.toml)
 django-filter==22.1
     # via wagtail
-django-flatpickr==2.0.0
+django-flatpickr==2.0.1
     # via Western-Friend-website (pyproject.toml)
 django-modelcluster==6.0
     # via wagtail
 django-permissionedforms==0.1
     # via wagtail
-django-registration==3.3
+django-registration==3.4
     # via Western-Friend-website (pyproject.toml)
 django-storages==1.13.2
     # via Western-Friend-website (pyproject.toml)
@@ -104,7 +104,7 @@ pillow==9.5.0
     # via wagtail
 psycopg2-binary==2.9.6
     # via Western-Friend-website (pyproject.toml)
-pydantic==1.10.9
+pydantic==1.10.11
     # via django-flatpickr
 python-dateutil==2.8.2
     # via
@@ -139,7 +139,7 @@ telepath==0.3.1
     # via wagtail
 tqdm==4.65.0
     # via Western-Friend-website (pyproject.toml)
-typing-extensions==4.6.3
+typing-extensions==4.7.1
     # via
     #   dj-database-url
     #   django-flatpickr
