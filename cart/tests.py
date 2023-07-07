@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 from django.test import RequestFactory, TestCase
 from django.template.response import TemplateResponse
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.urls import reverse
 from wagtail.models import Page
 from cart.views import cart_detail
 from content_migration.management.shared import get_or_create_site_root_page
@@ -201,9 +202,9 @@ class CartDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response, TemplateResponse)
         self.assertEqual(response.template_name, "cart/detail.html")
-        self.assertIn("cart", response.context_data)
+        self.assertIn("cart", response.context_data)  # type: ignore
 
-        cart_items = list(response.context_data["cart"])
+        cart_items = list(response.context_data["cart"])  # type: ignore
         expected_cart_length = 2
         self.assertEqual(len(cart_items), expected_cart_length)
 
@@ -247,6 +248,41 @@ class CartDetailViewTest(TestCase):
             cart_items[1]["total_price"],
             expected_total_price_item_two,
         )
+
+    def test_cart_add_view(self) -> None:
+        # use Django TestClient.client to make a POST request to the
+        # cart:add URL using reverse("cart:add") to get the URL
+        # and passing in the product id as a keyword argument
+        # with context containing a quantity of 1
+        # and follow=True to follow redirects
+
+        # Make sure initial cart is empty
+        cart = Cart(self.client)
+        self.assertEqual(len(cart), 0)
+        self.assertNotIn(self.product1, cart.get_cart_products())
+
+        # Add product to cart
+        response = self.client.post(
+            reverse(
+                "cart:add",
+                kwargs={"product_id": self.product1.id},
+            ),
+            {"quantity": 1},
+            follow=True,
+        )
+        # Make sure request was successful
+        self.assertEqual(response.status_code, 200)
+
+        # check that the redirect goes to the cart:detail URL
+        self.assertEqual(
+            response.redirect_chain[0][0],
+            reverse("cart:detail"),
+        )
+
+        # check that the product was added to the cart
+        cart = Cart(self.client)  # type: ignore
+        self.assertEqual(len(cart), 1)
+        self.assertIn(self.product1, cart.get_cart_products())
 
     def tearDown(self) -> None:
         # delete all pages
