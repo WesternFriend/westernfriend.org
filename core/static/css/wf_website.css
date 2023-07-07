@@ -161,3 +161,10 @@ p {
 .navbar-dark .navbar-nav .nav-link {
   color: #ffe9e5;
 }
+/* Make sure embedded videos take up full with 
+while preserving the typical aspect ratio */
+iframe {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: 100%;
+}
