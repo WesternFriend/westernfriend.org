@@ -1,12 +1,35 @@
 from decimal import Decimal
 from unittest.mock import Mock, patch
 from django.test import RequestFactory, TestCase
+from django.template.response import TemplateResponse
 from django.contrib.sessions.middleware import SessionMiddleware
 from wagtail.models import Page
+from cart.views import cart_detail
+from content_migration.management.shared import get_or_create_site_root_page
+
+from store.factories import ProductFactory
 
 from .cart import Cart
-from home.models import HomePage
 from store.models import Product, ProductIndexPage, StoreIndexPage
+
+
+def scaffold_product_index_page() -> ProductIndexPage:
+    # Create a parent page
+    root_page = get_or_create_site_root_page()
+    # create the store index page
+    store_index_page = StoreIndexPage(
+        title="Bookstore",
+        show_in_menus=True,
+    )
+    root_page.add_child(instance=store_index_page)
+
+    # create the product index page
+    product_index_page = ProductIndexPage(
+        title="Products",
+    )
+    store_index_page.add_child(instance=product_index_page)
+
+    return product_index_page
 
 
 class CartTestCase(TestCase):
@@ -18,29 +41,7 @@ class CartTestCase(TestCase):
         middleware.process_request(self.request)
         self.request.session.save()
 
-        # get Site Root
-        root_page = Page.objects.get(id=1)
-
-        # Create HomePage
-        home_page = HomePage(
-            title="Welcome",
-        )
-
-        root_page.add_child(instance=home_page)
-        # root_page.save()
-
-        # Create StoreIndexPage
-        store_index_page = StoreIndexPage(
-            title="Bookstore",
-            show_in_menus=True,
-        )
-        home_page.add_child(instance=store_index_page)
-
-        # Create ProductIndexPage
-        product_index_page = ProductIndexPage(
-            title="Products",
-        )
-        store_index_page.add_child(instance=product_index_page)
+        product_index_page = scaffold_product_index_page()
 
         self.product1 = Product(
             title="Product 1",
@@ -159,6 +160,46 @@ class CartTestCase(TestCase):
         self.assertEqual(cart_items[1]["quantity"], 2)
         self.assertEqual(cart_items[1]["price"], Decimal("19.99"))
         self.assertEqual(cart_items[1]["total_price"], Decimal("39.98"))
+
+    def tearDown(self) -> None:
+        # delete all pages
+        Page.objects.all().delete()
+
+        return super().tearDown()
+
+
+class CartDetailViewTest(TestCase):
+    def setUp(self) -> None:
+        self.request_factory = RequestFactory()
+
+        product_index_page = scaffold_product_index_page()
+
+        # create some test products using the ProductFactory
+        self.product1 = ProductFactory.build()
+        self.product2 = ProductFactory.build()
+
+        product_index_page.add_child(instance=self.product1)
+        product_index_page.add_child(instance=self.product2)
+
+    def test_cart_detail_view(self) -> None:
+        # make sure request has session middleware
+        request = self.request_factory.get("/")
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        request.session.save()
+
+        # add products to the cart
+        cart = Cart(request)
+        cart.add(self.product1)
+        cart.add(self.product2, quantity=2)
+
+        # get the response
+        response = cart_detail(request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response, TemplateResponse)
+        self.assertEqual(response.template_name, "cart/detail.html")
+        self.assertIn("cart", response.context_data)
 
     def tearDown(self) -> None:
         # delete all pages
