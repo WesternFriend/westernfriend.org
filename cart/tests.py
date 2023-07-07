@@ -246,7 +246,7 @@ class CartDetailViewTest(TestCase):
         # and follow=True to follow redirects
 
         # Make sure initial cart is empty
-        cart = Cart(self.client)
+        cart = Cart(self.client)  # type: ignore
         self.assertEqual(len(cart), 0)
         self.assertNotIn(self.product1, cart.get_cart_products())
 
@@ -272,6 +272,40 @@ class CartDetailViewTest(TestCase):
         cart = Cart(self.client)  # type: ignore
         self.assertEqual(len(cart), 1)
         self.assertIn(self.product1, cart.get_cart_products())
+
+    def test_cart_remove_view(self) -> None:
+        # Make an initial cart with a single product
+        cart = Cart(self.client)  # type: ignore
+        cart.add(self.product1)
+
+        # assert that cart contains product
+        self.assertEqual(len(cart), 1)
+        self.assertIn(self.product1, cart.get_cart_products())
+
+        # Make a POST request to the cart:remove URL
+        # using reverse("cart:remove") to get the URL
+        # and passing in the product id as a keyword argument
+        response = self.client.post(
+            reverse(
+                "cart:remove",
+                kwargs={"product_id": self.product1.id},
+            ),
+            follow=True,
+        )
+
+        # Make sure request was successful
+        self.assertEqual(response.status_code, 200)
+
+        # check that the redirect goes to the cart:detail URL
+        self.assertEqual(
+            response.redirect_chain[0][0],
+            reverse("cart:detail"),
+        )
+
+        # check that the product was removed from the cart
+        cart = Cart(self.client)  # type: ignore
+        self.assertEqual(len(cart), 0)
+        self.assertNotIn(self.product1, cart.get_cart_products())
 
     def tearDown(self) -> None:
         # delete all pages
