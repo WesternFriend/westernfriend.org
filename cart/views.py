@@ -1,5 +1,6 @@
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.template.response import TemplateResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST, require_GET
 
 from store.models import Product
@@ -45,7 +46,7 @@ def cart_remove(
 @require_GET
 def cart_detail(
     request: HttpRequest,
-) -> HttpResponse:
+) -> TemplateResponse:
     cart = Cart(request)
 
     for item in cart:
@@ -56,4 +57,12 @@ def cart_detail(
             }
         )
 
-    return render(request, "cart/detail.html", {"cart": cart})
+    context = {
+        "cart": cart,
+    }
+
+    return TemplateResponse(
+        request,
+        "cart/detail.html",
+        context,
+    )
