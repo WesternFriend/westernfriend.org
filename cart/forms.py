@@ -6,4 +6,8 @@ class CartAddProductForm(forms.Form):
         min_value=1,
     )
 
-    update = forms.BooleanField(required=False, initial=False, widget=forms.HiddenInput)
+    update = forms.BooleanField(
+        required=False,
+        initial=False,
+        widget=forms.HiddenInput,
+    )
