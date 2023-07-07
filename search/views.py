@@ -1,10 +1,11 @@
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from wagtail.models import Page
 from wagtail.search.models import Query
 
 
-def search(request):
+def search(request: HttpRequest) -> HttpResponse:
     search_query = request.GET.get("query", None)
     page = request.GET.get("page", 1)
 
