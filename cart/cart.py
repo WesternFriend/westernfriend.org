@@ -32,7 +32,7 @@ class Cart:
         self.cart[product_id] = {
             "product_title": product.title,
             "product_id": product_id,
-            "quantity": 0,
+            "quantity": quantity,
             "price": str(product.price),
         }
 
