@@ -190,8 +190,10 @@ class CartDetailViewTest(TestCase):
 
         # add products to the cart
         cart = Cart(request)
+
+        product_two_quantity = 2
         cart.add(self.product1)
-        cart.add(self.product2, quantity=2)
+        cart.add(self.product2, quantity=product_two_quantity)
 
         # get the response
         response = cart_detail(request)
@@ -200,6 +202,51 @@ class CartDetailViewTest(TestCase):
         self.assertIsInstance(response, TemplateResponse)
         self.assertEqual(response.template_name, "cart/detail.html")
         self.assertIn("cart", response.context_data)
+
+        cart_items = list(response.context_data["cart"])
+        expected_cart_length = 2
+        self.assertEqual(len(cart_items), expected_cart_length)
+
+        default_cart_quantity = 1
+        self.assertEqual(
+            cart_items[0]["product"],
+            self.product1,
+        )
+        self.assertEqual(
+            cart_items[0]["quantity"],
+            default_cart_quantity,
+        )
+        self.assertEqual(
+            cart_items[0]["price"],
+            self.product1.price,
+        )
+        expected_total_price_item_one = (
+            cart_items[0]["price"] * cart_items[0]["quantity"]
+        )
+        self.assertEqual(
+            cart_items[0]["total_price"],
+            expected_total_price_item_one,
+        )
+
+        self.assertEqual(
+            cart_items[1]["product"],
+            self.product2,
+        )
+        self.assertEqual(
+            cart_items[1]["quantity"],
+            product_two_quantity,
+        )
+        self.assertEqual(
+            cart_items[1]["price"],
+            self.product2.price,
+        )
+        expected_total_price_item_two = (
+            cart_items[1]["price"] * cart_items[1]["quantity"]
+        )
+        self.assertEqual(
+            cart_items[1]["total_price"],
+            expected_total_price_item_two,
+        )
 
     def tearDown(self) -> None:
         # delete all pages
