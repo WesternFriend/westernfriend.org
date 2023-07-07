@@ -24,7 +24,6 @@ def cart_add(
         cart.add(
             product=product,
             quantity=form_clean["quantity"],
-            update_quantity=form_clean["update"],
         )
 
         cart.save()
@@ -55,7 +54,6 @@ def cart_detail(
         item["update_quantity_form"] = CartAddProductForm(
             initial={
                 "quantity": item["quantity"],
-                "update": True,
             }
         )
 
