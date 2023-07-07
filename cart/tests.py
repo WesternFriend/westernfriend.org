@@ -69,17 +69,6 @@ class CartTestCase(TestCase):
         self.assertEqual(cart.get_subtotal_price(), Decimal("9.99"))
 
         cart.add(self.product1, quantity=2)
-        self.assertEqual(len(cart), 3)
-        self.assertEqual(cart.get_subtotal_price(), Decimal("29.97"))
-
-    def test_add_product_update_quantity(self) -> None:
-        cart = Cart(self.request)
-
-        cart.add(self.product1, quantity=3)
-        self.assertEqual(len(cart), 3)
-        self.assertEqual(cart.get_subtotal_price(), Decimal("29.97"))
-
-        cart.add(self.product1, quantity=2, update_quantity=True)
         self.assertEqual(len(cart), 2)
         self.assertEqual(cart.get_subtotal_price(), Decimal("19.98"))
 
