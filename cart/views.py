@@ -27,6 +27,8 @@ def cart_add(
             update_quantity=form_clean["update"],
         )
 
+        cart.save()
+
     return redirect("cart:detail")
 
 
