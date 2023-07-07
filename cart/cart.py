@@ -25,22 +25,16 @@ class Cart:
         self,
         product: Product,
         quantity: int = 1,
-        update_quantity: bool = False,
     ) -> None:
         """Add a product to the cart or update its quantity."""
         product_id = str(product.id)  # type: ignore
 
-        if product_id not in self.cart:
-            self.cart[product_id] = {
-                "product_title": product.title,
-                "product_id": product_id,
-                "quantity": 0,
-                "price": str(product.price),
-            }
-        if update_quantity:
-            self.cart[product_id]["quantity"] = quantity
-        else:
-            self.cart[product_id]["quantity"] += quantity
+        self.cart[product_id] = {
+            "product_title": product.title,
+            "product_id": product_id,
+            "quantity": 0,
+            "price": str(product.price),
+        }
 
         self.save()
 
