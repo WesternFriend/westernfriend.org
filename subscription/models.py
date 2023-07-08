@@ -254,20 +254,24 @@ class Subscription(models.Model):
     ]
 
     def __str__(self) -> str:
-        return f"subscription {self.id}"  # type: ignore
+        return f"Subscription {self.id}"  # type: ignore
 
     @property
     def subscriber_full_name(self) -> str:
-        full_name = ""
+        """Return the full name of the subscriber."""
 
-        if self.subscriber_given_name:
-            full_name += self.subscriber_given_name + " "
-        if self.subscriber_family_name:
-            full_name += self.subscriber_family_name + " "
+        name_components = [
+            self.subscriber_given_name,
+            self.subscriber_family_name,
+        ]
 
-        return full_name.rstrip()
+        if all(name == "" for name in name_components):
+            return ""
+        else:
+            return " ".join(name_components).strip()
 
     def get_total_cost(self) -> int:
+        """Return the total cost of the subscription."""
         return self.price
 
     def save(self, *args: Any, **kwargs: Any) -> None:
