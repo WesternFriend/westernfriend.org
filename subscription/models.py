@@ -14,7 +14,7 @@ from wagtail.fields import RichTextField
 from wagtail.models import Page
 
 if TYPE_CHECKING:
-    from .forms import SubscriptionCreateForm
+    from .forms import SubscriptionCreateForm  # pragma: no cover
 
 logger = logging.getLogger(__name__)
 
