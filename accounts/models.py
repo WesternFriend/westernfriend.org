@@ -20,7 +20,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    subscriptions: models.QuerySet["Subscription"]
+    subscriptions: models.QuerySet[Subscription]
 
     def __str__(self) -> str:
         return self.email
@@ -29,7 +29,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # and return a list of active subscriptions
     # so we can allow use-cases where a user can have multiple active subscriptions
     # such as managing subscriptions for a Meeting or a Group
-    def get_active_subscription(self) -> "Subscription" | None:
+    def get_active_subscription(self) -> Subscription | None:
         """Get subscription that isn't expired for this user."""
         today = datetime.datetime.today()
 
