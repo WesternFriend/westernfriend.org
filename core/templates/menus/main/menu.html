@@ -1,5 +1,4 @@
 {% load menu_tags %}
-{% load user_is_subscriber %}
 
 {% for item in menu_items %}
     <li class="{{ item.active_class }} nav-item">
@@ -7,9 +6,8 @@
     </li>
 {% endfor %}
 
-{% user_is_subscriber as user_is_subscriber %}
 
-{% if not user_is_subscriber %}
+{% if not request.user.is_subscriber %}
     <li class="nav-item">
         <a href="/subscribe" class="nav-link">Subscribe</a>
     </li>
