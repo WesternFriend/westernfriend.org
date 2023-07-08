@@ -38,11 +38,18 @@ class MagazineIssueButtonHelperClass(PageButtonHelper):
         }
 
     def get_buttons_for_obj(
-        self, obj, exclude=[], classnames_add=[], classnames_exclude=[]
+        self,
+        obj,
+        exclude=[],
+        classnames_add=[],
+        classnames_exclude=[],
     ):
         # call the parent class method to get the default set of buttons
         buttons = super().get_buttons_for_obj(
-            obj, exclude, classnames_add, classnames_exclude
+            obj,
+            exclude,
+            classnames_add,
+            classnames_exclude,
         )
 
         # set up some variables to do user checks and also get the primary key (id)
@@ -54,7 +61,9 @@ class MagazineIssueButtonHelperClass(PageButtonHelper):
         # - see wagtail/contrib/modeladmin/helpers/permission.py
         if "add-child" not in exclude and permission_helper.user_can_create(user):
             add_child_button = self.add_child_button(
-                pk, classnames_add, classnames_exclude
+                pk,
+                classnames_add,
+                classnames_exclude,
             )
             buttons.append(add_child_button)
 
@@ -98,7 +107,7 @@ class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
         url = reverse(url_name, args=[obj.id])
 
         return format_html(
-            f'<a href="{url}" class="button button-small button-secondary">Add Article</a>'  # noqa: E501
+            f'<a href="{url}" class="button button-small button-secondary">Add Article</a>',  # noqa: E501
         )
 
     def view_articles(self, obj):
@@ -106,7 +115,7 @@ class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
         url = reverse(url_name, args=[obj.id])
 
         return format_html(
-            f'<a href="{url}" class="button button-small button-secondary">View Articles</a>'  # noqa: E501
+            f'<a href="{url}" class="button button-small button-secondary">View Articles</a>',  # noqa: E501
         )
 
 

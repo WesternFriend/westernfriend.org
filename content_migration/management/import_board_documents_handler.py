@@ -49,7 +49,7 @@ def handle_import_board_documents(file_name: str) -> None:
     ):
         # Make sure no board document exists with matching drupal_node_id
         board_document_exists = PublicBoardDocument.objects.filter(
-            drupal_node_id=document_data["drupal_node_id"]
+            drupal_node_id=document_data["drupal_node_id"],
         ).exists()
 
         if not board_document_exists:
@@ -63,7 +63,7 @@ def handle_import_board_documents(file_name: str) -> None:
             # Convert the board document category TextChoice label
             # to a BoardDocumentCategory key
             board_document.category = get_board_document_category_key(  # type: ignore
-                document_data["board_document_category"]
+                document_data["board_document_category"],
             )
 
             # Parse the document's body, if it is not empty
@@ -75,7 +75,7 @@ def handle_import_board_documents(file_name: str) -> None:
                 # download media from URL, convert it to a list of blocks,
                 # and append it to the document's body
                 board_document.body += parse_media_blocks(
-                    parse_media_string_to_list(document_data["media"])
+                    parse_media_string_to_list(document_data["media"]),
                 )
 
             # Add the document to the index page

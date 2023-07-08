@@ -56,10 +56,12 @@ class MagazineIndexPage(Page):
         FieldPanel("intro"),
         FieldPanel("deep_archive_intro"),
         PageChooserPanel(
-            "deep_archive_page", page_type="magazine.DeepArchiveIndexPage"
+            "deep_archive_page",
+            page_type="magazine.DeepArchiveIndexPage",
         ),
         PageChooserPanel(
-            "featured_deep_archive_issue", page_type="magazine.ArchiveIssue"
+            "featured_deep_archive_issue",
+            page_type="magazine.ArchiveIssue",
         ),
     ]
 
@@ -122,7 +124,8 @@ class MagazineIssue(DrupalFields, Page):
         related_name="+",
     )
     publication_date = models.DateField(
-        null=True, help_text="Please select the first day of the publication month"
+        null=True,
+        help_text="Please select the first day of the publication month",
     )
     issue_number = models.PositiveIntegerField(null=True, blank=True)
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
@@ -173,7 +176,9 @@ class MagazineIssue(DrupalFields, Page):
 
 class MagazineArticleTag(TaggedItemBase):
     content_object = ParentalKey(
-        to="MagazineArticle", related_name="tagged_items", on_delete=models.CASCADE
+        to="MagazineArticle",
+        related_name="tagged_items",
+        on_delete=models.CASCADE,
     )
 
 
@@ -257,7 +262,7 @@ class MagazineArticle(DrupalFields, Page):
                         "superscript",
                         "superscript",
                         "strikethrough",
-                    ]
+                    ],
                 ),
             ),
             ("pullquote", PullQuoteBlock()),
@@ -324,7 +329,7 @@ class MagazineArticle(DrupalFields, Page):
                 "location": self.full_url,
                 "lastmod": self.latest_revision_created_at,
                 "priority": 1,
-            }
+            },
         ]
 
     @property
@@ -378,8 +383,9 @@ class MagazineArticleAuthor(Orderable):
 
     panels = [
         PageChooserPanel(
-            "author", ["contact.Person", "contact.Meeting", "contact.Organization"]
-        )
+            "author",
+            ["contact.Person", "contact.Meeting", "contact.Organization"],
+        ),
     ]
 
 
@@ -399,8 +405,9 @@ class ArchiveArticleAuthor(Orderable):
 
     panels = [
         PageChooserPanel(
-            "author", ["contact.Person", "contact.Meeting", "contact.Organization"]
-        )
+            "author",
+            ["contact.Person", "contact.Meeting", "contact.Organization"],
+        ),
     ]
 
     class Meta:
@@ -440,7 +447,7 @@ class ArchiveArticle(ClusterableModel):
             heading="Page numbers",
         ),
         HelpPanel(
-            content="Add article authors by clicking the '+ Add' button below, if known."  # noqa: E501
+            content="Add article authors by clicking the '+ Add' button below, if known.",  # noqa: E501
         ),
         NestedInlinePanel(
             "archive_authors",
@@ -457,7 +464,8 @@ class ArchiveArticle(ClusterableModel):
 
 class ArchiveIssue(DrupalFields, Page):
     publication_date = models.DateField(
-        null=True, help_text="Please select the first day of the publication month"
+        null=True,
+        help_text="Please select the first day of the publication month",
     )
     internet_archive_identifier = models.CharField(
         max_length=255,
@@ -546,7 +554,8 @@ class DeepArchiveIndexPage(Page):
         archive_issues = self.get_filtered_archive_issues(request)
 
         paginated_archive_issues = self.get_paginated_archive_issues(
-            archive_issues, request
+            archive_issues,
+            request,
         )
 
         context["archive_issues"] = paginated_archive_issues

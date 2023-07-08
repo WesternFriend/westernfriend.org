@@ -7,5 +7,5 @@ urlpatterns = [
         "department/<slug:slug>/",
         MagazineDepartmentDetail.as_view(),
         name="department-detail",
-    )
+    ),
 ]

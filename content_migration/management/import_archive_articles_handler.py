@@ -84,7 +84,7 @@ def handle_import_archive_articles(file_name: str) -> None:
     ):
         try:
             issue = ArchiveIssue.objects.get(
-                internet_archive_identifier=archive_issue.internet_archive_identifier
+                internet_archive_identifier=archive_issue.internet_archive_identifier,
             )
         except ObjectDoesNotExist:
             error_message = f"Could not find archive issue with identifier: { archive_issue.internet_archive_identifier }"  # noqa: E501
@@ -103,12 +103,12 @@ def handle_import_archive_articles(file_name: str) -> None:
                 toc_page_number = article_data["toc_page_number"]
 
             article_exists = ArchiveArticle.objects.filter(
-                drupal_node_id=article_data["drupal_node_id"]
+                drupal_node_id=article_data["drupal_node_id"],
             ).exists()
 
             if article_exists:
                 archive_article = ArchiveArticle.objects.get(
-                    drupal_node_id=article_data["drupal_node_id"]
+                    drupal_node_id=article_data["drupal_node_id"],
                 )
                 # Make sure all fields are updated
                 archive_article.title = article_data["title"]

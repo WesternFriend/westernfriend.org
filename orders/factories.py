@@ -18,7 +18,7 @@ class OrderFactory(DjangoModelFactory):
     purchaser_meeting_or_organization = factory.Faker("company")
     purchaser_email = factory.Faker("email")
     recipient_name = factory.LazyAttribute(
-        lambda x: f"{fake.first_name()} {fake.last_name()}"
+        lambda x: f"{fake.first_name()} {fake.last_name()}",
     )
     recipient_street_address = factory.Faker("street_address")
     recipient_postal_code = factory.Faker("zipcode")

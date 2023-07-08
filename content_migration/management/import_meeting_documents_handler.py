@@ -46,12 +46,12 @@ def handle_import_meeting_documents(file_name: str) -> None:
     ):
         # Make sure no meeting document exists with matching drupal_node_id
         meeting_document_exists = MeetingDocument.objects.filter(
-            drupal_node_id=document_data["drupal_node_id"]
+            drupal_node_id=document_data["drupal_node_id"],
         ).exists()
 
         try:
             publishing_meeting = Meeting.objects.get(
-                drupal_author_id=document_data["publishing_meeting_drupal_id"]
+                drupal_author_id=document_data["publishing_meeting_drupal_id"],
             )
         except Meeting.DoesNotExist:
             print(
@@ -75,7 +75,7 @@ def handle_import_meeting_documents(file_name: str) -> None:
             # to a MeetingDocumentType key
             meeting_document.document_type = (
                 get_meeting_document_type_key(  # type: ignore
-                    document_data["meeting_document_type"]
+                    document_data["meeting_document_type"],
                 )
             )
 

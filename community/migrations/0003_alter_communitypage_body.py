@@ -29,7 +29,8 @@ class Migration(migrations.Migration):
                                 (
                                     "title",
                                     wagtail.blocks.CharBlock(
-                                        help_text="Add a title", required=True
+                                        help_text="Add a title",
+                                        required=True,
                                     ),
                                 ),
                                 (
@@ -39,7 +40,7 @@ class Migration(migrations.Migration):
                                 (
                                     "image",
                                     wagtail.images.blocks.ImageChooserBlock(
-                                        required=False
+                                        required=False,
                                     ),
                                 ),
                                 (
@@ -57,20 +58,20 @@ class Migration(migrations.Migration):
                                             (
                                                 "button_text",
                                                 wagtail.blocks.CharBlock(
-                                                    required=False
+                                                    required=False,
                                                 ),
                                             ),
                                             (
                                                 "page_link",
                                                 wagtail.blocks.PageChooserBlock(
-                                                    required=False
+                                                    required=False,
                                                 ),
                                             ),
                                         ],
                                         required=False,
                                     ),
                                 ),
-                            ]
+                            ],
                         ),
                     ),
                     (
@@ -108,8 +109,8 @@ class Migration(migrations.Migration):
                                             ),
                                         ),
                                     ),
-                                )
-                            ]
+                                ),
+                            ],
                         ),
                     ),
                 ],

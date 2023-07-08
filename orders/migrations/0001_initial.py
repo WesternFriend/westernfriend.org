@@ -77,7 +77,8 @@ class Migration(migrations.Migration):
                 (
                     "recipient_postal_code",
                     models.CharField(
-                        help_text="Postal code for the shipping address.", max_length=16
+                        help_text="Postal code for the shipping address.",
+                        max_length=16,
                     ),
                 ),
                 (
@@ -92,7 +93,8 @@ class Migration(migrations.Migration):
                 (
                     "recipient_address_locality",
                     models.CharField(
-                        help_text="City for the shipping address.", max_length=255
+                        help_text="City for the shipping address.",
+                        max_length=255,
                     ),
                 ),
                 (

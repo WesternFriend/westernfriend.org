@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                                 "superscript",
                                 "strikethrough",
                                 "blockquote",
-                            ]
+                            ],
                         ),
                     ),
                     ("quote", wagtail.blocks.BlockQuoteBlock()),
@@ -63,8 +63,8 @@ class Migration(migrations.Migration):
                                             ),
                                         ),
                                     ),
-                                )
-                            ]
+                                ),
+                            ],
                         ),
                     ),
                     (
@@ -87,19 +87,19 @@ class Migration(migrations.Migration):
                                 (
                                     "heading_text",
                                     wagtail.blocks.CharBlock(
-                                        help_text="The text to appear in the heading."
+                                        help_text="The text to appear in the heading.",
                                     ),
                                 ),
                                 (
                                     "color",
                                     wagtail_color_panel.blocks.NativeColorBlock(
-                                        default="#000000"
+                                        default="#000000",
                                     ),
                                 ),
-                            ]
+                            ],
                         ),
                     ),
-                ]
+                ],
             ),
         ),
     ]

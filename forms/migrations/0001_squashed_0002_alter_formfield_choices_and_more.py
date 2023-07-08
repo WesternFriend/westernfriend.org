@@ -120,7 +120,9 @@ class Migration(migrations.Migration):
                 (
                     "help_text",
                     models.CharField(
-                        blank=True, max_length=255, verbose_name="help text"
+                        blank=True,
+                        max_length=255,
+                        verbose_name="help text",
                     ),
                 ),
                 (

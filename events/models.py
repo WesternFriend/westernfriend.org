@@ -30,8 +30,9 @@ class EventSponsor(Orderable):
 
     panels = [
         PageChooserPanel(
-            "sponsor", ["contact.Person", "contact.Meeting", "contact.Organization"]
-        )
+            "sponsor",
+            ["contact.Person", "contact.Meeting", "contact.Organization"],
+        ),
     ]
 
 

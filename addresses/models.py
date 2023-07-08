@@ -97,7 +97,7 @@ class Address(models.Model):
 
         # filter out empty components
         filtered_address_components = list(
-            filter(lambda x: x is not None and x != "", address_components)
+            filter(lambda x: x is not None and x != "", address_components),
         )
 
         # if the filtered components list isn't empty

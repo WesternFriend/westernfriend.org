@@ -136,7 +136,7 @@ def handle_import_magazine_articles(file_name: str) -> None:
         unit="row",
     ):
         article_exists = MagazineArticle.objects.filter(
-            drupal_node_id=row["node_id"]
+            drupal_node_id=row["node_id"],
         ).exists()
 
         # Skip import for existing articles

@@ -12,13 +12,15 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="meeting",
             index=models.Index(
-                fields=["civicrm_id"], name="meeting_civicrm_c09b04_idx"
+                fields=["civicrm_id"],
+                name="meeting_civicrm_c09b04_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="organization",
             index=models.Index(
-                fields=["civicrm_id"], name="organizatio_civicrm_4d8d5d_idx"
+                fields=["civicrm_id"],
+                name="organizatio_civicrm_4d8d5d_idx",
             ),
         ),
     ]

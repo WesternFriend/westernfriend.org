@@ -33,7 +33,8 @@ ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default_allowed_hosts).split("
 default_csrf_trusted_origins = "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost,https://westernfriend.eu.ngrok.io"
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
-    "DJANGO_CSRF_TRUSTED_ORIGINS", default_csrf_trusted_origins
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    default_csrf_trusted_origins,
 ).split(",")
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -176,9 +177,9 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
-            ]
+            ],
         },
-    }
+    },
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
@@ -203,7 +204,7 @@ else:
                 "PASSWORD": "postgres",
                 "HOST": "localhost",
                 "PORT": "5432",
-            }
+            },
         }
 
 
@@ -212,7 +213,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 WAGTAILSEARCH_BACKENDS = {
     "default": {
         "BACKEND": "wagtail.search.backends.database",
-    }
+    },
 }
 
 # Password validation

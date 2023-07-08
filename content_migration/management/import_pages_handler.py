@@ -24,7 +24,7 @@ def import_page_item(page_data: dict[str, str], home_page: HomePage) -> Page:
 
     if page_data["media"] != "":
         page_media_blocks = parse_media_blocks(
-            parse_media_string_to_list(page_data["media"])
+            parse_media_string_to_list(page_data["media"]),
         )
     else:
         page_media_blocks = None
@@ -44,7 +44,7 @@ def import_page_item(page_data: dict[str, str], home_page: HomePage) -> Page:
                 title=page_data["title"],
                 drupal_node_id=page_data["drupal_node_id"],
                 body=page_body_blocks,
-            )
+            ),
         )
 
     return page

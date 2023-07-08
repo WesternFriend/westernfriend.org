@@ -8,7 +8,9 @@ from wagtail.fields import RichTextField
 
 class FormField(AbstractFormField):
     page = ParentalKey(
-        "ContactFormPage", on_delete=models.CASCADE, related_name="form_fields"
+        "ContactFormPage",
+        on_delete=models.CASCADE,
+        related_name="form_fields",
     )
 
 

@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                         "relations_with_monthly_meetings",
                         "Relations with Monthly Meetings",
                     ),
-                ]
+                ],
             ),
         ),
     ]

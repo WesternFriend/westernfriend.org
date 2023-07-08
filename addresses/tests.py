@@ -27,5 +27,6 @@ class AddressSimpleTestCase(SimpleTestCase):
 
         address.country = "United States"
         self.assertEqual(
-            str(address), "123 Main St., Anytown, CA, 12345, United States"
+            str(address),
+            "123 Main St., Anytown, CA, 12345, United States",
         )

@@ -343,7 +343,10 @@ class Migration(migrations.Migration):
                 (
                     "country",
                     models.CharField(
-                        blank=True, default="United States", max_length=255, null=True
+                        blank=True,
+                        default="United States",
+                        max_length=255,
+                        null=True,
                     ),
                 ),
                 (

@@ -31,7 +31,9 @@ from facets.models import Audience, Genre, Medium, TimePeriod, Topic
 
 class LibraryItemTag(TaggedItemBase):
     content_object = ParentalKey(
-        to="LibraryItem", related_name="tagged_items", on_delete=models.CASCADE
+        to="LibraryItem",
+        related_name="tagged_items",
+        on_delete=models.CASCADE,
     )
 
 
@@ -195,7 +197,7 @@ class LibraryItemAuthor(Orderable):
                 "contact.Meeting",
                 "contact.Organization",
             ],
-        )
+        ),
     ]
 
 
@@ -239,7 +241,7 @@ class LibraryIndexPage(Page):
         # Prepare a list of authors
         library_item_authors = LibraryItemAuthor.objects.all()
         authors = Page.objects.filter(
-            library_items_authored__in=library_item_authors
+            library_items_authored__in=library_item_authors,
         ).distinct()
 
         # Populate faceted search fields
@@ -297,7 +299,7 @@ class LibraryIndexPage(Page):
             library_items_page = paginator.page(paginator.num_pages)
 
         library_items_page.adjusted_elided_pages = paginator.get_elided_page_range(
-            page_number
+            page_number,
         )
 
         # Provide filtered, paginated library items

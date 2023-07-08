@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                             [
                                 ("title", wagtail.blocks.CharBlock()),
                                 ("page", wagtail.blocks.PageChooserBlock()),
-                            ]
+                            ],
                         ),
                     ),
                     (
@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                                         required=False,
                                     ),
                                 ),
-                            ]
+                            ],
                         ),
                     ),
                     (
@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
                                                             "page",
                                                             wagtail.blocks.PageChooserBlock(),
                                                         ),
-                                                    ]
+                                                    ],
                                                 ),
                                             ),
                                             (
@@ -88,16 +88,16 @@ class Migration(migrations.Migration):
                                                                 required=False,
                                                             ),
                                                         ),
-                                                    ]
+                                                    ],
                                                 ),
                                             ),
-                                        ]
+                                        ],
                                     ),
                                 ),
-                            ]
+                            ],
                         ),
                     ),
-                ]
+                ],
             ),
         ),
     ]

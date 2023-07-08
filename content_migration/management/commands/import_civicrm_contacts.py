@@ -11,5 +11,5 @@ class Command(BaseCommand):
 
     def handle(self, *args: tuple, **options: dict[str, str]) -> None:
         handle_import_civicrm_contacts(
-            file_name=construct_import_file_path("civicrm_contacts")
+            file_name=construct_import_file_path("civicrm_contacts"),
         )

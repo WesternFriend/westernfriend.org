@@ -117,7 +117,7 @@ class Migration(migrations.Migration):
                                         (
                                             "heading_text",
                                             wagtail.blocks.CharBlock(
-                                                help_text="The text to appear in the heading."
+                                                help_text="The text to appear in the heading.",
                                             ),
                                         ),
                                         (
@@ -128,7 +128,7 @@ class Migration(migrations.Migration):
                                                 validators=(
                                                     django.core.validators.RegexValidator(
                                                         re.compile(
-                                                            "^[-a-zA-Z0-9_]+\\Z"
+                                                            "^[-a-zA-Z0-9_]+\\Z",
                                                         ),
                                                         "Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.",
                                                         "invalid",
@@ -139,10 +139,10 @@ class Migration(migrations.Migration):
                                         (
                                             "color",
                                             wagtail_color_panel.blocks.NativeColorBlock(
-                                                required=False
+                                                required=False,
                                             ),
                                         ),
-                                    ]
+                                    ],
                                 ),
                             ),
                             ("rich_text", wagtail.blocks.RichTextBlock()),
@@ -181,7 +181,7 @@ class Migration(migrations.Migration):
                                                 required=False,
                                             ),
                                         ),
-                                    ]
+                                    ],
                                 ),
                             ),
                             (
@@ -195,8 +195,8 @@ class Migration(migrations.Migration):
                                                 help_text="The height of this spacer in 'em' values where 1 em is one uppercase M.",
                                                 min_value=0,
                                             ),
-                                        )
-                                    ]
+                                        ),
+                                    ],
                                 ),
                             ),
                         ],
@@ -210,7 +210,8 @@ class Migration(migrations.Migration):
                 (
                     "timezone",
                     timezone_field.fields.TimeZoneField(
-                        choices_display="WITH_GMT_OFFSET", default="US/Pacific"
+                        choices_display="WITH_GMT_OFFSET",
+                        default="US/Pacific",
                     ),
                 ),
                 ("website", models.URLField(blank=True, max_length=300, null=True)),

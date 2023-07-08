@@ -101,11 +101,11 @@ class Migration(migrations.Migration):
                                         "superscript",
                                         "strikethrough",
                                         "blockquote",
-                                    ]
+                                    ],
                                 ),
                             ),
                             ("quote", wagtail.blocks.BlockQuoteBlock()),
-                        ]
+                        ],
                     ),
                 ),
                 (

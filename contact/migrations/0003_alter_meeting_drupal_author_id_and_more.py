@@ -13,21 +13,30 @@ class Migration(migrations.Migration):
             model_name="meeting",
             name="drupal_author_id",
             field=models.IntegerField(
-                blank=True, db_index=True, null=True, unique=True
+                blank=True,
+                db_index=True,
+                null=True,
+                unique=True,
             ),
         ),
         migrations.AlterField(
             model_name="organization",
             name="drupal_author_id",
             field=models.IntegerField(
-                blank=True, db_index=True, null=True, unique=True
+                blank=True,
+                db_index=True,
+                null=True,
+                unique=True,
             ),
         ),
         migrations.AlterField(
             model_name="person",
             name="drupal_author_id",
             field=models.IntegerField(
-                blank=True, db_index=True, null=True, unique=True
+                blank=True,
+                db_index=True,
+                null=True,
+                unique=True,
             ),
         ),
     ]

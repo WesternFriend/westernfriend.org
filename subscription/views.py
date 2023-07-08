@@ -31,7 +31,7 @@ braintree_gateway = braintree.BraintreeGateway(
         merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
         public_key=os.environ.get("BRAINTREE_PUBLIC_KEY"),
         private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
-    )
+    ),
 )
 
 

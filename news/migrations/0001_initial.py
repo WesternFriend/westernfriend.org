@@ -198,11 +198,11 @@ class Migration(migrations.Migration):
                                         "superscript",
                                         "strikethrough",
                                         "blockquote",
-                                    ]
+                                    ],
                                 ),
                             ),
                             ("pullquote", blocks.blocks.PullQuoteBlock()),
-                        ]
+                        ],
                     ),
                 ),
                 ("publication_date", models.DateField(default=datetime.date.today)),

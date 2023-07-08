@@ -23,6 +23,11 @@ repos:
     hooks:
       - id: django-upgrade
         args: [--target-version, "4.2"]
+  - repo: https://github.com/asottile/add-trailing-comma
+    rev: v3.0.0
+    hooks:
+      - id: add-trailing-comma
+        args: [--py36-plus]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
     rev: "v0.0.277"

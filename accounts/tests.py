@@ -43,7 +43,8 @@ class UserModelTest(TestCase):
         )
         # Creating expired subscription
         self.expired_subscription = Subscription.objects.create(
-            user=self.user, end_date=today - datetime.timedelta(days=7)
+            user=self.user,
+            end_date=today - datetime.timedelta(days=7),
         )
 
     def test_user_str_representation(self):

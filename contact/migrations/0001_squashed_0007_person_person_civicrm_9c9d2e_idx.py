@@ -64,7 +64,10 @@ class Migration(migrations.Migration):
                 (
                     "drupal_author_id",
                     models.IntegerField(
-                        blank=True, db_index=True, null=True, unique=True
+                        blank=True,
+                        db_index=True,
+                        null=True,
+                        unique=True,
                     ),
                 ),
                 (
@@ -158,7 +161,10 @@ class Migration(migrations.Migration):
                 (
                     "drupal_author_id",
                     models.IntegerField(
-                        blank=True, db_index=True, null=True, unique=True
+                        blank=True,
+                        db_index=True,
+                        null=True,
+                        unique=True,
                     ),
                 ),
                 (
@@ -353,7 +359,10 @@ class Migration(migrations.Migration):
                 (
                     "country",
                     models.CharField(
-                        blank=True, default="United States", max_length=255, null=True
+                        blank=True,
+                        default="United States",
+                        max_length=255,
+                        null=True,
                     ),
                 ),
                 (
@@ -405,7 +414,10 @@ class Migration(migrations.Migration):
                 (
                     "drupal_author_id",
                     models.IntegerField(
-                        blank=True, db_index=True, null=True, unique=True
+                        blank=True,
+                        db_index=True,
+                        null=True,
+                        unique=True,
                     ),
                 ),
                 (
@@ -431,31 +443,36 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="meeting",
             index=models.Index(
-                fields=["drupal_author_id"], name="meeting_drupal__cf6e0d_idx"
+                fields=["drupal_author_id"],
+                name="meeting_drupal__cf6e0d_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="organization",
             index=models.Index(
-                fields=["drupal_author_id"], name="organizatio_drupal__81d4b0_idx"
+                fields=["drupal_author_id"],
+                name="organizatio_drupal__81d4b0_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="person",
             index=models.Index(
-                fields=["drupal_author_id"], name="person_drupal__650db4_idx"
+                fields=["drupal_author_id"],
+                name="person_drupal__650db4_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="meeting",
             index=models.Index(
-                fields=["civicrm_id"], name="meeting_civicrm_c09b04_idx"
+                fields=["civicrm_id"],
+                name="meeting_civicrm_c09b04_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="organization",
             index=models.Index(
-                fields=["civicrm_id"], name="organizatio_civicrm_4d8d5d_idx"
+                fields=["civicrm_id"],
+                name="organizatio_civicrm_4d8d5d_idx",
             ),
         ),
         migrations.AddIndex(

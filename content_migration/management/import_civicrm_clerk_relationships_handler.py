@@ -66,7 +66,7 @@ def handle_import_civicrm_clerk_relationships(file_name: str) -> None:
             meeting = Meeting.objects.get(civicrm_id=contact_ids["meeting_id"])
         except ObjectDoesNotExist:
             print(
-                f"Could not find meeting with CiviCRM ID { contact_ids['meeting_id'] }"  # noqa: E501
+                f"Could not find meeting with CiviCRM ID { contact_ids['meeting_id'] }",  # noqa: E501
             )
             pass
 
@@ -79,7 +79,7 @@ def handle_import_civicrm_clerk_relationships(file_name: str) -> None:
         #     pass
 
         family_name, given_name = extract_given_and_family_name(
-            relationship["Contact A"]
+            relationship["Contact A"],
         )
 
         person_exists = Person.objects.filter(

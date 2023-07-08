@@ -354,7 +354,7 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                     GenericBlock(
                         block_type="rich_text",
                         block_content=rich_text_value,
-                    )
+                    ),
                 )
 
                 # reset rich text value
@@ -368,7 +368,7 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                         GenericBlock(
                             block_type="pullquote",
                             block_content=pullquote,
-                        )
+                        ),
                     )
 
                 item_string = remove_pullquote_tags(item_string)
@@ -396,7 +396,7 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                     # make sure the URL contains westernfriend.org
                     if "westernfriend.org" not in image_url:
                         raise ValueError(
-                            f"Image URL must contain westernfriend.org: {image_url}"
+                            f"Image URL must contain westernfriend.org: {image_url}",
                         )
 
                     # check if image is wrapped in a link
@@ -415,7 +415,7 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
                         GenericBlock(
                             block_type="image",
                             block_content=image_chooser_block_content,
-                        )
+                        ),
                     )
 
                     # reset item string,
@@ -433,7 +433,7 @@ def adapt_html_to_generic_blocks(html_string: str) -> list[GenericBlock]:
             GenericBlock(
                 block_type="rich_text",
                 block_content=rich_text_value,
-            )
+            ),
         )
 
     return generic_blocks
@@ -709,7 +709,7 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
                 )
             else:
                 logger.error(
-                    f"Could not parse {fetched_file.content_type} media item: { url }"
+                    f"Could not parse {fetched_file.content_type} media item: { url }",
                 )
                 continue
 

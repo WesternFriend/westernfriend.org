@@ -61,7 +61,9 @@ class Migration(migrations.Migration):
                 (
                     "publication_date",
                     models.DateField(
-                        blank=True, null=True, verbose_name="Publication date"
+                        blank=True,
+                        null=True,
+                        verbose_name="Publication date",
                     ),
                 ),
                 (

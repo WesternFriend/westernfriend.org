@@ -35,14 +35,14 @@ def handle_import_memorials(file_name: str) -> None:
         memorial_exists = Memorial.objects.filter(
             drupal_memorial_id=int(
                 memorial_data["memorial_id"],
-            )
+            ),
         ).exists()
 
         if memorial_exists:
             memorial = Memorial.objects.get(
                 drupal_memorial_id=int(
                     memorial_data["memorial_id"],
-                )
+                ),
             )
         else:
             memorial = Memorial(
@@ -63,7 +63,7 @@ def handle_import_memorials(file_name: str) -> None:
 
         try:
             memorial.memorial_meeting = get_existing_magazine_author_from_db(
-                meeting_author_id
+                meeting_author_id,
             )
         except CouldNotFindMatchingContactError:
             message = f"Could not find memorial meeting contact: {meeting_author_id}"
@@ -82,7 +82,7 @@ def handle_import_memorials(file_name: str) -> None:
         # otherwise, we can't link the memorial to a contact
         try:
             memorial.memorial_person = get_existing_magazine_author_from_db(
-                memorial_data["drupal_author_id"]
+                memorial_data["drupal_author_id"],
             )
         except CouldNotFindMatchingContactError:
             message = f"Could not find memorial person contact: {memorial_data['drupal_author_id']}"  # noqa: E501
@@ -107,12 +107,14 @@ def handle_import_memorials(file_name: str) -> None:
         # Dates are optional
         if memorial_data["Date of Birth"] != "":
             memorial.date_of_birth = datetime.strptime(
-                memorial_data["Date of Birth"], datetime_format
+                memorial_data["Date of Birth"],
+                datetime_format,
             )
 
         if memorial_data["Date of Death"] != "":
             memorial.date_of_death = datetime.strptime(
-                memorial_data["Date of Death"], datetime_format
+                memorial_data["Date of Death"],
+                datetime_format,
             )
 
         if memorial_data["Dates are approximate"] != "":

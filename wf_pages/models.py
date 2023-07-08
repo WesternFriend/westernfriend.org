@@ -82,7 +82,7 @@ class WfPage(DrupalFields, Page):
                         "superscript",
                         "strikethrough",
                         "blockquote",
-                    ]
+                    ],
                 ),
             ),
             ("pullquote", PullQuoteBlock()),

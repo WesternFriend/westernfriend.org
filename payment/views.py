@@ -26,7 +26,7 @@ braintree_gateway = braintree.BraintreeGateway(
         merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
         public_key=os.environ.get("BRAINTREE_PUBLIC_KEY"),
         private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
-    )
+    ),
 )
 
 
@@ -82,7 +82,7 @@ def process_braintree_subscription(
             "first_name": first_name,
             "last_name": last_name,
             "payment_method_nonce": nonce,
-        }
+        },
     )
 
     if customer_result.is_success:
@@ -111,7 +111,7 @@ def process_braintree_transaction(
             "options": {
                 "submit_for_settlement": True,
             },
-        }
+        },
     )
 
 

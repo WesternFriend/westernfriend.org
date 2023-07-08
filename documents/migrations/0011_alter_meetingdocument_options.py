@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                     "publishing_meeting",
                     "document_type",
                     "title",
-                ]
+                ],
             },
         ),
     ]

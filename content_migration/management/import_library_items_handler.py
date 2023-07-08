@@ -49,12 +49,12 @@ def add_library_item_authors(
             )
         except CouldNotFindMatchingContactError:
             logger.error(
-                f"Could not find magazine author by ID: { int(drupal_author_id) }"
+                f"Could not find magazine author by ID: { int(drupal_author_id) }",
             )
             continue
         except DuplicateContactError:
             logger.error(
-                f"Found multiple magazine authors by ID: { int(drupal_author_id) }"
+                f"Found multiple magazine authors by ID: { int(drupal_author_id) }",
             )
             continue
 
@@ -93,12 +93,12 @@ def handle_import_library_items(file_name: str) -> None:
         unit="row",
     ):
         library_item_exists = LibraryItem.objects.filter(
-            drupal_node_id=import_library_item["node_id"]
+            drupal_node_id=import_library_item["node_id"],
         ).exists()
 
         if library_item_exists:
             library_item = LibraryItem.objects.get(
-                drupal_node_id=import_library_item["node_id"]
+                drupal_node_id=import_library_item["node_id"],
             )
         else:
             library_item = LibraryItem(
@@ -122,41 +122,41 @@ def handle_import_library_items(file_name: str) -> None:
         if import_library_item["Audience"] != "":
             try:
                 library_item.item_audience = Audience.objects.get(
-                    title=import_library_item["Audience"]
+                    title=import_library_item["Audience"],
                 )
             except Audience.DoesNotExist:
                 logger.error(
-                    f"Could not find audience by title: { import_library_item['Audience'] }"  # noqa: E501
+                    f"Could not find audience by title: { import_library_item['Audience'] }",  # noqa: E501
                 )
 
         if import_library_item["Genre"] != "":
             try:
                 library_item.item_genre = Genre.objects.get(
-                    title=import_library_item["Genre"]
+                    title=import_library_item["Genre"],
                 )
             except Genre.DoesNotExist:
                 logger.error(
-                    f"Could not find genre by title: { import_library_item['Genre'] }"
+                    f"Could not find genre by title: { import_library_item['Genre'] }",
                 )
 
         if import_library_item["Medium"] != "":
             try:
                 library_item.item_medium = Medium.objects.get(
-                    title=import_library_item["Medium"]
+                    title=import_library_item["Medium"],
                 )
             except Medium.DoesNotExist:
                 logger.error(
-                    f"Could not find medium by title: { import_library_item['Medium'] }"
+                    f"Could not find medium by title: { import_library_item['Medium'] }",  # noqa: E501
                 )
 
         if import_library_item["Time Period"] != "":
             try:
                 library_item.item_time_period = TimePeriod.objects.get(
-                    title=import_library_item["Time Period"]
+                    title=import_library_item["Time Period"],
                 )
             except TimePeriod.DoesNotExist:
                 logger.error(
-                    f"Could not find time period by title: { import_library_item['Time Period'] }"  # noqa: E501
+                    f"Could not find time period by title: { import_library_item['Time Period'] }",  # noqa: E501
                 )
 
         # # Authors

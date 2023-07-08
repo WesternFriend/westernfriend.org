@@ -124,7 +124,9 @@ class MediaBlock(AbstractMediaChooserBlock):
         return format_html(
             player_code,
             format_html_join(
-                "\n", "<source{0}>", [[flatatt(s)] for s in value.sources]
+                "\n",
+                "<source{0}>",
+                [[flatatt(s)] for s in value.sources],
             ),
             value.width,
             value.height,

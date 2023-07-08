@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
                                 (
                                     "heading_text",
                                     wagtail.blocks.CharBlock(
-                                        help_text="The text to appear in the heading."
+                                        help_text="The text to appear in the heading.",
                                     ),
                                 ),
                                 (
@@ -65,10 +65,10 @@ class Migration(migrations.Migration):
                                 (
                                     "color",
                                     wagtail_color_panel.blocks.NativeColorBlock(
-                                        required=False
+                                        required=False,
                                     ),
                                 ),
-                            ]
+                            ],
                         ),
                     ),
                     ("rich_text", wagtail.blocks.RichTextBlock()),
@@ -114,8 +114,8 @@ class Migration(migrations.Migration):
                                         help_text="The height of this spacer in 'em' values where 1 em is one uppercase M.",
                                         min_value=0,
                                     ),
-                                )
-                            ]
+                                ),
+                            ],
                         ),
                     ),
                 ],

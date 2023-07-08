@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
                 "ordering": (
                     "memorial_person__family_name",
                     "memorial_person__given_name",
-                )
+                ),
             },
         ),
     ]

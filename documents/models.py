@@ -85,7 +85,7 @@ class MeetingDocument(DrupalFields, Page):
                         "superscript",
                         "strikethrough",
                         "blockquote",
-                    ]
+                    ],
                 ),
             ),
             (
@@ -207,7 +207,7 @@ class PublicBoardDocument(DrupalFields, Page):
                         "superscript",
                         "strikethrough",
                         "blockquote",
-                    ]
+                    ],
                 ),
             ),
             (

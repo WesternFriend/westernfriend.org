@@ -54,7 +54,7 @@ def cart_detail(
         item["update_quantity_form"] = CartAddProductForm(
             initial={
                 "quantity": item["quantity"],
-            }
+            },
         )
 
     context = {

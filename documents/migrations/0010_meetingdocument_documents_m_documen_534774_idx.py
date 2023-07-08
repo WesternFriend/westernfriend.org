@@ -12,7 +12,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="meetingdocument",
             index=models.Index(
-                fields=["document_type"], name="documents_m_documen_534774_idx"
+                fields=["document_type"],
+                name="documents_m_documen_534774_idx",
             ),
         ),
     ]

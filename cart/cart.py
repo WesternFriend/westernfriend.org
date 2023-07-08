@@ -64,7 +64,7 @@ class Cart:
             [
                 self.get_subtotal_price(),
                 self.get_shipping_cost(),
-            ]
+            ],
         )
         return Decimal(int_sum).quantize(Decimal("0.01"))
 

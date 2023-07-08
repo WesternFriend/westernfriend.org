@@ -31,7 +31,7 @@ def create_meeting(
     # if it does, update it
     # if it doesn't, create it
     meeting_exists = Meeting.objects.filter(
-        drupal_author_id=author["drupal_author_id"]
+        drupal_author_id=author["drupal_author_id"],
     ).exists()
 
     if meeting_exists:
@@ -66,7 +66,7 @@ def create_organization(
     organization_index_page: OrganizationIndexPage,
 ) -> Organization:
     organization_exists = Organization.objects.filter(
-        drupal_author_id=author["drupal_author_id"]
+        drupal_author_id=author["drupal_author_id"],
     ).exists()
 
     if organization_exists:
@@ -101,7 +101,7 @@ def create_person(
     person_index_page: PersonIndexPage,
 ) -> Person:
     person_exists = Person.objects.filter(
-        drupal_author_id=author["drupal_author_id"]
+        drupal_author_id=author["drupal_author_id"],
     ).exists()
 
     if person_exists:
@@ -152,7 +152,7 @@ def import_author_records(authors_list: list[dict]) -> None:
         # Instead, clean them up in the Drupal site
         if author["duplicate_of_id"] != "":
             logger.warning(
-                f"Author { author['drupal_author_id'] } is marked as a duplicate"
+                f"Author { author['drupal_author_id'] } is marked as a duplicate",
             )
 
             # continue to next author record
@@ -166,7 +166,7 @@ def import_author_records(authors_list: list[dict]) -> None:
                 create_person(author, person_index_page)
             else:
                 logger.error(
-                    f"Unknown author type for ID: { author['drupal_author_id'] }"
+                    f"Unknown author type for ID: { author['drupal_author_id'] }",
                 )
 
 

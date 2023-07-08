@@ -267,7 +267,7 @@ class Command(BaseCommand):
             [
                 ("page", NavigationPageChooserBlock()),
                 ("external_link", NavigationExternalLinkBlock()),
-            ]
+            ],
         )
 
         magazine_books_dropdown = {

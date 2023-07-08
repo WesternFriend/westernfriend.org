@@ -96,7 +96,7 @@ def process_subscription_form(
             kwargs={
                 "subscription_id": subscription.id,
             },
-        )
+        ),
     )
 
 
@@ -226,7 +226,7 @@ class Subscription(models.Model):
                             "end_date",
                             widget=DatePickerInput(),
                         ),
-                    ]
+                    ],
                 ),
                 # TODO: make this field read_only=True with Wagtail 5.1 update
                 FieldPanel("braintree_subscription_id"),
@@ -241,13 +241,13 @@ class Subscription(models.Model):
                     children=[
                         FieldPanel("subscriber_postal_code"),
                         FieldPanel("subscriber_address_locality"),
-                    ]
+                    ],
                 ),
                 FieldRowPanel(
                     children=[
                         FieldPanel("subscriber_address_region"),
                         FieldPanel("subscriber_address_country"),
-                    ]
+                    ],
                 ),
             ],
         ),
@@ -316,7 +316,9 @@ class SubscriptionIndexPage(Page):
             context["form"] = subscription_form
 
             return TemplateResponse(
-                request, self.get_template(request, *args, **kwargs), context
+                request,
+                self.get_template(request, *args, **kwargs),
+                context,
             )
         else:
             return super().serve(request)

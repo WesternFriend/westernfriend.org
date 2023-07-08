@@ -23,7 +23,7 @@ def handle_import_news_item(
 
     # check if news item exists
     news_item_exists = NewsItem.objects.filter(
-        drupal_node_id=news_item["drupal_node_id"]
+        drupal_node_id=news_item["drupal_node_id"],
     ).exists()
 
     if news_item_exists:
@@ -33,7 +33,7 @@ def handle_import_news_item(
         news_item_db.body = parse_body_blocks(news_item["body"])
         if news_item["media"] != "":
             news_item_db.body += parse_media_blocks(
-                parse_media_string_to_list(news_item["media"])
+                parse_media_string_to_list(news_item["media"]),
             )
         news_item_db.body_migrated = news_item["body"]
 
@@ -48,7 +48,7 @@ def handle_import_news_item(
         )
         if news_item["media"] != "":
             news_item_db.body += parse_media_blocks(
-                parse_media_string_to_list(news_item["media"])
+                parse_media_string_to_list(news_item["media"]),
             )
 
         news_index_page.add_child(instance=news_item_db)

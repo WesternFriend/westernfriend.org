@@ -36,5 +36,6 @@ class BookShippingTest(SimpleTestCase):
         for book_quantity, expected_shipping_cost in quantity_cost_expectations.items():
             with self.subTest(book_quantity=book_quantity):
                 self.assertEqual(
-                    get_book_shipping_cost(book_quantity), expected_shipping_cost
+                    get_book_shipping_cost(book_quantity),
+                    expected_shipping_cost,
                 )

@@ -145,7 +145,7 @@ class ParseBodyBlocksSimpleTestCase(SimpleTestCase):
             (
                 "rich_text",
                 RichText(
-                    """<p>Some text with a pullquote and another pullquote.</p>"""
+                    """<p>Some text with a pullquote and another pullquote.</p>""",
                 ),
             ),
         ]
@@ -495,7 +495,7 @@ class ParseMediaBlocksTestCase(TestCase):
 
     def test_parse_media_blocks_with_pdf_url(self) -> None:
         input_media_urls = [
-            "https://ia600400.us.archive.org/33/items/friendsbulletinp525unse_2/friendsbulletinp525unse_2.pdf"
+            "https://ia600400.us.archive.org/33/items/friendsbulletinp525unse_2/friendsbulletinp525unse_2.pdf",
         ]
         output_media_blocks = parse_media_blocks(input_media_urls)
         output_media_block_type = output_media_blocks[0][0]
@@ -508,7 +508,7 @@ class ParseMediaBlocksTestCase(TestCase):
 
     def test_parse_media_blocks_with_image_url(self) -> None:
         input_media_urls = [
-            "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png"
+            "https://westernfriend.org/sites/default/files/logo-2020-%20transparency-120px_0.png",
         ]
         output_media_blocks = parse_media_blocks(input_media_urls)
         output_media_block_type = output_media_blocks[0][0]
@@ -543,7 +543,7 @@ class ParseMediaBlocksTestCase(TestCase):
 
     def test_parse_media_blocks_with_audio_url(self) -> None:
         input_media_urls = [
-            "https://westernfriend.org/sites/default/files/library/EvilWhyTalkAboutItByBruceFolsom.mp3"
+            "https://westernfriend.org/sites/default/files/library/EvilWhyTalkAboutItByBruceFolsom.mp3",
         ]
         output_media_blocks = parse_media_blocks(input_media_urls)
         output_media_block_type = output_media_blocks[0][0]
@@ -563,7 +563,7 @@ class ParseCsvFileSimpleTestCase(SimpleTestCase):
             {
                 "column_one": "value one",
                 "column_two": "value two",
-            }
+            },
         ]
 
         self.assertEqual(
@@ -603,7 +603,7 @@ class CreateGroupBySimpleTestCase(SimpleTestCase):
                     "column_one": "value one",
                     "column_two": "value two",
                 },
-            ]
+            ],
         }
 
         self.assertEqual(
@@ -692,7 +692,8 @@ class AdaptHtmlToGenericBlockTest(SimpleTestCase):
         self.assertEqual(len(generic_blocks), 3)
         self.assertEqual(generic_blocks[0].block_type, "rich_text")
         self.assertEqual(
-            generic_blocks[0].block_content, """<p>Some text</p><p>Some more text</p>"""
+            generic_blocks[0].block_content,
+            """<p>Some text</p><p>Some more text</p>""",
         )
         self.assertEqual(generic_blocks[1].block_type, "pullquote")
         self.assertEqual(generic_blocks[1].block_content, "a pullquote")
@@ -786,7 +787,7 @@ class BlockFactorySimpleTestCase(SimpleTestCase):
             },
         )
         with patch(
-            "content_migration.management.shared.create_image_block_from_url"
+            "content_migration.management.shared.create_image_block_from_url",
         ) as mock_create_image_block:
             mock_create_image_block.side_effect = requests.exceptions.MissingSchema
             with self.assertRaises(BlockFactoryError) as cm:
@@ -803,7 +804,7 @@ class BlockFactorySimpleTestCase(SimpleTestCase):
             },
         )
         with patch(
-            "content_migration.management.shared.create_image_block_from_url"
+            "content_migration.management.shared.create_image_block_from_url",
         ) as mock_create_image_block:
             mock_create_image_block.side_effect = requests.exceptions.InvalidSchema
             with self.assertRaises(BlockFactoryError) as cm:
@@ -968,12 +969,12 @@ class GetOrCreateBookAuthorTest(TestCase):
                 given_name="John",
                 family_name="Doe",
                 drupal_author_id=123,
-            )
+            ),
         )
 
     @mock.patch("store.models.BookAuthor.objects.filter")
     @mock.patch(
-        "content_migration.management.shared.get_existing_magazine_author_from_db"
+        "content_migration.management.shared.get_existing_magazine_author_from_db",
     )
     def test_book_author_exists(
         self,
@@ -1000,7 +1001,7 @@ class GetOrCreateBookAuthorTest(TestCase):
 
     @mock.patch("store.models.BookAuthor.objects.filter")
     @mock.patch(
-        "content_migration.management.shared.get_existing_magazine_author_from_db"
+        "content_migration.management.shared.get_existing_magazine_author_from_db",
     )
     def test_book_author_does_not_exist(
         self,

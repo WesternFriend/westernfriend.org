@@ -54,13 +54,13 @@ def handle_import_online_worship_item(
 
     # check if news item exists
     online_worship_exists = OnlineWorship.objects.filter(
-        drupal_node_id=item["drupal_node_id"]
+        drupal_node_id=item["drupal_node_id"],
     ).exists()
 
     title = item["title"]
     description = item["body"]
     hosted_by = get_existing_magazine_author_from_db(
-        drupal_author_id=item["magazine_author_id"]
+        drupal_author_id=item["magazine_author_id"],
     )
     # times_of_worship = item["times_of_worship"]
     website = item["online_worship_url"]
@@ -73,7 +73,7 @@ def handle_import_online_worship_item(
 
     if online_worship_exists:
         online_worship_db = OnlineWorship.objects.get(
-            drupal_node_id=item["drupal_node_id"]
+            drupal_node_id=item["drupal_node_id"],
         )
         online_worship_db.title = title
         online_worship_db.description = description

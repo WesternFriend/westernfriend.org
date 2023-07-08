@@ -23,7 +23,9 @@ class Migration(migrations.Migration):
             model_name="subscription",
             name="subscriber_address_locality",
             field=models.CharField(
-                blank=True, help_text="City for the mailing address", max_length=255
+                blank=True,
+                help_text="City for the mailing address",
+                max_length=255,
             ),
         ),
         migrations.AlterField(

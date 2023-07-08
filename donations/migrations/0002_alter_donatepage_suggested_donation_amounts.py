@@ -23,25 +23,25 @@ class Migration(migrations.Migration):
                                 (
                                     "once",
                                     wagtail.blocks.ListBlock(
-                                        wagtail.blocks.IntegerBlock(label="Amount")
+                                        wagtail.blocks.IntegerBlock(label="Amount"),
                                     ),
                                 ),
                                 (
                                     "monthly",
                                     wagtail.blocks.ListBlock(
-                                        wagtail.blocks.IntegerBlock(label="Amount")
+                                        wagtail.blocks.IntegerBlock(label="Amount"),
                                     ),
                                 ),
                                 (
                                     "yearly",
                                     wagtail.blocks.ListBlock(
-                                        wagtail.blocks.IntegerBlock(label="Amount")
+                                        wagtail.blocks.IntegerBlock(label="Amount"),
                                     ),
                                 ),
                             ],
                             max_num=1,
                         ),
-                    )
+                    ),
                 ],
                 blank=True,
                 null=True,

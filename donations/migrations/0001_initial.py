@@ -41,30 +41,30 @@ class Migration(migrations.Migration):
                                             "once",
                                             wagtail.blocks.ListBlock(
                                                 wagtail.blocks.IntegerBlock(
-                                                    label="Amount"
-                                                )
+                                                    label="Amount",
+                                                ),
                                             ),
                                         ),
                                         (
                                             "monthly",
                                             wagtail.blocks.ListBlock(
                                                 wagtail.blocks.IntegerBlock(
-                                                    label="Amount"
-                                                )
+                                                    label="Amount",
+                                                ),
                                             ),
                                         ),
                                         (
                                             "yearly",
                                             wagtail.blocks.ListBlock(
                                                 wagtail.blocks.IntegerBlock(
-                                                    label="Amount"
-                                                )
+                                                    label="Amount",
+                                                ),
                                             ),
                                         ),
                                     ],
                                     max_num=1,
                                 ),
-                            )
+                            ),
                         ],
                         blank=True,
                         null=True,
@@ -135,7 +135,10 @@ class Migration(migrations.Migration):
                 (
                     "country",
                     models.CharField(
-                        blank=True, default="United States", max_length=255, null=True
+                        blank=True,
+                        default="United States",
+                        max_length=255,
+                        null=True,
                     ),
                 ),
                 (
@@ -188,7 +191,8 @@ class Migration(migrations.Migration):
                 (
                     "donor_email",
                     models.EmailField(
-                        help_text="Please enter your email", max_length=254
+                        help_text="Please enter your email",
+                        max_length=254,
                     ),
                 ),
                 ("paid", models.BooleanField(default=False)),

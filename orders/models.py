@@ -40,7 +40,8 @@ class Order(ClusterableModel):
         help_text="The street address where this order should be shipped.",
     )
     recipient_postal_code = models.CharField(
-        max_length=16, help_text="Postal code for the shipping address."
+        max_length=16,
+        help_text="Postal code for the shipping address.",
     )
     recipient_po_box_number = models.CharField(
         max_length=32,
@@ -59,7 +60,9 @@ class Order(ClusterableModel):
         default="",
     )
     recipient_address_country = models.CharField(
-        max_length=255, default="United States", help_text="Country for shipping."
+        max_length=255,
+        default="United States",
+        help_text="Country for shipping.",
     )
     shipping_cost = models.DecimalField(
         max_digits=10,

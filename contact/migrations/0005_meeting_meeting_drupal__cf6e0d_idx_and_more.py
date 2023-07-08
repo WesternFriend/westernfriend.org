@@ -12,19 +12,22 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="meeting",
             index=models.Index(
-                fields=["drupal_author_id"], name="meeting_drupal__cf6e0d_idx"
+                fields=["drupal_author_id"],
+                name="meeting_drupal__cf6e0d_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="organization",
             index=models.Index(
-                fields=["drupal_author_id"], name="organizatio_drupal__81d4b0_idx"
+                fields=["drupal_author_id"],
+                name="organizatio_drupal__81d4b0_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="person",
             index=models.Index(
-                fields=["drupal_author_id"], name="person_drupal__650db4_idx"
+                fields=["drupal_author_id"],
+                name="person_drupal__650db4_idx",
             ),
         ),
     ]

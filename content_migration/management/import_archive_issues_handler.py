@@ -11,13 +11,13 @@ def create_or_update_archive_issue(
     deep_archive_index_page: DeepArchiveIndexPage,
 ) -> ArchiveIssue:
     issue_exists = ArchiveIssue.objects.filter(
-        internet_archive_identifier=issue_data["internet_archive_identifier"]
+        internet_archive_identifier=issue_data["internet_archive_identifier"],
     ).exists()
 
     if issue_exists:
         # update existing issue
         archive_issue = ArchiveIssue.objects.get(
-            internet_archive_identifier=issue_data["internet_archive_identifier"]
+            internet_archive_identifier=issue_data["internet_archive_identifier"],
         )
         archive_issue.title = issue_data["title"]
         archive_issue.publication_date = issue_data["publication_date"]

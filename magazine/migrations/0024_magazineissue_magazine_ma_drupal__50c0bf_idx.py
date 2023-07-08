@@ -12,7 +12,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="magazineissue",
             index=models.Index(
-                fields=["drupal_node_id"], name="magazine_ma_drupal__50c0bf_idx"
+                fields=["drupal_node_id"],
+                name="magazine_ma_drupal__50c0bf_idx",
             ),
         ),
     ]

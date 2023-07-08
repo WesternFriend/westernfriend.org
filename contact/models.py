@@ -196,7 +196,9 @@ class Meeting(Page):
         InlinePanel("worship_times", label="Worship times"),
         InlinePanel("addresses", label="Address"),
         InlinePanel(
-            "presiding_clerks", label="Presiding clerk", heading="Presiding clerk(s)"
+            "presiding_clerks",
+            label="Presiding clerk",
+            heading="Presiding clerk(s)",
         ),
         FieldRowPanel(
             heading="Import metadata",
@@ -268,7 +270,9 @@ class Meeting(Page):
 
 class MeetingAddress(Orderable, Address):
     page = ParentalKey(
-        "contact.Meeting", on_delete=models.CASCADE, related_name="addresses"
+        "contact.Meeting",
+        on_delete=models.CASCADE,
+        related_name="addresses",
     )
 
 
@@ -281,7 +285,9 @@ class WorshipTypeChoices(models.TextChoices):
 
 class MeetingWorshipTime(Orderable):
     meeting = ParentalKey(
-        "contact.Meeting", on_delete=models.CASCADE, related_name="worship_times"
+        "contact.Meeting",
+        on_delete=models.CASCADE,
+        related_name="worship_times",
     )
     worship_type = models.CharField(
         max_length=255,

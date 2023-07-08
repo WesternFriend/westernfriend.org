@@ -12,7 +12,11 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name="meetingdocument",
             options={
-                "ordering": ["-publication_date", "publishing_meeting", "document_type"]
+                "ordering": [
+                    "-publication_date",
+                    "publishing_meeting",
+                    "document_type",
+                ],
             },
         ),
     ]

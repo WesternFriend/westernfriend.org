@@ -52,13 +52,15 @@ class TestProcessBraintreeSubscription(TestCase):
     @patch("braintree.CustomerGateway.create")
     @patch("braintree.SubscriptionGateway.create")
     def test_process_braintree_subscription(
-        self, mock_subscription_create: Mock, mock_customer_create: Mock
+        self,
+        mock_subscription_create: Mock,
+        mock_customer_create: Mock,
     ) -> None:
         # Mock Braintree subscription creation to return a fake subscription
         mock_subscription_create.return_value = SuccessfulResult(
             {
                 "subscription": MagicMock(),  # this represents a Subscription object
-            }
+            },
         )
         mock_subscription_create.return_value.subscription.id = "fake_subscription"  # type: ignore # noqa: E501
 
@@ -71,7 +73,7 @@ class TestProcessBraintreeSubscription(TestCase):
         mock_customer_create.return_value = SuccessfulResult(
             {
                 "customer": mock_customer,
-            }
+            },
         )
 
         # Execute function with arbitrary subscription data
@@ -137,7 +139,7 @@ class TestProcessBraintreeTransaction(TestCase):
         mock_sale.return_value = SuccessfulResult(
             {
                 "transaction": MagicMock(),  # this represents a Transaction object
-            }
+            },
         )
         mock_sale.return_value.transaction.id = "fake_transaction_id"  # type: ignore
 
@@ -279,7 +281,8 @@ class TestProcessBraintreeSingleDonation(TestCase):
         mock_process_transaction.return_value = mock_result
 
         response = process_braintree_single_donation(
-            donation=mock_donation, nonce="fake_nonce"
+            donation=mock_donation,
+            nonce="fake_nonce",
         )
 
         self.assertTrue(mock_donation.paid)
@@ -366,7 +369,7 @@ class TestProcessDonationPayment(TestCase):
         )
         # Assert logger.warning was called
         mock_logger.warning.assert_called_once_with(
-            msg="Braintree donation payment failed: nonce is None"
+            msg="Braintree donation payment failed: nonce is None",
         )
         self.assertEqual(response, mock_render_payment_page.return_value)
 
@@ -463,7 +466,7 @@ class TestProcessBookstoreOrderPayment(TestCase):
         )
         # Assert logger.warning was called
         mock_logger.warning.assert_called_once_with(
-            msg="Braintree order payment failed: nonce is None"
+            msg="Braintree order payment failed: nonce is None",
         )
         self.assertEqual(response, mock_render_payment_page.return_value)
 
@@ -471,7 +474,10 @@ class TestProcessBookstoreOrderPayment(TestCase):
     @patch("payment.views.redirect")
     @patch("payment.views.process_braintree_transaction")
     def test_process_bookstore_order_payment_POST_success(
-        self, mock_process_transaction: Mock, mock_redirect: Mock, mock_get_order: Mock
+        self,
+        mock_process_transaction: Mock,
+        mock_redirect: Mock,
+        mock_get_order: Mock,
     ) -> None:
         mock_request = MagicMock(spec=HttpRequest)
         mock_request.method = "POST"
@@ -577,7 +583,7 @@ class TestProcessSubscriptionPayment(TestCase):
                 "first_name": first_name,
                 "last_name": last_name,
                 "payment_method_nonce": nonce,
-            }
+            },
         )
         self.assertIsInstance(result, ErrorResult)
         self.assertEqual(result.message, "Error message")  # type: ignore
@@ -612,7 +618,7 @@ class TestProcessSubscriptionPayment(TestCase):
             {
                 "transaction": {"id": "test_id"},
                 "subscription": mock_braintree_subscription,
-            }
+            },
         )
         mock_process_subscription.return_value = mock_result
 
@@ -704,12 +710,13 @@ class TestProcessSubscriptionPayment(TestCase):
 
         # Assert logger.warning was called
         mock_logger.warning.assert_called_once_with(
-            msg="Braintree subscription payment failed: nonce is None"
+            msg="Braintree subscription payment failed: nonce is None",
         )
 
         # Assert render_payment_processing_page was called
         mock_render.assert_called_once_with(
-            request=mock_request, payment_total=mock_subscription.get_total_cost()
+            request=mock_request,
+            payment_total=mock_subscription.get_total_cost(),
         )
 
         # Assert response is instance of HttpResponse
@@ -738,7 +745,8 @@ class TestProcessSubscriptionPayment(TestCase):
 
         # Assert
         mock_render_payment_processing_page.assert_called_once_with(
-            request=mock_request, payment_total=mock_subscription.get_total_cost()
+            request=mock_request,
+            payment_total=mock_subscription.get_total_cost(),
         )
         self.assertEqual(response, mock_render_payment_processing_page.return_value)
 

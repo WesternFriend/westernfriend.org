@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                                                 required=False,
                                             ),
                                         ),
-                                    ]
+                                    ],
                                 ),
                             ),
                             (
@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
                                                 required=False,
                                             ),
                                         ),
-                                    ]
+                                    ],
                                 ),
                             ),
                             (
@@ -99,7 +99,7 @@ class Migration(migrations.Migration):
                                                                         required=False,
                                                                     ),
                                                                 ),
-                                                            ]
+                                                            ],
                                                         ),
                                                     ),
                                                     (
@@ -121,13 +121,13 @@ class Migration(migrations.Migration):
                                                                         required=False,
                                                                     ),
                                                                 ),
-                                                            ]
+                                                            ],
                                                         ),
                                                     ),
-                                                ]
+                                                ],
                                             ),
                                         ),
-                                    ]
+                                    ],
                                 ),
                             ),
                         ],

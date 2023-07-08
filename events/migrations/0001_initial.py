@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                                                 min_value=0,
                                             ),
                                         ),
-                                    ]
+                                    ],
                                 ),
                             ),
                         ],
@@ -65,7 +65,8 @@ class Migration(migrations.Migration):
                 (
                     "timezone",
                     timezone_field.fields.TimeZoneField(
-                        choices_display="WITH_GMT_OFFSET", default="US/Pacific"
+                        choices_display="WITH_GMT_OFFSET",
+                        default="US/Pacific",
                     ),
                 ),
                 ("website", models.URLField(blank=True, max_length=300, null=True)),

@@ -16,7 +16,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="meetingdocument",
             index=models.Index(
-                fields=["publication_date"], name="documents_m_publica_bebe89_idx"
+                fields=["publication_date"],
+                name="documents_m_publica_bebe89_idx",
             ),
         ),
     ]

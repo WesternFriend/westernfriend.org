@@ -166,7 +166,7 @@ class NewsItem(DrupalFields, Page):
                         "superscript",
                         "strikethrough",
                         "blockquote",
-                    ]
+                    ],
                 ),
             ),
             ("pullquote", PullQuoteBlock()),

@@ -25,7 +25,7 @@ class DonationModelTest(TestCase):
                 "donor_family_name": "test_family_name",
                 "donor_email": "test@test.com",
                 "recurrence": "monthly",
-            }
+            },
         )
 
         donor_address_form = DonorAddressForm(
@@ -36,7 +36,7 @@ class DonationModelTest(TestCase):
                 "region": "Test Region",
                 "postal_code": "12345",
                 "country": "Testistan",
-            }
+            },
         )
 
         # Create response using completed form objects
@@ -65,13 +65,16 @@ class DonationModelTest(TestCase):
     def test_recurring(self) -> None:
         # Create donations with each recurrence possibility
         donation_monthly = Donation(
-            amount=100, recurrence=Donation.DonationRecurrenceChoices.MONTHLY
+            amount=100,
+            recurrence=Donation.DonationRecurrenceChoices.MONTHLY,
         )
         donation_yearly = Donation(
-            amount=200, recurrence=Donation.DonationRecurrenceChoices.YEARLY
+            amount=200,
+            recurrence=Donation.DonationRecurrenceChoices.YEARLY,
         )
         donation_once = Donation(
-            amount=300, recurrence=Donation.DonationRecurrenceChoices.ONCE
+            amount=300,
+            recurrence=Donation.DonationRecurrenceChoices.ONCE,
         )
 
         # Test that recurring() returns True for monthly and yearly donations
@@ -86,7 +89,11 @@ class DonatePageTest(TestCase):
     def setUp(self) -> None:
         self.factory = RequestFactory()
         self.donate_page = DonatePage(
-            title="Donate", slug="donate", path="00010001", depth=2, numchild=0
+            title="Donate",
+            slug="donate",
+            path="00010001",
+            depth=2,
+            numchild=0,
         )
         self.home_page = Page.objects.get(slug="home")
         self.home_page.add_child(instance=self.donate_page)

@@ -60,7 +60,7 @@ class NavigationDropdownMenuBlock(wagtail_blocks.StructBlock):
         [
             ("page", NavigationPageChooserBlock()),
             ("external_link", NavigationExternalLinkBlock()),
-        ]
+        ],
     )
 
     class Meta:

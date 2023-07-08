@@ -59,7 +59,7 @@ def handle_import_library_item_facets(folder: str) -> None:
                 .exists()
             ):
                 facet_instance = facet["facet_class"](  # type: ignore
-                    title=facet_item["drupal_full_name"]
+                    title=facet_item["drupal_full_name"],
                 )
 
                 facet_index_page.add_child(instance=facet_instance)
