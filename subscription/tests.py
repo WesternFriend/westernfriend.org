@@ -123,6 +123,9 @@ class SubscriptionTestCase(TestCase):
                         f"{name} {lastname}",
                     )
 
+                # delete the subscription
+                subscription.delete()
+
     def test_subscription_str(self) -> None:
         subscription = Subscription.objects.create(
             id=123,
@@ -136,6 +139,9 @@ class SubscriptionTestCase(TestCase):
             str(subscription),
             expected_subscription_str,
         )
+
+        # delete the subscription
+        subscription.delete()
 
     def tearDown(self) -> None:
         self.user.delete()
