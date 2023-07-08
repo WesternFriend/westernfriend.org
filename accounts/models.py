@@ -3,6 +3,8 @@ import datetime
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 
+from subscription.models import Subscription
+
 from .managers import UserManager
 
 
@@ -18,6 +20,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+    subscriptions: models.QuerySet["Subscription"]
+
     def __str__(self) -> str:
         return self.email
 
@@ -25,14 +29,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     # and return a list of active subscriptions
     # so we can allow use-cases where a user can have multiple active subscriptions
     # such as managing subscriptions for a Meeting or a Group
-    def get_active_subscription(self):
+    def get_active_subscription(self) -> "Subscription" | None:
         """Get subscription that isn't expired for this user."""
         today = datetime.datetime.today()
 
         # using filter.first() instead of get() because get() throws an exception
         # if there are multiple active subscriptions
         # TODO: determine how to handle multiple active subscriptions
-        return self.subscriptions.filter(end_date__gte=today).first()  # type: ignore
+        return self.subscriptions.filter(
+            end_date__gte=today,
+            paid=True,
+        ).first()
 
     @property
     def is_subscriber(self) -> bool:
