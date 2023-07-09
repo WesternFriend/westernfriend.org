@@ -7,7 +7,6 @@ import braintree
 from braintree import Subscription as BraintreeSubscription
 from braintree import WebhookNotification
 from django.http import HttpRequest, HttpResponse
-from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -70,14 +69,6 @@ def handle_subscription_webhook(
 
 class SubscriptionWebhookView(View):
     @method_decorator(csrf_exempt)
-    def dispatch(
-        self,
-        request: HttpRequest,
-        *args: tuple,
-        **kwargs: dict,
-    ) -> HttpResponseBase:
-        return super().dispatch(request, *args, **kwargs)
-
     def post(
         self,
         request: HttpRequest,
