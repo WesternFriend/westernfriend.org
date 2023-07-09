@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 from accounts.models import User
 from subscription.factories import SubscriptionFactory
 from subscription.models import Subscription
-from .views import handle_subscription_webhook
+from .views import GRACE_PERIOD_DAYS, handle_subscription_webhook
 
 
 class SubscriptionWebhookTestCase(TestCase):
@@ -202,3 +202,47 @@ class SubscriptionWebhookViewTests(TestCase):
 
         # check the response status code
         self.assertEqual(response.status_code, 200)
+
+    @patch("subscription.views.braintree_gateway.webhook_notification.parse")
+    def test_subscription_end_date_updated_with_paid_through_date(
+        self,
+        mock_parse: Mock,
+    ) -> None:
+        # Get the current date without time
+        today = datetime.date.today()
+        one_year_later = today + datetime.timedelta(days=365)
+
+        # Set paid_through_date to one year from now
+        mock_braintree_subscription = Mock()
+        mock_braintree_subscription.id = self.subscription.braintree_subscription_id  # type: ignore  # noqa: E501
+        mock_braintree_subscription.paid_through_date = one_year_later
+
+        mock_webhook_notification = Mock()
+        mock_webhook_notification.kind = "subscription_charged_successfully"
+        mock_webhook_notification.subscription = mock_braintree_subscription
+
+        # mock parse method to return the mock notification
+        mock_parse.return_value = mock_webhook_notification
+
+        csrf_client = Client(enforce_csrf_checks=True)
+        response = csrf_client.post(
+            self.url,
+            data=json.dumps(self.webhook_notification),
+            content_type="application/json",
+        )
+
+        # assert that parse was called with the correct arguments
+        mock_parse.assert_called_once_with(
+            self.webhook_notification["bt_signature"],
+            self.webhook_notification["bt_payload"],
+        )
+
+        # check the response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Refresh subscription from db
+        self.subscription.refresh_from_db()
+
+        # check that the end_date is updated
+        expected_end_date = one_year_later + GRACE_PERIOD_DAYS
+        self.assertEqual(self.subscription.end_date, expected_end_date)
