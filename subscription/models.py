@@ -18,21 +18,19 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# TODO: convert to a models.TextChoices class
-# e.g. in donations/models.py
-MAGAZINE_FORMAT_CHOICES = [
-    ("pdf", "PDF"),
-    ("print", "Print"),
-    ("print_and_pdf", "Print and PDF"),
-]
-# TODO: convert to a models.TextChoices class
-# e.g. in donations/models.py
-MAGAZINE_PRICE_GROUP_CHOICES = [
-    ("normal", "Normal"),
-    ("true_cost", "True cost"),
-    ("low_income", "Low income"),
-    ("international", "International"),
-]
+
+class MagazineFormatChoices(models.TextChoices):
+    PDF = "pdf", "PDF"
+    PRINT = "print", "Print"
+    PRINT_AND_PDF = "print_and_pdf", "Print and PDF"
+
+
+class MagazinePriceGroupChoices(models.TextChoices):
+    NORMAL = "normal", "Normal"
+    TRUE_COST = "true_cost", "True cost"
+    LOW_INCOME = "low_income", "Low income"
+    INTERNATIONAL = "international", "International"
+
 
 SUBSCRIPTION_PRICE_COMPONENTS = {
     "normal": {
@@ -103,12 +101,12 @@ def process_subscription_form(
 class Subscription(models.Model):
     magazine_format = models.CharField(
         max_length=255,
-        choices=MAGAZINE_FORMAT_CHOICES,
+        choices=MagazineFormatChoices.choices,
         default="pdf",
     )
     price_group = models.CharField(
         max_length=255,
-        choices=MAGAZINE_PRICE_GROUP_CHOICES,
+        choices=MagazinePriceGroupChoices.choices,
         default="normal",
     )
     price = models.IntegerField(
