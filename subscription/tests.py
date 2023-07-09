@@ -1,8 +1,12 @@
 import datetime
 import braintree
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.urls import reverse
+import json
+from unittest.mock import Mock, patch
 
 from accounts.models import User
+from subscription.factories import SubscriptionFactory
 from subscription.models import Subscription
 from .views import handle_subscription_webhook
 
@@ -146,3 +150,55 @@ class SubscriptionTestCase(TestCase):
     def tearDown(self) -> None:
         self.user.delete()
         return super().tearDown()
+
+
+class SubscriptionWebhookViewTests(TestCase):
+    def setUp(self) -> None:
+        self.subscription = SubscriptionFactory(
+            braintree_subscription_id="test_subscription_id",
+        )
+
+        self.client = Client()
+        self.url = reverse("braintree-subscription-webhook")
+
+        self.webhook_notification = {
+            "bt_signature": "signature",
+            "bt_payload": "payload",
+        }
+
+    @patch("subscription.views.braintree_gateway.webhook_notification.parse")
+    def test_csrf_exempt(
+        self,
+        mock_parse: Mock,
+    ) -> None:
+        # Get the current date and time
+        now = datetime.datetime.now()
+        one_year_later = now + datetime.timedelta(days=365)
+
+        # Set paid_through_date to one year from now
+        mock_braintree_subscription = Mock()
+        mock_braintree_subscription.id = self.subscription.braintree_subscription_id  # type: ignore  # noqa: E501
+        mock_braintree_subscription.paid_through_date = one_year_later
+
+        mock_webhook_notification = Mock()
+        mock_webhook_notification.kind = "subscription_charged_successfully"
+        mock_webhook_notification.subscription = mock_braintree_subscription
+
+        # mock parse method to return the mock notification
+        mock_parse.return_value = mock_webhook_notification
+
+        csrf_client = Client(enforce_csrf_checks=True)
+        response = csrf_client.post(
+            self.url,
+            data=json.dumps(self.webhook_notification),
+            content_type="application/json",
+        )
+
+        # assert that parse was called with the correct arguments
+        mock_parse.assert_called_once_with(
+            self.webhook_notification["bt_signature"],
+            self.webhook_notification["bt_payload"],
+        )
+
+        # check the response status code
+        self.assertEqual(response.status_code, 200)
