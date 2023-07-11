@@ -5,9 +5,11 @@ from django.urls import reverse
 import json
 from unittest.mock import Mock, patch
 
+from accounts.factories import UserFactory
 from accounts.models import User
 from subscription.factories import SubscriptionFactory
-from subscription.models import Subscription
+from subscription.forms import SubscriptionCreateForm
+from subscription.models import Subscription, process_subscription_form
 from .views import GRACE_PERIOD_DAYS, handle_subscription_webhook
 
 
@@ -241,11 +243,11 @@ class SubscriptionWebhookViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Refresh subscription from db
-        self.subscription.refresh_from_db()
+        self.subscription.refresh_from_db()  # type: ignore
 
         # check that the end_date is updated
         expected_end_date = one_year_later + GRACE_PERIOD_DAYS
-        self.assertEqual(self.subscription.end_date, expected_end_date)
+        self.assertEqual(self.subscription.end_date, expected_end_date)  # type: ignore
 
     @patch("subscription.views.braintree_gateway.webhook_notification.parse")
     def test_subscription_end_date_updated_without_paid_through_date(
@@ -254,7 +256,7 @@ class SubscriptionWebhookViewTests(TestCase):
     ) -> None:
         # Calculate the expected end_date
         one_year_with_grace_period = datetime.timedelta(days=365) + GRACE_PERIOD_DAYS
-        expected_end_date = self.subscription.end_date + one_year_with_grace_period
+        expected_end_date = self.subscription.end_date + one_year_with_grace_period  # type: ignore  # noqa: E501
 
         # Set up the Braintree subscription mock without paid_through_date
         mock_braintree_subscription = Mock()
@@ -285,7 +287,51 @@ class SubscriptionWebhookViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Refresh subscription from db
-        self.subscription.refresh_from_db()
+        self.subscription.refresh_from_db()  # type: ignore
 
         # check that the end_date is updated
-        self.assertEqual(self.subscription.end_date, expected_end_date)
+        self.assertEqual(self.subscription.end_date, expected_end_date)  # type: ignore
+
+
+class SubscriptionCreateFormTestCase(TestCase):
+    def setUp(self):
+        self.user = UserFactory()
+        self.subscription = SubscriptionFactory(user=self.user)
+
+        # Initialize form with data from factory
+        self.form_data = {
+            "magazine_format": self.subscription.magazine_format,  # type: ignore
+            "price_group": self.subscription.price_group,  # type: ignore
+            "recurring": self.subscription.recurring,  # type: ignore
+            "subscriber_given_name": self.subscription.subscriber_given_name,  # type: ignore # noqa: E501
+            "subscriber_family_name": self.subscription.subscriber_family_name,  # type: ignore # noqa: E501
+            "subscriber_street_address": self.subscription.subscriber_street_address,  # type: ignore  # noqa: E501
+            "subscriber_street_address_line_2": self.subscription.subscriber_street_address_line_2,  # type: ignore  # noqa: E501
+            "subscriber_postal_code": self.subscription.subscriber_postal_code,  # type: ignore  # noqa: E501
+            "subscriber_address_locality": self.subscription.subscriber_address_locality,  # type: ignore  # noqa: E501
+            "subscriber_address_region": self.subscription.subscriber_address_region,  # type: ignore  # noqa: E501
+            "subscriber_address_country": self.subscription.subscriber_address_country,  # type: ignore  # noqa: E501
+        }
+        self.form = SubscriptionCreateForm(data=self.form_data)
+
+    def test_process_subscription_form(self):
+        # Ensure the form is valid
+        self.assertTrue(self.form.is_valid())
+
+        # Process the form
+        processed_subscription = process_subscription_form(self.form, self.user)  # type: ignore # noqa: E501
+
+        # Ensure the subscription is saved
+        self.assertIsInstance(processed_subscription, Subscription)
+
+        # Check the subscription's user is set correctly
+        self.assertEqual(processed_subscription.user, self.user)
+
+        # Check the subscription's start date and end date are set correctly
+        today = datetime.date.today()
+        self.assertEqual(processed_subscription.start_date, today)
+        self.assertEqual(processed_subscription.end_date, today)
+
+        # Check the form data is saved correctly in the processed subscription
+        for field, value in self.form_data.items():
+            self.assertEqual(getattr(processed_subscription, field), value)
