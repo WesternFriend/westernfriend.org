@@ -19,6 +19,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+if TYPE_CHECKING:
+    from accounts.models import User  # pragma: no cover
+
+
 class MagazineFormatChoices(models.TextChoices):
     PDF = "pdf", "PDF"
     PRINT = "print", "Print"
@@ -62,8 +66,8 @@ def one_year_from_today() -> datetime.date:
 
 def process_subscription_form(
     subscription_form: "SubscriptionCreateForm",
-    request: HttpRequest,
-) -> HttpResponse:
+    user: "User",
+) -> "Subscription":
     """Given a valid subscription form, will save and associate with a user.
 
     TODO: determine how to share this function with the "manage subscription" page
@@ -72,11 +76,11 @@ def process_subscription_form(
     subscription = subscription_form.save(commit=False)
 
     # Attach request user to subscription before save
-    subscription.user = request.user
+    subscription.user = user
 
     # Set subscription start and end dates
     # based on current day
-    today = datetime.datetime.now()
+    today = datetime.date.today()
 
     # Start date is today
     subscription.start_date = today
@@ -87,15 +91,7 @@ def process_subscription_form(
 
     subscription.save()
 
-    # redirect for payment
-    return redirect(
-        reverse(
-            "payment:process_subscription_payment",
-            kwargs={
-                "subscription_id": subscription.id,
-            },
-        ),
-    )
+    return subscription
 
 
 class Subscription(models.Model):
@@ -301,15 +297,27 @@ class SubscriptionIndexPage(Page):
         **kwargs: dict,
     ) -> HttpResponse:
         if request.user.is_authenticated and request.method == "POST":
+            user: User = request.user  # type: ignore
+
             # Avoid circular dependency
             from .forms import SubscriptionCreateForm
 
             subscription_form = SubscriptionCreateForm(request.POST)
 
             if subscription_form.is_valid():
-                return process_subscription_form(
-                    subscription_form,
-                    request,
+                subscription: "Subscription" = process_subscription_form(
+                    subscription_form=subscription_form,
+                    user=user,
+                )
+
+                # redirect for payment
+                return redirect(
+                    reverse(
+                        "payment:process_subscription_payment",
+                        kwargs={
+                            "subscription_id": subscription.id,  # type: ignore
+                        },
+                    ),
                 )
 
             context = self.get_context(request, *args, **kwargs)
