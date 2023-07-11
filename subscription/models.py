@@ -13,13 +13,14 @@ from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
 
-from accounts.models import User
-from subscription.models import Subscription
-
 if TYPE_CHECKING:
     from .forms import SubscriptionCreateForm  # pragma: no cover
 
 logger = logging.getLogger(__name__)
+
+
+if TYPE_CHECKING:
+    from accounts.models import User  # pragma: no cover
 
 
 class MagazineFormatChoices(models.TextChoices):
@@ -65,8 +66,8 @@ def one_year_from_today() -> datetime.date:
 
 def process_subscription_form(
     subscription_form: "SubscriptionCreateForm",
-    user: User,
-) -> Subscription:
+    user: "User",
+) -> "Subscription":
     """Given a valid subscription form, will save and associate with a user.
 
     TODO: determine how to share this function with the "manage subscription" page
@@ -304,7 +305,7 @@ class SubscriptionIndexPage(Page):
             subscription_form = SubscriptionCreateForm(request.POST)
 
             if subscription_form.is_valid():
-                subscription = process_subscription_form(
+                subscription: "Subscription" = process_subscription_form(
                     subscription_form=subscription_form,
                     user=user,
                 )
@@ -314,7 +315,7 @@ class SubscriptionIndexPage(Page):
                     reverse(
                         "payment:process_subscription_payment",
                         kwargs={
-                            "subscription_id": subscription.id,
+                            "subscription_id": subscription.id,  # type: ignore
                         },
                     ),
                 )
