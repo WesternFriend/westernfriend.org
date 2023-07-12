@@ -143,6 +143,40 @@ class SubscriptionTestCase(TestCase):
 
                 subscription.delete()
 
+    def test_subscription_get_total_cost(self) -> None:
+        magazine_formats = MagazineFormatChoices.choices
+        price_groups = MagazinePriceGroupChoices.choices
+
+        # Iterate through all possible combinations of
+        # magazine_format and price_group
+        for magazine_format in magazine_formats:
+            for price_group in price_groups:
+                magazine_format_choice = magazine_format[0]
+                price_group_choice = price_group[0]
+
+                subscription = Subscription.objects.create(
+                    magazine_format=magazine_format_choice,
+                    price_group=price_group_choice,
+                    user=self.user,
+                )
+
+                expected_price = SUBSCRIPTION_PRICE_COMPONENTS[price_group_choice][
+                    magazine_format_choice
+                ]
+
+                # check that the Subscription was created with the correct price
+                # as a sub test for improved error reporting
+                subtest_message = f"Subscription price should be {expected_price} for magazine format {magazine_format_choice} and price group {price_group_choice}"  # noqa: E501
+                with self.subTest(
+                    msg=subtest_message,
+                ):
+                    self.assertEqual(
+                        subscription.get_total_cost(),
+                        expected_price,
+                    )
+
+                subscription.delete()
+
     def test_subscription_full_name(self) -> None:
         # Test all possible permutations of the subscriber_given_name and
         # subscriber_family_name fields
@@ -186,7 +220,6 @@ class SubscriptionTestCase(TestCase):
                         f"{name} {lastname}",
                     )
 
-                # delete the subscription
                 subscription.delete()
 
     def test_subscription_str(self) -> None:
@@ -203,7 +236,6 @@ class SubscriptionTestCase(TestCase):
             expected_subscription_str,
         )
 
-        # delete the subscription
         subscription.delete()
 
     def tearDown(self) -> None:
