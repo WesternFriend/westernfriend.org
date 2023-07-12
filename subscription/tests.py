@@ -1,5 +1,6 @@
 import datetime
 import braintree
+from django.http import HttpRequest
 from django.test import TestCase, Client
 from django.urls import reverse
 import json
@@ -14,6 +15,7 @@ from subscription.models import (
     MagazineFormatChoices,
     MagazinePriceGroupChoices,
     Subscription,
+    SubscriptionIndexPage,
     process_subscription_form,
 )
 from .views import GRACE_PERIOD_DAYS, handle_subscription_webhook
@@ -424,3 +426,28 @@ class SubscriptionCreateFormTestCase(TestCase):
         # Check the form data is saved correctly in the processed subscription
         for field, value in self.form_data.items():
             self.assertEqual(getattr(processed_subscription, field), value)
+
+
+class SubscriptionIndexPageTestCase(TestCase):
+    def test_subscription_index_page_str(self) -> None:
+        subscription_index_page = SubscriptionIndexPage(title="Test Title")
+        self.assertEqual(str(subscription_index_page), "Test Title")
+
+    def test_subscription_index_page_get_context(self) -> None:
+        subscription_index_page = SubscriptionIndexPage(title="Test Title")
+        # create mock HttpRequest
+        mock_http_request = Mock(
+            spec=HttpRequest,
+        )
+
+        context = subscription_index_page.get_context(
+            request=mock_http_request,
+        )
+        self.assertEqual(context["page"].title, "Test Title")
+        # context should have a form object
+        self.assertIsInstance(context["form"], SubscriptionCreateForm)
+
+        self.assertEqual(
+            context["subscription_price_components"],
+            SUBSCRIPTION_PRICE_COMPONENTS,
+        )
