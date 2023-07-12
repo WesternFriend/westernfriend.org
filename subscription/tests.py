@@ -387,7 +387,7 @@ class SubscriptionWebhookViewTests(TestCase):
 
 
 class SubscriptionCreateFormTestCase(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.user = UserFactory()
         self.subscription = SubscriptionFactory(user=self.user)
 
@@ -407,7 +407,7 @@ class SubscriptionCreateFormTestCase(TestCase):
         }
         self.form = SubscriptionCreateForm(data=self.form_data)
 
-    def test_process_subscription_form(self):
+    def test_process_subscription_form(self) -> None:
         # Ensure the form is valid
         self.assertTrue(self.form.is_valid())
 
@@ -492,9 +492,56 @@ class SubscriptionIndexPageTestCase(TestCase):
             SUBSCRIPTION_PRICE_COMPONENTS,
         )
 
+    def test_serve_post_request_authenticated_valid_form(self) -> None:
+        mock_request = self.factory.post(
+            # get URL for the SubscriptionIndexPage
+            self.subscription_index_page.url,
+            data={
+                "magazine_format": "print",
+                "price_group": "normal",
+                "recurring": True,
+                "subscriber_given_name": "John",
+                "subscriber_family_name": "Woolman",
+                "subscriber_street_address": "123 Main St",
+                "subscriber_street_address_line_2": "Suite 100",
+                "subscriber_postal_code": "12345",
+                "subscriber_address_locality": "Portland",
+                "subscriber_address_region": "OR",
+                "subscriber_address_country": "United States",
+            },
+        )
+        mock_request.user = self.user  # type: ignore
+        mock_request.site = self.site
+
+        response = self.subscription_index_page.serve(mock_request)
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_serve_post_request_authenticated_invalid_form(self) -> None:
+        # partial form submission is invalid
+        invalid_form_data = {
+            "magazine_format": "print",
+            "price_group": "normal",
+        }
+        mock_request = self.factory.post(
+            # get URL for the SubscriptionIndexPage
+            self.subscription_index_page.url,  # type: ignore
+            data=invalid_form_data,
+        )
+        mock_request.user = self.user  # type: ignore
+        mock_request.site = self.site
+
+        response = self.subscription_index_page.serve(mock_request)
+
+        # check that an invalid form is returned in the context
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.context_data["form"], SubscriptionCreateForm)  # type: ignore # noqa: E501
+        self.assertFalse(response.context_data["form"].is_valid())  # type: ignore
+
     def tearDown(self) -> None:
-        self.user.delete()  # type: ignore
+        Subscription.objects.all().delete()
         self.subscription_index_page.delete()
         self.home_page.delete()
         self.site.delete()
+        self.user.delete()  # type: ignore
         return super().tearDown()
