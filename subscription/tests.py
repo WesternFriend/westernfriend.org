@@ -458,6 +458,15 @@ class SubscriptionIndexPageTestCase(TestCase):
         context = self.subscription_index_page.get_context(request)
         self.assertIsInstance(context["form"], SubscriptionCreateForm)
 
+    def test_get_request_serve_index_template(self) -> None:
+        mock_request = self.factory.get("/")
+        response = self.subscription_index_page.serve(mock_request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.template_name,  # type: ignore
+            "subscription/index.html",
+        )
+
     def test_form_in_context_when_previously_submitted(self) -> None:
         request = self.factory.get("/")
 
@@ -492,7 +501,7 @@ class SubscriptionIndexPageTestCase(TestCase):
             SUBSCRIPTION_PRICE_COMPONENTS,
         )
 
-    def test_serve_post_request_authenticated_valid_form(self) -> None:
+    def test_post_request_authenticated_valid_form(self) -> None:
         mock_request = self.factory.post(
             # get URL for the SubscriptionIndexPage
             self.subscription_index_page.url,
@@ -536,7 +545,7 @@ class SubscriptionIndexPageTestCase(TestCase):
             expected_url,
         )
 
-    def test_serve_post_request_authenticated_invalid_form(self) -> None:
+    def test_post_request_authenticated_invalid_form(self) -> None:
         # partial form submission is invalid
         invalid_form_data = {
             "magazine_format": "print",
