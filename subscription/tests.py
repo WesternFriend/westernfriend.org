@@ -1,9 +1,11 @@
 import datetime
 import braintree
-from django.test import TestCase, Client
+from django.http import HttpRequest
+from django.test import RequestFactory, TestCase, Client
 from django.urls import reverse
 import json
 from unittest.mock import Mock, patch
+from wagtail.models import Site
 
 from accounts.factories import UserFactory
 from accounts.models import User
@@ -14,8 +16,10 @@ from subscription.models import (
     MagazineFormatChoices,
     MagazinePriceGroupChoices,
     Subscription,
+    SubscriptionIndexPage,
     process_subscription_form,
 )
+from home.models import HomePage
 from .views import GRACE_PERIOD_DAYS, handle_subscription_webhook
 
 
@@ -383,7 +387,7 @@ class SubscriptionWebhookViewTests(TestCase):
 
 
 class SubscriptionCreateFormTestCase(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.user = UserFactory()
         self.subscription = SubscriptionFactory(user=self.user)
 
@@ -403,7 +407,7 @@ class SubscriptionCreateFormTestCase(TestCase):
         }
         self.form = SubscriptionCreateForm(data=self.form_data)
 
-    def test_process_subscription_form(self):
+    def test_process_subscription_form(self) -> None:
         # Ensure the form is valid
         self.assertTrue(self.form.is_valid())
 
@@ -424,3 +428,139 @@ class SubscriptionCreateFormTestCase(TestCase):
         # Check the form data is saved correctly in the processed subscription
         for field, value in self.form_data.items():
             self.assertEqual(getattr(processed_subscription, field), value)
+
+
+class SubscriptionIndexPageTestCase(TestCase):
+    def setUp(self) -> None:
+        self.user = UserFactory()
+
+        # Create a SubscriptionIndexPage instance and add it to the site tree
+        self.site = Site.objects.get(is_default_site=True)
+
+        self.home_page = HomePage(
+            title="Home",
+        )
+
+        self.site.root_page.add_child(instance=self.home_page)
+        self.subscription_index_page = SubscriptionIndexPage(
+            title="Subscription",
+        )
+        self.home_page.add_child(instance=self.subscription_index_page)
+
+        self.factory = RequestFactory()
+
+    def test_subscription_index_page_str(self) -> None:
+        subscription_index_page = SubscriptionIndexPage(title="Test Title")
+        self.assertEqual(str(subscription_index_page), "Test Title")
+
+    def test_form_in_context_when_not_previously_present(self) -> None:
+        request = self.factory.get("/")
+        context = self.subscription_index_page.get_context(request)
+        self.assertIsInstance(context["form"], SubscriptionCreateForm)
+
+    def test_form_in_context_when_previously_submitted(self) -> None:
+        request = self.factory.get("/")
+
+        # Create an invalid form
+        invalid_form_data = {
+            "subscriber_given_name": "",  # This is invalid as it's required
+        }
+        invalid_form = SubscriptionCreateForm(invalid_form_data)
+
+        request.context = {"form": invalid_form}  # type: ignore
+
+        context = self.subscription_index_page.get_context(request)
+
+        self.assertIsInstance(context["form"], SubscriptionCreateForm)
+        self.assertFalse(context["form"].is_valid())
+
+    def test_subscription_price_components_in_page_context(
+        self,
+    ) -> None:
+        subscription_index_page = SubscriptionIndexPage(title="Test Title")
+        # create mock HttpRequest
+        mock_http_request = Mock(
+            spec=HttpRequest,
+        )
+
+        context = subscription_index_page.get_context(
+            request=mock_http_request,
+        )
+
+        self.assertEqual(
+            context["subscription_price_components"],
+            SUBSCRIPTION_PRICE_COMPONENTS,
+        )
+
+    def test_serve_post_request_authenticated_valid_form(self) -> None:
+        mock_request = self.factory.post(
+            # get URL for the SubscriptionIndexPage
+            self.subscription_index_page.url,
+            data={
+                "magazine_format": "print",
+                "price_group": "normal",
+                "recurring": True,
+                "subscriber_given_name": "John",
+                "subscriber_family_name": "Woolman",
+                "subscriber_street_address": "123 Main St",
+                "subscriber_street_address_line_2": "Suite 100",
+                "subscriber_postal_code": "12345",
+                "subscriber_address_locality": "Portland",
+                "subscriber_address_region": "OR",
+                "subscriber_address_country": "United States",
+            },
+        )
+        mock_request.user = self.user  # type: ignore
+        mock_request.site = self.site
+
+        response = self.subscription_index_page.serve(mock_request)
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_redirect_unauthenticated_user(self) -> None:
+        # make anonymous post request
+        mock_request = self.factory.post(
+            # get URL for the SubscriptionIndexPage
+            self.subscription_index_page.url,  # type: ignore
+        )
+
+        response = self.subscription_index_page.serve(mock_request)
+
+        self.assertEqual(response.status_code, 302)
+        # redirects us to the login page
+        # by getting reverse path to the login page
+        login_base_url = reverse("login")[:-1]
+        expected_url = f"{login_base_url}?next={self.subscription_index_page.url}"  # type: ignore # noqa: E501
+        self.assertEqual(
+            response.url,
+            expected_url,
+        )
+
+    def test_serve_post_request_authenticated_invalid_form(self) -> None:
+        # partial form submission is invalid
+        invalid_form_data = {
+            "magazine_format": "print",
+            "price_group": "normal",
+        }
+        mock_request = self.factory.post(
+            # get URL for the SubscriptionIndexPage
+            self.subscription_index_page.url,  # type: ignore
+            data=invalid_form_data,
+        )
+        mock_request.user = self.user  # type: ignore
+        mock_request.site = self.site
+
+        response = self.subscription_index_page.serve(mock_request)
+
+        # check that an invalid form is returned in the context
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.context_data["form"], SubscriptionCreateForm)  # type: ignore # noqa: E501
+        self.assertFalse(response.context_data["form"].is_valid())  # type: ignore
+
+    def tearDown(self) -> None:
+        Subscription.objects.all().delete()
+        self.subscription_index_page.delete()
+        self.home_page.delete()
+        self.site.delete()
+        self.user.delete()  # type: ignore
+        return super().tearDown()
