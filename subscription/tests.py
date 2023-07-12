@@ -9,7 +9,13 @@ from accounts.factories import UserFactory
 from accounts.models import User
 from subscription.factories import SubscriptionFactory
 from subscription.forms import SubscriptionCreateForm
-from subscription.models import Subscription, process_subscription_form
+from subscription.models import (
+    SUBSCRIPTION_PRICE_COMPONENTS,
+    MagazineFormatChoices,
+    MagazinePriceGroupChoices,
+    Subscription,
+    process_subscription_form,
+)
 from .views import GRACE_PERIOD_DAYS, handle_subscription_webhook
 
 
@@ -86,7 +92,58 @@ class SubscriptionTestCase(TestCase):
             password="testpassword",  # pragma: no cover
         )
 
-    def test_subscription(self) -> None:
+    def test_subscription_create_correct_price(self) -> None:
+        # create a dictionary of all keys and values for a Subscription
+        subscription_data = {
+            "recurring": True,
+            "start_date": datetime.date.today(),
+            "end_date": datetime.date.today(),
+            "subscriber_given_name": "John",
+            "subscriber_family_name": "Woolman",
+            "subscriber_organization": "Western Friend",
+            "subscriber_street_address": "123 Main St",
+            "subscriber_street_address_line_2": "Suite 100",
+            "subscriber_postal_code": "12345",
+            "subscriber_address_locality": "Portland",
+            "subscriber_address_region": "OR",
+            "subscriber_address_country": "United States",
+            "user": self.user,
+            "paid": True,
+            "braintree_subscription_id": "test_subscription_id",
+        }
+        magazine_formats = MagazineFormatChoices.choices
+        price_groups = MagazinePriceGroupChoices.choices
+
+        # Iterate through all possible combinations of
+        # magazine_format and price_group
+        for magazine_format in magazine_formats:
+            for price_group in price_groups:
+                magazine_format_choice = magazine_format[0]
+                price_group_choice = price_group[0]
+
+                subscription_data["magazine_format"] = magazine_format_choice
+                subscription_data["price_group"] = price_group_choice
+
+                expected_price = SUBSCRIPTION_PRICE_COMPONENTS[price_group_choice][
+                    magazine_format_choice
+                ]
+
+                subscription = Subscription.objects.create(**subscription_data)
+
+                # check that the Subscription was created with the correct price
+                # as a sub test for improved error reporting
+                subtest_message = f"Subscription price should be {expected_price} for magazine format {magazine_format_choice} and price group {price_group_choice}"  # noqa: E501
+                with self.subTest(
+                    msg=subtest_message,
+                ):
+                    self.assertEqual(
+                        subscription.price,
+                        expected_price,
+                    )
+
+                subscription.delete()
+
+    def test_subscription_full_name(self) -> None:
         # Test all possible permutations of the subscriber_given_name and
         # subscriber_family_name fields
         given_names = ["", "John"]
