@@ -429,6 +429,9 @@ class SubscriptionCreateFormTestCase(TestCase):
 
 
 class SubscriptionIndexPageTestCase(TestCase):
+    def setUp(self) -> None:
+        self.user = UserFactory()
+
     def test_subscription_index_page_str(self) -> None:
         subscription_index_page = SubscriptionIndexPage(title="Test Title")
         self.assertEqual(str(subscription_index_page), "Test Title")
@@ -451,3 +454,7 @@ class SubscriptionIndexPageTestCase(TestCase):
             context["subscription_price_components"],
             SUBSCRIPTION_PRICE_COMPONENTS,
         )
+
+    def tearDown(self) -> None:
+        self.user.delete()
+        return super().tearDown()
