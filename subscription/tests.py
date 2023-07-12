@@ -517,6 +517,25 @@ class SubscriptionIndexPageTestCase(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
+    def test_redirect_unauthenticated_user(self) -> None:
+        # make anonymous post request
+        mock_request = self.factory.post(
+            # get URL for the SubscriptionIndexPage
+            self.subscription_index_page.url,  # type: ignore
+        )
+
+        response = self.subscription_index_page.serve(mock_request)
+
+        self.assertEqual(response.status_code, 302)
+        # redirects us to the login page
+        # by getting reverse path to the login page
+        login_base_url = reverse("login")[:-1]
+        expected_url = f"{login_base_url}?next={self.subscription_index_page.url}"  # type: ignore # noqa: E501
+        self.assertEqual(
+            response.url,
+            expected_url,
+        )
+
     def test_serve_post_request_authenticated_invalid_form(self) -> None:
         # partial form submission is invalid
         invalid_form_data = {
