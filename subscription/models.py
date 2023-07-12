@@ -2,7 +2,9 @@ import datetime
 import logging
 from typing import TYPE_CHECKING, Any
 
+
 from django.conf import settings
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
@@ -302,8 +304,18 @@ class SubscriptionIndexPage(Page):
         *args: tuple,
         **kwargs: dict,
     ) -> HttpResponse:
-        if request.user.is_authenticated and request.method == "POST":
-            user: User = request.user  # type: ignore
+        # Make sure POST requests only come from authenticated users
+        user_is_anonymous = (
+            not hasattr(request, "user") or request.user.is_anonymous  # type: ignore
+        )
+
+        if request.method == "POST" and user_is_anonymous:
+            login_base_url = reverse("login")[:-1]
+            return redirect(f"{login_base_url}?next={request.path}")
+
+        # Handle POST requests by authenticated users
+        if request.method == "POST" and request.user.is_authenticated:
+            user: AbstractBaseUser = request.user  # type: ignore
 
             # Avoid circular dependency
             from .forms import SubscriptionCreateForm
@@ -313,7 +325,7 @@ class SubscriptionIndexPage(Page):
             if subscription_form.is_valid():
                 subscription: "Subscription" = process_subscription_form(
                     subscription_form=subscription_form,
-                    user=user,
+                    user=user,  # type: ignore
                 )
 
                 # redirect for payment
@@ -326,7 +338,7 @@ class SubscriptionIndexPage(Page):
                     ),
                 )
 
-            context = self.get_context(request, *args, **kwargs)
+            context = self.get_context(request, *args, **kwargs)  # type: ignore
 
             # Send form with validation errors back to client
             context["form"] = subscription_form
