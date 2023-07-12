@@ -458,6 +458,22 @@ class SubscriptionIndexPageTestCase(TestCase):
         context = self.subscription_index_page.get_context(request)
         self.assertIsInstance(context["form"], SubscriptionCreateForm)
 
+    def test_form_in_context_when_previously_submitted(self) -> None:
+        request = self.factory.get("/")
+
+        # Create an invalid form
+        invalid_form_data = {
+            "subscriber_given_name": "",  # This is invalid as it's required
+        }
+        invalid_form = SubscriptionCreateForm(invalid_form_data)
+
+        request.context = {"form": invalid_form}  # type: ignore
+
+        context = self.subscription_index_page.get_context(request)
+
+        self.assertIsInstance(context["form"], SubscriptionCreateForm)
+        self.assertFalse(context["form"].is_valid())
+
     def test_subscription_price_components_in_page_context(
         self,
     ) -> None:
