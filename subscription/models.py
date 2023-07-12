@@ -265,10 +265,16 @@ class Subscription(models.Model):
             return " ".join(name_components).strip()
 
     def get_total_cost(self) -> int:
-        """Return the total cost of the subscription."""
+        """Return the total cost of the subscription.
+
+        This method is created to have a common interface for all money-
+        related models. (Subscription, Donation, etc.)
+        """
         return self.price
 
     def save(self, *args: Any, **kwargs: Any) -> None:
+        """Override save method to set price based on price group and
+        format."""
         self.price = SUBSCRIPTION_PRICE_COMPONENTS[self.price_group][
             self.magazine_format
         ]
