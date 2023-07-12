@@ -1,5 +1,6 @@
 import datetime
 import braintree
+from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.test import RequestFactory, TestCase, Client
 from django.urls import reverse
@@ -15,6 +16,7 @@ from subscription.models import (
     SUBSCRIPTION_PRICE_COMPONENTS,
     MagazineFormatChoices,
     MagazinePriceGroupChoices,
+    ManageSubscriptionPage,
     Subscription,
     SubscriptionIndexPage,
     process_subscription_form,
@@ -573,3 +575,72 @@ class SubscriptionIndexPageTestCase(TestCase):
         self.site.delete()
         self.user.delete()  # type: ignore
         return super().tearDown()
+
+
+class ManageSubscriptionPageTestCase(TestCase):
+    def setUp(self) -> None:
+        self.user = UserFactory()
+
+        self.subscription = SubscriptionFactory(
+            user=self.user,
+            braintree_subscription_id="test_subscription_id",
+        )
+
+        # Create a SubscriptionIndexPage instance and add it to the site tree
+        self.site = Site.objects.get(is_default_site=True)
+
+        self.home_page = HomePage(
+            title="Home",
+        )
+
+        self.site.root_page.add_child(instance=self.home_page)
+        self.manage_subscription_page = ManageSubscriptionPage(
+            title="Manage Subscription",
+        )
+        self.home_page.add_child(instance=self.manage_subscription_page)
+
+        self.factory = RequestFactory()
+
+    def tearDown(self) -> None:
+        Subscription.objects.all().delete()
+        self.manage_subscription_page.delete()
+        self.home_page.delete()
+        self.site.delete()
+        self.user.delete()  # type: ignore
+        return super().tearDown()
+
+    def test_manage_subscription_with_user_subscriptions(self) -> None:
+        # create mock HttpRequest
+        mock_http_request = Mock(
+            spec=HttpRequest,
+            user=self.user,
+        )
+
+        context = self.manage_subscription_page.get_context(
+            request=mock_http_request,
+        )
+
+        # assert that context subscriptions
+        # is a QuerySet of Subscriptions
+        self.assertIsInstance(context["subscriptions"], QuerySet)
+        for subscription in context["subscriptions"]:
+            self.assertIsInstance(subscription, Subscription)
+
+        # assert that self.subscription is in the subscriptions queryset
+        self.assertIn(self.subscription, context["subscriptions"])
+
+    def test_manage_subscription_without_user_subscriptions(self) -> None:
+        # create mock HttpRequest
+        mock_http_request = Mock(
+            spec=HttpRequest,
+            user=UserFactory(),
+        )
+
+        context = self.manage_subscription_page.get_context(
+            request=mock_http_request,
+        )
+
+        # assert that context subscriptions
+        # is an empty QuerySet
+        self.assertIsInstance(context["subscriptions"], QuerySet)
+        self.assertEqual(len(context["subscriptions"]), 0)
