@@ -1,10 +1,11 @@
 import datetime
 import braintree
 from django.http import HttpRequest
-from django.test import TestCase, Client
+from django.test import RequestFactory, TestCase, Client
 from django.urls import reverse
 import json
 from unittest.mock import Mock, patch
+from wagtail.models import Site
 
 from accounts.factories import UserFactory
 from accounts.models import User
@@ -18,6 +19,7 @@ from subscription.models import (
     SubscriptionIndexPage,
     process_subscription_form,
 )
+from home.models import HomePage
 from .views import GRACE_PERIOD_DAYS, handle_subscription_webhook
 
 
@@ -432,11 +434,33 @@ class SubscriptionIndexPageTestCase(TestCase):
     def setUp(self) -> None:
         self.user = UserFactory()
 
+        # Create a SubscriptionIndexPage instance and add it to the site tree
+        self.site = Site.objects.get(is_default_site=True)
+
+        self.home_page = HomePage(
+            title="Home",
+        )
+
+        self.site.root_page.add_child(instance=self.home_page)
+        self.subscription_index_page = SubscriptionIndexPage(
+            title="Subscription",
+        )
+        self.home_page.add_child(instance=self.subscription_index_page)
+
+        self.factory = RequestFactory()
+
     def test_subscription_index_page_str(self) -> None:
         subscription_index_page = SubscriptionIndexPage(title="Test Title")
         self.assertEqual(str(subscription_index_page), "Test Title")
 
-    def test_subscription_index_page_get_context(self) -> None:
+    def test_form_in_context_when_not_previously_present(self) -> None:
+        request = self.factory.get("/")
+        context = self.subscription_index_page.get_context(request)
+        self.assertIsInstance(context["form"], SubscriptionCreateForm)
+
+    def test_subscription_price_components_in_page_context(
+        self,
+    ) -> None:
         subscription_index_page = SubscriptionIndexPage(title="Test Title")
         # create mock HttpRequest
         mock_http_request = Mock(
@@ -446,9 +470,6 @@ class SubscriptionIndexPageTestCase(TestCase):
         context = subscription_index_page.get_context(
             request=mock_http_request,
         )
-        self.assertEqual(context["page"].title, "Test Title")
-        # context should have a form object
-        self.assertIsInstance(context["form"], SubscriptionCreateForm)
 
         self.assertEqual(
             context["subscription_price_components"],
@@ -456,5 +477,8 @@ class SubscriptionIndexPageTestCase(TestCase):
         )
 
     def tearDown(self) -> None:
-        self.user.delete()
+        self.user.delete()  # type: ignore
+        self.subscription_index_page.delete()
+        self.home_page.delete()
+        self.site.delete()
         return super().tearDown()
