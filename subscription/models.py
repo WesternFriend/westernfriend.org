@@ -353,7 +353,7 @@ class SubscriptionIndexPage(Page):
         # Pass in subscription form only if it isn't present
         # from previous validation in serve()
         if "form" not in context:
-            context["form"] = SubscriptionCreateForm
+            context["form"] = SubscriptionCreateForm()
 
         # Pass subscription pricing components to template
         context["subscription_price_components"] = SUBSCRIPTION_PRICE_COMPONENTS
