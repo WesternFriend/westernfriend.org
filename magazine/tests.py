@@ -135,6 +135,28 @@ class MagazineIndexPageTest(TestCase):
             self.archive_magazine_issues[:number_of_issues_per_page],
         )
 
+    def test_get_context_archive_issues_with_invalid_non_numeric_page_number(
+        self,
+    ) -> None:
+        """Make sure we get the first page when an invalid page number is
+        provided."""
+
+        mock_request = RequestFactory().get("/magazine/?archive-issues-page=foo")
+
+        context = self.magazine_index.get_context(mock_request)
+
+        number_of_issues_per_page = 8
+
+        self.assertEqual(
+            len(list(context["archive_issues"])),
+            number_of_issues_per_page,
+        )
+
+        self.assertEqual(
+            list(context["archive_issues"]),
+            self.archive_magazine_issues[:number_of_issues_per_page],
+        )
+
 
 class MagazineIssueTest(TestCase):
     def setUp(self) -> None:
