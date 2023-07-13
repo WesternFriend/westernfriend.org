@@ -1,5 +1,5 @@
 import datetime
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from wagtail.models import Page, Site
 from home.models import HomePage
 from .models import (
@@ -20,8 +20,26 @@ class MagazineIndexPageTest(TestCase):
 
         Site.objects.all().update(root_page=self.home_page)
 
-        self.magazine_index = MagazineIndexPage(title="Magazine")
+        self.magazine_index = MagazineIndexPage(
+            title="Magazine",
+        )
         self.home_page.add_child(instance=self.magazine_index)
+
+        today = datetime.date.today()
+
+        self.recent_magazine_issue = MagazineIssue(
+            title="Issue 1",
+            publication_date=today,
+        )
+
+        archive_days_ago = datetime.timedelta(days=181)
+        self.archive_magazine_issue = MagazineIssue(
+            title="Issue 2",
+            publication_date=today - archive_days_ago,
+        )
+
+        self.magazine_index.add_child(instance=self.archive_magazine_issue)
+        self.magazine_index.add_child(instance=self.recent_magazine_issue)
 
     def test_get_sitemap_urls(self) -> None:
         """Validate the output of get_sitemap_urls."""
@@ -39,6 +57,18 @@ class MagazineIndexPageTest(TestCase):
         self.assertIn(
             expected_location_contains,
             sitemap_urls[0]["location"],
+        )
+
+    def test_get_context_recent_issues(self) -> None:
+        """Validate the output of get_context."""
+
+        mock_request = RequestFactory().get("/magazine/")
+
+        context = self.magazine_index.get_context(mock_request)
+
+        self.assertEqual(
+            list(context["recent_issues"]),
+            [self.recent_magazine_issue],
         )
 
 
