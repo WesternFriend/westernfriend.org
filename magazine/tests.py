@@ -121,7 +121,7 @@ class MagazineIndexPageTest(TestCase):
 
         mock_request = RequestFactory().get("/magazine/?archive-issues-page=4")
 
-        context = self.magazine_index.get_context(mock_request)
+        context = self.magazine_index.get_context(mock_request)  # type: ignore
 
         number_of_issues_per_page = 8
 
