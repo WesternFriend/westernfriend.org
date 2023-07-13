@@ -3,7 +3,10 @@ from datetime import timedelta
 
 import arrow
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.paginator import Page as PaginatorPage
 from django.db import models
+from django.db.models import QuerySet
+from django.http import HttpRequest
 from django_flatpickr.widgets import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
 from modelcluster.fields import ParentalKey  # type: ignore
@@ -115,7 +118,7 @@ class MagazineIndexPage(Page):
         return context
 
 
-class MagazineIssue(DrupalFields, Page):
+class MagazineIssue(DrupalFields, Page):  # type: ignore
     cover_image = models.ForeignKey(
         "wagtailimages.Image",
         on_delete=models.SET_NULL,
@@ -131,19 +134,24 @@ class MagazineIssue(DrupalFields, Page):
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
     @property
-    def featured_articles(self):
+    def featured_articles(self) -> list["MagazineArticle"]:
         # Return a cursor of related articles that are featured
         return (
             MagazineArticle.objects.child_of(self).filter(is_featured=True).specific()
         )
 
     @property
-    def publication_end_date(self):
+    def publication_end_date(self) -> datetime.date | None:
+        """Return the first day of the month after the publication date.
+
+        NOTE: we can return any day in the following month,
+        since we only use the year and month components
+        """
         if self.publication_date:
             # TODO: try to find a cleaner way to add a month to the publication date
-            # I.e. the 'add a month' approach may be flawed altogether.
-            # Note: this should probably add more than one month,
-            # since the magazine is not published monthly
+            # We add 31 days here since we can't add a month directly
+            # 31 days is a safe upper bound for adding a month
+            # since the publication date will be at least 28 days prior
             return self.publication_date + timedelta(days=+31)
         return None
 
@@ -162,7 +170,12 @@ class MagazineIssue(DrupalFields, Page):
             models.Index(fields=["drupal_node_id"]),
         ]
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         context = super().get_context(request)
         context["articles_by_department"] = (
             MagazineArticle.objects.child_of(self).live().order_by("department__title")
@@ -170,7 +183,7 @@ class MagazineIssue(DrupalFields, Page):
 
         return context
 
-    def get_sitemap_urls(self):
+    def get_sitemap_urls(self) -> list[dict]:
         return [{"location": self.full_url, "lastmod": self.latest_revision_created_at}]
 
 
@@ -185,7 +198,12 @@ class MagazineArticleTag(TaggedItemBase):
 class MagazineTagIndexPage(Page):
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         tag = request.GET.get("tag")
         articles = MagazineArticle.objects.filter(tags__name=tag)
 
@@ -200,10 +218,16 @@ class MagazineDepartmentIndexPage(Page):
 
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
+    parent_page_types = ["MagazineIndexPage"]
     subpage_types: list[str] = ["MagazineDepartment"]
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         departments = MagazineDepartment.objects.all()
 
         context = super().get_context(request)
@@ -226,15 +250,15 @@ class MagazineDepartment(Page):
     autocomplete_search_field = "title"
 
     # TODO: remove if not using autocomplete
-    def autocomplete_label(self):
+    def autocomplete_label(self) -> str:
         return self.title
 
     # TODO: remove if not using autocomplete
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
 
-class MagazineArticle(DrupalFields, Page):
+class MagazineArticle(DrupalFields, Page):  # type: ignore
     teaser = RichTextField(  # type: ignore
         blank=True,
         help_text="Try to keep teaser to a couple dozen words.",
@@ -323,7 +347,7 @@ class MagazineArticle(DrupalFields, Page):
     parent_page_types = ["MagazineIssue"]
     subpage_types: list[str] = []
 
-    def get_sitemap_urls(self):
+    def get_sitemap_urls(self) -> list[dict]:
         return [
             {
                 "location": self.full_url,
@@ -333,26 +357,34 @@ class MagazineArticle(DrupalFields, Page):
         ]
 
     @property
-    def is_public_access(self):
+    def is_public_access(self) -> bool:
         """Check whether article should be accessible to all readers or only
         subscribers based on issue publication date."""
         parent_issue = self.get_parent()
 
+        # TODO: try to find a good way to shift the date
+        # without using arrow
+        # so we can remove the arrow dependency since it is only used here
         today = arrow.utcnow()
 
         six_months_ago = today.shift(months=-6).date()
 
         # Issues older than six months are public access
-        return parent_issue.specific.publication_date <= six_months_ago
+        return parent_issue.specific.publication_date <= six_months_ago  # type: ignore
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         context = super().get_context(request)
 
         # Check whether user is subscriber
         # make sure they are authenticated first,
         # to avoid checking for "is_subscriber" on anonymous user
         user_is_subscriber = (
-            request.user.is_authenticated and request.user.is_subscriber
+            request.user.is_authenticated and request.user.is_subscriber  # type: ignore
         )
 
         # Subscribers and superusers can always view full articles
@@ -361,7 +393,7 @@ class MagazineArticle(DrupalFields, Page):
         # user can view full article if any of these conditions is True
         context["user_can_view_full_article"] = (
             user_is_subscriber
-            or request.user.is_superuser
+            or request.user.is_superuser  # type: ignore
             or self.is_public_access
             or self.is_featured
         )
@@ -462,7 +494,7 @@ class ArchiveArticle(ClusterableModel):
         ]
 
 
-class ArchiveIssue(DrupalFields, Page):
+class ArchiveIssue(DrupalFields, Page):  # type: ignore
     publication_date = models.DateField(
         null=True,
         help_text="Please select the first day of the publication month",
@@ -510,12 +542,15 @@ class DeepArchiveIndexPage(Page):
     parent_page_types = ["MagazineIndexPage"]
     subpage_types: list[str] = ["ArchiveIssue"]
 
-    def get_publication_years(self):
+    def get_publication_years(self) -> list[int]:
         publication_dates = ArchiveIssue.objects.dates("publication_date", "year")
 
         return [publication_date.year for publication_date in publication_dates]
 
-    def get_filtered_archive_issues(self, request):
+    def get_filtered_archive_issues(
+        self,
+        request: HttpRequest,
+    ) -> QuerySet[ArchiveIssue]:
         # Check if any query string is available
         query = request.GET.dict()
 
@@ -530,32 +565,42 @@ class DeepArchiveIndexPage(Page):
 
         return ArchiveIssue.objects.all().filter(**facets)
 
-    def get_paginated_archive_issues(self, archive_issues, request):
+    def get_paginated_archive_issues(
+        self,
+        request: HttpRequest,
+        archive_issues: QuerySet[ArchiveIssue],
+    ) -> PaginatorPage:
         items_per_page = 9
 
         paginator = Paginator(archive_issues, items_per_page)
 
         archive_issues_page = request.GET.get("page")
 
-        try:
-            paginated_archive_issues = paginator.page(archive_issues_page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            paginated_archive_issues = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            paginated_archive_issues = paginator.page(paginator.num_pages)
+        # Make sure page is numeric and less than or equal to the total pages
+        if (
+            archive_issues_page
+            and archive_issues_page.isdigit()
+            and int(archive_issues_page) <= paginator.num_pages
+        ):
+            paginator_page_number = int(archive_issues_page)
+        else:
+            paginator_page_number = 1
 
-        return paginated_archive_issues
+        return paginator.page(paginator_page_number)
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         context = super().get_context(request)
 
         archive_issues = self.get_filtered_archive_issues(request)
 
         paginated_archive_issues = self.get_paginated_archive_issues(
-            archive_issues,
             request,
+            archive_issues,
         )
 
         context["archive_issues"] = paginated_archive_issues
