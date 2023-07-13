@@ -31,15 +31,20 @@ class MagazineIndexPageTest(TestCase):
             title="Issue 1",
             publication_date=today,
         )
-
-        archive_days_ago = datetime.timedelta(days=181)
-        self.archive_magazine_issue = MagazineIssue(
-            title="Issue 2",
-            publication_date=today - archive_days_ago,
-        )
-
-        self.magazine_index.add_child(instance=self.archive_magazine_issue)
         self.magazine_index.add_child(instance=self.recent_magazine_issue)
+
+        number_of_archive_issues = 9
+        self.archive_magazine_issues = []
+
+        for i in range(number_of_archive_issues + 1):
+            archive_days_ago = datetime.timedelta(days=181 + i)
+            archive_magazine_issue = MagazineIssue(
+                title=f"Archive issue {i}",
+                publication_date=today - archive_days_ago,
+            )
+
+            self.magazine_index.add_child(instance=archive_magazine_issue)
+            self.archive_magazine_issues.append(archive_magazine_issue)
 
     def test_get_sitemap_urls(self) -> None:
         """Validate the output of get_sitemap_urls."""
@@ -78,9 +83,16 @@ class MagazineIndexPageTest(TestCase):
 
         context = self.magazine_index.get_context(mock_request)
 
+        number_of_issues_per_page = 8
+
+        self.assertEqual(
+            len(list(context["archive_issues"])),
+            number_of_issues_per_page,
+        )
+
         self.assertEqual(
             list(context["archive_issues"]),
-            [self.archive_magazine_issue],
+            self.archive_magazine_issues[:number_of_issues_per_page],
         )
 
 
