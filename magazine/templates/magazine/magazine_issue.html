@@ -31,7 +31,7 @@
                 </ul>
             {% endif %}
 
-            {% regroup articles_by_department by specific.department as departments %}
+            {% regroup page.specific.articles_by_department by specific.department as departments %}
 
             {% for department in departments %}
                 <h2 class="h3 ms-4">
