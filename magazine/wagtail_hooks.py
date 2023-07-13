@@ -27,8 +27,8 @@ class MagazineIssueButtonHelperClass(PageButtonHelper):
     add_child_button_classnames = ["add-child"]
 
     def add_child_button(self, pk, classnames_add=None, classnames_exclude=None):
-        if classnames_add=None : classnames_add=[]
-        if classnames_exclude=None : classnames_exclude=[]
+        if classnames_add is None : classnames_add=[]
+        if classnames_exclude is None : classnames_exclude=[]
         
         classnames = self.add_child_button_classnames + classnames_add
         final_classnames = self.finalise_classname(classnames, classnames_exclude)
@@ -47,9 +47,9 @@ class MagazineIssueButtonHelperClass(PageButtonHelper):
         classnames_add=None,
         classnames_exclude=None,
     ):
-        if exclude=None : exclude=[],
-        if classnames_add=None : classnames_add=[],
-        if classnames_exclude=None : classnames_exclude=[]
+        if exclude is None : exclude=[],
+        if classnames_add is None : classnames_add=[],
+        if classnames_exclude is None : classnames_exclude=[]
         
         # call the parent class method to get the default set of buttons
         buttons = super().get_buttons_for_obj(
