@@ -71,6 +71,18 @@ class MagazineIndexPageTest(TestCase):
             [self.recent_magazine_issue],
         )
 
+    def test_get_context_archive_issues_without_page_number(self) -> None:
+        """Validate the output of get_context."""
+
+        mock_request = RequestFactory().get("/magazine/")
+
+        context = self.magazine_index.get_context(mock_request)
+
+        self.assertEqual(
+            list(context["archive_issues"]),
+            [self.archive_magazine_issue],
+        )
+
 
 class MagazineIssueTest(TestCase):
     def setUp(self) -> None:
