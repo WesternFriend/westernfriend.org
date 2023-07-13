@@ -11,6 +11,37 @@ from .models import (
 )
 
 
+class MagazineIndexPageTest(TestCase):
+    def setUp(self) -> None:
+        site_root = Page.objects.get(id=2)
+
+        self.home_page = HomePage(title="Home")
+        site_root.add_child(instance=self.home_page)
+
+        Site.objects.all().update(root_page=self.home_page)
+
+        self.magazine_index = MagazineIndexPage(title="Magazine")
+        self.home_page.add_child(instance=self.magazine_index)
+
+    def test_get_sitemap_urls(self) -> None:
+        """Validate the output of get_sitemap_urls."""
+
+        expected_last_mod = None
+        expected_location_contains = "/magazine/"
+
+        sitemap_urls = self.magazine_index.get_sitemap_urls()
+
+        self.assertEqual(len(sitemap_urls), 1)
+        self.assertEqual(
+            sitemap_urls[0]["lastmod"],
+            expected_last_mod,
+        )
+        self.assertIn(
+            expected_location_contains,
+            sitemap_urls[0]["location"],
+        )
+
+
 class MagazineIssueTest(TestCase):
     def setUp(self) -> None:
         site_root = Page.objects.get(id=2)
