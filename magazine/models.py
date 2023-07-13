@@ -134,10 +134,17 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
     @property
-    def featured_articles(self) -> list["MagazineArticle"]:
+    def featured_articles(self) -> QuerySet["MagazineArticle"]:
         # Return a cursor of related articles that are featured
         return (
             MagazineArticle.objects.child_of(self).filter(is_featured=True).specific()
+        )
+
+    @property
+    def articles_by_department(self) -> QuerySet["MagazineArticle"]:
+        # Return a cursor of child articles ordered by department
+        return (
+            MagazineArticle.objects.child_of(self).live().order_by("department__title")
         )
 
     @property
@@ -169,19 +176,6 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         indexes = [
             models.Index(fields=["drupal_node_id"]),
         ]
-
-    def get_context(
-        self,
-        request: HttpRequest,
-        *args: tuple,
-        **kwargs: dict,
-    ) -> dict:
-        context = super().get_context(request)
-        context["articles_by_department"] = (
-            MagazineArticle.objects.child_of(self).live().order_by("department__title")
-        )
-
-        return context
 
     def get_sitemap_urls(self) -> list[dict]:
         return [{"location": self.full_url, "lastmod": self.latest_revision_created_at}]
