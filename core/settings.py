@@ -37,8 +37,8 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     default_csrf_trusted_origins,
 ).split(",")
 
-PROJECT_DIR = os.path.dirname(__file__)
-BASE_DIR = os.path.dirname(PROJECT_DIR)
+CORE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.dirname(CORE_DIR)
 
 
 SECURE_REFERRER_POLICY = "strict-origin"
@@ -170,7 +170,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(PROJECT_DIR, "templates")],
+        "DIRS": [os.path.join(CORE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -261,7 +261,7 @@ STATICFILES_FINDERS = [
 ]
 
 STATICFILES_DIRS = [
-    os.path.join(PROJECT_DIR, "static"),
+    os.path.join(CORE_DIR, "static"),
 ]
 
 if USE_SPACES:
