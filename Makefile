@@ -25,4 +25,7 @@ install: .venv/bin/python requirements.txt requirements-dev.txt
 test: .venv/.install.stamp
 	.venv/bin/python app/manage.py test app
 
-.PHONY: update-deps compile-deps init install test
+start-db:
+	colima start && docker-compose up -d
+
+.PHONY: update-deps compile-deps init install test start-db
