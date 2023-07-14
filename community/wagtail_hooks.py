@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.utils.html import format_html_join
+from django.utils.safestring import SafeString
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin,
     ModelAdminGroup,
@@ -24,6 +25,14 @@ class PersonModelAdmin(ModelAdmin):
     list_display = ("family_name", "given_name")
     empty_value_display = "-"
     search_fields = ("given_name", "family_name")
+
+    # TODO: determine why the following code does not work
+    # The goal is to load the js file in the admin
+    # only when the Person model is being edited
+    # rather than globally as we do at the end of this file
+    # form_view_extra_js = [
+    #     "js/contact/person_url_slug.js",
+    # ]
 
 
 class MeetingModelAdmin(ModelAdmin):
@@ -202,10 +211,10 @@ class CommunityGroup(ModelAdminGroup):
 modeladmin_register(CommunityGroup)
 
 
-@hooks.register("insert_editor_js")
-def editor_js():
+@hooks.register("insert_editor_js")  # type: ignore
+def editor_js() -> SafeString:
     js_files = [
-        "js/contact_person_slug.js",
+        "js/contact/person_url_slug.js",
     ]
     js_includes = format_html_join(
         "\n",

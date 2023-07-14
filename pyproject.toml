@@ -123,7 +123,7 @@ module = "wagtail.*"
 ignore_missing_imports = true
 
 [tool.django-stubs]
-django_settings_module = "core.settings.base"
+django_settings_module = "core.settings"
 
 [tool.ruff]
 # Same as Black.
