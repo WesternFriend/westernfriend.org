@@ -24,7 +24,7 @@ function generateAutoslug() {
   }
 
   if (slug_text) {
-    const slugified_name = cleanForSlug(slug_text, true);
+    const slugified_name = cleanForSlug(slug_text);
     slug_element.value = slugified_name;
   }
 }
