@@ -45,7 +45,7 @@ SECURE_REFERRER_POLICY = "strict-origin"
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
-DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
+DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
 
 # Settings related to DigitalOcean Spaces
