@@ -78,6 +78,7 @@ dependencies = [
     "wagtail",
     "django-extensions",
     "django",
+    "sentry-sdk",
 ]
 
 [project.urls]
