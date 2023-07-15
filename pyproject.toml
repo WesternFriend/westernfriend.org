@@ -78,9 +78,7 @@ dependencies = [
     "wagtail",
     "django-extensions",
     "django",
-    # TODO: move this to dev dependencies
-    # and load it conditionally in development environments only
-    "django-debug-toolbar",
+    "sentry-sdk",
 ]
 
 [project.urls]
@@ -90,6 +88,7 @@ Repository = "https://github.com/WesternFriend/WF-website"
 
 [project.optional-dependencies]
 dev = [
+    "django-debug-toolbar",
     "mypy",
     "django-browser-reload",
     "pre-commit",
