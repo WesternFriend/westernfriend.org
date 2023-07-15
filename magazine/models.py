@@ -180,9 +180,14 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
             models.Index(fields=["drupal_node_id"]),
         ]
 
-    def get_sitemap_urls(self) -> list[dict]:
-        return [{"location": self.full_url, "lastmod": self.latest_revision_created_at}]
-
+    def get_sitemap_urls(self,changefreq=None,priority=None) -> list[dict]:
+        return [
+            {
+                "location": self.full_url,
+                "lastmod": self.latest_revision_created_at,
+		        "changefreq":changefreq
+            },
+        ]
 
 class MagazineArticleTag(TaggedItemBase):
     content_object = ParentalKey(
@@ -344,15 +349,16 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     parent_page_types = ["MagazineIssue"]
     subpage_types: list[str] = []
 
-    def get_sitemap_urls(self) -> list[dict]:
+    def get_sitemap_urls(self,changefreq=None,priority=None) -> list[dict]:
         return [
             {
                 "location": self.full_url,
                 "lastmod": self.latest_revision_created_at,
-                "priority": 1,
+		        "changefreq":changefreq,
+                "priority": 1
             },
         ]
-
+        
     @property
     def is_public_access(self) -> bool:
         """Check whether article should be accessible to all readers or only
