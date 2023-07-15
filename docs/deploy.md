@@ -68,6 +68,12 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `BRAINTREE_PUBLIC_KEY` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
    - `BRAINTREE_PRIVATE_KEY` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
    - `SENTRY_DSN` - used for error logging and analysis
+   - `EMAIL_HOST` - SMTP host
+   - `EMAIL_PORT` - SMTP port (default: 587)
+   - `EMAIL_HOST_USER` - username for SMTP host
+   - `EMAIL_HOST_PASSWORD` - password for SMTP user
+   - `EMAIL_USE_TLS` - use Transport Layer Security (default: True)
+   - `DEFAULT_FROM_EMAIL` - from address when sending mail (default: tech@westernfriend.org)
 6. Edit the App Info with the following settings
    1. Give the app a meaningful name
    2. Set the Region to San Francisco, so it is closer to most WesternFriend community
