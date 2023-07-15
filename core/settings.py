@@ -19,6 +19,8 @@ from braintree import Configuration as BraintreeConfiguration
 from braintree import Environment as BraintreeEnvironment
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv()
 
@@ -79,6 +81,15 @@ LOGGING = {
         },
     },
 }
+
+# if SENTRY_DSN is set, then we are running in production
+if os.getenv("SENTRY_DSN"):
+    sentry_sdk.init(
+        dsn=os.getenv("SENTRY_DSN"),
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=1.0,
+        send_default_pii=True,
+    )
 
 # Settings related to DigitalOcean Spaces
 # Note: for now, we are using the AWS naming-convention from Boto3
