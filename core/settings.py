@@ -51,21 +51,34 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
         "file": {
             "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": f"{ BASE_DIR }/debug.log",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(BASE_DIR, "debug.log"),
+            "maxBytes": 1024 * 1024 * 5,  # 5 MB
+            "backupCount": 5,
         },
+    },
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+    },
+    "root": {
+        "handlers": ["console", "file"],
+        "level": "DEBUG",
     },
     "loggers": {
         "django": {
-            "handlers": ["file"],
-            "level": "DEBUG",
-            "propagate": True,
+            "handlers": ["console", "file"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
         },
     },
 }
-
 
 # Settings related to DigitalOcean Spaces
 # Note: for now, we are using the AWS naming-convention from Boto3
