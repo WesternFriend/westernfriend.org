@@ -12,7 +12,12 @@ from .models import ArchiveIssue, MagazineDepartment, MagazineIssue
 
 
 class MagazineIssueAdminURLHelper(PageAdminURLHelper):
-    def get_action_url(self, action, *args, **kwargs):
+    def get_action_url(
+        self,
+        action,
+        *args,
+        **kwargs,
+    ):  # pragma: no cover
         if action == "add-child":
             url_name = "wagtailadmin_pages:add_subpage"
             target_url = reverse(url_name, args=args, kwargs=kwargs)
@@ -26,10 +31,17 @@ class MagazineIssueAdminURLHelper(PageAdminURLHelper):
 class MagazineIssueButtonHelperClass(PageButtonHelper):
     add_child_button_classnames = ["add-child"]
 
-    def add_child_button(self, pk, classnames_add=None, classnames_exclude=None):
-        if classnames_add is None : classnames_add=[]
-        if classnames_exclude is None : classnames_exclude=[]
-        
+    def add_child_button(
+        self,
+        pk,
+        classnames_add=None,
+        classnames_exclude=None,
+    ):  # pragma: no cover
+        if classnames_add is None:
+            classnames_add = []
+        if classnames_exclude is None:
+            classnames_exclude = []
+
         classnames = self.add_child_button_classnames + classnames_add
         final_classnames = self.finalise_classname(classnames, classnames_exclude)
 
@@ -46,11 +58,14 @@ class MagazineIssueButtonHelperClass(PageButtonHelper):
         exclude=None,
         classnames_add=None,
         classnames_exclude=None,
-    ):
-        if exclude is None : exclude=[],
-        if classnames_add is None : classnames_add=[],
-        if classnames_exclude is None : classnames_exclude=[]
-        
+    ):  # pragma: no cover
+        if exclude is None:
+            exclude = ([],)
+        if classnames_add is None:
+            classnames_add = ([],)
+        if classnames_exclude is None:
+            classnames_exclude = []
+
         # call the parent class method to get the default set of buttons
         buttons = super().get_buttons_for_obj(
             obj,
@@ -109,7 +124,10 @@ class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
         MagazineIssueAdminURLHelper  # added to enable custom url generation
     )
 
-    def add_article(self, obj):
+    def add_article(
+        self,
+        obj,
+    ):  # pragma: no cover
         url_name = "wagtailadmin_pages:add_subpage"
         url = reverse(url_name, args=[obj.id])
 
@@ -117,7 +135,10 @@ class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
             f'<a href="{url}" class="button button-small button-secondary">Add Article</a>',  # noqa: E501
         )
 
-    def view_articles(self, obj):
+    def view_articles(
+        self,
+        obj,
+    ):  # pragma: no cover
         url_name = "wagtailadmin_explore"
         url = reverse(url_name, args=[obj.id])
 

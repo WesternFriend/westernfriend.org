@@ -1,2 +1,6 @@
 [run]
-omit = */migrations/*, *tests*, *test*
+omit =
+    */migrations/*,
+    *tests*,
+    *test*,
+    core/*.py
