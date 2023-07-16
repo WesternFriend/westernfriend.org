@@ -406,12 +406,19 @@ class MagazineArticleTest(TestCase):
 
         today = datetime.date.today()
 
+        # Magazine Issues
         self.recent_magazine_issue = MagazineIssue(
             title="Issue 1",
             publication_date=today,
         )
+        self.archive_magazine_issue = MagazineIssue(
+            title="Issue 2",
+            publication_date=today - datetime.timedelta(days=181),
+        )
         self.magazine_index.add_child(instance=self.recent_magazine_issue)
+        self.magazine_index.add_child(instance=self.archive_magazine_issue)
 
+        # Magazine Departments
         self.magazine_department_index = MagazineDepartmentIndexPage(
             title="Departments",
         )
@@ -422,12 +429,17 @@ class MagazineArticleTest(TestCase):
         )
         self.magazine_department_index.add_child(instance=self.magazine_department)
 
-        self.magazine_article = MagazineArticle(
+        # Magazine Articles
+        self.recent_magazine_article = MagazineArticle(
             title="Article 1",
             department=self.magazine_department,
         )
-
-        self.recent_magazine_issue.add_child(instance=self.magazine_article)
+        self.archive_magazine_article = MagazineArticle(
+            title="Article 2",
+            department=self.magazine_department,
+        )
+        self.recent_magazine_issue.add_child(instance=self.recent_magazine_article)
+        self.archive_magazine_issue.add_child(instance=self.archive_magazine_article)
 
     def test_get_sitemap_urls(self) -> None:
         """Validate the output of get_sitemap_urls."""
@@ -435,7 +447,7 @@ class MagazineArticleTest(TestCase):
         expected_last_mod = None
         expected_location_contains = "/magazine/issue-1/article-1/"
 
-        sitemap_urls = self.magazine_article.get_sitemap_urls()
+        sitemap_urls = self.recent_magazine_article.get_sitemap_urls()
 
         self.assertEqual(len(sitemap_urls), 1)
         self.assertEqual(
@@ -446,3 +458,9 @@ class MagazineArticleTest(TestCase):
             expected_location_contains,
             sitemap_urls[0]["location"],
         )
+
+    def test_is_public_access(self) -> None:
+        """Test that the is_public_access property returns the correct
+        boolean."""
+        self.assertFalse(self.recent_magazine_article.is_public_access)
+        self.assertTrue(self.archive_magazine_article.is_public_access)
