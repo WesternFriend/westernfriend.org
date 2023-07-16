@@ -171,12 +171,19 @@ class MagazineIssueTest(TestCase):
         self.magazine_index = MagazineIndexPage(title="Magazine")
         self.home_page.add_child(instance=self.magazine_index)
 
+        # Magazine Issues
         self.recent_magazine_issue = MagazineIssue(
             title="Issue 1",
-            issue_number=1,
             publication_date=datetime.date.today(),
         )
+        self.archive_magazine_issue = MagazineIssue(
+            title="Issue 2",
+            publication_date=datetime.date.today() - datetime.timedelta(days=181),
+        )
+        self.magazine_index.add_child(instance=self.recent_magazine_issue)
+        self.magazine_index.add_child(instance=self.archive_magazine_issue)
 
+        # Magazine Departments
         self.magazine_department_index = MagazineDepartmentIndexPage(
             title="Departments",
         )
@@ -187,10 +194,10 @@ class MagazineIssueTest(TestCase):
         self.magazine_department_two = MagazineDepartment(
             title="Department 2",
         )
-
         self.magazine_department_index.add_child(instance=self.magazine_department_one)
         self.magazine_department_index.add_child(instance=self.magazine_department_two)
-        self.magazine_index.add_child(instance=self.recent_magazine_issue)
+
+        # Magazine Articles
         self.magazine_article_one = self.recent_magazine_issue.add_child(
             instance=MagazineArticle(
                 title="Article 1",
@@ -250,6 +257,12 @@ class MagazineIssueTest(TestCase):
             expected_location_contains,
             sitemap_urls[0]["location"],
         )
+
+    def test_is_public_access(self) -> None:
+        """Test that the is_public_access property returns the correct
+        boolean."""
+        self.assertFalse(self.recent_magazine_issue.is_public_access)
+        self.assertTrue(self.archive_magazine_issue.is_public_access)
 
 
 class MagazineTagIndexPageTest(TestCase):
