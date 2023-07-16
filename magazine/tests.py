@@ -325,3 +325,39 @@ class MagazineTagIndexPageTest(TestCase):
             self.article3,
             context["articles"],
         )
+
+
+class MagazineDepartmentIndexPageTest(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.root = Site.objects.get(is_default_site=True).root_page
+
+        # Create a MagazineIndexPage
+        self.magazine_index = MagazineIndexPage(title="Magazine")
+        self.root.add_child(instance=self.magazine_index)
+
+        # Create a MagazineDepartmentIndexPage
+        self.department_index = MagazineDepartmentIndexPage(title="Department Index")
+        self.magazine_index.add_child(instance=self.department_index)
+
+        # Create some MagazineDepartments
+        self.department1 = MagazineDepartment(title="Department 1")
+        self.department2 = MagazineDepartment(title="Department 2")
+
+        self.department_index.add_child(instance=self.department1)
+        self.department_index.add_child(instance=self.department2)
+
+    def test_get_context(self) -> None:
+        # Create a mock request
+        request = self.factory.get("/")
+
+        # Call the get_context method
+        context = self.department_index.get_context(request)
+
+        # Check that the context includes the departments
+        self.assertQuerySetEqual(
+            context["departments"],
+            MagazineDepartment.objects.all(),
+            transform=lambda x: x,  # Transform the objects to compare them directly
+            ordered=False,  # The order of the results is not important
+        )
