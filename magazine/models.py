@@ -1,7 +1,6 @@
 import datetime
 from datetime import timedelta
 
-import arrow
 from django.core.paginator import Paginator
 from django.core.paginator import Page as PaginatorPage
 from django.db import models
@@ -35,6 +34,11 @@ from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
 
 from .panels import NestedInlinePanel
+
+MAGAZINE_ARCHIVE_THRESHOLD_DAYS = 180
+ARCHIVE_THRESHOLD_DATE = datetime.date.today() - timedelta(
+    days=MAGAZINE_ARCHIVE_THRESHOLD_DAYS,
+)
 
 
 class MagazineIndexPage(Page):
@@ -85,22 +89,15 @@ class MagazineIndexPage(Page):
     ) -> dict:
         context = super().get_context(request)
 
-        # number of days for archive threshold
-        archive_days_ago = 180
-
-        # TODO: see if there is a better way to deal with
-        # irregular month lengths for archive threshold
-        archive_threshold = datetime.date.today() - timedelta(days=archive_days_ago)
-
         published_issues = MagazineIssue.objects.live().order_by("-publication_date")
 
         # recent issues are published after the archive threshold
         context["recent_issues"] = published_issues.filter(
-            publication_date__gte=archive_threshold,
+            publication_date__gte=ARCHIVE_THRESHOLD_DATE,
         )
 
         archive_issues = published_issues.filter(
-            publication_date__lt=archive_threshold,
+            publication_date__lt=ARCHIVE_THRESHOLD_DATE,
         )
 
         # Show three archive issues per page
@@ -166,7 +163,16 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         # We add 31 days here since we can't add a month directly
         # 31 days is a safe upper bound for adding a month
         # since the publication date will be at least 28 days prior
-        return self.publication_date + timedelta(days=+31)
+        max_days_in_month = 31
+        return self.publication_date + timedelta(days=+max_days_in_month)
+
+    @property
+    def is_public_access(self) -> bool:
+        """Check whether issue should be accessible to all readers or only
+        subscribers based on publication date and archive threshold."""
+
+        # check whether publication date is before public access date
+        return self.publication_date < ARCHIVE_THRESHOLD_DATE
 
     search_template = "search/magazine_issue.html"
 
@@ -361,18 +367,10 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     @property
     def is_public_access(self) -> bool:
         """Check whether article should be accessible to all readers or only
-        subscribers based on issue publication date."""
+        subscribers based on whether the issue is public access."""
         parent_issue = self.get_parent()
 
-        # TODO: try to find a good way to shift the date
-        # without using arrow
-        # so we can remove the arrow dependency since it is only used here
-        today = arrow.utcnow()
-
-        six_months_ago = today.shift(months=-6).date()
-
-        # Issues older than six months are public access
-        return parent_issue.specific.publication_date <= six_months_ago  # type: ignore
+        return parent_issue.specific.is_public_access  # type: ignore
 
     def get_context(
         self,
