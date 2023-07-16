@@ -58,7 +58,6 @@ classifiers = [
     "Topic :: Religion",
 ]
 dependencies = [
-    "arrow",
     "braintree",
     "django-crispy-forms",
     "crispy-bootstrap5",
