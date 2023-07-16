@@ -361,3 +361,17 @@ class MagazineDepartmentIndexPageTest(TestCase):
             transform=lambda x: x,  # Transform the objects to compare them directly
             ordered=False,  # The order of the results is not important
         )
+
+
+class MagazineDepartmentTest(TestCase):
+    def test_magazine_department_str(self) -> None:
+        """Test that the MagazineDepartment __str__ method returns the correct
+        string."""
+        department = MagazineDepartment(title="Department 1")
+        self.assertEqual(str(department), "Department 1")
+
+    def test_magazine_department_autocomplete_label(self) -> None:
+        """Test that the MagazineDepartment autocomplete_label property returns
+        the correct string."""
+        department = MagazineDepartment(title="Department 1")
+        self.assertEqual(department.autocomplete_label(), "Department 1")
