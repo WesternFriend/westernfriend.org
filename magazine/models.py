@@ -205,9 +205,11 @@ class MagazineTagIndexPage(Page):
         **kwargs: dict,
     ) -> dict:
         tag = request.GET.get("tag")
-        articles = MagazineArticle.objects.filter(tags__name=tag)
-
         context = super().get_context(request)
+
+        articles = MagazineArticle.objects.filter(
+            tagged_items__tag__name=tag,
+        ).live()
         context["articles"] = articles
 
         return context

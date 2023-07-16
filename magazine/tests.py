@@ -8,6 +8,7 @@ from .models import (
     MagazineIssue,
     MagazineIndexPage,
     MagazineArticle,
+    MagazineTagIndexPage,
 )
 
 
@@ -248,4 +249,79 @@ class MagazineIssueTest(TestCase):
         self.assertIn(
             expected_location_contains,
             sitemap_urls[0]["location"],
+        )
+
+
+class MagazineTagIndexPageTest(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.root = Site.objects.get(is_default_site=True).root_page
+
+        # Create a MagazineIndexPage
+        self.magazine_index = MagazineIndexPage(title="Magazine")
+        self.root.add_child(instance=self.magazine_index)
+
+        # Create a page of MagazineTagIndexPage type
+        self.magazine_tag_index_page = MagazineTagIndexPage(title="Tag Index")
+        self.magazine_index.add_child(instance=self.magazine_tag_index_page)
+
+        # Create a MagazineDepartmentIndexPage
+        self.department_index = MagazineDepartmentIndexPage(title="Departments")
+        self.magazine_index.add_child(instance=self.department_index)
+
+        # Create some MagazineDepartments
+        self.department1 = MagazineDepartment(
+            title="Department 1",
+        )
+        self.department2 = MagazineDepartment(
+            title="Department 2",
+        )
+
+        self.department_index.add_child(instance=self.department1)
+        self.department_index.add_child(instance=self.department2)
+
+        # Create some MagazineArticles with tags
+        self.article1 = MagazineArticle(
+            title="Article 1",
+            department=self.department1,
+        )
+        self.article2 = MagazineArticle(
+            title="Article 2",
+            department=self.department2,
+        )
+        self.article3 = MagazineArticle(
+            title="Article 3",
+            department=self.department2,
+        )
+
+        python_tag = "Python"
+        django_tag = "Django"
+
+        self.article1.tags.add(python_tag)
+        self.article2.tags.add(python_tag)
+        self.article3.tags.add(django_tag)
+
+        self.magazine_index.add_child(instance=self.article1)
+        self.magazine_index.add_child(instance=self.article2)
+        self.magazine_index.add_child(instance=self.article3)
+
+        MagazineArticle.objects.all()
+
+    def test_get_context(self) -> None:
+        # Create a mock request with 'tag' as a GET parameter
+        request = self.factory.get("/magazine/tag-index/?tag=Python")
+
+        # Call the get_context method
+        context = self.magazine_tag_index_page.get_context(request)
+
+        # Check that the context includes the articles tagged with 'Python'
+        self.assertEqual(
+            list(context["articles"]),
+            [self.article1, self.article2],
+        )
+
+        # Check that the context doesn't include articles tagged with 'Django'
+        self.assertNotIn(
+            self.article3,
+            context["articles"],
         )
