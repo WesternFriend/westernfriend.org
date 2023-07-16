@@ -1,7 +1,13 @@
 import datetime
 from django.test import RequestFactory, TestCase
 from wagtail.models import Page, Site
+from accounts.models import User
 from home.models import HomePage
+from subscription.models import (
+    MagazineFormatChoices,
+    MagazinePriceGroupChoices,
+    Subscription,
+)
 from .models import (
     MagazineDepartmentIndexPage,
     MagazineDepartment,
@@ -392,6 +398,25 @@ class MagazineDepartmentTest(TestCase):
 
 class MagazineArticleTest(TestCase):
     def setUp(self) -> None:
+        self.admin_user = User.objects.create_superuser(
+            email="admin@email.com",
+            password="password",  # nosec - Banned password
+        )
+        self.regular_user = User.objects.create_user(
+            email="regular@email.com",
+            password="password",  # nosec - Banned password
+        )
+        self.subscriber_user = User.objects.create_user(
+            email="subscriber@email.com",
+            password="password",  # nosec - Banned password
+        )
+        self.subscription = Subscription.objects.create(
+            magazine_format=MagazineFormatChoices.PRINT,
+            price_group=MagazinePriceGroupChoices.NORMAL,
+            user=self.subscriber_user,
+            paid=True,
+        )
+
         site_root = Page.objects.get(id=2)
 
         self.home_page = HomePage(title="Home")
@@ -464,3 +489,91 @@ class MagazineArticleTest(TestCase):
         boolean."""
         self.assertFalse(self.recent_magazine_article.is_public_access)
         self.assertTrue(self.archive_magazine_article.is_public_access)
+
+    def test_recent_get_context_anonymous(self) -> None:
+        """Test that the get_context method returns the correct context."""
+        mock_request = RequestFactory().get("/magazine/issue-1/article-1/")
+        mock_request.user = self.regular_user
+        context = self.recent_magazine_article.get_context(mock_request)
+
+        self.assertEqual(
+            context["user_can_view_full_article"],
+            False,
+        )
+
+    def test_recent_get_context_registered(self) -> None:
+        """Test that the get_context method returns the correct context."""
+        mock_request = RequestFactory().get("/magazine/issue-1/article-1/")
+        mock_request.user = self.regular_user
+        context = self.recent_magazine_article.get_context(mock_request)
+
+        self.assertEqual(
+            context["user_can_view_full_article"],
+            False,
+        )
+
+    def test_recent_get_context_subscriber(self) -> None:
+        """Test that the get_context method returns the correct context."""
+        mock_request = RequestFactory().get("/magazine/issue-1/article-1/")
+        mock_request.user = self.subscriber_user
+        context = self.recent_magazine_article.get_context(mock_request)
+
+        self.assertEqual(
+            context["user_can_view_full_article"],
+            True,
+        )
+
+    def test_recent_get_context_admin(self) -> None:
+        """Test that the get_context method returns the correct context."""
+        mock_request = RequestFactory().get("/magazine/issue-1/article-1/")
+        mock_request.user = self.admin_user
+        context = self.recent_magazine_article.get_context(mock_request)
+
+        self.assertEqual(
+            context["user_can_view_full_article"],
+            True,
+        )
+
+    def test_archive_get_context_anonymous(self) -> None:
+        """Test that the get_context method returns the correct context."""
+        mock_request = RequestFactory().get("/magazine/issue-2/article-2/")
+        mock_request.user = self.regular_user
+        context = self.archive_magazine_article.get_context(mock_request)
+
+        self.assertEqual(
+            context["user_can_view_full_article"],
+            True,
+        )
+
+    def test_archive_get_context_registered(self) -> None:
+        """Test that the get_context method returns the correct context."""
+        mock_request = RequestFactory().get("/magazine/issue-2/article-2/")
+        mock_request.user = self.regular_user
+        context = self.archive_magazine_article.get_context(mock_request)
+
+        self.assertEqual(
+            context["user_can_view_full_article"],
+            True,
+        )
+
+    def test_archive_get_context_subscriber(self) -> None:
+        """Test that the get_context method returns the correct context."""
+        mock_request = RequestFactory().get("/magazine/issue-2/article-2/")
+        mock_request.user = self.subscriber_user
+        context = self.archive_magazine_article.get_context(mock_request)
+
+        self.assertEqual(
+            context["user_can_view_full_article"],
+            True,
+        )
+
+    def test_archive_get_context_admin(self) -> None:
+        """Test that the get_context method returns the correct context."""
+        mock_request = RequestFactory().get("/magazine/issue-2/article-2/")
+        mock_request.user = self.admin_user
+        context = self.archive_magazine_article.get_context(mock_request)
+
+        self.assertEqual(
+            context["user_can_view_full_article"],
+            True,
+        )
