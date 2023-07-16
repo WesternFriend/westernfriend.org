@@ -380,20 +380,28 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     ) -> dict:
         context = super().get_context(request)
 
-        # Check whether user is subscriber
-        # make sure they are authenticated first,
-        # to avoid checking for "is_subscriber" on anonymous user
-        user_is_subscriber = (
-            request.user.is_authenticated and request.user.is_subscriber  # type: ignore
-        )
+        user_is_authenticated = False
+        user_is_subscriber = False
+        user_is_superuser = False
 
-        # Subscribers and superusers can always view full articles
-        # everyone can view public access articles
-        # everyone can view featured articles
-        # user can view full article if any of these conditions is True
+        # If user object is present in the request,
+        # check for their authentication
+        # and authorization status (subscriber or superuser authorization)
+        if request.user is not None:
+            user_is_authenticated = request.user.is_authenticated
+
+            # Only check for subscriber and superuser status if user is authenticated,
+            # preventing attribute errors on unauthenticated users
+            if user_is_authenticated:
+                user_is_subscriber = request.user.is_subscriber  # type: ignore
+                user_is_superuser = request.user.is_superuser  # type: ignore
+
+        # A user can view full article if
+        # - they are a subscriber or a superuser,
+        # - or if the article is marked as public access or featured
         context["user_can_view_full_article"] = (
             user_is_subscriber
-            or request.user.is_superuser  # type: ignore
+            or user_is_superuser
             or self.is_public_access
             or self.is_featured
         )
