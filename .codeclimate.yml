@@ -35,4 +35,5 @@ plugins:
 exclude_patterns:
   - "content_migration/"
   - "**/migrations/"
-  - "**/**/__init__.py"
+  - "**/__init__.py"
+  - "**/tests.py"
