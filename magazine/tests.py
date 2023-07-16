@@ -171,10 +171,10 @@ class MagazineIssueTest(TestCase):
         self.magazine_index = MagazineIndexPage(title="Magazine")
         self.home_page.add_child(instance=self.magazine_index)
 
-        self.magazine_issue = MagazineIssue(
+        self.recent_magazine_issue = MagazineIssue(
             title="Issue 1",
             issue_number=1,
-            publication_date="2020-01-01",
+            publication_date=datetime.date.today(),
         )
 
         self.magazine_department_index = MagazineDepartmentIndexPage(
@@ -190,15 +190,15 @@ class MagazineIssueTest(TestCase):
 
         self.magazine_department_index.add_child(instance=self.magazine_department_one)
         self.magazine_department_index.add_child(instance=self.magazine_department_two)
-        self.magazine_index.add_child(instance=self.magazine_issue)
-        self.magazine_article_one = self.magazine_issue.add_child(
+        self.magazine_index.add_child(instance=self.recent_magazine_issue)
+        self.magazine_article_one = self.recent_magazine_issue.add_child(
             instance=MagazineArticle(
                 title="Article 1",
                 department=self.magazine_department_two,
                 is_featured=True,
             ),
         )
-        self.magazine_article_two = self.magazine_issue.add_child(
+        self.magazine_article_two = self.recent_magazine_issue.add_child(
             instance=MagazineArticle(
                 title="Article 2",
                 department=self.magazine_department_one,
@@ -210,7 +210,7 @@ class MagazineIssueTest(TestCase):
         """Test that the featured_articles property returns the correct
         articles."""
         self.assertEqual(
-            list(self.magazine_issue.featured_articles),
+            list(self.recent_magazine_issue.featured_articles),
             [self.magazine_article_one],
         )
 
@@ -218,7 +218,7 @@ class MagazineIssueTest(TestCase):
         """Test that the articles_by_department property returns the correct
         articles."""
         self.assertEqual(
-            list(self.magazine_issue.articles_by_department),
+            list(self.recent_magazine_issue.articles_by_department),
             [
                 self.magazine_article_two,
                 self.magazine_article_one,
@@ -229,8 +229,8 @@ class MagazineIssueTest(TestCase):
         """Test that the publication_end_date property returns the correct
         date."""
         self.assertEqual(
-            self.magazine_issue.publication_end_date,
-            datetime.date(2020, 2, 1),
+            self.recent_magazine_issue.publication_end_date,
+            datetime.date.today() + datetime.timedelta(days=31),
         )
 
     def test_get_sitemap_urls(self) -> None:
@@ -239,7 +239,7 @@ class MagazineIssueTest(TestCase):
         expected_last_mod = None
         expected_location_contains = "/magazine/issue-1/"
 
-        sitemap_urls = self.magazine_issue.get_sitemap_urls()
+        sitemap_urls = self.recent_magazine_issue.get_sitemap_urls()
 
         self.assertEqual(len(sitemap_urls), 1)
         self.assertEqual(
