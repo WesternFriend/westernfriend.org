@@ -15,6 +15,7 @@ update-deps: .venv/bin/python
 compile-deps: .venv/bin/python
 	python -m piptools compile --resolver backtracking -o requirements.txt pyproject.toml
 	python -m piptools compile --extra dev --resolver backtracking -o requirements-dev.txt pyproject.toml
+	rm -rf Western_Friend_website.egg-info
 
 init: .venv/.install.stamp
 	pre-commit install
