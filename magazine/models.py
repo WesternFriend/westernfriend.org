@@ -130,8 +130,8 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         related_name="+",
     )
     publication_date = models.DateField(
-        null=True,
         help_text="Please select the first day of the publication month",
+        default=datetime.date.today,
     )
     issue_number = models.PositiveIntegerField(null=True, blank=True)
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
@@ -157,13 +157,11 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         NOTE: we can return any day in the following month,
         since we only use the year and month components
         """
-        if self.publication_date:
-            # TODO: try to find a cleaner way to add a month to the publication date
-            # We add 31 days here since we can't add a month directly
-            # 31 days is a safe upper bound for adding a month
-            # since the publication date will be at least 28 days prior
-            return self.publication_date + timedelta(days=+31)
-        return None
+
+        # We add 31 days here since we can't add a month directly
+        # 31 days is a safe upper bound for adding a month
+        # since the publication date will be at least 28 days prior
+        return self.publication_date + timedelta(days=+31)
 
     search_template = "search/magazine_issue.html"
 
