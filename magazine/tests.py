@@ -388,3 +388,61 @@ class MagazineDepartmentTest(TestCase):
         the correct string."""
         department = MagazineDepartment(title="Department 1")
         self.assertEqual(department.autocomplete_label(), "Department 1")
+
+
+class MagazineArticleTest(TestCase):
+    def setUp(self) -> None:
+        site_root = Page.objects.get(id=2)
+
+        self.home_page = HomePage(title="Home")
+        site_root.add_child(instance=self.home_page)
+
+        Site.objects.all().update(root_page=self.home_page)
+
+        self.magazine_index = MagazineIndexPage(
+            title="Magazine",
+        )
+        self.home_page.add_child(instance=self.magazine_index)
+
+        today = datetime.date.today()
+
+        self.recent_magazine_issue = MagazineIssue(
+            title="Issue 1",
+            publication_date=today,
+        )
+        self.magazine_index.add_child(instance=self.recent_magazine_issue)
+
+        self.magazine_department_index = MagazineDepartmentIndexPage(
+            title="Departments",
+        )
+        self.magazine_index.add_child(instance=self.magazine_department_index)
+
+        self.magazine_department = MagazineDepartment(
+            title="Department 1",
+        )
+        self.magazine_department_index.add_child(instance=self.magazine_department)
+
+        self.magazine_article = MagazineArticle(
+            title="Article 1",
+            department=self.magazine_department,
+        )
+
+        self.recent_magazine_issue.add_child(instance=self.magazine_article)
+
+    def test_get_sitemap_urls(self) -> None:
+        """Validate the output of get_sitemap_urls."""
+
+        expected_last_mod = None
+        expected_location_contains = "/magazine/issue-1/article-1/"
+
+        sitemap_urls = self.magazine_article.get_sitemap_urls()
+
+        self.assertEqual(len(sitemap_urls), 1)
+        self.assertEqual(
+            sitemap_urls[0]["lastmod"],
+            expected_last_mod,
+        )
+        self.assertIn(
+            expected_location_contains,
+            sitemap_urls[0]["location"],
+        )
