@@ -1,5 +1,12 @@
+from typing import TYPE_CHECKING
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
+
+# Avoic circular import
+# only while type checking import user
+# from .models import User
+if TYPE_CHECKING:
+    from .models import User
 
 
 class UserManager(BaseUserManager):
@@ -9,7 +16,12 @@ class UserManager(BaseUserManager):
     Source: https://testdriven.io/blog/django-custom-user-model/
     """
 
-    def create_user(self, email, password, **extra_fields):
+    def create_user(
+        self,
+        email: str,
+        password: str,
+        **extra_fields,
+    ) -> "User":
         """Create and save a User with the given email and password."""
         if not email:
             raise ValueError(_("The Email must be set"))
@@ -19,7 +31,12 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, email, password, **extra_fields):
+    def create_superuser(
+        self,
+        email: str,
+        password: str,
+        **extra_fields,
+    ) -> "User":
         """Create and save a SuperUser with the given email and password."""
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
