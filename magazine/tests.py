@@ -355,7 +355,7 @@ class MagazineDepartmentIndexPageTest(TestCase):
         context = self.department_index.get_context(request)
 
         # Check that the context includes the departments
-        self.assertQuerySetEqual(
+        self.assertQuerySetEqual(  # type: ignore
             context["departments"],
             MagazineDepartment.objects.all(),
             transform=lambda x: x,  # Transform the objects to compare them directly
