@@ -597,7 +597,7 @@ class DeepArchiveIndexPage(Page):
         *args: tuple,
         **kwargs: dict,
     ) -> dict:
-        context = super().get_context(request)
+        context = super().get_context(request, *args, **kwargs)
 
         query = request.GET.dict()
 
