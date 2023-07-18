@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 # only while type checking import user
 # from .models import User
 if TYPE_CHECKING:
-    from .models import User
+    from .models import User  # pragma: no cover
 
 
 class UserManager(BaseUserManager):

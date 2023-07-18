@@ -4,7 +4,6 @@ from .models import User
 from subscription.models import Subscription
 
 
-# User manager tests
 class UserManagerTest(TestCase):
     def test_create_user(self) -> None:
         # Test creating regular user
@@ -20,6 +19,11 @@ class UserManagerTest(TestCase):
         self.assertFalse(user.is_staff)
         self.assertTrue(user.is_active)
         self.assertFalse(user.is_superuser)
+
+    def test_create_user_with_no_email(self) -> None:
+        # Test creating user with no email raises error
+        with self.assertRaises(ValueError):
+            User.objects.create_user(email=None, password="testpass")  # type: ignore
 
     def test_create_superuser(self) -> None:
         # Test creating superuser
