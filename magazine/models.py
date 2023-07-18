@@ -180,7 +180,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
             models.Index(fields=["drupal_node_id"]),
         ]
 
-    def get_sitemap_urls(self,changefreq=None,priority=None) -> list[dict]:
+    def get_sitemap_urls(self, changefreq=None, priority=None) -> list[dict]:
         return [
             {
                 "location": self.full_url,
@@ -349,7 +349,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     parent_page_types = ["MagazineIssue"]
     subpage_types: list[str] = []
 
-    def get_sitemap_urls(self,changefreq=None,priority=None) -> list[dict]:
+    def get_sitemap_urls(self, changefreq=None, priority=None) -> list[dict]:
         return [
             {
                 "location": self.full_url,
