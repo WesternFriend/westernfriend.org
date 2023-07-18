@@ -9,6 +9,8 @@ from subscription.models import (
     Subscription,
 )
 from .models import (
+    ArchiveIssue,
+    DeepArchiveIndexPage,
     MagazineDepartmentIndexPage,
     MagazineDepartment,
     MagazineIssue,
@@ -576,4 +578,52 @@ class MagazineArticleTest(TestCase):
         self.assertEqual(
             context["user_can_view_full_article"],
             True,
+        )
+
+
+class DeepArchiveIndexPageTest(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.root = Site.objects.get(is_default_site=True).root_page
+
+        # Create a MagazineIndexPage
+        self.magazine_index = MagazineIndexPage(title="Magazine")
+        self.root.add_child(instance=self.magazine_index)
+
+        # Create a DeepArchiveIndexPage
+        self.deep_archive_index = DeepArchiveIndexPage(title="Deep Archive Index")
+        self.magazine_index.add_child(instance=self.deep_archive_index)
+
+        self.publication_years = [2019, 2020, 2021]
+
+        self.archive_issues = []
+
+        for year in self.publication_years:
+            archive_issue = ArchiveIssue(
+                title=f"Archive Issue {year}",  # type: ignore
+                internet_archive_identifier=f"archive-issue-{year}",  # type: ignore
+                publication_date=datetime.date(year, 1, 1),  # type: ignore
+            )
+            self.deep_archive_index.add_child(instance=archive_issue)
+            self.archive_issues.append(archive_issue)
+
+    def test_get_context(self) -> None:
+        # Create a mock request
+        request = self.factory.get("/")
+
+        # Call the get_context method
+        context = self.deep_archive_index.get_context(request)
+
+        # Check that the context includes the archive issues
+        self.assertQuerySetEqual(  # type: ignore
+            context["archive_issues"],
+            ArchiveIssue.objects.all(),
+            transform=lambda x: x,  # Transform the objects to compare them directly
+            ordered=False,  # The order of the results is not important
+        )
+
+        # Check that the context includes the publication years
+        self.assertEqual(
+            list(context["publication_years"]),
+            self.publication_years,
         )
