@@ -1,7 +1,6 @@
 import datetime
 from datetime import timedelta
 
-import arrow
 from django.core.paginator import Paginator
 from django.core.paginator import Page as PaginatorPage
 from django.db import models
@@ -35,6 +34,11 @@ from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
 
 from .panels import NestedInlinePanel
+
+MAGAZINE_ARCHIVE_THRESHOLD_DAYS = 180
+ARCHIVE_THRESHOLD_DATE = datetime.date.today() - timedelta(
+    days=MAGAZINE_ARCHIVE_THRESHOLD_DAYS,
+)
 
 
 class MagazineIndexPage(Page):
@@ -77,25 +81,23 @@ class MagazineIndexPage(Page):
 
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         context = super().get_context(request)
-
-        # number of days for archive threshold
-        archive_days_ago = 180
-
-        # TODO: see if there is a better way to deal with
-        # irregular month lengths for archive threshold
-        archive_threshold = datetime.date.today() - timedelta(days=archive_days_ago)
 
         published_issues = MagazineIssue.objects.live().order_by("-publication_date")
 
         # recent issues are published after the archive threshold
         context["recent_issues"] = published_issues.filter(
-            publication_date__gte=archive_threshold,
+            publication_date__gte=ARCHIVE_THRESHOLD_DATE,
         )
 
         archive_issues = published_issues.filter(
-            publication_date__lt=archive_threshold,
+            publication_date__lt=ARCHIVE_THRESHOLD_DATE,
         )
 
         # Show three archive issues per page
@@ -130,8 +132,8 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         related_name="+",
     )
     publication_date = models.DateField(
-        null=True,
         help_text="Please select the first day of the publication month",
+        default=datetime.date.today,
     )
     issue_number = models.PositiveIntegerField(null=True, blank=True)
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
@@ -157,13 +159,20 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         NOTE: we can return any day in the following month,
         since we only use the year and month components
         """
-        if self.publication_date:
-            # TODO: try to find a cleaner way to add a month to the publication date
-            # We add 31 days here since we can't add a month directly
-            # 31 days is a safe upper bound for adding a month
-            # since the publication date will be at least 28 days prior
-            return self.publication_date + timedelta(days=+31)
-        return None
+
+        # We add 31 days here since we can't add a month directly
+        # 31 days is a safe upper bound for adding a month
+        # since the publication date will be at least 28 days prior
+        max_days_in_month = 31
+        return self.publication_date + timedelta(days=+max_days_in_month)
+
+    @property
+    def is_public_access(self) -> bool:
+        """Check whether issue should be accessible to all readers or only
+        subscribers based on publication date and archive threshold."""
+
+        # check whether publication date is before public access date
+        return self.publication_date < ARCHIVE_THRESHOLD_DATE
 
     search_template = "search/magazine_issue.html"
 
@@ -202,9 +211,11 @@ class MagazineTagIndexPage(Page):
         **kwargs: dict,
     ) -> dict:
         tag = request.GET.get("tag")
-        articles = MagazineArticle.objects.filter(tags__name=tag)
-
         context = super().get_context(request)
+
+        articles = MagazineArticle.objects.filter(
+            tagged_items__tag__name=tag,
+        ).live()
         context["articles"] = articles
 
         return context
@@ -356,18 +367,10 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     @property
     def is_public_access(self) -> bool:
         """Check whether article should be accessible to all readers or only
-        subscribers based on issue publication date."""
+        subscribers based on whether the issue is public access."""
         parent_issue = self.get_parent()
 
-        # TODO: try to find a good way to shift the date
-        # without using arrow
-        # so we can remove the arrow dependency since it is only used here
-        today = arrow.utcnow()
-
-        six_months_ago = today.shift(months=-6).date()
-
-        # Issues older than six months are public access
-        return parent_issue.specific.publication_date <= six_months_ago  # type: ignore
+        return parent_issue.specific.is_public_access  # type: ignore
 
     def get_context(
         self,
@@ -377,20 +380,28 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     ) -> dict:
         context = super().get_context(request)
 
-        # Check whether user is subscriber
-        # make sure they are authenticated first,
-        # to avoid checking for "is_subscriber" on anonymous user
-        user_is_subscriber = (
-            request.user.is_authenticated and request.user.is_subscriber  # type: ignore
-        )
+        user_is_authenticated = False
+        user_is_subscriber = False
+        user_is_superuser = False
 
-        # Subscribers and superusers can always view full articles
-        # everyone can view public access articles
-        # everyone can view featured articles
-        # user can view full article if any of these conditions is True
+        # If user object is present in the request,
+        # check for their authentication
+        # and authorization status (subscriber or superuser authorization)
+        if request.user is not None:
+            user_is_authenticated = request.user.is_authenticated
+
+            # Only check for subscriber and superuser status if user is authenticated,
+            # preventing attribute errors on unauthenticated users
+            if user_is_authenticated:
+                user_is_subscriber = request.user.is_subscriber  # type: ignore
+                user_is_superuser = request.user.is_superuser  # type: ignore
+
+        # A user can view full article if
+        # - they are a subscriber or a superuser,
+        # - or if the article is marked as public access or featured
         context["user_can_view_full_article"] = (
             user_is_subscriber
-            or request.user.is_superuser  # type: ignore
+            or user_is_superuser
             or self.is_public_access
             or self.is_featured
         )
@@ -546,11 +557,8 @@ class DeepArchiveIndexPage(Page):
 
     def get_filtered_archive_issues(
         self,
-        request: HttpRequest,
+        query: dict[str, str],
     ) -> QuerySet[ArchiveIssue]:
-        # Check if any query string is available
-        query = request.GET.dict()
-
         # Filter out any facet that isn't a model field
         allowed_keys = [
             "publication_date__year",
@@ -564,14 +572,12 @@ class DeepArchiveIndexPage(Page):
 
     def get_paginated_archive_issues(
         self,
-        request: HttpRequest,
+        archive_issues_page: str | None,
         archive_issues: QuerySet[ArchiveIssue],
     ) -> PaginatorPage:
         items_per_page = 9
 
         paginator = Paginator(archive_issues, items_per_page)
-
-        archive_issues_page = request.GET.get("page")
 
         # Make sure page is numeric and less than or equal to the total pages
         if (
@@ -591,13 +597,19 @@ class DeepArchiveIndexPage(Page):
         *args: tuple,
         **kwargs: dict,
     ) -> dict:
-        context = super().get_context(request)
+        context = super().get_context(request, *args, **kwargs)
 
-        archive_issues = self.get_filtered_archive_issues(request)
+        query = request.GET.dict()
+
+        archive_issues = self.get_filtered_archive_issues(
+            query=query,  # type: ignore[arg-type]
+        )
+
+        page = request.GET.get("page")
 
         paginated_archive_issues = self.get_paginated_archive_issues(
-            request,
-            archive_issues,
+            archive_issues_page=page,
+            archive_issues=archive_issues,
         )
 
         context["archive_issues"] = paginated_archive_issues

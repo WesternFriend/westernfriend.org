@@ -6,8 +6,6 @@
 #
 anyascii==0.3.2
     # via wagtail
-arrow==1.2.3
-    # via Western-Friend-website (pyproject.toml)
 asgiref==3.7.2
     # via django
 beautifulsoup4==4.11.2
@@ -171,7 +169,6 @@ pyproject-hooks==1.0.0
     # via build
 python-dateutil==2.8.2
     # via
-    #   arrow
     #   botocore
     #   faker
 python-dotenv==1.0.0

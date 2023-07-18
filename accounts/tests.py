@@ -4,7 +4,6 @@ from .models import User
 from subscription.models import Subscription
 
 
-# User manager tests
 class UserManagerTest(TestCase):
     def test_create_user(self) -> None:
         # Test creating regular user
@@ -13,13 +12,21 @@ class UserManagerTest(TestCase):
         user = User.objects.create_user(
             email=email,
             password=password,
-        )  # type: ignore
+        )
 
         self.assertEqual(user.email, email)
         self.assertTrue(user.check_password(password))
         self.assertFalse(user.is_staff)
         self.assertTrue(user.is_active)
         self.assertFalse(user.is_superuser)
+
+    def test_create_user_with_no_email(self) -> None:
+        # Test creating user with no email raises error
+        with self.assertRaises(ValueError):
+            User.objects.create_user(
+                email=None,  # type: ignore
+                password="testpass",
+            )
 
     def test_create_superuser(self) -> None:
         # Test creating superuser
@@ -36,7 +43,7 @@ class UserManagerTest(TestCase):
 
 # User model tests
 class UserModelTest(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.user = User.objects.create_user(
             email="test@test.com",
             password="testpass",
@@ -63,8 +70,14 @@ class UserModelTest(TestCase):
         # Test if the active subscription is returned correctly
         active_subscription = self.user.get_active_subscription()
         self.assertIsNotNone(active_subscription)
-        self.assertEqual(active_subscription, self.active_subscription)
-        self.assertGreaterEqual(active_subscription.end_date, datetime.date.today())
+        self.assertEqual(
+            active_subscription,
+            self.active_subscription,
+        )
+        self.assertGreaterEqual(
+            active_subscription.end_date,  # type: ignore
+            datetime.date.today(),
+        )
 
     def test_get_active_subscription_with_no_subscription(self) -> None:
         # Test if None is returned when there is no active subscription
@@ -73,9 +86,15 @@ class UserModelTest(TestCase):
 
     def test_is_subscriber(self) -> None:
         # Test if is_subscriber returns true if user has subscription
-        self.assertEqual(self.user.is_subscriber, True)
+        self.assertEqual(
+            self.user.is_subscriber,
+            True,
+        )
 
     def test_is_not_subscriber(self) -> None:
         # Test if is_subscriber returns False if user has no subscription
         self.user.subscriptions.all().delete()
-        self.assertEqual(self.user.is_subscriber, False)
+        self.assertEqual(
+            self.user.is_subscriber,
+            False,
+        )
