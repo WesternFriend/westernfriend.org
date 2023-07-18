@@ -594,7 +594,7 @@ class DeepArchiveIndexPageTest(TestCase):
         self.deep_archive_index = DeepArchiveIndexPage(title="Deep Archive Index")
         self.magazine_index.add_child(instance=self.deep_archive_index)
 
-        self.publication_years = [2019, 2020, 2021]
+        self.publication_years = list(range(1920, 1930))
 
         self.archive_issues = []
 
@@ -614,10 +614,12 @@ class DeepArchiveIndexPageTest(TestCase):
         # Call the get_context method
         context = self.deep_archive_index.get_context(request)
 
+        archive_items_per_page = 9
+
         # Check that the context includes the archive issues
         self.assertQuerySetEqual(  # type: ignore
             context["archive_issues"],
-            ArchiveIssue.objects.all(),
+            self.archive_issues[:archive_items_per_page],
             transform=lambda x: x,  # Transform the objects to compare them directly
             ordered=False,  # The order of the results is not important
         )
@@ -626,4 +628,21 @@ class DeepArchiveIndexPageTest(TestCase):
         self.assertEqual(
             list(context["publication_years"]),
             self.publication_years,
+        )
+
+    def test_get_context_with_page_number(self) -> None:
+        # Create a mock request with 'page' as a GET parameter
+        request = self.factory.get("/?page=2")
+
+        # Call the get_context method
+        context = self.deep_archive_index.get_context(request)
+
+        archive_items_per_page = 9
+
+        # Check that the context includes the archive issues
+        self.assertQuerySetEqual(  # type: ignore
+            context["archive_issues"],
+            self.archive_issues[archive_items_per_page:],
+            transform=lambda x: x,  # Transform the objects to compare them directly
+            ordered=False,  # The order of the results is not important
         )
