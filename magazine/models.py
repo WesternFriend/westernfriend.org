@@ -557,11 +557,8 @@ class DeepArchiveIndexPage(Page):
 
     def get_filtered_archive_issues(
         self,
-        request: HttpRequest,
+        query: dict[str, str],
     ) -> QuerySet[ArchiveIssue]:
-        # Check if any query string is available
-        query = request.GET.dict()
-
         # Filter out any facet that isn't a model field
         allowed_keys = [
             "publication_date__year",
@@ -575,14 +572,12 @@ class DeepArchiveIndexPage(Page):
 
     def get_paginated_archive_issues(
         self,
-        request: HttpRequest,
+        archive_issues_page: str | None,
         archive_issues: QuerySet[ArchiveIssue],
     ) -> PaginatorPage:
         items_per_page = 9
 
         paginator = Paginator(archive_issues, items_per_page)
-
-        archive_issues_page = request.GET.get("page")
 
         # Make sure page is numeric and less than or equal to the total pages
         if (
@@ -604,11 +599,17 @@ class DeepArchiveIndexPage(Page):
     ) -> dict:
         context = super().get_context(request)
 
-        archive_issues = self.get_filtered_archive_issues(request)
+        query = request.GET.dict()
+
+        archive_issues = self.get_filtered_archive_issues(
+            query=query,  # type: ignore[arg-type]
+        )
+
+        page = request.GET.get("page")
 
         paginated_archive_issues = self.get_paginated_archive_issues(
-            request,
-            archive_issues,
+            archive_issues_page=page,
+            archive_issues=archive_issues,
         )
 
         context["archive_issues"] = paginated_archive_issues
