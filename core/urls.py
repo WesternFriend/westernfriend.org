@@ -1,4 +1,3 @@
-import debug_toolbar
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -10,6 +9,8 @@ from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
 
+if settings.DEBUG:
+    import debug_toolbar
 # TODO: Change this line to send verification emails when registering users
 # Note: this will require two activation email tempates (subject and body)
 # from django_registration.backends.activation.views import RegistrationView
@@ -19,7 +20,6 @@ from search import views as search_views
 from subscription import urls as subscription_urls
 
 urlpatterns = [
-    path("__debug__/", include(debug_toolbar.urls)),
     path("django-admin/", admin.site.urls),
     path(
         "accounts/register/",
@@ -51,3 +51,4 @@ if settings.DEBUG:
     # Serve static and media files from development server
     urlpatterns += staticfiles_urlpatterns()
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]  # type: ignore

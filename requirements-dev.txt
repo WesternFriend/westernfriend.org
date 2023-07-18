@@ -25,7 +25,9 @@ braintree==4.20.0
 build==0.10.0
     # via pip-tools
 certifi==2023.5.7
-    # via requests
+    # via
+    #   requests
+    #   sentry-sdk
 cfgv==3.3.1
     # via pre-commit
 charset-normalizer==3.2.0
@@ -188,6 +190,8 @@ requests==2.31.0
     #   wagtail
 s3transfer==0.6.1
     # via boto3
+sentry-sdk==1.28.1
+    # via Western-Friend-website (pyproject.toml)
 six==1.16.0
     # via
     #   html5lib
@@ -236,6 +240,7 @@ urllib3==1.26.16
     # via
     #   botocore
     #   requests
+    #   sentry-sdk
 validate-pyproject==0.13
     # via Western-Friend-website (pyproject.toml)
 virtualenv==20.23.1
