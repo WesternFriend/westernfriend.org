@@ -1,6 +1,12 @@
-from unittest.mock import MagicMock, patch
-from django.test import Client, TestCase
+from unittest.mock import MagicMock, Mock, patch
+from django.contrib.sessions.middleware import SessionMiddleware
+from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
+from cart.cart import Cart
+from cart.tests import scaffold_product_index_page
+
+from orders.views import create_cart_order_items
+from store.factories import ProductFactory
 
 
 from .models import Order, OrderItem
@@ -162,3 +168,93 @@ class OrderCreateViewTest(TestCase):
 
         # Check if the correct template was used
         self.assertTemplateUsed(response, "orders/create.html")
+
+
+class CreateCartOrderItemsTest(TestCase):
+    def setUp(self) -> None:
+        # Create an order instance
+        self.order = Order.objects.create(
+            purchaser_given_name="John",
+            purchaser_family_name="Doe",
+            purchaser_meeting_or_organization="Western Friend",
+            shipping_cost=4.00,
+        )
+
+        # Create a request instance using RequestFactory
+        self.factory = RequestFactory()
+        self.request = self.factory.get("/")
+
+        # Add session to request
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(self.request)
+        self.request.session.save()
+
+        # Create a cart instance
+        self.cart = Cart(self.request)
+
+        product_index_page = scaffold_product_index_page()
+
+        # create some test products using the ProductFactory
+        self.product1 = ProductFactory.build()
+        self.product2 = ProductFactory.build()
+
+        product_index_page.add_child(instance=self.product1)
+        product_index_page.add_child(instance=self.product2)
+
+        # Add products to the cart
+        self.product1_quantity = 2
+        self.product2_quantity = 3
+        self.cart.add(
+            self.product1,
+            quantity=self.product1_quantity,
+        )
+        self.cart.add(
+            self.product2,
+            quantity=self.product2_quantity,
+        )
+
+    def test_create_cart_order_items(self) -> None:
+        # Call the function with the order and cart
+        create_cart_order_items(
+            self.order,
+            self.cart,
+        )
+
+        # Assert that the OrderItems were correctly created
+        self.assertEqual(
+            OrderItem.objects.count(),
+            2,
+        )
+        item1 = OrderItem.objects.get(
+            order=self.order,
+            product_id=self.product1.id,
+        )
+        self.assertEqual(
+            item1.product_title,
+            self.product1.title,
+        )
+        self.assertEqual(
+            item1.price,
+            self.product1.price,
+        )
+        self.assertEqual(
+            item1.quantity,
+            self.product1_quantity,
+        )
+
+        item2 = OrderItem.objects.get(
+            order=self.order,
+            product_id=self.product2.id,
+        )
+        self.assertEqual(
+            item2.product_title,
+            self.product2.title,
+        )
+        self.assertEqual(
+            item2.price,
+            self.product2.price,
+        )
+        self.assertEqual(
+            item2.quantity,
+            self.product2_quantity,
+        )
