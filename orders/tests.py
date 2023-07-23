@@ -17,6 +17,24 @@ class OrderModelTest(TestCase):
             purchaser_meeting_or_organization="Western Friend",
             shipping_cost=4.00,
         )
+        cls.order.save()
+
+        # Create OrderItems
+        cls.order_item_one = OrderItem.objects.create(
+            order=cls.order,
+            product_title="Product 1",
+            product_id=1,
+            price=10.00,
+            quantity=2,
+        )
+
+        cls.order_item_two = OrderItem.objects.create(
+            order=cls.order,
+            product_title="Product 2",
+            product_id=2,
+            price=20.00,
+            quantity=3,
+        )
 
     def test_purchaser_full_name(self) -> None:
         # Test the method
@@ -38,6 +56,13 @@ class OrderModelTest(TestCase):
             str(self.order),
             "Order 1",
         )
+
+    def test_order_get_total_cost(self):
+        order_item_one_total = self.order_item_one.quantity * self.order_item_one.price
+        order_item_two_total = self.order_item_two.quantity * self.order_item_two.price
+        expected_total = order_item_one_total + order_item_two_total
+
+        self.assertEqual(self.order.get_total_cost(), expected_total)
 
 
 class OrderItemModelTest(TestCase):
