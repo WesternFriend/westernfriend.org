@@ -4,7 +4,21 @@ from django.urls import reverse
 
 from cart.cart import Cart
 
-from .models import OrderItem
+from .models import Order, OrderItem
+
+
+def create_cart_order_items(
+    order: Order,
+    cart: Cart,
+) -> None:
+    for item in cart:
+        OrderItem.objects.create(
+            order=order,
+            product_title=item["product_title"],
+            product_id=item["product_id"],
+            price=item["price"],
+            quantity=item["quantity"],
+        )
 
 
 def order_create(request: HttpRequest) -> HttpResponse:
@@ -27,14 +41,7 @@ def order_create(request: HttpRequest) -> HttpResponse:
         if form.is_valid():
             order = form.save()
 
-            for item in cart:
-                OrderItem.objects.create(
-                    order=order,
-                    product_title=item["product_title"],
-                    product_id=item["product_id"],
-                    price=item["price"],
-                    quantity=item["quantity"],
-                )
+            create_cart_order_items(order, cart)
 
             # TODO: consider moving this to the payment app
             # so it can be cleared after successful payment.
