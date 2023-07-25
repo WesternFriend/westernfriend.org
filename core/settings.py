@@ -45,9 +45,12 @@ BASE_DIR = os.path.dirname(CORE_DIR)
 
 SECURE_REFERRER_POLICY = "strict-origin"
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
-
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
+
+if DEBUG:
+    SECRET_KEY = "not-so-secret-key"
+else:
+    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 LOGGING = {
     "version": 1,
