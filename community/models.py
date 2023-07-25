@@ -1,4 +1,5 @@
 from django.db import models
+from django.http import HttpRequest
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel, PageChooserPanel
 from wagtail.fields import RichTextField, StreamField
@@ -121,6 +122,23 @@ class OnlineWorshipIndexPage(Page):
     max_count = 1
 
     template = "community/online_worship_index_page.html"
+
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
+        context = super().get_context(request, *args, **kwargs)
+
+        # Get all live OnlineWorship objects sorted by title
+        online_worship_meetings = OnlineWorship.objects.live().order_by(
+            "title",
+        )
+
+        context["online_worship_meetings"] = online_worship_meetings
+
+        return context
 
 
 class CommunityDirectory(Page):
