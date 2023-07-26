@@ -38,6 +38,7 @@ django==4.2.3
     #   crispy-bootstrap5
     #   dj-database-url
     #   django-crispy-forms
+    #   django-debug-toolbar
     #   django-extensions
     #   django-filter
     #   django-flatpickr
@@ -55,6 +56,8 @@ django-crispy-forms==2.0
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
+django-debug-toolbar==4.1.0
+    # via Western-Friend-website (pyproject.toml)
 django-extensions==3.2.3
     # via Western-Friend-website (pyproject.toml)
 django-filter==22.1
@@ -129,7 +132,9 @@ six==1.16.0
 soupsieve==2.4.1
     # via beautifulsoup4
 sqlparse==0.4.4
-    # via django
+    # via
+    #   django
+    #   django-debug-toolbar
 telepath==0.3.1
     # via wagtail
 tqdm==4.65.0

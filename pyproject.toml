@@ -78,6 +78,7 @@ dependencies = [
     "django-extensions",
     "django",
     "sentry-sdk",
+    "django-debug-toolbar",
 ]
 
 [project.urls]
@@ -87,7 +88,6 @@ Repository = "https://github.com/WesternFriend/WF-website"
 
 [project.optional-dependencies]
 dev = [
-    "django-debug-toolbar",
     "mypy",
     "django-browser-reload",
     "pre-commit",
