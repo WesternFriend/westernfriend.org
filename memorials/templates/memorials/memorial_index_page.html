@@ -91,7 +91,7 @@
 
             <div class="list-group-item d-flex w-100 justify-content-center mt-2">
                 {% if memorials.has_previous %}
-                    <a href="?page={{ memorials.previous_page_number }}" class="btn btn-outline-primary btn-sm me-2">previous</a>
+                    <a href="?page={{ memorials.previous_page_number }}&{{ request.GET.urlencode }}" class="btn btn-outline-primary btn-sm me-2">previous</a>
                 {% endif %}
 
                 <span class="current">
@@ -99,7 +99,7 @@
                 </span>
 
                 {% if memorials.has_next %}
-                    <a href="?page={{ memorials.next_page_number }}" class="btn btn-outline-primary btn-sm ms-2">next</a>
+                    <a href="?page={{ memorials.next_page_number }}&{{ request.GET.urlencode }}" class="btn btn-outline-primary btn-sm ms-2">next</a>
                 {% endif %}
             </div>
         </div>
