@@ -65,6 +65,9 @@ spec:
         - key: BRAINTREE_PRIVATE_KEY
           scope: RUN_TIME
           value: change-me
+        - key: SENTRY_DSN
+          scope: RUN_TIME
+          value: change-me
       github:
         branch: main
         deploy_on_push: true
