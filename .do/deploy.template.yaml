@@ -7,7 +7,7 @@ spec:
       name: wf-website-db
       num_nodes: 1
       size: professional-xs
-      version: 15
+      version: "14"
   domains:
     - domain: preview.westernfriend.org
       type: PRIMARY
