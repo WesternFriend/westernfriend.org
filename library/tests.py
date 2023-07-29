@@ -36,7 +36,7 @@ class TestCreateQuerystringFromFacets(SimpleTestCase):
 class TestFilterQuerystringFacets(SimpleTestCase):
     def test_empty_query(self) -> None:
         """Test that an empty query returns an empty dictionary."""
-        query = {}
+        query: dict = {}
         result = filter_querystring_facets(query)
         self.assertEqual(result, {})
 
