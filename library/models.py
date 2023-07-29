@@ -29,6 +29,26 @@ from documents.blocks import DocumentEmbedBlock
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
 from pagination.helpers import get_paginated_items
 
+QUERYSTRING_FACETS = [
+    "item_audience",
+    "item_genre",
+    "item_medium",
+    "item_time_period",
+    "topics",
+    "authors",
+]
+
+
+def filter_querystring_facets(
+    query: dict,
+) -> dict:
+    """Filter querystring facets to only include those that are valid."""
+    facets = {}
+    for key, value in query.items():
+        if key in QUERYSTRING_FACETS:
+            facets[key] = value
+    return facets
+
 
 class LibraryItemTag(TaggedItemBase):
     content_object = ParentalKey(
@@ -256,25 +276,9 @@ class LibraryIndexPage(Page):
 
         query = request.GET.dict()
 
-        # Define allow keys that are model fields
-        allowed_keys = [
-            "authors__author__title",
-            "item_audience__title",
-            "item_genre__title",
-            "item_medium__title",
-            "item_time_period__title",
-            "title__icontains",
-            "topics__topic__title",
-        ]
-
-        # Remove any query parameter that
-        # - isn't a model field, or
-        # - has an empty value (empty string)
-        facets = {
-            key: value
-            for key, value in query.items()
-            if key in allowed_keys and value != ""
-        }
+        facets = filter_querystring_facets(
+            query=query,
+        )
 
         # Filter live (not draft) library items using facets from request
         library_items = LibraryItem.objects.live().filter(
