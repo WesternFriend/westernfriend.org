@@ -1,6 +1,11 @@
+import random
 from django.test import SimpleTestCase
 
-from library.helpers import create_querystring_from_facets
+from library.helpers import (
+    QUERYSTRING_FACETS,
+    create_querystring_from_facets,
+    filter_querystring_facets,
+)
 
 
 class TestCreateQuerystringFromFacets(SimpleTestCase):
@@ -26,3 +31,34 @@ class TestCreateQuerystringFromFacets(SimpleTestCase):
         # so we need to parse the result and compare dictionaries
         result_dict = dict(item.split("=") for item in result.split("&"))
         self.assertDictEqual(result_dict, facets)
+
+
+class TestFilterQuerystringFacets(SimpleTestCase):
+    def test_empty_query(self) -> None:
+        """Test that an empty query returns an empty dictionary."""
+        query = {}
+        result = filter_querystring_facets(query)
+        self.assertEqual(result, {})
+
+    def test_query_with_no_valid_facets(self) -> None:
+        """Test that a query with no valid facets returns an empty
+        dictionary."""
+        query = {"invalid1": "value1", "invalid2": "value2"}
+        result = filter_querystring_facets(query)
+        self.assertEqual(result, {})
+
+    def test_query_with_some_valid_facets(self) -> None:
+        """Test that a query with some valid facets returns a dictionary with
+        only the valid facets."""
+        valid_key = random.choice(QUERYSTRING_FACETS)
+        query = {valid_key: "value1", "invalid": "value2"}
+        result = filter_querystring_facets(query)
+        expected_result = {valid_key: "value1"}
+        self.assertDictEqual(result, expected_result)
+
+    def test_query_with_all_valid_facets(self) -> None:
+        """Test that a query with all valid facets returns the same
+        dictionary."""
+        query = {key: "value" for key in QUERYSTRING_FACETS}
+        result = filter_querystring_facets(query)
+        self.assertDictEqual(result, query)
