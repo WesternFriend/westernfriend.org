@@ -109,10 +109,6 @@ class LibraryItem(DrupalFields, Page):
         through=LibraryItemTag,
         blank=True,
     )
-    drupal_node_id = models.IntegerField(
-        null=True,
-        blank=True,
-    )
 
     content_panels = Page.content_panels + [
         InlinePanel(
