@@ -1,9 +1,9 @@
 from django.db import models
 from django.http import HttpRequest
 from django_flatpickr.widgets import DatePickerInput
-from modelcluster.contrib.taggit import ClusterTaggableManager
-from modelcluster.fields import ParentalKey
-from taggit.models import TaggedItemBase
+from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
+from modelcluster.fields import ParentalKey  # type: ignore
+from taggit.models import TaggedItemBase  # type: ignore
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import (
     FieldPanel,
@@ -48,6 +48,16 @@ def filter_querystring_facets(
         if key in QUERYSTRING_FACETS:
             facets[key] = value
     return facets
+
+
+def create_querystring_from_facets(
+    facets: dict,
+) -> str:
+    """Create a querystring from facets."""
+
+    # Join facets into a querystring
+    # placing an ampersand between each key/value pair
+    return "&".join(f"{key}={value}" for key, value in facets.items())
 
 
 class LibraryItemTag(TaggedItemBase):
@@ -294,8 +304,8 @@ class LibraryIndexPage(Page):
             page_number=page_number,
         )
 
-        context["current_querystring"] = "&".join(
-            f"{key}={value}" for key, value in facets.items()
+        context["current_querystring"] = create_querystring_from_facets(
+            facets=facets,
         )
 
         return context
