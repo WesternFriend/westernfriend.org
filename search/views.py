@@ -8,7 +8,7 @@ from pagination.helpers import get_paginated_items
 
 def search(request: HttpRequest) -> HttpResponse:
     search_query = request.GET.get("query", None)
-    page = request.GET.get("page", None)
+    page = request.GET.get("page", "1")
 
     # Search
     if search_query:
