@@ -1,5 +1,6 @@
 from django.core.paginator import EmptyPage, Paginator
 from django.db import models
+from django.http import HttpRequest
 from django_flatpickr.widgets import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
@@ -231,7 +232,12 @@ class LibraryIndexPage(Page):
 
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         context = super().get_context(request)
 
         # Prepare a list of authors
