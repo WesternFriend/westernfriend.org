@@ -18,21 +18,60 @@ class GetPaginatedItemsTests(TestCase):
         cls.users = User.objects.all()
 
     def test_page_number_is_none(self) -> None:
-        result = get_paginated_items(self.users, 9)
-        self.assertEqual(result.number, 1)
+        result = get_paginated_items(
+            self.users,
+            items_per_page=9,
+        )
+        expected_result_number = 1
+        self.assertEqual(
+            result.number,
+            expected_result_number,
+        )
 
     def test_page_number_is_digit(self) -> None:
-        result = get_paginated_items(self.users, 9, "3")
-        self.assertEqual(result.number, 3)
+        result = get_paginated_items(
+            self.users,
+            items_per_page=9,
+            page_number="3",
+        )
+        expected_result_number = 3
+        self.assertEqual(
+            result.number,
+            expected_result_number,
+        )
 
     def test_page_number_is_not_digit(self) -> None:
-        result = get_paginated_items(self.users, 9, "abc")
-        self.assertEqual(result.number, 1)
+        result = get_paginated_items(
+            self.users,
+            items_per_page=9,
+            page_number="abc",
+        )
+        expected_result_number = 1
+        self.assertEqual(
+            result.number,
+            expected_result_number,
+        )
 
     def test_page_number_greater_than_total_pages(self) -> None:
-        result = get_paginated_items(self.users, 9, "100")
-        self.assertEqual(result.number, 1)
+        result = get_paginated_items(
+            self.users,
+            items_per_page=9,
+            page_number="100",
+        )
+        expected_result_number = 1
+        self.assertEqual(
+            result.number,
+            expected_result_number,
+        )
 
     def test_items_per_page(self) -> None:
-        result = get_paginated_items(self.users, 9, "1")
-        self.assertEqual(len(result), 9)
+        result = get_paginated_items(
+            self.users,
+            items_per_page=9,
+            page_number="1",
+        )
+        expected_len_result = 9
+        self.assertEqual(
+            len(result),
+            expected_len_result,
+        )
