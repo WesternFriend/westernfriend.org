@@ -1,4 +1,3 @@
-from django.core.paginator import EmptyPage, Paginator
 from django.db import models
 from django.http import HttpRequest
 from django_flatpickr.widgets import DatePickerInput
@@ -28,6 +27,7 @@ from blocks.blocks import (
 from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
+from pagination.helpers import get_paginated_items
 
 
 class LibraryItemTag(TaggedItemBase):
@@ -277,34 +277,21 @@ class LibraryIndexPage(Page):
         }
 
         # Filter live (not draft) library items using facets from request
-        library_items = LibraryItem.objects.live().filter(**facets)
-
-        # Get page number from request,
-        # default to first page
-        default_page = 1
-
-        # Make sure any page number value is an integer
-        # since we need an integer for both
-        # paginator.page() get_elided_page_range()
-        try:
-            page_number = int(request.GET.get("page", default_page))
-        except ValueError:
-            page_number = default_page
-
-        # Paginate library items
-        items_per_page = 10
-        paginator = Paginator(library_items, items_per_page)
-
-        try:
-            library_items_page = paginator.page(page_number)
-        except EmptyPage:
-            library_items_page = paginator.page(paginator.num_pages)
-
-        library_items_page.adjusted_elided_pages = paginator.get_elided_page_range(
-            page_number,
+        library_items = LibraryItem.objects.live().filter(
+            **facets,
         )
+        page_number = request.GET.get("page", "1")
+        items_per_page = 10
 
         # Provide filtered, paginated library items
-        context["library_items_page"] = library_items_page
+        context["paginated_items"] = get_paginated_items(
+            items=library_items,
+            items_per_page=items_per_page,
+            page_number=page_number,
+        )
+
+        context["current_querystring"] = "&".join(
+            f"{key}={value}" for key, value in facets.items()
+        )
 
         return context

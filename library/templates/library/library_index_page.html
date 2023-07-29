@@ -186,20 +186,20 @@
                 </div>
             </div>
 
-            {% if library_items_page %}
-                {% for library_item in library_items_page %}
+            {% if paginated_items.page %}
+                {% for library_item in paginated_items.page %}
                     {% include "library/library_item_card.html" %}
                 {% endfor %}
 
-                {% if library_items_page.has_other_pages %}
+                {% if paginated_items.page.has_other_pages %}
                     <nav aria-label="Library items navigation">
                         <ul class="pagination">
-                            {% if library_items_page.has_previous %}
+                            {% if paginated_items.page.has_previous %}
                                 <li class="page-item">
-                                    <a href="?page={{ library_items_page.previous_page_number }}&{{ request.GET.urlencode }}" class="page-link">&laquo; first</a>
+                                    <a href="?page={{ paginated_items.page.previous_page_number }}&{{ current_querystring }}" class="page-link">&laquo; first</a>
                                 </li>
                                 <li class="page-item">
-                                    <a href="?page={{ library_items_page.previous_page_number }}&{{ request.GET.urlencode }}"
+                                    <a href="?page={{ paginated_items.page.previous_page_number }}&{{ current_querystring }}"
                                        class="page-link">
                                         previous
                                     </a>
@@ -207,36 +207,36 @@
                             {% endif %}
 
 
-                            {% for page_number in library_items_page.adjusted_elided_pages %}
-                                {% if library_items_page.number == page_number %}
+                            {% for page_number in paginated_items.elided_page_range %}
+                                {% if paginated_items.page.number == page_number %}
                                     <li class="active page-item" aria-current="page">
-                                        <a href="?page={{ page_number }}&{{ request.GET.urlencode }}" class="page-link">
+                                        <a href="?page={{ page_number }}&{{ current_querystring }}" class="page-link">
                                             {{ page_number }}
                                         </a>
                                     </li>
-                                {% elif page_number == library_items_page.paginator.ELLIPSIS %}
+                                {% elif page_number == paginated_items.page.paginator.ELLIPSIS %}
                                     <span class="mx-2">
                                         {{ page_number }}
                                     </span>
                                 {% else %}
                                     <li class="page-item">
-                                        <a href="?page={{ page_number }}&{{ request.GET.urlencode }}" class="page-link">
+                                        <a href="?page={{ page_number }}&{{ current_querystring }}" class="page-link">
                                             {{ page_number }}
                                         </a>
                                     </li>
                                 {% endif %}
                             {% endfor %}
 
-                            {% if library_items_page.has_next %}
+                            {% if paginated_items.page.has_next %}
                                 <li class="page-item">
-                                    <a href="?page={{ library_items_page.next_page_number }}&{{ request.GET.urlencode }}"
+                                    <a href="?page={{ paginated_items.page.next_page_number }}&{{ current_querystring }}"
                                        class="page-link">
                                         next
                                     </a>
                                 </li>
 
                                 <li class="page-item">
-                                    <a href="?page={{ library_items_page.paginator.num_pages }}&{{ request.GET.urlencode }}"
+                                    <a href="?page={{ paginated_items.page.paginator.num_pages }}&{{ current_querystring }}"
                                        class="page-link">
                                         last &raquo;
                                     </a>
