@@ -27,37 +27,8 @@ from blocks.blocks import (
 from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
+from library.helpers import create_querystring_from_facets, filter_querystring_facets
 from pagination.helpers import get_paginated_items
-
-QUERYSTRING_FACETS = [
-    "item_audience",
-    "item_genre",
-    "item_medium",
-    "item_time_period",
-    "topics",
-    "authors",
-]
-
-
-def filter_querystring_facets(
-    query: dict,
-) -> dict:
-    """Filter querystring facets to only include those that are valid."""
-    facets = {}
-    for key, value in query.items():
-        if key in QUERYSTRING_FACETS:
-            facets[key] = value
-    return facets
-
-
-def create_querystring_from_facets(
-    facets: dict,
-) -> str:
-    """Create a querystring from facets."""
-
-    # Join facets into a querystring
-    # placing an ampersand between each key/value pair
-    return "&".join(f"{key}={value}" for key, value in facets.items())
 
 
 class LibraryItemTag(TaggedItemBase):
@@ -68,7 +39,7 @@ class LibraryItemTag(TaggedItemBase):
     )
 
 
-class LibraryItem(DrupalFields, Page):
+class LibraryItem(DrupalFields, Page):  # type: ignore
     publication_date = models.DateField("Publication date", null=True, blank=True)
     publication_date_is_approximate = models.BooleanField(
         default=False,
