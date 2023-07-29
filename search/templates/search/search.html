@@ -24,9 +24,9 @@
         </div>
     </form>
 
-    {% if search_results %}
+    {% if paginated_search_results %}
 
-        {% for result in search_results %}
+        {% for result in paginated_search_results.page %}
             {% if result.specific.search_template %}
                 {% include result.specific.search_template with entity=result %}
             {% else %}

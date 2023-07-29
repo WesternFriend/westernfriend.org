@@ -29,7 +29,7 @@ class SearchViewTestCase(TestCase):
     def test_search_no_query(self) -> None:
         response = self.client.get(reverse("search"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["search_results"]), 0)
+        self.assertEqual(len(response.context["paginated_search_results"].page), 0)
 
     def test_search_query(self) -> None:
         response = self.client.get(
@@ -37,7 +37,7 @@ class SearchViewTestCase(TestCase):
             {"query": "Test"},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["search_results"]), 3)
+        self.assertEqual(len(response.context["paginated_search_results"].page), 3)
 
     def test_search_pagination_non_existant_page_default_first(self) -> None:
         response = self.client.get(
@@ -48,7 +48,7 @@ class SearchViewTestCase(TestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["search_results"]), 3)
+        self.assertEqual(len(response.context["paginated_search_results"].page), 3)
 
     @patch.object(Query, "add_hit")
     def test_search_query_hit(self, mock_add_hit: Mock) -> None:
@@ -58,9 +58,9 @@ class SearchViewTestCase(TestCase):
     def test_search_pagination_invalid_page(self) -> None:
         response = self.client.get("/search/?query=Test&page=abc")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["search_results"].number, 1)
+        self.assertEqual(response.context["paginated_search_results"].page.number, 1)
 
     def test_search_pagination_out_of_range(self) -> None:
         response = self.client.get("/search/?query=Test&page=100")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["search_results"].number, 1)
+        self.assertEqual(response.context["paginated_search_results"].page.number, 1)

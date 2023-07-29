@@ -31,6 +31,6 @@ def search(request: HttpRequest) -> HttpResponse:
         "search/search.html",
         {
             "search_query": search_query,
-            "search_results": paginated_search_results,
+            "paginated_search_results": paginated_search_results,
         },
     )
