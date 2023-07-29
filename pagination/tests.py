@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
 from django.test import TestCase
 from django_stubs_ext import QuerySetAny
 
@@ -14,7 +15,7 @@ class GetPaginatedItemsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        UserFactory.create_batch(20)
+        UserFactory.create_batch(200)
         cls.users = User.objects.all()
 
     def test_page_number_is_none(self) -> None:
@@ -74,4 +75,67 @@ class GetPaginatedItemsTests(TestCase):
         self.assertEqual(
             len(result.page),
             expected_len_result,
+        )
+
+    def test_elided_page_range(self) -> None:
+        result: PaginatorPageWithElidedPageRange = get_paginated_items(
+            self.users,
+            items_per_page=9,
+            page_number="10",
+        )
+        self.assertEqual(
+            list(result.elided_page_range),
+            [
+                1,
+                2,
+                Paginator.ELLIPSIS,  # type: ignore
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                Paginator.ELLIPSIS,  # type: ignore
+                22,
+                23,
+            ],
+        )
+
+    def test_elided_page_range_first_page(self) -> None:
+        result: PaginatorPageWithElidedPageRange = get_paginated_items(
+            self.users,
+            items_per_page=9,
+            page_number="1",
+        )
+        self.assertEqual(
+            list(result.elided_page_range),
+            [
+                1,
+                2,
+                3,
+                4,
+                Paginator.ELLIPSIS,  # type: ignore
+                22,
+                23,
+            ],
+        )
+
+    def test_elided_page_range_last_page(self) -> None:
+        result: PaginatorPageWithElidedPageRange = get_paginated_items(
+            self.users,
+            items_per_page=9,
+            page_number="23",
+        )
+        self.assertEqual(
+            list(result.elided_page_range),
+            [
+                1,
+                2,
+                Paginator.ELLIPSIS,  # type: ignore
+                20,
+                21,
+                22,
+                23,
+            ],
         )
