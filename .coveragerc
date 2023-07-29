@@ -4,3 +4,9 @@ omit =
     *tests*,
     *test*,
     core/*.py
+
+[run]
+plugins = django_coverage_plugin
+
+[django_coverage_plugin]
+template_extensions = html, txt, tex, email

@@ -141,3 +141,11 @@ target-version = "py311"
 
 [tool.setuptools]
 py-modules = []
+
+[tool.coverage.run]
+plugins = [
+    'django_coverage_plugin',
+]
+
+[tool.coverage.django_coverage_plugin]
+template_extensions = 'html, txt, tex, email'
