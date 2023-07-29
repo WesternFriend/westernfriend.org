@@ -1,13 +1,14 @@
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from wagtail.models import Page
-from wagtail.search.models import Query
+from wagtail.contrib.search_promotions.models import Query
+
+from pagination.helpers import get_paginated_items
 
 
 def search(request: HttpRequest) -> HttpResponse:
     search_query = request.GET.get("query", None)
-    page = request.GET.get("page", 1)
+    page = request.GET.get("page", None)
 
     # Search
     if search_query:
@@ -19,20 +20,17 @@ def search(request: HttpRequest) -> HttpResponse:
     else:
         search_results = Page.objects.none()
 
-    # Pagination
-    paginator = Paginator(search_results, 10)
-    try:
-        search_results = paginator.page(page)
-    except PageNotAnInteger:
-        search_results = paginator.page(1)
-    except EmptyPage:
-        search_results = paginator.page(paginator.num_pages)
+    paginated_search_results = get_paginated_items(
+        search_results,
+        10,
+        page,
+    )
 
     return render(
         request,
         "search/search.html",
         {
             "search_query": search_query,
-            "search_results": search_results,
+            "search_results": paginated_search_results,
         },
     )
