@@ -33,5 +33,6 @@ class HomePageFactory(DjangoModelFactory):
         if not create:
             return
         root_page = Page.get_first_root_node()
-        if self.pk is None:
+
+        if not HomePage.objects.exists():
             root_page.add_child(instance=self)
