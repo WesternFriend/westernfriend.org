@@ -5,7 +5,6 @@ omit =
     *test*,
     core/*.py
 
-[run]
 plugins = django_coverage_plugin
 
 [django_coverage_plugin]
