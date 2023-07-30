@@ -1,8 +1,8 @@
 from django.test import TestCase
 from community.models import CommunityPage
 
-from contact.factories import PersonIndexPageFactory
-from contact.models import PersonIndexPage
+from contact.factories import PersonFactory, PersonIndexPageFactory
+from contact.models import Person, PersonIndexPage
 
 
 class PersonIndexPageFactoryTest(TestCase):
@@ -21,4 +21,23 @@ class PersonIndexPageFactoryTest(TestCase):
         self.assertIsInstance(
             person_index_page.get_parent().specific,
             CommunityPage,
+        )
+
+
+class PersonFactoryTest(TestCase):
+    def test_person_index_page_creation(self) -> None:
+        # Create a Person instance
+        person = PersonFactory.create()
+
+        # Now test that it was created
+        self.assertIsNotNone(person)
+        self.assertIsInstance(
+            person,
+            Person,
+        )
+
+        # Test that the Person instance has a PersonIndexPage parent
+        self.assertIsInstance(
+            person.get_parent().specific,
+            PersonIndexPage,
         )

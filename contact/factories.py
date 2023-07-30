@@ -55,6 +55,16 @@ class PersonFactory(PageFactory):
 
     given_name: str = factory.Faker("first_name")  # type: ignore
     family_name: str = factory.Faker("last_name")  # type: ignore
+    depth = factory.Sequence(
+        lambda n: n + 4,
+    )
+
+    @factory.lazy_attribute  # type: ignore
+    def path(self):
+        # Constructs a valid path by appending self.depth
+        # to the path of root page
+        root_path = Page.get_first_root_node().path
+        return f"{root_path}{str(self.depth).zfill(4)}"
 
     @factory.lazy_attribute  # type: ignore
     def title(self) -> str:
@@ -63,6 +73,22 @@ class PersonFactory(PageFactory):
     @factory.lazy_attribute  # type: ignore
     def slug(self) -> str:
         return f"{self.given_name}-{self.family_name}".lower()
+
+    @classmethod
+    def _create(
+        cls: type["PersonFactory"],
+        model_class: type[Page],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        instance = model_class(*args, **kwargs)
+        parent = PersonIndexPage.objects.first()
+        if parent:
+            parent.add_child(instance=instance)
+        else:
+            community_page = PersonIndexPageFactory.create()
+            community_page.add_child(instance=instance)
+        return instance
 
 
 class MeetingFactory(factory.django.DjangoModelFactory):
