@@ -9,7 +9,7 @@ from home.factories import HomePageFactory
 from home.models import HomePage
 
 
-class EventIndexPageFactory(DjangoModelFactory):
+class EventsIndexPageFactory(DjangoModelFactory):
     class Meta:
         model = EventsIndexPage
 
@@ -64,6 +64,6 @@ class EventFactory(DjangoModelFactory):
         if parent:
             parent.add_child(instance=instance)
         else:
-            event_index_page = EventIndexPageFactory.create()
+            event_index_page = EventsIndexPageFactory.create()
             event_index_page.add_child(instance=instance)
         return instance
