@@ -43,7 +43,7 @@ class EventFactory(DjangoModelFactory):
     class Meta:
         model = Event
 
-    title = factory.Faker("sentence", nb_words=2)  # type: ignore
+    title = factory.Faker("sentence", nb_words=5)  # type: ignore
     start_date = factory.Faker(
         "future_datetime",
         end_date="+90d",
