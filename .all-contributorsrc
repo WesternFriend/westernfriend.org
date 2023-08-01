@@ -121,6 +121,15 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "sim-codes",
+      "name": "Ibrahim Michael Oluwasegun",
+      "avatar_url": "https://avatars.githubusercontent.com/u/100477981?v=4",
+      "profile": "https://github.com/sim-codes",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
