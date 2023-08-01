@@ -43,8 +43,12 @@ class EventFactory(DjangoModelFactory):
     class Meta:
         model = Event
 
-    title = factory.Faker("sentence", nb_words=4)  # type: ignore
-    start_date = factory.Faker("date_time", tzinfo=pytz.UTC)  # type: ignore
+    title = factory.Faker("sentence", nb_words=2)  # type: ignore
+    start_date = factory.Faker(
+        "future_datetime",
+        end_date="+90d",
+        tzinfo=pytz.UTC,
+    )  # type: ignore
 
     slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
     depth = factory.Sequence(lambda n: n + 4)  # Assumes that HomePage page depth is 1

@@ -148,9 +148,13 @@ class EventsIndexPage(Page):
             )
             .order_by("start_date")
         )
+        events_per_page = 10
 
         # Show three archive issues per page
-        paginator = Paginator(upcoming_events, 10)
+        paginator = Paginator(
+            upcoming_events,
+            events_per_page,
+        )
 
         upcoming_events_page = request.GET.get("page")
 
