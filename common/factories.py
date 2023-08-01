@@ -8,15 +8,19 @@ class PageFactory(factory.django.DjangoModelFactory):
         model = Page
 
     title = factory.Sequence(lambda n: f"Test Page {n}")
+    slug = factory.Sequence(lambda n: f"page-{n}")
 
-    @factory.post_generation
-    def add_to_root(
-        obj: "PageFactory",
-        create: bool,
-        extracted: Any | None,
+    @classmethod
+    def _create(
+        cls: type["PageFactory"],
+        model_class: type[Page],
+        *args: Any,
         **kwargs: Any,
-    ) -> None:
-        if create:
-            root_page = Page.objects.first()
-            root_page.add_child(instance=obj)
-            obj.save()
+    ) -> Any:
+        instance = super()._create(model_class, *args, **kwargs)
+
+        # Ensure the instance is added to the tree
+        root = Page.get_first_root_node()
+        root.add_child(instance=instance)
+
+        return instance

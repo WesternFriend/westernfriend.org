@@ -4,8 +4,8 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
 from django.db.models import Q
 from django.http import Http404, HttpRequest
-from modelcluster.fields import ParentalKey
-from timezone_field import TimeZoneField
+from modelcluster.fields import ParentalKey  # type: ignore
+from timezone_field import TimeZoneField  # type: ignore
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel, InlinePanel, PageChooserPanel
 from wagtail.fields import RichTextField, StreamField
@@ -36,7 +36,7 @@ class EventSponsor(Orderable):
     ]
 
 
-class Event(DrupalFields, Page):
+class Event(DrupalFields, Page):  # type: ignore
     class EventCategoryChoices(models.TextChoices):
         WESTERN = ("western", "Western")
         OTHER = ("other", "Other")
@@ -148,9 +148,13 @@ class EventsIndexPage(Page):
             )
             .order_by("start_date")
         )
+        events_per_page = 10
 
         # Show three archive issues per page
-        paginator = Paginator(upcoming_events, 10)
+        paginator = Paginator(
+            upcoming_events,
+            events_per_page,
+        )
 
         upcoming_events_page = request.GET.get("page")
 
