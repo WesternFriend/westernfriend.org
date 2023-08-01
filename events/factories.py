@@ -29,6 +29,7 @@ class EventIndexPageFactory(DjangoModelFactory):
     def _create(cls, model_class, *args, **kwargs) -> EventsIndexPage:
         instance = model_class(*args, **kwargs)
         parent = HomePage.objects.first()
+
         if parent:
             parent.add_child(instance=instance)
         else:
