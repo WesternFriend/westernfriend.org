@@ -1,6 +1,6 @@
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from community.models import CommunityPage
-from contact.factories import PersonFactory
+from contact.factories import MeetingFactory, PersonFactory
 from memorials.factories import MemorialFactory, MemorialIndexPageFactory
 from memorials.models import Memorial, MemorialIndexPage
 
@@ -51,10 +51,50 @@ class MemorialModelTest(TestCase):
         )
 
     def test_full_name(self) -> None:
-        memorial = MemorialFactory(  # type: ignore
+        memorial = MemorialFactory(
             memorial_person=self.person,
         )
         self.assertEqual(
-            memorial.full_name(),  # type: ignore
+            memorial.full_name(),
             "John Woolman",
         )
+
+
+class MemorialIndexPageModelTest(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.person: PersonFactory = PersonFactory(
+            given_name="John",
+            family_name="Woolman",
+        )
+        self.meeting: MeetingFactory = MeetingFactory(
+            title="Test Meeting",
+        )
+
+    def test_get_filtered_memorials_title(self) -> None:
+        memorial_page: MemorialIndexPage = MemorialIndexPage()
+        memorial: Memorial = MemorialFactory(
+            title="Test Memorial",
+            memorial_person=self.person,
+            memorial_meeting=self.meeting,
+        )
+
+        request = self.factory.get("/?title=Test Memorial")
+        memorials = memorial_page.get_filtered_memorials(request)
+
+        self.assertEqual(memorials.count(), 1)
+        self.assertEqual(memorials.first(), memorial)
+
+    def test_get_filtered_memorials_meeting(self) -> None:
+        memorial_page: MemorialIndexPage = MemorialIndexPage()
+        memorial: MemorialFactory = MemorialFactory(
+            title="Test Memorial",
+            memorial_person=self.person,
+            memorial_meeting=self.meeting,
+        )
+
+        request = self.factory.get(f"/?memorial_meeting__title={self.meeting.title}")
+        memorials = memorial_page.get_filtered_memorials(request)
+
+        self.assertEqual(memorials.count(), 1)
+        self.assertEqual(memorials.first(), memorial)
