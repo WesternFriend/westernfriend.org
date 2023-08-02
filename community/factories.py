@@ -2,7 +2,6 @@ from typing import Any
 from django.utils.text import slugify
 import factory
 from factory.django import DjangoModelFactory
-from wagtail.models import Page
 
 from community.models import CommunityPage
 from home.factories import HomePageFactory
@@ -15,12 +14,6 @@ class CommunityPageFactory(DjangoModelFactory):
 
     title = factory.Faker("sentence", nb_words=4)  # type: ignore
     slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
-    depth = factory.Sequence(lambda n: n + 3)  # Assumes that HomePage page depth is 1
-
-    @factory.lazy_attribute  # type: ignore
-    def path(self):
-        root_path = Page.get_first_root_node().path
-        return f"{root_path}{str(self.depth).zfill(4)}"
 
     @classmethod
     def _create(
