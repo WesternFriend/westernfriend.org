@@ -1,3 +1,4 @@
+from random import randint
 from typing import Any
 from django.utils.text import slugify
 import factory
@@ -55,16 +56,6 @@ class PersonFactory(PageFactory):
 
     given_name: str = factory.Faker("first_name")  # type: ignore
     family_name: str = factory.Faker("last_name")  # type: ignore
-    depth = factory.Sequence(
-        lambda n: n + 4,
-    )
-
-    @factory.lazy_attribute  # type: ignore
-    def path(self):
-        # Constructs a valid path by appending self.depth
-        # to the path of root page
-        root_path = Page.get_first_root_node().path
-        return f"{root_path}{str(self.depth).zfill(4)}"
 
     @factory.lazy_attribute  # type: ignore
     def title(self) -> str:
@@ -72,7 +63,8 @@ class PersonFactory(PageFactory):
 
     @factory.lazy_attribute  # type: ignore
     def slug(self) -> str:
-        return f"{self.given_name}-{self.family_name}".lower()
+        random_number = randint(1, 1000)
+        return f"{self.given_name}-{self.family_name}-{random_number}".lower()
 
     @classmethod
     def _create(
