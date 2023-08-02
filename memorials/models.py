@@ -7,7 +7,7 @@ from wagtail.models import Page
 
 from contact.models import Meeting
 from common.models import DrupalFields
-from pagination.helpers import PaginatorPageWithElidedPageRange, get_paginated_items
+from pagination.helpers import get_paginated_items
 
 
 class Memorial(DrupalFields, Page):  # type: ignore
@@ -72,11 +72,8 @@ class MemorialIndexPage(Page):
 
     def get_filtered_memorials(
         self,
-        request: HttpRequest,
+        query: dict,
     ) -> models.QuerySet[Memorial]:
-        # Check if any query string is available
-        query = request.GET.dict()
-
         # Filter out any facet that isn't a model field
         allowed_keys = [
             "title",
@@ -88,22 +85,6 @@ class MemorialIndexPage(Page):
 
         return Memorial.objects.all().filter(**facets)
 
-    def get_paginated_memorials(
-        self,
-        filtered_memorials: models.QuerySet,
-        request: HttpRequest,
-    ) -> PaginatorPageWithElidedPageRange:
-        items_per_page = 10
-        page_number = request.GET.get("page", "1")
-
-        paginated_memorials = get_paginated_items(
-            items=filtered_memorials,
-            items_per_page=items_per_page,
-            page_number=page_number,
-        )
-
-        return paginated_memorials
-
     def get_context(
         self,
         request: HttpRequest,
@@ -112,9 +93,18 @@ class MemorialIndexPage(Page):
     ) -> dict:
         context = super().get_context(request)
 
-        filtered_memorials = self.get_filtered_memorials(request)
+        filtered_memorials = self.get_filtered_memorials(
+            query=request.GET.dict(),
+        )
 
-        paginated_memorials = self.get_paginated_memorials(filtered_memorials, request)
+        items_per_page = 10
+        page_number = request.GET.get("page", "1")
+
+        paginated_memorials = get_paginated_items(
+            items=filtered_memorials,
+            items_per_page=items_per_page,
+            page_number=page_number,
+        )
 
         # TODO: return this full PaginatorPageWithElidedPageRange object
         # instead of just the page
