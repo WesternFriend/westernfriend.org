@@ -1,5 +1,6 @@
 from django.test import TestCase
 from community.models import CommunityPage
+from contact.factories import PersonFactory
 from memorials.factories import MemorialFactory, MemorialIndexPageFactory
 from memorials.models import Memorial, MemorialIndexPage
 
@@ -39,4 +40,21 @@ class MemorialFactoryTest(TestCase):
         self.assertIsInstance(
             memorial.get_parent().specific,
             MemorialIndexPage,
+        )
+
+
+class MemorialModelTest(TestCase):
+    def setUp(self) -> None:
+        self.person = PersonFactory(
+            given_name="John",
+            family_name="Woolman",
+        )
+
+    def test_full_name(self) -> None:
+        memorial = MemorialFactory(  # type: ignore
+            memorial_person=self.person,
+        )
+        self.assertEqual(
+            memorial.full_name(),  # type: ignore
+            "John Woolman",
         )
