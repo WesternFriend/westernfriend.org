@@ -98,3 +98,31 @@ class MemorialIndexPageModelTest(TestCase):
 
         self.assertEqual(memorials.count(), 1)
         self.assertEqual(memorials.first(), memorial)
+
+
+class MemorialIndexPageGetContextTest(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.memorial_index_page = MemorialIndexPageFactory.create()
+        self.meeting1 = MeetingFactory()
+        self.meeting2 = MeetingFactory()
+        self.memorial1 = MemorialFactory(memorial_meeting=self.meeting1)
+        self.memorial2 = MemorialFactory(memorial_meeting=self.meeting2)
+
+    def test_get_context(self) -> None:
+        request = self.factory.get("/")
+
+        context = self.memorial_index_page.get_context(request)
+
+        self.assertIsNotNone(context)
+        self.assertIn("memorials", context)
+        self.assertIn("meetings", context)
+
+        self.assertEqual(
+            len(context["memorials"]),
+            2,
+        )
+        self.assertEqual(
+            len(context["meetings"]),
+            2,
+        )
