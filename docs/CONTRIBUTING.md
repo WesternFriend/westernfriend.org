@@ -1,12 +1,12 @@
 # Contributing
 
-There are many ways to contribute to this project, such as the following.
+There are many ways to contribute to this project, such as the following:
 
-- design
-- testing
-- ideas
-- accessibility
-- writing code
+- Design
+- Testing
+- Ideas
+- Accessibility
+- Writing code
 
 Feel free to stop by our [discussion area](https://github.com/WesternFriend/WF-website/discussions) to get involved with this project.
 
@@ -20,7 +20,24 @@ This project is built with [Python](https://www.python.org/), [Django](https://w
 
 Please make sure you have at least Python 3.10 installed. If you are developing on Windows, make sure to use PowerShell.
 
-:warning: some Python installations provide only the `python3` command instead of `python`. If you get errors that the `python` command cannot be found, try running the same command using `python3`. This is an unfortunate consequence of the transition from Python 2 to 3.
+⚠️ Some Python installations provide only the `python3` command instead of `python`. If you get errors that the `python` command cannot be found, try running the same command using `python3`. This is an unfortunate consequence of the transition from Python 2 to 3.
+
+### Setup
+
+We have provided a Python script, `develop.py`, to automate several common tasks in your development workflow.
+
+To see all available commands, you can use:
+
+```sh
+python develop.py -h
+```
+
+Here's a brief overview of what you can do:
+
+- `python develop.py update-deps`: Update dependencies and check for issues.
+- `python develop.py compile-deps`: Compile the project's dependencies.
+
+⚠️ Note that some Python installations provide only the python3 command instead of python. If you get errors that the python command cannot be found, try running the same command using python3.
 
 ### Install
 
@@ -91,6 +108,26 @@ or
 ```sh
 python3 manage.py scaffold_initial_content
 ```
+
+## Dependency management
+
+We primarily use `pip` and `pip-tools` for project dependency management. To make things easier, we provide a helper script with several command aliases for common tasks, such as those below.
+
+###Generating requirements files
+
+```sh
+python develop.py compile-deps
+```
+
+### Updating
+
+```sh
+python develop.py update-deps
+```
+
+### Adding and removing packages
+
+To add or remove dependencies, simply add them to the dependencies list in pyproject.toml. Then, run the command from the "Generating requirements files" section above.
 
 ## Get help
 

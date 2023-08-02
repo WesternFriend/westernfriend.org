@@ -1,3 +1,4 @@
+from typing import Any
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from modelcluster.fields import ParentalKey
@@ -93,7 +94,11 @@ class Person(Page):
             models.Index(fields=["drupal_author_id"]),
         ]
 
-    def save(self, *args, **kwargs):
+    def save(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         full_name = f"{self.given_name} {self.family_name}"
         self.title = full_name.strip()
 

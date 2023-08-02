@@ -1,9 +1,9 @@
-from django.core.paginator import EmptyPage, Paginator
 from django.db import models
+from django.http import HttpRequest
 from django_flatpickr.widgets import DatePickerInput
-from modelcluster.contrib.taggit import ClusterTaggableManager
-from modelcluster.fields import ParentalKey
-from taggit.models import TaggedItemBase
+from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
+from modelcluster.fields import ParentalKey  # type: ignore
+from taggit.models import TaggedItemBase  # type: ignore
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import (
     FieldPanel,
@@ -27,6 +27,8 @@ from blocks.blocks import (
 from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
+from library.helpers import create_querystring_from_facets, filter_querystring_facets
+from pagination.helpers import get_paginated_items
 
 
 class LibraryItemTag(TaggedItemBase):
@@ -37,7 +39,7 @@ class LibraryItemTag(TaggedItemBase):
     )
 
 
-class LibraryItem(DrupalFields, Page):
+class LibraryItem(DrupalFields, Page):  # type: ignore
     publication_date = models.DateField("Publication date", null=True, blank=True)
     publication_date_is_approximate = models.BooleanField(
         default=False,
@@ -107,10 +109,6 @@ class LibraryItem(DrupalFields, Page):
     )
     tags = ClusterTaggableManager(
         through=LibraryItemTag,
-        blank=True,
-    )
-    drupal_node_id = models.IntegerField(
-        null=True,
         blank=True,
     )
 
@@ -235,7 +233,12 @@ class LibraryIndexPage(Page):
 
     max_count = 1
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         context = super().get_context(request)
 
         # Prepare a list of authors
@@ -254,55 +257,26 @@ class LibraryIndexPage(Page):
 
         query = request.GET.dict()
 
-        # Define allow keys that are model fields
-        allowed_keys = [
-            "authors__author__title",
-            "item_audience__title",
-            "item_genre__title",
-            "item_medium__title",
-            "item_time_period__title",
-            "title__icontains",
-            "topics__topic__title",
-        ]
-
-        # Remove any query parameter that
-        # - isn't a model field, or
-        # - has an empty value (empty string)
-        facets = {
-            key: value
-            for key, value in query.items()
-            if key in allowed_keys and value != ""
-        }
-
-        # Filter live (not draft) library items using facets from request
-        library_items = LibraryItem.objects.live().filter(**facets)
-
-        # Get page number from request,
-        # default to first page
-        default_page = 1
-
-        # Make sure any page number value is an integer
-        # since we need an integer for both
-        # paginator.page() get_elided_page_range()
-        try:
-            page_number = int(request.GET.get("page", default_page))
-        except ValueError:
-            page_number = default_page
-
-        # Paginate library items
-        items_per_page = 10
-        paginator = Paginator(library_items, items_per_page)
-
-        try:
-            library_items_page = paginator.page(page_number)
-        except EmptyPage:
-            library_items_page = paginator.page(paginator.num_pages)
-
-        library_items_page.adjusted_elided_pages = paginator.get_elided_page_range(
-            page_number,
+        facets = filter_querystring_facets(
+            query=query,
         )
 
+        # Filter live (not draft) library items using facets from request
+        library_items = LibraryItem.objects.live().filter(
+            **facets,
+        )
+        page_number = request.GET.get("page", "1")
+        items_per_page = 10
+
         # Provide filtered, paginated library items
-        context["library_items_page"] = library_items_page
+        context["paginated_items"] = get_paginated_items(
+            items=library_items,
+            items_per_page=items_per_page,
+            page_number=page_number,
+        )
+
+        context["current_querystring"] = create_querystring_from_facets(
+            facets=facets,
+        )
 
         return context
