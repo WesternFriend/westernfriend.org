@@ -34,7 +34,7 @@ class Memorial(DrupalFields, Page):
             "memorial_person__given_name",
         )
 
-    def full_name(self):
+    def full_name(self) -> str:
         return (
             f"{ self.memorial_person.given_name } { self.memorial_person.family_name }"
         )
