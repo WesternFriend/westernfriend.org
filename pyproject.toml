@@ -79,7 +79,7 @@ dependencies = [
     "django",
     "sentry-sdk",
     "django-debug-toolbar",
-    "django-coverage-plugin",
+    "django_coverage_plugin",
 ]
 
 [project.urls]
