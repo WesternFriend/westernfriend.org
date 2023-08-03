@@ -34,11 +34,6 @@ click==8.1.6
     # via
     #   black
     #   pip-tools
-colorama==0.4.6
-    # via
-    #   build
-    #   click
-    #   tqdm
 confusable-homoglyphs==3.2.0
     # via django-registration
 coverage==7.2.7
@@ -120,6 +115,7 @@ factory-boy==3.3.0
     # via
     #   Western-Friend-website (pyproject.toml)
     #   types-factory-boy
+    #   wagtail-factories
 faker==19.2.0
     # via factory-boy
 fastjsonschema==2.18.0
@@ -246,9 +242,7 @@ typing-extensions==4.7.1
     #   pydantic
     #   types-factory-boy
 tzdata==2023.3
-    # via
-    #   Western-Friend-website (pyproject.toml)
-    #   django
+    # via Western-Friend-website (pyproject.toml)
 urllib3==1.26.16
     # via
     #   botocore
@@ -262,8 +256,11 @@ wagtail==5.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail-color-panel
+    #   wagtail-factories
     #   wagtailmedia
 wagtail-color-panel==1.4.1
+    # via Western-Friend-website (pyproject.toml)
+wagtail-factories==4.1.0
     # via Western-Friend-website (pyproject.toml)
 wagtailmedia==0.14.4
     # via Western-Friend-website (pyproject.toml)

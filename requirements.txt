@@ -24,8 +24,6 @@ certifi==2023.7.22
     #   sentry-sdk
 charset-normalizer==3.2.0
     # via requests
-colorama==0.4.6
-    # via tqdm
 confusable-homoglyphs==3.2.0
     # via django-registration
 coverage==7.2.7
@@ -157,9 +155,7 @@ typing-extensions==4.7.1
     #   django-flatpickr
     #   pydantic
 tzdata==2023.3
-    # via
-    #   Western-Friend-website (pyproject.toml)
-    #   django
+    # via Western-Friend-website (pyproject.toml)
 urllib3==1.26.16
     # via
     #   botocore
