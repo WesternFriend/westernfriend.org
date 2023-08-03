@@ -1,5 +1,12 @@
 import random
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
+from home.models import HomePage
+
+from library.models import LibraryIndexPage
+
+from .factories import (
+    LibraryIndexPageFactory,
+)
 
 from library.helpers import (
     QUERYSTRING_FACETS,
@@ -62,3 +69,21 @@ class TestFilterQuerystringFacets(SimpleTestCase):
         query = {key: "value" for key in QUERYSTRING_FACETS}
         result = filter_querystring_facets(query)
         self.assertDictEqual(result, query)
+
+
+class TestLibraryIndexPageFactory(TestCase):
+    def test_library_index_page_creation(self) -> None:
+        library_index_page = LibraryIndexPageFactory.create()
+
+        # Now test that it was created
+        self.assertIsNotNone(library_index_page)
+        self.assertIsInstance(
+            library_index_page,
+            LibraryIndexPage,
+        )
+
+        # Verify the home page is a direct child of the HomePage
+        self.assertIsInstance(
+            library_index_page.get_parent().specific,
+            HomePage,
+        )

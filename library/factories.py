@@ -1,5 +1,11 @@
+from typing import Any
+from django.utils.text import slugify
 import factory
+
+from home.factories import HomePageFactory
+from home.models import HomePage
 from .models import (
+    LibraryIndexPage,
     LibraryItem,
     LibraryItemAuthor,
 )
@@ -30,3 +36,31 @@ class LibraryItemAuthorFactory(factory.django.DjangoModelFactory):
 
     library_item = factory.RelatedFactory(LibraryItemFactory)  # type: ignore
     author = factory.RelatedFactory("contacts.factories.PersonFactory")  # type: ignore
+
+
+class LibraryIndexPageFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = LibraryIndexPage
+
+    title = factory.Faker("sentence", nb_words=4)  # type: ignore
+    slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
+    intro = factory.Faker("text")  # type: ignore
+
+    @classmethod
+    def _create(
+        cls,
+        model_class: type[LibraryIndexPage],
+        *args: Any,
+        **kwargs: Any,
+    ) -> LibraryIndexPage:
+        instance = model_class(*args, **kwargs)  # type: ignore
+
+        # Get the HomePage instance if it exists, otherwise create one.
+        home_page = HomePage.objects.first()
+        if home_page is None:
+            home_page = HomePageFactory.create()
+
+        # Add the instance as a child of HomePage
+        home_page.add_child(instance=instance)
+
+        return instance
