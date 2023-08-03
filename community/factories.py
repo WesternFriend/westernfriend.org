@@ -60,7 +60,7 @@ class OnlineWorshipFactory(DjangoModelFactory):
     class Meta:
         model = OnlineWorship
 
-    title = factory.Faker("sentence", nb_words=4)  # type: ignore
+    title = factory.Sequence(lambda n: f"Online Worship {n}")  # type: ignore
     slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
 
     @classmethod
