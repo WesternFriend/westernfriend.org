@@ -3,14 +3,19 @@ from wagtail.blocks import StructValue
 
 
 class NavigationExternalLinkStructValue(StructValue):
-    def href(self):
+    def href(self) -> str:
         """Construct a URL with anchor if exists, otherwise use URL."""
         url = self.get("url")
         anchor = self.get("anchor")
 
-        href = f"{ url }#{ anchor }" if anchor else url
-
-        return href
+        if url and anchor:
+            return f"{url}#{anchor}"
+        elif url:
+            return url
+        elif anchor:
+            return f"#{anchor}"
+        else:
+            return ""
 
 
 class NavigationExternalLinkBlock(wagtail_blocks.StructBlock):
