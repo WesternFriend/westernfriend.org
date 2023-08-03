@@ -19,7 +19,7 @@ class NewsIndexPageFactory(PageFactory):
     class Meta:
         model = NewsIndexPage
 
-    title = "News"
+    title = factory.Sequence(lambda n: f"News Index Page {n}")
     intro = "News index page"
 
     @classmethod
@@ -44,7 +44,7 @@ class NewsTopicIndexPageFactory(PageFactory):
     class Meta:
         model = NewsTopicIndexPage
 
-    title = "News topic index"
+    title = factory.Sequence(lambda n: f"News topic index {n}")
     intro = "News topic index page"
 
     @classmethod
@@ -96,7 +96,7 @@ class NewsTypeIndexPageFactory(PageFactory):
     class Meta:
         model = NewsTypeIndexPage
 
-    title = "News type index"
+    title = factory.Sequence(lambda n: f"News type index {n}")
     intro = "News type index page"
 
     @classmethod
