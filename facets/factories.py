@@ -44,12 +44,48 @@ class AudienceFactory(factory.django.DjangoModelFactory):
 
     title = factory.Sequence(lambda n: f"Audience {n}")
 
+    @classmethod
+    def _create(
+        cls,
+        model_class: type[Audience],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Audience:
+        instance = model_class(*args, **kwargs)  # type: ignore
+
+        # Get the FacetIndexPage instance if it exists, otherwise create one.
+        facet_index_page = FacetIndexPage.objects.first()
+        if facet_index_page is None:
+            facet_index_page = FacetIndexPageFactory()
+
+        facet_index_page.add_child(instance=instance)
+
+        return instance
+
 
 class GenreFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Genre
 
     title = factory.Sequence(lambda n: f"Genre {n}")
+
+    @classmethod
+    def _create(
+        cls,
+        model_class: type[Genre],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Genre:
+        instance = model_class(*args, **kwargs)  # type: ignore
+
+        # Get the FacetIndexPage instance if it exists, otherwise create one.
+        facet_index_page = FacetIndexPage.objects.first()
+        if facet_index_page is None:
+            facet_index_page = FacetIndexPageFactory()
+
+        facet_index_page.add_child(instance=instance)
+
+        return instance
 
 
 class MediumFactory(factory.django.DjangoModelFactory):
@@ -58,6 +94,24 @@ class MediumFactory(factory.django.DjangoModelFactory):
 
     title = factory.Sequence(lambda n: f"Medium {n}")
 
+    @classmethod
+    def _create(
+        cls,
+        model_class: type[Medium],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Medium:
+        instance = model_class(*args, **kwargs)  # type: ignore
+
+        # Get the FacetIndexPage instance if it exists, otherwise create one.
+        facet_index_page = FacetIndexPage.objects.first()
+        if facet_index_page is None:
+            facet_index_page = FacetIndexPageFactory()
+
+        facet_index_page.add_child(instance=instance)
+
+        return instance
+
 
 class TimePeriodFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -65,9 +119,45 @@ class TimePeriodFactory(factory.django.DjangoModelFactory):
 
     title = factory.Sequence(lambda n: f"Time Period {n}")
 
+    @classmethod
+    def _create(
+        cls,
+        model_class: type[TimePeriod],
+        *args: Any,
+        **kwargs: Any,
+    ) -> TimePeriod:
+        instance = model_class(*args, **kwargs)  # type: ignore
+
+        # Get the FacetIndexPage instance if it exists, otherwise create one.
+        facet_index_page = FacetIndexPage.objects.first()
+        if facet_index_page is None:
+            facet_index_page = FacetIndexPageFactory()
+
+        facet_index_page.add_child(instance=instance)
+
+        return instance
+
 
 class TopicFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Topic
 
     title = factory.Sequence(lambda n: f"Topic {n}")
+
+    @classmethod
+    def _create(
+        cls,
+        model_class: type[Topic],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Topic:
+        instance = model_class(*args, **kwargs)  # type: ignore
+
+        # Get the FacetIndexPage instance if it exists, otherwise create one.
+        facet_index_page = FacetIndexPage.objects.first()
+        if facet_index_page is None:
+            facet_index_page = FacetIndexPageFactory()
+
+        facet_index_page.add_child(instance=instance)
+
+        return instance
