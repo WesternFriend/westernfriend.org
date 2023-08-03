@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from home.models import HomePage
 from store.models import Product, ProductIndexPage, StoreIndexPage
+from cart.forms import CartAddProductForm
 from .factories import (
     StoreIndexPageFactory,
     ProductIndexPageFactory,
@@ -54,4 +55,25 @@ class TestProductFactory(TestCase):
         self.assertIsInstance(
             product.get_parent().specific,
             ProductIndexPage,
+        )
+
+
+class TestStoreIndexPageGetContext(TestCase):
+    def test_store_index_page_get_context(self) -> None:
+        """Test that a Topic can be created."""
+        store_index_page = StoreIndexPageFactory.create()
+        context = store_index_page.get_context(request=None)
+
+        self.assertIn(
+            "products",
+            context,
+        )
+
+        self.assertIn(
+            "cart_add_product_form",
+            context,
+        )
+        self.assertIsInstance(
+            context["cart_add_product_form"],
+            CartAddProductForm,
         )
