@@ -105,6 +105,7 @@ dev = [
     "pip-tools",
     "factory_boy",
     "types-factory-boy",
+    "wagtail-factories",
 ]
 
 [tool.black]
