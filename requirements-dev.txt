@@ -12,9 +12,9 @@ beautifulsoup4==4.11.2
     # via wagtail
 black==23.7.0
     # via Western-Friend-website (pyproject.toml)
-boto3==1.28.17
+boto3==1.28.18
     # via Western-Friend-website (pyproject.toml)
-botocore==1.31.17
+botocore==1.31.18
     # via
     #   boto3
     #   s3transfer
@@ -34,10 +34,17 @@ click==8.1.6
     # via
     #   black
     #   pip-tools
+colorama==0.4.6
+    # via
+    #   build
+    #   click
+    #   tqdm
 confusable-homoglyphs==3.2.0
     # via django-registration
 coverage==7.2.7
-    # via Western-Friend-website (pyproject.toml)
+    # via
+    #   Western-Friend-website (pyproject.toml)
+    #   django-coverage-plugin
 crispy-bootstrap5==0.7
     # via Western-Friend-website (pyproject.toml)
 defusedxml==0.7.1
@@ -70,6 +77,8 @@ django==4.2.4
     #   wagtail
     #   wagtailmedia
 django-browser-reload==1.11.0
+    # via Western-Friend-website (pyproject.toml)
+django-coverage-plugin==3.1.0
     # via Western-Friend-website (pyproject.toml)
 django-crispy-forms==2.0
     # via
@@ -158,7 +167,7 @@ pillow==10.0.0
     #   wagtail
 pillow-heif==0.12.0
     # via willow
-pip-tools==7.1.0
+pip-tools==7.2.0
     # via Western-Friend-website (pyproject.toml)
 platformdirs==3.10.0
     # via
@@ -237,7 +246,9 @@ typing-extensions==4.7.1
     #   pydantic
     #   types-factory-boy
 tzdata==2023.3
-    # via Western-Friend-website (pyproject.toml)
+    # via
+    #   Western-Friend-website (pyproject.toml)
+    #   django
 urllib3==1.26.16
     # via
     #   botocore
