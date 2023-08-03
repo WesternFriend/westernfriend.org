@@ -1,11 +1,20 @@
 import random
-from django.test import SimpleTestCase, TestCase
+from unittest.mock import Mock, patch
+from django.test import RequestFactory, SimpleTestCase, TestCase
+from facets.factories import (
+    AudienceFactory,
+    GenreFactory,
+    MediumFactory,
+    TimePeriodFactory,
+    TopicFactory,
+)
 from home.models import HomePage
 
 from library.models import LibraryIndexPage
 
 from .factories import (
     LibraryIndexPageFactory,
+    LibraryItemFactory,
 )
 
 from library.helpers import (
@@ -87,3 +96,41 @@ class TestLibraryIndexPageFactory(TestCase):
             library_index_page.get_parent().specific,
             HomePage,
         )
+
+
+class TestLibraryIndexPage(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.library_index_page = LibraryIndexPageFactory.create()
+        self.library_item = LibraryItemFactory.create()
+
+    @patch("library.models.filter_querystring_facets")
+    @patch("library.models.get_paginated_items")
+    @patch("library.models.create_querystring_from_facets")
+    def test_get_context(
+        self,
+        mock_create_querystring: Mock,
+        mock_get_paginated_items: Mock,
+        mock_filter_querystring: Mock,
+    ) -> None:
+        AudienceFactory.create_batch(5)
+        GenreFactory.create_batch(5)
+        MediumFactory.create_batch(5)
+        TimePeriodFactory.create_batch(5)
+        TopicFactory.create_batch(5)
+
+        request = self.factory.get("/")
+        context = self.library_index_page.get_context(request)
+
+        self.assertIn("audiences", context)
+        self.assertIn("genres", context)
+        self.assertIn("mediums", context)
+        self.assertIn("time_periods", context)
+        self.assertIn("topics", context)
+        self.assertIn("authors", context)
+        self.assertIn("paginated_items", context)
+        self.assertIn("current_querystring", context)
+
+        mock_filter_querystring.assert_called_once_with(query=request.GET.dict())
+        mock_get_paginated_items.assert_called_once()
+        mock_create_querystring.assert_called_once()
