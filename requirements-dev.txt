@@ -12,9 +12,9 @@ beautifulsoup4==4.11.2
     # via wagtail
 black==23.7.0
     # via Western-Friend-website (pyproject.toml)
-boto3==1.28.17
+boto3==1.28.18
     # via Western-Friend-website (pyproject.toml)
-botocore==1.31.17
+botocore==1.31.18
     # via
     #   boto3
     #   s3transfer
@@ -167,7 +167,7 @@ pillow==10.0.0
     #   wagtail
 pillow-heif==0.12.0
     # via willow
-pip-tools==7.1.0
+pip-tools==7.2.0
     # via Western-Friend-website (pyproject.toml)
 platformdirs==3.10.0
     # via
