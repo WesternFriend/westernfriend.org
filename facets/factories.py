@@ -12,32 +12,32 @@ class AudienceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Audience
 
-    title = factory.Faker("text", max_nb_chars=10)  # type: ignore
+    title = factory.Sequence(lambda n: f"Audience {n}")
 
 
 class GenreFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Genre
 
-    title = factory.Faker("text", max_nb_chars=10)  # type: ignore
+    title = factory.Sequence(lambda n: f"Genre {n}")
 
 
 class MediumFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Medium
 
-    title = factory.Faker("text", max_nb_chars=10)  # type: ignore
+    title = factory.Sequence(lambda n: f"Medium {n}")
 
 
 class TimePeriodFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = TimePeriod
 
-    title = factory.Faker("text", max_nb_chars=10)  # type: ignore
+    title = factory.Sequence(lambda n: f"Time Period {n}")
 
 
 class TopicFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Topic
 
-    title = factory.Faker("text", max_nb_chars=10)  # type: ignore
+    title = factory.Sequence(lambda n: f"Topic {n}")
