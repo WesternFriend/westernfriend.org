@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 
 from community.models import CommunityPage, OnlineWorship, OnlineWorshipIndexPage
 from home.models import HomePage
@@ -60,4 +60,32 @@ class OnlineWorshipFactoryTest(TestCase):
         self.assertIsInstance(
             online_worship.get_parent().specific,
             OnlineWorshipIndexPage,
+        )
+
+
+class TestOnlineWorshipIndexPageGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+
+        # Create an OnlineWorshipIndexPage instance
+        self.online_worship_index_page = OnlineWorshipIndexPageFactory.create()
+
+        # Create several OnlineWorship instances
+        self.online_worship_pages = []
+
+        total_online_worship_pages = 5
+
+        for i in range(total_online_worship_pages):
+            online_worship_page = OnlineWorshipFactory.create()
+            self.online_worship_pages.append(online_worship_page)
+
+    def test_get_context(self) -> None:
+        # Create an instance of a GET request.
+        request = self.factory.get("/")
+        context = self.online_worship_index_page.get_context(request)
+
+        self.assertIn("online_worship_meetings", context)
+        self.assertEqual(
+            list(context["online_worship_meetings"]),
+            list(OnlineWorship.objects.live().order_by("title")),
         )
