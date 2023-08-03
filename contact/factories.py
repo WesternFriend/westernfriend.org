@@ -103,7 +103,7 @@ class MeetingFactory(DjangoModelFactory):
     class Meta:
         model = Meeting
 
-    title = factory.Faker("sentence", nb_words=4)  # type: ignore
+    title = factory.sequence(lambda n: f"Meeting {n}")  # type: ignore
     slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
 
     @classmethod
@@ -127,7 +127,7 @@ class OrganizationIndexPageFactory(DjangoModelFactory):
     class Meta:
         model = OrganizationIndexPage
 
-    title = factory.Faker("sentence", nb_words=4)  # type: ignore
+    title = factory.Sequence(lambda n: f"Organization {n}")  # type: ignore
     slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
 
     @classmethod
