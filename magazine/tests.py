@@ -3,6 +3,7 @@ from django.test import RequestFactory, TestCase
 from wagtail.models import Page, Site
 from accounts.models import User
 from home.models import HomePage
+from magazine.factories import MagazineIndexPageFactory, MagazineIssueFactory
 from subscription.models import (
     MagazineFormatChoices,
     MagazinePriceGroupChoices,
@@ -645,4 +646,30 @@ class DeepArchiveIndexPageTest(TestCase):
             self.archive_issues[archive_items_per_page:],
             transform=lambda x: x,  # Transform the objects to compare them directly
             ordered=False,  # The order of the results is not important
+        )
+
+
+class TestMagazineIndexPageFactory(TestCase):
+    def test_magazine_index_page_factory(self) -> None:
+        """Test that the MagazineIndexPageFactory creates a MagazineIndexPage
+        instance."""
+        magazine_index_page = MagazineIndexPageFactory.create()
+        self.assertIsInstance(magazine_index_page, MagazineIndexPage)
+
+        self.assertIsInstance(
+            magazine_index_page.get_parent().specific,
+            HomePage,
+        )
+
+
+class TestMagazineIssueFactory(TestCase):
+    def test_magazine_issue_factory(self) -> None:
+        """Test that the MagazineIssueFactory creates a MagazineIssue
+        instance."""
+        magazine_issue = MagazineIssueFactory.create()
+        self.assertIsInstance(magazine_issue, MagazineIssue)
+
+        self.assertIsInstance(
+            magazine_issue.get_parent().specific,
+            MagazineIndexPage,
         )
