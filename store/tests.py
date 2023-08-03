@@ -77,3 +77,19 @@ class TestStoreIndexPageGetContext(TestCase):
             context["cart_add_product_form"],
             CartAddProductForm,
         )
+
+
+class TestProductGetContext(TestCase):
+    def test_product_get_context(self) -> None:
+        """Test that a Topic can be created."""
+        product = ProductFactory.create()
+        context = product.get_context(request=None)
+
+        self.assertIn(
+            "cart_add_product_form",
+            context,
+        )
+        self.assertIsInstance(
+            context["cart_add_product_form"],
+            CartAddProductForm,
+        )
