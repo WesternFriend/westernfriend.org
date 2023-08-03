@@ -17,7 +17,7 @@ class TestFacetIndexPage(TestCase):
     def test_facet_index_page_creation(self) -> None:
         """Test that a FacetIndexPage can be created."""
         facet_index_page = FacetIndexPageFactory.create()
-        self.assertIsNotNone(facet_index_page)
+
         self.assertIsInstance(
             facet_index_page,
             FacetIndexPage,
@@ -33,7 +33,7 @@ class TestAudience(TestCase):
     def test_audience_creation(self) -> None:
         """Test that an Audience can be created."""
         audience = AudienceFactory.create()
-        self.assertIsNotNone(audience)
+
         self.assertIsInstance(
             audience,
             Audience,
@@ -49,7 +49,7 @@ class TestGenre(TestCase):
     def test_genre_creation(self) -> None:
         """Test that a Genre can be created."""
         genre = GenreFactory.create()
-        self.assertIsNotNone(genre)
+
         self.assertIsInstance(
             genre,
             Genre,
@@ -65,7 +65,7 @@ class TestMedium(TestCase):
     def test_medium_creation(self) -> None:
         """Test that a Medium can be created."""
         medium = MediumFactory.create()
-        self.assertIsNotNone(medium)
+
         self.assertIsInstance(
             medium,
             Medium,
@@ -81,7 +81,7 @@ class TestTimePeriod(TestCase):
     def test_time_period_creation(self) -> None:
         """Test that a TimePeriod can be created."""
         time_period = TimePeriodFactory.create()
-        self.assertIsNotNone(time_period)
+
         self.assertIsInstance(
             time_period,
             TimePeriod,
@@ -97,7 +97,7 @@ class TestTopic(TestCase):
     def test_topic_creation(self) -> None:
         """Test that a Topic can be created."""
         topic = TopicFactory.create()
-        self.assertIsNotNone(topic)
+
         self.assertIsInstance(
             topic,
             Topic,
