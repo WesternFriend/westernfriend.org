@@ -103,7 +103,7 @@ class Command(BaseCommand):
             show_in_menus=True,
         )
         library_index_page = LibraryIndexPage(
-            title="Library",
+            title="Library / Media",
             show_in_menus=True,
         )
         magazine_index_page = MagazineIndexPage(
