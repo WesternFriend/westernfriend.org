@@ -15,4 +15,7 @@ class CommunityPageFactoryTest(TestCase):
         self.assertIsInstance(community_page, CommunityPage)
 
         # Test that the CommunityPage instance has a parent
-        self.assertIsInstance(community_page.get_parent().specific, HomePage)
+        self.assertIsInstance(
+            community_page.get_parent().specific,
+            HomePage,
+        )
