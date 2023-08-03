@@ -5,7 +5,6 @@ import factory
 from factory.django import DjangoModelFactory
 from wagtail.models import Page
 
-from common.factories import PageFactory
 from community.factories import CommunityPageFactory
 from community.models import CommunityPage
 from .models import (
@@ -42,7 +41,7 @@ class PersonIndexPageFactory(DjangoModelFactory):
         return instance
 
 
-class PersonFactory(PageFactory):
+class PersonFactory(DjangoModelFactory):
     class Meta:
         model = Person
 
@@ -147,7 +146,7 @@ class OrganizationIndexPageFactory(DjangoModelFactory):
         return instance
 
 
-class OrganizationFactory(factory.django.DjangoModelFactory):
+class OrganizationFactory(DjangoModelFactory):
     class Meta:
         model = Organization
 
