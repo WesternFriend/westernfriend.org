@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from community.models import CommunityPage
 
 from contact.factories import (
@@ -130,4 +130,43 @@ class OrganizationFactoryTest(TestCase):
         self.assertIsInstance(
             organization.get_parent().specific,
             OrganizationIndexPage,
+        )
+
+
+class TestMeetingGetContext(TestCase):
+    def setUp(self) -> None:
+        self.request = RequestFactory().get("/")
+        self.meeting = MeetingFactory.create()
+
+        self.child_quarterly_meeting = MeetingFactory.build(
+            meeting_type=Meeting.MeetingTypeChoices.QUARTERLY_MEETING,
+        )
+        self.meeting.add_child(instance=self.child_quarterly_meeting)
+        self.child_monthly_meeting = MeetingFactory.build(
+            meeting_type=Meeting.MeetingTypeChoices.MONTHLY_MEETING,
+        )
+        self.meeting.add_child(instance=self.child_monthly_meeting)
+        self.child_worship_group = MeetingFactory.build(
+            meeting_type=Meeting.MeetingTypeChoices.WORSHIP_GROUP,
+        )
+        self.meeting.add_child(instance=self.child_worship_group)
+
+    def test_meeting_get_context(self) -> None:
+        context = self.meeting.get_context(self.request)
+
+        self.assertIn("quarterly_meetings", context)
+        self.assertIn("monthly_meetings", context)
+        self.assertIn("worship_groups", context)
+
+        self.assertEqual(
+            list(context["quarterly_meetings"]),
+            [self.child_quarterly_meeting],
+        )
+        self.assertEqual(
+            list(context["monthly_meetings"]),
+            [self.child_monthly_meeting],
+        )
+        self.assertEqual(
+            list(context["worship_groups"]),
+            [self.child_worship_group],
         )

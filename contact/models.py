@@ -1,6 +1,7 @@
 from typing import Any
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models import TextChoices
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import (
     FieldPanel,
@@ -13,15 +14,6 @@ from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from addresses.models import Address
-
-# TODO: convert to a models.TextChoices class
-# e.g. in donations/models.py
-MEETING_TYPE_CHOICES = (
-    ("monthly_meeting", "Monthly Meeting"),
-    ("quarterly_meeting", "Quarterly Meeting"),
-    ("worship_group", "Worship Group"),
-    ("yearly_meeting", "Yearly Meeting"),
-)
 
 
 class Person(Page):
@@ -147,9 +139,15 @@ class MeetingPresidingClerk(Orderable):
 
 
 class Meeting(Page):
+    class MeetingTypeChoices(TextChoices):
+        MONTHLY_MEETING = "monthly_meeting", "Monthly Meeting"
+        QUARTERLY_MEETING = "quarterly_meeting", "Quarterly Meeting"
+        WORSHIP_GROUP = "worship_group", "Worship Group"
+        YEARLY_MEETING = "yearly_meeting", "Yearly Meeting"
+
     meeting_type = models.CharField(
         max_length=255,
-        choices=MEETING_TYPE_CHOICES,
+        choices=MeetingTypeChoices.choices,
         null=True,
         blank=True,
     )
