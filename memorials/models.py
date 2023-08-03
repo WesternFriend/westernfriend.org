@@ -1,5 +1,5 @@
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
+from django.http import HttpRequest
 from django_flatpickr.widgets import DatePickerInput
 from wagtail.admin.panels import FieldPanel, PageChooserPanel
 from wagtail.fields import RichTextField
@@ -7,9 +7,10 @@ from wagtail.models import Page
 
 from contact.models import Meeting
 from common.models import DrupalFields
+from pagination.helpers import get_paginated_items
 
 
-class Memorial(DrupalFields, Page):
+class Memorial(DrupalFields, Page):  # type: ignore
     memorial_person = models.ForeignKey(
         to="contact.Person",
         on_delete=models.PROTECT,
@@ -34,7 +35,7 @@ class Memorial(DrupalFields, Page):
             "memorial_person__given_name",
         )
 
-    def full_name(self):
+    def full_name(self) -> str:
         return (
             f"{ self.memorial_person.given_name } { self.memorial_person.family_name }"
         )
@@ -69,10 +70,10 @@ class MemorialIndexPage(Page):
         "memorials.Memorial",
     ]
 
-    def get_filtered_memorials(self, request):
-        # Check if any query string is available
-        query = request.GET.dict()
-
+    def get_filtered_memorials(
+        self,
+        query: dict,
+    ) -> models.QuerySet[Memorial]:
         # Filter out any facet that isn't a model field
         allowed_keys = [
             "title",
@@ -84,32 +85,32 @@ class MemorialIndexPage(Page):
 
         return Memorial.objects.all().filter(**facets)
 
-    def get_paginated_memorials(self, filtered_memorials, request):
-        items_per_page = 10
-
-        paginator = Paginator(filtered_memorials, items_per_page)
-
-        memorials_page = request.GET.get("page")
-
-        try:
-            paginated_memorials = paginator.page(memorials_page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            paginated_memorials = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            paginated_memorials = paginator.page(paginator.num_pages)
-
-        return paginated_memorials
-
-    def get_context(self, request, *args, **kwargs):
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
         context = super().get_context(request)
 
-        filtered_memorials = self.get_filtered_memorials(request)
+        filtered_memorials = self.get_filtered_memorials(
+            query=request.GET.dict(),
+        )
 
-        paginated_memorials = self.get_paginated_memorials(filtered_memorials, request)
+        items_per_page = 10
+        page_number = request.GET.get("page", "1")
 
-        context["memorials"] = paginated_memorials
+        paginated_memorials = get_paginated_items(
+            items=filtered_memorials,
+            items_per_page=items_per_page,
+            page_number=page_number,
+        )
+
+        # TODO: return this full PaginatorPageWithElidedPageRange object
+        # instead of just the page
+        # and update the template to use the elided_page_range
+        # to render the pagination links
+        context["memorials"] = paginated_memorials.page
 
         # Populate faceted search fields
         context["meetings"] = Meeting.objects.all()

@@ -194,9 +194,10 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
             {
                 "location": self.full_url,
                 "lastmod": self.latest_revision_created_at,
-		        "changefreq":changefreq
+                "changefreq": changefreq,
             },
         ]
+
 
 class MagazineArticleTag(TaggedItemBase):
     content_object = ParentalKey(
@@ -365,11 +366,11 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
             {
                 "location": self.full_url,
                 "lastmod": self.latest_revision_created_at,
-		        "changefreq":changefreq,
-                "priority": 1
+                "changefreq": changefreq,
+                "priority": 1,
             },
         ]
-        
+
     @property
     def is_public_access(self) -> bool:
         """Check whether article should be accessible to all readers or only
