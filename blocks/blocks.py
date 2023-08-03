@@ -133,21 +133,6 @@ class MediaBlock(AbstractMediaChooserBlock):
         )
 
 
-class OrganizationsBlock(wagtail_blocks.StructBlock):
-    def get_context(self, value, parent_context=None):
-        # avoid circular imports
-        from contact.models import Organization
-
-        context = super().get_context(value, parent_context=parent_context)
-
-        context["organizations"] = Organization.objects.all()
-
-        return context
-
-    class Meta:
-        template = "blocks/blocks/organizations_block.html"
-
-
 class PageCardBlock(wagtail_blocks.StructBlock):
     page = wagtail_blocks.PageChooserBlock(required=True)
     text = wagtail_blocks.CharBlock(required=False)
