@@ -143,8 +143,8 @@ class PageCardBlock(wagtail_blocks.StructBlock):
 
 
 class PullQuoteBlock(wagtail_blocks.TextBlock):
-    def render_basic(self, value, context=None):
-        if value:
+    def render_basic(self, value: str, context=None) -> str:
+        if value != "" and value is not None:
             return format_html('<div class="pullquote">{0}</div>', value)
         return ""
 

@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 from django.test import TestCase
 
-from .blocks import MediaBlock
+from .blocks import MediaBlock, PullQuoteBlock
 
 
 class MediaBlockTest(TestCase):
@@ -35,3 +35,28 @@ class MediaBlockTest(TestCase):
 
         # Check that the result matches expectations
         self.assertIn("<audio controls>", result)
+
+
+class TestPullQuoteBlock(TestCase):
+    def setUp(self) -> None:
+        self.block = PullQuoteBlock()
+
+    def test_render_basic_with_value(self) -> None:
+        # Render the block with a value
+        html = self.block.render_basic("This is a pull quote")
+
+        # Assert that the value is correctly wrapped in a div with the class 'pullquote'
+        self.assertEqual(html, '<div class="pullquote">This is a pull quote</div>')
+
+    def test_render_basic_without_value(self) -> None:
+        # Render the block with no value
+        html = self.block.render_basic(None)  # type: ignore
+
+        # Assert that an empty string is returned
+        self.assertEqual(html, "")
+
+        # Also test with an empty string as input
+        html = self.block.render_basic("")
+
+        # Assert that an empty string is returned
+        self.assertEqual(html, "")
