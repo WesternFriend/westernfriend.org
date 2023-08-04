@@ -32,14 +32,14 @@ class MagazineFormatChoices(models.TextChoices):
 
 
 class MagazinePriceGroupChoices(models.TextChoices):
-    NORMAL = "normal", "Normal"
+    BASIC = "basic", "Basic"
     TRUE_COST = "true_cost", "True cost"
     LOW_INCOME = "low_income", "Low income"
     INTERNATIONAL = "international", "International"
 
 
 SUBSCRIPTION_PRICE_COMPONENTS = {
-    "normal": {
+    "basic": {
         "pdf": 30,
         "print": 36,
         "print_and_pdf": 48,
@@ -105,7 +105,7 @@ class Subscription(models.Model):
     price_group = models.CharField(
         max_length=255,
         choices=MagazinePriceGroupChoices.choices,
-        default="normal",
+        default="basic",
     )
     price = models.IntegerField(
         editable=False,

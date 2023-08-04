@@ -29,9 +29,9 @@
 
     <div class="row mb-3">
         <div class="btn-group" role="group" aria-label="Magazine price selection">
-            <input type="radio" class="btn-check" name="price_group" v-model="priceGroup" value="normal" id="normalPrice" autocomplete="off" checked>
-            <label class="btn btn-outline-success" for="normalPrice">
-                Normal ($${ normalComputedPrice })
+            <input type="radio" class="btn-check" name="price_group" v-model="priceGroup" value="basic" id="basicPrice" autocomplete="off" checked>
+            <label class="btn btn-outline-success" for="basicPrice">
+                Basic ($${ basicComputedPrice })
             </label>
 
             <input type="radio" class="btn-check" name="price_group" v-model="priceGroup" value="true_cost" id="trueCostPrice" autocomplete="off" checked>
@@ -147,13 +147,13 @@
             data() {
                 return {
                     magazineFormat: "pdf",
-                    priceGroup: "normal",
+                    priceGroup: "basic",
                     recurringSubscription: false,
                 }
             },
             computed: {
-                normalComputedPrice: function () {
-                    return subscriptionPriceComponents["normal"][this.magazineFormat];
+                basicComputedPrice: function () {
+                    return subscriptionPriceComponents["basic"][this.magazineFormat];
                 },
                 trueCostComputedPrice: function () {
                     return subscriptionPriceComponents["true_cost"][this.magazineFormat];
