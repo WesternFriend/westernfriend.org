@@ -509,7 +509,7 @@ class SubscriptionIndexPageTestCase(TestCase):
             self.subscription_index_page.url,
             data={
                 "magazine_format": "print",
-                "price_group": "normal",
+                "price_group": "basic",
                 "recurring": True,
                 "subscriber_given_name": "John",
                 "subscriber_family_name": "Woolman",

@@ -415,7 +415,7 @@ class MagazineArticleTest(TestCase):
         )
         self.subscription = Subscription.objects.create(
             magazine_format=MagazineFormatChoices.PRINT,
-            price_group=MagazinePriceGroupChoices.NORMAL,
+            price_group=MagazinePriceGroupChoices.BASIC,
             user=self.subscriber_user,
             paid=True,
         )
