@@ -70,6 +70,7 @@ class DonatePage(Page):
     max_count = 1
 
     content_panels = Page.content_panels + [
+        FieldPanel("intro"),
         FieldPanel("suggested_donation_amounts"),
     ]
 
