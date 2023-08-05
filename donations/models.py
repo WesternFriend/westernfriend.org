@@ -153,6 +153,10 @@ class Donation(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
     )
+    comments = models.TextField(
+        help_text="Comments or instructions about your payment.",
+        blank=True,
+    )
     paid = models.BooleanField(default=False)
     braintree_transaction_id = models.CharField(
         max_length=255,
@@ -191,6 +195,7 @@ class Donation(models.Model):
         FieldPanel("donor_organization"),
         FieldPanel("donor_email"),
         FieldPanel("donor_address"),
+        FieldPanel("comments"),
         FieldPanel("paid"),
         FieldPanel(
             "braintree_transaction_id",
