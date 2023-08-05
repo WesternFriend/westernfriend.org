@@ -89,8 +89,10 @@ python manage.py createsuperuser
 
 Run the local server, using `python` or `python3` command depending on your system.
 
+Note: make sure to set the `DJANGO_DEBUG` environment variable to `true`, as follows.
+
 ```sh
-python manage.py runserver
+DJANGO_DEBUG=true python manage.py runserver
 ```
 
 Once the server is running, you can access it from http://localhost:8000
