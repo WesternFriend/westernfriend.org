@@ -2,7 +2,6 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/76ea96b836b6b622c71c/maintainability)](https://codeclimate.com/github/WesternFriend/WF-website/maintainability)
 [![Test Coverage](https://codecov.io/gh/WesternFriend/WF-website/branch/main/graph/badge.svg?token=2GCLOZ9PIE)](https://codecov.io/gh/WesternFriend/WF-website)
-[![DeepSource](https://app.deepsource.com/gh/WesternFriend/WF-website.svg/?label=active+issues&show_trend=true&token=c_pMTKZ7L0V6APJzlHrbytpc)](https://app.deepsource.com/gh/WesternFriend/WF-website/?ref=repository-badge)
 
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue-ghost.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/WesternFriend/WF-website/tree/main)
 
