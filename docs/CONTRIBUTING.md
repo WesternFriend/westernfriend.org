@@ -85,14 +85,22 @@ Create a superuser that will be used to manage website content.
 python manage.py createsuperuser
 ```
 
+### Create a .env file
+
+This project needs a few environment variables to run in development mode. Create a `.env` file in the project root with at least the following.
+
+```sh
+DJANGO_DEBUG=true
+```
+
 ### Run the server
 
 Run the local server, using `python` or `python3` command depending on your system.
 
-Note: make sure to set the `DJANGO_DEBUG` environment variable to `true`, as follows.
+Note: make sure to set the `DJANGO_DEBUG` environment variable to `true`, such as by creating a `.env` file.
 
 ```sh
-DJANGO_DEBUG=true python manage.py runserver
+python manage.py runserver
 ```
 
 Once the server is running, you can access it from http://localhost:8000
