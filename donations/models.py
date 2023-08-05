@@ -70,6 +70,7 @@ class DonatePage(Page):
     max_count = 1
 
     content_panels = Page.content_panels + [
+        FieldPanel("intro"),
         FieldPanel("suggested_donation_amounts"),
     ]
 
@@ -152,6 +153,10 @@ class Donation(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
     )
+    comments = models.TextField(
+        help_text="Comments or instructions about your payment.",
+        blank=True,
+    )
     paid = models.BooleanField(default=False)
     braintree_transaction_id = models.CharField(
         max_length=255,
@@ -190,10 +195,14 @@ class Donation(models.Model):
         FieldPanel("donor_organization"),
         FieldPanel("donor_email"),
         FieldPanel("donor_address"),
+        FieldPanel("comments"),
         FieldPanel("paid"),
-        # TODO: mark this as read_only=True
-        FieldPanel("braintree_transaction_id"),
-        # TODO: after Wagtail 5.1 upgrade,
-        # mark this as read_only=True
-        FieldPanel("braintree_subscription_id"),
+        FieldPanel(
+            "braintree_transaction_id",
+            read_only=True,
+        ),
+        FieldPanel(
+            "braintree_subscription_id",
+            read_only=True,
+        ),
     ]

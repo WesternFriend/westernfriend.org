@@ -2,7 +2,6 @@ import datetime
 from datetime import timedelta
 
 from django.core.paginator import Paginator
-from django.core.paginator import Page as PaginatorPage
 from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpRequest
@@ -32,6 +31,7 @@ from blocks.blocks import (
 )
 from common.models import DrupalFields
 from documents.blocks import DocumentEmbedBlock
+from pagination.helpers import get_paginated_items
 
 from .panels import NestedInlinePanel
 
@@ -577,27 +577,6 @@ class DeepArchiveIndexPage(Page):
 
         return ArchiveIssue.objects.all().filter(**facets)
 
-    def get_paginated_archive_issues(
-        self,
-        archive_issues_page: str | None,
-        archive_issues: QuerySet[ArchiveIssue],
-    ) -> PaginatorPage:
-        items_per_page = 9
-
-        paginator = Paginator(archive_issues, items_per_page)
-
-        # Make sure page is numeric and less than or equal to the total pages
-        if (
-            archive_issues_page
-            and archive_issues_page.isdigit()
-            and int(archive_issues_page) <= paginator.num_pages
-        ):
-            paginator_page_number = int(archive_issues_page)
-        else:
-            paginator_page_number = 1
-
-        return paginator.page(paginator_page_number)
-
     def get_context(
         self,
         request: HttpRequest,
@@ -612,14 +591,15 @@ class DeepArchiveIndexPage(Page):
             query=query,  # type: ignore[arg-type]
         )
 
-        page = request.GET.get("page")
+        page = request.GET.get("page", "1")
 
-        paginated_archive_issues = self.get_paginated_archive_issues(
-            archive_issues_page=page,
-            archive_issues=archive_issues,
+        paginated_archive_issues = get_paginated_items(
+            items=archive_issues,
+            items_per_page=12,
+            page_number=page,
         )
 
-        context["archive_issues"] = paginated_archive_issues
+        context["archive_issues"] = paginated_archive_issues.page
 
         # Add publication years to context, for select menu
         context["publication_years"] = self.get_publication_years()
