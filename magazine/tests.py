@@ -595,7 +595,7 @@ class DeepArchiveIndexPageTest(TestCase):
         self.deep_archive_index = DeepArchiveIndexPage(title="Deep Archive Index")
         self.magazine_index.add_child(instance=self.deep_archive_index)
 
-        self.publication_years = list(range(1920, 1930))
+        self.publication_years = list(range(1920, 1970))
 
         self.archive_issues = []
 
@@ -615,7 +615,7 @@ class DeepArchiveIndexPageTest(TestCase):
         # Call the get_context method
         context = self.deep_archive_index.get_context(request)
 
-        archive_items_per_page = 9
+        archive_items_per_page = 12
 
         # Check that the context includes the archive issues
         self.assertQuerySetEqual(  # type: ignore
@@ -638,12 +638,24 @@ class DeepArchiveIndexPageTest(TestCase):
         # Call the get_context method
         context = self.deep_archive_index.get_context(request)
 
-        archive_items_per_page = 9
+        archive_items_per_page = 12
 
-        # Check that the context includes the archive issues
-        self.assertQuerySetEqual(  # type: ignore
+        self.assertEqual(
+            len(list(context["archive_issues"])),
+            archive_items_per_page,
+        )
+
+        # Calculate the start and end indices for slicing the archive issues list
+        start_index = archive_items_per_page
+        end_index = archive_items_per_page * 2
+
+        # Extract the items that should be on the second page
+        expected_issues = self.archive_issues[start_index:end_index]
+
+        # Now we're not just checking the length, but also the actual issues
+        self.assertQuerySetEqual(
             context["archive_issues"],
-            self.archive_issues[archive_items_per_page:],
+            expected_issues,
             transform=lambda x: x,  # Transform the objects to compare them directly
             ordered=False,  # The order of the results is not important
         )
