@@ -95,7 +95,8 @@ class Command(BaseCommand):
             show_in_menus=True,
         )
         donate_page = DonatePage(
-            title="Donate",
+            title="Donate/Pay",
+            intro="Intro text goes here.",
             show_in_menus=True,
         )
         events_page = EventsIndexPage(
@@ -439,7 +440,7 @@ class Command(BaseCommand):
                     (
                         "page",
                         {
-                            "title": "Donate",
+                            "title": "Donate / Pay",
                             "page": donate_page,
                         },
                     ),
