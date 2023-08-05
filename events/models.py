@@ -1,6 +1,5 @@
-from datetime import date
-
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.utils import timezone
 from django.db import models
 from django.db.models import Q
 from django.http import Http404, HttpRequest
@@ -143,7 +142,7 @@ class EventsIndexPage(Page):
         upcoming_events = (
             Event.objects.all()
             .filter(
-                Q(start_date__gt=date.today()),
+                Q(start_date__gt=timezone.now()),
                 Q(category=filter_category),
             )
             .order_by("start_date")
