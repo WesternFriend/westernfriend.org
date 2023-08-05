@@ -582,7 +582,7 @@ class DeepArchiveIndexPage(Page):
         archive_issues_page: str | None,
         archive_issues: QuerySet[ArchiveIssue],
     ) -> PaginatorPage:
-        items_per_page = 9
+        items_per_page = 12
 
         paginator = Paginator(archive_issues, items_per_page)
 
