@@ -18,27 +18,47 @@
 
     {% if events %}
         {% for event in events %}
-
             <div class="card mb-2">
                 <div class="card-body">
-                    <p class="card-title font-weight-bold">
-                        {{ event.title }} -
-                        <span>{{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }} US/Pacific</span>
-                    </p>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h2 class="card-title">
+                                    {{ event.title }}
+                                </h2>
+                                {% if event.teaser %}
+                                    <p class="card-text">
+                                        {{ event.teaser }}
+                                    </p>
+                                {% endif %}
 
-                    {% if event.teaser %}
-                        <p class="card-text">
-                            {{ event.teaser }}
-                        </p>
-                    {% endif %}
+                                {% if event.sponsors %}
+                                    <p><span class="fw-bold">Hosted/sponsored by:</span>
+                                        {% for sponsor in event.sponsors.all %}
+                                            {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
+                                        {% endfor %}
+                                    </p>
+                                {% endif %}
 
-                    <a href="{% pageurl event %}" class="btn btn-outline-primary btn-sm stretched-link">
-                        <i class="bi bi-info-circle" aria-hidden="true"></i>
-                        View details
-                    </a>
+                                <p>
+                                    <span class="fw-bold">Date:</span> {{ event.start_date | timezone:"US/Pacific" | date:"F d, Y" }}
+                                    &nbsp;&nbsp;&nbsp;
+                                    <span class="fw-bold">Time:</span> {{ event.start_date | timezone:"US/Pacific" | date:"f A" }} US/Pacific
+                                </p>
+                            </div>
+
+                            <div class="col-md-2">
+                                <a href="{% pageurl event %}" class="btn btn-outline-primary btn-sm stretched-link mt-3">
+                                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                                    View details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         {% endfor %}
+
 
         <div class="step-links ms-3 mt-1 text-center">
             {% if events.has_previous %}
