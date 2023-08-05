@@ -192,9 +192,12 @@ class Donation(models.Model):
         FieldPanel("donor_email"),
         FieldPanel("donor_address"),
         FieldPanel("paid"),
-        # TODO: mark this as read_only=True
-        FieldPanel("braintree_transaction_id"),
-        # TODO: after Wagtail 5.1 upgrade,
-        # mark this as read_only=True
-        FieldPanel("braintree_subscription_id"),
+        FieldPanel(
+            "braintree_transaction_id",
+            read_only=True,
+        ),
+        FieldPanel(
+            "braintree_subscription_id",
+            read_only=True,
+        ),
     ]
