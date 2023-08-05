@@ -174,7 +174,7 @@ class Command(BaseCommand):
             title="Tags",
         )
         deep_archive_index_page = DeepArchiveIndexPage(
-            title="Archive",
+            title="Deep Archive",
         )
 
         magazine_index_page.add_child(instance=magazine_department_index_page)
