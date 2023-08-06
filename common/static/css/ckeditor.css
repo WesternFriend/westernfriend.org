@@ -6,27 +6,36 @@
 .rteindent2 {
   margin-left: 80px;
 }
+
+/* Expected empty line before rule (rule-empty-line-before) */
 .rteindent3 {
   margin-left: 120px;
 }
+
 .rteindent4 {
   margin-left: 160px;
 }
+
 .rteleft {
   text-align: left;
 }
+
 .rteright {
   text-align: right;
 }
+
 .rtecenter {
   text-align: center;
 }
+
 .rtejustify {
   text-align: justify;
 }
+
 .ibimage_left {
   float: left;
 }
+
 .ibimage_right {
   float: right;
 }
