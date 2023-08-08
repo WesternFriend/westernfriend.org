@@ -1,8 +1,8 @@
 version: "3.5"
 
 services:
-  postgres:
-    container_name: wf_postgres
+  wf_postgres_service:
+    container_name: wf_postgres_container
     image: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -10,14 +10,14 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-wf_website}
       PGDATA: /data/postgres
     volumes:
-      - postgres:/data/postgres
+      - wf_postgres_volume:/data/postgres
     ports:
       - "5432:5432"
     networks:
-      - postgres
+      - wf_network
 
-  pgadmin:
-    container_name: wf_pgadmin
+  wf_pgadmin_service:
+    container_name: wf_pgadmin_container
     image: dpage/pgadmin4:latest
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
@@ -25,17 +25,17 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: "False"
       PGADMIN_LISTEN_PORT: ${PGADMIN_PORT:-5050}
     volumes:
-      - pgadmin:/var/lib/pgadmin
+      - wf_pgadmin_volume:/var/lib/pgadmin
       - ${PWD}/pgadmin_dev_servers.json:/pgadmin4/servers.json
     ports:
       - "${PGADMIN_PORT:-5050}:5050"
     networks:
-      - postgres
+      - wf_network
 
 networks:
-  postgres:
+  wf_network:
     driver: bridge
 
 volumes:
-  postgres:
-  pgadmin:
+  wf_postgres_volume:
+  wf_pgadmin_volume:

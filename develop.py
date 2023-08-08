@@ -24,7 +24,7 @@ COMMANDS = [
         alias="start-db",
         help_text="Start the database",
         commands_list=[
-            "colima start && docker-compose up -d",
+            "docker-compose up -d wf_postgres_service",
         ],
     ),
     Command(
