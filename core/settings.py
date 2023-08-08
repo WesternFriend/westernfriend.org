@@ -75,7 +75,7 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console", "file"],
-        "level": "DEBUG",
+        "level": "WARNING",
     },
     "loggers": {
         "django": {
