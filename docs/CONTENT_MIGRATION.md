@@ -10,9 +10,6 @@ Note: if the import process fails for any reason, run the following commands
 
 - [Content migration](#content-migration)
   - [Order matters](#order-matters)
-  - [Pre-processing](#pre-processing)
-    - [Magazine Authors -\> Contacts](#magazine-authors---contacts)
-    - [Library Item Authors -\> Contacts](#library-item-authors---contacts)
   - [CiviCRM -\> Contacts, relationships, and clerks](#civicrm---contacts-relationships-and-clerks)
     - [Organizations (incl. meetings and worship groups)](#organizations-incl-meetings-and-worship-groups)
     - [Addresses](#addresses)
@@ -56,36 +53,6 @@ The migration data can be kept in a remote or local folder. In the case of a rem
 ```sh
 python manage.py download_migration_data <http://url-to-data>
 ```
-
-## Pre-processing
-
-Some data must be pre-processed and manually cleaned prior to import.
-
-### Magazine Authors -> Contacts
-
-Magazine Authors are stored as a Drupal taxonomy, with only a `drupal_full_name` field for people, meetings, and organizations.
-
-We must pre-process the Magazine Authors as follows.
-
-1. use a script to separate the author names into `given_name` and `family_names` fields
-2. manually review the authors to ensure the names were split correctly
-3. identify meetings and organizations by filling in a `meeting_name` and `organization_name` respectively in the final spreadsheet
-
-To preserve work, subsequent iterations should be processed as follows.
-
-1. use a script to separate the author names into `given_name` and `family_name` fields
-2. use a script to merge only **new** authors into the existing spreadsheet by ignoring existing `drupal_author_id`s
-3. manually review the authors to ensure the names were split correctly
-4. identify meetings and organizations by filling in a `meeting_name` and `organization_name` respectively in the final spreadsheet
-
-### Library Item Authors -> Contacts
-
-Library Item authors have only a `drupal_full_name` field. They should be processed and merged into the Contacts as follows.
-
-1. use a script to separate the author names into `given_name` and `family_name` fields
-2. use a script to merge only **new** authors into the existing spreadsheet by ignoring existing `drupal_author_id`s
-3. manually review the authors to ensure the names were split correctly
-4. identify meetings and organizations by filling in a `meeting_name` and `organization_name` respectively in the final spreadsheet
 
 ## CiviCRM -> Contacts, relationships, and clerks
 
@@ -144,20 +111,10 @@ The magazine is one of the most complicated features of this project. As such, i
 
 The Magazine data can be exported from the following URLs.
 
-- Authors: `/export/magazine_authors_uncleaned.csv`
+- Authors: `/export/magazine_authors.csv`
 - Departments: `/export/magazine_departments.csv`
 - Issues: `/export/magazine_issues.csv`
 - Articles: `/export/magazine_articles.csv`
-
-### Clean
-
-The Magazine Authors' data needs to be cleaned prior to import so
-
-- author names can be separated correctly into given and family names
-  - automatic separation by `parse_magazine_authors.py` in `content_migration` app merged carefully into an online spreadsheet to avoid loss of previous manual work
-  - manual review and cleaning by Mary via an online spreadsheet
-- organizations can be categorized
-- organizations with overlapping CiviCRM IDs can be identified
 
 ### Import
 

@@ -7,7 +7,7 @@ WESTERN_FRIEND_LOGO_URL = "https://westernfriend.org/sites/default/files/logo-20
 WESTERN_FRIEND_LOGO_FILE_NAME = "logo-2020-%20transparency-120px_0.png"
 
 # Although the keys are a bit redundant,
-# they are used in a east one import script
+# they are used in at least one import script
 # to get references to specific file names.
 # The value is the file name to download and parse.
 IMPORT_FILENAMES = {
