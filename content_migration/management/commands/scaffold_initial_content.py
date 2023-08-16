@@ -463,11 +463,22 @@ class Command(BaseCommand):
             ("drop_down", events_dropdown),
             ("drop_down", subscribe_donate_dropdown),
         ]
-        navigation_menu = NavigationMenuSetting(
-            menu_items=navigation_items,
-            site_id=site.id,
-        )
+        navigation_menu = _get_or_create_navigation_menu_setting()
+
+        navigation_menu.menu_items = navigation_items
 
         navigation_menu.save()
 
         self.stdout.write("All done!")
+
+
+def _get_or_create_navigation_menu_setting() -> NavigationMenuSetting:
+    site = Site.objects.get(id=1)
+    try:
+        navigation_menu = NavigationMenuSetting.objects.get(site_id=site.id)
+    except NavigationMenuSetting.DoesNotExist:
+        navigation_menu = NavigationMenuSetting(
+            site_id=site.id,
+        )
+        navigation_menu.save()
+    return navigation_menu
