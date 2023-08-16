@@ -241,7 +241,7 @@ WSGI_APPLICATION = "core.wsgi.application"
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-NOT_COLLECTING_STATICFILES = len(sys.argv) > 0 and sys.argv[1] != "collectstatic"
+NOT_COLLECTING_STATICFILES = len(sys.argv) > 1 and sys.argv[1] != "collectstatic"
 
 if DATABASE_URL:
     DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
