@@ -44,7 +44,7 @@ def handle_import_magazine_issues(file_name: str) -> None:
             image.save()
 
             publication_date_tz_aware = make_aware(
-                datetime.strptime(issue["publication_date"], "%Y-%m"),
+                datetime.strptime(issue["publication_date"], "%Y-%m-%d"),
             )
 
             import_issue = MagazineIssue(
