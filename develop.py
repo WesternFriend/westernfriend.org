@@ -43,6 +43,13 @@ COMMANDS = [
         ],
     ),
     Command(
+        alias="scaffold-db",
+        help_text="Scaffold initial database content",
+        commands_list=[
+            "python manage.py scaffold_initial_content",
+        ],
+    ),
+    Command(
         alias="install",
         help_text="Install project dependencies",
         commands_list=[
