@@ -28,6 +28,28 @@ COMMANDS = [
         ],
     ),
     Command(
+        alias="stop-db",
+        help_text="Stop the database",
+        commands_list=[
+            "docker-compose stop wf_postgres_service",
+        ],
+    ),
+    Command(
+        alias="reset-db",
+        help_text="Reset the database",
+        commands_list=[
+            "python manage.py reset_db --noinput -c",
+            "python manage.py migrate",
+        ],
+    ),
+    Command(
+        alias="scaffold-db",
+        help_text="Scaffold initial database content",
+        commands_list=[
+            "python manage.py scaffold_initial_content",
+        ],
+    ),
+    Command(
         alias="install",
         help_text="Install project dependencies",
         commands_list=[

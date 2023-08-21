@@ -93,17 +93,17 @@ def handle_import_library_items(file_name: str) -> None:
         unit="row",
     ):
         library_item_exists = LibraryItem.objects.filter(
-            drupal_node_id=import_library_item["node_id"],
+            drupal_node_id=import_library_item["drupal_node_id"],
         ).exists()
 
         if library_item_exists:
             library_item = LibraryItem.objects.get(
-                drupal_node_id=import_library_item["node_id"],
+                drupal_node_id=import_library_item["drupal_node_id"],
             )
         else:
             library_item = LibraryItem(
                 title=import_library_item["title"],
-                drupal_node_id=import_library_item["node_id"],
+                drupal_node_id=import_library_item["drupal_node_id"],
             )
 
             # Add library item to library branch of content tree
@@ -112,72 +112,72 @@ def handle_import_library_items(file_name: str) -> None:
             library_item_index_page.save()
 
         library_item.title = import_library_item["title"]
-        library_item.body = parse_body_blocks(import_library_item["Description"])
+        library_item.body = parse_body_blocks(import_library_item["description"])
 
         library_item.body += parse_media_blocks(
-            parse_media_string_to_list(import_library_item["Media"]),
+            parse_media_string_to_list(import_library_item["media"]),
         )
 
         # # Facets
-        if import_library_item["Audience"] != "":
+        if import_library_item["audience"] != "":
             try:
                 library_item.item_audience = Audience.objects.get(
-                    title=import_library_item["Audience"],
+                    title=import_library_item["audience"],
                 )
             except Audience.DoesNotExist:
                 logger.error(
-                    f"Could not find audience by title: { import_library_item['Audience'] }",  # noqa: E501
+                    f"Could not find audience by title: { import_library_item['audience'] }",  # noqa: E501
                 )
 
-        if import_library_item["Genre"] != "":
+        if import_library_item["genre"] != "":
             try:
                 library_item.item_genre = Genre.objects.get(
-                    title=import_library_item["Genre"],
+                    title=import_library_item["genre"],
                 )
             except Genre.DoesNotExist:
                 logger.error(
-                    f"Could not find genre by title: { import_library_item['Genre'] }",
+                    f"Could not find genre by title: { import_library_item['genre'] }",
                 )
 
-        if import_library_item["Medium"] != "":
+        if import_library_item["medium"] != "":
             try:
                 library_item.item_medium = Medium.objects.get(
-                    title=import_library_item["Medium"],
+                    title=import_library_item["medium"],
                 )
             except Medium.DoesNotExist:
                 logger.error(
-                    f"Could not find medium by title: { import_library_item['Medium'] }",  # noqa: E501
+                    f"Could not find medium by title: { import_library_item['medium'] }",  # noqa: E501
                 )
 
-        if import_library_item["Time Period"] != "":
+        if import_library_item["time_period"] != "":
             try:
                 library_item.item_time_period = TimePeriod.objects.get(
-                    title=import_library_item["Time Period"],
+                    title=import_library_item["time_period"],
                 )
             except TimePeriod.DoesNotExist:
                 logger.error(
-                    f"Could not find time period by title: { import_library_item['Time Period'] }",  # noqa: E501
+                    f"Could not find time period by title: { import_library_item['time_period'] }",  # noqa: E501
                 )
 
-        # # Authors
+        # Authors
         if import_library_item["drupal_magazine_author_ids"] != "":
             add_library_item_authors(
                 library_item,
                 import_library_item["drupal_magazine_author_ids"],
             )
 
-        # # Keywords
-        if import_library_item["Keywords"] != "":
+        # Keywords
+        if import_library_item["keywords"] != "":
             add_library_item_keywords(
                 library_item,
-                import_library_item["Keywords"],
+                import_library_item["keywords"],
             )
 
-        # # Website
-        if import_library_item["Website"] != "":
+        # Website
+        if import_library_item["website"] != "":
             url_stream_block = (
                 "url",
-                import_library_item["Website"],
+                import_library_item["website"],
             )
 
             # TODO: Remember to remove this type ignore and make this line safer

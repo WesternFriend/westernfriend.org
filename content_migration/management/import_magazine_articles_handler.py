@@ -136,21 +136,21 @@ def handle_import_magazine_articles(file_name: str) -> None:
         unit="row",
     ):
         article_exists = MagazineArticle.objects.filter(
-            drupal_node_id=row["node_id"],
+            drupal_node_id=row["drupal_node_id"],
         ).exists()
 
         # Skip import for existing articles
         if article_exists:
             # get existing article
             article = MagazineArticle.objects.get(
-                drupal_node_id=row["node_id"],
+                drupal_node_id=row["drupal_node_id"],
             )
         else:
             # create a new article instance
             article = MagazineArticle()
 
         article.title = row["title"]
-        article.drupal_node_id = row["node_id"]
+        article.drupal_node_id = row["drupal_node_id"]
         article.is_featured = row["is_featured"] == "True"
 
         article.department = MagazineDepartment.objects.get(
