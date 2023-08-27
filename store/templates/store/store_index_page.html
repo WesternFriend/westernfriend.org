@@ -6,40 +6,69 @@
     <h1>{{ page.title }}</h1>
     {{ page.intro | richtext }}
 
-    {% if products.count %}
-        {% for product in products.all %}
-            <div class="card mb-2">
-                <div class="card-body">
-                    <h2>
-                        <a href="{% pageurl product %}">
-                            {{ product }}
-                        </a>
-                    </h2>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-2">
-                                {% image product.image max-150x150 class="float-left me-2" %}
-                            </div>
-                            <div class="col">
-                                {{ product.description | richtext | truncatewords_html:30 }}
-                            </div>
+<!-- Group and Sort Books by is_feautered -->
+    {% regroup products by is_featured as grouped_products %}
 
+<!-- Display featured Books -->
+    {% for is_featured in grouped_products %}
+        {% if is_featured.grouper %}
+            {% for product in is_featured.list|dictsort:"title" %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h2>
+                            <a href="{% pageurl product %}">
+                                {{ product.title }}
+                            </a>
+                        </h2>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-2">
+                                    {% image product.image max-150x150 class="float-left me-2" %}
+                                </div>
+                                <div class="col">
+                                    {{ product.description | richtext | truncatewords_html:30 }}
+                                </div>
+                            </div>
                         </div>
+                        <p>
+                            Price ${{ product.price }}
+                        </p>
+                        {% include "store/add_to_cart.html" %}
                     </div>
-
-
-
-
-
-                    <p>
-                        Price ${{ product.price }}
-                    </p>
-
-                    {% include "store/add_to_cart.html" %}
                 </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No products available</p>
-    {% endif %}
-{% endblock %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+<!-- Display non-featured Books -->
+    {% for is_featured in grouped_products %}
+        {% if not is_featured.grouper %}
+            {% for product in is_featured.list|dictsort:"title" %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h2>
+                            <a href="{% pageurl product %}">
+                                {{ product.title }}
+                            </a>
+                        </h2>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-2">
+                                    {% image product.image max-150x150 class="float-left me-2" %}
+                                </div>
+                                <div class="col">
+                                    {{ product.description | richtext | truncatewords_html:30 }}
+                                </div>
+                            </div>
+                        </div>
+                        <p>
+                            Price ${{ product.price }}
+                        </p>
+                        {% include "store/add_to_cart.html" %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+{% endblock%}
