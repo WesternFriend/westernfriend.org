@@ -10,7 +10,7 @@ from content_migration.management.shared import (
 from events.models import Event, EventsIndexPage
 
 # Event dates are in ISO 8601 format
-date_format = "%Y-%m-%dT%H:%M:%S%z"
+date_format = "%Y-%m-%dT%H:%M%z"
 
 
 def handle_import_events(file_name: str) -> None:
@@ -26,8 +26,10 @@ def handle_import_events(file_name: str) -> None:
         event_body_blocks.append(rich_text_block)
 
         # Convert event date strings into Python dates
-        start_date = datetime.strptime(event["start_date"], date_format)
-        end_date = datetime.strptime(event["end_date"], date_format)
+        # since the PHP date strings have an extra space and timezone offset at the end
+        # we need to trim the last 7 characters off the string
+        start_date = datetime.strptime(event["start_date"][:-7], date_format)
+        end_date = datetime.strptime(event["end_date"][:-7], date_format)
 
         event_exists = Event.objects.filter(
             drupal_node_id=event["drupal_node_id"],
