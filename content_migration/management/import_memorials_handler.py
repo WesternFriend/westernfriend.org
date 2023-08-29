@@ -34,24 +34,24 @@ def handle_import_memorials(file_name: str) -> None:
     for memorial_data in tqdm(memorials, desc="Memorials", unit="row"):
         memorial_exists = Memorial.objects.filter(
             drupal_memorial_id=int(
-                memorial_data["memorial_id"],
+                memorial_data["node_id"],
             ),
         ).exists()
 
         if memorial_exists:
             memorial = Memorial.objects.get(
                 drupal_memorial_id=int(
-                    memorial_data["memorial_id"],
+                    memorial_data["node_id"],
                 ),
             )
         else:
             memorial = Memorial(
                 drupal_memorial_id=int(
-                    memorial_data["memorial_id"],
+                    memorial_data["node_id"],
                 ),
             )
 
-        full_name = f'{memorial_data["First Name"]} {memorial_data["Last Name"]}'
+        full_name = f'{memorial_data["first_name"]} {memorial_data["last_name"]}'
 
         # Make sure we can find the related Meeting contact
         # otherwise, we can't link the memorial ot a meeting
@@ -105,19 +105,19 @@ def handle_import_memorials(file_name: str) -> None:
         datetime_format = "%Y-%m-%dT%X"
 
         # Dates are optional
-        if memorial_data["Date of Birth"] != "":
+        if memorial_data["date_of_birth"] != "":
             memorial.date_of_birth = datetime.strptime(
-                memorial_data["Date of Birth"],
+                memorial_data["date_of_birth"],
                 datetime_format,
             )
 
-        if memorial_data["Date of Death"] != "":
+        if memorial_data["date_of_death"] != "":
             memorial.date_of_death = datetime.strptime(
-                memorial_data["Date of Death"],
+                memorial_data["date_of_death"],
                 datetime_format,
             )
 
-        if memorial_data["Dates are approximate"] != "":
+        if memorial_data["dates_are_approximate"] != "":
             memorial.dates_are_approximate = True
 
         if not memorial_exists:
