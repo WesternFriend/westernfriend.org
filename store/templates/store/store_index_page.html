@@ -7,12 +7,12 @@
     {{ page.intro | richtext }}
 
 <!-- Group and Sort Books by is_feautered -->
-    {% regroup products by is_featured as grouped_products %}
+    {% regroup products|dictsort:"title" by is_featured as grouped_products %}
 
 <!-- Display featured Books -->
     {% for is_featured in grouped_products %}
         {% if is_featured.grouper %}
-            {% for product in is_featured.list|dictsort:"title" %}
+            {% for product in is_featured.list %}
                 <div class="card mb-2">
                     <div class="card-body">
                         <h2>
@@ -38,12 +38,10 @@
                 </div>
             {% endfor %}
         {% endif %}
-    {% endfor %}
 
 <!-- Display non-featured Books -->
-    {% for is_featured in grouped_products %}
         {% if not is_featured.grouper %}
-            {% for product in is_featured.list|dictsort:"title" %}
+            {% for product in is_featured.list %}
                 <div class="card mb-2">
                     <div class="card-body">
                         <h2>
