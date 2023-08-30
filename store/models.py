@@ -52,14 +52,13 @@ class Product(DrupalFields, Page):  # type: ignore
         "wagtailimages.Image",
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,  # note, mEnlivened by The Mystery: Quakers and Godaking
-        # this required will break the tests
+        blank=True,  # note, making this required will break the tests
         related_name="+",
     )
     description = RichTextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available = models.BooleanField(default=True)
-    is_featured = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False, null=True, blank=True)
 
     parent_page_types = ["store.ProductIndexPage"]
     subpage_types: list[str] = []
