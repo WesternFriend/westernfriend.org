@@ -101,7 +101,21 @@ python manage.py import_civicrm_relationships
 
 ### Clerk relationships
 
-TODO
+1. Visit the CiviCRM [Relationships Report](https://westernfriend.org/civicrm/report/instance/5)
+2. Click the "Filters" tab and
+3. Select the following value for Contact Type A
+   - Individual
+4. Select the following values for Contact Type B
+   - Yearly Meeting
+   - Quarterly/Regional Meeting
+   - Monthly Meeting
+   - Worship Group
+5. Select the relationship type "Is Presiding Clerk(s) of"
+6. Select relationship status to Active
+7. Click "View results"
+8. Click "Actions" -> "Export as CSV"
+9. Name the file "CiviCRM_clerk_relationships.csv"
+10. Open the file in LibreOffice and save it again as a CSV to fix the character encoding
 
 ## Magazine
 
