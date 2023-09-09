@@ -149,6 +149,11 @@ class FileBytesWithMimeType:
     content_type: str
 
 
+logging.basicConfig(
+    filename="import_shared.log",
+    level=logging.ERROR,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
