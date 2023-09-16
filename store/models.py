@@ -79,6 +79,8 @@ class Product(DrupalFields, Page):  # type: ignore
     ) -> dict:
         context = super().get_context(request)
 
+        context["cart_add_product_form"] = CartAddProductForm()
+
         return context
 
 
