@@ -17,6 +17,7 @@ from wagtail.contrib.redirects.models import Redirect
 from wagtail.documents.models import Document
 from wagtail.embeds.embeds import get_embed
 from wagtail.embeds.models import Embed
+from wagtail.embeds.exceptions import EmbedNotFoundException
 from wagtail.images.models import Image
 from wagtail.models import Page
 from wagtail.rich_text import RichText
@@ -149,6 +150,11 @@ class FileBytesWithMimeType:
     content_type: str
 
 
+logging.basicConfig(
+    filename="import_shared.log",
+    level=logging.ERROR,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -502,7 +508,11 @@ def create_media_embed_block(url: str) -> tuple[str, Embed]:
     """Create a media embed block from a URL
     Returns a tuple of the form: ("embed", embed)"""
     # TODO: add unit test, once database issues are sorted out
-    embed: Embed = get_embed(url)
+    try:
+        embed: Embed = get_embed(url)
+    except EmbedNotFoundException:
+        logger.error(f"Could not embed: { url }")
+        raise
 
     embed_block = ("embed", embed)
 
@@ -680,7 +690,11 @@ def parse_media_blocks(media_urls: list[str]) -> list[tuple]:
         domain = urlparse(url).netloc
 
         if domain in MEDIA_EMBED_DOMAINS:
-            embed_block = create_media_embed_block(url)
+            try:
+                embed_block = create_media_embed_block(url)
+            except EmbedNotFoundException:
+                continue
+
             media_blocks.append(embed_block)
         else:
             # The default should be to fetch a

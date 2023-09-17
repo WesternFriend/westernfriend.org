@@ -17,7 +17,7 @@ from magazine.models import ArchiveArticle, ArchiveArticleAuthor, ArchiveIssue
 
 logging.basicConfig(
     filename="import_archive_articles.log",
-    level=logging.DEBUG,
+    level=logging.ERROR,
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 logger = logging.getLogger(__name__)

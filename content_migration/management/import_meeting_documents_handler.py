@@ -1,5 +1,3 @@
-from django.core.exceptions import ValidationError
-
 from tqdm import tqdm
 
 from contact.models import Meeting
@@ -95,19 +93,8 @@ def handle_import_meeting_documents(file_name: str) -> None:
 
             # Add the document to the index page
             # catch a Validation Error if the category is null
-            try:
-                meeting_documents_index.add_child(instance=meeting_document)
-            except ValidationError:
-                print(
-                    "Validation Error for: ",
-                    document_data["title"],
-                    " with category: ",
-                    document_data["board_document_category"],
-                )
 
-                # Continue to the next document,
-                # since we can't add a document to the index page without a category
-                continue
+            meeting_documents_index.add_child(instance=meeting_document)
 
             # create a Wagtail redirect from the old url to the new one
             create_permanent_redirect(
