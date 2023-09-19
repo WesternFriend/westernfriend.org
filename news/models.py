@@ -61,10 +61,11 @@ class NewsIndexPage(Page):
 
         # Filter live (not draft) news items
         # and items from selected year
+        # reverse chronological order
         context["news_items"] = (
             NewsItem.objects.live()
             .filter(publication_date__year=context["selected_year"])
-            .order_by("publication_date")
+            .order_by("-publication_date")
         )
 
         return context
