@@ -31,7 +31,7 @@ class StoreIndexPage(Page):
     ) -> dict:
         context = super().get_context(request)
 
-        context["products"] = Product.objects.all()
+        context["products"] = Product.objects.all().order_by("-is_featured", "title")
         context["cart_add_product_form"] = CartAddProductForm()
 
         return context
@@ -58,6 +58,7 @@ class Product(DrupalFields, Page):  # type: ignore
     description = RichTextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
 
     parent_page_types = ["store.ProductIndexPage"]
     subpage_types: list[str] = []
@@ -66,6 +67,7 @@ class Product(DrupalFields, Page):  # type: ignore
         FieldPanel("description", classname="full"),
         FieldPanel("price"),
         FieldPanel("available"),
+        FieldPanel("is_featured"),
         FieldPanel("image"),
     ]
 
