@@ -262,7 +262,7 @@ class LibraryIndexPage(Page):
         )
 
         # Filter live (not draft) library items using facets from request
-        library_items = LibraryItem.objects.live().filter(
+        library_items = LibraryItem.objects.live().filter(  # type: ignore
             **facets,
         )
         page_number = request.GET.get("page", "1")
