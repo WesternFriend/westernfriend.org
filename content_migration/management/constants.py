@@ -1,5 +1,5 @@
-DEFAULT_IMAGE_WIDTH = 350
-DEFAULT_IMAGE_ALIGN = None
+DEFAULT_IMAGE_WIDTH: int = 350
+DEFAULT_IMAGE_ALIGN: str | None = None
 
 LOCAL_MIGRATION_DATA_DIRECTORY = "migration_data/"
 SITE_BASE_URL = "https://westernfriend.org/"
