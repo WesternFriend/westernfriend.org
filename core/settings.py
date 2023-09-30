@@ -114,7 +114,11 @@ CART_SESSION_ID = "cart"
 
 # Braintree settings
 BRAINTREE_ENVIRONMENT = os.getenv("BRAINTREE_ENVIRONMENT", "sandbox")
-braintree_env = BraintreeEnvironment.Production if BRAINTREE_ENVIRONMENT == "production" else BraintreeEnvironment.Sandbox  # noqa: E501 
+braintree_env = (
+    BraintreeEnvironment.Production
+    if BRAINTREE_ENVIRONMENT == "production"
+    else BraintreeEnvironment.Sandbox
+)  # noqa: E501
 
 BRAINTREE_MERCHANT_ID = os.getenv("BRAINTREE_MERCHANT_ID")
 BRAINTREE_PUBLIC_KEY = os.getenv("BRAINTREE_PUBLIC_KEY")
