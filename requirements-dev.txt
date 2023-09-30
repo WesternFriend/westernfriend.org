@@ -12,9 +12,9 @@ beautifulsoup4==4.11.2
     # via wagtail
 black==23.9.1
     # via Western-Friend-website (pyproject.toml)
-boto3==1.28.54
+boto3==1.28.57
     # via Western-Friend-website (pyproject.toml)
-botocore==1.31.54
+botocore==1.31.57
     # via
     #   boto3
     #   s3transfer
@@ -28,7 +28,7 @@ certifi==2023.7.22
     #   sentry-sdk
 cfgv==3.4.0
     # via pre-commit
-charset-normalizer==3.2.0
+charset-normalizer==3.3.0
     # via requests
 click==8.1.7
     # via
@@ -93,7 +93,7 @@ django-permissionedforms==0.1
     # via wagtail
 django-registration==3.4
     # via Western-Friend-website (pyproject.toml)
-django-storages==1.14
+django-storages==1.14.1
     # via Western-Friend-website (pyproject.toml)
 django-stubs[compatible-mypy]==4.2.4
     # via Western-Friend-website (pyproject.toml)
@@ -171,9 +171,9 @@ platformdirs==3.10.0
     #   virtualenv
 pre-commit==3.4.0
     # via Western-Friend-website (pyproject.toml)
-psycopg2-binary==2.9.7
+psycopg2-binary==2.9.8
     # via Western-Friend-website (pyproject.toml)
-pydantic==1.10.12
+pydantic==1.10.13
     # via django-flatpickr
 pyproject-hooks==1.0.0
     # via build
@@ -194,7 +194,7 @@ requests==2.31.0
     # via
     #   braintree
     #   wagtail
-s3transfer==0.6.2
+s3transfer==0.7.0
     # via boto3
 sentry-sdk==1.31.0
     # via Western-Friend-website (pyproject.toml)
@@ -225,7 +225,7 @@ types-pytz==2023.3.1.1
     # via django-stubs
 types-pyyaml==6.0.12.12
     # via django-stubs
-types-requests==2.31.0.5
+types-requests==2.31.0.6
     # via Western-Friend-website (pyproject.toml)
 types-tqdm==4.66.0.2
     # via Western-Friend-website (pyproject.toml)
