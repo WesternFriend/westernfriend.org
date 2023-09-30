@@ -207,6 +207,7 @@ class Meeting(Page):
             label="Presiding clerk",
             heading="Presiding clerk(s)",
         ),
+        FieldPanel("information_last_verified"),
         FieldRowPanel(
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
