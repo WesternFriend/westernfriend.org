@@ -7,8 +7,6 @@ def handle_import_library(directory: str) -> None:
     if not directory.endswith("/"):
         directory += "/"
 
-    IMPORT_FILENAMES["library_items"]
-
     call_command(
         "import_library_item_facets",
     )
