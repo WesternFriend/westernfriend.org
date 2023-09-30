@@ -65,6 +65,13 @@
                     {% endfor %}
                 </ul>
             {% endif %}
+
+            {% if page.information_last_verified %}
+                <p>
+                    <strong>Information last verified:</strong>
+                    {{ page.information_last_verified }}
+                </p>
+            {% endif %}
         </div>
 
         <div class="col">
