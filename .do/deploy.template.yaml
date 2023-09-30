@@ -18,7 +18,7 @@ spec:
         match:
           path:
             prefix: /
-  name: wf-website-preview
+  name: 
   region: sfo3
   services:
     - environment_slug: python
@@ -56,6 +56,9 @@ spec:
         - key: AWS_STORAGE_BUCKET_NAME
           scope: RUN_TIME
           value: change-me
+        - key: BRAINTREE_ENVIRONMENT
+          scope: RUN_TIME
+          value: sandbox
         - key: BRAINTREE_MERCHANT_ID
           scope: RUN_TIME
           value: change-me
