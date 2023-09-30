@@ -225,7 +225,10 @@ class Subscription(models.Model):
                     ],
                 ),
                 # TODO: make this field read_only=True with Wagtail 5.1 update
-                FieldPanel("braintree_subscription_id"),
+                FieldPanel(
+                    "braintree_subscription_id",
+                    read_only=True,
+                ),
             ],
         ),
         MultiFieldPanel(

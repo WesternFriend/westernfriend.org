@@ -215,14 +215,17 @@ class Meeting(Page):
                 FieldPanel(
                     "civicrm_id",
                     permission="superuser",
+                    read_only=True,
                 ),
                 FieldPanel(
                     "drupal_author_id",
                     permission="superuser",
+                    read_only=True,
                 ),
                 FieldPanel(
                     "drupal_duplicate_author_ids",
                     permission="superuser",
+                    read_only=True,
                 ),
             ],
         ),
