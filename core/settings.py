@@ -116,7 +116,7 @@ CART_SESSION_ID = "cart"
 BRAINTREE_ENVIRONMENT = os.getenv("BRAINTREE_ENVIRONMENT", "sandbox")
 braintree_env = (
     BraintreeEnvironment.Production
-    if BRAINTREE_ENVIRONMENT == "production"
+    if BRAINTREE_ENVIRONMENT.lower() == "production"
     else BraintreeEnvironment.Sandbox
 )  # noqa: E501
 
