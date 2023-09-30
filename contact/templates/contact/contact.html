@@ -21,7 +21,9 @@
 
             {% if page.specific.website %}
                 <dt>Website</dt>
-                <dd>{{ page.specific.website }}</dd>
+                <dd>
+                    <a href="{{ page.specific.website }}">{{ page.specific.website }}</a>
+                </dd>
             {% endif %}
 
             {% if page.addresses.count %}
@@ -64,6 +66,13 @@
                         <li>{{ presiding_clerk.person }}</li>
                     {% endfor %}
                 </ul>
+            {% endif %}
+
+            {% if page.information_last_verified %}
+                <p>
+                    <strong>Information last verified:</strong>
+                    {{ page.information_last_verified }}
+                </p>
             {% endif %}
         </div>
 

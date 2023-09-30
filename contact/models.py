@@ -189,6 +189,10 @@ class Meeting(Page):
         blank=True,
         db_index=True,
     )
+    information_last_verified = models.DateField(
+        null=True,
+        blank=True,
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
