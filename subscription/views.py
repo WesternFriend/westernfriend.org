@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from payment.helpers import get_braintree_gateway
 
 from subscription.models import Subscription
 
@@ -19,21 +20,7 @@ from subscription.models import Subscription
 GRACE_PERIOD_DAYS = timedelta(days=5)
 ONE_YEAR_WITH_GRACE_PERIOD: timedelta = timedelta(days=365) + GRACE_PERIOD_DAYS
 
-braintree_environment = (
-    braintree.Environment.Production  # type: ignore
-    if os.environ.get("BRAINTREE_ENVIRONMENT") == "production"
-    else braintree.Environment.Sandbox  # type: ignore
-)
-
-braintree_gateway = braintree.BraintreeGateway(
-    braintree.Configuration(
-        braintree_environment,
-        merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
-        public_key=os.environ.get("BRAINTREE_PUBLIC_KEY"),
-        private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
-    ),
-)
-
+braintree_gateway = get_braintree_gateway()
 
 def calculate_end_date_from_braintree_subscription(
     braintree_subscription: BraintreeSubscription,

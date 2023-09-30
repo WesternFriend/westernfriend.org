@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from donations.models import Donation
 from orders.models import Order
+from payment.helpers import get_braintree_gateway
 
 
 RECURRING_DONATION_PLAN_IDS = {
@@ -20,15 +21,7 @@ MAGAZINE_SUBSCRIPTION_PLAN_ID = "magazine-subscription"
 
 logger = logging.getLogger(__name__)
 
-braintree_gateway = braintree.BraintreeGateway(
-    braintree.Configuration(
-        braintree.Environment.Sandbox,  # type: ignore
-        merchant_id=os.environ.get("BRAINTREE_MERCHANT_ID"),
-        public_key=os.environ.get("BRAINTREE_PUBLIC_KEY"),
-        private_key=os.environ.get("BRAINTREE_PRIVATE_KEY"),
-    ),
-)
-
+braintree_gateway = get_braintree_gateway()
 
 def render_payment_processing_page(
     request: HttpRequest,
