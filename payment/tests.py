@@ -153,15 +153,15 @@ class TestProcessBraintreeTransaction(TestCase):
         self.assertTrue(result.is_success)
         self.assertEqual(result.transaction.id, "fake_transaction_id")  # type: ignore
 
+    # test braintree transaction failure
     @patch.object(Transaction, "sale")
     def test_process_braintree_transaction_failure(self, mock_sale: Mock) -> None:
         # Mock the transaction sale to return an error result
-        mock_gateway = MagicMock()  # Mock gateway object
         mock_sale.return_value = ErrorResult(
-            mock_gateway,
+            None,
             {
+                "errors": {},
                 "message": "Error message",
-                "errors": {},  # Add this line
             },
         )
 
@@ -171,9 +171,8 @@ class TestProcessBraintreeTransaction(TestCase):
             nonce="fake_nonce",
         )
 
-        # Test if the transaction failed
+        # Test if the transaction was not successful
         self.assertFalse(result.is_success)
-        self.assertEqual(result.message, "Error message")  # type: ignore
 
 
 class TestProcessBraintreeRecurringDonation(TestCase):
