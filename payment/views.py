@@ -1,7 +1,7 @@
 import logging
-import os
 
 import braintree
+from braintree.exceptions import AuthorizationError as BraintreeAuthorizationError
 from braintree import SuccessfulResult
 from braintree import ErrorResult
 from django.http import HttpRequest, HttpResponse
@@ -97,15 +97,24 @@ def process_braintree_transaction(
     amount: int,
     nonce: str,
 ) -> SuccessfulResult | ErrorResult:
-    return braintree.Transaction.sale(
-        {
-            "amount": amount,
-            "payment_method_nonce": nonce,
-            "options": {
-                "submit_for_settlement": True,
+    """Process a one-time payment with Braintree."""
+
+    try:
+        result = braintree_gateway.transaction.sale(
+            {
+                "amount": amount,
+                "payment_method_nonce": nonce,
+                "options": {
+                    "submit_for_settlement": True,
+                },
             },
-        },
-    )
+        )
+        return result
+    except BraintreeAuthorizationError as exception:
+        logger.warning(
+            msg=f"Braintree transaction failed: {exception.message}",
+        )
+        return exception
 
 
 def process_braintree_recurring_donation(
