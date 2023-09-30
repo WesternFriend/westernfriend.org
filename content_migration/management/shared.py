@@ -868,17 +868,17 @@ def add_library_item_topics(
     for topic_title in topics:
         if topic_title == "":
             continue
-        
+
         try:
             topic = Topic.objects.get(
                 title=topic_title,
             )
         except Topic.DoesNotExist:
             print(f"Topic '{topic_title}' does not exist")
-        
+
         library_item_topic = LibraryItemTopic(
             library_item=library_item,
             topic=topic,
         )
-        
+
         library_item_topic.save()
