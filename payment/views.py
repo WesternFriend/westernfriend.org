@@ -112,7 +112,7 @@ def process_braintree_transaction(
         return result
     except BraintreeAuthorizationError as exception:
         logger.warning(
-            msg=f"Braintree transaction failed: {exception.message}",
+            msg=f"Braintree transaction failed authorization: {exception}",  # noqa: E501
         )
         return exception
 
