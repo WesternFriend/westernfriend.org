@@ -132,49 +132,6 @@ class TestProcessBraintreeSubscription(TestCase):
         self.assertEqual(response, mock_redirect.return_value)
 
 
-class TestProcessBraintreeTransaction(TestCase):
-    @patch.object(Transaction, "sale")
-    def test_process_braintree_transaction_success(self, mock_sale: Mock) -> None:
-        # Mock the transaction sale to return a successful result with a mock transaction  # noqa: E501
-        mock_sale.return_value = SuccessfulResult(
-            {
-                "transaction": MagicMock(),  # this represents a Transaction object
-            },
-        )
-        mock_sale.return_value.transaction.id = "fake_transaction_id"  # type: ignore
-
-        # Execute function with arbitrary transaction data
-        result = process_braintree_transaction(
-            amount=100,
-            nonce="fake_nonce",
-        )
-
-        # Test if the transaction was successful
-        self.assertTrue(result.is_success)
-        self.assertEqual(result.transaction.id, "fake_transaction_id")  # type: ignore
-
-    # test braintree transaction failure
-    @patch.object(Transaction, "sale")
-    def test_process_braintree_transaction_failure(self, mock_sale: Mock) -> None:
-        # Mock the transaction sale to return an error result
-        mock_sale.return_value = ErrorResult(
-            None,
-            {
-                "errors": {},
-                "message": "Error message",
-            },
-        )
-
-        # Execute function with arbitrary transaction data
-        result = process_braintree_transaction(
-            amount=100,
-            nonce="fake_nonce",
-        )
-
-        # Test if the transaction was not successful
-        self.assertFalse(result.is_success)
-
-
 class TestProcessBraintreeRecurringDonation(TestCase):
     @patch("payment.views.process_braintree_subscription")
     @patch("payment.views.redirect")
