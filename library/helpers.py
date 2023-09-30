@@ -1,3 +1,10 @@
+import typing
+
+
+if typing.TYPE_CHECKING:
+    from library.models import LibraryItem
+
+
 QUERYSTRING_FACETS = [
     "item_audience__title",
     "item_genre__title",

@@ -5,16 +5,19 @@ from content_migration.management.errors import (
     DuplicateContactError,
 )
 
-from facets.models import (  # TODO: make sure to add library item topics
+from facets.models import (
     Audience,
     Genre,
     Medium,
     TimePeriod,
+    Topic,
 )
+from library.helpers import add_library_item_topics
 from library.models import (
     LibraryIndexPage,
     LibraryItem,
     LibraryItemAuthor,
+    LibraryItemTopic
 )
 
 from content_migration.management.shared import (
@@ -118,7 +121,7 @@ def handle_import_library_items(file_name: str) -> None:
             parse_media_string_to_list(import_library_item["media"]),
         )
 
-        # # Facets
+        # Audience
         if import_library_item["audience"] != "":
             try:
                 library_item.item_audience = Audience.objects.get(
@@ -129,6 +132,7 @@ def handle_import_library_items(file_name: str) -> None:
                     f"Could not find audience by title: { import_library_item['audience'] }",  # noqa: E501
                 )
 
+        # Genre
         if import_library_item["genre"] != "":
             try:
                 library_item.item_genre = Genre.objects.get(
@@ -139,6 +143,7 @@ def handle_import_library_items(file_name: str) -> None:
                     f"Could not find genre by title: { import_library_item['genre'] }",
                 )
 
+        # Medium
         if import_library_item["medium"] != "":
             try:
                 library_item.item_medium = Medium.objects.get(
@@ -148,7 +153,7 @@ def handle_import_library_items(file_name: str) -> None:
                 logger.error(
                     f"Could not find medium by title: { import_library_item['medium'] }",  # noqa: E501
                 )
-
+        # Time Period
         if import_library_item["time_period"] != "":
             try:
                 library_item.item_time_period = TimePeriod.objects.get(

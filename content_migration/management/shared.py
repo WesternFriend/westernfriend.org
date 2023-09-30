@@ -38,6 +38,8 @@ from content_migration.management.constants import (
     LOCAL_MIGRATION_DATA_DIRECTORY,
     SITE_BASE_URL,
 )
+from facets.models import Topic
+from library.models import LibraryItem, LibraryItemTopic
 from store.models import Book, BookAuthor
 
 ALLOWED_AUDIO_CONTENT_TYPES = [
@@ -853,3 +855,30 @@ def create_permanent_redirect(
             redirect_page=redirect_entity,  # the new page
             is_permanent=True,
         ).save()
+
+
+def add_library_item_topics(
+    library_item: LibraryItem,
+    topics: str,
+) -> None:
+    """Add topics to a library item."""
+
+    topics = topics.split(";")
+
+    for topic_title in topics:
+        if topic_title == "":
+            continue
+
+        try:
+            topic = Topic.objects.get(
+                title=topic_title,
+            )
+        except Topic.DoesNotExist:
+            print(f"Topic '{topic_title}' does not exist")
+
+        library_item_topic = LibraryItemTopic(
+            library_item=library_item,
+            topic=topic,
+        )
+
+        library_item_topic.save()

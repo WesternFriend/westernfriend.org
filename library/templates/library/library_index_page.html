@@ -109,6 +109,7 @@
                         <label for="topic">
                             Topic
                         </label>
+
                         <select class="form-select" name="topics__topic__title" id="topic">
                             {% if not request.GET.topics__topic__title %}
                                 <option selected disabled hidden>Select...</option>
@@ -117,7 +118,7 @@
                             {% for topic in topics %}
                                 <option
                                     value="{{ topic }}"
-                                    {% if request.GET.topics__topic__title == topic %}selected{% endif %}
+                                    {% if request.GET.topics__topic__title|stringformat:"s" == topic|stringformat:"s" %}selected{% endif %}
                                 >
                                     {{ topic }}
                                 </option>
