@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html class="no-js">
-    <head>
-        <meta charset="utf-8" />
-        <title>Internal server error</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-    </head>
-    <body>
-        <h1>Internal server error</h1>
+{% extends "base.html" %}
 
-        <h2>Sorry, there seems to be an error. Please try again soon.</h2>
-    </body>
-</html>
+{% block body_class %}template-500{% endblock %}
+
+{% block content %}
+    <h1>Internal server error</h1>
+
+    <p>Sorry, there seems to be an error. We have been notified of the error.</p>
+
+    <p>Feel free to contact us if you have any questions or concerns.</p>
+{% endblock %}
