@@ -21,7 +21,9 @@
 
             {% if page.specific.website %}
                 <dt>Website</dt>
-                <dd>{{ page.specific.website }}</dd>
+                <dd>
+                    <a href="{{ page.specific.website }}">{{ page.specific.website }}</a>
+                </dd>
             {% endif %}
 
             {% if page.addresses.count %}
