@@ -10,19 +10,24 @@
     <h1>{{ page.title }}</h1>
 
     {% if page.hosted_by %}
+        <p>
+            <strong>Hosted by:</strong>
+            <a href="{% pageurl page.hosted_by %}">
+                {{ page.hosted_by }}
+            </a>
+        </p>
         <strong>Hosted by:</strong>
-        <a href="{% pageurl page.hosted_by %}">
-            {{ page.hosted_by }}
-        </a>
     {% endif %}
 
     {% if page.specific.website %}
-        <strong>Website:</strong>
-        <a
-            href="{{ page.specific.website }}"
-        >
-            {{ page.specific.website }}
-        </a>
+        <p>
+            <strong>Website:</strong>
+            <a
+                href="{{ page.specific.website }}"
+            >
+                {{ page.specific.website }}
+            </a>
+        </p>
     {% endif %}
 
     {% if page.specific.description %}
