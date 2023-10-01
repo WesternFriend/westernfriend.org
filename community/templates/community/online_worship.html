@@ -16,6 +16,14 @@
         </a>
     {% endif %}
 
+    {% if page.specific.website %}
+        <strong>Website:</strong>
+        <a
+            href="{{ page.specific.website }}"
+        >
+            {{ page.specific.website }}
+        </a>
+    {% endif %}
 
     {% if page.specific.description %}
         {{ page.specific.description | richtext }}
@@ -24,14 +32,5 @@
     {% if page.specific.times_of_worship %}
         <strong>Times of worship:</strong>
         {{ page.specific.times_of_worship | richtext }}
-    {% endif %}
-
-    {% if page.specific.website %}
-        <strong>Website: </strong>
-        <a
-            href="{{ page.specific.website }}"
-        >
-            {{ page.specific.website }}
-        </a>
     {% endif %}
 {% endblock %}
