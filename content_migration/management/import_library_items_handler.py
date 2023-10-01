@@ -10,14 +10,11 @@ from facets.models import (
     Genre,
     Medium,
     TimePeriod,
-    Topic,
 )
-from library.helpers import add_library_item_topics
 from library.models import (
     LibraryIndexPage,
     LibraryItem,
     LibraryItemAuthor,
-    LibraryItemTopic
 )
 
 from content_migration.management.shared import (

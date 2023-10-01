@@ -1,7 +1,7 @@
 from tqdm import tqdm
-from content_migration.management.shared import add_library_item_topics, parse_csv_file
-from facets.models import Topic
-from library.models import LibraryItem, LibraryItemTopic
+from content_migration.management.shared import parse_csv_file
+from library.helpers import add_library_item_topics
+from library.models import LibraryItem
 
 
 def handle_import_library_items_topics(file_name) -> None:
