@@ -115,10 +115,10 @@ CART_SESSION_ID = "cart"
 # Braintree settings
 BRAINTREE_ENVIRONMENT = os.getenv("BRAINTREE_ENVIRONMENT", "sandbox")
 braintree_env = (
-    BraintreeEnvironment.Production
+    BraintreeEnvironment.Production  # noqa: E501
     if BRAINTREE_ENVIRONMENT.lower() == "production"
-    else BraintreeEnvironment.Sandbox
-)  # noqa: E501
+    else BraintreeEnvironment.Sandbox  # noqa: E501
+)
 
 BRAINTREE_MERCHANT_ID = os.getenv("BRAINTREE_MERCHANT_ID")
 BRAINTREE_PUBLIC_KEY = os.getenv("BRAINTREE_PUBLIC_KEY")
@@ -237,6 +237,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
             ],
+            "debug": True if DEBUG else False,
         },
     },
 ]
