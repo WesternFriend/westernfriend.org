@@ -27,10 +27,11 @@
     {% endif %}
 
     {% if page.specific.website %}
+        <strong>Website: </strong>
         <a
             href="{{ page.specific.website }}"
         >
-            Visit website: {{ page.specific.website }}
+            {{ page.specific.website }}
         </a>
     {% endif %}
 {% endblock %}
