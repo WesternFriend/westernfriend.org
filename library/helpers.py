@@ -1,7 +1,6 @@
 import typing
 
 from facets.models import Topic
-from library.models import LibraryItemTopic
 
 
 if typing.TYPE_CHECKING:
@@ -42,11 +41,13 @@ def create_querystring_from_facets(
     # placing an ampersand between each key/value pair
     return "&".join(f"{key}={value}" for key, value in facets.items())
 
+
 def add_library_item_topics(
     library_item: "LibraryItem",
     topics: str,
 ) -> None:
     """Add topics to a library item."""
+    from library.models import LibraryItemTopic
 
     topics = topics.split(";")
 
