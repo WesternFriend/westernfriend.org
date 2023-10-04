@@ -40,24 +40,24 @@ class MagazinePriceGroupChoices(models.TextChoices):
 
 SUBSCRIPTION_PRICE_COMPONENTS = {
     "basic": {
-        "pdf": 30,
-        "print": 36,
-        "print_and_pdf": 48,
+        "pdf": 39,
+        "print": 45,
+        "print_and_pdf": 57,
     },
     "true_cost": {
-        "pdf": 60,
-        "print": 72,
-        "print_and_pdf": 96,
+        "pdf": 78,
+        "print": 90,
+        "print_and_pdf": 114,
     },
     "low_income": {
         "pdf": 20,
         "print": 20,
-        "print_and_pdf": 25,
+        "print_and_pdf": 30,
     },
     "international": {
-        "pdf": 30,
-        "print": 55,
-        "print_and_pdf": 70,
+        "pdf": 39,
+        "print": 65,
+        "print_and_pdf": 85,
     },
 }
 
