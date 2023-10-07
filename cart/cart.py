@@ -59,16 +59,16 @@ class Cart:
         # get the product objects and add them to the cart
         return Product.objects.filter(id__in=product_ids)
 
-    def get_total_price(self) -> Decimal:
+    def get_total_cost(self) -> Decimal:
         int_sum = sum(
             [
-                self.get_subtotal_price(),
+                self.get_subtotal_cost(),
                 self.get_shipping_cost(),
             ],
         )
         return Decimal(int_sum).quantize(Decimal("0.01"))
 
-    def get_subtotal_price(self) -> Decimal:
+    def get_subtotal_cost(self) -> Decimal:
         totals = [
             Decimal(item["price"]) * item["quantity"] for item in self.cart.values()
         ]

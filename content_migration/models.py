@@ -24,7 +24,7 @@ class RawBook:
     drupal_body_migrated: str
     description: str
     image_url: str
-    price: Decimal
+    price_usd: Decimal
     authors: list[int]
 
     def __str__(self) -> str:
@@ -42,7 +42,7 @@ class RawBook:
             drupal_body_migrated=row["description"],
             description=row["description"],
             image_url=row["cover_image"],
-            price=cents_to_dollars(row["price"]),
+            price_usd=cents_to_dollars(row["price"]),
             authors=[int(author_id) for author_id in row["authors"].split(",")],
         )
 
@@ -58,6 +58,6 @@ class RawBook:
             drupal_path=self.drupal_path,
             drupal_body_migrated=self.drupal_body_migrated,
             description=self.description,
-            price=self.price,
+            price_usd=self.price_usd,
             image=self.get_or_create_image(),
         )

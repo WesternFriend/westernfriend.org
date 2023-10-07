@@ -103,11 +103,18 @@ class Order(ClusterableModel):
         """Return the sum of all order items' costs."""
         # order.items is of type list[OrderItem]
 
-        return sum(item.get_cost() for item in self.items.all())
+        items_cost = sum(
+            [
+                item.get_cost()
+                for item in self.items.all()
+            ],
+        )
+
+        return Decimal(items_cost).quantize(Decimal("0.01"))
 
     def get_total_cost(self) -> Decimal:
         """Return the sum of all order items' costs, plus shipping cost."""
-        return self.get_total_items_cost() + self.shipping_cost
+        return self.get_total_items_cost() + Decimal(self.shipping_cost)
 
 
     @property
@@ -155,4 +162,7 @@ class OrderItem(Orderable):
         return f"{self.quantity}x {self.product_title} @ { round(self.price, 2) }/each"  # noqa: E501
 
     def get_cost(self) -> Decimal:
-        return self.price * self.quantity
+        """Return the total cost for this order item."""
+        total_cost = self.price * self.quantity
+
+        return Decimal(total_cost).quantize(Decimal("0.01"))

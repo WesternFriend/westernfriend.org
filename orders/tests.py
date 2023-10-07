@@ -1,3 +1,4 @@
+from decimal import Decimal
 from unittest.mock import MagicMock, Mock, patch
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import Client, RequestFactory, TestCase
@@ -66,9 +67,9 @@ class OrderModelTest(TestCase):
     def test_order_get_total_cost(self):
         order_item_one_total = self.order_item_one.quantity * self.order_item_one.price
         order_item_two_total = self.order_item_two.quantity * self.order_item_two.price
-        expected_total = order_item_one_total + order_item_two_total
-
-        self.assertEqual(self.order.get_total_cost(), expected_total)
+        expected_total = order_item_one_total + order_item_two_total + self.order.shipping_cost
+        expected_decimal = Decimal(expected_total).quantize(Decimal("0.01"))    
+        self.assertEqual(self.order.get_total_cost(), expected_decimal)
 
 
 class OrderItemModelTest(TestCase):
@@ -91,7 +92,7 @@ class OrderItemModelTest(TestCase):
         )
 
     def test_get_cost_method(self) -> None:
-        expected_cost = 39.98
+        expected_cost = Decimal("39.98")
 
         self.assertEqual(
             self.order_item.get_cost(),
