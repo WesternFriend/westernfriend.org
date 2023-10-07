@@ -82,7 +82,7 @@ class Product(DrupalFields, Page):  # type: ignore
         context["cart_add_product_form"] = CartAddProductForm()
 
         return context
-    
+
     @property
     def price(self) -> str:
         """Alias of price_usd for backwards compatibility."""

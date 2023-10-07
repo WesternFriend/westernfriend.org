@@ -8,12 +8,14 @@ import requests
 PAYPAL_API_URL = "https://api.sandbox.paypal.com"
 PAYPAL_CREATE_ORDER_URL = f"{PAYPAL_API_URL}/v2/checkout/orders"
 
+
 class PayPalError(Exception):
     pass
 
 
 class CurrencyCode(enum.Enum):
     USD = "USD"
+
 
 DEFAULT_CURRENCY_CODE = CurrencyCode.USD
 
