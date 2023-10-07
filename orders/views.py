@@ -31,11 +31,7 @@ def handle_paypal_error(
 ) -> HttpResponse:
     """Handle a PayPal error."""
 
-    message = """
-    A PayPal error occurred while creating your order.
-    
-    Please try again later.
-    """
+    message = "A PayPal error occurred while creating your order. Please try again later."  # noqa: E501
     form.add_error(None, message)
 
     return render(

@@ -67,8 +67,10 @@ class OrderModelTest(TestCase):
     def test_order_get_total_cost(self):
         order_item_one_total = self.order_item_one.quantity * self.order_item_one.price
         order_item_two_total = self.order_item_two.quantity * self.order_item_two.price
-        expected_total = order_item_one_total + order_item_two_total + self.order.shipping_cost
-        expected_decimal = Decimal(expected_total).quantize(Decimal("0.01"))    
+        expected_total = (
+            order_item_one_total + order_item_two_total + self.order.shipping_cost
+        )
+        expected_decimal = Decimal(expected_total).quantize(Decimal("0.01"))
         self.assertEqual(self.order.get_total_cost(), expected_decimal)
 
 
