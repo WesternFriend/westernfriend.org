@@ -69,11 +69,6 @@ class Order(ClusterableModel):
         decimal_places=2,
     )
     paid = models.BooleanField(default=False)
-    braintree_transaction_id = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-    )
 
     panels = [
         FieldPanel("purchaser_given_name"),
