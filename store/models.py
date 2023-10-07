@@ -85,6 +85,7 @@ class Product(DrupalFields, Page):  # type: ignore
     
     @property
     def price(self) -> str:
+        """Alias of price_usd for backwards compatibility."""
         return self.price_usd
 
 
