@@ -116,7 +116,8 @@ CART_SESSION_ID = "cart"
 PAYPAL_CLIENT_ENVIRONMENT = os.getenv("PAYPAL_CLIENT_ENVIRONMENT", "sandbox")
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
-
+# TODO: enable PayPal webhook support
+#PAYPAL_WEBHOOK_ID = os.getenv("PAYPAL_WEBHOOK_ID")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
