@@ -112,24 +112,11 @@ AUTH_USER_MODEL = "accounts.User"
 
 CART_SESSION_ID = "cart"
 
-# Braintree settings
-BRAINTREE_ENVIRONMENT = os.getenv("BRAINTREE_ENVIRONMENT", "sandbox")
-braintree_env = (
-    BraintreeEnvironment.Production  # noqa: E501
-    if BRAINTREE_ENVIRONMENT.lower() == "production"
-    else BraintreeEnvironment.Sandbox  # noqa: E501
-)
+# PayPal settings
+PAYPAL_CLIENT_ENVIRONMENT = os.getenv("PAYPAL_CLIENT_ENVIRONMENT", "sandbox")
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
+PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 
-BRAINTREE_MERCHANT_ID = os.getenv("BRAINTREE_MERCHANT_ID")
-BRAINTREE_PUBLIC_KEY = os.getenv("BRAINTREE_PUBLIC_KEY")
-BRAINTREE_PRIVATE_KEY = os.getenv("BRAINTREE_PRIVATE_KEY")
-
-BraintreeConfiguration.configure(
-    braintree_env,
-    BRAINTREE_MERCHANT_ID,
-    BRAINTREE_PUBLIC_KEY,
-    BRAINTREE_PRIVATE_KEY,
-)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -158,6 +145,7 @@ INSTALLED_APPS = [
     "news",
     "orders",
     "payment.apps.PaymentConfig",
+    "paypal",
     "search",
     "store",
     "subscription",
