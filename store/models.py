@@ -56,7 +56,7 @@ class Product(DrupalFields, Page):  # type: ignore
         related_name="+",
     )
     description = RichTextField(blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price_usd = models.DecimalField(max_digits=10, decimal_places=2)
     available = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False)
 
@@ -65,7 +65,7 @@ class Product(DrupalFields, Page):  # type: ignore
 
     content_panels = Page.content_panels + [
         FieldPanel("description", classname="full"),
-        FieldPanel("price"),
+        FieldPanel("price_usd"),
         FieldPanel("available"),
         FieldPanel("is_featured"),
         FieldPanel("image"),
@@ -82,6 +82,10 @@ class Product(DrupalFields, Page):  # type: ignore
         context["cart_add_product_form"] = CartAddProductForm()
 
         return context
+    
+    @property
+    def price(self) -> str:
+        return self.price_usd
 
 
 class Book(Product):  # type: ignore
