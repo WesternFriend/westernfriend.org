@@ -89,7 +89,10 @@ class Order(ClusterableModel):
         FieldPanel("recipient_address_country"),
         FieldPanel("shipping_cost"),
         FieldPanel("paid"),
-        FieldPanel("braintree_transaction_id"),
+        FieldPanel(
+            "paypal_order_id",
+            read_only=True,
+        ),
         InlinePanel("items", label="Order items"),
     ]
 
