@@ -8,6 +8,10 @@ import requests
 PAYPAL_API_URL = "https://api.sandbox.paypal.com"
 PAYPAL_CREATE_ORDER_URL = f"{PAYPAL_API_URL}/v2/checkout/orders"
 
+class PayPalError(Exception):
+    pass
+
+
 class CurrencyCode(enum.Enum):
     USD = "USD"
 
@@ -39,7 +43,10 @@ def get_auth_token() -> str:
         },
     )
 
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        raise PayPalError(e)
 
     return response.json()["access_token"]
 
