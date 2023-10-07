@@ -99,11 +99,16 @@ class Order(ClusterableModel):
     def __str__(self) -> str:
         return f"Order {self.id}"  # type: ignore
 
-    def get_total_cost(self) -> int:
+    def get_total_items_cost(self) -> Decimal:
         """Return the sum of all order items' costs."""
         # order.items is of type list[OrderItem]
 
         return sum(item.get_cost() for item in self.items.all())
+
+    def get_total_cost(self) -> Decimal:
+        """Return the sum of all order items' costs, plus shipping cost."""
+        return self.get_total_items_cost() + self.shipping_cost
+
 
     @property
     def purchaser_full_name(self) -> str:
