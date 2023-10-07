@@ -69,6 +69,11 @@ class Order(ClusterableModel):
         decimal_places=2,
     )
     paid = models.BooleanField(default=False)
+    paypal_order_id = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+    )
 
     panels = [
         FieldPanel("purchaser_given_name"),
