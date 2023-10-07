@@ -3,7 +3,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from cart.cart import Cart
-
+from orders.forms import OrderCreateForm
+from paypal import paypal
 from .models import Order, OrderItem
 
 
@@ -11,6 +12,8 @@ def create_cart_order_items(
     order: Order,
     cart: Cart,
 ) -> None:
+    """Create OrderItems from Cart items."""
+
     for item in cart:
         OrderItem.objects.create(
             order=order,
@@ -19,6 +22,30 @@ def create_cart_order_items(
             price=item["price"],
             quantity=item["quantity"],
         )
+
+
+def handle_paypal_error(
+    request: HttpRequest,
+    form: OrderCreateForm,
+    cart: Cart,
+) -> HttpResponse:
+    """Handle a PayPal error."""
+
+    message = """
+    A PayPal error occurred while creating your order.
+    
+    Please try again later.
+    """
+    form.add_error(None, message)
+
+    return render(
+        request,
+        template_name="orders/create.html",
+        context={
+            "cart": cart,
+            "form": form,
+        },
+    )
 
 
 def order_create(request: HttpRequest) -> HttpResponse:
@@ -33,13 +60,27 @@ def order_create(request: HttpRequest) -> HttpResponse:
         cart_order: QueryDict = request.POST.copy()
 
         # Calculate shipping cost, to prevent users from changing value
-        cart_order["shipping_cost"] = str(cart.get_shipping_cost())
+        cart_order["shipping_cost"] = cart.get_shipping_cost()
 
         # Instantiate form with updated cart order (incl. shipping cost)
         form = OrderCreateForm(cart_order)
 
         if form.is_valid():
-            order = form.save()
+            # Create a PayPal order
+            try:
+                paypal_order_id = paypal.create_order(
+                    value_usd=str(cart.get_total_cost()),
+                )
+            except paypal.PayPalError as _error:
+                return handle_paypal_error(
+                    request=request,
+                    form=form,
+                    cart=cart,
+                )
+
+            order = form.save(commit=False)
+            order.paypal_order_id = paypal_order_id
+            order.save()
 
             create_cart_order_items(order, cart)
 
