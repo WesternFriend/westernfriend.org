@@ -64,10 +64,6 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `AWS_SECRET_ACCESS_KEY` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key)
    - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
    - `AWS_STORAGE_BUCKET_NAME` - the name of the DO Storage Bucket for static files
-   - `BRAINTREE_ENVIRONMENT` - use `sandbox` or `production` for Sandbox or Production environment
-   - `BRAINTREE_MERCHANT_ID` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
-   - `BRAINTREE_PUBLIC_KEY` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
-   - `BRAINTREE_PRIVATE_KEY` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
    - `SENTRY_DSN` - used for error logging and analysis
 6. Edit the App Info with the following settings
    1. Give the app a meaningful name
