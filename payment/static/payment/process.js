@@ -20,11 +20,7 @@ const paymentDoneUrl = currentScript.getAttribute(
   "data-payment-done-url"
 );
 
-// console.log(paymentDoneUrl);
-
 const FUNDING_SOURCES = [
-  // EDIT FUNDING SOURCES
-
   paypal.FUNDING.PAYPAL,
   // paypal.FUNDING.CARD,
 ];
@@ -59,8 +55,6 @@ FUNDING_SOURCES.forEach((fundingSource) => {
         });
       },
       onApprove: async (data, actions) => {
-        // call the capture URL
-        console.log(data);
         result = await fetch(orderCaptureUrl, {
           method: "post",
           headers: {
@@ -72,8 +66,6 @@ FUNDING_SOURCES.forEach((fundingSource) => {
           }),
         });
 
-        console.log(result);
-        console.log(result.status);
         if (result.status == 201) {
           window.location.href = paymentDoneUrl;
         } else {
