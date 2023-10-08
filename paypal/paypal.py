@@ -105,5 +105,5 @@ def capture_order(
         # "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
         # "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
     )
-    
+
     return response
