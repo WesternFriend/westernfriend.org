@@ -1,6 +1,8 @@
 import logging
 
-import braintree
+from django.conf import settings
+
+
 from braintree.exceptions import AuthorizationError as BraintreeAuthorizationError
 from braintree import SuccessfulResult
 from braintree import ErrorResult
@@ -9,7 +11,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from donations.models import Donation
 from orders.models import Order
+
 from payment.helpers import get_braintree_gateway
+
+
+paypal_client_id = settings.PAYPAL_CLIENT_ID
 
 
 RECURRING_DONATION_PLAN_IDS = {
@@ -23,18 +29,19 @@ logger = logging.getLogger(__name__)
 
 braintree_gateway = get_braintree_gateway()
 
+
 def render_payment_processing_page(
     request: HttpRequest,
-    payment_total: int,
+    order: Order,
 ) -> HttpResponse:
-    client_token = braintree.ClientToken.generate()
+    """Render the payment processing page."""
 
     return render(
         request,
         "payment/process.html",
         {
-            "client_token": client_token,
-            "payment_total": payment_total,
+            "paypal_client_id": paypal_client_id,
+            "order": order,
         },
     )
 
@@ -210,38 +217,11 @@ def process_bookstore_order_payment(
     """Process a payment for a bookstore order."""
 
     order = get_object_or_404(Order, id=order_id)
-    if request.method == "POST":
-        nonce = request.POST.get("payment_method_nonce", None)
 
-        if nonce is None:
-            logger.warning(
-                msg="Braintree order payment failed: nonce is None",
-            )
-            return render_payment_processing_page(
-                request=request,
-                payment_total=order.get_total_cost(),
-            )
-
-        braintree_result = process_braintree_transaction(
-            amount=order.get_total_cost(),
-            nonce=nonce,
-        )
-
-        if braintree_result.is_success is True:
-            order.paid = True
-
-            order.braintree_transaction_id = braintree_result.transaction.id  # type: ignore  # noqa: E501
-
-            order.save()
-
-            return redirect("payment:done")
-
-        return redirect("payment:canceled")
-    else:
-        return render_payment_processing_page(
-            request=request,
-            payment_total=order.get_total_cost(),
-        )
+    return render_payment_processing_page(
+        request=request,
+        order=order,
+    )
 
 
 def process_subscription_payment(
