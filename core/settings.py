@@ -44,6 +44,8 @@ BASE_DIR = os.path.dirname(CORE_DIR)
 
 
 SECURE_REFERRER_POLICY = "strict-origin"
+# Allow PayPal to open up in-context pop-ups
+SECURE_CROSS_ORIGIN_OPENER_POLICY='same-origin-allow-popups'
 
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 
