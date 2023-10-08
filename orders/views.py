@@ -56,36 +56,21 @@ def order_create(request: HttpRequest) -> HttpResponse:
         cart_order: QueryDict = request.POST.copy()
 
         # Calculate shipping cost, to prevent users from changing value
-        cart_order["shipping_cost"] = cart.get_shipping_cost()
+        cart_order["shipping_cost"] = str(cart.get_shipping_cost())
 
         # Instantiate form with updated cart order (incl. shipping cost)
         form = OrderCreateForm(cart_order)
 
         if form.is_valid():
-            # Create a PayPal order
-            try:
-                paypal_order_id = paypal.create_order(
-                    value_usd=str(cart.get_total_cost()),
-                )
-            except paypal.PayPalError as _error:
-                return handle_paypal_error(
-                    request=request,
-                    form=form,
-                    cart=cart,
-                )
-
-            order = form.save(commit=False)
-            order.paypal_order_id = paypal_order_id
-            order.save()
+            order = form.save()      
 
             create_cart_order_items(order, cart)
 
             # TODO: consider moving this to the payment app
             # so it can be cleared after successful payment.
             # That way, the user can retry checkout if payment fails.
-            cart.clear()
+            # cart.clear()
 
-            # redirect for payment
             return redirect(
                 reverse(
                     "payment:process_bookstore_order_payment",
@@ -94,6 +79,7 @@ def order_create(request: HttpRequest) -> HttpResponse:
                     },
                 ),
             )
+
         else:
             return render(
                 request,
