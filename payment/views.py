@@ -9,19 +9,12 @@ from braintree import ErrorResult
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from donations.models import Donation
 from orders.models import Order
 
 from payment.helpers import get_braintree_gateway
 
 
 paypal_client_id = settings.PAYPAL_CLIENT_ID
-
-
-RECURRING_DONATION_PLAN_IDS = {
-    "monthly": "monthly-recurring-donation",
-    "yearly": "yearly-recurring-donation",
-}
 
 MAGAZINE_SUBSCRIPTION_PLAN_ID = "magazine-subscription"
 
@@ -122,92 +115,6 @@ def process_braintree_transaction(
             msg=f"Braintree transaction failed authorization: {exception}",  # noqa: E501
         )
         return exception
-
-
-def process_braintree_recurring_donation(
-    donation: Donation,
-    nonce: str,
-) -> HttpResponse:
-    """Process a recurring donation payment as a Braintree subscription."""
-
-    braintree_result = process_braintree_subscription(
-        first_name=donation.donor_given_name,
-        last_name=donation.donor_family_name,
-        # Ignoring the following type warning since we know that the
-        # donation.recurrence value is a valid key in the
-        # RECURRING_DONATION_PLAN_IDS dictionary
-        plan_id=RECURRING_DONATION_PLAN_IDS[donation.recurrence],  # type: ignore
-        price=donation.get_total_cost(),
-        recurring=donation.recurring,
-        nonce=nonce,
-    )
-
-    if braintree_result is not None and braintree_result.is_success:
-        donation.paid = True
-
-        # ignoring the following type warning since we know that the
-        # braintree_result.subscription.id value should exist
-        donation.braintree_subscription_id = braintree_result.subscription.id  # type: ignore  # noqa: E501
-
-        donation.save()
-
-        return redirect("payment:done")
-
-    return redirect("payment:canceled")
-
-
-def process_braintree_single_donation(
-    donation: Donation,
-    nonce: str,
-) -> HttpResponse:
-    """Process a one-time donation payment as a Braintree transaction."""
-
-    braintree_result = process_braintree_transaction(
-        amount=donation.get_total_cost(),
-        nonce=nonce,
-    )
-
-    if braintree_result.is_success:
-        donation.paid = True
-
-        donation.braintree_transaction_id = braintree_result.transaction.id  # type: ignore  # noqa: E501
-
-        donation.save()
-
-        return redirect("payment:done")
-
-    return redirect("payment:canceled")
-
-
-def process_donation_payment(
-    request: HttpRequest,
-    donation_id: int,
-) -> HttpResponse:
-    """Process a payment for a donation."""
-
-    donation = get_object_or_404(Donation, id=donation_id)
-
-    if request.method == "POST":
-        nonce = request.POST.get("payment_method_nonce", None)
-
-        if nonce is None:
-            logger.warning(
-                msg="Braintree donation payment failed: nonce is None",
-            )
-            return render_payment_processing_page(
-                request=request,
-                payment_total=donation.get_total_cost(),
-            )
-
-        if donation.recurring is True:
-            return process_braintree_recurring_donation(donation, nonce)
-
-        return process_braintree_single_donation(donation, nonce)
-    else:
-        return render_payment_processing_page(
-            request=request,
-            payment_total=donation.get_total_cost(),
-        )
 
 
 def process_bookstore_order_payment(
