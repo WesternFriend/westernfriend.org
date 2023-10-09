@@ -6,11 +6,6 @@ app_name = "payment"
 
 urlpatterns = [
     path(
-        "process/donation/<int:donation_id>",
-        views.process_donation_payment,
-        name="process_donation_payment",
-    ),
-    path(
         "process/bookstore_order/<int:order_id>",
         views.process_bookstore_order_payment,
         name="process_bookstore_order_payment",
