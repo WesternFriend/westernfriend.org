@@ -188,6 +188,7 @@ class Subscription(models.Model):
         null=False,
         blank=True,
         default="",
+        unique=True,
     )
 
     panels = [
