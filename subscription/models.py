@@ -183,6 +183,13 @@ class Subscription(models.Model):
 
     paid = models.BooleanField(default=False)
 
+    paypal_subscription_id = models.CharField(
+        max_length=255,
+        null=False,
+        blank=True,
+        default="",
+    )
+
     panels = [
         MultiFieldPanel(
             heading="Subscriber details",
