@@ -132,7 +132,8 @@ def subscription_is_active(
 ) -> bool:
     """Check the status of a PayPal subscription."""
     # Check the cache first
-    status = cache.get(paypal_subscription_id)
+    cache_key = f"paypal_subscription_{paypal_subscription_id}"
+    status = cache.get(cache_key)
 
     if status is None:
         subscription = get_subscription(
@@ -143,9 +144,9 @@ def subscription_is_active(
 
         # Cache the status for one day
         cache.set(
-            paypal_subscription_id,
+            cache_key,
             status,
-            ONE_DAY_S,
+            ONE_DAY_S,  # 24 hours
         )
 
 
