@@ -193,6 +193,11 @@ class Subscription(models.Model):
         unique=True,
     )
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["paypal_subscription_id"]),
+        ]
+
     panels = [
         MultiFieldPanel(
             heading="Subscriber details",
