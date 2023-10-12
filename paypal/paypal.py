@@ -2,13 +2,16 @@ import enum
 from dataclasses import dataclass
 
 from django.conf import settings
+from django.core.cache import cache
 
 import requests
 
 # TODO: Move this to settings
 PAYPAL_API_URL = "https://api.sandbox.paypal.com"
 PAYPAL_ORDER_BASE_URL = f"{PAYPAL_API_URL}/v2/checkout/orders"
+PAYPAL_SUBSCRIPTIONS_BASE_URL = f"{PAYPAL_API_URL}/v1/billing/subscriptions"
 
+ONE_DAY_S = 60 * 60 * 24 # 24 hours
 
 class PayPalError(Exception):
     pass
@@ -107,3 +110,43 @@ def capture_order(
     )
 
     return response
+
+
+def get_subscription(
+    *,
+    paypal_subscription_id: str,
+) -> dict:
+    headers = construct_paypal_auth_headers()
+
+    response = requests.get(
+        url=f"{PAYPAL_SUBSCRIPTIONS_BASE_URL}/{paypal_subscription_id}",
+        headers=headers,
+    )
+
+    return response.json()
+
+
+def subscription_is_active(
+    *,
+    paypal_subscription_id: str,
+) -> bool:
+    """Check the status of a PayPal subscription."""
+    # Check the cache first
+    status = cache.get(paypal_subscription_id)
+
+    if status is None:
+        subscription = get_subscription(
+            paypal_subscription_id=paypal_subscription_id,
+        )
+
+        status = subscription["status"]
+
+        # Cache the status for one day
+        cache.set(
+            paypal_subscription_id,
+            status,
+            ONE_DAY_S,
+        )
+
+
+    return status == "ACTIVE"
