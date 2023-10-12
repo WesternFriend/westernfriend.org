@@ -15,6 +15,8 @@ from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
 
+from paypal import paypal
+
 if TYPE_CHECKING:
     from .forms import SubscriptionCreateForm  # pragma: no cover
 
@@ -256,6 +258,13 @@ class Subscription(models.Model):
 
     def __str__(self) -> str:
         return f"Subscription {self.id}"  # type: ignore
+    
+    @property
+    def is_active(self) -> bool:
+        """Return whether the subscription is active."""
+        return paypal.subscription_is_active(
+            paypal_subscription_id=self.paypal_subscription_id,
+        )
 
     @property
     def subscriber_full_name(self) -> str:
