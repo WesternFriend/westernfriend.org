@@ -14,4 +14,9 @@ urlpatterns = [
         views.capture_paypal_order,
         name="capture_paypal_order",
     ),
+    path(
+        "paypal/subscription/link/",
+        views.link_paypal_subscription,
+        name="link_paypal_subscription",
+    ),
 ]
