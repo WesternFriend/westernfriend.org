@@ -183,12 +183,6 @@ class Subscription(models.Model):
 
     paid = models.BooleanField(default=False)
 
-    braintree_subscription_id = models.CharField(
-        max_length=255,
-        blank=True,
-        help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.",  # noqa: E501
-    )
-
     panels = [
         MultiFieldPanel(
             heading="Subscriber details",
