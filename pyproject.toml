@@ -65,7 +65,6 @@ classifiers = [
 dependencies = [
     # keep-sorted start
     "boto3",
-    "braintree",
     "crispy-bootstrap5",
     "dj-database-url",
     "django",
