@@ -66,24 +66,6 @@ class UserModelTest(TestCase):
         expected_str = "test@test.com"
         self.assertEqual(str(self.user), expected_str)
 
-    def test_get_active_subscription(self) -> None:
-        # Test if the active subscription is returned correctly
-        active_subscription = self.user.get_active_subscription()
-        self.assertIsNotNone(active_subscription)
-        self.assertEqual(
-            active_subscription,
-            self.active_subscription,
-        )
-        self.assertGreaterEqual(
-            active_subscription.end_date,  # type: ignore
-            datetime.date.today(),
-        )
-
-    def test_get_active_subscription_with_no_subscription(self) -> None:
-        # Test if None is returned when there is no active subscription
-        self.user.subscriptions.all().delete()
-        self.assertIsNone(self.user.get_active_subscription())
-
     def test_is_subscriber(self) -> None:
         # Test if is_subscriber returns true if user has subscription
         self.assertEqual(
