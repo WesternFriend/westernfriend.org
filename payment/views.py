@@ -9,11 +9,9 @@ from django.shortcuts import get_object_or_404, render
 from orders.models import Order
 
 
-
 paypal_client_id = settings.PAYPAL_CLIENT_ID
 
 logger = logging.getLogger(__name__)
-
 
 
 def render_payment_processing_page(
@@ -30,6 +28,7 @@ def render_payment_processing_page(
             "order": order,
         },
     )
+
 
 def process_bookstore_order_payment(
     request: HttpRequest,

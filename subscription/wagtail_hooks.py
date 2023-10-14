@@ -17,7 +17,7 @@ class SubscriptionModelAdmin(ModelAdmin):
         "paypal_subscription_id",
         # TODO: consider and test the performance impact
         # of including is_active in the list display.
-        #"is_active",
+        # "is_active",
     )
     search_fields = (
         "user",

@@ -11,7 +11,8 @@ PAYPAL_API_URL = "https://api.sandbox.paypal.com"
 PAYPAL_ORDER_BASE_URL = f"{PAYPAL_API_URL}/v2/checkout/orders"
 PAYPAL_SUBSCRIPTIONS_BASE_URL = f"{PAYPAL_API_URL}/v1/billing/subscriptions"
 
-ONE_DAY_S = 60 * 60 * 24 # 24 hours
+ONE_DAY_S = 60 * 60 * 24  # 24 hours
+
 
 class PayPalError(Exception):
     pass
@@ -148,6 +149,5 @@ def subscription_is_active(
             status,
             ONE_DAY_S,  # 24 hours
         )
-
 
     return status == "ACTIVE"
