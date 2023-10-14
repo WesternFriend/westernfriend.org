@@ -27,6 +27,7 @@ class Subscription(models.Model):
         editable=True,
         on_delete=models.PROTECT,
         related_name="subscriptions",
+        unique=True, # Only one subscription per user
     )
 
     paypal_subscription_id = models.CharField(
