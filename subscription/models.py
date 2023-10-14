@@ -21,12 +21,12 @@ logger = logging.getLogger(__name__)
 class Subscription(models.Model):
     """A subscription to the magazine."""
 
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         verbose_name="subscriber",
         editable=True,
         on_delete=models.PROTECT,
-        related_name="subscriptions",
+        related_name="subscription",
         unique=True,  # Only one subscription per user
     )
 
