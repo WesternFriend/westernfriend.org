@@ -1,4 +1,3 @@
-import datetime
 from django.test import TestCase
 from .models import User
 from subscription.models import Subscription
@@ -48,17 +47,14 @@ class UserModelTest(TestCase):
             email="test@test.com",
             password="testpass",
         )
-        today = datetime.date.today()
+
         # Creating active subscription
         self.active_subscription = Subscription.objects.create(
             user=self.user,
-            end_date=today + datetime.timedelta(days=7),
-            paid=True,
         )
         # Creating expired subscription
         self.expired_subscription = Subscription.objects.create(
             user=self.user,
-            end_date=today - datetime.timedelta(days=7),
         )
 
     def test_user_str_representation(self) -> None:
