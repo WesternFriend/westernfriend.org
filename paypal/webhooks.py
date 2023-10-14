@@ -1,3 +1,7 @@
+# TODO: Consider deprecating this module
+# since we will fetch subscription status
+# at runtime meaning there is no need
+# to handle subscription changes
 import json
 
 
