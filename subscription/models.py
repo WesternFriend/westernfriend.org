@@ -27,7 +27,7 @@ class Subscription(models.Model):
         editable=True,
         on_delete=models.PROTECT,
         related_name="subscriptions",
-        unique=True, # Only one subscription per user
+        unique=True,  # Only one subscription per user
     )
 
     paypal_subscription_id = models.CharField(
@@ -80,7 +80,7 @@ class SubscriptionIndexPage(Page):
             ),
         ],
         blank=True,
-        use_json_field=True
+        use_json_field=True,
     )
 
     content_panels = Page.content_panels + [
