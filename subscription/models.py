@@ -10,7 +10,6 @@ from wagtail.fields import RichTextField, StreamField
 from wagtail import blocks as wagtail_blocks
 from wagtail.models import Page
 
-from blocks import blocks as wf_blocks
 from paypal import blocks as paypal_blocks
 
 from paypal import paypal
