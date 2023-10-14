@@ -59,3 +59,8 @@ repos:
           - markdown
           - scss
           - yaml
+  - repo: https://github.com/google/keep-sorted
+    rev: v0.1.0
+    hooks:
+      - id: keep-sorted
+        exclude: ".*migrations/.*"
