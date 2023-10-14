@@ -32,9 +32,9 @@ def create_paypal_order(
         ),
     )
 
-    paypal_response.raise_for_status()
+    paypal_response.raise_for_status()  # type: ignore
 
-    return JsonResponse(paypal_response.json())
+    return JsonResponse(paypal_response.json())  # type: ignore
 
 
 def capture_paypal_order(
@@ -54,11 +54,11 @@ def capture_paypal_order(
         paypal_order_id=paypal_order_id,
     )
     # TODO: Attach paypal_payment_id to order
-    paypal_response.raise_for_status()
+    paypal_response.raise_for_status()  # type: ignore
 
     return JsonResponse(
-        paypal_response.json(),
-        status=paypal_response.status_code,
+        paypal_response.json(),  # type: ignore
+        status=paypal_response.status_code,  # type: ignore
     )
 
 
@@ -72,40 +72,10 @@ def link_paypal_subscription(request) -> JsonResponse:
     )
 
     subscription, created = Subscription.objects.get_or_create(
-        paypal_subscription_id=body_json["subscriptionID"],
         user=request.user,
     )
-
-    if not created:
-        return JsonResponse(
-            {
-                "success": False,
-                "error": "Subscription already exists",
-            },
-            status=400,
-        )
-
-    # If the subscription was created, 
-    # set the user to the current user
-    # as well as the PayPal Subscription ID
-    subscription.user = request.user
-
+    subscription.paypal_subscription_id = body_json["subscriptionID"]
     subscription.save()
-
-    # Ensure the subscription is active
-    # Note: there may be some delay in PayPal marking subscriptions as ACTIVE
-    # that could cause this to fail even though the payment was completed.
-    paypal_subscription_is_active = paypal.subscription_is_active(
-        paypal_subscription_id=subscription.paypal_subscription_id,
-    )
-    if not paypal_subscription_is_active:
-        return JsonResponse(
-            {
-                "success": False,
-                "error": "Subscription is not active",
-            },
-            status=400,
-        )
 
     return JsonResponse(
         {
