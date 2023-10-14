@@ -11,11 +11,6 @@ urlpatterns = [
         name="process_bookstore_order_payment",
     ),
     path(
-        "process/subscription/<int:subscription_id>",
-        views.process_subscription_payment,
-        name="process_subscription_payment",
-    ),
-    path(
         "done/",
         views.payment_done,
         name="done",

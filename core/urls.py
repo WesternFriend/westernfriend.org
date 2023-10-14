@@ -17,7 +17,6 @@ from accounts.forms import CustomUserForm
 from magazine import urls as magazine_urls
 from paypal import urls as paypal_urls
 from search import views as search_views
-from subscription import urls as subscription_urls
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
@@ -36,7 +35,6 @@ urlpatterns = [
     path("paypal/", include("paypal.urls", namespace="paypal")),
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
-    path("subscriptions/", include(subscription_urls), name="subscriptions"),
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's page serving mechanism. This should be the last pattern in
     # the list:
