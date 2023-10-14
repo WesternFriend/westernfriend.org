@@ -41,8 +41,8 @@ def get_auth_token() -> str:
     response = requests.post(
         url=f"{PAYPAL_API_URL}/v1/oauth2/token",
         auth=(
-            settings.PAYPAL_CLIENT_ID,
-            settings.PAYPAL_CLIENT_SECRET,
+            settings.PAYPAL_CLIENT_ID,  # type: ignore
+            settings.PAYPAL_CLIENT_SECRET,  # type: ignore
         ),  # type: ignore
         data={
             "grant_type": "client_credentials",
@@ -88,7 +88,7 @@ def create_order(
         },
     )
 
-    return response
+    return response.json()
 
 
 def capture_order(
@@ -109,7 +109,7 @@ def capture_order(
         # "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
     )
 
-    return response
+    return response.json()
 
 
 def get_subscription(
