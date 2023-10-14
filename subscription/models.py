@@ -6,8 +6,12 @@ from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
 from wagtail.admin.panels import FieldPanel
-from wagtail.fields import RichTextField
+from wagtail.fields import RichTextField, StreamField
+from wagtail import blocks as wagtail_blocks
 from wagtail.models import Page
+
+from blocks import blocks as wf_blocks
+from paypal import blocks as paypal_blocks
 
 from paypal import paypal
 
@@ -63,8 +67,24 @@ class Subscription(models.Model):
 class SubscriptionIndexPage(Page):
     intro = RichTextField(blank=True)
 
+    body = StreamField(
+        [
+            (
+                "paragraph",
+                wagtail_blocks.RichTextBlock(),
+            ),
+            (
+                "paypal_button",
+                paypal_blocks.PayPalSubscriptionPlanButtonBlock(),
+            ),
+        ],
+        blank=True,
+        use_json_field=True
+    )
+
     content_panels = Page.content_panels + [
         FieldPanel("intro"),
+        FieldPanel("body"),
     ]
 
     parent_page_types = ["home.HomePage"]
@@ -73,6 +93,19 @@ class SubscriptionIndexPage(Page):
     max_count = 1
 
     template = "subscription/index.html"
+
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict[str, Any]:
+        context = super().get_context(request)
+
+        if request.user.is_authenticated:
+            context["paypal_client_id"] = settings.PAYPAL_CLIENT_ID  # type: ignore
+
+        return context
 
 
 class ManageSubscriptionPage(Page):
