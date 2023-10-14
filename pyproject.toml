@@ -79,6 +79,7 @@ dependencies = [
     "gunicorn",
     "psycopg2-binary",
     "python-dotenv",
+    "requests",
     "sentry-sdk",
     "tqdm",
     "tzdata",

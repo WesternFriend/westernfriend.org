@@ -124,7 +124,9 @@ pytz==2023.3.post1
     #   djangorestframework
     #   l18n
 requests==2.31.0
-    # via wagtail
+    # via
+    #   Western-Friend-website (pyproject.toml)
+    #   wagtail
 s3transfer==0.7.0
     # via boto3
 sentry-sdk==1.31.0
