@@ -57,6 +57,7 @@ class Subscription(models.Model):
             "paypal_subscription_id",
             read_only=True,
         ),
+        FieldPanel("expiration_date"),
     ]
 
     def __str__(self) -> str:
