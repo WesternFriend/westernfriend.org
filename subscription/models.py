@@ -74,11 +74,7 @@ class SubscriptionIndexPage(Page):
                 wagtail_blocks.RichTextBlock(),
             ),
             (
-                "paypal_button",
-                paypal_blocks.PayPalSubscriptionPlanButtonBlock(),
-            ),
-            (
-                "card_row",
+                "paypal_card_row",
                 wagtail_blocks.ListBlock(
                     paypal_blocks.PayPalSubscriptionPlanButtonBlock(),
                     template="blocks/blocks/card_row.html",
