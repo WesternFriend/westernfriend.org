@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-
+from django.utils import timezone
 from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
@@ -64,11 +64,26 @@ class Subscription(models.Model):
 
     @property
     def is_active(self) -> bool:
-        """Return whether the subscription is active."""
+        """Return whether the subscription is active.
+        
+        If the subscription has a PayPal subscription ID, check with PayPal.
 
-        return paypal.subscription_is_active(
-            paypal_subscription_id=self.paypal_subscription_id,
-        )
+        Otherwise, if the subscription has an expiration date, check that the date is in the future.
+
+        Otherwise, the subscription is perpetually active (e.g., a Board member subscription).
+        """
+
+        if self.paypal_subscription_id:
+            return paypal.subscription_is_active(
+                paypal_subscription_id=self.paypal_subscription_id,
+            )
+
+        if self.expiration_date is not None:
+            return self.expiration_date >= timezone.now().date()
+        
+        return True
+
+        
 
 
 class SubscriptionIndexPage(Page):
