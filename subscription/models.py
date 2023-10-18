@@ -77,6 +77,13 @@ class SubscriptionIndexPage(Page):
                 "paypal_button",
                 paypal_blocks.PayPalSubscriptionPlanButtonBlock(),
             ),
+            (
+                "card_row",
+                wagtail_blocks.ListBlock(
+                    paypal_blocks.PayPalSubscriptionPlanButtonBlock(),
+                    template="blocks/blocks/card_row.html",
+                ),
+            ),
         ],
         blank=True,
         use_json_field=True,
