@@ -65,7 +65,7 @@ class Subscription(models.Model):
     @property
     def is_active(self) -> bool:
         """Return whether the subscription is active.
-        
+
         If the subscription has a PayPal subscription ID, check with PayPal.
 
         Otherwise, if the subscription has an expiration date, check that the date is in the future.
@@ -80,10 +80,8 @@ class Subscription(models.Model):
 
         if self.expiration_date is not None:
             return self.expiration_date >= timezone.now().date()
-        
-        return True
 
-        
+        return True
 
 
 class SubscriptionIndexPage(Page):
