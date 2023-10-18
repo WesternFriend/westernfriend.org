@@ -15,14 +15,16 @@
             {% include "subscription/login_required.html" %}
         {%  endif %}
     {% else %}
+        <!-- load the PayPal JavaScript SDK with Subscription components before the DOM elements -->
+    <script 
+        src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&vault=true&intent=subscription"></script>
         {% include_block page.body %}
     {% endif %}
 {% endblock %}
 
 {% block extra_js %}
     {% if user.is_authenticated %}
-        <!-- load the PayPal JavaScript SDK with Subscription components -->
-        <script 
-            src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&vault=true&intent=subscription"></script>
+        
+        
     {% endif %}
 {% endblock extra_js %}
