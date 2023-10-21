@@ -14,22 +14,6 @@ paypal_client_id = settings.PAYPAL_CLIENT_ID
 logger = logging.getLogger(__name__)
 
 
-def render_payment_processing_page(
-    request: HttpRequest,
-    order: Order,
-) -> HttpResponse:
-    """Render the payment processing page."""
-
-    return render(
-        request,
-        "payment/process.html",
-        {
-            "paypal_client_id": paypal_client_id,
-            "order": order,
-        },
-    )
-
-
 def process_bookstore_order_payment(
     request: HttpRequest,
     order_id: int,
@@ -38,9 +22,13 @@ def process_bookstore_order_payment(
 
     order = get_object_or_404(Order, id=order_id)
 
-    return render_payment_processing_page(
-        request=request,
-        order=order,
+    return render(
+        request,
+        "payment/process.html",
+        {
+            "paypal_client_id": paypal_client_id,
+            "order": order,
+        },
     )
 
 
