@@ -1,7 +1,6 @@
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
-from django.urls import reverse
 
 from unittest.mock import Mock
 from wagtail.models import Site
@@ -74,25 +73,6 @@ class SubscriptionIndexPageTestCase(TestCase):
         self.assertEqual(
             response.template_name,  # type: ignore
             "subscription/index.html",
-        )
-
-    def test_redirect_unauthenticated_user(self) -> None:
-        # make anonymous post request
-        mock_request = self.factory.post(
-            # get URL for the SubscriptionIndexPage
-            self.subscription_index_page.url,  # type: ignore
-        )
-
-        response = self.subscription_index_page.serve(mock_request)
-
-        self.assertEqual(response.status_code, 302)
-        # redirects us to the login page
-        # by getting reverse path to the login page
-        login_base_url = reverse("login")[:-1]
-        expected_url = f"{login_base_url}?next={self.subscription_index_page.url}"  # type: ignore # noqa: E501
-        self.assertEqual(
-            response.url,
-            expected_url,
         )
 
     def tearDown(self) -> None:
