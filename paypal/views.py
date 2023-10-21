@@ -74,15 +74,22 @@ def capture_paypal_order(
 
     paypal_order_id = body_json["paypalOrderId"]
 
-    paypal_response = capture_order(
-        paypal_order_id=paypal_order_id,
-    )
-    # TODO: Attach paypal_payment_id to order
-    paypal_response.raise_for_status()  # type: ignore
+    try:
+        paypal_response = capture_order(
+            paypal_order_id=paypal_order_id,
+        )
+    except Exception as exception:
+        logger.exception(exception)
+        return JsonResponse(
+            {
+                "error": "Error capturing PayPal order.",
+            },
+            status=500,
+        )
 
     return JsonResponse(
-        paypal_response.json(),  # type: ignore
-        status=paypal_response.status_code,  # type: ignore
+        paypal_response,
+        status=HTTPStatus.CREATED,
     )
 
 
