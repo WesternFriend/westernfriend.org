@@ -5,8 +5,6 @@ from accounts.models import User
 from home.models import HomePage
 from magazine.factories import MagazineIndexPageFactory, MagazineIssueFactory
 from subscription.models import (
-    MagazineFormatChoices,
-    MagazinePriceGroupChoices,
     Subscription,
 )
 from .models import (
@@ -414,10 +412,7 @@ class MagazineArticleTest(TestCase):
             password="password",  # nosec - Banned password
         )
         self.subscription = Subscription.objects.create(
-            magazine_format=MagazineFormatChoices.PRINT,
-            price_group=MagazinePriceGroupChoices.BASIC,
             user=self.subscriber_user,
-            paid=True,
         )
 
         site_root = Page.objects.get(id=2)
