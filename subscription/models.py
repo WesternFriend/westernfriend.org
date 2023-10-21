@@ -12,7 +12,7 @@ from wagtail.models import Page
 
 from paypal import blocks as paypal_blocks
 
-from paypal import paypal
+from paypal import utils as paypal_utils
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ class Subscription(models.Model):
         """
 
         if self.paypal_subscription_id:
-            return paypal.subscription_is_active(
+            return paypal_utils.subscription_is_active(
                 paypal_subscription_id=self.paypal_subscription_id,
             )
 

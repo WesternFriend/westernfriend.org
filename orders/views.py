@@ -4,7 +4,6 @@ from django.urls import reverse
 
 from cart.cart import Cart
 from orders.forms import OrderCreateForm
-from paypal import paypal
 from .models import Order, OrderItem
 
 

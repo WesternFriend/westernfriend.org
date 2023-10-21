@@ -15,7 +15,6 @@ import debug_toolbar
 # from django_registration.backends.activation.views import RegistrationView
 from accounts.forms import CustomUserForm
 from magazine import urls as magazine_urls
-from paypal import urls as paypal_urls
 from search import views as search_views
 
 urlpatterns = [
