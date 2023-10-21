@@ -126,8 +126,7 @@ class SubscriptionIndexPage(Page):
     ) -> dict[str, Any]:
         context = super().get_context(request)
 
-        if request.user.is_authenticated:
-            context["paypal_client_id"] = settings.PAYPAL_CLIENT_ID  # type: ignore
+        context["paypal_client_id"] = settings.PAYPAL_CLIENT_ID  # type: ignore
 
         return context
 
