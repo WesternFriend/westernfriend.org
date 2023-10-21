@@ -62,6 +62,7 @@ def create_paypal_order(
         )
 
 
+@require_POST
 def capture_paypal_order(
     request,
 ) -> JsonResponse:
