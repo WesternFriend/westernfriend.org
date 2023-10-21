@@ -1,6 +1,6 @@
 import requests
-from .constants import DEFAULT_CURRENCY_CODE, PAYPAL_ORDER_BASE_URL, construct_paypal_auth_headers
-
+from .constants import PAYPAL_ORDER_BASE_URL
+from .utils import DEFAULT_CURRENCY_CODE, construct_paypal_auth_headers
 
 def create_order(
     *,

@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 from orders.models import Order
 from subscription.models import Subscription
 
-from . import paypal
+from .orders import capture_order, create_order
 
 
 def create_paypal_order(
@@ -26,7 +26,7 @@ def create_paypal_order(
         id=body_json["wf_order_id"],
     )
 
-    paypal_response = paypal.create_order(
+    paypal_response = create_order(
         value_usd=str(
             order.get_total_cost(),
         ),
@@ -50,7 +50,7 @@ def capture_paypal_order(
 
     paypal_order_id = body_json["paypalOrderId"]
 
-    paypal_response = paypal.capture_order(
+    paypal_response = capture_order(
         paypal_order_id=paypal_order_id,
     )
     # TODO: Attach paypal_payment_id to order

@@ -3,7 +3,6 @@ from dataclasses import dataclass
 
 from django.conf import settings
 
-
 import requests
 
 from paypal.constants import PAYPAL_API_URL
@@ -16,6 +15,8 @@ class PayPalError(Exception):
 
 class CurrencyCode(enum.Enum):
     USD = "USD"
+
+DEFAULT_CURRENCY_CODE = CurrencyCode.USD
 
 
 @dataclass
