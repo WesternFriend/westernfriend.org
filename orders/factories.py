@@ -33,7 +33,6 @@ class OrderFactory(DjangoModelFactory):
         positive=True,
     )
     paid = factory.Faker("boolean")
-    braintree_transaction_id = factory.Faker("uuid4")
 
 
 class OrderItemFactory(DjangoModelFactory):

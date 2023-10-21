@@ -1,11 +1,9 @@
-import datetime
-import braintree
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
-from django.test import RequestFactory, TestCase, Client
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
-import json
-from unittest.mock import Mock, patch
+
+from unittest.mock import Mock
 from wagtail.models import Site
 
 from accounts.factories import UserFactory
@@ -30,7 +28,7 @@ class SubscriptionTestCase(TestCase):
         subscription = Subscription.objects.create(
             id=123,
             user=self.user,
-            braintree_subscription_id="test_subscription_id",
+            paypal_subscription_id="test_subscription_id",
         )
 
         expected_subscription_str = "Subscription 123"

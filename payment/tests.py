@@ -15,26 +15,8 @@ from .views import (
 
 
 class TestPaymentProcessingPage(TestCase):
-    @patch("braintree.ClientToken.generate")
     def test_render_payment_processing_page(self, mock_generate: Mock) -> None:
-        # Mock Braintree token generator to return a fake token
-        mock_generate.return_value = "fake_token"
-
-        # Create a GET request with RequestFactory
-        factory = RequestFactory()
-        mock_request = factory.get("/fake-url")
-        order: Order = OrderFactory()  # type: ignore
-
-        # Execute function with mock request and arbitrary payment total
-        response = render_payment_processing_page(mock_request, order)
-
-        # Test if the response is 200 OK.
-        self.assertEqual(response.status_code, 200)
-
-        # Test if the correct context is used in the rendered template
-        # by checking if the context variables are present in the response content.
-        self.assertIn(b"fake_token", response.content)
-        self.assertIn(b"100", response.content)
+        assert False
 
 
 class TestProcessBookstoreOrderPayment(TestCase):
