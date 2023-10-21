@@ -100,4 +100,42 @@ class CreateOrderTest(TestCase):
         with self.assertRaises(PayPalError):
             create_order(value_usd="100.00")
 
-        
+
+class CaptureOrderTest(TestCase):
+    @mock.patch("paypal.orders.requests.post")
+    @mock.patch("paypal.orders.construct_paypal_auth_headers")
+    def test_capture_order_success(self, mock_construct_headers, mock_post):
+        # Mock construct_paypal_auth_headers
+        mock_construct_headers.return_value = {
+            "Authorization": "Bearer sample_token",
+            "Content-Type": "application/json",
+        }
+
+        # Mock successful API response
+        mock_response = mock.Mock()
+        mock_response.json.return_value = {"status": "COMPLETED"}
+        mock_post.return_value = mock_response
+
+        # Call function
+        result = capture_order(paypal_order_id="12345")
+
+        # Validate result
+        self.assertEqual(result, {"status": "COMPLETED"})
+
+    @mock.patch("paypal.orders.requests.post")
+    @mock.patch("paypal.orders.construct_paypal_auth_headers")
+    def test_capture_order_failure(self, mock_construct_headers, mock_post):
+        # Mock construct_paypal_auth_headers
+        mock_construct_headers.return_value = {
+            "Authorization": "Bearer sample_token",
+            "Content-Type": "application/json",
+        }
+
+        # Mock API failure
+        mock_response = mock.Mock()
+        mock_response.raise_for_status.side_effect = HTTPError()
+        mock_post.return_value = mock_response
+
+        # Call function and expect a PayPalError
+        with self.assertRaises(PayPalError):  # Replace with your actual exception class
+            capture_order(paypal_order_id="12345")
