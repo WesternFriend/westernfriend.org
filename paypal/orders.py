@@ -1,6 +1,7 @@
 import requests
+from requests import HTTPError
 from .constants import PAYPAL_ORDER_BASE_URL
-from .utils import DEFAULT_CURRENCY_CODE, construct_paypal_auth_headers
+from .utils import DEFAULT_CURRENCY_CODE, PayPalError, construct_paypal_auth_headers
 
 def create_order(
     *,
@@ -25,6 +26,10 @@ def create_order(
             ],
         },
     )
+    try:
+        response.raise_for_status()
+    except HTTPError as error:
+        raise PayPalError(error)
 
     return response.json()
 

@@ -1,4 +1,7 @@
+from dataclasses import dataclass
+from http import HTTPStatus
 import json
+import logging
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -8,6 +11,13 @@ from orders.models import Order
 from subscription.models import Subscription
 
 from .orders import capture_order, create_order
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class CreatePayPalOrderResponse:
+    order_id: str
 
 
 def create_paypal_order(
@@ -26,15 +36,29 @@ def create_paypal_order(
         id=body_json["wf_order_id"],
     )
 
-    paypal_response = create_order(
-        value_usd=str(
-            order.get_total_cost(),
-        ),
-    )
+    try:
+        paypal_response = create_order(
+            value_usd=str(
+                order.get_total_cost(),
+            ),
+        )
 
-    paypal_response.raise_for_status()  # type: ignore
+        create_paypal_order_response = CreatePayPalOrderResponse(
+            order_id=paypal_response.get('id', ''),
+        )
 
-    return JsonResponse(paypal_response.json())  # type: ignore
+        return JsonResponse(
+            create_paypal_order_response.__dict__,
+            status=HTTPStatus.CREATED,
+        )
+    except Exception as exception:
+        logger.exception(exception)
+        return JsonResponse(
+            {
+                "error": "Error creating PayPal order.",
+            },
+            status=500,
+        )
 
 
 def capture_paypal_order(
