@@ -1,4 +1,5 @@
 from unittest import mock
+from django.core.cache import cache
 from django.test import TestCase
 from requests.exceptions import HTTPError
 
@@ -126,7 +127,9 @@ class CaptureOrderTest(TestCase):
     @mock.patch("paypal.orders.logger")
     @mock.patch("paypal.orders.requests.post")
     @mock.patch("paypal.orders.construct_paypal_auth_headers")
-    def test_capture_order_failure(self, mock_construct_headers, mock_post, mock_logger):
+    def test_capture_order_failure(
+        self, mock_construct_headers, mock_post, mock_logger
+    ):
         # Mock construct_paypal_auth_headers
         mock_construct_headers.return_value = {
             "Authorization": "Bearer sample_token",
@@ -147,11 +150,12 @@ class CaptureOrderTest(TestCase):
 
 
 class GetSubscriptionTest(TestCase):
-
-    @mock.patch('paypal.subscriptions.logger')
-    @mock.patch('paypal.subscriptions.requests.get')
-    @mock.patch('paypal.subscriptions.construct_paypal_auth_headers')
-    def test_get_subscription_success(self, mock_construct_headers, mock_get, mock_logger):
+    @mock.patch("paypal.subscriptions.logger")
+    @mock.patch("paypal.subscriptions.requests.get")
+    @mock.patch("paypal.subscriptions.construct_paypal_auth_headers")
+    def test_get_subscription_success(
+        self, mock_construct_headers, mock_get, mock_logger
+    ):
         # Mock construct_paypal_auth_headers
         mock_construct_headers.return_value = {
             "Authorization": "Bearer sample_token",
@@ -160,19 +164,21 @@ class GetSubscriptionTest(TestCase):
 
         # Mock successful API response
         mock_response = mock.Mock()
-        mock_response.json.return_value = {'status': 'ACTIVE'}
+        mock_response.json.return_value = {"status": "ACTIVE"}
         mock_get.return_value = mock_response
 
         # Call function
-        result = get_subscription(paypal_subscription_id='sub12345')
+        result = get_subscription(paypal_subscription_id="sub12345")
 
         # Validate result
-        self.assertEqual(result, {'status': 'ACTIVE'})
+        self.assertEqual(result, {"status": "ACTIVE"})
 
-    @mock.patch('paypal.subscriptions.logger')
-    @mock.patch('paypal.subscriptions.requests.get')
-    @mock.patch('paypal.subscriptions.construct_paypal_auth_headers')
-    def test_get_subscription_failure(self, mock_construct_headers, mock_get, mock_logger):
+    @mock.patch("paypal.subscriptions.logger")
+    @mock.patch("paypal.subscriptions.requests.get")
+    @mock.patch("paypal.subscriptions.construct_paypal_auth_headers")
+    def test_get_subscription_failure(
+        self, mock_construct_headers, mock_get, mock_logger
+    ):
         # Mock construct_paypal_auth_headers
         mock_construct_headers.return_value = {
             "Authorization": "Bearer sample_token",
@@ -186,7 +192,65 @@ class GetSubscriptionTest(TestCase):
 
         # Call function and expect a PayPalError
         with self.assertRaises(PayPalError):  # Replace with your actual exception class
-            get_subscription(paypal_subscription_id='sub12345')
+            get_subscription(paypal_subscription_id="sub12345")
 
         # Check if logger.exception has been called
         mock_logger.exception.assert_called()
+
+
+class SubscriptionIsActiveTest(TestCase):
+    @mock.patch("paypal.subscriptions.get_subscription")
+    def test_subscription_is_active_cache_miss(self, mock_get_subscription):
+        # Mock get_subscription for cache miss scenario
+        mock_get_subscription.return_value = {"status": "ACTIVE"}
+
+        # Ensure the cache is empty
+        cache.clear()
+
+        # Call function
+        result = subscription_is_active(paypal_subscription_id="sub12345")
+
+        # Validate result
+        self.assertTrue(result)
+
+    @mock.patch("paypal.subscriptions.get_subscription")
+    def test_subscription_is_active_cache_hit(self, mock_get_subscription):
+        # Populate the cache
+        cache.set("paypal_subscription_sub12345", "ACTIVE", None)
+
+        # Call function
+        result = subscription_is_active(paypal_subscription_id="sub12345")
+
+        # Validate result
+        self.assertTrue(result)
+
+        # Make sure get_subscription was not called
+        mock_get_subscription.assert_not_called()
+
+    @mock.patch("paypal.subscriptions.get_subscription")
+    def test_subscription_is_not_active(self, mock_get_subscription):
+        # Mock get_subscription for an inactive subscription
+        mock_get_subscription.return_value = {"status": "INACTIVE"}
+
+        # Ensure the cache is empty
+        cache.clear()
+
+        # Call function
+        result = subscription_is_active(paypal_subscription_id="sub12345")
+
+        # Validate result
+        self.assertFalse(result)
+
+    @mock.patch("paypal.subscriptions.get_subscription")
+    def test_subscription_is_active_error(self, mock_get_subscription):
+        # Mock get_subscription to raise a PayPalError
+        mock_get_subscription.side_effect = PayPalError("Error message")
+
+        # Ensure the cache is empty
+        cache.clear()
+
+        # Call function
+        result = subscription_is_active(paypal_subscription_id="sub12345")
+
+        # Validate result
+        self.assertFalse(result)
