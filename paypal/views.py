@@ -104,7 +104,7 @@ def link_paypal_subscription(request) -> JsonResponse:
         request.body.decode("utf-8"),
     )
 
-    subscription, created = Subscription.objects.get_or_create(
+    subscription, _ = Subscription.objects.get_or_create(
         user=request.user,
     )
     subscription.paypal_subscription_id = body_json["subscriptionID"]
