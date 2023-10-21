@@ -138,7 +138,6 @@ INSTALLED_APPS = [
     "contact",
     "content_migration",
     "documents",
-    "donations",
     "events",
     "facets",
     "forms",

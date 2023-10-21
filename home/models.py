@@ -20,7 +20,6 @@ class HomePage(Page):
         "community.CommunityPage",
         "documents.PublicBoardDocumentIndexPage",
         "documents.MeetingDocumentIndexPage",
-        "donations.DonatePage",
         "events.EventsIndexPage",
         "facets.FacetIndexPage",
         "forms.ContactFormPage",
