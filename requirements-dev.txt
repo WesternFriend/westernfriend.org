@@ -10,11 +10,11 @@ asgiref==3.7.2
     # via django
 beautifulsoup4==4.11.2
     # via wagtail
-black==23.9.1
+black==23.10.0
     # via Western-Friend-website (pyproject.toml)
-boto3==1.28.63
+boto3==1.28.68
     # via Western-Friend-website (pyproject.toml)
-botocore==1.31.63
+botocore==1.31.68
     # via
     #   boto3
     #   s3transfer
@@ -73,7 +73,7 @@ django-browser-reload==1.12.0
     # via Western-Friend-website (pyproject.toml)
 django-coverage-plugin==3.1.0
     # via Western-Friend-website (pyproject.toml)
-django-crispy-forms==2.0
+django-crispy-forms==2.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
@@ -93,9 +93,9 @@ django-registration==3.4
     # via Western-Friend-website (pyproject.toml)
 django-storages==1.14.2
     # via Western-Friend-website (pyproject.toml)
-django-stubs[compatible-mypy]==4.2.4
+django-stubs[compatible-mypy]==4.2.5
     # via Western-Friend-website (pyproject.toml)
-django-stubs-ext==4.2.2
+django-stubs-ext==4.2.5
     # via django-stubs
 django-taggit==4.0.0
     # via wagtail
@@ -114,7 +114,7 @@ factory-boy==3.3.0
     #   Western-Friend-website (pyproject.toml)
     #   types-factory-boy
     #   wagtail-factories
-faker==19.10.0
+faker==19.11.0
     # via factory-boy
 fastjsonschema==2.18.1
     # via validate-pyproject
@@ -136,7 +136,7 @@ jmespath==1.0.1
     #   botocore
 l18n==2021.3
     # via wagtail
-mypy==1.5.1
+mypy==1.6.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   django-stubs
@@ -155,11 +155,11 @@ packaging==23.2
     #   gunicorn
 pathspec==0.11.2
     # via black
-pillow==10.0.1
+pillow==10.1.0
     # via
     #   pillow-heif
     #   wagtail
-pillow-heif==0.13.0
+pillow-heif==0.13.1
     # via willow
 pip-tools==7.3.0
     # via Western-Friend-website (pyproject.toml)
@@ -213,7 +213,7 @@ tqdm==4.66.1
     # via Western-Friend-website (pyproject.toml)
 types-beautifulsoup4==4.12.0.6
     # via Western-Friend-website (pyproject.toml)
-types-braintree==4.23.0.0
+types-braintree==4.23.0.1
     # via Western-Friend-website (pyproject.toml)
 types-factory-boy==0.4.1
     # via Western-Friend-website (pyproject.toml)
@@ -223,7 +223,7 @@ types-pytz==2023.3.1.1
     # via django-stubs
 types-pyyaml==6.0.12.12
     # via django-stubs
-types-requests==2.31.0.9
+types-requests==2.31.0.10
     # via Western-Friend-website (pyproject.toml)
 types-tqdm==4.66.0.2
     # via Western-Friend-website (pyproject.toml)
@@ -238,7 +238,7 @@ typing-extensions==4.8.0
     #   types-factory-boy
 tzdata==2023.3
     # via Western-Friend-website (pyproject.toml)
-urllib3==2.0.6
+urllib3==2.0.7
     # via
     #   botocore
     #   requests
@@ -248,7 +248,7 @@ validate-pyproject==0.15
     # via Western-Friend-website (pyproject.toml)
 virtualenv==20.24.5
     # via pre-commit
-wagtail==5.1.2
+wagtail==5.1.3
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail-color-panel
@@ -265,7 +265,9 @@ webencodings==0.5.1
 wheel==0.41.2
     # via pip-tools
 willow[heif]==1.6.2
-    # via wagtail
+    # via
+    #   wagtail
+    #   willow
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

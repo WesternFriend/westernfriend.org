@@ -10,9 +10,9 @@ asgiref==3.7.2
     # via django
 beautifulsoup4==4.11.2
     # via wagtail
-boto3==1.28.63
+boto3==1.28.68
     # via Western-Friend-website (pyproject.toml)
-botocore==1.31.63
+botocore==1.31.68
     # via
     #   boto3
     #   s3transfer
@@ -54,7 +54,7 @@ django==4.2.6
     #   wagtailmedia
 django-coverage-plugin==3.1.0
     # via Western-Friend-website (pyproject.toml)
-django-crispy-forms==2.0
+django-crispy-forms==2.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
@@ -104,11 +104,11 @@ openpyxl==3.1.2
     # via wagtail
 packaging==23.2
     # via gunicorn
-pillow==10.0.1
+pillow==10.1.0
     # via
     #   pillow-heif
     #   wagtail
-pillow-heif==0.13.0
+pillow-heif==0.13.1
     # via willow
 psycopg2-binary==2.9.9
     # via Western-Friend-website (pyproject.toml)
@@ -153,12 +153,12 @@ typing-extensions==4.8.0
     #   pydantic
 tzdata==2023.3
     # via Western-Friend-website (pyproject.toml)
-urllib3==2.0.6
+urllib3==2.0.7
     # via
     #   botocore
     #   requests
     #   sentry-sdk
-wagtail==5.1.2
+wagtail==5.1.3
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail-color-panel
@@ -170,4 +170,6 @@ wagtailmedia==0.14.4
 webencodings==0.5.1
     # via html5lib
 willow[heif]==1.6.2
-    # via wagtail
+    # via
+    #   wagtail
+    #   willow
