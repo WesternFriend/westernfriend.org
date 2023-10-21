@@ -1,7 +1,8 @@
 from django.core.cache import cache
 import requests
 
-from paypal.constants import ONE_DAY_S, PAYPAL_SUBSCRIPTIONS_BASE_URL, construct_paypal_auth_headers
+from paypal.constants import ONE_DAY_S, PAYPAL_SUBSCRIPTIONS_BASE_URL
+from paypal.utils import construct_paypal_auth_headers
 
 def get_subscription(
     *,
