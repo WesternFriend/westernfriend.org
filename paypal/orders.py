@@ -52,4 +52,9 @@ def capture_order(
         # "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
     )
 
+    try:
+        response.raise_for_status()
+    except HTTPError as error:
+        raise PayPalError(error)
+
     return response.json()
