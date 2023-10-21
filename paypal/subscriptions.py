@@ -9,6 +9,7 @@ from paypal.models import PayPalError
 
 logger = logging.getLogger(__name__)
 
+
 def get_subscription(
     *,
     paypal_subscription_id: str,
