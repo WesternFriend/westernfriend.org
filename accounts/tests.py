@@ -83,4 +83,7 @@ class UserModelTest(TestCase):
         # Test if is_subscriber returns False if user has no subscription
         self.user.subscription.delete()
 
+        # Reload the user object to make sure it reflects the recent changes
+        self.user.refresh_from_db()
+
         self.assertFalse(self.user.is_subscriber)
