@@ -20,6 +20,7 @@ class CreatePayPalOrderResponse:
     order_id: str
 
 
+@require_POST
 def create_paypal_order(
     request,
 ) -> JsonResponse:
