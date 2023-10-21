@@ -42,3 +42,21 @@ class GetAuthTokenTest(TestCase):
         # Test function should raise an error
         with self.assertRaises(PayPalError):
             get_auth_token()
+
+
+class ConstructPayPalAuthHeadersTest(TestCase):
+
+    @mock.patch('paypal.paypal.get_auth_token')
+    def test_construct_paypal_auth_headers(self, mock_get_auth_token):
+        # Mock get_auth_token to return a sample token
+        mock_get_auth_token.return_value = 'sample_token'
+
+        # Call the function and get the result
+        result = construct_paypal_auth_headers()
+
+        # Validate the result
+        expected_result = {
+            "Authorization": "Bearer sample_token",
+            "Content-Type": "application/json",
+        }
+        self.assertEqual(result, expected_result)
