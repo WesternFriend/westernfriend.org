@@ -1,7 +1,11 @@
+import logging
 import requests
 from requests import HTTPError
-from .constants import PAYPAL_ORDER_BASE_URL
-from .utils import DEFAULT_CURRENCY_CODE, PayPalError, construct_paypal_auth_headers
+from .auth import construct_paypal_auth_headers
+from .constants import PAYPAL_ORDER_BASE_URL, DEFAULT_CURRENCY_CODE
+from .models import PayPalError
+
+logger = logging.getLogger(__name__)
 
 def create_order(
     *,
@@ -29,6 +33,7 @@ def create_order(
     try:
         response.raise_for_status()
     except HTTPError as error:
+        logger.exception(error)
         raise PayPalError(error)
 
     return response.json()
@@ -55,6 +60,7 @@ def capture_order(
     try:
         response.raise_for_status()
     except HTTPError as error:
+        logger.exception(error)
         raise PayPalError(error)
 
     return response.json()

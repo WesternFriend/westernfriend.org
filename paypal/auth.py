@@ -1,33 +1,7 @@
-import enum
-from dataclasses import dataclass
-
-from django.conf import settings
-
 import requests
-
+from django.conf import settings
 from paypal.constants import PAYPAL_API_URL
-
-
-
-class PayPalError(Exception):
-    pass
-
-
-class CurrencyCode(enum.Enum):
-    USD = "USD"
-
-DEFAULT_CURRENCY_CODE = CurrencyCode.USD
-
-
-@dataclass
-class PayPalAmount:
-    currency_code: CurrencyCode
-    value: str
-
-
-@dataclass
-class PayPalPurchaseUnit:
-    amount: PayPalAmount
+from paypal.models import PayPalError
 
 
 def get_auth_token() -> str:

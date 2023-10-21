@@ -2,7 +2,10 @@ from unittest import mock
 from django.test import TestCase
 from requests.exceptions import HTTPError
 
-
+from .auth import (
+    get_auth_token,
+    construct_paypal_auth_headers,
+)
 from .orders import (
     create_order,
     capture_order,
@@ -11,15 +14,13 @@ from .subscriptions import (
     get_subscription,
     subscription_is_active,
 )
-from .utils import (
+from .models import (
     PayPalError,
-    get_auth_token,
-    construct_paypal_auth_headers,
 )
 
 
 class GetAuthTokenTest(TestCase):
-    @mock.patch("paypal.paypal.requests.post")
+    @mock.patch("paypal.auth.requests.post")
     def test_get_auth_token_success(self, mock_post):
         # Mock successful API response
         mock_response = mock.Mock()
@@ -31,7 +32,7 @@ class GetAuthTokenTest(TestCase):
         result = get_auth_token()
         self.assertEqual(result, "some_token")
 
-    @mock.patch("paypal.paypal.requests.post")
+    @mock.patch("paypal.auth.requests.post")
     def test_get_auth_token_failure(self, mock_post):
         # Mock failed API response
         mock_response = mock.Mock()
@@ -45,7 +46,7 @@ class GetAuthTokenTest(TestCase):
 
 
 class ConstructPayPalAuthHeadersTest(TestCase):
-    @mock.patch("paypal.paypal.get_auth_token")
+    @mock.patch("paypal.auth.get_auth_token")
     def test_construct_paypal_auth_headers(self, mock_get_auth_token):
         # Mock get_auth_token to return a sample token
         mock_get_auth_token.return_value = "sample_token"
@@ -122,9 +123,10 @@ class CaptureOrderTest(TestCase):
         # Validate result
         self.assertEqual(result, {"status": "COMPLETED"})
 
+    @mock.patch("paypal.orders.logger")
     @mock.patch("paypal.orders.requests.post")
     @mock.patch("paypal.orders.construct_paypal_auth_headers")
-    def test_capture_order_failure(self, mock_construct_headers, mock_post):
+    def test_capture_order_failure(self, mock_construct_headers, mock_post, mock_logger):
         # Mock construct_paypal_auth_headers
         mock_construct_headers.return_value = {
             "Authorization": "Bearer sample_token",
