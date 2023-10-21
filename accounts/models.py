@@ -29,5 +29,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_subscriber(self) -> bool:
         """Check whether user has active subscription."""
+        if not hasattr(self, "subscription"):
+            return False
 
         return self.subscription.is_active
