@@ -413,6 +413,7 @@ class MagazineArticleTest(TestCase):
         )
         self.subscription = Subscription.objects.create(
             user=self.subscriber_user,
+            expiration_date=datetime.date.today() + datetime.timedelta(days=365),
         )
 
         site_root = Page.objects.get(id=2)
