@@ -1,7 +1,13 @@
+from http import HTTPStatus
+import json
 from unittest import mock
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import Client, TestCase
+from django.urls import reverse
 from requests.exceptions import HTTPError
+
+from orders.factories import OrderFactory
+from orders.models import Order
 
 from .auth import (
     get_auth_token,
@@ -254,3 +260,79 @@ class SubscriptionIsActiveTest(TestCase):
 
         # Validate result
         self.assertFalse(result)
+
+
+class CreatePayPalOrderTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.order = OrderFactory()
+        self.order.save()
+        self.url = reverse("paypal:create_paypal_order")
+
+    @mock.patch("paypal.views.create_order")
+    def test_successful_paypal_order(self, mock_create_order):
+        mock_create_order.return_value = {
+            "id": "some_order_id",
+        }
+        payload = json.dumps(
+            {
+                "wf_order_id": self.order.id,
+            }
+        )
+        response = self.client.post(
+            self.url,
+            data=payload,
+            content_type="application/json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            HTTPStatus.CREATED,
+        )
+        self.assertEqual(
+            response.json(),
+            {
+                "order_id": "some_order_id",
+            },
+        )
+
+    @mock.patch("paypal.views.create_order")
+    def test_failed_paypal_order(self, mock_create_order):
+        mock_create_order.side_effect = Exception("Some error")
+        payload = json.dumps(
+            {
+                "wf_order_id": self.order.id,
+            }
+        )
+        response = self.client.post(
+            self.url,
+            data=payload,
+            content_type="application/json",
+        )
+        self.assertEqual(
+            response.status_code,
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
+        self.assertEqual(
+            response.json(),
+            {
+                "error": "Error creating PayPal order.",
+            },
+        )
+
+    def test_order_not_found(self):
+        payload = json.dumps(
+            {
+                "wf_order_id": 9999,
+            }
+        )  # Non-existent Order ID
+        response = self.client.post(
+            self.url,
+            data=payload,
+            content_type="application/json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            HTTPStatus.NOT_FOUND,
+        )
