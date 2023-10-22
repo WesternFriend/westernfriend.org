@@ -469,4 +469,7 @@ class LinkPayPalSubscriptionTest(TestCase):
 
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, HTTPStatus.METHOD_NOT_ALLOWED,)
+        self.assertEqual(
+            response.status_code,
+            HTTPStatus.METHOD_NOT_ALLOWED,
+        )
