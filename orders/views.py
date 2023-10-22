@@ -23,30 +23,8 @@ def create_cart_order_items(
         )
 
 
-def handle_paypal_error(
-    request: HttpRequest,
-    form: OrderCreateForm,
-    cart: Cart,
-) -> HttpResponse:
-    """Handle a PayPal error."""
-
-    message = "A PayPal error occurred while creating your order. Please try again later."  # noqa: E501
-    form.add_error(None, message)
-
-    return render(
-        request,
-        template_name="orders/create.html",
-        context={
-            "cart": cart,
-            "form": form,
-        },
-    )
-
-
 def order_create(request: HttpRequest) -> HttpResponse:
-    # Avoid circular import
-    from .forms import OrderCreateForm
-
+    """Create an Order from the Cart."""
     cart = Cart(request)
 
     if request.method == "POST":
@@ -61,14 +39,10 @@ def order_create(request: HttpRequest) -> HttpResponse:
         form = OrderCreateForm(cart_order)
 
         if form.is_valid():
+            print("In the view: form is valid")
             order = form.save()
 
             create_cart_order_items(order, cart)
-
-            # TODO: consider moving this to the payment app
-            # so it can be cleared after successful payment.
-            # That way, the user can retry checkout if payment fails.
-            # cart.clear()
 
             return redirect(
                 reverse(
@@ -78,7 +52,6 @@ def order_create(request: HttpRequest) -> HttpResponse:
                     },
                 ),
             )
-
         else:
             return render(
                 request,
