@@ -6,7 +6,6 @@ from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
 from cart.cart import Cart
 from cart.tests import scaffold_product_index_page
-from orders.forms import OrderCreateForm
 
 from orders.views import create_cart_order_items
 from store.factories import ProductFactory

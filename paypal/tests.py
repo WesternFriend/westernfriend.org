@@ -8,7 +8,6 @@ from requests.exceptions import HTTPError
 from accounts.models import User
 
 from orders.factories import OrderFactory
-from orders.models import Order
 from subscription.models import Subscription
 
 from .auth import (
