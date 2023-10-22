@@ -151,6 +151,24 @@ class CartTestCase(TestCase):
         self.assertEqual(cart_items[1]["price"], Decimal("19.99"))
         self.assertEqual(cart_items[1]["total_price"], Decimal("39.98"))
 
+    def test_cart_clear(self):
+        # Initialize a Cart object
+        cart = Cart(self.request)
+
+        # Assume add_to_cart is a method to add products to the cart
+        # (this part would depend on your actual Cart implementation)
+        cart.add(self.product1)
+        cart.add(self.product2)
+
+        # Verify the cart is not empty (actual verification depends on your Cart implementation)
+        self.assertNotEqual(cart.cart, {})
+
+        # Clear the cart
+        cart.clear()
+
+        # Verify the cart is now empty
+        self.assertEqual(cart.cart, {})
+
     def tearDown(self) -> None:
         # delete all pages
         Page.objects.all().delete()
