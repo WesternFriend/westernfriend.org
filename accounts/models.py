@@ -25,27 +25,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self) -> str:
         return self.email
 
-    # TODO: refactor this to `get_active_subscriptions`
-    # and return a list of active subscriptions
-    # so we can allow use-cases where a user can have multiple active subscriptions
-    # such as managing subscriptions for a Meeting or a Group
-    def get_active_subscription(self) -> Subscription | None:
-        """Get subscription that isn't expired for this user."""
-        today = datetime.datetime.today()
-
-        # using filter.first() instead of get() because get() throws an exception
-        # if there are multiple active subscriptions
-        # TODO: determine how to handle multiple active subscriptions
-        return self.subscriptions.filter(
-            end_date__gte=today,
-            paid=True,
-        ).first()
 
     @property
     def is_subscriber(self) -> bool:
         """Check whether user has active subscription."""
+        if not hasattr(self, "subscription"):
+            return False
 
-        if self.get_active_subscription() is not None:
-            return True
-
-        return False
+        return self.subscription.is_active

@@ -15,8 +15,6 @@ import os
 import sys
 
 import dj_database_url
-from braintree import Configuration as BraintreeConfiguration
-from braintree import Environment as BraintreeEnvironment
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 import sentry_sdk
@@ -44,6 +42,8 @@ BASE_DIR = os.path.dirname(CORE_DIR)
 
 
 SECURE_REFERRER_POLICY = "strict-origin"
+# Allow PayPal to open up in-context pop-ups
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 
@@ -112,24 +112,18 @@ AUTH_USER_MODEL = "accounts.User"
 
 CART_SESSION_ID = "cart"
 
-# Braintree settings
-BRAINTREE_ENVIRONMENT = os.getenv("BRAINTREE_ENVIRONMENT", "sandbox")
-braintree_env = (
-    BraintreeEnvironment.Production  # noqa: E501
-    if BRAINTREE_ENVIRONMENT.lower() == "production"
-    else BraintreeEnvironment.Sandbox  # noqa: E501
+# PayPal settings
+PAYPAL_CLIENT_ENVIRONMENT = os.getenv("PAYPAL_CLIENT_ENVIRONMENT", "sandbox")
+PAYPAL_API_URL = (
+    "https://api-m.paypal.com"
+    if PAYPAL_CLIENT_ENVIRONMENT.lower() == "production"
+    else "https://api-m.sandbox.paypal.com"
 )
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
+PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 
-BRAINTREE_MERCHANT_ID = os.getenv("BRAINTREE_MERCHANT_ID")
-BRAINTREE_PUBLIC_KEY = os.getenv("BRAINTREE_PUBLIC_KEY")
-BRAINTREE_PRIVATE_KEY = os.getenv("BRAINTREE_PRIVATE_KEY")
-
-BraintreeConfiguration.configure(
-    braintree_env,
-    BRAINTREE_MERCHANT_ID,
-    BRAINTREE_PUBLIC_KEY,
-    BRAINTREE_PRIVATE_KEY,
-)
+# TODO: enable PayPal webhook support
+# PAYPAL_WEBHOOK_ID = os.getenv("PAYPAL_WEBHOOK_ID")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -147,7 +141,6 @@ INSTALLED_APPS = [
     "contact",
     "content_migration",
     "documents",
-    "donations",
     "events",
     "facets",
     "forms",
@@ -158,6 +151,7 @@ INSTALLED_APPS = [
     "news",
     "orders",
     "payment.apps.PaymentConfig",
+    "paypal",
     "search",
     "store",
     "subscription",

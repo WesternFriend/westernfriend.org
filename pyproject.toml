@@ -15,6 +15,7 @@ maintainers = [
     { name = "Brylie Christopher Oxley", email = "brylie@amble.fi" }
 ]
 keywords = [
+    # keep-sorted start
     "django",
     "wagtail",
     "website",
@@ -41,8 +42,10 @@ keywords = [
     "quaker-archives",
     "quaker-philosophy",
     "quaker-philanthropy",
+    # keep-sorted end
 ]
 classifiers = [
+    # keep-sorted start
     "Development Status :: 4 - Beta",
     "Environment :: Web Environment",
     "Framework :: Django",
@@ -56,30 +59,34 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Operating System :: OS Independent",
     "Topic :: Religion",
+    "Topic :: Religion :: Quaker",
+    # keep-sorted end
 ]
 dependencies = [
-    "braintree",
-    "django-crispy-forms",
+    # keep-sorted start
+    "boto3",
     "crispy-bootstrap5",
-    "django-registration",
-    "django-flatpickr",
     "dj-database-url",
+    "django",
+    "django-crispy-forms",
+    "django-debug-toolbar",
+    "django-extensions",
+    "django-flatpickr",
+    "django-registration",
+    "django-storages",
+    "django-timezone-field",
+    "django_coverage_plugin",
     "gunicorn",
     "psycopg2-binary",
     "python-dotenv",
-    "tqdm",
-    "django-timezone-field",
-    "tzdata",
-    "wagtail-color-panel",
-    "django-storages",
-    "boto3",
-    "wagtailmedia",
-    "wagtail",
-    "django-extensions",
-    "django",
+    "requests",
     "sentry-sdk",
-    "django-debug-toolbar",
-    "django_coverage_plugin",
+    "tqdm",
+    "tzdata",
+    "wagtail",
+    "wagtail-color-panel",
+    "wagtailmedia",
+    # keep-sorted end
 ]
 
 [project.urls]
@@ -89,6 +96,7 @@ Repository = "https://github.com/WesternFriend/WF-website"
 
 [project.optional-dependencies]
 dev = [
+    # keep-sorted start
     "mypy",
     "django-browser-reload",
     "pre-commit",
@@ -96,7 +104,6 @@ dev = [
     "pre-commit",
     "black",
     "django-stubs[compatible-mypy]",
-    "types-braintree",
     "types-requests",
     "types-tqdm",
     "types-beautifulsoup4",
@@ -106,6 +113,7 @@ dev = [
     "factory_boy",
     "types-factory-boy",
     "wagtail-factories",
+    # keep-sorted end
 ]
 
 [tool.black]

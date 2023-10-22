@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="subscription",
             name="end_date",
-            field=models.DateField(default=subscription.models.one_year_from_today),
+            field=models.DateField(default=datetime.date.today),
         ),
         migrations.AlterField(
             model_name="subscription",

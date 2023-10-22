@@ -46,11 +46,11 @@ class CartTestCase(TestCase):
 
         self.product1 = Product(
             title="Product 1",
-            price=Decimal("9.99"),
+            price_usd=Decimal("9.99"),
         )
         self.product2 = Product(
             title="Product 2",
-            price=Decimal("19.99"),
+            price_usd=Decimal("19.99"),
         )
         product_index_page.add_child(instance=self.product1)
         product_index_page.add_child(instance=self.product2)
@@ -59,18 +59,18 @@ class CartTestCase(TestCase):
         cart = Cart(self.request)
 
         self.assertEqual(len(cart), 0)
-        self.assertEqual(cart.get_subtotal_price(), Decimal("0"))
+        self.assertEqual(cart.get_subtotal_cost(), Decimal("0"))
 
     def test_add_product(self) -> None:
         cart = Cart(self.request)
 
         cart.add(self.product1)
         self.assertEqual(len(cart), 1)
-        self.assertEqual(cart.get_subtotal_price(), Decimal("9.99"))
+        self.assertEqual(cart.get_subtotal_cost(), Decimal("9.99"))
 
         cart.add(self.product1, quantity=2)
         self.assertEqual(len(cart), 2)
-        self.assertEqual(cart.get_subtotal_price(), Decimal("19.98"))
+        self.assertEqual(cart.get_subtotal_cost(), Decimal("19.98"))
 
     def test_save_cart(self) -> None:
         cart = Cart(self.request)
@@ -99,22 +99,22 @@ class CartTestCase(TestCase):
         self.assertIn(self.product1, cart_products)
         self.assertIn(self.product2, cart_products)
 
-    def test_get_subtotal_price(self) -> None:
+    def test_get_subtotal_cost(self) -> None:
         cart = Cart(self.request)
 
         cart.add(self.product1)
         cart.add(self.product2, quantity=2)
 
-        subtotal_price = cart.get_subtotal_price()
+        subtotal_price = cart.get_subtotal_cost()
 
         self.assertEqual(subtotal_price, Decimal("49.97"))
 
-    def test_get_subtotal_price_with_quantity_two(self) -> None:
+    def test_get_subtotal_cost_with_quantity_two(self) -> None:
         cart = Cart(self.request)
 
         cart.add(self.product1, quantity=2)
 
-        subtotal_price = cart.get_subtotal_price()
+        subtotal_price = cart.get_subtotal_cost()
 
         self.assertEqual(subtotal_price, Decimal("19.98"))
 
@@ -150,6 +150,24 @@ class CartTestCase(TestCase):
         self.assertEqual(cart_items[1]["quantity"], 2)
         self.assertEqual(cart_items[1]["price"], Decimal("19.99"))
         self.assertEqual(cart_items[1]["total_price"], Decimal("39.98"))
+
+    def test_cart_clear(self):
+        # Initialize a Cart object
+        cart = Cart(self.request)
+
+        # Assume add_to_cart is a method to add products to the cart
+        # (this part would depend on your actual Cart implementation)
+        cart.add(self.product1)
+        cart.add(self.product2)
+
+        # Verify the cart is not empty (actual verification depends on your Cart implementation)
+        self.assertNotEqual(cart.cart, {})
+
+        # Clear the cart
+        cart.clear()
+
+        # Verify the cart is now empty
+        self.assertEqual(cart.cart, {})
 
     def tearDown(self) -> None:
         # delete all pages

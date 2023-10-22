@@ -954,7 +954,7 @@ class GetOrCreateBookAuthorTest(TestCase):
             instance=Book(
                 title="book_title",
                 slug="book_slug",
-                price=Decimal(10),
+                price_usd=Decimal(10),
             ),
         )
 

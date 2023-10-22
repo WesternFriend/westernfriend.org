@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from cart.cart import Cart
-
+from orders.forms import OrderCreateForm
 from .models import Order, OrderItem
 
 
@@ -11,6 +11,8 @@ def create_cart_order_items(
     order: Order,
     cart: Cart,
 ) -> None:
+    """Create OrderItems from Cart items."""
+
     for item in cart:
         OrderItem.objects.create(
             order=order,
@@ -22,9 +24,7 @@ def create_cart_order_items(
 
 
 def order_create(request: HttpRequest) -> HttpResponse:
-    # Avoid circular import
-    from .forms import OrderCreateForm
-
+    """Create an Order from the Cart."""
     cart = Cart(request)
 
     if request.method == "POST":
@@ -39,16 +39,11 @@ def order_create(request: HttpRequest) -> HttpResponse:
         form = OrderCreateForm(cart_order)
 
         if form.is_valid():
+            print("In the view: form is valid")
             order = form.save()
 
             create_cart_order_items(order, cart)
 
-            # TODO: consider moving this to the payment app
-            # so it can be cleared after successful payment.
-            # That way, the user can retry checkout if payment fails.
-            cart.clear()
-
-            # redirect for payment
             return redirect(
                 reverse(
                     "payment:process_bookstore_order_payment",

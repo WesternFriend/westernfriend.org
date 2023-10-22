@@ -1,0 +1,31 @@
+<div class="card">
+    <div class="card-body text-center">
+        <p class="card-title h2">{{ value.paypal_plan_name }}</p>
+        <p class="card-text h3">${{ value.paypal_plan_price }}</p>
+
+        <div id="paypal-button-container-{{ value.paypal_plan_id }}"></div>
+    </div>
+</div>
+
+<script>
+    // render PayPal subscription buttons
+    paypal.Buttons({
+        createSubscription: function(data, actions) {
+            return actions.subscription.create({
+                'plan_id': '{{ value.paypal_plan_id }}'
+            });
+        },
+        onApprove: function(data, actions) {
+            // alert the user that subscription was created
+            alert('Subscription created!');
+        },
+        // handle error
+        onError(err) {
+            alert("Error!");
+            console.log(err); 
+        }
+    }).render('#paypal-button-container-{{ value.paypal_plan_id }}');
+</script>
+
+
+
