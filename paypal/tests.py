@@ -336,3 +336,59 @@ class CreatePayPalOrderTest(TestCase):
             response.status_code,
             HTTPStatus.NOT_FOUND,
         )
+
+
+class CapturePayPalOrderTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = reverse("paypal:capture_paypal_order")
+        self.paypal_order_id = "sample_order_id"
+
+    @mock.patch("paypal.views.capture_order")
+    def test_successful_order_capture(self, mock_capture_order):
+        mock_capture_order.return_value = {
+            "status": "success",
+        }
+        payload = json.dumps(
+            {
+                "paypalOrderId": self.paypal_order_id,
+            }
+        )
+        response = self.client.post(
+            self.url,
+            data=payload,
+            content_type="application/json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            HTTPStatus.CREATED,
+        )
+        self.assertEqual(
+            response.json(),
+            {
+                "status": "success",
+            },
+        )
+
+    @mock.patch("paypal.views.capture_order")
+    def test_failed_order_capture(self, mock_capture_order):
+        mock_capture_order.side_effect = Exception("Some error")
+        payload = json.dumps(
+            {
+                "paypalOrderId": self.paypal_order_id,
+            }
+        )
+        response = self.client.post(
+            self.url,
+            data=payload,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(
+            response.json(),
+            {
+                "error": "Error capturing PayPal order.",
+            },
+        )
