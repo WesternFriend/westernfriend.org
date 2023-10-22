@@ -45,6 +45,7 @@ class SubscriptionTestCase(TestCase):
         self.user.delete()
         return super().tearDown()
 
+
 class SubscriptionIndexPageTestCase(TestCase):
     def setUp(self) -> None:
         self.user = UserFactory()
@@ -154,15 +155,15 @@ class ManageSubscriptionPageTestCase(TestCase):
         self.assertIsInstance(context["subscriptions"], QuerySet)
         self.assertEqual(len(context["subscriptions"]), 0)
 
-class TestSubscriptionModel(TestCase):
 
-    @patch('subscription.models.paypal_subscriptions.subscription_is_active')
+class TestSubscriptionModel(TestCase):
+    @patch("subscription.models.paypal_subscriptions.subscription_is_active")
     def test_is_active_with_paypal_active(self, mock_is_active):
         mock_is_active.return_value = True
         subscription = Subscription(paypal_subscription_id="some_id")
         self.assertTrue(subscription.is_active)
 
-    @patch('subscription.models.paypal_subscriptions.subscription_is_active')
+    @patch("subscription.models.paypal_subscriptions.subscription_is_active")
     def test_is_active_with_paypal_inactive(self, mock_is_active):
         mock_is_active.return_value = False
         subscription = Subscription(paypal_subscription_id="some_id")
