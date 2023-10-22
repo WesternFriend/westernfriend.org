@@ -104,7 +104,6 @@ dev = [
     "pre-commit",
     "black",
     "django-stubs[compatible-mypy]",
-    "types-braintree",
     "types-requests",
     "types-tqdm",
     "types-beautifulsoup4",
