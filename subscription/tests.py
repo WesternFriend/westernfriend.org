@@ -1,8 +1,10 @@
+from datetime import timedelta
+from django.utils import timezone
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from wagtail.models import Site
 
 from accounts.factories import UserFactory
@@ -151,3 +153,31 @@ class ManageSubscriptionPageTestCase(TestCase):
         # is an empty QuerySet
         self.assertIsInstance(context["subscriptions"], QuerySet)
         self.assertEqual(len(context["subscriptions"]), 0)
+
+class TestSubscriptionModel(TestCase):
+
+    @patch('subscription.models.paypal_subscriptions.subscription_is_active')
+    def test_is_active_with_paypal_active(self, mock_is_active):
+        mock_is_active.return_value = True
+        subscription = Subscription(paypal_subscription_id="some_id")
+        self.assertTrue(subscription.is_active)
+
+    @patch('subscription.models.paypal_subscriptions.subscription_is_active')
+    def test_is_active_with_paypal_inactive(self, mock_is_active):
+        mock_is_active.return_value = False
+        subscription = Subscription(paypal_subscription_id="some_id")
+        self.assertFalse(subscription.is_active)
+
+    def test_is_active_with_future_expiration(self):
+        future_date = timezone.now().date() + timedelta(days=10)
+        subscription = Subscription(expiration_date=future_date)
+        self.assertTrue(subscription.is_active)
+
+    def test_is_active_with_past_expiration(self):
+        past_date = timezone.now().date() - timedelta(days=10)
+        subscription = Subscription(expiration_date=past_date)
+        self.assertFalse(subscription.is_active)
+
+    def test_is_active_with_no_data(self):
+        subscription = Subscription()
+        self.assertFalse(subscription.is_active)
