@@ -114,6 +114,11 @@ CART_SESSION_ID = "cart"
 
 # PayPal settings
 PAYPAL_CLIENT_ENVIRONMENT = os.getenv("PAYPAL_CLIENT_ENVIRONMENT", "sandbox")
+PAYPAL_API_URL = (
+    "https://api-m.paypal.com"
+    if PAYPAL_CLIENT_ENVIRONMENT.lower() == "production"
+    else "https://api-m.sandbox.paypal.com"
+)
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 
