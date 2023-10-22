@@ -1,6 +1,6 @@
 import requests
 from django.conf import settings
-from paypal.constants import PAYPAL_API_URL
+
 from paypal.models import PayPalError
 
 
@@ -8,7 +8,7 @@ def get_auth_token() -> str:
     """Get an auth token from PayPal."""
 
     response = requests.post(
-        url=f"{PAYPAL_API_URL}/v1/oauth2/token",
+        url=f"{settings.PAYPAL_API_URL}/v1/oauth2/token",
         auth=(
             settings.PAYPAL_CLIENT_ID,  # type: ignore
             settings.PAYPAL_CLIENT_SECRET,  # type: ignore
