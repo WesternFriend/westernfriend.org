@@ -82,7 +82,8 @@ class Subscription(models.Model):
         if self.expiration_date is not None:
             return self.expiration_date >= timezone.now().date()
 
-        return True
+        # Default to inactive for safety
+        return False
 
 
 class SubscriptionIndexPage(Page):
