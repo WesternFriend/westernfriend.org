@@ -5,9 +5,11 @@ from django.core.cache import cache
 from django.test import Client, TestCase
 from django.urls import reverse
 from requests.exceptions import HTTPError
+from accounts.models import User
 
 from orders.factories import OrderFactory
 from orders.models import Order
+from subscription.models import Subscription
 
 from .auth import (
     get_auth_token,
@@ -392,3 +394,79 @@ class CapturePayPalOrderTest(TestCase):
                 "error": "Error capturing PayPal order.",
             },
         )
+
+
+class LinkPayPalSubscriptionTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = reverse("paypal:link_paypal_subscription")
+        self.user = User.objects.create_user(
+            email="testuser@email.com",
+            password="testpass",
+        )
+        self.subscription_id = "sample_subscription_id"
+
+    def test_successful_link(self):
+        self.client.login(
+            email="testuser@email.com",
+            password="testpass",
+        )
+        payload = json.dumps(
+            {
+                "subscriptionID": self.subscription_id,
+            }
+        )
+        response = self.client.post(
+            self.url,
+            data=payload,
+            content_type="application/json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            HTTPStatus.OK,
+        )
+        self.assertEqual(
+            response.json(),
+            {
+                "success": True,
+            },
+        )
+
+        subscription = Subscription.objects.get(
+            user=self.user,
+        )
+        self.assertEqual(
+            subscription.paypal_subscription_id,
+            self.subscription_id,
+        )
+
+    def test_unauthenticated_user(self):
+        payload = json.dumps(
+            {
+                "subscriptionID": self.subscription_id,
+            }
+        )
+        response = self.client.post(
+            self.url,
+            data=payload,
+            content_type="application/json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            HTTPStatus.FOUND,
+        )  # Should redirect to login page
+
+    def test_non_post_request(self):
+        logged_in = self.client.login(
+            email="testuser@email.com",
+            password="testpass",
+        )
+        self.assertTrue(
+            logged_in, "Client login failed"
+        )  # Make sure the client is logged in
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HTTPStatus.METHOD_NOT_ALLOWED,)
