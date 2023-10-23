@@ -74,6 +74,11 @@ p {
   margin-top: 0.8em;
 }
 
+#donate-button-container {
+  margin-left: 1em;
+  margin-bottom: 0.3em;
+}
+
 #navbar-search-input {
   background-color: #ffefed;
   border-color: #ffefed;
