@@ -79,7 +79,7 @@ FUNDING_SOURCES.forEach((fundingSource) => {
         // Show a cancel page, or return to cart
         // This URL is safely generated on the server side
         // and does not require HTML decoding.
-        // lgtm js/xss-through-dom
+        // lgtm[js/xss-through-dom]
         window.location.href = currentUrl;
       },
       onError: async (err) => {
