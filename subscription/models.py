@@ -144,7 +144,7 @@ class SubscriptionIndexPage(Page):
         # Redirect to the Manage Subscription page
         # if the user is logged in and has a subscription.
         if (
-            request.user
+            hasattr(request, "user")
             and request.user.is_authenticated
             and request.user.is_subscriber
         ):
@@ -179,7 +179,11 @@ class ManageSubscriptionPage(Page):
     ) -> dict[str, Any]:
         context = super().get_context(request)
 
-        if request.user.is_authenticated:
+        if (
+            hasattr(request, "user")
+            and request.user.is_authenticated
+            and hasattr(request.user, "subscription")
+        ):
             context["subscription"] = request.user.subscription
 
         return context
