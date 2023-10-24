@@ -67,7 +67,7 @@ FUNDING_SOURCES.forEach((fundingSource) => {
         });
 
         if (result.status === 201) {
-          window.location.href = encodeURIComponent(paymentDoneUrl);
+          window.location.href = paymentDoneUrl;
         } else {
           console.log("error");
           console.log(result.status);
