@@ -1,6 +1,5 @@
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
 
@@ -62,7 +61,10 @@ class SubscriptionIndexPageTestCase(TestCase):
             title="Subscription",
         )
         self.home_page.add_child(instance=self.subscription_index_page)
-
+        self.manage_subscription_page = ManageSubscriptionPage(
+            title="Manage Subscription",
+        )
+        self.home_page.add_child(instance=self.manage_subscription_page)
         self.factory = RequestFactory()
 
     def test_subscription_index_page_str(self) -> None:
@@ -76,6 +78,27 @@ class SubscriptionIndexPageTestCase(TestCase):
         self.assertEqual(
             response.template_name,  # type: ignore
             "subscription/index.html",
+        )
+
+    def test_redirect_subscriber_to_manage_subscription_page(self) -> None:
+        subscription = SubscriptionFactory(
+            user=self.user,
+            paypal_subscription_id="",
+            expiration_date=timezone.now().date() + timedelta(days=10),
+        )
+        subscription.save()
+        # create mock HttpRequest
+        mock_http_request = Mock(
+            spec=HttpRequest,
+            user=self.user,
+        )
+
+        response = self.subscription_index_page.serve(mock_http_request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            self.manage_subscription_page.url,
         )
 
     def tearDown(self) -> None:
@@ -130,14 +153,12 @@ class ManageSubscriptionPageTestCase(TestCase):
             request=mock_http_request,
         )
 
-        # assert that context subscriptions
-        # is a QuerySet of Subscriptions
-        self.assertIsInstance(context["subscriptions"], QuerySet)
-        for subscription in context["subscriptions"]:
-            self.assertIsInstance(subscription, Subscription)
-
+        self.assertIsInstance(context["subscription"], Subscription)
         # assert that self.subscription is in the subscriptions queryset
-        self.assertIn(self.subscription, context["subscriptions"])
+        self.assertEqual(
+            context["subscription"],
+            self.subscription,
+        )
 
     def test_manage_subscription_without_user_subscriptions(self) -> None:
         # create mock HttpRequest
@@ -150,10 +171,8 @@ class ManageSubscriptionPageTestCase(TestCase):
             request=mock_http_request,
         )
 
-        # assert that context subscriptions
-        # is an empty QuerySet
-        self.assertIsInstance(context["subscriptions"], QuerySet)
-        self.assertEqual(len(context["subscriptions"]), 0)
+        # assert that the context["subscription"] does not exist
+        self.assertNotIn("subscription", context)
 
 
 class TestSubscriptionModel(TestCase):

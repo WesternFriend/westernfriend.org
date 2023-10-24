@@ -8,7 +8,6 @@ from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
-import debug_toolbar
 
 # TODO: Change this line to send verification emails when registering users
 # Note: this will require two activation email tempates (subject and body)
@@ -51,11 +50,4 @@ if settings.DEBUG:
     urlpatterns += static(
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT,
-    )
-    urlpatterns.insert(
-        0,
-        path(
-            "__debug__/",
-            include(debug_toolbar.urls),
-        ),
     )

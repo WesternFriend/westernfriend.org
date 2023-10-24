@@ -11,14 +11,12 @@ const wfOrderId = currentScript.getAttribute("data-wf-order-id");
 
 // URLs
 const orderCreateUrl = currentScript.getAttribute(
-  "data-paypal-order-create-url"
+  "data-paypal-order-create-url",
 );
 const orderCaptureUrl = currentScript.getAttribute(
-  "data-paypal-order-capture-url"
+  "data-paypal-order-capture-url",
 );
-const paymentDoneUrl = currentScript.getAttribute(
-  "data-payment-done-url"
-);
+const paymentDoneUrl = currentScript.getAttribute("data-payment-done-url");
 
 const FUNDING_SOURCES = [
   paypal.FUNDING.PAYPAL,
@@ -35,9 +33,9 @@ FUNDING_SOURCES.forEach((fundingSource) => {
         color: fundingSource == paypal.FUNDING.PAYLATER ? "gold" : "",
       },
       createOrder: async (data, actions) => {
-        // This function sets up the details of the transaction, 
+        // This function sets up the details of the transaction,
         // including the amount and line item details.
-        return fetch(orderCreateUrl, {
+        const paypalOrderId = await fetch(orderCreateUrl, {
           method: "post",
           headers: {
             "content-type": "application/json",
@@ -47,12 +45,14 @@ FUNDING_SOURCES.forEach((fundingSource) => {
             wf_order_id: wfOrderId,
           }),
         })
-        .then((res) => {
-          return res.json();
-        })
-        .then((orderData) => {
-          return orderData.id;
-        });
+          .then((response) => {
+            return response.json();
+          })
+          .then((orderData) => {
+            return orderData.paypal_order_id;
+          });
+
+        return paypalOrderId;
       },
       onApprove: async (data, actions) => {
         result = await fetch(orderCaptureUrl, {
@@ -67,7 +67,7 @@ FUNDING_SOURCES.forEach((fundingSource) => {
         });
 
         if (result.status === 201) {
-          window.location.href = encodeURIComponent(paymentDoneUrl);
+          window.location.href = paymentDoneUrl;
         } else {
           console.log("error");
           console.log(result.status);
@@ -77,6 +77,9 @@ FUNDING_SOURCES.forEach((fundingSource) => {
       },
       onCancel: async (data, actions) => {
         // Show a cancel page, or return to cart
+        // This URL is safely generated on the server side
+        // and does not require HTML decoding.
+        // lgtm[js/xss-through-dom]
         window.location.href = currentUrl;
       },
       onError: async (err) => {
