@@ -302,7 +302,7 @@ class CreatePayPalOrderTest(TestCase):
         self.assertEqual(
             response.json(),
             {
-                "order_id": "some_order_id",
+                "paypal_order_id": "some_order_id",
             },
         )
 
