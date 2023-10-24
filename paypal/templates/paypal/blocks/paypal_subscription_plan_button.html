@@ -16,16 +16,34 @@
             });
         },
         onApprove: function(data, actions) {
-            // alert the user that subscription was created
-            alert('Subscription created!');
+            // make a POST request to the server
+            // to save subscription details
+            return fetch('{{ link_paypal_subscription_url }}', {
+                method: 'post',
+                headers: {
+                    'content-type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+
+                },
+                body: JSON.stringify({
+                    subscription_id: data.subscriptionID
+                })
+            }).then(function(response) {
+                // response success true means subscription was created
+                if (response.ok) {
+                    // reload the page
+                    // to trigger a redirect to Manage Subscription page
+                    location.reload();
+                } else {
+                    return response.json().then(function(error) {
+                        console.log(error.message);
+                    });
+                }
+            });
         },
         // handle error
-        onError(err) {
-            alert("Error!");
-            console.log(err); 
+        onError(error) {
+            console.log(error);
         }
     }).render('#paypal-button-container-{{ value.paypal_plan_id }}');
 </script>
-
-
-
