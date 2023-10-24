@@ -26,7 +26,8 @@ def create_paypal_order(
 ) -> JsonResponse:
     """Create a PayPal order.
 
-    Return the PayPal response."""
+    Return the PayPal response.
+    """
 
     body_json = json.loads(
         request.body.decode("utf-8"),
@@ -45,7 +46,7 @@ def create_paypal_order(
         )
 
         create_paypal_order_response = CreatePayPalOrderResponse(
-            order_id=paypal_response.get('id', ''),
+            order_id=paypal_response.get("id", ""),
         )
 
         return JsonResponse(
@@ -68,7 +69,8 @@ def capture_paypal_order(
 ) -> JsonResponse:
     """Capture a PayPal order.
 
-    Return the PayPal response."""
+    Return the PayPal response.
+    """
 
     body_json = json.loads(
         request.body.decode("utf-8"),
@@ -107,7 +109,7 @@ def link_paypal_subscription(request) -> JsonResponse:
     subscription, _ = Subscription.objects.get_or_create(
         user=request.user,
     )
-    subscription.paypal_subscription_id = body_json["subscriptionID"]
+    subscription.paypal_subscription_id = body_json["subscription_id"]
     subscription.save()
 
     return JsonResponse(
