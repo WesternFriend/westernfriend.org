@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class CreatePayPalOrderResponse:
-    order_id: str
+    paypal_order_id: str
 
 
 @require_POST
@@ -46,7 +46,7 @@ def create_paypal_order(
         )
 
         create_paypal_order_response = CreatePayPalOrderResponse(
-            order_id=paypal_response.get("id", ""),
+            paypal_order_id=paypal_response.get("id", ""),
         )
 
         return JsonResponse(
