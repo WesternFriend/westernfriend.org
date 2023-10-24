@@ -18,3 +18,4 @@ class SubscriptionFactory(DjangoModelFactory):
     paypal_subscription_id = factory.Sequence(
         lambda n: f"paypal_subscription_id_{n}",
     )
+    expiration_date = factory.Faker("future_date", end_date="+365d")  # type: ignore
