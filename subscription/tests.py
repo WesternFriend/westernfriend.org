@@ -1,6 +1,5 @@
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
 
@@ -130,14 +129,12 @@ class ManageSubscriptionPageTestCase(TestCase):
             request=mock_http_request,
         )
 
-        # assert that context subscriptions
-        # is a QuerySet of Subscriptions
-        self.assertIsInstance(context["subscriptions"], QuerySet)
-        for subscription in context["subscriptions"]:
-            self.assertIsInstance(subscription, Subscription)
-
+        self.assertIsInstance(context["subscription"], Subscription)
         # assert that self.subscription is in the subscriptions queryset
-        self.assertIn(self.subscription, context["subscriptions"])
+        self.assertEqual(
+            context["subscription"],
+            self.subscription,
+        )
 
     def test_manage_subscription_without_user_subscriptions(self) -> None:
         # create mock HttpRequest
@@ -150,10 +147,8 @@ class ManageSubscriptionPageTestCase(TestCase):
             request=mock_http_request,
         )
 
-        # assert that context subscriptions
-        # is an empty QuerySet
-        self.assertIsInstance(context["subscriptions"], QuerySet)
-        self.assertEqual(len(context["subscriptions"]), 0)
+        # assert that the context["subscription"] does not exist
+        self.assertNotIn("subscription", context)
 
 
 class TestSubscriptionModel(TestCase):

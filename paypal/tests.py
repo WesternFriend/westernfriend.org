@@ -135,7 +135,10 @@ class CaptureOrderTest(TestCase):
     @mock.patch("paypal.orders.requests.post")
     @mock.patch("paypal.orders.construct_paypal_auth_headers")
     def test_capture_order_failure(
-        self, mock_construct_headers, mock_post, mock_logger
+        self,
+        mock_construct_headers,
+        mock_post,
+        mock_logger,
     ):
         # Mock construct_paypal_auth_headers
         mock_construct_headers.return_value = {
@@ -161,7 +164,10 @@ class GetSubscriptionTest(TestCase):
     @mock.patch("paypal.subscriptions.requests.get")
     @mock.patch("paypal.subscriptions.construct_paypal_auth_headers")
     def test_get_subscription_success(
-        self, mock_construct_headers, mock_get, mock_logger
+        self,
+        mock_construct_headers,
+        mock_get,
+        mock_logger,
     ):
         # Mock construct_paypal_auth_headers
         mock_construct_headers.return_value = {
@@ -184,7 +190,10 @@ class GetSubscriptionTest(TestCase):
     @mock.patch("paypal.subscriptions.requests.get")
     @mock.patch("paypal.subscriptions.construct_paypal_auth_headers")
     def test_get_subscription_failure(
-        self, mock_construct_headers, mock_get, mock_logger
+        self,
+        mock_construct_headers,
+        mock_get,
+        mock_logger,
     ):
         # Mock construct_paypal_auth_headers
         mock_construct_headers.return_value = {
@@ -278,7 +287,7 @@ class CreatePayPalOrderTest(TestCase):
         payload = json.dumps(
             {
                 "wf_order_id": self.order.id,
-            }
+            },
         )
         response = self.client.post(
             self.url,
@@ -303,7 +312,7 @@ class CreatePayPalOrderTest(TestCase):
         payload = json.dumps(
             {
                 "wf_order_id": self.order.id,
-            }
+            },
         )
         response = self.client.post(
             self.url,
@@ -325,7 +334,7 @@ class CreatePayPalOrderTest(TestCase):
         payload = json.dumps(
             {
                 "wf_order_id": 9999,
-            }
+            },
         )  # Non-existent Order ID
         response = self.client.post(
             self.url,
@@ -353,7 +362,7 @@ class CapturePayPalOrderTest(TestCase):
         payload = json.dumps(
             {
                 "paypalOrderId": self.paypal_order_id,
-            }
+            },
         )
         response = self.client.post(
             self.url,
@@ -378,7 +387,7 @@ class CapturePayPalOrderTest(TestCase):
         payload = json.dumps(
             {
                 "paypalOrderId": self.paypal_order_id,
-            }
+            },
         )
         response = self.client.post(
             self.url,
@@ -412,8 +421,8 @@ class LinkPayPalSubscriptionTest(TestCase):
         )
         payload = json.dumps(
             {
-                "subscriptionID": self.subscription_id,
-            }
+                "subscription_id": self.subscription_id,
+            },
         )
         response = self.client.post(
             self.url,
@@ -444,7 +453,7 @@ class LinkPayPalSubscriptionTest(TestCase):
         payload = json.dumps(
             {
                 "subscriptionID": self.subscription_id,
-            }
+            },
         )
         response = self.client.post(
             self.url,
@@ -463,7 +472,8 @@ class LinkPayPalSubscriptionTest(TestCase):
             password="testpass",
         )
         self.assertTrue(
-            logged_in, "Client login failed"
+            logged_in,
+            "Client login failed",
         )  # Make sure the client is logged in
 
         response = self.client.get(self.url)
