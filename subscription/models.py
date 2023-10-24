@@ -143,7 +143,11 @@ class SubscriptionIndexPage(Page):
     ) -> HttpResponse:
         # Redirect to the Manage Subscription page
         # if the user is logged in and has a subscription.
-        if request.user.is_authenticated and request.user.is_subscriber:
+        if (
+            request.user
+            and request.user.is_authenticated
+            and request.user.is_subscriber
+        ):
             # redirect to manage subscription page
             manage_subscription_page = ManageSubscriptionPage.objects.first()
 
