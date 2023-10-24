@@ -1,10 +1,11 @@
 import logging
 from typing import Any
+from django.shortcuts import redirect
 
 from django.utils import timezone
 from django.conf import settings
 from django.db import models
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail import blocks as wagtail_blocks
@@ -67,11 +68,14 @@ class Subscription(models.Model):
     def is_active(self) -> bool:
         """Return whether the subscription is active.
 
-        If the subscription has a PayPal subscription ID, check with PayPal.
+        If the subscription has a PayPal subscription ID, check with
+        PayPal.
 
-        Otherwise, if the subscription has an expiration date, check that the date is in the future.
+        Otherwise, if the subscription has an expiration date, check
+        that the date is in the future.
 
-        Otherwise, the subscription is perpetually active (e.g., a Board member subscription).
+        Otherwise, the subscription is perpetually active (e.g., a Board
+        member subscription).
         """
 
         if self.paypal_subscription_id:
@@ -131,6 +135,25 @@ class SubscriptionIndexPage(Page):
 
         return context
 
+    def serve(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> HttpResponse:
+        # Redirect to the Manage Subscription page
+        # if the user is logged in and has a subscription.
+        if request.user.is_authenticated and request.user.is_subscriber:
+            # redirect to manage subscription page
+            manage_subscription_page = ManageSubscriptionPage.objects.first()
+
+            if manage_subscription_page:
+                return redirect(
+                    manage_subscription_page.url,
+                )
+
+        return super().serve(request, *args, **kwargs)
+
 
 class ManageSubscriptionPage(Page):
     intro = RichTextField(blank=True)
@@ -153,8 +176,6 @@ class ManageSubscriptionPage(Page):
         context = super().get_context(request)
 
         if request.user.is_authenticated:
-            subscriptions = Subscription.objects.filter(user=request.user)
-
-            context["subscriptions"] = subscriptions
+            context["subscription"] = request.user.subscription
 
         return context
