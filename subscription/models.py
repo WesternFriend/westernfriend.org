@@ -33,9 +33,8 @@ class Subscription(models.Model):
     paypal_subscription_id = models.CharField(
         help_text="The PayPal subscription ID. If this field has a value, PayPal will manage the expiration date.",
         max_length=255,
-        null=False,
+        null=True,
         blank=True,
-        default="",
         unique=True,
     )
 
