@@ -80,6 +80,24 @@ def capture_paypal_order(
     paypal_order_id = body_json["paypal_order_id"]
     paypal_payment_id = body_json["paypal_payment_id"]
 
+    # First, verify the order exists in our database
+    try:
+        order = Order.objects.get(
+            paypal_order_id=paypal_order_id,  # type: ignore
+        )
+    except Order.DoesNotExist:
+        logger.exception(
+            "Order with PayPal order ID %s does not exist.",
+            paypal_order_id,  # type: ignore
+        )
+        return JsonResponse(
+            {
+                "error": "Order does not exist.",
+            },
+            status=404,
+        )
+
+    # Then, capture the order payment in PayPal
     try:
         paypal_response = capture_order(
             paypal_order_id=paypal_order_id,
@@ -93,22 +111,8 @@ def capture_paypal_order(
             status=500,
         )
 
-    try:
-        order = Order.objects.get(
-            paypal_order_id=paypal_order_id,  # type: ignore
-        )
-    except Order.DoesNotExist:
-        logger.exception(
-            "Order with PayPal order ID %s does not exist.",
-            paypal_response["id"],  # type: ignore
-        )
-        return JsonResponse(
-            {
-                "error": "Order does not exist.",
-            },
-            status=404,
-        )
-
+    # Finally, update the order in our database
+    # with the PayPal payment ID and mark it as paid
     order.paypal_payment_id = paypal_payment_id
     order.paid = True
     order.save()
