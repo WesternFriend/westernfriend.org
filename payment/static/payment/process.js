@@ -55,6 +55,8 @@ FUNDING_SOURCES.forEach((fundingSource) => {
         return paypalOrderId;
       },
       onApprove: async (data, actions) => {
+        console.log("onApprove");
+        console.log(data);
         result = await fetch(orderCaptureUrl, {
           method: "post",
           headers: {
@@ -62,7 +64,7 @@ FUNDING_SOURCES.forEach((fundingSource) => {
             "X-CSRFToken": csrfToken,
           },
           body: JSON.stringify({
-            paypalOrderId: data.orderID,
+            paypalOrderId: data.paypal_order_id,
           }),
         });
 

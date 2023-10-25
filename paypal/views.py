@@ -45,12 +45,22 @@ def create_paypal_order(
             ),
         )
 
+        logger.info(
+            "PayPal order created: %s",
+            paypal_response,
+        )
+
         create_paypal_order_response = CreatePayPalOrderResponse(
             paypal_order_id=paypal_response.get("id", ""),
         )
 
+        logger.info(
+            "PayPal order ID: %s",
+            create_paypal_order_response.paypal_order_id,
+        )
+
         return JsonResponse(
-            create_paypal_order_response.__dict__,
+            paypal_order_id=create_paypal_order_response.paypal_order_id,
             status=HTTPStatus.CREATED,
         )
     except Exception as exception:
