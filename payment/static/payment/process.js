@@ -55,8 +55,17 @@ FUNDING_SOURCES.forEach((fundingSource) => {
         return paypalOrderId;
       },
       onApprove: async (data, actions) => {
-        console.log("onApprove");
-        console.log(data);
+        // This data comes from PayPal's servers
+        // with the following information:
+        // {
+        //   orderID: string;
+        //   payerID: string;
+        //   paymentID: string;
+        //   billingToken: string;
+        //   facilitatorAccessToken: string;
+        // }
+
+        // Capture the funds from the transaction
         result = await fetch(orderCaptureUrl, {
           method: "post",
           headers: {
@@ -64,11 +73,12 @@ FUNDING_SOURCES.forEach((fundingSource) => {
             "X-CSRFToken": csrfToken,
           },
           body: JSON.stringify({
-            paypalOrderId: data.paypal_order_id,
+            paypalOrderId: data.orderID,
           }),
         });
 
         if (result.status === 201) {
+          // Show a success page to the buyer
           window.location.href = paymentDoneUrl;
         } else {
           console.log("error");
