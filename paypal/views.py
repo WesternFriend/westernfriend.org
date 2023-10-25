@@ -88,7 +88,8 @@ def capture_paypal_order(
         request.body.decode("utf-8"),
     )
 
-    paypal_order_id = body_json["paypalOrderId"]
+    paypal_order_id = body_json["paypal_order_id"]
+    paypal_payment_id = body_json["paypal_payment_id"]
 
     try:
         paypal_response = capture_order(
@@ -102,6 +103,14 @@ def capture_paypal_order(
             },
             status=500,
         )
+
+    order = get_object_or_404(
+        Order,
+        paypal_order_id=paypal_order_id,
+    )
+
+    order.paypal_payment_id = paypal_payment_id
+    order.save()
 
     return JsonResponse(
         paypal_response,

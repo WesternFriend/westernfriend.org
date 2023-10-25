@@ -73,7 +73,8 @@ FUNDING_SOURCES.forEach((fundingSource) => {
             "X-CSRFToken": csrfToken,
           },
           body: JSON.stringify({
-            paypalOrderId: data.orderID,
+            paypal_order_id: data.orderID,
+            paypal_payment_id: data.paymentID,
           }),
         });
 
