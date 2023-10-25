@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from http import HTTPStatus
 import json
 import logging
@@ -13,11 +12,6 @@ from subscription.models import Subscription
 from .orders import capture_order, create_order
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class CreatePayPalOrderResponse:
-    paypal_order_id: str
 
 
 @require_POST
@@ -44,26 +38,9 @@ def create_paypal_order(
                 order.get_total_cost(),
             ),
         )
-
         logger.info(
             "PayPal order created: %s",
             paypal_response,
-        )
-
-        create_paypal_order_response = CreatePayPalOrderResponse(
-            paypal_order_id=paypal_response.get("id", ""),
-        )
-
-        logger.info(
-            "PayPal order ID: %s",
-            create_paypal_order_response.paypal_order_id,
-        )
-
-        return JsonResponse(
-            data={
-                "paypal_order_id": create_paypal_order_response.paypal_order_id,
-            },
-            status=HTTPStatus.CREATED,
         )
     except Exception as exception:
         logger.exception(exception)
@@ -73,6 +50,18 @@ def create_paypal_order(
             },
             status=500,
         )
+
+    paypal_order_id: str = paypal_response.get("id", "")
+
+    order.paypal_order_id = paypal_order_id
+    order.save()
+
+    return JsonResponse(
+        data={
+            "paypal_order_id": paypal_order_id,
+        },
+        status=HTTPStatus.CREATED,
+    )
 
 
 @require_POST
@@ -104,10 +93,21 @@ def capture_paypal_order(
             status=500,
         )
 
-    order = get_object_or_404(
-        Order,
-        paypal_order_id=paypal_order_id,
-    )
+    try:
+        order = Order.objects.get(
+            paypal_order_id=paypal_response.id,  # type: ignore
+        )
+    except Order.DoesNotExist:
+        logger.exception(
+            "Order with PayPal order ID %s does not exist.",
+            paypal_response.id,  # type: ignore
+        )
+        return JsonResponse(
+            {
+                "error": "Order does not exist.",
+            },
+            status=404,
+        )
 
     order.paypal_payment_id = paypal_payment_id
     order.paid = True
