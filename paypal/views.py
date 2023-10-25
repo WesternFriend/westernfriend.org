@@ -95,12 +95,12 @@ def capture_paypal_order(
 
     try:
         order = Order.objects.get(
-            paypal_order_id=paypal_response.id,  # type: ignore
+            paypal_order_id=paypal_order_id,  # type: ignore
         )
     except Order.DoesNotExist:
         logger.exception(
             "Order with PayPal order ID %s does not exist.",
-            paypal_response.id,  # type: ignore
+            paypal_response["id"],  # type: ignore
         )
         return JsonResponse(
             {

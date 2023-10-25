@@ -8,6 +8,7 @@ from requests.exceptions import HTTPError
 from accounts.models import User
 
 from orders.factories import OrderFactory
+from orders.models import Order
 from subscription.models import Subscription
 
 from .auth import (
@@ -353,15 +354,23 @@ class CapturePayPalOrderTest(TestCase):
         self.client = Client()
         self.url = reverse("paypal:capture_paypal_order")
         self.paypal_order_id = "sample_order_id"
+        self.paypal_payment_id = "sample_payment_id"
+        self.order = OrderFactory(
+            paypal_order_id=self.paypal_order_id,
+        )
+        self.order.save()
 
     @mock.patch("paypal.views.capture_order")
     def test_successful_order_capture(self, mock_capture_order):
+        assert Order.objects.filter(paypal_order_id=self.paypal_order_id).exists()
         mock_capture_order.return_value = {
             "status": "success",
+            "id": self.paypal_payment_id,
         }
         payload = json.dumps(
             {
-                "paypalOrderId": self.paypal_order_id,
+                "paypal_order_id": self.paypal_order_id,
+                "paypal_payment_id": self.paypal_payment_id,
             },
         )
         response = self.client.post(
@@ -369,6 +378,7 @@ class CapturePayPalOrderTest(TestCase):
             data=payload,
             content_type="application/json",
         )
+        mock_capture_order.assert_called()
 
         self.assertEqual(
             response.status_code,
@@ -377,6 +387,7 @@ class CapturePayPalOrderTest(TestCase):
         self.assertEqual(
             response.json(),
             {
+                "id": self.paypal_payment_id,
                 "status": "success",
             },
         )
@@ -386,7 +397,8 @@ class CapturePayPalOrderTest(TestCase):
         mock_capture_order.side_effect = Exception("Some error")
         payload = json.dumps(
             {
-                "paypalOrderId": self.paypal_order_id,
+                "paypal_order_id": self.paypal_order_id,
+                "paypal_payment_id": self.paypal_payment_id,
             },
         )
         response = self.client.post(
