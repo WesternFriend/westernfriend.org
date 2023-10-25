@@ -73,9 +73,7 @@ def capture_paypal_order(
     Return the PayPal response.
     """
 
-    body_json = json.loads(
-        request.body.decode("utf-8"),
-    )
+    body_json = json.loads(request.body.decode("utf-8"))
 
     paypal_order_id = body_json["paypal_order_id"]
     paypal_payment_id = body_json["paypal_payment_id"]
