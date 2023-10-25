@@ -55,9 +55,6 @@ FUNDING_SOURCES.forEach((fundingSource) => {
         return paypalOrderId;
       },
       onApprove: async (data, actions) => {
-        console.log("onApprove");
-        console.log(data);
-        console.log("------------------");
         // This data comes from PayPal's servers
         // with the following information:
         // {
@@ -72,9 +69,6 @@ FUNDING_SOURCES.forEach((fundingSource) => {
           paypal_order_id: data.orderID,
           paypal_payment_id: data.paymentID,
         };
-        console.log(payload);
-
-        stringified_payload = JSON.stringify(payload);
 
         // Capture the funds from the transaction
         result = await fetch(orderCaptureUrl, {
@@ -83,7 +77,7 @@ FUNDING_SOURCES.forEach((fundingSource) => {
             "content-type": "application/json",
             "X-CSRFToken": csrfToken,
           },
-          body: JSON.stringify(stringified_payload),
+          body: JSON.stringify(payload),
         });
 
         if (result.status === 201) {
