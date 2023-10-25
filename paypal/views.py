@@ -110,6 +110,7 @@ def capture_paypal_order(
     )
 
     order.paypal_payment_id = paypal_payment_id
+    order.paid = True
     order.save()
 
     return JsonResponse(
