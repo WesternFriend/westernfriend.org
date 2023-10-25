@@ -60,7 +60,9 @@ def create_paypal_order(
         )
 
         return JsonResponse(
-            paypal_order_id=create_paypal_order_response.paypal_order_id,
+            data={
+                "paypal_order_id": create_paypal_order_response.paypal_order_id,
+            },
             status=HTTPStatus.CREATED,
         )
     except Exception as exception:
