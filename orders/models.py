@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.db import models
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.models import ClusterableModel  # type: ignore
-from wagtail.admin.panels import FieldPanel, InlinePanel
+from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.models import Orderable
 
 
@@ -88,22 +88,41 @@ class Order(ClusterableModel):
         ]
 
     panels = [
-        FieldPanel("purchaser_given_name"),
-        FieldPanel("purchaser_family_name"),
-        FieldPanel("purchaser_meeting_or_organization"),
-        FieldPanel("purchaser_email"),
-        FieldPanel("recipient_name"),
-        FieldPanel("recipient_street_address"),
-        FieldPanel("recipient_po_box_number"),
-        FieldPanel("recipient_postal_code"),
-        FieldPanel("recipient_address_locality"),
-        FieldPanel("recipient_address_region"),
-        FieldPanel("recipient_address_country"),
-        FieldPanel("shipping_cost"),
-        FieldPanel("paid"),
-        FieldPanel(
-            "paypal_order_id",
-            read_only=True,
+        MultiFieldPanel(
+            [
+                FieldPanel("purchaser_given_name"),
+                FieldPanel("purchaser_family_name"),
+                FieldPanel("purchaser_meeting_or_organization"),
+                FieldPanel("purchaser_email"),
+            ],
+            heading="Purchaser",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("recipient_name"),
+                FieldPanel("recipient_street_address"),
+                FieldPanel("recipient_po_box_number"),
+                FieldPanel("recipient_postal_code"),
+                FieldPanel("recipient_address_locality"),
+                FieldPanel("recipient_address_region"),
+                FieldPanel("recipient_address_country"),
+            ],
+            heading="Recipient",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel(
+                    "paypal_order_id",
+                    read_only=True,
+                ),
+                FieldPanel(
+                    "paypal_payment_id",
+                    read_only=True,
+                ),
+                FieldPanel("paid"),
+                FieldPanel("shipping_cost"),
+            ],
+            heading="PayPal Payment Info",
         ),
         InlinePanel("items", label="Order items"),
     ]
