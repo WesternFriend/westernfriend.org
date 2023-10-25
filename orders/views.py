@@ -39,7 +39,6 @@ def order_create(request: HttpRequest) -> HttpResponse:
         form = OrderCreateForm(cart_order)
 
         if form.is_valid():
-            print("In the view: form is valid")
             order = form.save()
 
             create_cart_order_items(order, cart)
