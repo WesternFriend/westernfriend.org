@@ -55,12 +55,15 @@ FUNDING_SOURCES.forEach((fundingSource) => {
         return paypalOrderId;
       },
       onApprove: async (data, actions) => {
+        console.log("onApprove");
+        console.log(data);
+        console.log("------------------");
         // This data comes from PayPal's servers
         // with the following information:
         // {
-        //   orderID: string;
-        //   payerID: string;
-        //   paymentID: string;
+        //   orderId: string;
+        //   payerId: string;
+        //   paymentId: string;
         //   billingToken: string;
         //   facilitatorAccessToken: string;
         // }
