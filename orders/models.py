@@ -74,6 +74,11 @@ class Order(ClusterableModel):
         blank=True,
         default="",
     )
+    paypal_payment_id = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+    )
 
     panels = [
         FieldPanel("purchaser_given_name"),
@@ -104,10 +109,7 @@ class Order(ClusterableModel):
         # order.items is of type list[OrderItem]
 
         items_cost = sum(
-            [
-                item.get_cost()
-                for item in self.items.all()
-            ],
+            [item.get_cost() for item in self.items.all()],
         )
 
         return Decimal(items_cost).quantize(Decimal("0.01"))
@@ -115,7 +117,6 @@ class Order(ClusterableModel):
     def get_total_cost(self) -> Decimal:
         """Return the sum of all order items' costs, plus shipping cost."""
         return self.get_total_items_cost() + Decimal(self.shipping_cost)
-
 
     @property
     def purchaser_full_name(self) -> str:
