@@ -29,6 +29,8 @@ class OrderModelAdmin(ModelAdmin):
         "purchaser_email",
         "purchaser_full_name",
         "paid",
+        "paypal_order_id",
+        "paypal_payment_id",
     )
     search_fields = (
         "purchaser_email",
