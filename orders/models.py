@@ -80,6 +80,13 @@ class Order(ClusterableModel):
         default="",
     )
 
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=["paypal_order_id"],
+            ),
+        ]
+
     panels = [
         FieldPanel("purchaser_given_name"),
         FieldPanel("purchaser_family_name"),
