@@ -4,6 +4,7 @@ from wagtail.admin.panels import FieldPanel, InlinePanel
 from wagtail.contrib.forms.models import AbstractForm, AbstractFormField
 from wagtail.contrib.forms.panels import FormSubmissionsPanel
 from wagtail.fields import RichTextField
+from wagtailcaptcha.models import WagtailCaptchaEmailForm
 
 
 class FormField(AbstractFormField):
@@ -14,7 +15,7 @@ class FormField(AbstractFormField):
     )
 
 
-class ContactFormPage(AbstractForm):
+class ContactFormPage(WagtailCaptchaEmailForm):
     intro = RichTextField(blank=True)
     thank_you_text = RichTextField(blank=True)
 
