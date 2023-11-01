@@ -28,12 +28,12 @@ repos:
         exclude: ".*migrations/.*"
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: "v0.1.1"
+    rev: "v0.1.3"
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
   - repo: https://github.com/psf/black
-    rev: 23.10.0
+    rev: 23.10.1
     hooks:
       - id: black
   - repo: https://github.com/thibaudcolas/curlylint
