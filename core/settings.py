@@ -344,21 +344,28 @@ WAGTAIL_SITE_NAME = "Western Friend"
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
 BASE_URL = "https://preview.westernfriend.org"
 
-# if the EMAIL_HOST environment variable is set, then we are running in production
-if os.getenv("EMAIL_HOST"):
+# Email settings
+EMAIL_HOST = os.getenv("EMAIL_HOST", None)
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", None)
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", None)
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
+EMAIL_USE_SSL = (
+    os.getenv("EMAIL_USE_SSL", "False") == "True"
+)  # SSL is less secure than TLS
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL",
+    "tech@westernfriend.org",
+)
+
+# if the EMAIL authentication environment variables are set,
+# then we can use the SMTP backend
+if (
+    EMAIL_HOST is not None
+    and EMAIL_HOST_USER is not None
+    and EMAIL_HOST_PASSWORD is not None
+):
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-    EMAIL_HOST = os.getenv("EMAIL_HOST")
-    EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
-    EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-    EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
-    EMAIL_USE_SSL = (
-        os.getenv("EMAIL_USE_SSL", "False") == "True"
-    )  # SSL is less secure than TLS
-    DEFAULT_FROM_EMAIL = os.getenv(
-        "DEFAULT_FROM_EMAIL",
-        "tech@westernfriend.org",
-    )
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
