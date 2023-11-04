@@ -1,0 +1,7 @@
+Thank you for registering with the WesternFriend.org website.
+
+Thank you for registering with the WesternFriend.org website.
+
+Please copy and paste the following URL into your browser:
+
+https://westernfriend.org{% url 'django_registration_activate' activation_key %}

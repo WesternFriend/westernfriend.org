@@ -341,6 +341,11 @@ WAGTAIL_SITE_NAME = "Western Friend"
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
 BASE_URL = "https://westernfriend.org"
 
+# Registration settings
+ACCOUNT_ACTIVATION_DAYS = 7
+REGISTRATION_OPEN = True
+REGISTRATION_SALT = "registration"
+
 # Email settings
 EMAIL_HOST = os.getenv("EMAIL_HOST", None)
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))

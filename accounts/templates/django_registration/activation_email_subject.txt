@@ -1,0 +1,1 @@
+Please activate your WesternFriend.org account within {{ expiration_days }} days

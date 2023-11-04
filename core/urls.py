@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
-from django_registration.backends.one_step.views import RegistrationView
+from django_registration.backends.activation.views import RegistrationView
 from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps.views import sitemap
@@ -23,7 +23,7 @@ urlpatterns = [
         RegistrationView.as_view(form_class=CustomUserForm),
         name="django_registration_register",
     ),
-    path("accounts/", include("django_registration.backends.one_step.urls")),
+    path("accounts/", include("django_registration.backends.activation.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("admin/", include(wagtailadmin_urls)),
     path("cart/", include("cart.urls", namespace="cart")),
