@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from subscription.models import Subscription
 
@@ -11,10 +13,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
 
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
     REQUIRED_FIELDS: list[str] = []  # type: ignore
+
+    class Meta:
+        verbose_name = _("user")
+        verbose_name_plural = _("users")
 
     objects = UserManager()
 
