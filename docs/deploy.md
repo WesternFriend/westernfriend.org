@@ -69,6 +69,8 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `BRAINTREE_PUBLIC_KEY` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
    - `BRAINTREE_PRIVATE_KEY` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
    - `SENTRY_DSN` - used for error logging and analysis
+   - `RECAPTCHA_PUBLIC_KEY` - a.k.a. site key on reCAPTCHA settings
+   - `RECAPTCHA_PRIVATE_KEY` - a.k.a. secret key on reCAPTCHA settings
 6. Edit the App Info with the following settings
    1. Give the app a meaningful name
    2. Set the Region to San Francisco, so it is closer to most WesternFriend community
