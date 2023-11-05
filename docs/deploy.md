@@ -68,12 +68,15 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `PAYPAL_CLIENT_ID` - ID obtained from PayPal developer dashboard
    - `PAYPAL_CLIENT_SECRET` - client secret obtained from PayPal developer dashboard
    - `SENTRY_DSN` - used for error logging and analysis
+   - `RECAPTCHA_PUBLIC_KEY` - a.k.a. site key on reCAPTCHA settings
+   - `RECAPTCHA_PRIVATE_KEY` - a.k.a. secret key on reCAPTCHA settings
    - `EMAIL_HOST` - SMTP host
    - `EMAIL_PORT` - SMTP port (default: 587)
    - `EMAIL_HOST_USER` - username for SMTP host
    - `EMAIL_HOST_PASSWORD` - password for SMTP user
    - `EMAIL_USE_TLS` - use Transport Layer Security (default: True)
    - `DEFAULT_FROM_EMAIL` - from address when sending mail (default: tech@westernfriend.org)
+
 6. Edit the App Info with the following settings
    1. Give the app a meaningful name
    2. Set the Region to San Francisco, so it is closer to most WesternFriend community

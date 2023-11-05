@@ -66,6 +66,9 @@ dependencies = [
     # keep-sorted start
     "boto3",
     "crispy-bootstrap5",
+    "django-recaptcha",
+    "django-registration",
+    "django-flatpickr",
     "dj-database-url",
     "django",
     "django-crispy-forms",
@@ -85,6 +88,13 @@ dependencies = [
     "wagtail",
     "wagtail-color-panel",
     "wagtailmedia",
+    "wagtail",
+    "django-extensions",
+    "django",
+    "sentry-sdk",
+    "django-debug-toolbar",
+    "django_coverage_plugin",
+    "wagtail-django-recaptcha",
     # keep-sorted end
 ]
 

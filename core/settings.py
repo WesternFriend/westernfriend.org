@@ -183,6 +183,9 @@ INSTALLED_APPS = [
     "wagtail",
     "wagtail_color_panel",
     "wagtailmedia",
+    # Apps for recaptcha forms
+    "captcha",
+    "wagtailcaptcha",
     # Contrib (apps that are included in Django)
     "django.contrib.admin",
     "django.contrib.auth",
@@ -377,3 +380,8 @@ WAGTAILADMIN_BASE_URL = "/admin"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# Recaptcha settings
+RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
+RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
+NOCAPTCHA = True
