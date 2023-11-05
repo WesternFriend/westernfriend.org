@@ -61,6 +61,7 @@ dependencies = [
     "braintree",
     "django-crispy-forms",
     "crispy-bootstrap5",
+    "django-recaptcha",
     "django-registration",
     "django-flatpickr",
     "dj-database-url",
@@ -80,6 +81,7 @@ dependencies = [
     "sentry-sdk",
     "django-debug-toolbar",
     "django_coverage_plugin",
+    "wagtail-django-recaptcha",
 ]
 
 [project.urls]

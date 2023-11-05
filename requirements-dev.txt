@@ -61,6 +61,7 @@ django==4.2.5
     #   django-flatpickr
     #   django-modelcluster
     #   django-permissionedforms
+    #   django-recaptcha
     #   django-registration
     #   django-storages
     #   django-stubs
@@ -91,6 +92,10 @@ django-modelcluster==6.0
     # via wagtail
 django-permissionedforms==0.1
     # via wagtail
+django-recaptcha==3.0.0
+    # via
+    #   Western-Friend-website (pyproject.toml)
+    #   wagtail-django-recaptcha
 django-registration==3.4
     # via Western-Friend-website (pyproject.toml)
 django-storages==1.14.1
@@ -258,6 +263,8 @@ wagtail==5.1.2
     #   wagtail-factories
     #   wagtailmedia
 wagtail-color-panel==1.4.1
+    # via Western-Friend-website (pyproject.toml)
+wagtail-django-recaptcha==1.0
     # via Western-Friend-website (pyproject.toml)
 wagtail-factories==4.1.0
     # via Western-Friend-website (pyproject.toml)
