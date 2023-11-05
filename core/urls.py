@@ -3,12 +3,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
-from django_registration.backends.one_step.views import RegistrationView
+from django_registration.backends.activation.views import RegistrationView
 from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
-import debug_toolbar
 
 # TODO: Change this line to send verification emails when registering users
 # Note: this will require two activation email tempates (subject and body)
@@ -16,7 +15,6 @@ import debug_toolbar
 from accounts.forms import CustomUserForm
 from magazine import urls as magazine_urls
 from search import views as search_views
-from subscription import urls as subscription_urls
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
@@ -25,16 +23,16 @@ urlpatterns = [
         RegistrationView.as_view(form_class=CustomUserForm),
         name="django_registration_register",
     ),
-    path("accounts/", include("django_registration.backends.one_step.urls")),
+    path("accounts/", include("django_registration.backends.activation.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("admin/", include(wagtailadmin_urls)),
     path("cart/", include("cart.urls", namespace="cart")),
     path("magazine/", include(magazine_urls), name="magazine"),
     path("orders/", include("orders.urls", namespace="orders")),
     path("payment/", include("payment.urls", namespace="payment")),
+    path("paypal/", include("paypal.urls", namespace="paypal")),
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
-    path("subscriptions/", include(subscription_urls), name="subscriptions"),
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's page serving mechanism. This should be the last pattern in
     # the list:
@@ -52,11 +50,4 @@ if settings.DEBUG:
     urlpatterns += static(
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT,
-    )
-    urlpatterns.insert(
-        0,
-        path(
-            "__debug__/",
-            include(debug_toolbar.urls),
-        ),
     )

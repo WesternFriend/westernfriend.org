@@ -30,7 +30,7 @@ class RawBookTest(TestCase):
         self.assertEqual(raw_book.drupal_body_migrated, "This is a test book.")
         self.assertEqual(raw_book.description, "This is a test book.")
         self.assertEqual(raw_book.image_url, "https://example.com/test-book.jpg")
-        self.assertEqual(raw_book.price, Decimal("19.99"))
+        self.assertEqual(raw_book.price_usd, Decimal("19.99"))
         self.assertEqual(raw_book.authors, [1, 2, 3])
 
     @patch("content_migration.models.get_or_create_image")
@@ -55,7 +55,7 @@ class RawBookTest(TestCase):
             drupal_body_migrated=drupal_body_migrated,
             description=description,
             image_url=image_url,
-            price=price,
+            price_usd=price,
             authors=authors,
         )
 
@@ -75,7 +75,7 @@ class RawBookTest(TestCase):
         assert book.drupal_path == drupal_path
         assert book.drupal_body_migrated == drupal_body_migrated
         assert book.description == description
-        assert book.price == price
+        assert book.price_usd == price
         assert book.image == mock_image
 
     @patch("content_migration.models.get_or_create_image")
@@ -92,7 +92,7 @@ class RawBookTest(TestCase):
             drupal_body_migrated="Test body",
             description="Test description",
             image_url=image_url,
-            price=Decimal(10.00),
+            price_usd=Decimal(10.00),
             authors=[1, 2, 3],
         )
 

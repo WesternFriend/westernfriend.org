@@ -64,13 +64,19 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `AWS_SECRET_ACCESS_KEY` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key)
    - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
    - `AWS_STORAGE_BUCKET_NAME` - the name of the DO Storage Bucket for static files
-   - `BRAINTREE_ENVIRONMENT` - use `sandbox` or `production` for Sandbox or Production environment
-   - `BRAINTREE_MERCHANT_ID` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
-   - `BRAINTREE_PUBLIC_KEY` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
-   - `BRAINTREE_PRIVATE_KEY` - use [sandbox credentials](https://sandbox.braintreegateway.com) in non-production environments
+   - `PAYPAL_CLIENT_ENVIRONMENT` - one of "PRODUCTION" or "SANDBOX"
+   - `PAYPAL_CLIENT_ID` - ID obtained from PayPal developer dashboard
+   - `PAYPAL_CLIENT_SECRET` - client secret obtained from PayPal developer dashboard
    - `SENTRY_DSN` - used for error logging and analysis
    - `RECAPTCHA_PUBLIC_KEY` - a.k.a. site key on reCAPTCHA settings
    - `RECAPTCHA_PRIVATE_KEY` - a.k.a. secret key on reCAPTCHA settings
+   - `EMAIL_HOST` - SMTP host
+   - `EMAIL_PORT` - SMTP port (default: 587)
+   - `EMAIL_HOST_USER` - username for SMTP host
+   - `EMAIL_HOST_PASSWORD` - password for SMTP user
+   - `EMAIL_USE_TLS` - use Transport Layer Security (default: True)
+   - `DEFAULT_FROM_EMAIL` - from address when sending mail (default: tech@westernfriend.org)
+
 6. Edit the App Info with the following settings
    1. Give the app a meaningful name
    2. Set the Region to San Francisco, so it is closer to most WesternFriend community

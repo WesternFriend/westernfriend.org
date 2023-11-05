@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.db import models
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.models import ClusterableModel  # type: ignore
-from wagtail.admin.panels import FieldPanel, InlinePanel
+from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.models import Orderable
 
 
@@ -69,38 +69,80 @@ class Order(ClusterableModel):
         decimal_places=2,
     )
     paid = models.BooleanField(default=False)
-    braintree_transaction_id = models.CharField(
+    paypal_order_id = models.CharField(
         max_length=255,
-        null=True,
         blank=True,
+        default="",
+    )
+    paypal_payment_id = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
     )
 
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=["paypal_order_id"],
+            ),
+        ]
+
     panels = [
-        FieldPanel("purchaser_given_name"),
-        FieldPanel("purchaser_family_name"),
-        FieldPanel("purchaser_meeting_or_organization"),
-        FieldPanel("purchaser_email"),
-        FieldPanel("recipient_name"),
-        FieldPanel("recipient_street_address"),
-        FieldPanel("recipient_po_box_number"),
-        FieldPanel("recipient_postal_code"),
-        FieldPanel("recipient_address_locality"),
-        FieldPanel("recipient_address_region"),
-        FieldPanel("recipient_address_country"),
-        FieldPanel("shipping_cost"),
-        FieldPanel("paid"),
-        FieldPanel("braintree_transaction_id"),
+        MultiFieldPanel(
+            [
+                FieldPanel("purchaser_given_name"),
+                FieldPanel("purchaser_family_name"),
+                FieldPanel("purchaser_meeting_or_organization"),
+                FieldPanel("purchaser_email"),
+            ],
+            heading="Purchaser",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("recipient_name"),
+                FieldPanel("recipient_street_address"),
+                FieldPanel("recipient_po_box_number"),
+                FieldPanel("recipient_postal_code"),
+                FieldPanel("recipient_address_locality"),
+                FieldPanel("recipient_address_region"),
+                FieldPanel("recipient_address_country"),
+            ],
+            heading="Recipient",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel(
+                    "paypal_order_id",
+                    read_only=True,
+                ),
+                FieldPanel(
+                    "paypal_payment_id",
+                    read_only=True,
+                ),
+                FieldPanel("paid"),
+                FieldPanel("shipping_cost"),
+            ],
+            heading="PayPal Payment Info",
+        ),
         InlinePanel("items", label="Order items"),
     ]
 
     def __str__(self) -> str:
         return f"Order {self.id}"  # type: ignore
 
-    def get_total_cost(self) -> int:
+    def get_total_items_cost(self) -> Decimal:
         """Return the sum of all order items' costs."""
         # order.items is of type list[OrderItem]
 
-        return sum(item.get_cost() for item in self.items.all())
+        items_cost = sum(
+            [item.get_cost() for item in self.items.all()],
+        )
+
+        return Decimal(items_cost).quantize(Decimal("0.01"))
+
+    def get_total_cost(self) -> Decimal:
+        """Return the sum of all order items' costs, plus shipping cost."""
+        return self.get_total_items_cost() + Decimal(self.shipping_cost)
 
     @property
     def purchaser_full_name(self) -> str:
@@ -147,4 +189,7 @@ class OrderItem(Orderable):
         return f"{self.quantity}x {self.product_title} @ { round(self.price, 2) }/each"  # noqa: E501
 
     def get_cost(self) -> Decimal:
-        return self.price * self.quantity
+        """Return the total cost for this order item."""
+        total_cost = self.price * self.quantity
+
+        return Decimal(total_cost).quantize(Decimal("0.01"))

@@ -10,7 +10,6 @@ from community.models import (
     OnlineWorshipIndexPage,
 )
 from contact.models import MeetingIndexPage, OrganizationIndexPage, PersonIndexPage
-from donations.models import DonatePage
 from events.models import EventsIndexPage
 from facets.models import (
     AudienceIndexPage,
@@ -94,11 +93,6 @@ class Command(BaseCommand):
             title="Contact",
             show_in_menus=True,
         )
-        donate_page = DonatePage(
-            title="Donate/Pay",
-            intro="Intro text goes here.",
-            show_in_menus=True,
-        )
         events_page = EventsIndexPage(
             title="Events",
             show_in_menus=True,
@@ -146,7 +140,6 @@ class Command(BaseCommand):
 
         home_page.add_child(instance=community_page)
         home_page.add_child(instance=contact_form_page)
-        home_page.add_child(instance=donate_page)
         home_page.add_child(instance=events_page)
         home_page.add_child(instance=library_index_page)
         home_page.add_child(instance=magazine_index_page)
@@ -417,8 +410,8 @@ class Command(BaseCommand):
             ),
         }
 
-        subscribe_donate_dropdown = {
-            "title": "Subscribe / Donate",
+        subscribe_dropdown = {
+            "title": "Subscribe",
             # StreamBlock
             "menu_items": StreamValue(
                 stream_block=mock_menu_block,
@@ -440,13 +433,6 @@ class Command(BaseCommand):
                     (
                         "page",
                         {
-                            "title": "Donate / Pay",
-                            "page": donate_page,
-                        },
-                    ),
-                    (
-                        "page",
-                        {
                             "title": "Help Wanted",
                             "page": help_wanted_page,
                         },
@@ -461,7 +447,7 @@ class Command(BaseCommand):
             ("drop_down", other_content_dropdown),
             ("drop_down", about_us_dropdown),
             ("drop_down", events_dropdown),
-            ("drop_down", subscribe_donate_dropdown),
+            ("drop_down", subscribe_dropdown),
         ]
         navigation_menu = _get_or_create_navigation_menu_setting()
 

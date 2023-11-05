@@ -7,7 +7,7 @@
     {{ page.intro | richtext }}
 
 
-    {% if request.user.get_active_subscription %}
+    {% if request.user.subscription %}
         <h2>Active subscription details</h2>
         <!--
             TODO: allow multiple active subscriptions
@@ -15,29 +15,15 @@
             since we can't currently limit to only one
             and we may have use cases where users manage multiple subscriptions
         -->
-        {% with active_subscription=request.user.get_active_subscription %}
+        {% with subscription=request.user.subscription %}
             <div class="card">
                 <div class="card-body">
                     <p class="card-title">
-                        {{ active_subscription.subscription_type }}
+                        PayPal Subscription ID: {{ subscription.paypal_subscription_id }}
                     </p>
                     <p class="card-subtitle mb-2 text-muted">
-                        Active to: {{ active_subscription.end_date }}
+                        Active: {{ subscription.is_active }}
                     </p>
-
-                    <p class="card-subtitle mb-2 text-muted">
-                        Recurring: {{ active_subscription.recurring | yesno:"Yes, No" }}
-                    </p>
-
-                    <a href="#" class="btn btn-outline-primary">
-                        Change postal address
-                    </a>
-
-                    {% if active_subscription.recurring %}
-                        <a href="#" class="btn btn-outline-secondary">
-                            Cancel renewal
-                        </a>
-                    {% endif %}
                 </div>
             </div>
         {% endwith %}
