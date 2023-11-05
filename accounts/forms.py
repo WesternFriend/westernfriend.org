@@ -4,6 +4,8 @@ from accounts.models import User
 
 
 class CustomUserForm(RegistrationForm):
+    """Custom user registration form with captcha."""
+
     captcha = ReCaptchaField()
 
     class Meta(RegistrationForm.Meta):
