@@ -121,15 +121,11 @@ PAYPAL_API_URL = (
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 
-# TODO: enable PayPal webhook support
-# PAYPAL_WEBHOOK_ID = os.getenv("PAYPAL_WEBHOOK_ID")
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 
 # Application definition
-
 INSTALLED_APPS = [
     # First party (apps from this project)
     "accounts",
@@ -138,7 +134,6 @@ INSTALLED_APPS = [
     "common",
     "community",
     "contact",
-    "content_migration",
     "documents",
     "events",
     "facets",
@@ -382,6 +377,6 @@ INTERNAL_IPS = [
 ]
 
 # Recaptcha settings
-RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
-RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
+RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY", "")
+RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY", "")
 NOCAPTCHA = True

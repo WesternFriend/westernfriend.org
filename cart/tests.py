@@ -6,7 +6,7 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from django.urls import reverse
 from wagtail.models import Page
 from cart.views import cart_detail
-from content_migration.management.shared import get_or_create_site_root_page
+from core.test_utils import get_or_create_site_root_page
 
 from store.factories import ProductFactory
 
