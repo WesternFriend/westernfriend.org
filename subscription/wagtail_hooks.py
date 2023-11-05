@@ -15,6 +15,7 @@ class SubscriptionModelAdmin(ModelAdmin):
     list_display = (
         "user",
         "paypal_subscription_id",
+        "expiration_date",
         # TODO: consider and test the performance impact
         # of including is_active in the list display.
         # "is_active",
