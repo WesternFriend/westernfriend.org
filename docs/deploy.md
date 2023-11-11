@@ -54,6 +54,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - add a dev database during staging (named `wf-staging-db`)
    - add a prod database when deploying the production site (named `wf-prod-db`)
 5. Configure all necessary [environment variables](#environment-variables) at the component level (`wf-website`), not the app, which combines the `wf-website` and `db` components
+
    - `DJANGO_CORS_ALLOWED_ORIGINS` - each origin should begin with a protocol, e.g., `https://...`
    - `DJANGO_ALLOWED_HOSTS` - each allowed host needs only the domain (and subdomain if relevant), no protocol
    - `DJANGO_CSRF_TRUSTED_ORIGINS`- each origin should begin with a protocol, e.g., `https://...`

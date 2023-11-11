@@ -27,7 +27,7 @@ def create_order(
                         "currency_code": DEFAULT_CURRENCY_CODE.value,
                         "value": value_usd,
                     },
-                }
+                },
             ],
         },
     )

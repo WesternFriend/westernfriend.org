@@ -35,7 +35,6 @@ class TestProcessBookstoreOrderPayment(TestCase):
         )
 
 
-
 class TestPaymentViews(TestCase):
     def setUp(self) -> None:
         self.client = Client()

@@ -3,30 +3,30 @@
 
 {% block title %}Pay online{% endblock title %}
 {% block content %}
-<h1>Pay online</h1>
+    <h1>Pay online</h1>
 
-<p class="text-muted">
-    This page will send your credit card information directly to PayPal. None of your credit card
-    information will ever be visible to Western Friend.
-</p>
+    <p class="text-muted">
+        This page will send your credit card information directly to PayPal. None of your credit card
+        information will ever be visible to Western Friend.
+    </p>
 
-<p>Payment total: ${{ order.get_total_cost }}</p>
+    <p>Payment total: ${{ order.get_total_cost }}</p>
 
-<div id="paypal-button-container"></div>
+    <div id="paypal-button-container"></div>
 
 {% endblock content %}
 
 {% block extra_js %}
-<script
-    data-sdk-integration-source="integrationbuilder_sc"
-    src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&components=buttons"></script>
+    <script
+        data-sdk-integration-source="integrationbuilder_sc"
+        src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&components=buttons"></script>
 
-<script 
-    src="{% static 'payment/process.js' %}"
-    data-csrf-token="{{ csrf_token }}"
-    data-wf-order-id="{{ order.id }}"
-    data-payment-amount="{{ order.get_total_cost }}"
-    data-paypal-order-create-url="{% url 'paypal:create_paypal_order' %}"
-    data-paypal-order-capture-url="{% url 'paypal:capture_paypal_order' %}"
-    data-payment-done-url="{% url 'payment:done' %}"></script>
+    <script
+        src="{% static 'payment/process.js' %}"
+        data-csrf-token="{{ csrf_token }}"
+        data-wf-order-id="{{ order.id }}"
+        data-payment-amount="{{ order.get_total_cost }}"
+        data-paypal-order-create-url="{% url 'paypal:create_paypal_order' %}"
+        data-paypal-order-capture-url="{% url 'paypal:capture_paypal_order' %}"
+        data-payment-done-url="{% url 'payment:done' %}"></script>
 {% endblock extra_js %}
