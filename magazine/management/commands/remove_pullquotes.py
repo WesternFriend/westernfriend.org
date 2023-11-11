@@ -28,7 +28,7 @@ class Command(BaseCommand):
                     else:
                         # If not 'rich_text', append the block as is
                         modified_blocks.append((block.block_type, block.value))
-                print(modified_blocks)
+
                 stream_data = StreamValue(stream_value.stream_block, modified_blocks)
                 article.body = stream_data
                 article.save()
