@@ -69,7 +69,6 @@ dependencies = [
     "dj-database-url",
     "django",
     "django-crispy-forms",
-    "django-debug-toolbar",
     "django-extensions",
     "django-flatpickr",
     "django-recaptcha",
@@ -82,7 +81,6 @@ dependencies = [
     "python-dotenv",
     "requests",
     "sentry-sdk",
-    "tqdm",
     "tzdata",
     "wagtail",
     "wagtail-color-panel",
@@ -99,7 +97,6 @@ Repository = "https://github.com/WesternFriend/WF-website"
 [project.optional-dependencies]
 dev = [
     # keep-sorted start
-    "black",
     "coverage",
     "django-browser-reload",
     "django-stubs[compatible-mypy]",
@@ -110,14 +107,10 @@ dev = [
     "types-beautifulsoup4",
     "types-factory-boy",
     "types-requests",
-    "types-tqdm",
     "validate-pyproject",
     "wagtail-factories",
     # keep-sorted end
 ]
-
-[tool.black]
-target-version = ['py311']
 
 [tool.isort]
 profile = "black"
@@ -132,10 +125,6 @@ ignore_missing_imports = true
 
 [tool.django-stubs]
 django_settings_module = "core.settings"
-
-[tool.ruff]
-# Same as Black.
-line-length = 88
 
 # Exclude a variety of commonly ignored directories.
 exclude = [
