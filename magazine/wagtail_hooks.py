@@ -186,7 +186,9 @@ class MagazineGroup(ModelViewSetGroup):
         MagazineDepartmentViewSet,
     )
 
+
 magazine_viewset = MagazineGroup("magazine")  # defines /admin/magazine/ as the base URL
+
 
 @hooks.register("register_magazine_viewset")
 def register_viewset():

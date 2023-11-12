@@ -39,6 +39,7 @@ class SubscriptionViewSet(ModelViewSet):
 
 subscription_viewset = SubscriptionViewSet("subscription")  # defines /admin/subscription/ as the base URL
 
+
 @hooks.register("register_subscription_viewset")
 def register_viewset():
     return subscription_viewset

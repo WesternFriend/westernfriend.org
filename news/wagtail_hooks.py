@@ -57,6 +57,7 @@ class NewsAdminGroup(ModelViewSetGroup):
 
 news_viewset = NewsAdminGroup("news")  # defines /admin/news/ as the base URL
 
+
 @hooks.register("register_news_viewset")
 def register_viewset():
     return news_viewset
