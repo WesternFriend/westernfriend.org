@@ -37,9 +37,4 @@ class SubscriptionViewSet(ModelViewSet):
     # inspect_template_name = "store/inspect_order.html"
 
 
-subscription_viewset = SubscriptionViewSet("subscription")  # defines /admin/subscription/ as the base URL
-
-
-@hooks.register("register_subscription_viewset")
-def register_viewset():
-    return subscription_viewset
+hooks.register("register_subscription_viewset", SubscriptionViewSet)

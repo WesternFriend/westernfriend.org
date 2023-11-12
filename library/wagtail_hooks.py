@@ -90,9 +90,4 @@ class LibraryGroup(ModelViewSetGroup):
     )
 
 
-library_viewset = LibraryGroup("library")  # defines /admin/library/ as the base URL
-
-
-@hooks.register("register_library_viewset")
-def register_viewset():
-    return library_viewset
+hooks.register("register_library_viewset", LibraryGroup)

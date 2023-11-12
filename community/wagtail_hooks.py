@@ -204,12 +204,7 @@ class CommunityGroup(ModelViewSetGroup):
     )
 
 
-community_viewset = CommunityGroup("community")  # defines /admin/community/ as the base URL
-
-
-@hooks.register("register_community_viewset")
-def register_viewset():
-    return community_viewset
+hooks.register("register_community_viewset", CommunityGroup)
 
 
 @hooks.register("insert_editor_js")  # type: ignore

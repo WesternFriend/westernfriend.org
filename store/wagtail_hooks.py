@@ -60,9 +60,4 @@ class StoreGroup(ModelViewSetGroup):
     )
 
 
-store_viewset = StoreGroup("store")  # defines /admin/store/ as the base URL
-
-
-@hooks.register("register_store_viewset")
-def register_viewset():
-    return store_viewset
+hooks.register("register_store_viewset", StoreGroup)
