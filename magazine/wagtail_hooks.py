@@ -2,11 +2,8 @@ from django.urls import reverse
 from django.utils.html import format_html
 from wagtail.contrib.modeladmin.helpers import PageAdminURLHelper, PageButtonHelper
 from wagtail.contrib.modeladmin.mixins import ThumbnailMixin
-from wagtail.contrib.modeladmin.options import (
-    ModelAdmin,
-    ModelAdminGroup,
-    modeladmin_register,
-)
+from wagtail.admin.viewsets.model import ModelViewSet, ModelViewSetGroup
+from wagtail import hooks
 
 from .models import ArchiveIssue, MagazineDepartment, MagazineIssue
 
@@ -92,7 +89,7 @@ class MagazineIssueButtonHelperClass(PageButtonHelper):
         return buttons
 
 
-class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
+class MagazineIssueViewSet(ThumbnailMixin, ModelViewSet):
     model = MagazineIssue
     menu_icon = "doc-full-inverse"
     menu_label = "Issues"
@@ -147,7 +144,7 @@ class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
         )
 
 
-class ArchiveIssueModelAdmin(ModelAdmin):
+class ArchiveIssueViewSet(ModelViewSet):
     model = ArchiveIssue
     menu_icon = "doc-full"
     menu_label = "Archive Issues"
@@ -167,7 +164,7 @@ class ArchiveIssueModelAdmin(ModelAdmin):
     )
 
 
-class MagazineDepartmentModelAdmin(ModelAdmin):
+class MagazineDepartmentViewSet(ModelViewSet):
     model = MagazineDepartment
     menu_icon = "tag"
     menu_label = "Departments"
@@ -179,15 +176,18 @@ class MagazineDepartmentModelAdmin(ModelAdmin):
     search_fields = ("title",)
 
 
-class MagazineGroup(ModelAdminGroup):
+class MagazineGroup(ModelViewSetGroup):
     menu_label = "Magazine"
     menu_icon = "tablet-alt"
     menu_order = 100
     items = (
-        MagazineIssueModelAdmin,
-        ArchiveIssueModelAdmin,
-        MagazineDepartmentModelAdmin,
+        MagazineIssueViewSet,
+        ArchiveIssueViewSet,
+        MagazineDepartmentViewSet,
     )
 
+magazine_viewset = MagazineGroup("magazine")  # defines /admin/magazine/ as the base URL
 
-modeladmin_register(MagazineGroup)
+@hooks.register("register_magazine_viewset")
+def register_viewset():
+    return magazine_viewset

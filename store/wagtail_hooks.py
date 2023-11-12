@@ -1,14 +1,11 @@
-from wagtail.contrib.modeladmin.options import (
-    ModelAdmin,
-    ModelAdminGroup,
-    modeladmin_register,
-)
+from wagtail.admin.viewsets.model import ModelViewSet, ModelViewSetGroup
+from wagtail import hooks
 
 from orders.models import Order
 from store.models import Book
 
 
-class BookModelAdmin(ModelAdmin):
+class BookViewSet(ModelViewSet):
     model = Book
     menu_icon = "openquote"
     menu_label = "Books"
@@ -16,7 +13,7 @@ class BookModelAdmin(ModelAdmin):
     list_display = ("title",)
 
 
-class OrderModelAdmin(ModelAdmin):
+class OrderViewSet(ModelViewSet):
     """Order admin."""
 
     model = Order
@@ -53,14 +50,17 @@ class OrderModelAdmin(ModelAdmin):
     inspect_template_name = "store/inspect_order.html"
 
 
-class StoreGroup(ModelAdminGroup):
+class StoreGroup(ModelViewSetGroup):
     menu_label = "Store"
     menu_icon = "site"
     menu_order = 300
     items = (
-        BookModelAdmin,
-        OrderModelAdmin,
+        BookViewSet,
+        OrderViewSet,
     )
 
+store_viewset = StoreGroup("store")  # defines /admin/store/ as the base URL
 
-modeladmin_register(StoreGroup)
+@hooks.register("register_store_viewset")
+def register_viewset():
+    return store_viewset

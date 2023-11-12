@@ -1,14 +1,11 @@
-from wagtail.contrib.modeladmin.options import (
-    ModelAdmin,
-    ModelAdminGroup,
-    modeladmin_register,
-)
+from wagtail.admin.viewsets.model import ModelViewSet, ModelViewSetGroup
+from wagtail import hooks
 
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
 from library.models import LibraryItem
 
 
-class AudienceModelAdmin(ModelAdmin):
+class AudienceViewSet(ModelViewSet):
     model = Audience
     menu_icon = "tag"
     menu_label = "Audiences"
@@ -17,7 +14,7 @@ class AudienceModelAdmin(ModelAdmin):
     search_fields = "title"
 
 
-class GenreModelAdmin(ModelAdmin):
+class GenreViewSet(ModelViewSet):
     model = Genre
     menu_icon = "tag"
     menu_label = "Genres"
@@ -27,7 +24,7 @@ class GenreModelAdmin(ModelAdmin):
     search_fields = ("title",)
 
 
-class MediumModelAdmin(ModelAdmin):
+class MediumViewSet(ModelViewSet):
     model = Medium
     menu_icon = "tag"
     menu_label = "Mediums"
@@ -37,7 +34,7 @@ class MediumModelAdmin(ModelAdmin):
     search_fields = "title"
 
 
-class TimePeriodModelAdmin(ModelAdmin):
+class TimePeriodViewSet(ModelViewSet):
     model = TimePeriod
     menu_icon = "tag"
     menu_label = "Time Periods"
@@ -47,7 +44,7 @@ class TimePeriodModelAdmin(ModelAdmin):
     search_fields = "title"
 
 
-class TopicModelAdmin(ModelAdmin):
+class TopicViewSet(ModelViewSet):
     model = Topic
     menu_icon = "tag"
     menu_label = "Topics"
@@ -57,7 +54,7 @@ class TopicModelAdmin(ModelAdmin):
     search_fields = "title"
 
 
-class LibraryItemModelAdmin(ModelAdmin):
+class LibraryItemViewSet(ModelViewSet):
     model = LibraryItem
     menu_icon = "list-ul"
     menu_label = "Items"
@@ -79,16 +76,22 @@ class LibraryItemModelAdmin(ModelAdmin):
     search_fields = ("title",)
 
 
-@modeladmin_register
-class LibraryGroup(ModelAdminGroup):
+class LibraryGroup(ModelViewSetGroup):
     menu_label = "Library"
     menu_icon = "clipboard-list"
     menu_order = 200
     items = (
-        LibraryItemModelAdmin,
-        AudienceModelAdmin,
-        GenreModelAdmin,
-        MediumModelAdmin,
-        TimePeriodModelAdmin,
-        TopicModelAdmin,
+        LibraryItemViewSet,
+        AudienceViewSet,
+        GenreViewSet,
+        MediumViewSet,
+        TimePeriodViewSet,
+        TopicViewSet,
     )
+
+
+library_viewset = LibraryGroup("library")  # defines /admin/library/ as the base URL
+
+@hooks.register("register_library_viewset")
+def register_viewset():
+    return library_viewset

@@ -1,9 +1,10 @@
-from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
+from wagtail.snippets.models import register_snippet
+from wagtail.snippets.views.snippets import SnippetViewSet
 from wagtail.admin.panels import FieldPanel
 from taggit.models import Tag
 
 
-class TagsModelAdmin(ModelAdmin):
+class TagsSnippetViewSet(SnippetViewSet):
     Tag.panels = [
         FieldPanel("name"),
     ]
@@ -18,4 +19,4 @@ class TagsModelAdmin(ModelAdmin):
     search_fields = ("name",)
 
 
-modeladmin_register(TagsModelAdmin)
+register_snippet(TagsSnippetViewSet)

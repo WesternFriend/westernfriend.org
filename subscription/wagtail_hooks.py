@@ -1,9 +1,10 @@
-from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
+from wagtail.admin.viewsets.model import ModelViewSet
+from wagtail import hooks
 
 from subscription.models import Subscription
 
 
-class SubscriptionModelAdmin(ModelAdmin):
+class SubscriptionViewSet(ModelViewSet):
     """Subscription admin."""
 
     model = Subscription
@@ -36,4 +37,8 @@ class SubscriptionModelAdmin(ModelAdmin):
     # inspect_template_name = "store/inspect_order.html"
 
 
-modeladmin_register(SubscriptionModelAdmin)
+subscription_viewset = SubscriptionViewSet("subscription")  # defines /admin/subscription/ as the base URL
+
+@hooks.register("register_subscription_viewset")
+def register_viewset():
+    return subscription_viewset

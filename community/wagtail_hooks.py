@@ -1,11 +1,7 @@
 from django.conf import settings
 from django.utils.html import format_html_join
 from django.utils.safestring import SafeString
-from wagtail.contrib.modeladmin.options import (
-    ModelAdmin,
-    ModelAdminGroup,
-    modeladmin_register,
-)
+from wagtail.admin.viewsets.model import ModelViewSet, ModelViewSetGroup
 from wagtail import hooks
 
 from community.models import CommunityDirectory, OnlineWorship
@@ -16,7 +12,7 @@ from memorials.models import Memorial
 from wf_pages.models import MollyWingateBlogPage
 
 
-class PersonModelAdmin(ModelAdmin):
+class PersonViewSet(ModelViewSet):
     model = Person
     menu_icon = "user"
     menu_label = "People"
@@ -35,7 +31,7 @@ class PersonModelAdmin(ModelAdmin):
     # ]
 
 
-class MeetingModelAdmin(ModelAdmin):
+class MeetingViewSet(ModelViewSet):
     model = Meeting
     menu_icon = "home"
     menu_label = "Meetings"
@@ -47,7 +43,7 @@ class MeetingModelAdmin(ModelAdmin):
     list_filter = ("meeting_type",)
 
 
-class OrganizationModelAdmin(ModelAdmin):
+class OrganizationViewSet(ModelViewSet):
     model = Organization
     menu_icon = "group"
     menu_label = "Organizations"
@@ -58,7 +54,7 @@ class OrganizationModelAdmin(ModelAdmin):
     search_fields = ("title",)
 
 
-class MemorialModelAdmin(ModelAdmin):
+class MemorialViewSet(ModelViewSet):
     """Memorial model admin."""
 
     model = Memorial
@@ -79,7 +75,7 @@ class MemorialModelAdmin(ModelAdmin):
     )
 
 
-class MollyWingateBlogPageModelAdmin(ModelAdmin):
+class MollyWingateBlogPageViewSet(ModelViewSet):
     model = MollyWingateBlogPage
     menu_icon = "doc-full"
     menu_label = "Molly Wingate Blog"
@@ -99,7 +95,7 @@ class MollyWingateBlogPageModelAdmin(ModelAdmin):
     )
 
 
-class EventModelAdmin(ModelAdmin):
+class EventViewSet(ModelViewSet):
     model = Event
     menu_icon = "date"
     menu_label = "Events"
@@ -128,7 +124,7 @@ class EventModelAdmin(ModelAdmin):
     )
 
 
-class CommunityDirectoryModelAdmin(ModelAdmin):
+class CommunityDirectoryViewSet(ModelViewSet):
     model = CommunityDirectory
     menu_icon = "group"
     menu_label = "Directories"
@@ -141,7 +137,7 @@ class CommunityDirectoryModelAdmin(ModelAdmin):
     search_fields = ("title",)
 
 
-class OnlineWorshipModelAdmin(ModelAdmin):
+class OnlineWorshipViewSet(ModelViewSet):
     model = OnlineWorship
     menu_icon = "globe"
     menu_label = "Online Worship"
@@ -154,7 +150,7 @@ class OnlineWorshipModelAdmin(ModelAdmin):
     search_fields = ("title",)
 
 
-class PublicBoardDocumentModelAdmin(ModelAdmin):
+class PublicBoardDocumentViewSet(ModelViewSet):
     model = PublicBoardDocument
     menu_icon = "doc-full"
     menu_label = "Public Board Documents"
@@ -167,7 +163,7 @@ class PublicBoardDocumentModelAdmin(ModelAdmin):
     search_fields = ("title",)
 
 
-class MeetingDocumentModelAdmin(ModelAdmin):
+class MeetingDocumentViewSet(ModelViewSet):
     model = MeetingDocument
     menu_icon = "doc-full"
     menu_label = "Meeting Documents"
@@ -190,25 +186,29 @@ class MeetingDocumentModelAdmin(ModelAdmin):
     )
 
 
-class CommunityGroup(ModelAdminGroup):
+class CommunityGroup(ModelViewSetGroup):
     menu_label = "Community"
     menu_icon = "snippet"
     menu_order = 200
     items = (
-        PersonModelAdmin,
-        MeetingModelAdmin,
-        OrganizationModelAdmin,
-        EventModelAdmin,
-        MemorialModelAdmin,
-        CommunityDirectoryModelAdmin,
-        OnlineWorshipModelAdmin,
-        PublicBoardDocumentModelAdmin,
-        MeetingDocumentModelAdmin,
-        MollyWingateBlogPageModelAdmin,
+        PersonViewSet,
+        MeetingViewSet,
+        OrganizationViewSet,
+        EventViewSet,
+        MemorialViewSet,
+        CommunityDirectoryViewSet,
+        OnlineWorshipViewSet,
+        PublicBoardDocumentViewSet,
+        MeetingDocumentViewSet,
+        MollyWingateBlogPageViewSet,
     )
 
 
-modeladmin_register(CommunityGroup)
+community_viewset = CommunityGroup("community")  # defines /admin/community/ as the base URL
+
+@hooks.register("register_community_viewset")
+def register_viewset():
+    return community_viewset
 
 
 @hooks.register("insert_editor_js")  # type: ignore
