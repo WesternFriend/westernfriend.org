@@ -178,9 +178,7 @@ INSTALLED_APPS = [
     "wagtail",
     "wagtail_color_panel",
     "wagtailmedia",
-    # Apps for recaptcha forms
-    "captcha",
-    "wagtailcaptcha",
+    "django_recaptcha",
     # Contrib (apps that are included in Django)
     "django.contrib.admin",
     "django.contrib.auth",

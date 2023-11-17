@@ -84,7 +84,6 @@ dependencies = [
     "tzdata",
     "wagtail",
     "wagtail-color-panel",
-    "wagtail-django-recaptcha",
     "wagtailmedia",
     # keep-sorted end
 ]

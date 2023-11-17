@@ -1,5 +1,5 @@
 from django_registration.forms import RegistrationForm
-from captcha.fields import ReCaptchaField
+from django_recaptcha.fields import ReCaptchaField
 from accounts.models import User
 
 

@@ -86,9 +86,7 @@ django-modelcluster==6.1
 django-permissionedforms==0.1
     # via wagtail
 django-recaptcha==4.0.0
-    # via
-    #   Western-Friend-website (pyproject.toml)
-    #   wagtail-django-recaptcha
+    # via Western-Friend-website (pyproject.toml)
 django-registration==3.4
     # via Western-Friend-website (pyproject.toml)
 django-storages==1.14.2
@@ -240,8 +238,6 @@ wagtail==5.2.1
     #   wagtail-factories
     #   wagtailmedia
 wagtail-color-panel==1.4.1
-    # via Western-Friend-website (pyproject.toml)
-wagtail-django-recaptcha==1.0
     # via Western-Friend-website (pyproject.toml)
 wagtail-factories==4.1.0
     # via Western-Friend-website (pyproject.toml)
