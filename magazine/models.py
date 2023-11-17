@@ -26,6 +26,7 @@ from wagtail.search import index
 from blocks.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,
+    PreformattedTextBlock,
     PullQuoteBlock,
     SpacerBlock,
 )
@@ -300,6 +301,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
                         "superscript",
                         "superscript",
                         "strikethrough",
+                        "blockquote",
                     ],
                 ),
             ),
@@ -307,6 +309,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
             ("document", DocumentEmbedBlock()),
             ("image", FormattedImageChooserStructBlock(classname="full title")),
             ("spacer", SpacerBlock()),
+            ("preformatted_text", PreformattedTextBlock()),
         ],
         use_json_field=True,
     )
