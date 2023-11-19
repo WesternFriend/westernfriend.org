@@ -7,9 +7,7 @@
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue-ghost.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/WesternFriend/WF-website/tree/main)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
-[![All Contributors](https://img.shields.io/badge/all_contributors-14-orange.svg?style=flat-square)](#contributors-)
-
+[![All Contributors](https://img.shields.io/badge/all_contributors-15-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 A website for [Western Friend](https://westernfriend.org), a Quaker publication that provides resources and support for Quaker communities and individuals seeking to live out their faith in the world. Western Friend is part of the Religious Society of Friends.
@@ -39,12 +37,15 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/sim-codes"><img src="https://avatars.githubusercontent.com/u/100477981?v=4?s=100" width="100px;" alt="Ibrahim Michael Oluwasegun"/><br /><sub><b>Ibrahim Michael Oluwasegun</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=sim-codes" title="Code">💻</a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JoanEliot"><img src="https://avatars.githubusercontent.com/u/30822817?v=4?s=100" width="100px;" alt="Joan Eliot"/><br /><sub><b>Joan Eliot</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/issues?q=author%3AJoanEliot" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/josh-bristow"><img src="https://avatars.githubusercontent.com/u/45632384?v=4?s=100" width="100px;" alt="Josh Bristow"/><br /><sub><b>Josh Bristow</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=josh-bristow" title="Code">💻</a> <a href="https://github.com/WesternFriend/WF-website/commits?author=josh-bristow" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/LidiaTre"><img src="https://avatars.githubusercontent.com/u/129381339?v=4?s=100" width="100px;" alt="Lidia Tregubova"/><br /><sub><b>Lidia Tregubova</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=LidiaTre" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://nehemiasec.com"><img src="https://avatars3.githubusercontent.com/u/5385440?v=4?s=100" width="100px;" alt="N Eliseo S Carranza"/><br /><sub><b>N Eliseo S Carranza</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=NehemiasEC" title="Documentation">📖</a> <a href="https://github.com/WesternFriend/WF-website/issues?q=author%3ANehemiasEC" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/software-developer-engineer/"><img src="https://avatars.githubusercontent.com/u/94129321?v=4?s=100" width="100px;" alt="Pawel Poleszczuk"/><br /><sub><b>Pawel Poleszczuk</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=P-Pole" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/viktoriussuwandi"><img src="https://avatars.githubusercontent.com/u/68414300?v=4?s=100" width="100px;" alt="Viktorius Suwandi"/><br /><sub><b>Viktorius Suwandi</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=viktoriussuwandi" title="Code">💻</a> <a href="https://github.com/WesternFriend/WF-website/commits?author=viktoriussuwandi" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lokeshkadem"><img src="https://avatars.githubusercontent.com/u/130270325?v=4?s=100" width="100px;" alt="kadem lokesh"/><br /><sub><b>kadem lokesh</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=lokeshkadem" title="Code">💻</a></td>
+    </tr>
+    <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/werberger"><img src="https://avatars.githubusercontent.com/u/106753124?v=4?s=100" width="100px;" alt="werb"/><br /><sub><b>werb</b></sub></a><br /><a href="https://github.com/WesternFriend/WF-website/commits?author=werberger" title="Code">💻</a></td>
     </tr>
   </tbody>
