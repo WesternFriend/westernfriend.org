@@ -10,3 +10,10 @@ class CustomUserForm(RegistrationForm):
 
     class Meta(RegistrationForm.Meta):
         model = User
+        fields = [
+            User.USERNAME_FIELD,
+            "first_name",
+            "last_name",
+            "password1",
+            "password2",
+        ]
