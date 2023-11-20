@@ -595,14 +595,13 @@ class DeepArchiveIndexPage(Page):
         )
 
         page = request.GET.get("page", "1")
+        items_per_page = 12
 
-        paginated_archive_issues = get_paginated_items(
+        context["archive_issues"] = get_paginated_items(
             items=archive_issues,
-            items_per_page=12,
+            items_per_page=items_per_page,
             page_number=page,
         )
-
-        context["archive_issues"] = paginated_archive_issues.page
 
         # Add publication years to context, for select menu
         context["publication_years"] = self.get_publication_years()
