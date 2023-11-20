@@ -16,8 +16,8 @@
         {{ page.intro | richtext }}
     </div>
 
-    {% if events %}
-        {% for event in events %}
+    {% if events.page %}
+        {% for event in events.page %}
             <div class="card mb-2">
                 <div class="card-body">
                     <div class="container">
@@ -60,18 +60,8 @@
         {% endfor %}
 
 
-        <div class="step-links ms-3 mt-1 text-center">
-            {% if events.has_previous %}
-                <a href="?page={{ events.previous_page_number }}" class="btn btn-outline-primary btn-sm">previous</a>
-            {% endif %}
-
-            <span class="current">
-                Page {{ events.number }} of {{ events.paginator.num_pages }}
-            </span>
-
-            {% if events.has_next %}
-                <a href="?page={{ events.next_page_number }}" class="btn btn-outline-primary btn-sm">next</a>
-            {% endif %}
+        <div class="step-links mt-1 text-center">
+            {% include "paginator.html" with paginated_items=events %}
         </div>
     {% else %}
         <p>There are no {{ event_category_title }} events</p>
