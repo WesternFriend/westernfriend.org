@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     "news",
     "orders",
     "payment.apps.PaymentConfig",
+    "pagination",
     "paypal",
     "search",
     "store",
