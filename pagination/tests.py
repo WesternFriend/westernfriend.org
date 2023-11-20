@@ -16,7 +16,7 @@ class GetPaginatedItemsTests(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
         UserFactory.create_batch(200)
-        cls.users = User.objects.all()
+        cls.users = User.objects.all().order_by("id")
 
     def test_page_number_is_none(self) -> None:
         result: PaginatorPageWithElidedPageRange = get_paginated_items(

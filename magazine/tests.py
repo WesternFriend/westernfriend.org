@@ -94,19 +94,19 @@ class MagazineIndexPageTest(TestCase):
         number_of_issues_per_page = 8
 
         self.assertEqual(
-            len(list(context["archive_issues"])),
+            len(list(context["archive_issues"].page)),
             number_of_issues_per_page,
         )
 
         self.assertEqual(
-            list(context["archive_issues"]),
+            list(context["archive_issues"].page),
             self.archive_magazine_issues[:number_of_issues_per_page],
         )
 
     def test_get_context_archive_issues_with_page_number(self) -> None:
         """Make sure we get the second page of archive issues."""
 
-        mock_request = RequestFactory().get("/magazine/?archive-issues-page=2")
+        mock_request = RequestFactory().get("/magazine/?page=2")
 
         context = self.magazine_index.get_context(mock_request)
 
@@ -114,12 +114,12 @@ class MagazineIndexPageTest(TestCase):
         expected_number_of_issues_on_second_page = 2
 
         self.assertEqual(
-            len(list(context["archive_issues"])),
+            len(list(context["archive_issues"].page)),
             expected_number_of_issues_on_second_page,
         )
 
         self.assertEqual(
-            list(context["archive_issues"]),
+            list(context["archive_issues"].page),
             self.archive_magazine_issues[number_of_issues_per_page:],
         )
 
@@ -127,19 +127,19 @@ class MagazineIndexPageTest(TestCase):
         """Make sure we get the first page when an invalid page number is
         provided."""
 
-        mock_request = RequestFactory().get("/magazine/?archive-issues-page=4")
+        mock_request = RequestFactory().get("/magazine/?page=4")
 
         context = self.magazine_index.get_context(mock_request)  # type: ignore
 
         number_of_issues_per_page = 8
 
         self.assertEqual(
-            len(list(context["archive_issues"])),
+            len(list(context["archive_issues"].page)),
             number_of_issues_per_page,
         )
 
         self.assertEqual(
-            list(context["archive_issues"]),
+            list(context["archive_issues"].page),
             self.archive_magazine_issues[:number_of_issues_per_page],
         )
 
@@ -149,19 +149,19 @@ class MagazineIndexPageTest(TestCase):
         """Make sure we get the first page when an invalid page number is
         provided."""
 
-        mock_request = RequestFactory().get("/magazine/?archive-issues-page=foo")
+        mock_request = RequestFactory().get("/magazine/?page=foo")
 
         context = self.magazine_index.get_context(mock_request)
 
         number_of_issues_per_page = 8
 
         self.assertEqual(
-            len(list(context["archive_issues"])),
+            len(list(context["archive_issues"].page)),
             number_of_issues_per_page,
         )
 
         self.assertEqual(
-            list(context["archive_issues"]),
+            list(context["archive_issues"].page),
             self.archive_magazine_issues[:number_of_issues_per_page],
         )
 
@@ -615,7 +615,7 @@ class DeepArchiveIndexPageTest(TestCase):
 
         # Check that the context includes the archive issues
         self.assertQuerySetEqual(  # type: ignore
-            context["archive_issues"],
+            context["archive_issues"].page,
             self.archive_issues[:archive_items_per_page],
             transform=lambda x: x,  # Transform the objects to compare them directly
             ordered=False,  # The order of the results is not important
@@ -637,7 +637,7 @@ class DeepArchiveIndexPageTest(TestCase):
         archive_items_per_page = 12
 
         self.assertEqual(
-            len(list(context["archive_issues"])),
+            len(list(context["archive_issues"].page)),
             archive_items_per_page,
         )
 
@@ -650,7 +650,7 @@ class DeepArchiveIndexPageTest(TestCase):
 
         # Now we're not just checking the length, but also the actual issues
         self.assertQuerySetEqual(
-            context["archive_issues"],
+            context["archive_issues"].page,
             expected_issues,
             transform=lambda x: x,  # Transform the objects to compare them directly
             ordered=False,  # The order of the results is not important

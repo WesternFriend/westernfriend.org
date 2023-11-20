@@ -1,4 +1,3 @@
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.utils import timezone
 from django.db import models
 from django.db.models import Q
@@ -13,6 +12,7 @@ from wagtail.search import index
 
 from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
 from common.models import DrupalFields
+from pagination.helpers import get_paginated_items
 
 
 class EventSponsor(Orderable):
@@ -147,26 +147,16 @@ class EventsIndexPage(Page):
             )
             .order_by("start_date")
         )
-        events_per_page = 10
 
-        # Show three archive issues per page
-        paginator = Paginator(
-            upcoming_events,
-            events_per_page,
+        page_number = request.GET.get("page", "1")
+        items_per_page = 10
+
+        context["events"] = get_paginated_items(
+            items=upcoming_events,
+            items_per_page=items_per_page,
+            page_number=page_number,
         )
 
-        upcoming_events_page = request.GET.get("page")
-
-        try:
-            paginated_events = paginator.page(upcoming_events_page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            paginated_events = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            paginated_events = paginator.page(paginator.num_pages)
-
-        context["events"] = paginated_events
         context["event_category_title"] = filter_category.capitalize()
 
         return context
