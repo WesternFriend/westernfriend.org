@@ -18,7 +18,9 @@ def search(request: HttpRequest) -> HttpResponse:
         # Record hit
         query.add_hit()
 
-    search_results = Page.objects.live().search(search_query)
+        search_results = Page.objects.live().search(search_query)
+    else:
+        search_results = Page.objects.none()
 
     paginated_search_results = get_paginated_items(
         search_results,

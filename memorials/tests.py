@@ -119,7 +119,7 @@ class MemorialIndexPageGetContextTest(TestCase):
         self.assertIn("meetings", context)
 
         self.assertEqual(
-            len(context["memorials"]),
+            len(context["memorials"].page),
             2,
         )
         self.assertEqual(

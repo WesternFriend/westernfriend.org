@@ -97,7 +97,7 @@ class MemorialIndexPage(Page):
             query=request.GET.dict(),
         )
 
-        items_per_page = 1
+        items_per_page = 10
         page_number = request.GET.get("page", "1")
 
         context["memorials"] = get_paginated_items(

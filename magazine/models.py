@@ -101,7 +101,7 @@ class MagazineIndexPage(Page):
         )
 
         page_number = request.GET.get("page", "1")
-        items_per_page = 1
+        items_per_page = 8
 
         context["archive_issues"] = get_paginated_items(
             items=archive_issues,
