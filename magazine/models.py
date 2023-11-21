@@ -1,6 +1,7 @@
 import datetime
 from datetime import timedelta
 
+from core.constants import STREAMFIELD_SETTINGS
 from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import QuerySet
@@ -10,7 +11,6 @@ from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.models import ClusterableModel  # type: ignore
 from taggit.models import TaggedItemBase  # type: ignore
-from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import (
     FieldPanel,
     FieldRowPanel,
@@ -22,15 +22,7 @@ from wagtail.admin.panels import (
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
-
-from blocks.blocks import (
-    FormattedImageChooserStructBlock,
-    HeadingBlock,
-    PullQuoteBlock,
-    SpacerBlock,
-)
 from common.models import DrupalFields
-from documents.blocks import DocumentEmbedBlock
 from pagination.helpers import get_paginated_items
 
 from .panels import NestedInlinePanel
@@ -284,30 +276,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         ],
     )
     body = StreamField(
-        [
-            ("heading", HeadingBlock()),
-            (
-                "rich_text",
-                wagtail_blocks.RichTextBlock(
-                    features=[
-                        "bold",
-                        "italic",
-                        "ol",
-                        "ul",
-                        "hr",
-                        "link",
-                        "document-link",
-                        "superscript",
-                        "superscript",
-                        "strikethrough",
-                    ],
-                ),
-            ),
-            ("pullquote", PullQuoteBlock()),
-            ("document", DocumentEmbedBlock()),
-            ("image", FormattedImageChooserStructBlock(classname="full title")),
-            ("spacer", SpacerBlock()),
-        ],
+        STREAMFIELD_SETTINGS,
         use_json_field=True,
     )
     is_featured = models.BooleanField(

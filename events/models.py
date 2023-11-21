@@ -1,3 +1,4 @@
+from core.constants import STREAMFIELD_SETTINGS
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.utils import timezone
 from django.db import models
@@ -5,13 +6,11 @@ from django.db.models import Q
 from django.http import Http404, HttpRequest
 from modelcluster.fields import ParentalKey  # type: ignore
 from timezone_field import TimeZoneField  # type: ignore
-from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel, InlinePanel, PageChooserPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
 
-from blocks.blocks import FormattedImageChooserStructBlock, HeadingBlock, SpacerBlock
 from common.models import DrupalFields
 
 
@@ -42,12 +41,7 @@ class Event(DrupalFields, Page):  # type: ignore
 
     teaser = models.TextField(max_length=100, null=True, blank=True)
     body = StreamField(
-        [
-            ("heading", HeadingBlock()),
-            ("rich_text", wagtail_blocks.RichTextBlock()),
-            ("image", FormattedImageChooserStructBlock()),
-            ("spacer", SpacerBlock()),
-        ],
+        STREAMFIELD_SETTINGS,
         null=True,
         blank=True,
         use_json_field=True,
