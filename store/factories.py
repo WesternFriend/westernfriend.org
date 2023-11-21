@@ -65,7 +65,7 @@ class ProductFactory(DjangoModelFactory):
 
     title = factory.Sequence(lambda n: f"Product {n}")
     description = RichText("Product description")
-    price = factory.Faker(  # type: ignore
+    price_usd = factory.Faker(  # type: ignore
         "pydecimal",
         left_digits=2,
         right_digits=2,

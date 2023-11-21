@@ -1,3 +1,5 @@
+from decimal import Decimal
+from http import HTTPStatus
 from unittest.mock import MagicMock, Mock, patch
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import Client, RequestFactory, TestCase
@@ -16,26 +18,26 @@ class OrderModelTest(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
         # Create an Order instance using the factory
-        cls.order = Order(
+        cls.order = Order(  # type: ignore
             id=1,
             purchaser_given_name="John",
             purchaser_family_name="Doe",
             purchaser_meeting_or_organization="Western Friend",
             shipping_cost=4.00,
         )
-        cls.order.save()
+        cls.order.save()  # type: ignore
 
         # Create OrderItems
-        cls.order_item_one = OrderItem.objects.create(
-            order=cls.order,
+        cls.order_item_one = OrderItem.objects.create(  # type: ignore
+            order=cls.order,  # type: ignore
             product_title="Product 1",
             product_id=1,
             price=10.00,
             quantity=2,
         )
 
-        cls.order_item_two = OrderItem.objects.create(
-            order=cls.order,
+        cls.order_item_two = OrderItem.objects.create(  # type: ignore
+            order=cls.order,  # type: ignore
             product_title="Product 2",
             product_id=2,
             price=20.00,
@@ -44,12 +46,18 @@ class OrderModelTest(TestCase):
 
     def test_purchaser_full_name(self) -> None:
         # Test the method
-        self.assertEqual(self.order.purchaser_full_name, "John Doe Western Friend")
+        self.assertEqual(
+            self.order.purchaser_full_name,  # type: ignore
+            "John Doe Western Friend",
+        )
 
         # Test with empty purchaser_family_name
-        self.order.purchaser_family_name = ""
-        self.order.save()
-        self.assertEqual(self.order.purchaser_full_name, "John Western Friend")
+        self.order.purchaser_family_name = ""  # type: ignore
+        self.order.save()  # type: ignore
+        self.assertEqual(
+            self.order.purchaser_full_name,
+            "John Western Friend",
+        )  # type: ignore
 
         # Test with only purchaser_meeting_or_organization
         self.order.purchaser_given_name = ""
@@ -66,9 +74,11 @@ class OrderModelTest(TestCase):
     def test_order_get_total_cost(self):
         order_item_one_total = self.order_item_one.quantity * self.order_item_one.price
         order_item_two_total = self.order_item_two.quantity * self.order_item_two.price
-        expected_total = order_item_one_total + order_item_two_total
-
-        self.assertEqual(self.order.get_total_cost(), expected_total)
+        expected_total = (
+            order_item_one_total + order_item_two_total + self.order.shipping_cost
+        )
+        expected_decimal = Decimal(expected_total).quantize(Decimal("0.01"))
+        self.assertEqual(self.order.get_total_cost(), expected_decimal)
 
 
 class OrderItemModelTest(TestCase):
@@ -91,7 +101,7 @@ class OrderItemModelTest(TestCase):
         )
 
     def test_get_cost_method(self) -> None:
-        expected_cost = 39.98
+        expected_cost = Decimal("39.98")
 
         self.assertEqual(
             self.order_item.get_cost(),
@@ -123,7 +133,7 @@ class OrderCreateViewTest(TestCase):
 
     def test_order_create_view_post_request_form_valid(self) -> None:
         # Mock the OrderCreateForm
-        with patch("orders.forms.OrderCreateForm") as MockOrderCreateForm:
+        with patch("orders.views.OrderCreateForm") as MockOrderCreateForm:
             # Instance of the form
             mock_form = MagicMock()
 
@@ -139,10 +149,15 @@ class OrderCreateViewTest(TestCase):
             MockOrderCreateForm.return_value = mock_form
 
             # Send a POST request
-            response = self.client.post(reverse("orders:order_create"))
+            response = self.client.post(
+                reverse("orders:order_create"),
+            )
 
             # Check that the response is a redirect
-            self.assertEqual(response.status_code, 302)
+            self.assertEqual(
+                response.status_code,
+                HTTPStatus.FOUND,
+            )
 
             # Check if the redirect URL is correct
             self.assertRedirects(

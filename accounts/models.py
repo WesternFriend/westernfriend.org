@@ -1,51 +1,74 @@
-import datetime
-
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from subscription.models import Subscription
 
-from .managers import UserManager
+
+class UserManager(BaseUserManager):
+    """Custom user model manager where email is the unique identifiers for
+    authentication instead of usernames.
+
+    Source: https://testdriven.io/blog/django-custom-user-model/
+    """
+
+    def create_user(
+        self,
+        email: str,
+        password: str,
+        **extra_fields: dict[str, str | bool],
+    ) -> "User":
+        """Create and save a User with the given email and password."""
+        if not email:
+            raise ValueError(_("The Email must be set"))
+        email = self.normalize_email(email)
+        user: User = self.model(email=email, **extra_fields)  # type: ignore
+        user.set_password(password)
+        user.save()
+
+        return user
+
+    def create_superuser(
+        self,
+        email: str,
+        password: str,
+        **extra_fields: dict[str, str | bool],
+    ) -> "User":
+        """Create and save a superuser with the given email and password."""
+        extra_fields["is_staff"] = True  # type: ignore
+        extra_fields["is_superuser"] = True  # type: ignore
+        extra_fields["is_active"] = True  # type: ignore
+
+        return self.create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
-    # source: https://testdriven.io/blog/django-custom-user-model/
+class User(AbstractUser):
+    # email must be unique since it is used as the username field
     email = models.EmailField(unique=True)
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    # disable username field
+    username = None  # type: ignore
+
+    date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
 
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
-    REQUIRED_FIELDS: list[str] = []
 
-    objects = UserManager()
+    # The field named as the 'USERNAME_FIELD' for a custom user model
+    # must not be included in 'REQUIRED_FIELDS'.
+    # HINT: The 'USERNAME_FIELD' is currently set to 'email',
+    # you should remove 'email' from the 'REQUIRED_FIELDS'.
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()  # type: ignore
 
     subscriptions: models.QuerySet[Subscription]
-
-    def __str__(self) -> str:
-        return self.email
-
-    # TODO: refactor this to `get_active_subscriptions`
-    # and return a list of active subscriptions
-    # so we can allow use-cases where a user can have multiple active subscriptions
-    # such as managing subscriptions for a Meeting or a Group
-    def get_active_subscription(self) -> Subscription | None:
-        """Get subscription that isn't expired for this user."""
-        today = datetime.datetime.today()
-
-        # using filter.first() instead of get() because get() throws an exception
-        # if there are multiple active subscriptions
-        # TODO: determine how to handle multiple active subscriptions
-        return self.subscriptions.filter(
-            end_date__gte=today,
-            paid=True,
-        ).first()
 
     @property
     def is_subscriber(self) -> bool:
         """Check whether user has active subscription."""
+        if not hasattr(self, "subscription"):
+            return False
 
-        if self.get_active_subscription() is not None:
-            return True
-
-        return False
+        return self.subscription.is_active

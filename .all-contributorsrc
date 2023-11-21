@@ -130,6 +130,25 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "GT-Codeur",
+      "name": "GT_Codeur",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19597695?v=4",
+      "profile": "https://github.com/GT-Codeur",
+      "contributions": [
+        "code",
+        "security"
+      ]
+    },
+    {
+      "login": "JoanEliot",
+      "name": "Joan Eliot",
+      "avatar_url": "https://avatars.githubusercontent.com/u/30822817?v=4",
+      "profile": "https://github.com/JoanEliot",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,

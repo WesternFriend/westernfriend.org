@@ -42,14 +42,7 @@
             {% endif %}
         {% endfor %}
 
-
-        {% if search_results.has_previous %}
-            <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.previous_page_number }}">Previous</a>
-        {% endif %}
-
-        {% if search_results.has_next %}
-            <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.next_page_number }}">Next</a>
-        {% endif %}
+        {% include "paginator.html" with paginated_items=paginated_search_results current_querystring=search_querystring %}
     {% elif search_query %}
         No results found
     {% endif %}

@@ -29,6 +29,8 @@ class OrderModelAdmin(ModelAdmin):
         "purchaser_email",
         "purchaser_full_name",
         "paid",
+        "paypal_order_id",
+        "paypal_payment_id",
     )
     search_fields = (
         "purchaser_email",
@@ -42,7 +44,6 @@ class OrderModelAdmin(ModelAdmin):
     inspect_view_fields = [
         "id",
         "paid",
-        "braintree_transaction_id",
         "purchaser_given_name",
         "purchaser_family_name",
         "purchaser_meeting_or_organization",

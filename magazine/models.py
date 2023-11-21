@@ -1,8 +1,11 @@
 import datetime
 from datetime import timedelta
 
+dev
 from core.constants import STREAMFIELD_SETTINGS
 from django.core.paginator import Paginator
+
+main
 from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpRequest
@@ -22,6 +25,8 @@ from wagtail.admin.panels import (
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
+dev
+main
 from common.models import DrupalFields
 from pagination.helpers import get_paginated_items
 
@@ -92,25 +97,14 @@ class MagazineIndexPage(Page):
             publication_date__lt=ARCHIVE_THRESHOLD_DATE,
         )
 
-        # Show three archive issues per page
-        paginator = Paginator(archive_issues, 8)
+        page_number = request.GET.get("page", "1")
+        items_per_page = 8
 
-        archive_issues_page = request.GET.get("archive-issues-page")
-
-        # if page is not specified, default to first page
-        # if it is an integer and within the num_pages, use it
-        # if it exceeds the number of pages, use the first page
-        if not archive_issues_page:
-            archive_issues_page_number = 1
-        elif (
-            archive_issues_page.isdigit()
-            and int(archive_issues_page) <= paginator.num_pages
-        ):
-            archive_issues_page_number = int(archive_issues_page)
-        else:
-            archive_issues_page_number = 1
-
-        context["archive_issues"] = paginator.page(archive_issues_page_number)
+        context["archive_issues"] = get_paginated_items(
+            items=archive_issues,
+            items_per_page=items_per_page,
+            page_number=page_number,
+        )
 
         return context
 
@@ -276,7 +270,9 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         ],
     )
     body = StreamField(
+dev
         STREAMFIELD_SETTINGS,
+main
         use_json_field=True,
     )
     is_featured = models.BooleanField(
@@ -561,14 +557,13 @@ class DeepArchiveIndexPage(Page):
         )
 
         page = request.GET.get("page", "1")
+        items_per_page = 12
 
-        paginated_archive_issues = get_paginated_items(
+        context["archive_issues"] = get_paginated_items(
             items=archive_issues,
-            items_per_page=12,
+            items_per_page=items_per_page,
             page_number=page,
         )
-
-        context["archive_issues"] = paginated_archive_issues.page
 
         # Add publication years to context, for select menu
         context["publication_years"] = self.get_publication_years()

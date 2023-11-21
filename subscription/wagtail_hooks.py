@@ -13,33 +13,25 @@ class SubscriptionModelAdmin(ModelAdmin):
     add_to_settings_menu = False
     exclude_from_explorer = False
     list_display = (
-        "subscriber_given_name",
-        "subscriber_family_name",
         "user",
-        "magazine_format",
-        "price_group",
-        "price",
-        "paid",
-        "recurring",
-        "end_date",
+        "paypal_subscription_id",
+        "expiration_date",
+        # TODO: consider and test the performance impact
+        # of including is_active in the list display.
+        # "is_active",
     )
     search_fields = (
         "user",
-        "subscriber_given_name",
-        "subscriber_family_name",
-    )
-    list_filter = (
-        "paid",
-        "magazine_format",
-        "price_group",
+        "paypal_subscription_id",
     )
     inspect_view_enabled = True
     inspect_view_fields = [
-        "subscriber_full_name",
-        "price",
-        "paid",
-        "recurring",
-        "end_date",
+        "user",
+        "paypal_subscription_id",
+        # This requires an HTTP request or cache hit
+        # so adding it to the inspect view
+        # to, hypothetically, avoid unnecessary requests.
+        "is_active",
     ]
     # inspect_template_name = "store/inspect_order.html"
 

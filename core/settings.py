@@ -15,8 +15,6 @@ import os
 import sys
 
 import dj_database_url
-from braintree import Configuration as BraintreeConfiguration
-from braintree import Environment as BraintreeEnvironment
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 import sentry_sdk
@@ -44,6 +42,8 @@ BASE_DIR = os.path.dirname(CORE_DIR)
 
 
 SECURE_REFERRER_POLICY = "strict-origin"
+# Allow PayPal to open up in-context pop-ups
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 
@@ -90,8 +90,7 @@ if os.getenv("SENTRY_DSN"):
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN"),
         integrations=[DjangoIntegration()],
-        traces_sample_rate=0.2,
-        send_default_pii=True,
+        traces_sample_rate=0.1,
     )
 
 # Settings related to DigitalOcean Spaces
@@ -112,31 +111,21 @@ AUTH_USER_MODEL = "accounts.User"
 
 CART_SESSION_ID = "cart"
 
-# Braintree settings
-BRAINTREE_ENVIRONMENT = os.getenv("BRAINTREE_ENVIRONMENT", "sandbox")
-braintree_env = (
-    BraintreeEnvironment.Production  # noqa: E501
-    if BRAINTREE_ENVIRONMENT.lower() == "production"
-    else BraintreeEnvironment.Sandbox  # noqa: E501
+# PayPal settings
+PAYPAL_CLIENT_ENVIRONMENT = os.getenv("PAYPAL_CLIENT_ENVIRONMENT", "sandbox")
+PAYPAL_API_URL = (
+    "https://api-m.paypal.com"
+    if PAYPAL_CLIENT_ENVIRONMENT.lower() == "production"
+    else "https://api-m.sandbox.paypal.com"
 )
-
-BRAINTREE_MERCHANT_ID = os.getenv("BRAINTREE_MERCHANT_ID")
-BRAINTREE_PUBLIC_KEY = os.getenv("BRAINTREE_PUBLIC_KEY")
-BRAINTREE_PRIVATE_KEY = os.getenv("BRAINTREE_PRIVATE_KEY")
-
-BraintreeConfiguration.configure(
-    braintree_env,
-    BRAINTREE_MERCHANT_ID,
-    BRAINTREE_PUBLIC_KEY,
-    BRAINTREE_PRIVATE_KEY,
-)
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
+PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 
 # Application definition
-
 INSTALLED_APPS = [
     # First party (apps from this project)
     "accounts",
@@ -145,9 +134,7 @@ INSTALLED_APPS = [
     "common",
     "community",
     "contact",
-    "content_migration",
     "documents",
-    "donations",
     "events",
     "facets",
     "forms",
@@ -158,6 +145,8 @@ INSTALLED_APPS = [
     "news",
     "orders",
     "payment.apps.PaymentConfig",
+    "pagination",
+    "paypal",
     "search",
     "store",
     "subscription",
@@ -190,9 +179,7 @@ INSTALLED_APPS = [
     "wagtail",
     "wagtail_color_panel",
     "wagtailmedia",
-    # Apps for recaptcha forms
-    "captcha",
-    "wagtailcaptcha",
+    "django_recaptcha",
     # Contrib (apps that are included in Django)
     "django.contrib.admin",
     "django.contrib.auth",
@@ -202,9 +189,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
 ]
-
-if DEBUG:
-    INSTALLED_APPS += ["debug_toolbar"]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
@@ -219,9 +203,6 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
-
-if DEBUG:
-    MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
@@ -351,14 +332,41 @@ else:
 
 
 # Wagtail settings
-
 WAGTAIL_SITE_NAME = "Western Friend"
 
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
-BASE_URL = "http://example.com"
+BASE_URL = "https://westernfriend.org"
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# Registration settings
+ACCOUNT_ACTIVATION_DAYS = 7
+REGISTRATION_OPEN = True
+REGISTRATION_SALT = "registration"
+
+# Email settings
+EMAIL_HOST = os.getenv("EMAIL_HOST", None)
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", None)
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", None)
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
+EMAIL_USE_SSL = (
+    os.getenv("EMAIL_USE_SSL", "False") == "True"
+)  # SSL is less secure than TLS
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL",
+    "tech@westernfriend.org",
+)
+
+# if the EMAIL authentication environment variables are set,
+# then we can use the SMTP backend
+if (
+    EMAIL_HOST is not None
+    and EMAIL_HOST_USER is not None
+    and EMAIL_HOST_PASSWORD is not None
+):
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 WAGTAILADMIN_BASE_URL = "/admin"
 
@@ -368,6 +376,6 @@ INTERNAL_IPS = [
 ]
 
 # Recaptcha settings
-RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
-RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
+RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY", "")
+RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY", "")
 NOCAPTCHA = True

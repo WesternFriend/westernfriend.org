@@ -30,8 +30,6 @@ checks:
 plugins:
   bandit:
     enabled: true
-  sonar-python:
-    enabled: true
 exclude_patterns:
   - "content_migration/"
   - "**/migrations/"

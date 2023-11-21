@@ -11,45 +11,33 @@
         <div class="card mb-3">
             <div class="card-body">
                 <form class="form">
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="meeting">
-                                    Filter by year
-                                </label>
-                                <select name="publication_date__year" id="publication_date__year" class="form-control">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-sm-9 col-md-9">
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="publication_date__year">Filter by year</label>
+                                <select name="publication_date__year" id="publication_date__year" class="form-select">
                                     <option selected disabled hidden>Choose a year</option>
                                     {% for year in publication_years %}
                                         <option>{{ year }}</option>
                                     {% endfor %}
                                 </select>
+                                <button type="submit" class="btn btn-outline-primary">Go</button>
                             </div>
                         </div>
 
-                        <div class="col-1">
-                            <button
-                                type="submit"
-                                class="btn btn-outline-primary mt-4">
-                                Go
-                            </button>
-                        </div>
-
-                        <div class="col-1">
-                            <button
-                                id="clear-search-button"
-                                class="btn btn-outline-primary mt-4"
-                                onclick="clearSearch()"
-                                type="button">
-                                Clear
+                        <div class="col-12 col-sm-3 col-md-3">
+                            <button id="clear-search-button" class="btn btn-outline-primary w-100" onclick="clearSearch()" type="button">
+                                Clear filter
                             </button>
                         </div>
                     </div>
                 </form>
             </div>
+
         </div>
     </div>
     <div class="row">
-        {% for issue in archive_issues %}
+        {% for issue in archive_issues.page %}
             <div class="col-sm-3 mb-4">
                 <div class="card">
                     <a href=" {% pageurl issue %}">
@@ -65,17 +53,7 @@
     </div>
 
     <div class="list-group-item d-flex w-100 justify-content-center">
-        {% if archive_issues.has_previous %}
-            <a href="?page={{ archive_issues.previous_page_number }}" class="btn btn-outline-primary btn-sm">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ archive_issues.number }} of {{ archive_issues.paginator.num_pages }}
-        </span>
-
-        {% if archive_issues.has_next %}
-            <a href="?page={{ archive_issues.next_page_number }}" class="btn btn-outline-primary btn-sm">next</a>
-        {% endif %}
+        {% include "paginator.html" with paginated_items=archive_issues %}
     </div>
 
 {% endblock content %}

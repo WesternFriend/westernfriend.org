@@ -1,4 +1,4 @@
-import datetime
+from unittest.mock import PropertyMock, patch
 from django.test import TestCase
 from .models import User
 from subscription.models import Subscription
@@ -48,17 +48,10 @@ class UserModelTest(TestCase):
             email="test@test.com",
             password="testpass",
         )
-        today = datetime.date.today()
+
         # Creating active subscription
-        self.active_subscription = Subscription.objects.create(
+        self.user_subscription = Subscription.objects.create(
             user=self.user,
-            end_date=today + datetime.timedelta(days=7),
-            paid=True,
-        )
-        # Creating expired subscription
-        self.expired_subscription = Subscription.objects.create(
-            user=self.user,
-            end_date=today - datetime.timedelta(days=7),
         )
 
     def test_user_str_representation(self) -> None:
@@ -66,35 +59,31 @@ class UserModelTest(TestCase):
         expected_str = "test@test.com"
         self.assertEqual(str(self.user), expected_str)
 
-    def test_get_active_subscription(self) -> None:
-        # Test if the active subscription is returned correctly
-        active_subscription = self.user.get_active_subscription()
-        self.assertIsNotNone(active_subscription)
-        self.assertEqual(
-            active_subscription,
-            self.active_subscription,
-        )
-        self.assertGreaterEqual(
-            active_subscription.end_date,  # type: ignore
-            datetime.date.today(),
-        )
+    def test_is_subscriber_subscription_active(self):
+        with patch.object(
+            Subscription,
+            "is_active",
+            new_callable=PropertyMock,
+        ) as mock_is_active:
+            mock_is_active.return_value = True
 
-    def test_get_active_subscription_with_no_subscription(self) -> None:
-        # Test if None is returned when there is no active subscription
-        self.user.subscriptions.all().delete()
-        self.assertIsNone(self.user.get_active_subscription())
+            self.assertTrue(self.user.is_subscriber)
 
-    def test_is_subscriber(self) -> None:
-        # Test if is_subscriber returns true if user has subscription
-        self.assertEqual(
-            self.user.is_subscriber,
-            True,
-        )
+    def test_is_subscriber_subscription_expired(self):
+        with patch.object(
+            Subscription,
+            "is_active",
+            new_callable=PropertyMock,
+        ) as mock_is_active:
+            mock_is_active.return_value = False
 
-    def test_is_not_subscriber(self) -> None:
+            self.assertFalse(self.user.is_subscriber)
+
+    def test_user_without_subscription_is_not_subscriber(self) -> None:
         # Test if is_subscriber returns False if user has no subscription
-        self.user.subscriptions.all().delete()
-        self.assertEqual(
-            self.user.is_subscriber,
-            False,
-        )
+        self.user.subscription.delete()
+
+        # Reload the user object to make sure it reflects the recent changes
+        self.user.refresh_from_db()
+
+        self.assertFalse(self.user.is_subscriber)

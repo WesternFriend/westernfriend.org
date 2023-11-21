@@ -1,0 +1,49 @@
+<div class="card">
+    <div class="card-body text-center">
+        <p class="card-title h2">{{ value.paypal_plan_name }}</p>
+        <p class="card-text h3">${{ value.paypal_plan_price }}</p>
+
+        <div id="paypal-button-container-{{ value.paypal_plan_id }}"></div>
+    </div>
+</div>
+
+<script>
+    // render PayPal subscription buttons
+    paypal.Buttons({
+        createSubscription: function(data, actions) {
+            return actions.subscription.create({
+                'plan_id': '{{ value.paypal_plan_id }}'
+            });
+        },
+        onApprove: function(data, actions) {
+            // make a POST request to the server
+            // to save subscription details
+            return fetch('{{ link_paypal_subscription_url }}', {
+                method: 'post',
+                headers: {
+                    'content-type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+
+                },
+                body: JSON.stringify({
+                    subscription_id: data.subscriptionID
+                })
+            }).then(function(response) {
+                // response success true means subscription was created
+                if (response.ok) {
+                    // reload the page
+                    // to trigger a redirect to Manage Subscription page
+                    location.reload();
+                } else {
+                    return response.json().then(function(error) {
+                        console.log(error.message);
+                    });
+                }
+            });
+        },
+        // handle error
+        onError(error) {
+            console.log(error);
+        }
+    }).render('#paypal-button-container-{{ value.paypal_plan_id }}');
+</script>

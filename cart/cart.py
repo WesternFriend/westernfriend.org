@@ -59,16 +59,16 @@ class Cart:
         # get the product objects and add them to the cart
         return Product.objects.filter(id__in=product_ids)
 
-    def get_total_price(self) -> Decimal:
+    def get_total_cost(self) -> Decimal:
         int_sum = sum(
             [
-                self.get_subtotal_price(),
+                self.get_subtotal_cost(),
                 self.get_shipping_cost(),
             ],
         )
         return Decimal(int_sum).quantize(Decimal("0.01"))
 
-    def get_subtotal_price(self) -> Decimal:
+    def get_subtotal_cost(self) -> Decimal:
         totals = [
             Decimal(item["price"]) * item["quantity"] for item in self.cart.values()
         ]
@@ -84,6 +84,8 @@ class Cart:
         # remove cart from session
         del self.session[settings.CART_SESSION_ID]
 
+        self.cart = {}
+
         self.save()
 
     def __iter__(self) -> Generator:
@@ -94,10 +96,7 @@ class Cart:
         cart = self.cart.copy()
 
         for product in products:
-            if str(product.id) not in cart:  # type: ignore
-                continue
-
-            cart[str(product.id)]["product"] = product  # type: ignore
+            cart[str(product.id)]["product"] = product
 
         for item in cart.values():
             item["price"] = Decimal(item["price"])

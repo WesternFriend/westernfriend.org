@@ -46,6 +46,7 @@
 
                                 <div class="input-group">
                                     <input
+                                        id="update-button-{{ product.id }}"
                                         type="number"
                                         name="quantity"
                                         min="1"
@@ -57,13 +58,14 @@
                                         style="max-width: 10em"
                                     >
 
-                                    <div class="input-group-append">
-                                        <input
-                                            type="submit"
-                                            value="Update"
-                                            aria-label="update quantity"
-                                            class="btn btn-outline-primary btn-sm">
-                                    </div>
+
+                                    <input
+                                        type="submit"
+                                        value="Update"
+                                        aria-label="update quantity"
+                                        aria-describedby="update-button-{{ product.id }}"
+                                        class="btn btn-outline-primary btn-sm">
+
                                 </div>
                             </form>
                         </td>
@@ -87,7 +89,7 @@
             <tr>
                 <td colspan="5" class="text-right font-italic">Subtotal</td>
                 <td class="num text-right">
-                    ${{ cart.get_subtotal_price }}
+                    ${{ cart.get_subtotal_cost }}
                 </td>
             </tr>
             <tr>
@@ -99,7 +101,7 @@
             <tr class="font-weight-bold">
                 <td colspan="5" class="text-right">Total</td>
                 <td class="num text-right">
-                    ${{ cart.get_total_price }}
+                    ${{ cart.get_total_cost }}
                 </td>
             </tr>
         </tbody>

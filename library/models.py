@@ -14,6 +14,8 @@ from wagtail.admin.panels import (
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
+dev
+main
 from common.models import DrupalFields
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
 from library.helpers import create_querystring_from_facets, filter_querystring_facets
@@ -35,7 +37,10 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
         help_text="This field indicates when a library item wasn't published on a specific publication date.",  # noqa: E501
     )
     body = StreamField(
+dev
         STREAMFIELD_SETTINGS,
+        
+main
         null=True,
         blank=True,
         use_json_field=True,
@@ -219,8 +224,13 @@ class LibraryIndexPage(Page):
         )
 
         # Filter live (not draft) library items using facets from request
-        library_items = LibraryItem.objects.live().filter(  # type: ignore
-            **facets,
+        # reverse sort by publication date
+        library_items = (
+            LibraryItem.objects.live()
+            .filter(  # type: ignore
+                **facets,
+            )
+            .order_by("-publication_date")
         )
         page_number = request.GET.get("page", "1")
         items_per_page = 10
