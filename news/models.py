@@ -5,21 +5,13 @@ from django.http import HttpRequest
 from modelcluster.fields import ParentalKey
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
-from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
-from wagtail.embeds.blocks import EmbedBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
 
-from blocks.blocks import (
-    FormattedImageChooserStructBlock,
-    HeadingBlock,
-    PullQuoteBlock,
-    SpacerBlock,
-)
 from common.models import DrupalFields
-from documents.blocks import DocumentEmbedBlock
+from core.constants import STREAMFIELD_SETTINGS
 
 
 class NewsIndexPage(Page):
@@ -150,32 +142,7 @@ class NewsItem(DrupalFields, Page):
     )
     publication_date = models.DateField(default=date.today)
     body = StreamField(
-        [
-            ("heading", HeadingBlock()),
-            (
-                "rich_text",
-                wagtail_blocks.RichTextBlock(
-                    features=[
-                        "bold",
-                        "italic",
-                        "ol",
-                        "ul",
-                        "hr",
-                        "link",
-                        "document-link",
-                        "superscript",
-                        "superscript",
-                        "strikethrough",
-                        "blockquote",
-                    ],
-                ),
-            ),
-            ("pullquote", PullQuoteBlock()),
-            ("image", FormattedImageChooserStructBlock(classname="full title")),
-            ("document", DocumentEmbedBlock()),
-            ("spacer", SpacerBlock()),
-            ("embed", EmbedBlock()),
-        ],
+        STREAMFIELD_SETTINGS,
         use_json_field=True,
     )
     tags = ClusterTaggableManager(
