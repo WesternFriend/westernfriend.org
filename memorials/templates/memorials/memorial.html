@@ -3,7 +3,9 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <a href="{% pageurl page.get_parent %}">Memorials</a>: <a href="{% pageurl page.memorial_meeting %}">{{ page.memorial_meeting }}</a>
+
+    <a href="{% pageurl page.get_parent %}">Memorials</a>{% if page.memorial_meeting %}: <a href="{% pageurl page.memorial_meeting %}">{{ page.memorial_meeting }}</a>{% endif %}
+
 
     <h1>
         {{ page.title }}

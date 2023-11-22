@@ -100,17 +100,11 @@ class MemorialIndexPage(Page):
         items_per_page = 10
         page_number = request.GET.get("page", "1")
 
-        paginated_memorials = get_paginated_items(
+        context["memorials"] = get_paginated_items(
             items=filtered_memorials,
             items_per_page=items_per_page,
             page_number=page_number,
         )
-
-        # TODO: return this full PaginatorPageWithElidedPageRange object
-        # instead of just the page
-        # and update the template to use the elided_page_range
-        # to render the pagination links
-        context["memorials"] = paginated_memorials.page
 
         # Populate faceted search fields
         context["meetings"] = Meeting.objects.all()

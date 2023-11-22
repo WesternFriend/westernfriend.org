@@ -18,7 +18,7 @@ spec:
         match:
           path:
             prefix: /
-  name: 
+  name:
   region: sfo3
   services:
     - environment_slug: python

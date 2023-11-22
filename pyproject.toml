@@ -15,71 +15,77 @@ maintainers = [
     { name = "Brylie Christopher Oxley", email = "brylie@amble.fi" }
 ]
 keywords = [
+    # keep-sorted start
     "django",
+    "interfaith",
+    "quaker",
+    "quaker-activism",
+    "quaker-archives",
+    "quaker-arts",
+    "quaker-ecology",
+    "quaker-ecumenism",
+    "quaker-education",
+    "quaker-epistles",
+    "quaker-faith",
+    "quaker-faith-and-practice",
+    "quaker-friends",
+    "quaker-history",
+    "quaker-letters",
+    "quaker-meetings",
+    "quaker-organizations",
+    "quaker-peace",
+    "quaker-philanthropy",
+    "quaker-philosophy",
+    "quaker-testimonies",
+    "quaker-worship",
+    "quakerism",
     "wagtail",
     "website",
     "western-friend",
-    "quaker",
-    "quakerism",
-    "quaker-faith",
-    "quaker-history",
-    "quaker-peace",
-    "quaker-testimonies",
-    "quaker-worship",
-    "quaker-organizations",
-    "quaker-meetings",
-    "quaker-education",
-    "quaker-activism",
-    "quaker-ecumenism",
-    "interfaith",
-    "quaker-faith-and-practice",
-    "quaker-friends",
-    "quaker-ecology",
-    "quaker-arts",
-    "quaker-letters",
-    "quaker-epistles",
-    "quaker-archives",
-    "quaker-philosophy",
-    "quaker-philanthropy",
+    # keep-sorted end
 ]
 classifiers = [
+    # keep-sorted start
     "Development Status :: 4 - Beta",
     "Environment :: Web Environment",
-    "Framework :: Django",
     "Framework :: Django :: 3.2",
+    "Framework :: Django",
     "Framework :: Wagtail",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Natural Language :: English",
-    "Programming Language :: Python",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Religion :: Quaker",
     "Topic :: Religion",
+    # keep-sorted end
 ]
 dependencies = [
-    "braintree",
-    "django-crispy-forms",
+    # keep-sorted start
+    "boto3",
     "crispy-bootstrap5",
-    "django-registration",
-    "django-flatpickr",
     "dj-database-url",
+    "django",
+    "django-crispy-forms",
+    "django-extensions",
+    "django-flatpickr",
+    "django-recaptcha",
+    "django-registration",
+    "django-storages",
+    "django-timezone-field",
+    "django_coverage_plugin",
     "gunicorn",
     "psycopg2-binary",
     "python-dotenv",
-    "tqdm",
-    "django-timezone-field",
-    "tzdata",
-    "wagtail-color-panel",
-    "django-storages",
-    "boto3",
-    "wagtailmedia",
-    "wagtail",
-    "django-extensions",
-    "django",
+    "requests",
     "sentry-sdk",
-    "django-debug-toolbar",
-    "django_coverage_plugin",
+    "tzdata",
+    "wagtail",
+    "wagtail-color-panel",
+    "wagtailmedia",
+    # keep-sorted end
 ]
 
 [project.urls]
@@ -89,27 +95,21 @@ Repository = "https://github.com/WesternFriend/WF-website"
 
 [project.optional-dependencies]
 dev = [
-    "mypy",
+    # keep-sorted start
+    "coverage",
     "django-browser-reload",
-    "pre-commit",
-    "coverage",
-    "pre-commit",
-    "black",
     "django-stubs[compatible-mypy]",
-    "types-braintree",
-    "types-requests",
-    "types-tqdm",
-    "types-beautifulsoup4",
-    "coverage",
-    "validate-pyproject",
-    "pip-tools",
     "factory_boy",
+    "mypy",
+    "pip-tools",
+    "pre-commit",
+    "types-beautifulsoup4",
     "types-factory-boy",
+    "types-requests",
+    "validate-pyproject",
     "wagtail-factories",
+    # keep-sorted end
 ]
-
-[tool.black]
-target-version = ['py311']
 
 [tool.isort]
 profile = "black"
@@ -124,10 +124,6 @@ ignore_missing_imports = true
 
 [tool.django-stubs]
 django_settings_module = "core.settings"
-
-[tool.ruff]
-# Same as Black.
-line-length = 88
 
 # Exclude a variety of commonly ignored directories.
 exclude = [

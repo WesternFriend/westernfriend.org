@@ -20,6 +20,7 @@ from blocks.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,
     MediaBlock,
+    PreformattedTextBlock,
     PullQuoteBlock,
     SpacerBlock,
     WfURLBlock,
@@ -58,6 +59,7 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
                         "ul",
                         "link",
                         "hr",
+                        "blockquote",
                     ],
                 ),
             ),
@@ -78,6 +80,7 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
             ("url", WfURLBlock()),
             ("pullquote", PullQuoteBlock()),
             ("spacer", SpacerBlock()),
+            ("preformatted_text", PreformattedTextBlock()),
         ],
         null=True,
         blank=True,
@@ -262,8 +265,13 @@ class LibraryIndexPage(Page):
         )
 
         # Filter live (not draft) library items using facets from request
-        library_items = LibraryItem.objects.live().filter(  # type: ignore
-            **facets,
+        # reverse sort by publication date
+        library_items = (
+            LibraryItem.objects.live()
+            .filter(  # type: ignore
+                **facets,
+            )
+            .order_by("-publication_date")
         )
         page_number = request.GET.get("page", "1")
         items_per_page = 10

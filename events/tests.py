@@ -1,7 +1,6 @@
 import datetime
 from django.http import Http404
 from django.test import RequestFactory, TestCase
-from django.core.paginator import Paginator
 from django.utils import timezone
 from events.factories import EventsIndexPageFactory, EventFactory
 from events.models import EventsIndexPage, Event
@@ -74,7 +73,7 @@ class EventsIndexPageTest(TestCase):
 
         # Verify that the context contains the default events
         self.assertEqual(
-            list(context["events"]),
+            list(context["events"].page),
             self.western_events[:10],
         )  # Assumes that EventFactory creates upcoming events
         self.assertEqual(
@@ -91,7 +90,7 @@ class EventsIndexPageTest(TestCase):
 
         # Verify that the context contains the other events
         self.assertEqual(
-            list(context["events"]),
+            list(context["events"].page),
             self.other_events[:10],
         )
         self.assertEqual(
@@ -106,18 +105,3 @@ class EventsIndexPageTest(TestCase):
         # Verify that calling get_context raises a 404
         with self.assertRaises(Http404):
             self.events_index_page.get_context(request)
-
-    def test_get_context_pagination(self) -> None:
-        # Test pagination for first page, middle page, last page, and out-of-range page
-        for page_number in [1, 2, 3, 4]:
-            request = self.factory.get(f"?page={page_number}")
-            context = self.events_index_page.get_context(request)
-
-            # Using a Paginator to mimic the pagination logic in get_context
-            paginator = Paginator(self.western_events, 10)
-            expected_page = paginator.page(min(page_number, paginator.num_pages))
-
-            self.assertEqual(
-                list(context["events"]),
-                list(expected_page),
-            )

@@ -1,297 +1,119 @@
-import datetime
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any
+from django.shortcuts import redirect
 
-
+from django.utils import timezone
 from django.conf import settings
-from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect
-from django.template.response import TemplateResponse
-from django.urls import reverse
-from django_flatpickr.widgets import DatePickerInput
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
-from wagtail.fields import RichTextField
+from wagtail.admin.panels import FieldPanel
+from wagtail.fields import RichTextField, StreamField
+from wagtail import blocks as wagtail_blocks
 from wagtail.models import Page
 
-if TYPE_CHECKING:
-    from .forms import SubscriptionCreateForm  # pragma: no cover
+from paypal import blocks as paypal_blocks
+
+from paypal import subscriptions as paypal_subscriptions
 
 logger = logging.getLogger(__name__)
 
 
-if TYPE_CHECKING:
-    from accounts.models import User  # pragma: no cover
-
-
-class MagazineFormatChoices(models.TextChoices):
-    PDF = "pdf", "PDF"
-    PRINT = "print", "Print"
-    PRINT_AND_PDF = "print_and_pdf", "Print and PDF"
-
-
-class MagazinePriceGroupChoices(models.TextChoices):
-    BASIC = "basic", "Basic"
-    TRUE_COST = "true_cost", "True cost"
-    LOW_INCOME = "low_income", "Low income"
-    INTERNATIONAL = "international", "International"
-
-
-SUBSCRIPTION_PRICE_COMPONENTS = {
-    "basic": {
-        "pdf": 39,
-        "print": 45,
-        "print_and_pdf": 57,
-    },
-    "true_cost": {
-        "pdf": 78,
-        "print": 90,
-        "print_and_pdf": 114,
-    },
-    "low_income": {
-        "pdf": 20,
-        "print": 20,
-        "print_and_pdf": 30,
-    },
-    "international": {
-        "pdf": 39,
-        "print": 65,
-        "print_and_pdf": 85,
-    },
-}
-
-
-def one_year_from_today() -> datetime.date:
-    return datetime.date.today() + datetime.timedelta(days=365)
-
-
-def process_subscription_form(
-    subscription_form: "SubscriptionCreateForm",
-    user: "User",
-) -> "Subscription":
-    """Given a valid subscription form, will save and associate with a user.
-
-    TODO: determine how to share this function with the "manage subscription" page
-    """
-    # Create a temporary subscription object to modify it's fields
-    subscription = subscription_form.save(commit=False)
-
-    # Attach request user to subscription before save
-    subscription.user = user
-
-    # Set subscription start and end dates
-    # based on current day
-    today = datetime.date.today()
-
-    # Start date is today
-    subscription.start_date = today
-
-    # End date is today
-    # until we get a success message from the payment processor
-    subscription.end_date = today
-
-    subscription.save()
-
-    return subscription
-
-
 class Subscription(models.Model):
-    magazine_format = models.CharField(
-        max_length=255,
-        choices=MagazineFormatChoices.choices,
-        default="pdf",
+    """A subscription to the magazine."""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        verbose_name="subscriber",
+        editable=True,
+        on_delete=models.PROTECT,
+        related_name="subscription",
+        unique=True,  # Only one subscription per user
     )
-    price_group = models.CharField(
-        max_length=255,
-        choices=MagazinePriceGroupChoices.choices,
-        default="basic",
-    )
-    price = models.IntegerField(
-        editable=False,
-    )
-    recurring = models.BooleanField(
-        default=True,
-    )
-    start_date = models.DateField(
-        default=datetime.date.today,
-    )
-    end_date = models.DateField(
-        default=one_year_from_today,
-    )
-    subscriber_given_name = models.CharField(
-        max_length=255,
-        default="",
-        help_text="Enter the given (first) name for the subscriber.",
-    )
-    subscriber_family_name = models.CharField(
-        max_length=255,
-        default="",
-        help_text="Enter the family (last) name for the subscriber.",
-    )
-    subscriber_organization = models.CharField(
+
+    paypal_subscription_id = models.CharField(
+        help_text="The PayPal subscription ID. If this field has a value, PayPal will manage the expiration date.",
         max_length=255,
         null=True,
         blank=True,
+        unique=True,
     )
-    subscriber_street_address = models.CharField(
-        max_length=255,
-        blank=True,
-        default="",
-        help_text="The street address where a print subscription could be mailed",
-    )
-    subscriber_street_address_line_2 = models.CharField(
-        max_length=255,
-        blank=True,
-        default="",
-        help_text="If needed, second line for mailing address",
-    )
-    subscriber_postal_code = models.CharField(
-        max_length=16,
-        help_text="Postal code for the mailing address",
-        blank=True,
-    )
-    subscriber_address_locality = models.CharField(
-        max_length=255,
-        help_text="City for the mailing address",
-        blank=True,
-    )
-    subscriber_address_region = models.CharField(
-        max_length=255,
-        help_text="State for the mailing address",
-        blank=True,
-        default="",
-    )
-    subscriber_address_country = models.CharField(
-        max_length=255,
-        default="United States",
-        help_text="Country for mailing",
+
+    expiration_date = models.DateField(
+        help_text="The date the subscription expires. Leave blank for perpetual subscriptions.",
+        null=True,
         blank=True,
     )
 
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        verbose_name="subscriber",
-        # TODO: determine whether we want these to be nullable
-        # e.g. for tracking subscriptions created offline
-        # null=True,
-        # blank=True,
-        editable=True,
-        on_delete=models.PROTECT,
-        related_name="subscriptions",
-    )
-
-    paid = models.BooleanField(default=False)
-
-    braintree_subscription_id = models.CharField(
-        max_length=255,
-        blank=True,
-        help_text="DO NOT EDIT. Used to cross-reference subscriptions with Braintree payments.",  # noqa: E501
-    )
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=["paypal_subscription_id"],
+            ),
+        ]
 
     panels = [
-        MultiFieldPanel(
-            heading="Subscriber details",
-            children=[
-                FieldPanel("user"),
-                FieldRowPanel(
-                    children=[
-                        FieldPanel("subscriber_given_name"),
-                        FieldPanel("subscriber_family_name"),
-                    ],
-                ),
-            ],
+        FieldPanel("user"),
+        FieldPanel(
+            "paypal_subscription_id",
+            read_only=True,
         ),
-        MultiFieldPanel(
-            heading="Subscription details",
-            children=[
-                FieldRowPanel(
-                    children=[
-                        FieldPanel("magazine_format"),
-                        FieldPanel("price_group"),
-                        FieldPanel("paid"),
-                    ],
-                ),
-                FieldRowPanel(
-                    children=[
-                        FieldPanel(
-                            "start_date",
-                            widget=DatePickerInput(),
-                        ),
-                        FieldPanel(
-                            "end_date",
-                            widget=DatePickerInput(),
-                        ),
-                    ],
-                ),
-                # TODO: make this field read_only=True with Wagtail 5.1 update
-                FieldPanel(
-                    "braintree_subscription_id",
-                    read_only=True,
-                ),
-            ],
-        ),
-        MultiFieldPanel(
-            heading="Subscriber postal address",
-            children=[
-                FieldPanel("subscriber_street_address"),
-                FieldPanel("subscriber_street_address_line_2"),
-                FieldRowPanel(
-                    children=[
-                        FieldPanel("subscriber_postal_code"),
-                        FieldPanel("subscriber_address_locality"),
-                    ],
-                ),
-                FieldRowPanel(
-                    children=[
-                        FieldPanel("subscriber_address_region"),
-                        FieldPanel("subscriber_address_country"),
-                    ],
-                ),
-            ],
-        ),
+        FieldPanel("expiration_date"),
     ]
 
     def __str__(self) -> str:
         return f"Subscription {self.id}"  # type: ignore
 
     @property
-    def subscriber_full_name(self) -> str:
-        """Return the full name of the subscriber."""
+    def is_active(self) -> bool:
+        """Return whether the subscription is active.
 
-        name_components = [
-            self.subscriber_given_name,
-            self.subscriber_family_name,
-        ]
+        If the subscription has a PayPal subscription ID, check with
+        PayPal.
 
-        if all(name == "" for name in name_components):
-            return ""
-        else:
-            return " ".join(name_components).strip()
+        Otherwise, if the subscription has an expiration date, check
+        that the date is in the future.
 
-    def get_total_cost(self) -> int:
-        """Return the total cost of the subscription.
-
-        This method is created to have a common interface for all money-
-        related models. (Subscription, Donation, etc.)
+        Otherwise, the subscription is perpetually active (e.g., a Board
+        member subscription).
         """
-        return self.price
 
-    def save(self, *args: Any, **kwargs: Any) -> None:
-        """Override save method to set price based on price group and
-        format."""
-        self.price = SUBSCRIPTION_PRICE_COMPONENTS[self.price_group][
-            self.magazine_format
-        ]
+        if self.paypal_subscription_id:
+            return paypal_subscriptions.subscription_is_active(
+                paypal_subscription_id=self.paypal_subscription_id,
+            )
 
-        super().save(*args, **kwargs)
+        if self.expiration_date is not None:
+            expires_in_future = self.expiration_date >= timezone.now().date()
+            return expires_in_future
+
+        # Default to inactive for safety
+        return False
 
 
 class SubscriptionIndexPage(Page):
     intro = RichTextField(blank=True)
 
+    body = StreamField(
+        [
+            (
+                "paragraph",
+                wagtail_blocks.RichTextBlock(),
+            ),
+            (
+                "paypal_card_row",
+                wagtail_blocks.ListBlock(
+                    paypal_blocks.PayPalSubscriptionPlanButtonBlock(),
+                    template="blocks/blocks/card_row.html",
+                ),
+            ),
+        ],
+        blank=True,
+        use_json_field=True,
+    )
+
     content_panels = Page.content_panels + [
         FieldPanel("intro"),
+        FieldPanel("body"),
     ]
 
     parent_page_types = ["home.HomePage"]
@@ -301,79 +123,40 @@ class SubscriptionIndexPage(Page):
 
     template = "subscription/index.html"
 
-    def serve(
-        self,
-        request: HttpRequest,
-        *args: tuple,
-        **kwargs: dict,
-    ) -> HttpResponse:
-        # Make sure POST requests only come from authenticated users
-        user_is_anonymous = (
-            not hasattr(request, "user") or request.user.is_anonymous  # type: ignore
-        )
-
-        if request.method == "POST" and user_is_anonymous:
-            login_base_url = reverse("login")[:-1]
-            return redirect(f"{login_base_url}?next={request.path}")
-
-        # Handle POST requests by authenticated users
-        if request.method == "POST" and request.user.is_authenticated:
-            user: AbstractBaseUser = request.user  # type: ignore
-
-            # Avoid circular dependency
-            from .forms import SubscriptionCreateForm
-
-            subscription_form = SubscriptionCreateForm(request.POST)
-
-            if subscription_form.is_valid():
-                subscription: "Subscription" = process_subscription_form(
-                    subscription_form=subscription_form,
-                    user=user,  # type: ignore
-                )
-
-                # redirect for payment
-                return redirect(
-                    reverse(
-                        "payment:process_subscription_payment",
-                        kwargs={
-                            "subscription_id": subscription.id,  # type: ignore
-                        },
-                    ),
-                )
-
-            context = self.get_context(request, *args, **kwargs)  # type: ignore
-
-            # Send form with validation errors back to client
-            context["form"] = subscription_form
-
-            return TemplateResponse(
-                request,
-                self.get_template(request, *args, **kwargs),
-                context,
-            )
-        else:
-            return super().serve(request)
-
     def get_context(
         self,
         request: HttpRequest,
         *args: tuple,
         **kwargs: dict,
     ) -> dict[str, Any]:
-        # avoid circular dependency
-        from .forms import SubscriptionCreateForm
-
         context = super().get_context(request)
 
-        # Pass in subscription form only if it isn't present
-        # from previous validation in serve()
-        if "form" not in context:
-            context["form"] = SubscriptionCreateForm()
-
-        # Pass subscription pricing components to template
-        context["subscription_price_components"] = SUBSCRIPTION_PRICE_COMPONENTS
+        context["paypal_client_id"] = settings.PAYPAL_CLIENT_ID  # type: ignore
 
         return context
+
+    def serve(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> HttpResponse:
+        # Redirect to the Manage Subscription page
+        # if the user is logged in and has a subscription.
+        if (
+            hasattr(request, "user")
+            and request.user.is_authenticated
+            and request.user.is_subscriber
+        ):
+            # redirect to manage subscription page
+            manage_subscription_page = ManageSubscriptionPage.objects.first()
+
+            if manage_subscription_page:
+                return redirect(
+                    manage_subscription_page.url,
+                )
+
+        return super().serve(request, *args, **kwargs)
 
 
 class ManageSubscriptionPage(Page):
@@ -396,9 +179,11 @@ class ManageSubscriptionPage(Page):
     ) -> dict[str, Any]:
         context = super().get_context(request)
 
-        if request.user.is_authenticated:
-            subscriptions = Subscription.objects.filter(user=request.user)
-
-            context["subscriptions"] = subscriptions
+        if (
+            hasattr(request, "user")
+            and request.user.is_authenticated
+            and hasattr(request.user, "subscription")
+        ):
+            context["subscription"] = request.user.subscription
 
         return context

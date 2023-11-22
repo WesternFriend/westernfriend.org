@@ -62,7 +62,7 @@
     {% if memorials %}
 
         <div class="list-group">
-            {% for memorial in memorials %}
+            {% for memorial in memorials.page %}
                 <!-- Bootstrap 5 card with memorial title for heading -->
                 <div class="card mt-2">
 
@@ -89,18 +89,8 @@
                 </div>
             {% endfor %}
 
-            <div class="list-group-item d-flex w-100 justify-content-center mt-2">
-                {% if memorials.has_previous %}
-                    <a href="?page={{ memorials.previous_page_number }}&{{ request.GET.urlencode }}" class="btn btn-outline-primary btn-sm me-2">previous</a>
-                {% endif %}
-
-                <span class="current">
-                    Page {{ memorials.number }} of {{ memorials.paginator.num_pages }}
-                </span>
-
-                {% if memorials.has_next %}
-                    <a href="?page={{ memorials.next_page_number }}&{{ request.GET.urlencode }}" class="btn btn-outline-primary btn-sm ms-2">next</a>
-                {% endif %}
+            <div class="d-flex w-100 justify-content-center mt-2">
+                {% include "paginator.html" with paginated_items=memorials %}
             </div>
         </div>
     {% else %}

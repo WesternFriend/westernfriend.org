@@ -1,4 +1,5 @@
 from django.core.validators import validate_slug
+from django import forms
 from django.forms.utils import flatatt
 from django.utils.html import format_html, format_html_join
 from wagtail import blocks as wagtail_blocks
@@ -7,7 +8,6 @@ from wagtail_color_panel.blocks import NativeColorBlock
 from wagtailmedia.blocks import AbstractMediaChooserBlock
 
 # TODO: convert to a models.TextChoices class
-# e.g. in donations/models.py
 IMAGE_ALIGN_CHOICES = [
     ("left", "Left"),
     ("right", "Right"),
@@ -167,3 +167,18 @@ class SpacerBlock(wagtail_blocks.StructBlock):
 class WfURLBlock(wagtail_blocks.URLBlock):
     class Meta:
         template = "blocks/blocks/wf_url.html"
+
+
+class PreformattedTextBlock(wagtail_blocks.FieldBlock):
+    """Renders input as preformatted text (<pre> tag)"""
+
+    class Meta:
+        template = "blocks/blocks/preformatted_text.html"
+
+    def __init__(self, required=True, help_text=None, **kwargs):
+        self.field = forms.CharField(
+            required=required,
+            help_text=help_text,
+            widget=forms.Textarea(attrs={"rows": 10}),
+        )
+        super().__init__(**kwargs)
