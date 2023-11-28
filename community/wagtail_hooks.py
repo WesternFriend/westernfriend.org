@@ -202,12 +202,12 @@ class UserModelAdmin(ModelAdmin):
     ]
 
     ordering = [
-        "first_name",
         "last_name",
+        "first_name",
     ]
     list_display = (
-        "first_name",
         "last_name",
+        "first_name",
         "email",
         "date_joined",
         "is_active",
