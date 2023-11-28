@@ -192,6 +192,8 @@ class MeetingDocumentModelAdmin(ModelAdmin):
 
 
 class UserModelAdmin(ModelAdmin):
+    """User model admin."""
+
     model = User
     menu_icon = "group"
     menu_label = "Registered Users"
