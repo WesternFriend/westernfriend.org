@@ -143,10 +143,12 @@ class SubscriptionIndexPage(Page):
     ) -> HttpResponse:
         # Redirect to the Manage Subscription page
         # if the user is logged in and has a subscription.
+        # Superusers should not be redirected.
         if (
             hasattr(request, "user")
             and request.user.is_authenticated
             and request.user.is_subscriber
+            and not request.user.is_superuser
         ):
             # redirect to manage subscription page
             manage_subscription_page = ManageSubscriptionPage.objects.first()

@@ -15,6 +15,20 @@
         <script
             src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&vault=true&intent=subscription"></script>
 
+        {% if request.user.is_superuser %}
+            <!-- warn superuser not to subscribe since it may cause unexpected difficulties -->
+            <div class="alert alert-warning" role="alert">
+                <h2 class="alert-heading fs-4">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Warning
+                </h2>
+                <p>As a superuser, <b>you should not subscribe to a plan</b>. Doing so may cause unexpected difficulties or errors.</p>
+                <p class="mb-0">
+                    If you want to test the subscription process, <b>please create a new user and subscribe as that user</b>.
+                </p>
+            </div>
+        {% endif %}
+
         {% include_block page.body %}
     {% endif %}
 {% endblock %}
