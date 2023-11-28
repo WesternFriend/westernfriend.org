@@ -8,6 +8,7 @@ from wagtail.contrib.modeladmin.options import (
 )
 from wagtail import hooks
 
+from accounts.models import User
 from community.models import CommunityDirectory, OnlineWorship
 from contact.models import Meeting, Organization, Person
 from documents.models import MeetingDocument, PublicBoardDocument
@@ -190,11 +191,43 @@ class MeetingDocumentModelAdmin(ModelAdmin):
     )
 
 
+class UserModelAdmin(ModelAdmin):
+    model = User
+    menu_icon = "group"
+    menu_label = "Registered Users"
+    list_per_page = 10
+    form_fields_exclude = [
+        "password",
+        "user_permissions",
+    ]
+
+    ordering = [
+        "first_name",
+        "last_name",
+    ]
+    list_display = (
+        "first_name",
+        "last_name",
+        "email",
+        "date_joined",
+        "is_active",
+        "is_subscriber",
+    )
+    empty_value_display = "-"
+    search_fields = (
+        "first_name",
+        "last_name",
+        "email",
+    )
+    list_filter = ("is_active",)
+
+
 class CommunityGroup(ModelAdminGroup):
     menu_label = "Community"
     menu_icon = "snippet"
     menu_order = 200
     items = (
+        UserModelAdmin,
         PersonModelAdmin,
         MeetingModelAdmin,
         OrganizationModelAdmin,
