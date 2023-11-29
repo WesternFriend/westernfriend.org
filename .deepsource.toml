@@ -15,3 +15,6 @@ name = "python"
   exclude_patterns = [
     "migrations/"
   ]
+  test_patterns = [
+  "tests.py",
+  ]
