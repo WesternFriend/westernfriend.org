@@ -77,8 +77,6 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
             help_text="Select one or more authors, who contributed to this article",
         ),
         FieldPanel("body"),
-        # drupal_body_migrated collapsed by default
-        FieldPanel("drupal_body_migrated", read_only=True, classname="collapsed"),
         MultiFieldPanel(
             children=[
                 FieldPanel(
