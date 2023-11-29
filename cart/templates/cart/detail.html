@@ -109,12 +109,14 @@
 
     <div class="text-right">
         <div class="btn-group" role="group" aria-label="Cart navigation">
-            <a
-                href="/store"
-                class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i>
-                Back to bookstore
-            </a>
+            {% if store_index_page %}
+                <a
+                    href="{% pageurl store_index_page %}"
+                    class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to bookstore
+                </a>
+            {% endif %}
             <a
                 href="{% url "orders:order_create" %}"
                 class="btn btn-outline-primary">
