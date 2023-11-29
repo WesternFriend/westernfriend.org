@@ -37,17 +37,11 @@ class Order(ClusterableModel):
         max_length=255,
         blank=True,
         default="",
-        help_text="The street address where this order should be shipped.",
+        help_text="Reicipient street address and/or PO box",
     )
     recipient_postal_code = models.CharField(
         max_length=16,
         help_text="Postal code for the shipping address.",
-    )
-    recipient_po_box_number = models.CharField(
-        max_length=32,
-        blank=True,
-        default="",
-        help_text="P.O. Box, if relevant.",
     )
     recipient_address_locality = models.CharField(
         max_length=255,
