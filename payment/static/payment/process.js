@@ -65,7 +65,7 @@ FUNDING_SOURCES.forEach((fundingSource) => {
         //   facilitatorAccessToken: string;
         // }
 
-        payload = {
+        const payload = {
           paypal_order_id: data.orderID,
           paypal_payment_id: data.paymentID,
         };
