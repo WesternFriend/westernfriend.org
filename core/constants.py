@@ -1,4 +1,5 @@
 from wagtail import blocks as wagtail_blocks
+from wagtail.embeds.blocks import EmbedBlock
 from blocks.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,
@@ -25,6 +26,7 @@ STREAMFIELD_SETTINGS = [
                 "superscript",
                 "strikethrough",
                 "blockquote",
+                "embed",
             ],
         ),
     ),
@@ -33,4 +35,5 @@ STREAMFIELD_SETTINGS = [
     ("image", FormattedImageChooserStructBlock(classname="full title")),
     ("spacer", SpacerBlock()),
     ("preformatted_text", PreformattedTextBlock()),
+    ("embed", EmbedBlock(max_width=800, max_height=400)),
 ]

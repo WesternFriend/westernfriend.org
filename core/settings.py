@@ -260,6 +260,12 @@ WAGTAILSEARCH_BACKENDS = {
     },
 }
 
+WAGTAILEMBEDS_FINDERS = [
+    {
+        "class": "wagtail.embeds.finders.oembed",
+    },
+]
+
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
