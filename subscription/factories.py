@@ -1,12 +1,11 @@
 import factory
 from factory.django import DjangoModelFactory
-from accounts.models import User
 
+from accounts.factories import UserFactory
+from accounts.models import User
 from subscription.models import (
     Subscription,
 )
-
-from accounts.factories import UserFactory
 
 
 class SubscriptionFactory(DjangoModelFactory):
