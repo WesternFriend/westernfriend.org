@@ -95,7 +95,6 @@ class Order(ClusterableModel):
             [
                 FieldPanel("recipient_name"),
                 FieldPanel("recipient_street_address"),
-                FieldPanel("recipient_po_box_number"),
                 FieldPanel("recipient_postal_code"),
                 FieldPanel("recipient_address_locality"),
                 FieldPanel("recipient_address_region"),
