@@ -31,7 +31,11 @@ def cart_add(
     return redirect("cart:detail")
 
 
-@require_POST
+# Note: we allow GET requests here because we want to be able to
+#       remove items from the cart by visiting a URL.
+#       This is not a security issue because we are not changing
+#       any data, only removing it from the session.
+@require_GET
 def cart_remove(
     request: HttpRequest,
     product_id: int,
