@@ -23,7 +23,6 @@ class OrderFactory(DjangoModelFactory):
     )
     recipient_street_address: str = factory.Faker("street_address")  # type: ignore
     recipient_postal_code: str = factory.Faker("zipcode")  # type: ignore
-    recipient_po_box_number: str = factory.Faker("random_int")  # type: ignore
     recipient_address_locality: str = factory.Faker("city")  # type: ignore
     recipient_address_region: str = factory.Faker("state")  # type: ignore
     recipient_address_country: str = factory.Faker("country")  # type: ignore

@@ -22,7 +22,6 @@ class OrderCreateForm(forms.ModelForm):
             "purchaser_email",
             "recipient_name",
             "recipient_street_address",
-            "recipient_po_box_number",
             "recipient_postal_code",
             "recipient_address_locality",
             "recipient_address_region",
@@ -31,6 +30,7 @@ class OrderCreateForm(forms.ModelForm):
         ]
 
         labels = {
+            "recipient_street_address": "Reicipient street address and/or PO box number",
             "recipient_address_locality": "City",
             "recipient_address_region": "State",
             "recipient_address_country": "Country",
