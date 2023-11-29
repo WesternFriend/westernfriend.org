@@ -20,7 +20,7 @@
                             {% image product.image max-150x150 class="float-left me-2" %}
                         </div>
                         <div class="col">
-                            {{ product.description | richtext | truncatewords_html:30 }}
+                            {{ product.description | richtext }}
                         </div>
                     </div>
                 </div>
