@@ -3,7 +3,7 @@ from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST, require_GET
 
-from store.models import Product
+from store.models import Product, StoreIndexPage
 
 from .cart import Cart
 from .forms import CartAddProductForm
@@ -53,6 +53,7 @@ def cart_detail(
     request: HttpRequest,
 ) -> TemplateResponse:
     cart = Cart(request)
+    store_index_page = StoreIndexPage.objects.first()
 
     for item in cart:
         item["update_quantity_form"] = CartAddProductForm(
@@ -63,6 +64,7 @@ def cart_detail(
 
     context = {
         "cart": cart,
+        "store_index_page": store_index_page,
     }
 
     return TemplateResponse(
