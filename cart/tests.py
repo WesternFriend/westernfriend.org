@@ -300,10 +300,10 @@ class CartDetailViewTest(TestCase):
         self.assertEqual(len(cart), 1)
         self.assertIn(self.product1, cart.get_cart_products())
 
-        # Make a POST request to the cart:remove URL
+        # Make a GET request to the cart:remove URL
         # using reverse("cart:remove") to get the URL
         # and passing in the product id as a keyword argument
-        response = self.client.post(
+        response = self.client.get(
             reverse(
                 "cart:remove",
                 kwargs={"product_id": self.product1.id},
