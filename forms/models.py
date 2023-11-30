@@ -1,4 +1,7 @@
+from django.conf import settings
 from django.db import models
+from django.utils.decorators import method_decorator
+from honeypot.decorators import check_honeypot
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.contrib.forms.models import (
@@ -51,6 +54,7 @@ class FormField(AbstractFormField):
     )
 
 
+@method_decorator(check_honeypot, name="serve")
 class ContactFormPage(WfCaptchaEmailForm):
     intro = RichTextField(blank=True)
     thank_you_text = RichTextField(blank=True)
@@ -80,3 +84,10 @@ class ContactFormPage(WfCaptchaEmailForm):
 
     parent_page_types = ["home.HomePage"]
     subpage_types: list[str] = []
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+
+        context["honeypot_field_name"] = settings.HONEYPOT_FIELD_NAME
+
+        return context

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load honeypot %}
 
 {% block content %}
     <h1>Register</h1>
@@ -8,8 +9,12 @@
             {% if user.is_authenticated %}
                 <p>You are already registered.</p>
             {% else %}
+                {{ honeypot_field_name }}
                 <form method="post" action="">
                     {% csrf_token %}
+
+                    {% render_honeypot_field honeypot_field_name %}
+
                     {{ form|crispy }}
 
                     <input type="submit" value="register" class="btn btn-primary">
