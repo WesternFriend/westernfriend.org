@@ -209,6 +209,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "honeypot.middleware.HoneypotMiddleware",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -392,3 +393,7 @@ INTERNAL_IPS = [
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY", "")
 RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY", "")
 NOCAPTCHA = True
+
+# Honeypot settings
+HONEYPOT_FIELD_NAME = "email2"
+HONEYPOT_VALUE = ""
