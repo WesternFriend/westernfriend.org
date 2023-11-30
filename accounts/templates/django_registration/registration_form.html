@@ -9,7 +9,6 @@
             {% if user.is_authenticated %}
                 <p>You are already registered.</p>
             {% else %}
-                {{ honeypot_field_name }}
                 <form method="post" action="">
                     {% csrf_token %}
 
