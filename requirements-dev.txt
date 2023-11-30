@@ -54,6 +54,7 @@ django==4.2.7
     #   django-extensions
     #   django-filter
     #   django-flatpickr
+    #   django-honeypot
     #   django-modelcluster
     #   django-permissionedforms
     #   django-recaptcha
@@ -80,6 +81,8 @@ django-extensions==3.2.3
 django-filter==23.3
     # via wagtail
 django-flatpickr==2.0.1
+    # via Western-Friend-website (pyproject.toml)
+django-honeypot==1.0.4
     # via Western-Friend-website (pyproject.toml)
 django-modelcluster==6.1
     # via wagtail

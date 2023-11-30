@@ -128,8 +128,10 @@ PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 # Application definition
 INSTALLED_APPS = [
     # First party (apps from this project)
+    # keep-sorted start
     "accounts",
     "addresses",
+    "blocks",
     "cart",
     "common",
     "community",
@@ -140,54 +142,59 @@ INSTALLED_APPS = [
     "forms",
     "home",
     "library",
+    "magazine",
     "memorials",
     "navigation",
     "news",
     "orders",
-    "payment.apps.PaymentConfig",
     "pagination",
+    "payment.apps.PaymentConfig",
     "paypal",
     "search",
     "store",
     "subscription",
-    "magazine",
     "tags",
-    "blocks",
     "wf_pages",
+    # keep-sorted end
     # Third party (apps that have been installed)
-    "django_extensions",
-    "crispy_forms",
+    # keep-sorted start
     "crispy_bootstrap5",
+    "crispy_forms",
+    "django_extensions",
     "django_flatpickr",
+    "django_recaptcha",
+    "honeypot",
     "modelcluster",
     "storages",
     "taggit",
+    "wagtail",
+    "wagtail.admin",
     "wagtail.contrib.forms",
     "wagtail.contrib.modeladmin",
     "wagtail.contrib.redirects",
     "wagtail.contrib.routable_page",
     "wagtail.contrib.settings",
     "wagtail.contrib.styleguide",
-    "wagtail.embeds",
-    "wagtail.sites",
-    "wagtail.users",
-    "wagtail.snippets",
     "wagtail.documents",
+    "wagtail.embeds",
     "wagtail.images",
     "wagtail.search",
-    "wagtail.admin",
-    "wagtail",
+    "wagtail.sites",
+    "wagtail.snippets",
+    "wagtail.users",
     "wagtail_color_panel",
     "wagtailmedia",
-    "django_recaptcha",
+    # keep-sorted end
     # Contrib (apps that are included in Django)
+    # keep-sorted start
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
+    "django.contrib.sessions",
     "django.contrib.sitemaps",
+    "django.contrib.staticfiles",
+    # keep-sorted end
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -385,3 +392,6 @@ INTERNAL_IPS = [
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY", "")
 RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY", "")
 NOCAPTCHA = True
+
+# Honeypot settings
+HONEYPOT_FIELD_NAME = "email2"
