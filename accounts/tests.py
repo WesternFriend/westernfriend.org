@@ -1,5 +1,7 @@
 from unittest.mock import PropertyMock, patch
+from django.conf import settings
 from django.test import TestCase
+from django.urls import reverse
 from .models import User
 from subscription.models import Subscription
 
@@ -87,3 +89,12 @@ class UserModelTest(TestCase):
         self.user.refresh_from_db()
 
         self.assertFalse(self.user.is_subscriber)
+
+
+class HoneypotTest(TestCase):
+    def test_register_page_contains_honeypot_field(self):
+        response = self.client.get(reverse("django_registration_register"))
+        self.assertContains(
+            response,
+            settings.HONEYPOT_FIELD_NAME,
+        )
