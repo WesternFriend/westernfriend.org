@@ -245,7 +245,7 @@ class LibraryIndexPage(Page):
                 **facets,
             )
             .order_by("-publication_date")
-            .prefetch_related("authors")
+            .prefetch_related("authors__author")
         )
         page_number = request.GET.get("page", "1")
         items_per_page = 10

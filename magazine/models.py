@@ -126,7 +126,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
             MagazineArticle.objects.child_of(self)
             .filter(is_featured=True)
             .specific()
-            .prefetch_related()
+            .prefetch_related("authors__author")
         )
 
     @property
@@ -136,7 +136,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
             MagazineArticle.objects.child_of(self)
             .live()
             .order_by("department__title")
-            .prefetch_related()
+            .prefetch_related("authors__author")
         )
 
     @property
