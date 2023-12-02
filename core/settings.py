@@ -15,6 +15,7 @@ import os
 import sys
 
 import dj_database_url
+from django.contrib.messages import constants as messages_constants
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 import sentry_sdk
@@ -396,3 +397,12 @@ NOCAPTCHA = True
 
 # Honeypot settings
 HONEYPOT_FIELD_NAME = "email2"
+
+
+MESSAGE_TAGS = {
+    messages_constants.DEBUG: "alert alert-secondary",
+    messages_constants.INFO: "alert alert-info",
+    messages_constants.SUCCESS: "alert alert-success",
+    messages_constants.WARNING: "alert alert-warning",
+    messages_constants.ERROR: "alert alert-danger",
+}
