@@ -13,7 +13,6 @@ class Sentry404Middleware:
         if response.status_code == HTTPStatus.NOT_FOUND:
             # Get the requested route
             requested_route = request.path_info
-            print(f"404 Middleware: {requested_route}")
 
             # Capture and send 404 error to Sentry with route information
             with sentry_sdk.push_scope() as scope:
