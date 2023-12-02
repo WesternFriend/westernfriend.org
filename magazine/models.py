@@ -123,14 +123,20 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
     def featured_articles(self) -> QuerySet["MagazineArticle"]:
         # Return a cursor of related articles that are featured
         return (
-            MagazineArticle.objects.child_of(self).filter(is_featured=True).specific()
+            MagazineArticle.objects.child_of(self)
+            .filter(is_featured=True)
+            .specific()
+            .prefetch_related("authors__author")
         )
 
     @property
     def articles_by_department(self) -> QuerySet["MagazineArticle"]:
         # Return a cursor of child articles ordered by department
         return (
-            MagazineArticle.objects.child_of(self).live().order_by("department__title")
+            MagazineArticle.objects.child_of(self)
+            .live()
+            .order_by("department__title")
+            .prefetch_related("authors__author")
         )
 
     @property
@@ -290,6 +296,16 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
 
     search_template = "search/magazine_article.html"
 
+    @classmethod
+    def get_queryset(cls):
+        """Prefetch authors and tags for performance."""
+        related_fields = ["authors__author", "tags__tag", "department"]
+        return super().get_queryset().prefetch_related(*related_fields)
+
+    class Meta:
+        verbose_name = "Page"
+        verbose_name_plural = "Pages"
+
     search_fields = Page.search_fields + [
         index.SearchField(
             "body",
@@ -299,7 +315,6 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     content_panels = Page.content_panels + [
         FieldPanel("teaser", classname="full"),
         FieldPanel("body"),
-        FieldPanel("body_migrated", classname="full"),
         InlinePanel(
             "authors",
             heading="Authors",
@@ -392,6 +407,10 @@ class MagazineArticleAuthor(Orderable):
             ["contact.Person", "contact.Meeting", "contact.Organization"],
         ),
     ]
+
+    class Meta:
+        verbose_name = "Page"
+        verbose_name_plural = "Pages"
 
 
 class ArchiveArticleAuthor(Orderable):

@@ -30,7 +30,8 @@
             <dd>
                 {% for tag in page.tags.all %}
                     <a href="{%url 'search' %}?query={{ tag }}">{{ tag }}</a>
-                {% endfor %}{% if not forloop.last %},{% endif %}
+                    {% if not forloop.last %},{% endif %}
+                {% endfor %}
             </dd>
         </dl>
     {% endif %}

@@ -70,6 +70,24 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
         blank=True,
     )
 
+    @classmethod
+    def get_queryset(cls):
+        related_fields = [
+            "item_audience",
+            "item_genre",
+            "item_medium",
+            "item_time_period",
+            "tags__tag",
+        ]
+        return (
+            super()
+            .get_queryset()
+            .filter(live=True)
+            .prefetch_related(
+                *related_fields,
+            )
+        )
+
     content_panels = Page.content_panels + [
         InlinePanel(
             "authors",
@@ -227,6 +245,7 @@ class LibraryIndexPage(Page):
                 **facets,
             )
             .order_by("-publication_date")
+            .prefetch_related("authors__author")
         )
         page_number = request.GET.get("page", "1")
         items_per_page = 10
