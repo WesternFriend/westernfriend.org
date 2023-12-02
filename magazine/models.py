@@ -299,7 +299,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     @classmethod
     def get_queryset(cls):
         """Prefetch authors and tags for performance."""
-        related_fields = ["authors", "tags", "department"]
+        related_fields = ["authors__author", "tags__tag", "department"]
         return super().get_queryset().prefetch_related(*related_fields)
 
     class Meta:

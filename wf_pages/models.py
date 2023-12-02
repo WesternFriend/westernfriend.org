@@ -117,7 +117,7 @@ class WfPage(DrupalFields, Page):
     @classmethod
     def get_queryset(cls):
         """Prefetch tags for performance."""
-        return super().get_queryset().prefetch_related("tags")
+        return super().get_queryset().prefetch_related("tags__tag")
 
     content_panels = Page.content_panels + [
         FieldPanel("body"),

@@ -77,7 +77,7 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
             "item_genre",
             "item_medium",
             "item_time_period",
-            "tags",
+            "tags__tag",
         ]
         return (
             super()
