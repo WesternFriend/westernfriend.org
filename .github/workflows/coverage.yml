@@ -63,7 +63,7 @@ jobs:
         run: |
           python -m venv .venv
           source .venv/bin/activate
-          pip install -r requirements.txt -r requirements-dev.txt
+          pip install -r requirements-dev.txt
       #----------------------------------------------
       # Run tests, generate and upload code coverage report
       #----------------------------------------------
