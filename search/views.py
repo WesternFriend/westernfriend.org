@@ -1,7 +1,6 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from wagtail.models import Page
-from wagtail.search.models import Query
 
 from pagination.helpers import get_paginated_items
 
@@ -13,11 +12,6 @@ def search(request: HttpRequest) -> HttpResponse:
 
     # Search
     if search_query:
-        query = Query.get(search_query)
-
-        # Record hit
-        query.add_hit()
-
         search_results = Page.objects.live().search(search_query)
     else:
         search_results = Page.objects.none()
