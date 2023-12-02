@@ -90,7 +90,7 @@ if os.getenv("SENTRY_DSN"):
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN"),
         integrations=[DjangoIntegration()],
-        traces_sample_rate=0.1,
+        traces_sample_rate=1,
     )
 
 # Settings related to DigitalOcean Spaces
@@ -209,6 +209,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "core.middleware.Sentry404Middleware",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -228,7 +229,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
             ],
-            "debug": True if DEBUG else False,
+            "debug": DEBUG,
         },
     },
 ]
@@ -358,7 +359,7 @@ REGISTRATION_SALT = "registration"
 
 # Email settings
 EMAIL_HOST = os.getenv("EMAIL_HOST", None)
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", None)
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", None)
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
