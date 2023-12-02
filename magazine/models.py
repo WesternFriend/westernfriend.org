@@ -123,14 +123,20 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
     def featured_articles(self) -> QuerySet["MagazineArticle"]:
         # Return a cursor of related articles that are featured
         return (
-            MagazineArticle.objects.child_of(self).filter(is_featured=True).specific()
+            MagazineArticle.objects.child_of(self)
+            .filter(is_featured=True)
+            .specific()
+            .prefetch_related()
         )
 
     @property
     def articles_by_department(self) -> QuerySet["MagazineArticle"]:
         # Return a cursor of child articles ordered by department
         return (
-            MagazineArticle.objects.child_of(self).live().order_by("department__title")
+            MagazineArticle.objects.child_of(self)
+            .live()
+            .order_by("department__title")
+            .prefetch_related()
         )
 
     @property
@@ -290,6 +296,11 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
 
     search_template = "search/magazine_article.html"
 
+    class Meta:
+        verbose_name = "Page"
+        verbose_name_plural = "Pages"
+        prefetch_related = ["authors", "tags"]
+
     search_fields = Page.search_fields + [
         index.SearchField(
             "body",
@@ -393,6 +404,11 @@ class MagazineArticleAuthor(Orderable):
         ),
     ]
 
+    class Meta:
+        verbose_name = "Page"
+        verbose_name_plural = "Pages"
+        prefetch_related = ["author", "article"]
+
 
 class ArchiveArticleAuthor(Orderable):
     article = ParentalKey(
@@ -417,6 +433,7 @@ class ArchiveArticleAuthor(Orderable):
 
     class Meta:
         unique_together = ("article", "author")
+        prefetch_related = ["author", "article"]
 
 
 class ArchiveArticle(ClusterableModel):
@@ -465,6 +482,7 @@ class ArchiveArticle(ClusterableModel):
         indexes = [
             models.Index(fields=["drupal_node_id"]),
         ]
+        prefetch_related = ["archive_authors"]
 
 
 class ArchiveIssue(DrupalFields, Page):  # type: ignore
