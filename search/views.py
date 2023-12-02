@@ -12,7 +12,10 @@ def search(request: HttpRequest) -> HttpResponse:
 
     # Search
     if search_query:
-        search_results = Page.objects.live().search(search_query)
+        search_results = Page.objects.live().search(
+            search_query,
+            operator="or",
+        )
     else:
         search_results = Page.objects.none()
 
