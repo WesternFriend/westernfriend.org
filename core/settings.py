@@ -90,7 +90,7 @@ if os.getenv("SENTRY_DSN"):
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN"),
         integrations=[DjangoIntegration()],
-        traces_sample_rate=0.1,
+        traces_sample_rate=1,
     )
 
 # Settings related to DigitalOcean Spaces
@@ -209,6 +209,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "core.middleware.Sentry404Middleware",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
