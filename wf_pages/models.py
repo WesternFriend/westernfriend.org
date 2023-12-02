@@ -114,6 +114,11 @@ class WfPage(DrupalFields, Page):
         blank=True,
     )
 
+    @classmethod
+    def get_queryset(cls):
+        """Prefetch tags for performance."""
+        return super().get_queryset().prefetch_related("tags")
+
     content_panels = Page.content_panels + [
         FieldPanel("body"),
         FieldPanel("collection"),
