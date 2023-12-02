@@ -133,7 +133,6 @@ class WfPage(DrupalFields, Page):
     class Meta:
         verbose_name = "Page"
         verbose_name_plural = "Pages"
-        prefetch_related = ["tags"]
 
 
 class MollyWingateBlogPage(WfPage):

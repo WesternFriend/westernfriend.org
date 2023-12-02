@@ -299,7 +299,6 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     class Meta:
         verbose_name = "Page"
         verbose_name_plural = "Pages"
-        prefetch_related = ["authors", "tags"]
 
     search_fields = Page.search_fields + [
         index.SearchField(
@@ -407,7 +406,6 @@ class MagazineArticleAuthor(Orderable):
     class Meta:
         verbose_name = "Page"
         verbose_name_plural = "Pages"
-        prefetch_related = ["author", "article"]
 
 
 class ArchiveArticleAuthor(Orderable):
@@ -433,7 +431,6 @@ class ArchiveArticleAuthor(Orderable):
 
     class Meta:
         unique_together = ("article", "author")
-        prefetch_related = ["author", "article"]
 
 
 class ArchiveArticle(ClusterableModel):
@@ -482,7 +479,6 @@ class ArchiveArticle(ClusterableModel):
         indexes = [
             models.Index(fields=["drupal_node_id"]),
         ]
-        prefetch_related = ["archive_authors"]
 
 
 class ArchiveIssue(DrupalFields, Page):  # type: ignore
