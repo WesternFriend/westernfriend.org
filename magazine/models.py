@@ -296,6 +296,12 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
 
     search_template = "search/magazine_article.html"
 
+    @classmethod
+    def get_queryset(cls):
+        """Prefetch authors and tags for performance."""
+        related_fields = ["authors", "tags", "department"]
+        return super().get_queryset().prefetch_related(*related_fields)
+
     class Meta:
         verbose_name = "Page"
         verbose_name_plural = "Pages"
@@ -309,7 +315,6 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     content_panels = Page.content_panels + [
         FieldPanel("teaser", classname="full"),
         FieldPanel("body"),
-        FieldPanel("body_migrated", classname="full"),
         InlinePanel(
             "authors",
             heading="Authors",
