@@ -62,7 +62,7 @@
             {% if messages %}
                 <div class="notifications">
                     {% for message in messages %}
-                        <div class="{{ message.tags }}">
+                        <div class="{{ message.tags }} fw-bold">
                             {{ message }}
                         </div>
                     {% endfor %}
