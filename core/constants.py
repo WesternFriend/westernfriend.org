@@ -3,6 +3,7 @@ from wagtail.embeds.blocks import EmbedBlock
 from blocks.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,
+    PayPalDonationButtonBlock,
     PreformattedTextBlock,
     PullQuoteBlock,
     SpacerBlock,
@@ -36,4 +37,5 @@ STREAMFIELD_SETTINGS = [
     ("spacer", SpacerBlock()),
     ("preformatted_text", PreformattedTextBlock()),
     ("embed", EmbedBlock(max_width=800, max_height=400)),
+    ("paypal_donate_button", PayPalDonationButtonBlock()),
 ]
