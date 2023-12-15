@@ -1,11 +1,9 @@
 from django.db import models
-from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.models import Page
 from wagtail.fields import StreamField, RichTextField
-from documents.blocks import DocumentEmbedBlock
+from core.constants import COMMON_STREAMFIELD_BLOCKS
 
-from blocks import blocks as wf_blocks
 from common.models import DrupalFields
 
 
@@ -66,47 +64,7 @@ class MeetingDocument(DrupalFields, Page):
         max_length=100,
     )
     body = StreamField(
-        [
-            (
-                "heading",
-                wf_blocks.HeadingBlock(),
-            ),
-            (
-                "rich_text",
-                wagtail_blocks.RichTextBlock(
-                    features=[
-                        "bold",
-                        "italic",
-                        "ol",
-                        "ul",
-                        "hr",
-                        "link",
-                        "superscript",
-                        "superscript",
-                        "strikethrough",
-                        "blockquote",
-                    ],
-                ),
-            ),
-            (
-                "pullquote",
-                wf_blocks.PullQuoteBlock(),
-            ),
-            (
-                "document",
-                DocumentEmbedBlock(),
-            ),
-            (
-                "image",
-                wf_blocks.FormattedImageChooserStructBlock(
-                    classname="full title",
-                ),
-            ),
-            (
-                "spacer",
-                wf_blocks.SpacerBlock(),
-            ),
-        ],
+        COMMON_STREAMFIELD_BLOCKS,
         use_json_field=True,
     )
 
@@ -188,47 +146,7 @@ class PublicBoardDocument(DrupalFields, Page):
         max_length=100,
     )
     body = StreamField(
-        [
-            (
-                "heading",
-                wf_blocks.HeadingBlock(),
-            ),
-            (
-                "rich_text",
-                wagtail_blocks.RichTextBlock(
-                    features=[
-                        "bold",
-                        "italic",
-                        "ol",
-                        "ul",
-                        "hr",
-                        "link",
-                        "superscript",
-                        "superscript",
-                        "strikethrough",
-                        "blockquote",
-                    ],
-                ),
-            ),
-            (
-                "pullquote",
-                wf_blocks.PullQuoteBlock(),
-            ),
-            (
-                "document",
-                DocumentEmbedBlock(),
-            ),
-            (
-                "image",
-                wf_blocks.FormattedImageChooserStructBlock(
-                    classname="full title",
-                ),
-            ),
-            (
-                "spacer",
-                wf_blocks.SpacerBlock(),
-            ),
-        ],
+        COMMON_STREAMFIELD_BLOCKS,
         use_json_field=True,
     )
 
