@@ -22,7 +22,7 @@ from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from common.models import DrupalFields
-from core.constants import STREAMFIELD_SETTINGS
+from core.constants import COMMON_STREAMFIELD_BLOCKS
 from pagination.helpers import get_paginated_items
 
 from .panels import NestedInlinePanel
@@ -271,7 +271,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         ],
     )
     body = StreamField(
-        STREAMFIELD_SETTINGS,
+        COMMON_STREAMFIELD_BLOCKS,
         use_json_field=True,
     )
     is_featured = models.BooleanField(

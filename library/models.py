@@ -15,7 +15,7 @@ from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from common.models import DrupalFields
-from core.constants import STREAMFIELD_SETTINGS
+from core.constants import COMMON_STREAMFIELD_BLOCKS
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
 from library.helpers import create_querystring_from_facets, filter_querystring_facets
 from pagination.helpers import get_paginated_items
@@ -36,7 +36,7 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
         help_text="This field indicates when a library item wasn't published on a specific publication date.",  # noqa: E501
     )
     body = StreamField(
-        STREAMFIELD_SETTINGS,
+        COMMON_STREAMFIELD_BLOCKS,
         null=True,
         blank=True,
         use_json_field=True,

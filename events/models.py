@@ -10,7 +10,7 @@ from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from common.models import DrupalFields
-from core.constants import STREAMFIELD_SETTINGS
+from core.constants import COMMON_STREAMFIELD_BLOCKS
 from pagination.helpers import get_paginated_items
 
 
@@ -41,7 +41,7 @@ class Event(DrupalFields, Page):  # type: ignore
 
     teaser = models.TextField(max_length=100, null=True, blank=True)
     body = StreamField(
-        STREAMFIELD_SETTINGS,
+        COMMON_STREAMFIELD_BLOCKS,
         null=True,
         blank=True,
         use_json_field=True,

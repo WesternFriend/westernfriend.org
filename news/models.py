@@ -11,7 +11,7 @@ from wagtail.models import Page
 from wagtail.search import index
 
 from common.models import DrupalFields
-from core.constants import STREAMFIELD_SETTINGS
+from core.constants import COMMON_STREAMFIELD_BLOCKS
 
 
 class NewsIndexPage(Page):
@@ -142,7 +142,7 @@ class NewsItem(DrupalFields, Page):
     )
     publication_date = models.DateField(default=date.today)
     body = StreamField(
-        STREAMFIELD_SETTINGS,
+        COMMON_STREAMFIELD_BLOCKS,
         use_json_field=True,
     )
     tags = ClusterTaggableManager(

@@ -4,20 +4,13 @@ from django.http import HttpRequest
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
 from taggit.models import TaggedItemBase  # type: ignore
-from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
 
-from blocks.blocks import (
-    FormattedImageChooserStructBlock,
-    HeadingBlock,
-    PullQuoteBlock,
-    SpacerBlock,
-)
 from common.models import DrupalFields
-from documents.blocks import DocumentEmbedBlock
+from core.constants import COMMON_STREAMFIELD_BLOCKS
 
 
 class MollyWingateBlogIndexPage(Page):
@@ -66,30 +59,7 @@ class WfPageTag(TaggedItemBase):
 
 class WfPage(DrupalFields, Page):
     body = StreamField(
-        [
-            ("heading", HeadingBlock()),
-            (
-                "rich_text",
-                wagtail_blocks.RichTextBlock(
-                    features=[
-                        "bold",
-                        "italic",
-                        "ol",
-                        "ul",
-                        "hr",
-                        "link",
-                        "document-link",
-                        "superscript",
-                        "strikethrough",
-                        "blockquote",
-                    ],
-                ),
-            ),
-            ("pullquote", PullQuoteBlock()),
-            ("document", DocumentEmbedBlock()),
-            ("image", FormattedImageChooserStructBlock(classname="full title")),
-            ("spacer", SpacerBlock()),
-        ],
+        COMMON_STREAMFIELD_BLOCKS,
         use_json_field=True,
     )
     body_migrated = models.TextField(

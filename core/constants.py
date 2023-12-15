@@ -9,7 +9,7 @@ from blocks.blocks import (
 )
 from documents.blocks import DocumentEmbedBlock
 
-STREAMFIELD_SETTINGS = [
+COMMON_STREAMFIELD_BLOCKS = [
     ("heading", HeadingBlock()),
     (
         "rich_text",
