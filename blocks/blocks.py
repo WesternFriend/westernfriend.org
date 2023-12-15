@@ -182,12 +182,3 @@ class PreformattedTextBlock(wagtail_blocks.FieldBlock):
             widget=forms.Textarea(attrs={"rows": 10}),
         )
         super().__init__(**kwargs)
-
-
-class PayPalDonationButtonBlock(wagtail_blocks.StructBlock):
-    """PayPal donation button block."""
-
-    class Meta:
-        template = "blocks/blocks/paypal_donation_button.html"
-        icon = "form"
-        label = "PayPal Donation Button"
