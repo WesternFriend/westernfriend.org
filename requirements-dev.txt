@@ -4,6 +4,8 @@
 #
 #    pip-compile --extra=dev --output-file=requirements-dev.txt pyproject.toml
 #
+annotated-types==0.6.0
+    # via pydantic
 anyascii==0.3.2
     # via wagtail
 asgiref==3.7.2
@@ -12,15 +14,15 @@ asgiref==3.7.2
     #   django-browser-reload
 beautifulsoup4==4.11.2
     # via wagtail
-boto3==1.29.2
+boto3==1.34.4
     # via Western-Friend-website (pyproject.toml)
-botocore==1.32.2
+botocore==1.34.4
     # via
     #   boto3
     #   s3transfer
 build==1.0.3
     # via pip-tools
-certifi==2023.7.22
+certifi==2023.11.17
     # via
     #   requests
     #   sentry-sdk
@@ -32,7 +34,7 @@ click==8.1.7
     # via pip-tools
 confusable-homoglyphs==3.2.0
     # via django-registration
-coverage==7.3.2
+coverage==7.3.3
     # via
     #   Western-Friend-website (pyproject.toml)
     #   django-coverage-plugin
@@ -40,11 +42,11 @@ crispy-bootstrap5==2023.10
     # via Western-Friend-website (pyproject.toml)
 defusedxml==0.7.1
     # via willow
-distlib==0.3.7
+distlib==0.3.8
     # via virtualenv
 dj-database-url==2.1.0
     # via Western-Friend-website (pyproject.toml)
-django==4.2.7
+django==5.0
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
@@ -78,11 +80,11 @@ django-crispy-forms==2.1
     #   crispy-bootstrap5
 django-extensions==3.2.3
     # via Western-Friend-website (pyproject.toml)
-django-filter==23.3
+django-filter==23.5
     # via wagtail
-django-flatpickr==2.0.1
+django-flatpickr==2.0.2
     # via Western-Friend-website (pyproject.toml)
-django-honeypot==1.0.4
+django-honeypot==1.1.0
     # via Western-Friend-website (pyproject.toml)
 django-modelcluster==6.1
     # via wagtail
@@ -94,13 +96,13 @@ django-registration==3.4
     # via Western-Friend-website (pyproject.toml)
 django-storages==1.14.2
     # via Western-Friend-website (pyproject.toml)
-django-stubs[compatible-mypy]==4.2.6
+django-stubs[compatible-mypy]==4.2.7
     # via Western-Friend-website (pyproject.toml)
-django-stubs-ext==4.2.5
+django-stubs-ext==4.2.7
     # via django-stubs
 django-taggit==4.0.0
     # via wagtail
-django-timezone-field==6.0.1
+django-timezone-field==6.1.0
     # via Western-Friend-website (pyproject.toml)
 django-treebeard==4.7
     # via wagtail
@@ -115,7 +117,7 @@ factory-boy==3.3.0
     #   Western-Friend-website (pyproject.toml)
     #   types-factory-boy
     #   wagtail-factories
-faker==20.0.3
+faker==21.0.0
     # via factory-boy
 fastjsonschema==2.19.0
     # via validate-pyproject
@@ -127,9 +129,9 @@ gunicorn==21.2.0
     # via Western-Friend-website (pyproject.toml)
 html5lib==1.1
     # via wagtail
-identify==2.5.31
+identify==2.5.33
     # via pre-commit
-idna==3.4
+idna==3.6
     # via requests
 jmespath==1.0.1
     # via
@@ -137,7 +139,7 @@ jmespath==1.0.1
     #   botocore
 l18n==2021.3
     # via wagtail
-mypy==1.6.1
+mypy==1.7.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   django-stubs
@@ -155,17 +157,23 @@ pillow==10.1.0
     # via
     #   pillow-heif
     #   wagtail
-pillow-heif==0.13.1
+pillow-heif==0.14.0
     # via willow
 pip-tools==7.3.0
     # via Western-Friend-website (pyproject.toml)
-platformdirs==3.11.0
+platformdirs==4.1.0
     # via virtualenv
-pre-commit==3.5.0
+pre-commit==3.6.0
     # via Western-Friend-website (pyproject.toml)
 psycopg2-binary==2.9.9
     # via Western-Friend-website (pyproject.toml)
-pydantic==1.10.13
+pydantic==2.5.2
+    # via
+    #   django-flatpickr
+    #   pydantic-settings
+pydantic-core==2.14.5
+    # via pydantic
+pydantic-settings==2.1.0
     # via django-flatpickr
 pyproject-hooks==1.0.0
     # via build
@@ -174,7 +182,9 @@ python-dateutil==2.8.2
     #   botocore
     #   faker
 python-dotenv==1.0.0
-    # via Western-Friend-website (pyproject.toml)
+    # via
+    #   Western-Friend-website (pyproject.toml)
+    #   pydantic-settings
 pytz==2023.3.post1
     # via
     #   django-modelcluster
@@ -186,9 +196,9 @@ requests==2.31.0
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail
-s3transfer==0.7.0
+s3transfer==0.9.0
     # via boto3
-sentry-sdk==1.35.0
+sentry-sdk==1.39.1
     # via Western-Friend-website (pyproject.toml)
 six==1.16.0
     # via
@@ -213,7 +223,7 @@ types-pyyaml==6.0.12.12
     # via django-stubs
 types-requests==2.31.0.10
     # via Western-Friend-website (pyproject.toml)
-typing-extensions==4.8.0
+typing-extensions==4.9.0
     # via
     #   dj-database-url
     #   django-flatpickr
@@ -221,6 +231,7 @@ typing-extensions==4.8.0
     #   django-stubs-ext
     #   mypy
     #   pydantic
+    #   pydantic-core
     #   types-factory-boy
 tzdata==2023.3
     # via Western-Friend-website (pyproject.toml)
@@ -232,9 +243,9 @@ urllib3==2.0.7
     #   types-requests
 validate-pyproject==0.15
     # via Western-Friend-website (pyproject.toml)
-virtualenv==20.24.6
+virtualenv==20.25.0
     # via pre-commit
-wagtail==5.2.1
+wagtail==5.2.2
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail-color-panel
@@ -248,9 +259,9 @@ wagtailmedia==0.14.5
     # via Western-Friend-website (pyproject.toml)
 webencodings==0.5.1
     # via html5lib
-wheel==0.41.3
+wheel==0.42.0
     # via pip-tools
-willow[heif]==1.6.2
+willow[heif]==1.6.3
     # via
     #   wagtail
     #   willow
