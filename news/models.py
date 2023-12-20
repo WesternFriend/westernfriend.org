@@ -73,7 +73,8 @@ class NewsIndexPage(Page):
                 grouped_news_items[uncategorized_topic].append(item)
 
             for topic_relation in item.topics.all():
-                grouped_news_items[topic_relation.topic.title].append(item)
+                title = topic_relation.topic.title
+                grouped_news_items[title].append(item)
 
         # Sorting the groups and the items within each group
         sorted_topics = sorted(grouped_news_items.keys())
@@ -174,3 +175,6 @@ class NewsItemTopic(Orderable):
             "topic",
         ),
     ]
+
+    def __str__(self) -> str:
+        return self.topic.title
