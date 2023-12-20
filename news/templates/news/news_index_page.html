@@ -27,8 +27,15 @@
         {% endfor %}
     </div>
 
-
-    {% for news_item in news_items %}
-        {% include "news/news_item_card.html" with news_item=news_item %}
+    {% for topic, items in grouped_news_items.items %}
+        <h2>{{ topic }}</h2>
+        <ul>
+            {% for news_item in items %}
+                <li>
+                    <a href="{% pageurl news_item %}">{{ news_item }}</a>&nbsp;
+                    <span class="text-muted">{{ news_item.publication_date }}</span>
+                </li>
+            {% endfor %}
+        </ul>
     {% endfor %}
 {% endblock content %}
