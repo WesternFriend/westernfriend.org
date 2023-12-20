@@ -15,12 +15,6 @@
         Published: {{ page.publication_date }}
     </p>
 
-    {% if page.news_genre %}
-        <p class="text-muted">
-            Genre: {{ page.news_genre }}
-        </p>
-    {% endif %}
-
     {{ page.body }}
 
     {% if page.topics.count  %}
