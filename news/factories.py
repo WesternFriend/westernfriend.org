@@ -7,8 +7,6 @@ from home.models import HomePage
 
 from .models import (
     NewsIndexPage,
-    NewsTopic,
-    NewsTopicIndexPage,
     NewsTypeIndexPage,
     NewsType,
     NewsItem,
@@ -37,58 +35,6 @@ class NewsIndexPageFactory(PageFactory):
         else:
             online_worship_index_page = HomePageFactory.create()
             online_worship_index_page.add_child(instance=instance)
-        return instance
-
-
-class NewsTopicIndexPageFactory(PageFactory):
-    class Meta:
-        model = NewsTopicIndexPage
-
-    title = factory.Sequence(lambda n: f"News topic index {n}")
-    intro = "News topic index page"
-
-    @classmethod
-    def _create(
-        cls,
-        model_class: type[NewsTypeIndexPage],
-        *args: Any,
-        **kwargs: Any,
-    ) -> Any:
-        kwargs.pop("parent", None)
-        instance = model_class(*args, **kwargs)
-
-        parent = NewsIndexPage.objects.first()
-        if parent:
-            parent.add_child(instance=instance)
-        else:
-            news_index_page = NewsIndexPageFactory.create()
-            news_index_page.add_child(instance=instance)
-        return instance
-
-
-class NewsTopicFactory(PageFactory):
-    class Meta:
-        model = NewsTopic
-
-    title = factory.Sequence(lambda n: f"News topic {n}")
-    intro = "News topic page"
-
-    @classmethod
-    def _create(
-        cls,
-        model_class: type[NewsTopic],
-        *args: Any,
-        **kwargs: Any,
-    ) -> Any:
-        kwargs.pop("parent", None)
-        instance = model_class(*args, **kwargs)  # type: ignore
-
-        parent = NewsTopicIndexPage.objects.first()
-        if parent:
-            parent.add_child(instance=instance)
-        else:
-            news_topic_index_page = NewsTopicIndexPageFactory.create()
-            news_topic_index_page.add_child(instance=instance)
         return instance
 
 
