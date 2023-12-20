@@ -5,13 +5,9 @@ from home.models import HomePage
 from news.models import (
     NewsIndexPage,
     NewsItem,
-    NewsType,
-    NewsTypeIndexPage,
 )
 from .factories import (
     NewsIndexPageFactory,
-    NewsTypeIndexPageFactory,
-    NewsTypeFactory,
     NewsItemFactory,
 )
 
@@ -29,38 +25,6 @@ class TestNewsIndexPage(TestCase):
         self.assertIsInstance(
             news_index_page.get_parent().specific,
             HomePage,
-        )
-
-
-class TestNewsTypeIndexPage(TestCase):
-    def test_news_type_index_page_creation(self) -> None:
-        """Test that a NewsTypeIndexPage can be created."""
-        news_type_index_page = NewsTypeIndexPageFactory.create()
-
-        self.assertIsInstance(
-            news_type_index_page,
-            NewsTypeIndexPage,
-        )
-
-        self.assertIsInstance(
-            news_type_index_page.get_parent().specific,
-            NewsIndexPage,
-        )
-
-
-class TestNewsType(TestCase):
-    def test_news_type_creation(self) -> None:
-        """Test that a NewsType can be created."""
-        news_type = NewsTypeFactory.create()
-
-        self.assertIsInstance(
-            news_type,
-            NewsType,
-        )
-
-        self.assertIsInstance(
-            news_type.get_parent().specific,
-            NewsTypeIndexPage,
         )
 
 
