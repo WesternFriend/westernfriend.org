@@ -28,7 +28,7 @@ repos:
         exclude: ".*migrations/.*"
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.1.5
+    rev: v0.1.8
     hooks:
       # Run the linter.
       - id: ruff
@@ -48,7 +48,7 @@ repos:
     hooks:
       - id: djhtml
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.1.0
+    rev: v4.0.0-alpha.7
     hooks:
       - id: prettier
         types_or:
