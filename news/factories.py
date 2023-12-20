@@ -72,6 +72,7 @@ class NewsItemFactory(PageFactory):
 
     @factory.post_generation
     def create_news_item_topic(self, create, extracted, **kwargs):
+        """Create a NewsItemTopic for the NewsItem."""
         if not create or "news_item" in kwargs:
             # Avoid recursion if 'news_item' is in kwargs
             return
