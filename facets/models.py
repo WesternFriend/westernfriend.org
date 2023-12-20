@@ -80,6 +80,10 @@ class Topic(Page):
         context = super().get_context(request, *args, **kwargs)
 
         # Get live library items matching topic
-        context["library_items"] = LibraryItem.objects.live().filter(topics__topic=self)
+        context["library_items"] = (
+            LibraryItem.objects.live()
+            .filter(topics__topic=self)
+            .prefetch_related("authors__author")
+        )
 
         return context

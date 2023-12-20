@@ -124,8 +124,8 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         # Return a cursor of related articles that are featured
         return (
             MagazineArticle.objects.child_of(self)
+            .live()
             .filter(is_featured=True)
-            .specific()
             .prefetch_related("authors__author")
         )
 
@@ -136,7 +136,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
             MagazineArticle.objects.child_of(self)
             .live()
             .order_by("department__title")
-            .prefetch_related("authors__author")
+            .prefetch_related("authors__author", "department")
         )
 
     @property
@@ -205,10 +205,16 @@ class MagazineTagIndexPage(Page):
     ) -> dict:
         tag = request.GET.get("tag")
         context = super().get_context(request)
-
-        articles = MagazineArticle.objects.filter(
-            tagged_items__tag__name=tag,
-        ).live()
+        # prefetch related authors and issue
+        articles = (
+            MagazineArticle.objects.filter(
+                tagged_items__tag__name=tag,
+            )
+            .live()
+            .prefetch_related(
+                "authors__author",
+            )
+        )
         context["articles"] = articles
 
         return context
@@ -257,6 +263,40 @@ class MagazineDepartment(Page):
     # TODO: remove if not using autocomplete
     def __str__(self) -> str:
         return self.title
+
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
+        context = super().get_context(request)
+
+        context["articles"] = (
+            MagazineArticle.objects.filter(
+                department__title=self.title,
+            )
+            .live()
+            .prefetch_related(
+                "authors__author",
+                "issue",
+            )
+        )
+
+        articles = (
+            MagazineArticle.objects.filter(
+                department__title=self.title,
+            )
+            .live()
+            .prefetch_related(
+                "authors__author",
+                "issue",
+            )
+        )
+
+        context["articles"] = articles
+
+        return context
 
 
 class MagazineArticle(DrupalFields, Page):  # type: ignore
