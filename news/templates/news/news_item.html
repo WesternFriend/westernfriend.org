@@ -12,19 +12,33 @@
     </h1>
 
     <p class="text-muted">
-        Published {{ page.publication_date }}
+        Published: {{ page.publication_date }}
     </p>
 
-    {% if page.news_topic %}
+    {% if page.news_genre %}
         <p class="text-muted">
-            Topic <a href="{% pageurl page.news_topic %}">{{ page.news_topic }}</a>
+            Genre: {{ page.news_genre }}
         </p>
     {% endif %}
 
     {{ page.body }}
 
+    {% if page.topics.count  %}
+        <div class="topics">
+            Topics:&nbsp;
+            {% for news_topic in page.topics.all %}
+                <a
+                    href="{%url 'search' %}?query={{ news_topic.topic }}"
+                    class="btn btn-outline-primary btn-sm">
+                    {{ tag }}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% if page.tags.count  %}
         <div class="tags">
+            Tags:&nbsp;
             {% for tag in page.tags.all %}
                 <a
                     href="{%url 'search' %}?query={{ tag }}"
