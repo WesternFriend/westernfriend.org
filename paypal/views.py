@@ -3,7 +3,6 @@ import json
 import logging
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
 from orders.models import Order
@@ -27,10 +26,21 @@ def create_paypal_order(
         request.body.decode("utf-8"),
     )
 
-    order = get_object_or_404(
-        Order,
-        id=body_json["wf_order_id"],
-    )
+    try:
+        order = Order.objects.get(
+            id=body_json["wf_order_id"],
+        )
+    except Order.DoesNotExist:
+        logger.exception(
+            "Order with ID %s does not exist.",
+            body_json["wf_order_id"],
+        )
+        return JsonResponse(
+            {
+                "error": "Order does not exist.",
+            },
+            status=HTTPStatus.NOT_FOUND,
+        )
 
     try:
         paypal_response = create_order(
@@ -48,7 +58,7 @@ def create_paypal_order(
             {
                 "error": "Error creating PayPal order.",
             },
-            status=500,
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
         )
 
     paypal_order_id: str = paypal_response.get("id", "")
