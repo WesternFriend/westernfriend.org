@@ -30,7 +30,7 @@
                 <a
                     href="{%url 'search' %}?query={{ news_topic.topic }}"
                     class="btn btn-outline-primary btn-sm">
-                    {{ tag }}
+                    {{ news_topic.topic }}
                 </a>
             {% endfor %}
         </div>
