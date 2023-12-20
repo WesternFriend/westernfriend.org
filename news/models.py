@@ -28,7 +28,6 @@ class NewsIndexPage(Page):
         "home.HomePage",
     ]
     subpage_types: list[str] = [
-        "NewsTypeIndexPage",
         "NewsItem",
     ]
     max_count = 1
@@ -67,37 +66,6 @@ class NewsIndexPage(Page):
         return context
 
 
-class NewsTypeIndexPage(Page):
-    intro = RichTextField(blank=True)
-
-    content_panels = Page.content_panels + [FieldPanel("intro")]
-
-    parent_page_types = [
-        "NewsIndexPage",
-    ]
-    subpage_types: list[str] = [
-        "NewsType",
-    ]
-    max_count = 1
-
-
-class NewsType(Page):
-    intro = RichTextField(blank=True)
-
-    content_panels = [
-        FieldPanel("title"),
-        FieldPanel("intro"),
-    ]
-
-    # Hide the settings panels
-    settings_panels: list[str] = []
-
-    parent_page_types = [
-        "NewsTypeIndexPage",
-    ]
-    subpage_types: list[str] = []
-
-
 class NewsItemTag(TaggedItemBase):
     content_object = ParentalKey(
         "news.NewsItem",
@@ -129,10 +97,9 @@ class NewsItem(DrupalFields, Page):
     )
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
-    news_type = models.ForeignKey(
-        NewsType,
-        on_delete=models.PROTECT,
-        related_name="news_items",
+    news_genre = models.ForeignKey(
+        "facets.Genre",
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
     )
@@ -148,7 +115,7 @@ class NewsItem(DrupalFields, Page):
                     "topics",
                     label="topics",
                 ),
-                FieldPanel("news_type"),
+                FieldPanel("news_genre"),
                 FieldPanel("tags"),
             ],
         ),
