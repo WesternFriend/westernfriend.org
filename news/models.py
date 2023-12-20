@@ -97,13 +97,6 @@ class NewsItem(DrupalFields, Page):
     )
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
-    news_genre = models.ForeignKey(
-        "facets.Genre",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-    )
-
     content_panels = Page.content_panels + [
         FieldPanel("teaser"),
         FieldPanel("body"),
@@ -115,7 +108,6 @@ class NewsItem(DrupalFields, Page):
                     "topics",
                     label="topics",
                 ),
-                FieldPanel("news_genre"),
                 FieldPanel("tags"),
             ],
         ),
