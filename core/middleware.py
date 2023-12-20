@@ -13,6 +13,11 @@ class Sentry404Middleware:
     def __call__(self, request):
         response = self.get_response(request)
 
+        is_paypal_request = "paypal" in request.path_info
+
+        if is_paypal_request:
+            return response
+
         # Check if the response status code is 404
         if response.status_code == HTTPStatus.NOT_FOUND:
             # Get the requested route

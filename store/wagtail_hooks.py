@@ -31,6 +31,12 @@ class OrderModelAdmin(ModelAdmin):
         "paid",
         "paypal_order_id",
         "paypal_payment_id",
+        "recipient_name",
+        "recipient_street_address",
+        "recipient_postal_code",
+        "recipient_address_locality",
+        "recipient_address_region",
+        "recipient_address_country",
     )
     search_fields = (
         "purchaser_email",
@@ -48,6 +54,11 @@ class OrderModelAdmin(ModelAdmin):
         "purchaser_family_name",
         "purchaser_meeting_or_organization",
         "recipient_name",
+        "recipient_street_address",
+        "recipient_postal_code",
+        "recipient_address_locality",
+        "recipient_address_region",
+        "recipient_address_country",
         "items",
     ]
     inspect_template_name = "store/inspect_order.html"
