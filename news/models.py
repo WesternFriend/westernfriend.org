@@ -5,9 +5,14 @@ from django.http import HttpRequest
 from modelcluster.fields import ParentalKey
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.admin.panels import (
+    FieldPanel,
+    InlinePanel,
+    MultiFieldPanel,
+    PageChooserPanel,
+)
 from wagtail.fields import RichTextField, StreamField
-from wagtail.models import Page
+from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from common.models import DrupalFields
@@ -23,7 +28,6 @@ class NewsIndexPage(Page):
         "home.HomePage",
     ]
     subpage_types: list[str] = [
-        "NewsTopicIndexPage",
         "NewsTypeIndexPage",
         "NewsItem",
     ]
@@ -61,37 +65,6 @@ class NewsIndexPage(Page):
         )
 
         return context
-
-
-class NewsTopicIndexPage(Page):
-    intro = RichTextField(blank=True)
-
-    content_panels = Page.content_panels + [FieldPanel("intro")]
-
-    parent_page_types = [
-        "NewsIndexPage",
-    ]
-    subpage_types: list[str] = [
-        "NewsTopic",
-    ]
-    max_count = 1
-
-
-class NewsTopic(Page):
-    intro = RichTextField(blank=True)
-
-    content_panels = [
-        FieldPanel("title"),
-        FieldPanel("intro"),
-    ]
-
-    # Hide the settings panels
-    settings_panels: list[str] = []
-
-    parent_page_types = [
-        "NewsTopicIndexPage",
-    ]
-    subpage_types: list[str] = []
 
 
 class NewsTypeIndexPage(Page):
@@ -156,13 +129,6 @@ class NewsItem(DrupalFields, Page):
     )
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
-    news_topic = models.ForeignKey(
-        NewsTopic,
-        on_delete=models.PROTECT,
-        related_name="news_items",
-        null=True,
-        blank=True,
-    )
     news_type = models.ForeignKey(
         NewsType,
         on_delete=models.PROTECT,
@@ -178,7 +144,10 @@ class NewsItem(DrupalFields, Page):
             heading="Metadata",
             children=[
                 FieldPanel("publication_date"),
-                FieldPanel("news_topic"),
+                InlinePanel(
+                    "topics",
+                    label="topics",
+                ),
                 FieldPanel("news_type"),
                 FieldPanel("tags"),
             ],
@@ -188,12 +157,6 @@ class NewsItem(DrupalFields, Page):
     search_fields = Page.search_fields + [
         index.SearchField("teaser"),
         index.SearchField("body"),
-        index.RelatedFields(
-            "news_topic",
-            [
-                index.SearchField("title"),
-            ],
-        ),
         index.RelatedFields(
             "tags",
             [
@@ -206,3 +169,24 @@ class NewsItem(DrupalFields, Page):
         "NewsIndexPage",
     ]
     subpage_types: list[str] = []
+
+
+class NewsItemTopic(Orderable):
+    news_item = ParentalKey(
+        "news.NewsItem",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="topics",
+    )
+    topic = models.ForeignKey(
+        "facets.Topic",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="related_news_items",
+    )
+
+    panels = [
+        PageChooserPanel(
+            "topic",
+        ),
+    ]
