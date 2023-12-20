@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import date, datetime
 
 from django.db import models
@@ -57,11 +58,35 @@ class NewsIndexPage(Page):
         # Filter live (not draft) news items
         # and items from selected year
         # reverse chronological order
-        context["news_items"] = (
+        news_items = (
             NewsItem.objects.live()
             .filter(publication_date__year=context["selected_year"])
             .order_by("-publication_date")
         )
+
+        uncategorized_topic = "Uncategorized"
+
+        # Grouping NewsItems by Topic title
+        grouped_news_items = defaultdict(list)
+        for item in news_items:
+            if item.topics.count() == 0:
+                grouped_news_items[uncategorized_topic].append(item)
+
+            for topic_relation in item.topics.all():
+                grouped_news_items[topic_relation.topic.title].append(item)
+
+        # Sorting the groups and the items within each group
+        sorted_topics = sorted(grouped_news_items.keys())
+        sorted_grouped_news_items = {
+            topic: sorted(
+                grouped_news_items[topic],
+                key=lambda x: x.publication_date,
+                reverse=True,  # Sorts in reverse chronological order
+            )
+            for topic in sorted_topics
+        }
+
+        context["grouped_news_items"] = sorted_grouped_news_items
 
         return context
 
