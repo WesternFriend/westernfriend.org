@@ -124,7 +124,10 @@ class PersonIndexPage(Page):
 class MeetingPresidingClerk(Orderable):
     """Presiding clerk of Quaker meeting."""
 
-    meeting = ParentalKey("contact.Meeting", related_name="presiding_clerks")
+    meeting = ParentalKey(
+        "contact.Meeting",
+        related_name="presiding_clerks",
+    )
     person = models.ForeignKey(
         "contact.Person",
         null=True,
