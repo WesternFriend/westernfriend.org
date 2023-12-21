@@ -91,7 +91,8 @@ if os.getenv("SENTRY_DSN"):
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN"),
         integrations=[DjangoIntegration()],
-        traces_sample_rate=1,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=0.3,
     )
 
 # Settings related to DigitalOcean Spaces
