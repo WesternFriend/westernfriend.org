@@ -15,7 +15,7 @@
             <ul class="navbar-nav ms-auto">
                 <li class="navbar-nav me-2">
                     {% if user.is_authenticated %}
-                        <form id="logout-form" method="post" action="{% url 'admin:logout' %}?next={{ request.path }}">
+                        <form id="logout-form" method="post" action="{% url 'logout' %}?next={{ request.path }}">
                             {% csrf_token %}
                             <button type="submit">Log out</button>
                         </form>
