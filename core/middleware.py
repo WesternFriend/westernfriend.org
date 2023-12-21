@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 
-class Sentry404Middleware:
+class Http404ResponseMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
