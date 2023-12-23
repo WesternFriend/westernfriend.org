@@ -3,7 +3,7 @@
         <ul class="pagination">
             {% if paginated_items.page.has_previous %}
                 <li class="page-item">
-                    <a href="?page=1&{{ current_querystring }}" class="page-link">&laquo;&nbsp;first</a>
+                    <a href="{{ fragment_identifier }}?page=1&{{ current_querystring }}" class="page-link">&laquo;&nbsp;first</a>
                 </li>
                 <li class="page-item">
                     <a href="{{ fragment_identifier }}?page={{ paginated_items.page.previous_page_number }}&{{ current_querystring }}"
@@ -17,7 +17,7 @@
             {% for page_number in paginated_items.elided_page_range %}
                 {% if paginated_items.page.number == page_number %}
                     <li class="active page-item" aria-current="page">
-                        <a href="?page={{ page_number }}&{{ current_querystring }}" class="page-link">
+                        <a href="{{ fragment_identifier }}?page={{ page_number }}&{{ current_querystring }}" class="page-link">
                             {{ page_number }}
                         </a>
                     </li>
@@ -27,7 +27,7 @@
                     </span>
                 {% else %}
                     <li class="page-item">
-                        <a href="?page={{ page_number }}&{{ current_querystring }}" class="page-link">
+                        <a href="{{ fragment_identifier }}?page={{ page_number }}&{{ current_querystring }}" class="page-link">
                             {{ page_number }}
                         </a>
                     </li>
@@ -36,14 +36,14 @@
 
             {% if paginated_items.page.has_next %}
                 <li class="page-item">
-                    <a href="?page={{ paginated_items.page.next_page_number }}&{{ current_querystring }}"
+                    <a href="{{ fragment_identifier }}?page={{ paginated_items.page.next_page_number }}&{{ current_querystring }}"
                        class="page-link">
                         next
                     </a>
                 </li>
 
                 <li class="page-item">
-                    <a href="?page={{ paginated_items.page.paginator.num_pages }}&{{ current_querystring }}"
+                    <a href="{{ fragment_identifier }}?page={{ paginated_items.page.paginator.num_pages }}&{{ current_querystring }}"
                        class="page-link">
                         last&nbsp;&raquo;
                     </a>
