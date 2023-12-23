@@ -13,6 +13,8 @@ from accounts.views import CustomRegistrationView
 from magazine import urls as magazine_urls
 from search import views as search_views
 
+handler404 = "common.views.custom_404"
+
 urlpatterns = [
     path(
         "accounts/register/",
