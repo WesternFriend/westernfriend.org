@@ -6,7 +6,7 @@
                     <a href="?page=1&{{ current_querystring }}" class="page-link">&laquo;&nbsp;first</a>
                 </li>
                 <li class="page-item">
-                    <a href="?page={{ paginated_items.page.previous_page_number }}&{{ current_querystring }}"
+                    <a href="{{ fragment_identifier }}?page={{ paginated_items.page.previous_page_number }}&{{ current_querystring }}"
                        class="page-link">
                         previous
                     </a>

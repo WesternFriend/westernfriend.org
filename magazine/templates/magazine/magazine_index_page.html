@@ -38,7 +38,7 @@
     </div>
 
     {% if archive_issues.page.has_other_pages %}
-        {% include "paginator.html" with paginated_items=archive_issues %}
+        {% include "paginator.html" with paginated_items=archive_issues fragment_identifier=archive_issues_fragment_identifier %}
     {% endif %}
 
     {% if page.deep_archive_page %}
