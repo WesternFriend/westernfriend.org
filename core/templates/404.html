@@ -5,5 +5,29 @@
 {% block content %}
     <h1>Page not found</h1>
 
-    <h2>Sorry, this page could not be found.</h2>
+    <p>We apologize, but it seems like this page doesn't exist. Don't worry, we're here to assist you in finding what you're looking for. You can use the search form below to help locate the content you need.</p>
+
+    <form
+        action="{% url 'search' %}"
+        method="get"
+        class="form col-2-md">
+        <div class="input-group">
+            <input
+                id="search-input"
+                name="query"
+                type="text"
+                class="form-control"
+                value="{{ search_query }}"
+                aria-label="Search"
+            />
+
+            <button
+                class="btn btn-outline-dark"
+                type="submit"
+                aria-label="Submit query">
+                <i class="bi bi-search"></i>
+                Search
+            </button>
+        </div>
+    </form>
 {% endblock %}
