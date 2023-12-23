@@ -2,7 +2,7 @@ from http import HTTPStatus
 from django.shortcuts import render
 
 
-def custom_404(request, exception=None):
+def custom_404(request, exception=None):  # noqa: W0613
     """Return the 404 page with search form that will contain the URL path
     components that the user requested. The path will be split into the
     keywords and the keywords will be used to populate the search field.
