@@ -211,7 +211,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
-    "core.middleware.Http404ResponseMiddleware",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
