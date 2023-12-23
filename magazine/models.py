@@ -101,6 +101,8 @@ class MagazineIndexPage(Page):
             page_number=page_number,
         )
 
+        context["archive_issues_fragment_identifier"] = "#archive-issues"
+
         return context
 
 
