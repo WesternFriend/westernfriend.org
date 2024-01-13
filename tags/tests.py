@@ -2,12 +2,12 @@ from django.test import TestCase
 from django.urls import reverse
 from taggit.models import Tag
 from library.models import LibraryItem
+from library.factories import LibraryItemFactory
+from magazine.factories import MagazineArticleFactory
 from magazine.models import MagazineArticle
+from news.factories import NewsItemFactory
 from news.models import NewsItem
 from wf_pages.factories import WfPageFactory
-from news.factories import NewsItemFactory
-from magazine.factories import MagazineArticleFactory
-from library.factories import LibraryItemFactory
 from wf_pages.models import WfPage
 
 
