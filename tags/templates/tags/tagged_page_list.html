@@ -3,7 +3,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>Pages tagged {{ tag }}</h1>
+    <h1>Pages tagged "{{ tag }}"</h1>
 
     {% if paginated_items %}
         {% for item in paginated_items.page %}
