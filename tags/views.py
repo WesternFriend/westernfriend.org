@@ -2,6 +2,7 @@ from itertools import chain
 
 from django.views.generic import ListView
 from django.db.models import Q
+from taggit.models import Tag
 
 from library.models import LibraryItem
 from magazine.models import MagazineArticle
@@ -37,7 +38,11 @@ class TaggedPageListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["tag"] = self.kwargs["tag"]
+
+        tag_slug = self.kwargs["tag"]
+        tag_name = Tag.objects.get(slug=tag_slug).name
+
+        context["tag_name"] = tag_name
 
         page_number = self.request.GET.get("page", "1")
 
