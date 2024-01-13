@@ -7,11 +7,19 @@
 
     {% if paginated_items %}
         {% for item in paginated_items.page %}
-            <h2>
-                <a href="{% pageurl item %}">
-                    {{ item.title }}
-                </a>
-            </h2>
+            {% if item.specific.search_template %}
+                {% include item.specific.search_template with entity=item %}
+            {% else %}
+                <div class="card my-1">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <a href="{% pageurl item %}">
+                                {{item}} ({{ item.content_type.name }})
+                            </a>
+                        </h2>
+                    </div>
+                </div>
+            {% endif %}
         {% endfor %}
 
         {% if paginator.num_pages > 1 %}
