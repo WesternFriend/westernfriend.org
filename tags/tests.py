@@ -133,3 +133,27 @@ class TaggedPageListViewPaginationTest(TestCase):
 
         expected_next_page = 2
         self.assertEqual(paginated_context.page.next_page_number(), expected_next_page)
+
+    def test_pagination_second_page(self):
+        response = self.client.get(self.url + "?page=2")
+        paginated_context = response.context["paginated_items"]
+
+        queryset_items = paginated_context.page.object_list
+
+        expected_items = 2
+        self.assertEqual(len(queryset_items), expected_items)
+
+        expected_pages_count = 2
+        self.assertEqual(
+            paginated_context.page.paginator.num_pages,
+            expected_pages_count,
+        )
+
+        expected_page_number = 2
+        self.assertEqual(paginated_context.page.number, expected_page_number)
+
+        expected_previous_page = 1
+        self.assertEqual(
+            paginated_context.page.previous_page_number(),
+            expected_previous_page,
+        )
