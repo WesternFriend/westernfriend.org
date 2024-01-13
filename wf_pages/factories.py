@@ -13,7 +13,6 @@ class WfPageFactory(
         model = WfPage
 
     title = factory.Faker("sentence", nb_words=4)  # type: ignore
-    # slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
 
     @classmethod
     def _create(
