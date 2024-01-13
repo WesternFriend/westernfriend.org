@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>Pages tagged {{ tag }}</h1>
+
+    {% if paginated_items %}
+        {% for item in paginated_items.page %}
+            <h2>
+                <a href="{% pageurl item %}">
+                    {{ item.title }}
+                </a>
+            </h2>
+        {% endfor %}
+
+        {% if paginator.num_pages > 1 %}
+            <div class="pagination">
+                <span>Page {{ page_obj.number }} of {{ paginator.num_pages }}.</span>
+            </div>
+        {% endif %}
+
+        {% include "paginator.html" with paginated_items=paginated_items %}
+    {% else %}
+        <p>
+            There are no pages tagged {{ tag }}.
+        </p>
+    {% endif %}
+{% endblock content %}
