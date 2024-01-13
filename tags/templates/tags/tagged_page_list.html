@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>Pages tagged "{{ tag_name }}"</h1>
+
+    {% if paginated_items %}
+        {% for item in paginated_items.page %}
+            {% if item.specific.search_template %}
+                {% include item.specific.search_template with entity=item %}
+            {% else %}
+                <div class="card my-1">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <a href="{% pageurl item %}">
+                                {{item}} ({{ item.content_type.name }})
+                            </a>
+                        </h2>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% if paginator.num_pages > 1 %}
+            <div class="pagination">
+                <span>Page {{ page_obj.number }} of {{ paginator.num_pages }}.</span>
+            </div>
+        {% endif %}
+
+        {% include "paginator.html" with paginated_items=paginated_items %}
+    {% else %}
+        <p>
+            There are no pages tagged {{ tag }}.
+        </p>
+    {% endif %}
+{% endblock content %}

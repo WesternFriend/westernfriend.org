@@ -4,7 +4,12 @@ import factory
 from home.factories import HomePageFactory
 
 from home.models import HomePage
-from .models import MagazineIssue, MagazineIndexPage
+from .models import (
+    MagazineArticle,
+    MagazineDepartment,
+    MagazineIssue,
+    MagazineIndexPage,
+)
 
 
 class MagazineIndexPageFactory(factory.django.DjangoModelFactory):
@@ -55,4 +60,53 @@ class MagazineIssueFactory(factory.django.DjangoModelFactory):
         else:
             home_page = MagazineIndexPageFactory.create()
             home_page.add_child(instance=instance)
+        return instance
+
+
+class MagazineDepartmentFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MagazineDepartment
+
+    title = factory.Faker("sentence", nb_words=4)  # type: ignore
+    slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
+
+    @classmethod
+    def _create(
+        cls,
+        model_class: type[MagazineDepartment],
+        *args: Any,
+        **kwargs: Any,
+    ) -> MagazineDepartment:
+        instance = model_class(*args, **kwargs)  # type: ignore
+        parent = MagazineIndexPage.objects.first()
+        if parent:
+            parent.add_child(instance=instance)
+        else:
+            magazine_index_page = MagazineIndexPageFactory.create()
+            magazine_index_page.add_child(instance=instance)
+        return instance
+
+
+class MagazineArticleFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MagazineArticle
+
+    title = factory.Faker("sentence", nb_words=4)  # type: ignore
+    slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
+    department = factory.SubFactory(MagazineDepartmentFactory)  # type: ignore
+
+    @classmethod
+    def _create(
+        cls,
+        model_class: type[MagazineArticle],
+        *args: Any,
+        **kwargs: Any,
+    ) -> MagazineArticle:
+        instance = model_class(*args, **kwargs)  # type: ignore
+        parent = MagazineIssue.objects.first()
+        if parent:
+            parent.add_child(instance=instance)
+        else:
+            magazine_issue = MagazineIssueFactory.create()
+            magazine_issue.add_child(instance=instance)
         return instance

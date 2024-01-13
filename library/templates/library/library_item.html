@@ -83,7 +83,7 @@
             <div class="tags">
                 {% for tag in page.tags.all %}
                     <a
-                        href="{%url 'search' %}?query={{ tag }}"
+                        href="{%url 'tags:tagged_page_list' tag.slug %}"
                         class="btn btn-outline-primary btn-sm">
                         {{ tag }}
                     </a>
