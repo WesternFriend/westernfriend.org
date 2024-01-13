@@ -14,6 +14,7 @@ from wf_pages.models import WfPage
 class TaggedPageListViewQuerysetAndContentOrderTest(TestCase):
     def setUp(self):
         self.tag = Tag.objects.create(name="Common Tag", slug="common-tag")
+        self.url = reverse("tags:tagged_page_list", kwargs={"tag": self.tag.slug})
 
         self.library_item = LibraryItemFactory(title="A Library Item")
         self.library_item.tags.add(self.tag)
@@ -30,8 +31,6 @@ class TaggedPageListViewQuerysetAndContentOrderTest(TestCase):
         self.wf_page = WfPageFactory(title="Wf Page")
         self.wf_page.tags.add(self.tag)
         self.wf_page.save()
-
-        self.url = reverse("tags:tagged_page_list", kwargs={"tag": self.tag.slug})
 
     def test_setUp_data(self):
         self.assertEqual(self.tag.name, "Common Tag")
@@ -85,3 +84,52 @@ class TaggedPageListViewQuerysetAndContentOrderTest(TestCase):
 
         # Verify the sorting order by title
         self.assertEqual(expected_titles, actual_titles)
+
+
+class TaggedPageListViewPaginationTest(TestCase):
+    def setUp(self):
+        self.tag = Tag.objects.create(name="Common Tag", slug="common-tag")
+        self.url = reverse("tags:tagged_page_list", kwargs={"tag": self.tag.slug})
+
+        # pagination requires at least ten items
+        # create N items for each model
+        # where N * 4 >= 10
+        N = 3
+
+        for i in range(N):
+            library_item = LibraryItemFactory(title=f"Library Item {i}")
+            library_item.tags.add(self.tag)
+            library_item.save()
+
+            magazine_article = MagazineArticleFactory(title=f"Magazine Article {i}")
+            magazine_article.tags.add(self.tag)
+            magazine_article.save()
+
+            news_item = NewsItemFactory(title=f"News Item {i}")
+            news_item.tags.add(self.tag)
+            news_item.save()
+
+            wf_page = WfPageFactory(title=f"Wf Page {i}")
+            wf_page.tags.add(self.tag)
+            wf_page.save()
+
+    def test_pagination(self):
+        response = self.client.get(self.url)
+        paginated_context = response.context["paginated_items"]
+
+        queryset_items = paginated_context.page.object_list
+
+        expected_items = 10
+        self.assertEqual(len(queryset_items), expected_items)
+
+        expected_pages_count = 2
+        self.assertEqual(
+            paginated_context.page.paginator.num_pages,
+            expected_pages_count,
+        )
+
+        expected_page_number = 1
+        self.assertEqual(paginated_context.page.number, expected_page_number)
+
+        expected_next_page = 2
+        self.assertEqual(paginated_context.page.next_page_number(), expected_next_page)
