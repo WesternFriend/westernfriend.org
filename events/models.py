@@ -1,6 +1,5 @@
 from django.utils import timezone
 from django.db import models
-from django.db.models import Q
 from django.http import Http404, HttpRequest
 from modelcluster.fields import ParentalKey  # type: ignore
 from timezone_field import TimeZoneField  # type: ignore
@@ -134,10 +133,10 @@ class EventsIndexPage(Page):
             filter_category = Event.EventCategoryChoices.WESTERN
 
         upcoming_events = (
-            Event.objects.all()
+            Event.objects.live()
             .filter(
-                Q(start_date__gt=timezone.now()),
-                Q(category=filter_category),
+                start_date__gt=timezone.now(),
+                category=filter_category,
             )
             .order_by("start_date")
         )

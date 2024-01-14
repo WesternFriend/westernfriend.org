@@ -105,3 +105,38 @@ class EventsIndexPageTest(TestCase):
         # Verify that calling get_context raises a 404
         with self.assertRaises(Http404):
             self.events_index_page.get_context(request)
+
+
+class TestEventPageGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+
+        # Create an EventsIndexPage instance
+        self.events_index_page = EventsIndexPageFactory.create()
+
+        # Create several Event instances
+        self.events = []
+
+        total_events = 5
+        total_unpublished_events = 3
+
+        # published events
+        for i in range(total_events):
+            event = EventFactory.create()
+            self.events.append(event)
+
+        # unpublished events
+        for i in range(total_unpublished_events):
+            event = EventFactory.create(live=False)
+            self.events.append(event)
+
+    def test_get_context_contains_only_published_events(self) -> None:
+        request = self.factory.get("/")
+        context = self.events_index_page.get_context(request)
+
+        self.assertIn("events", context)
+        # only published events are returned
+        self.assertEqual(
+            list(context["events"].page.object_list),
+            list(Event.objects.live().order_by("start_date")),
+        )
