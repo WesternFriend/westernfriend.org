@@ -153,7 +153,7 @@ packaging==23.2
     # via
     #   build
     #   gunicorn
-pillow==10.1.0
+pillow==10.2.0
     # via
     #   pillow-heif
     #   wagtail
