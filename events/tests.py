@@ -117,11 +117,11 @@ class TestEventPageGetContext(TestCase):
         # Create several Event instances
         self.events = []
 
-        total_events = 5
+        total_published_events = 5
         total_unpublished_events = 3
 
         # published events
-        for i in range(total_events):
+        for i in range(total_published_events):
             event = EventFactory.create()
             self.events.append(event)
 
@@ -139,4 +139,49 @@ class TestEventPageGetContext(TestCase):
         self.assertEqual(
             list(context["events"].page.object_list),
             list(Event.objects.live().order_by("start_date")),
+        )
+
+
+class TestEventPageGetContextUpcomingEventsStartAndEndDate(TestCase):
+    def setUp(self):
+        """
+        Create three events:
+        - one that has already ended
+        - one that is currently ongoing
+        - one that is upcoming
+
+        Ensure the ongoing and upcoming events are returned
+        """
+        self.factory = RequestFactory()
+
+        # Create an EventsIndexPage instance
+        self.events_index_page = EventsIndexPageFactory.create()
+
+        # Create an event that has already ended
+        self.ended_event = EventFactory.create(
+            start_date=timezone.now() - datetime.timedelta(days=2),
+            end_date=timezone.now() - datetime.timedelta(days=1),
+        )
+
+        # Create an event that is currently ongoing
+        self.ongoing_event = EventFactory.create(
+            start_date=timezone.now() - datetime.timedelta(days=1),
+            end_date=timezone.now() + datetime.timedelta(days=1),
+        )
+
+        # Create an event that is upcoming
+        self.upcoming_event = EventFactory.create(
+            start_date=timezone.now() + datetime.timedelta(days=1),
+            end_date=timezone.now() + datetime.timedelta(days=2),
+        )
+
+    def test_get_context_contains_only_ongoing_and_upcoming_events(self):
+        request = self.factory.get("/")
+        context = self.events_index_page.get_context(request)
+
+        self.assertIn("events", context)
+        # only ongoing and upcoming events are returned
+        self.assertEqual(
+            list(context["events"].page.object_list),
+            [self.ongoing_event, self.upcoming_event],
         )
