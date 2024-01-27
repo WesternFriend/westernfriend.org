@@ -41,9 +41,12 @@
                                 {% endif %}
 
                                 <p>
-                                    <span class="fw-bold">Date:</span> {{ event.start_date | timezone:"US/Pacific" | date:"F d, Y" }}
-                                    &nbsp;&nbsp;&nbsp;
-                                    <span class="fw-bold">Time:</span> {{ event.start_date | timezone:"US/Pacific" | date:"f A" }} US/Pacific
+                                    <span class="fw-bold">Start Date:</span> {{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
+                                    &nbsp;
+                                    {% if event.end_date %}
+                                        <span class="fw-bold">End Date:</span> {{ event.end_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
+                                    {% endif %}
+                                    (US/Pacific)
                                 </p>
                             </div>
 

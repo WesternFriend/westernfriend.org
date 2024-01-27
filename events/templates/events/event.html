@@ -20,6 +20,7 @@
         {% endif %}
 
         {% if event.end_date %}
+            -
             {{ event.end_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
         {% endif %}
 
