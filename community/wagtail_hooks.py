@@ -118,10 +118,7 @@ class EventModelAdmin(ModelAdmin):
         "live",
     )
     empty_value_display = "-"
-    search_fields = (
-        "title",
-        "description",
-    )
+    search_fields = ("title",)
     list_filter = (
         "start_date",
         "category",
