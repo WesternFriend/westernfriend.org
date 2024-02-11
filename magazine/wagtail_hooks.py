@@ -1,8 +1,8 @@
 from django.urls import reverse
 from django.utils.html import format_html
-from wagtail.contrib.modeladmin.helpers import PageAdminURLHelper, PageButtonHelper
-from wagtail.contrib.modeladmin.mixins import ThumbnailMixin
-from wagtail.contrib.modeladmin.options import (
+from wagtail_modeladmin.helpers import PageAdminURLHelper, PageButtonHelper
+from wagtail_modeladmin.mixins import ThumbnailMixin
+from wagtail_modeladmin.options import (
     ModelAdmin,
     ModelAdminGroup,
     modeladmin_register,

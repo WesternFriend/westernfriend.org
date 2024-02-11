@@ -172,7 +172,6 @@ INSTALLED_APPS = [
     "wagtail",
     "wagtail.admin",
     "wagtail.contrib.forms",
-    "wagtail.contrib.modeladmin",
     "wagtail.contrib.redirects",
     "wagtail.contrib.routable_page",
     "wagtail.contrib.settings",
@@ -185,6 +184,7 @@ INSTALLED_APPS = [
     "wagtail.snippets",
     "wagtail.users",
     "wagtail_color_panel",
+    "wagtail_modeladmin",
     "wagtailmedia",
     # keep-sorted end
     # Contrib (apps that are included in Django)
