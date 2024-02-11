@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils.html import format_html_join
 from django.utils.safestring import SafeString
-from wagtail.contrib.modeladmin.options import (
+from wagtail_modeladmin.options import (
     ModelAdmin,
     ModelAdminGroup,
     modeladmin_register,
