@@ -29,7 +29,6 @@ class OrderModelAdmin(ModelAdmin):
         "purchaser_email",
         "purchaser_full_name",
         "paid",
-        "paypal_order_id",
         "paypal_payment_id",
         "recipient_name",
         "recipient_street_address",
@@ -44,6 +43,7 @@ class OrderModelAdmin(ModelAdmin):
         "purchaser_family_name",
         "purchaser_meeting_or_organization",
         "recipient_name",
+        "paypal_payment_id",
     )
     list_filter = ("paid",)
     inspect_view_enabled = True
