@@ -150,6 +150,11 @@ p {
   margin-left: 1em;
 }
 
+.text-bg-wf-primary {
+  background-color: #06669a;
+  color: #fff;
+}
+
 .title-link-no-underline:link {
   text-decoration: none;
 }
