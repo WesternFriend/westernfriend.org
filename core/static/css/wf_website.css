@@ -125,6 +125,7 @@ p {
 
 .card-title {
   font-family: var(--bs-font-sans-serif);
+  line-height: 1em;
 }
 
 .dropdown-menu.show .nav-item a {
