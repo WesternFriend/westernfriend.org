@@ -492,14 +492,12 @@ class ArchiveArticle(ClusterableModel):
     # since the original documents used various page numbering schemes over time
     # and the PDF page number may differ from the original document
     toc_page_number = models.PositiveIntegerField(
-        null=True,
-        blank=True,
         help_text="Page number as it appears the original document",
+        default=1,
     )
     pdf_page_number = models.PositiveIntegerField(
-        null=True,
-        blank=True,
-        help_text="Page in the actual PDF file, when it differs from the original document",  # noqa: E501
+        help_text="Page in the actual PDF file",
+        default=1,
     )
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True)
 

@@ -135,6 +135,7 @@ INSTALLED_APPS = [
     "addresses",
     "blocks",
     "cart",
+    "cli",
     "common",
     "community",
     "contact",
@@ -322,7 +323,7 @@ STATICFILES_DIRS = [
 ]
 
 if USE_SPACES:
-    STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{AWS_LOCATION}/"
+    STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/"
 
     STORAGES = {
         "default": {
@@ -334,7 +335,7 @@ if USE_SPACES:
     }
 
     MEDIA_URL = (
-        f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME }/{PUBLIC_MEDIA_LOCATION}/"
+        f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME}/{PUBLIC_MEDIA_LOCATION}/"
     )
 
     # Prevent setting URL querystring parameters

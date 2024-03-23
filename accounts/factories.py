@@ -8,6 +8,6 @@ class UserFactory(DjangoModelFactory):
     class Meta:
         model = get_user_model()
 
-    email = factory.Faker("email")
+    email = factory.Sequence(lambda n: f"user{n}@westernfriend.org")
     is_staff = factory.Faker("pybool")
     is_active = factory.Faker("pybool")
