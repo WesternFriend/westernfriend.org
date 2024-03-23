@@ -105,7 +105,9 @@
             var newSrc = 'https://archive.org/stream/' + ia_identifier + '?ui=embed#page/n' + pageNumber + '/mode/2up';
 
             // Replace iframe src attribute with new string
-            document.getElementById('archive-pdf-viewer').setAttribute('src', newSrc);
+            var pdfViewer = document.getElementById('archive-pdf-viewer');
+            pdfViewer.setAttribute('src', newSrc);
+            pdfViewer.scrollIntoView();
         };
     </script>
 {% endblock extra_js %}
