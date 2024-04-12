@@ -132,7 +132,7 @@ html5lib==1.1
     # via wagtail
 identify==2.5.35
     # via pre-commit
-idna==3.6
+idna==3.7
     # via requests
 jmespath==1.0.1
     # via
