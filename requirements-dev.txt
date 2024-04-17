@@ -126,7 +126,7 @@ filelock==3.13.1
     # via virtualenv
 filetype==1.2.0
     # via willow
-gunicorn==21.2.0
+gunicorn==22.0.0
     # via Western-Friend-website (pyproject.toml)
 html5lib==1.1
     # via wagtail
