@@ -94,7 +94,7 @@ et-xmlfile==1.1.0
     # via openpyxl
 filetype==1.2.0
     # via willow
-gunicorn==21.2.0
+gunicorn==22.0.0
     # via Western-Friend-website (pyproject.toml)
 html5lib==1.1
     # via wagtail
