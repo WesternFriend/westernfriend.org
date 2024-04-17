@@ -98,7 +98,7 @@ gunicorn==22.0.0
     # via Western-Friend-website (pyproject.toml)
 html5lib==1.1
     # via wagtail
-idna==3.6
+idna==3.7
     # via requests
 jmespath==1.0.1
     # via
