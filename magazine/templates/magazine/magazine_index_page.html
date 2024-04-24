@@ -29,6 +29,14 @@
         Recent Archive
     </h2>
 
+    <div class="ms-1 mb-2">
+        {% for year in archive_issues_years %}
+            <span>
+                <a href="?year={{ year }}">{{ year }}</a>{% if not forloop.last %},{% endif %}
+            </span>
+        {% endfor %}
+    </div>
+
     <div class="row">
         {% for issue in archive_issues.page %}
             <div class="col-sm-3 mb-4">
