@@ -92,6 +92,23 @@ class MagazineIndexPage(Page):
             publication_date__lt=ARCHIVE_THRESHOLD_DATE,
         )
 
+        # Get the unique years of the archive issues as a list of integers (years)
+        archive_issues_years = archive_issues.dates(
+            "publication_date",
+            "year",
+            order="ASC",
+        )
+        archive_issues_years = [
+            archive_issue.year for archive_issue in archive_issues_years
+        ]
+
+        # Filter archive issues by year, if a year is provided in the query string
+        archive_year = request.GET.get("year")
+        if archive_year:
+            archive_issues = archive_issues.filter(
+                publication_date__year=archive_year,
+            )
+
         page_number = request.GET.get("page", "1")
         items_per_page = 8
 
@@ -102,6 +119,7 @@ class MagazineIndexPage(Page):
         )
 
         context["archive_issues_fragment_identifier"] = "#archive-issues"
+        context["archive_issues_years"] = archive_issues_years
 
         return context
 
