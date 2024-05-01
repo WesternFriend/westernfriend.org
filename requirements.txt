@@ -170,7 +170,7 @@ urllib3==2.2.1
     #   botocore
     #   requests
     #   sentry-sdk
-wagtail==6.0.2
+wagtail==6.0.3
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail-color-panel

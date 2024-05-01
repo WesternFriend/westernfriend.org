@@ -249,7 +249,7 @@ validate-pyproject==0.16
     # via Western-Friend-website (pyproject.toml)
 virtualenv==20.26.0
     # via pre-commit
-wagtail==6.0.2
+wagtail==6.0.3
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail-color-panel
