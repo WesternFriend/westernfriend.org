@@ -21,7 +21,7 @@ class SubscriptionModelAdmin(ModelAdmin):
         # "is_active",
     )
     search_fields = (
-        "user",
+        "user__email",
         "paypal_subscription_id",
     )
     inspect_view_enabled = True
