@@ -22,10 +22,8 @@
                 <ul class="list-unstyled">
                     {% for featured_article in page.featured_articles.all %}
                         <li class="ms-5 mb-2">
-                            <a href="{% pageurl featured_article %}" class="fw-bold">
-                                {{ featured_article.title }}
-                            </a>
-                            by
+                            <a href="{% pageurl featured_article %}" class="fw-bold">{{ featured_article.title }}</a>
+                            &nbsp;by
                             {% for author in featured_article.authors.all %}
                                 {% if author.author.live %}
                                     <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
