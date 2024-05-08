@@ -47,10 +47,8 @@
                 <ul class="list-unstyled ms-5">
                     {% for article in department.list %}
                         <li class="mb-2">
-                            <a href="{% pageurl article %}" class="fw-bold">
-                                {{ article }} {% if article.is_featured %}(featured){% endif %}
-                            </a>
-                            by
+                            <a href="{% pageurl article %}" class="fw-bold">{{ article }} {% if article.is_featured %}(featured){% endif %}</a>
+                            &nbsp;by
                             {% for author in article.authors.all %}
                                 {% if author.author.live %}
                                     <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
