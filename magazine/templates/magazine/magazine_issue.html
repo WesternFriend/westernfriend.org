@@ -22,7 +22,7 @@
                 <ul class="list-unstyled">
                     {% for featured_article in page.featured_articles.all %}
                         <li class="ms-5 mb-2">
-                            <a href="{% pageurl featured_article %}">
+                            <a href="{% pageurl featured_article %}" class="fw-bold">
                                 {{ featured_article.title }}
                             </a>
                             by
@@ -49,7 +49,7 @@
                 <ul class="list-unstyled ms-5">
                     {% for article in department.list %}
                         <li class="mb-2">
-                            <a href="{% pageurl article %}">
+                            <a href="{% pageurl article %}" class="fw-bold">
                                 {{ article }} {% if article.is_featured %}(featured){% endif %}
                             </a>
                             by
