@@ -36,9 +36,7 @@ class Memorial(DrupalFields, Page):  # type: ignore
         )
 
     def full_name(self) -> str:
-        return (
-            f"{ self.memorial_person.given_name } { self.memorial_person.family_name }"
-        )
+        return f"{self.memorial_person.given_name} {self.memorial_person.family_name}"
 
     content_panels = Page.content_panels + [
         PageChooserPanel("memorial_person"),

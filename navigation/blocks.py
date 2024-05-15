@@ -39,7 +39,7 @@ class NavigationPageChooserStructValue(StructValue):
         url = self.get("page").url
         anchor = self.get("anchor")
 
-        href = f"{ url }#{ anchor }" if anchor else url
+        href = f"{url}#{anchor}" if anchor else url
 
         return href
 

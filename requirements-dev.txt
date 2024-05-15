@@ -12,11 +12,12 @@ asgiref==3.8.1
     # via
     #   django
     #   django-browser-reload
+    #   django-stubs
 beautifulsoup4==4.12.3
     # via wagtail
-boto3==1.34.90
+boto3==1.34.105
     # via Western-Friend-website (pyproject.toml)
-botocore==1.34.90
+botocore==1.34.105
     # via
     #   boto3
     #   s3transfer
@@ -34,7 +35,7 @@ click==8.1.7
     # via pip-tools
 confusable-homoglyphs==3.3.1
     # via django-registration
-coverage==7.5.0
+coverage==7.5.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   django-coverage-plugin
@@ -46,7 +47,7 @@ distlib==0.3.8
     # via virtualenv
 dj-database-url==2.1.0
     # via Western-Friend-website (pyproject.toml)
-django==5.0.4
+django==5.0.6
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
@@ -81,7 +82,7 @@ django-crispy-forms==2.1
     #   crispy-bootstrap5
 django-extensions==3.2.3
     # via Western-Friend-website (pyproject.toml)
-django-filter==23.5
+django-filter==24.2
     # via wagtail
 django-flatpickr==2.0.3
     # via Western-Friend-website (pyproject.toml)
@@ -95,11 +96,11 @@ django-recaptcha==4.0.0
     # via Western-Friend-website (pyproject.toml)
 django-registration==3.4
     # via Western-Friend-website (pyproject.toml)
-django-storages==1.14.2
+django-storages==1.14.3
     # via Western-Friend-website (pyproject.toml)
-django-stubs[compatible-mypy]==4.2.7
+django-stubs[compatible-mypy]==5.0.0
     # via Western-Friend-website (pyproject.toml)
-django-stubs-ext==4.2.7
+django-stubs-ext==5.0.0
     # via django-stubs
 django-taggit==5.0.1
     # via wagtail
@@ -118,18 +119,16 @@ factory-boy==3.3.0
     #   Western-Friend-website (pyproject.toml)
     #   types-factory-boy
     #   wagtail-factories
-faker==24.11.0
+faker==25.2.0
     # via factory-boy
 fastjsonschema==2.19.1
     # via validate-pyproject
-filelock==3.13.4
+filelock==3.14.0
     # via virtualenv
 filetype==1.2.0
     # via willow
 gunicorn==22.0.0
     # via Western-Friend-website (pyproject.toml)
-html5lib==1.1
-    # via wagtail
 identify==2.5.36
     # via pre-commit
 idna==3.7
@@ -142,7 +141,7 @@ l18n==2021.3
     # via wagtail
 laces==0.1.1
     # via wagtail
-mypy==1.7.1
+mypy==1.10.0
     # via
     #   Western-Friend-website (pyproject.toml)
     #   django-stubs
@@ -164,9 +163,9 @@ pillow-heif==0.16.0
     # via willow
 pip-tools==7.4.1
     # via Western-Friend-website (pyproject.toml)
-platformdirs==4.2.1
+platformdirs==4.2.2
     # via virtualenv
-pre-commit==3.7.0
+pre-commit==3.7.1
     # via Western-Friend-website (pyproject.toml)
 psycopg2-binary==2.9.9
     # via Western-Friend-website (pyproject.toml)
@@ -178,7 +177,7 @@ pydantic-core==2.18.2
     # via pydantic
 pydantic-settings==2.2.1
     # via django-flatpickr
-pyproject-hooks==1.0.0
+pyproject-hooks==1.1.0
     # via
     #   build
     #   pip-tools
@@ -202,11 +201,10 @@ requests==2.31.0
     #   wagtail
 s3transfer==0.10.1
     # via boto3
-sentry-sdk==1.45.0
+sentry-sdk==2.1.1
     # via Western-Friend-website (pyproject.toml)
 six==1.16.0
     # via
-    #   html5lib
     #   l18n
     #   python-dateutil
 soupsieve==2.5
@@ -215,14 +213,12 @@ sqlparse==0.5.0
     # via django
 telepath==0.3.1
     # via wagtail
-types-beautifulsoup4==4.12.0.20240229
+types-beautifulsoup4==4.12.0.20240511
     # via Western-Friend-website (pyproject.toml)
 types-factory-boy==0.4.1
     # via Western-Friend-website (pyproject.toml)
 types-html5lib==1.1.11.20240228
     # via types-beautifulsoup4
-types-pytz==2024.1.0.20240417
-    # via django-stubs
 types-pyyaml==6.0.12.20240311
     # via django-stubs
 types-requests==2.31.0.20240406
@@ -245,11 +241,11 @@ urllib3==2.2.1
     #   requests
     #   sentry-sdk
     #   types-requests
-validate-pyproject==0.16
+validate-pyproject==0.17
     # via Western-Friend-website (pyproject.toml)
-virtualenv==20.26.0
+virtualenv==20.26.2
     # via pre-commit
-wagtail==6.0.2
+wagtail==6.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail-color-panel
@@ -264,8 +260,6 @@ wagtail-modeladmin==2.0.0
     # via Western-Friend-website (pyproject.toml)
 wagtailmedia==0.15.1
     # via Western-Friend-website (pyproject.toml)
-webencodings==0.5.1
-    # via html5lib
 wheel==0.43.0
     # via pip-tools
 willow[heif]==1.8.0

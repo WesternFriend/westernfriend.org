@@ -179,7 +179,7 @@ class OrderItem(Orderable):
     ]
 
     def __str__(self) -> str:
-        return f"{self.quantity}x {self.product_title} @ { round(self.price, 2) }/each"  # noqa: E501
+        return f"{self.quantity}x {self.product_title} @ {round(self.price, 2)}/each"  # noqa: E501
 
     def get_cost(self) -> Decimal:
         """Return the total cost for this order item."""
