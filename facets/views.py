@@ -11,6 +11,7 @@ class TopicChooserViewSet(ChooserViewSet):
     # TODO: determine how to enable editing/creation of topics
     # which is made difficult since they are pages,
     # so need to be placed into the Wagtail page tree
+    # https://stackoverflow.com/questions/78513604/automatically-specify-parent-page-when-creating-new-page-instances-via-chooservi
     # edit_item_text = "Edit topic"
     # form_fields = ["title"]
 
