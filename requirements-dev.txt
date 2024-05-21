@@ -4,7 +4,7 @@
 #
 #    pip-compile --extra=dev --output-file=requirements-dev.txt pyproject.toml
 #
-annotated-types==0.6.0
+annotated-types==0.7.0
     # via pydantic
 anyascii==0.3.2
     # via wagtail
@@ -15,9 +15,9 @@ asgiref==3.8.1
     #   django-stubs
 beautifulsoup4==4.12.3
     # via wagtail
-boto3==1.34.105
+boto3==1.34.109
     # via Western-Friend-website (pyproject.toml)
-botocore==1.34.105
+botocore==1.34.109
     # via
     #   boto3
     #   s3transfer
@@ -195,13 +195,13 @@ pytz==2024.1
     #   l18n
 pyyaml==6.0.1
     # via pre-commit
-requests==2.31.0
+requests==2.32.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail
 s3transfer==0.10.1
     # via boto3
-sentry-sdk==2.1.1
+sentry-sdk==2.2.1
     # via Western-Friend-website (pyproject.toml)
 six==1.16.0
     # via
@@ -221,7 +221,7 @@ types-html5lib==1.1.11.20240228
     # via types-beautifulsoup4
 types-pyyaml==6.0.12.20240311
     # via django-stubs
-types-requests==2.31.0.20240406
+types-requests==2.32.0.20240521
     # via Western-Friend-website (pyproject.toml)
 typing-extensions==4.11.0
     # via
@@ -241,11 +241,11 @@ urllib3==2.2.1
     #   requests
     #   sentry-sdk
     #   types-requests
-validate-pyproject==0.17
+validate-pyproject==0.18
     # via Western-Friend-website (pyproject.toml)
 virtualenv==20.26.2
     # via pre-commit
-wagtail==6.1
+wagtail==6.1.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail-color-panel
