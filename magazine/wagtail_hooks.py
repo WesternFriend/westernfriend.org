@@ -8,9 +8,9 @@ from wagtail_modeladmin.options import (
     modeladmin_register,
 )
 from wagtail import hooks
-from .views import archive_issue_viewset
+from .views import archive_issue_viewset, magazine_department_viewset
 
-from .models import MagazineDepartment, MagazineIssue
+from .models import MagazineIssue
 
 
 class MagazineIssueAdminURLHelper(PageAdminURLHelper):
@@ -149,26 +149,11 @@ class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
         )
 
 
-class MagazineDepartmentModelAdmin(ModelAdmin):
-    model = MagazineDepartment
-    menu_icon = "tag"
-    menu_label = "Departments"
-    menu_order = 200
-    add_to_settings_menu = False
-    exclude_from_explorer = False
-    list_per_page = 10
-    list_display = ("title",)
-    search_fields = ("title",)
-
-
 class MagazineGroup(ModelAdminGroup):
     menu_label = "Magazine"
     menu_icon = "tablet-alt"
     menu_order = 100
-    items = (
-        MagazineIssueModelAdmin,
-        MagazineDepartmentModelAdmin,
-    )
+    items = (MagazineIssueModelAdmin,)
 
 
 modeladmin_register(MagazineGroup)
@@ -177,3 +162,8 @@ modeladmin_register(MagazineGroup)
 @hooks.register("register_admin_viewset")
 def register_archive_issue_viewset():
     return archive_issue_viewset
+
+
+@hooks.register("register_admin_viewset")
+def register_magazine_department_viewset():
+    return magazine_department_viewset

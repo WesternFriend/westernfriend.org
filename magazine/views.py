@@ -53,3 +53,25 @@ class ArchiveIssueViewSet(PageListingViewSet):
 
 
 archive_issue_viewset = ArchiveIssueViewSet("archive_issues")
+
+
+class MagazineDepartmentViewSet(PageListingViewSet):
+    model = MagazineDepartment
+    menu_label = "Departments"
+    icon = "tag"
+    add_to_admin_menu = True
+    columns = [
+        PageTitleColumn(
+            "title",
+            label="Title",
+            sort_key="title",
+        ),
+        BulkActionsColumn(
+            "bulk_actions",
+            label="Bulk Actions",
+        ),
+    ]
+    search_fields = ("title",)
+
+
+magazine_department_viewset = MagazineDepartmentViewSet("magazine_departments")
