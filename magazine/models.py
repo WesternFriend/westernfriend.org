@@ -264,11 +264,6 @@ class MagazineDepartmentIndexPage(Page):
 
 
 class MagazineDepartment(Page):
-    content_panels = [FieldPanel("title")]
-
-    # Hide the settings panels
-    settings_panels: list[str] = []
-
     parent_page_types = ["MagazineDepartmentIndexPage"]
     subpage_types: list[str] = []
 
