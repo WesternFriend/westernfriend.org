@@ -1,4 +1,5 @@
 from django.views.generic import DetailView
+from wagtail.admin.viewsets.base import ViewSetGroup
 from wagtail.admin.viewsets.pages import PageListingViewSet
 from wagtail.admin.ui.tables import DateColumn
 from wagtail.admin.ui.tables.pages import (
@@ -9,7 +10,6 @@ from wagtail.admin.ui.tables.pages import (
 from .models import (
     MagazineDepartment,
     ArchiveIssue,
-    # ArchiveArticle,
 )
 
 
@@ -75,3 +75,13 @@ class MagazineDepartmentViewSet(PageListingViewSet):
 
 
 magazine_department_viewset = MagazineDepartmentViewSet("magazine_departments")
+
+
+class MagazineViewSetGroup(ViewSetGroup):
+    menu_label = "Magazine (new)"
+    menu_icon = "tablet-alt"
+    menu_order = 100
+    items = (
+        archive_issue_viewset,
+        magazine_department_viewset,
+    )

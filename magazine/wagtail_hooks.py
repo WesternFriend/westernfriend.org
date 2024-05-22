@@ -8,7 +8,9 @@ from wagtail_modeladmin.options import (
     modeladmin_register,
 )
 from wagtail import hooks
-from .views import archive_issue_viewset, magazine_department_viewset
+from .views import (
+    MagazineViewSetGroup,
+)
 
 from .models import MagazineIssue
 
@@ -160,10 +162,5 @@ modeladmin_register(MagazineGroup)
 
 
 @hooks.register("register_admin_viewset")
-def register_archive_issue_viewset():
-    return archive_issue_viewset
-
-
-@hooks.register("register_admin_viewset")
-def register_magazine_department_viewset():
-    return magazine_department_viewset
+def register_magazine_viewset_group():
+    return MagazineViewSetGroup()
