@@ -264,10 +264,6 @@ class MagazineDepartmentIndexPage(Page):
 
 
 class MagazineDepartment(Page):
-    content_panels = Page.content_panels + [
-        FieldPanel("title"),
-    ]
-
     parent_page_types = ["MagazineDepartmentIndexPage"]
     subpage_types: list[str] = []
 
