@@ -7,8 +7,10 @@ from wagtail_modeladmin.options import (
     ModelAdminGroup,
     modeladmin_register,
 )
+from wagtail import hooks
+from .views import archive_issue_viewset
 
-from .models import ArchiveIssue, MagazineDepartment, MagazineIssue
+from .models import MagazineDepartment, MagazineIssue
 
 
 class MagazineIssueAdminURLHelper(PageAdminURLHelper):
@@ -147,26 +149,6 @@ class MagazineIssueModelAdmin(ThumbnailMixin, ModelAdmin):
         )
 
 
-class ArchiveIssueModelAdmin(ModelAdmin):
-    model = ArchiveIssue
-    menu_icon = "doc-full"
-    menu_label = "Archive Issues"
-    list_per_page = 10
-    ordering = [
-        "publication_date",
-    ]
-    list_display = (
-        "title",
-        "publication_date",
-        "internet_archive_identifier",
-    )
-    empty_value_display = "-"
-    search_fields = (
-        "title",
-        "internet_archive_identifier",
-    )
-
-
 class MagazineDepartmentModelAdmin(ModelAdmin):
     model = MagazineDepartment
     menu_icon = "tag"
@@ -185,9 +167,13 @@ class MagazineGroup(ModelAdminGroup):
     menu_order = 100
     items = (
         MagazineIssueModelAdmin,
-        ArchiveIssueModelAdmin,
         MagazineDepartmentModelAdmin,
     )
 
 
 modeladmin_register(MagazineGroup)
+
+
+@hooks.register("register_admin_viewset")
+def register_archive_issue_viewset():
+    return archive_issue_viewset
