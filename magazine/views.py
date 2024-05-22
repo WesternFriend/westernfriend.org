@@ -1,4 +1,6 @@
 from django.views.generic import DetailView
+import django_filters
+from wagtail.admin.filters import DateRangePickerWidget
 from wagtail.admin.viewsets.base import ViewSetGroup
 from wagtail.admin.viewsets.pages import PageListingViewSet
 from wagtail.admin.ui.tables import DateColumn
@@ -19,6 +21,19 @@ class MagazineDepartmentDetail(DetailView):
     context_object_name = "department"
 
     template_name = "magazine/magazine_department_detail.html"
+
+
+class MagazineIssueFilterSet(PageListingViewSet.filterset_class):
+    publication_date = django_filters.DateFromToRangeFilter(
+        label="Publication Date",
+        widget=DateRangePickerWidget,
+    )
+
+    class Meta:
+        model = MagazineIssue
+        fields = [
+            "publication_date",
+        ]
 
 
 class ArchiveIssueViewSet(PageListingViewSet):
@@ -105,6 +120,7 @@ class MagazineIssueViewSet(PageListingViewSet):
         ),
     ]
     search_fields = ("title",)
+    filterset_class = MagazineIssueFilterSet
 
 
 magazine_issue_viewset = MagazineIssueViewSet("magazine_issues")
