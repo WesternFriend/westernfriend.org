@@ -98,27 +98,6 @@ class MagazineIssueViewSet(PageListingViewSet):
     menu_label = "Issues"
     icon = "doc-full-inverse"
     add_to_admin_menu = True
-    columns = [
-        PageTitleColumn(
-            "title",
-            label="Title",
-            sort_key="title",
-        ),
-        DateColumn(
-            "publication_date",
-            label="Publication Date",
-            sort_key="publication_date",
-        ),
-        PageStatusColumn(
-            "live",
-            label="Live",
-            sort_key="live",
-        ),
-        BulkActionsColumn(
-            "bulk_actions",
-            label="Bulk Actions",
-        ),
-    ]
     search_fields = ("title",)
     filterset_class = MagazineIssueFilterSet
 
