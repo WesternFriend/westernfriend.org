@@ -5,14 +5,22 @@ from wagtail.admin.ui.tables.pages import (
     PageTitleColumn,
     PageStatusColumn,
 )
+import django_filters
+
+from facets.models import Topic
 from .models import NewsItem
 
 
 class NewsItemFilterSet(PageListingViewSet.filterset_class):
+    topics__topic = django_filters.ModelChoiceFilter(
+        label="Topic",
+        queryset=Topic.objects.all(),
+    )
+
     class Meta:
         model = NewsItem
         fields = [
-            "topics",
+            "topics__topic",
         ]
 
 
