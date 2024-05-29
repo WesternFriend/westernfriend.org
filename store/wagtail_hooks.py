@@ -26,16 +26,12 @@ class OrderModelAdmin(ModelAdmin):
     add_to_settings_menu = False
     exclude_from_explorer = False
     list_display = (
+        "created_at",
         "purchaser_email",
         "purchaser_full_name",
         "paid",
         "paypal_payment_id",
         "recipient_name",
-        "recipient_street_address",
-        "recipient_postal_code",
-        "recipient_address_locality",
-        "recipient_address_region",
-        "recipient_address_country",
     )
     search_fields = (
         "purchaser_email",
@@ -45,7 +41,10 @@ class OrderModelAdmin(ModelAdmin):
         "recipient_name",
         "paypal_payment_id",
     )
-    list_filter = ("paid",)
+    list_filter = (
+        "paid",
+        "created_at",
+    )
     inspect_view_enabled = True
     inspect_view_fields = [
         "id",
