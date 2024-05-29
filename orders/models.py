@@ -77,6 +77,7 @@ class Order(ClusterableModel):
         max_length=255,
         blank=True,
         default="",
+        unique=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
