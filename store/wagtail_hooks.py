@@ -30,8 +30,7 @@ class OrderModelAdmin(ModelAdmin):
         "purchaser_email",
         "purchaser_full_name",
         "paid",
-        "paypal_payment_id",
-        "recipient_name",
+        "paypal_transaction_id",
     )
     search_fields = (
         "purchaser_email",
@@ -39,7 +38,7 @@ class OrderModelAdmin(ModelAdmin):
         "purchaser_family_name",
         "purchaser_meeting_or_organization",
         "recipient_name",
-        "paypal_payment_id",
+        "paypal_transaction_id",
     )
     list_filter = (
         "paid",
