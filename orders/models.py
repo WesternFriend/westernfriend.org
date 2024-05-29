@@ -73,6 +73,11 @@ class Order(ClusterableModel):
         blank=True,
         default="",
     )
+    paypal_transaction_id = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+    )
     created_at = models.DateTimeField(auto_now=True)
 
     class Meta:
