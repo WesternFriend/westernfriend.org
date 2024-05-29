@@ -121,12 +121,16 @@ def capture_paypal_order(
     # Get transaction ID from PayPal response
     # paypal_response.purchase_units[0].payments.captures[0].id
     # but make sure to get it safely since there may be null or undefined values
-    transaction_id = (
-        paypal_response.get("purchase_units", [{}])[0]
-        .get("payments", {})
-        .get("captures", [{}])[0]
-        .get("id", "")
-    )
+
+    try:
+        transaction_id = (
+            paypal_response.get("purchase_units", [{}])[0]
+            .get("payments", {})
+            .get("captures", [{}])[0]
+            .get("id", "")
+        )
+    except (IndexError, KeyError, TypeError):
+        transaction_id = ""
 
     # Finally, update the order in our database
     # with the PayPal payment ID and mark it as paid
