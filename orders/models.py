@@ -111,11 +111,7 @@ class Order(ClusterableModel):
         MultiFieldPanel(
             [
                 FieldPanel(
-                    "paypal_order_id",
-                    read_only=True,
-                ),
-                FieldPanel(
-                    "paypal_payment_id",
+                    "paypal_transaction_id",
                     read_only=True,
                 ),
                 FieldPanel("paid"),
