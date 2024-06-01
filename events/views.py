@@ -1,6 +1,7 @@
 import django_filters
 from wagtail.admin.filters import DateRangePickerWidget
 from wagtail.admin.ui.tables import Column
+from wagtail.admin.ui.tables.pages import PageTitleColumn
 from wagtail.admin.viewsets.pages import PageListingViewSet
 
 from .models import Event
@@ -27,7 +28,7 @@ class EventViewSet(PageListingViewSet):
     icon = "date"
     name = "events"
     columns = [
-        Column(
+        PageTitleColumn(
             "title",
             label="Title",
             sort_key="title",
