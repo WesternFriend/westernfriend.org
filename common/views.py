@@ -11,7 +11,7 @@ from wf_pages.views import MollyWingateBlogPageViewSet
 class ContentViewSetGroup(ViewSetGroup):
     menu_label = "Content"
     menu_icon = "snippet"
-    menu_order = 100
+    menu_order = 101
     items = [
         CommunityDirectoryViewSet,
         EventViewSet,

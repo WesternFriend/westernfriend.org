@@ -127,7 +127,7 @@ class MagazineIssueViewSet(PageListingViewSet):
 class MagazineViewSetGroup(ViewSetGroup):
     menu_label = "Magazine"
     menu_icon = "tablet-alt"
-    menu_order = 100
+    menu_order = 102
     items = (
         ArchiveIssueViewSet,
         MagazineDepartmentViewSet,
