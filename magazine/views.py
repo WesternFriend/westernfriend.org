@@ -39,8 +39,9 @@ class MagazineIssueFilterSet(PageListingViewSet.filterset_class):
 class ArchiveIssueViewSet(PageListingViewSet):
     model = ArchiveIssue
     menu_label = "Archive Issues"
+    name = "archive_issues"
     icon = "doc-full"
-    add_to_admin_menu = True
+    add_to_admin_menu = False
     columns = [
         PageTitleColumn(
             "title",
@@ -68,14 +69,12 @@ class ArchiveIssueViewSet(PageListingViewSet):
     )
 
 
-archive_issue_viewset = ArchiveIssueViewSet("archive_issues")
-
-
 class MagazineDepartmentViewSet(PageListingViewSet):
     model = MagazineDepartment
     menu_label = "Departments"
+    name = "magazine_departments"
     icon = "tag"
-    add_to_admin_menu = True
+    add_to_admin_menu = False
     columns = [
         PageTitleColumn(
             "title",
@@ -90,19 +89,14 @@ class MagazineDepartmentViewSet(PageListingViewSet):
     search_fields = ("title",)
 
 
-magazine_department_viewset = MagazineDepartmentViewSet("magazine_departments")
-
-
 class MagazineIssueViewSet(PageListingViewSet):
     model = MagazineIssue
     menu_label = "Issues"
+    name = "magazine_issues"
     icon = "doc-full-inverse"
-    add_to_admin_menu = True
+    add_to_admin_menu = False
     search_fields = ("title",)
     filterset_class = MagazineIssueFilterSet
-
-
-magazine_issue_viewset = MagazineIssueViewSet("magazine_issues")
 
 
 class MagazineViewSetGroup(ViewSetGroup):
@@ -110,7 +104,7 @@ class MagazineViewSetGroup(ViewSetGroup):
     menu_icon = "tablet-alt"
     menu_order = 100
     items = (
-        archive_issue_viewset,
-        magazine_department_viewset,
-        magazine_issue_viewset,
+        ArchiveIssueViewSet,
+        MagazineDepartmentViewSet,
+        MagazineIssueViewSet,
     )

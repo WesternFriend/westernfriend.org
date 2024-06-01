@@ -10,53 +10,10 @@ from wagtail import hooks
 
 from accounts.models import User
 from community.models import CommunityDirectory, OnlineWorship
-from contact.models import Meeting, Organization, Person
 from documents.models import MeetingDocument, PublicBoardDocument
 from events.models import Event
 from memorials.models import Memorial
 from wf_pages.models import MollyWingateBlogPage
-
-
-class PersonModelAdmin(ModelAdmin):
-    model = Person
-    menu_icon = "user"
-    menu_label = "People"
-    list_per_page = 10
-    ordering = ["family_name", "given_name"]
-    list_display = ("family_name", "given_name")
-    empty_value_display = "-"
-    search_fields = ("given_name", "family_name")
-
-    # TODO: determine why the following code does not work
-    # The goal is to load the js file in the admin
-    # only when the Person model is being edited
-    # rather than globally as we do at the end of this file
-    # form_view_extra_js = [
-    #     "js/contact/person_url_slug.js",
-    # ]
-
-
-class MeetingModelAdmin(ModelAdmin):
-    model = Meeting
-    menu_icon = "home"
-    menu_label = "Meetings"
-    list_per_page = 10
-    ordering = ["title"]
-    list_display = ("title", "meeting_type")
-    empty_value_display = "-"
-    search_fields = ("title",)
-    list_filter = ("meeting_type",)
-
-
-class OrganizationModelAdmin(ModelAdmin):
-    model = Organization
-    menu_icon = "group"
-    menu_label = "Organizations"
-    list_per_page = 10
-    ordering = ["title"]
-    list_display = ("title",)
-    empty_value_display = "-"
-    search_fields = ("title",)
 
 
 class MemorialModelAdmin(ModelAdmin):
@@ -227,9 +184,6 @@ class CommunityGroup(ModelAdminGroup):
     menu_order = 200
     items = (
         UserModelAdmin,
-        PersonModelAdmin,
-        MeetingModelAdmin,
-        OrganizationModelAdmin,
         EventModelAdmin,
         MemorialModelAdmin,
         CommunityDirectoryModelAdmin,
