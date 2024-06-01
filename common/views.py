@@ -1,5 +1,14 @@
 from http import HTTPStatus
 from django.shortcuts import render
+from wagtail.admin.viewsets.base import ViewSetGroup
+
+from events.views import EventViewSet
+
+
+class ContentViewSetGroup(ViewSetGroup):
+    menu_label = "Content"
+    menu_icon = "snippet"
+    items = [EventViewSet]
 
 
 def custom_404(request, exception=None):  # noqa: W0613 # skipcq: PYL-W0613
