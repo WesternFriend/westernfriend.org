@@ -40,7 +40,7 @@ class ArchiveIssueViewSet(PageListingViewSet):
     model = ArchiveIssue
     menu_label = "Archive Issues"
     icon = "doc-full"
-    add_to_admin_menu = True
+    add_to_admin_menu = False
     columns = [
         PageTitleColumn(
             "title",
@@ -75,7 +75,7 @@ class MagazineDepartmentViewSet(PageListingViewSet):
     model = MagazineDepartment
     menu_label = "Departments"
     icon = "tag"
-    add_to_admin_menu = True
+    add_to_admin_menu = False
     columns = [
         PageTitleColumn(
             "title",
@@ -97,7 +97,7 @@ class MagazineIssueViewSet(PageListingViewSet):
     model = MagazineIssue
     menu_label = "Issues"
     icon = "doc-full-inverse"
-    add_to_admin_menu = True
+    add_to_admin_menu = False
     search_fields = ("title",)
     filterset_class = MagazineIssueFilterSet
 
