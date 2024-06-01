@@ -84,9 +84,9 @@ class OrderViewSet(ModelViewSet):
 
 class StoreViewSetGroup(ViewSetGroup):
     menu_label = "Bookstore"
-    menu_icon = "list-ul"
+    menu_icon = "openquote"
     name = "store"
-    menu_order = 300
+    menu_order = 200
     items = [
         BookViewSet,
         OrderViewSet,
