@@ -10,7 +10,6 @@ from wagtail import hooks
 
 from community.models import CommunityDirectory, OnlineWorship
 from documents.models import MeetingDocument, PublicBoardDocument
-from events.models import Event
 from wf_pages.models import MollyWingateBlogPage
 
 
@@ -30,32 +29,6 @@ class MollyWingateBlogPageModelAdmin(ModelAdmin):
     search_fields = ("title",)
     list_filter = (
         "publication_date",
-        "live",
-    )
-
-
-class EventModelAdmin(ModelAdmin):
-    model = Event
-    menu_icon = "date"
-    menu_label = "Events"
-    menu_order = 200
-    add_to_settings_menu = False
-    exclude_from_explorer = False
-    list_per_page = 10
-    ordering = [
-        "-start_date",
-    ]
-    list_display = (
-        "title",
-        "start_date",
-        "end_date",
-        "live",
-    )
-    empty_value_display = "-"
-    search_fields = ("title",)
-    list_filter = (
-        "start_date",
-        "category",
         "live",
     )
 
@@ -127,7 +100,6 @@ class CommunityGroup(ModelAdminGroup):
     menu_icon = "snippet"
     menu_order = 200
     items = (
-        EventModelAdmin,
         CommunityDirectoryModelAdmin,
         OnlineWorshipModelAdmin,
         PublicBoardDocumentModelAdmin,
