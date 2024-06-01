@@ -8,6 +8,7 @@ from wagtail.admin.ui.tables.pages import (
     BulkActionsColumn,
     PageTitleColumn,
     PageStatusColumn,
+    NavigateToChildrenColumn,
 )
 from .models import (
     ArchiveIssue,
@@ -97,6 +98,27 @@ class MagazineIssueViewSet(PageListingViewSet):
     add_to_admin_menu = False
     search_fields = ("title",)
     filterset_class = MagazineIssueFilterSet
+    columns = [
+        PageTitleColumn(
+            "title",
+            label="Title",
+            sort_key="title",
+        ),
+        DateColumn(
+            "publication_date",
+            label="Publication Date",
+            sort_key="publication_date",
+        ),
+        PageStatusColumn(
+            "live",
+            label="Live",
+            sort_key="live",
+        ),
+        NavigateToChildrenColumn(
+            "navigate_to_children",
+            label="Navigate to Children",
+        ),
+    ]
 
 
 class MagazineViewSetGroup(ViewSetGroup):
