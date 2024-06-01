@@ -48,6 +48,7 @@ class ArchiveIssueViewSet(PageListingViewSet):
             "title",
             label="Title",
             sort_key="title",
+            classname="title",
         ),
         DateColumn(
             "publication_date",
@@ -81,6 +82,7 @@ class MagazineDepartmentViewSet(PageListingViewSet):
             "title",
             label="Title",
             sort_key="title",
+            classname="title",
         ),
         BulkActionsColumn(
             "bulk_actions",
@@ -103,6 +105,7 @@ class MagazineIssueViewSet(PageListingViewSet):
             "title",
             label="Title",
             sort_key="title",
+            classname="title",
         ),
         DateColumn(
             "publication_date",

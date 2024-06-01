@@ -32,6 +32,7 @@ class EventViewSet(PageListingViewSet):
             "title",
             label="Title",
             sort_key="title",
+            classname="title",
         ),
         Column(
             "start_date",

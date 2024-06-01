@@ -34,6 +34,7 @@ class NewsItemViewSet(PageListingViewSet):
             "title",
             label="Title",
             sort_key="title",
+            classname="title",
         ),
         DateColumn(
             "publication_date",
