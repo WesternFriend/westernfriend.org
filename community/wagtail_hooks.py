@@ -8,7 +8,6 @@ from wagtail_modeladmin.options import (
 )
 from wagtail import hooks
 
-from community.models import OnlineWorship
 from documents.models import MeetingDocument, PublicBoardDocument
 from wf_pages.models import MollyWingateBlogPage
 
@@ -31,19 +30,6 @@ class MollyWingateBlogPageModelAdmin(ModelAdmin):
         "publication_date",
         "live",
     )
-
-
-class OnlineWorshipModelAdmin(ModelAdmin):
-    model = OnlineWorship
-    menu_icon = "globe"
-    menu_label = "Online Worship"
-    list_per_page = 10
-    ordering = [
-        "title",
-    ]
-    list_display = ("title",)
-    empty_value_display = "-"
-    search_fields = ("title",)
 
 
 class PublicBoardDocumentModelAdmin(ModelAdmin):
@@ -87,7 +73,6 @@ class CommunityGroup(ModelAdminGroup):
     menu_icon = "snippet"
     menu_order = 200
     items = (
-        OnlineWorshipModelAdmin,
         PublicBoardDocumentModelAdmin,
         MeetingDocumentModelAdmin,
         MollyWingateBlogPageModelAdmin,

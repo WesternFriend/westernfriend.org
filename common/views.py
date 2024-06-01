@@ -2,7 +2,7 @@ from http import HTTPStatus
 from django.shortcuts import render
 from wagtail.admin.viewsets.base import ViewSetGroup
 
-from community.views import CommunityDirectoryViewSet
+from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from events.views import EventViewSet
 
 
@@ -13,6 +13,7 @@ class ContentViewSetGroup(ViewSetGroup):
     items = [
         CommunityDirectoryViewSet,
         EventViewSet,
+        OnlineWorshipViewSet,
     ]
 
 
