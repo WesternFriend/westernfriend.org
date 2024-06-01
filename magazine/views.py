@@ -10,6 +10,8 @@ from wagtail.admin.ui.tables.pages import (
     PageStatusColumn,
     NavigateToChildrenColumn,
 )
+
+from subscription.views import SubscriptionViewSet
 from .models import (
     ArchiveIssue,
     MagazineDepartment,
@@ -132,4 +134,5 @@ class MagazineViewSetGroup(ViewSetGroup):
         ArchiveIssueViewSet,
         MagazineDepartmentViewSet,
         MagazineIssueViewSet,
+        SubscriptionViewSet,
     )
