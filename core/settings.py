@@ -185,7 +185,6 @@ INSTALLED_APPS = [
     "wagtail.snippets",
     "wagtail.users",
     "wagtail_color_panel",
-    "wagtail_modeladmin",
     "wagtailmedia",
     # keep-sorted end
     # Contrib (apps that are included in Django)
