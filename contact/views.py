@@ -49,6 +49,7 @@ class MeetingViewSet(PageListingViewSet):
     add_to_settings_menu = False
     search_fields = ["title"]
     filterset_class = MeetingFilterSet
+    ordering = ["title"]
 
 
 class OrganizationViewSet(PageListingViewSet):
@@ -58,6 +59,7 @@ class OrganizationViewSet(PageListingViewSet):
     name = "organizations"
     add_to_settings_menu = False
     search_fields = ["title"]
+    ordering = ["title"]
 
 
 class ContactViewSetGroup(ViewSetGroup):
