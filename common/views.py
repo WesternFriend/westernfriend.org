@@ -8,7 +8,10 @@ from events.views import EventViewSet
 class ContentViewSetGroup(ViewSetGroup):
     menu_label = "Content"
     menu_icon = "snippet"
-    items = [EventViewSet]
+    menu_order = 100
+    items = [
+        EventViewSet,
+    ]
 
 
 def custom_404(request, exception=None):  # noqa: W0613 # skipcq: PYL-W0613
