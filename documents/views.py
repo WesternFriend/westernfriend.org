@@ -1,6 +1,7 @@
 import django_filters
 from wagtail.admin.filters import DateRangePickerWidget
-from wagtail.admin.ui.tables import Column, TitleColumn
+from wagtail.admin.ui.tables import Column
+from wagtail.admin.ui.tables.pages import BulkActionsColumn, PageTitleColumn
 from wagtail.admin.viewsets.pages import PageListingViewSet
 
 from .models import PublicBoardDocument, MeetingDocument
@@ -27,10 +28,14 @@ class PublicBoardDocumentViewSet(PageListingViewSet):
     icon = "doc-full"
     name = "public_board_documents"
     columns = [
-        TitleColumn(
+        BulkActionsColumn(
+            "id",
+        ),
+        PageTitleColumn(
             "title",
             label="Title",
             sort_key="title",
+            classname="title",
         ),
         Column(
             "publication_date",
@@ -65,10 +70,14 @@ class MeetingDocumentViewSet(PageListingViewSet):
     icon = "doc-full"
     name = "meeting_documents"
     columns = [
-        Column(
+        BulkActionsColumn(
+            "id",
+        ),
+        PageTitleColumn(
             "title",
             label="Title",
             sort_key="title",
+            classname="title",
         ),
         Column(
             "publication_date",

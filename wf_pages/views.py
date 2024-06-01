@@ -1,7 +1,7 @@
 import django_filters
 from wagtail.admin.filters import DateRangePickerWidget
 from wagtail.admin.ui.tables import Column
-from wagtail.admin.ui.tables.pages import PageTitleColumn
+from wagtail.admin.ui.tables.pages import BulkActionsColumn, PageTitleColumn
 from wagtail.admin.viewsets.pages import PageListingViewSet
 
 
@@ -28,6 +28,9 @@ class MollyWingateBlogPageViewSet(PageListingViewSet):
     icon = "list-ul"
     name = "molly_wingate_blog_pages"
     columns = [
+        BulkActionsColumn(
+            "id",
+        ),
         PageTitleColumn(
             "title",
             label="Title",

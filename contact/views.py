@@ -1,4 +1,3 @@
-from wagtail.admin.ui.tables import Column
 from wagtail.admin.viewsets.base import ViewSetGroup
 from wagtail.admin.viewsets.pages import PageListingViewSet
 from memorials.views import MemorialViewSet
@@ -14,18 +13,6 @@ class PersonViewSet(PageListingViewSet):
     menu_label = "People"
     name = "people"
     icon = "user"
-    columns = [
-        Column(
-            "given_name",
-            label="Given Name",
-            sort_key="given_name",
-        ),
-        Column(
-            "family_name",
-            label="Family Name",
-            sort_key="family_name",
-        ),
-    ]
     search_fields = ["given_name", "family_name"]
     # Tried to add ordering to the columns, but it didn't work.
     # https://stackoverflow.com/questions/78563124/how-to-specify-ordering-for-wagtal-pagelistingviewset
