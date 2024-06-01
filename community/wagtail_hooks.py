@@ -8,7 +8,6 @@ from wagtail_modeladmin.options import (
 )
 from wagtail import hooks
 
-from documents.models import MeetingDocument, PublicBoardDocument
 from wf_pages.models import MollyWingateBlogPage
 
 
@@ -32,51 +31,11 @@ class MollyWingateBlogPageModelAdmin(ModelAdmin):
     )
 
 
-class PublicBoardDocumentModelAdmin(ModelAdmin):
-    model = PublicBoardDocument
-    menu_icon = "doc-full"
-    menu_label = "Public Board Documents"
-    list_per_page = 10
-    ordering = [
-        "title",
-    ]
-    list_display = ("title",)
-    empty_value_display = "-"
-    search_fields = ("title",)
-
-
-class MeetingDocumentModelAdmin(ModelAdmin):
-    model = MeetingDocument
-    menu_icon = "doc-full"
-    menu_label = "Meeting Documents"
-    list_per_page = 10
-    ordering = [
-        "title",
-    ]
-    list_display = (
-        "title",
-        "publication_date",
-        "publishing_meeting",
-        "document_type",
-    )
-    empty_value_display = "-"
-    search_fields = ("title",)
-    list_filter = (
-        "publication_date",
-        "document_type",
-        "live",
-    )
-
-
 class CommunityGroup(ModelAdminGroup):
     menu_label = "Community"
     menu_icon = "snippet"
     menu_order = 200
-    items = (
-        PublicBoardDocumentModelAdmin,
-        MeetingDocumentModelAdmin,
-        MollyWingateBlogPageModelAdmin,
-    )
+    items = (MollyWingateBlogPageModelAdmin,)
 
 
 modeladmin_register(CommunityGroup)

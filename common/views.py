@@ -3,6 +3,7 @@ from django.shortcuts import render
 from wagtail.admin.viewsets.base import ViewSetGroup
 
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
+from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
 from events.views import EventViewSet
 
 
@@ -14,6 +15,8 @@ class ContentViewSetGroup(ViewSetGroup):
         CommunityDirectoryViewSet,
         EventViewSet,
         OnlineWorshipViewSet,
+        MeetingDocumentViewSet,
+        PublicBoardDocumentViewSet,
     ]
 
 
