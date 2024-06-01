@@ -14,7 +14,6 @@ class PersonViewSet(PageListingViewSet):
     menu_label = "People"
     name = "people"
     icon = "user"
-    add_to_settings_menu = False
     columns = [
         Column(
             "given_name",
@@ -46,7 +45,6 @@ class MeetingViewSet(PageListingViewSet):
     menu_label = "Meetings"
     icon = "home"
     name = "meetings"
-    add_to_settings_menu = False
     search_fields = ["title"]
     filterset_class = MeetingFilterSet
     ordering = ["title"]
@@ -57,7 +55,6 @@ class OrganizationViewSet(PageListingViewSet):
     menu_label = "Organizations"
     icon = "group"
     name = "organizations"
-    add_to_settings_menu = False
     search_fields = ["title"]
     ordering = ["title"]
 
