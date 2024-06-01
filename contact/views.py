@@ -1,3 +1,4 @@
+from wagtail.admin.ui.tables import Column
 from wagtail.admin.viewsets.base import ViewSetGroup
 from wagtail.admin.viewsets.pages import PageListingViewSet
 
@@ -11,37 +12,52 @@ from .models import (
 class PersonViewSet(PageListingViewSet):
     model = Person
     menu_label = "People"
-    name = "Person"
+    name = "people"
     icon = "user"
     add_to_settings_menu = False
-    list_display = ["family_name", "given_name"]
+    columns = [
+        Column(
+            "given_name",
+            label="Given Name",
+            sort_key="given_name",
+        ),
+        Column(
+            "family_name",
+            label="Family Name",
+            sort_key="family_name",
+        ),
+    ]
     search_fields = ["given_name", "family_name"]
+    # Tried to add ordering to the columns, but it didn't work.
+    # https://stackoverflow.com/questions/78563124/how-to-specify-ordering-for-wagtal-pagelistingviewset
     ordering = ["family_name", "given_name"]
-    list_per_page = 10
+
+
+class MeetingFilterSet(PageListingViewSet.filterset_class):
+    class Meta:
+        model = Meeting
+        fields = [
+            "meeting_type",
+        ]
 
 
 class MeetingViewSet(PageListingViewSet):
     model = Meeting
     menu_label = "Meetings"
     icon = "home"
-    name = "Meeting"
+    name = "meetings"
     add_to_settings_menu = False
-    list_display = ["title", "meeting_type"]
     search_fields = ["title"]
-    ordering = ["title"]
-    list_per_page = 10
+    filterset_class = MeetingFilterSet
 
 
 class OrganizationViewSet(PageListingViewSet):
     model = Organization
     menu_label = "Organizations"
     icon = "group"
-    name = "Organization"
+    name = "organizations"
     add_to_settings_menu = False
-    list_display = ["title"]
     search_fields = ["title"]
-    ordering = ["title"]
-    list_per_page = 10
 
 
 class ContactViewSetGroup(ViewSetGroup):
