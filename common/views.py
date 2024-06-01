@@ -2,6 +2,7 @@ from http import HTTPStatus
 from django.shortcuts import render
 from wagtail.admin.viewsets.base import ViewSetGroup
 
+from community.views import CommunityDirectoryViewSet
 from events.views import EventViewSet
 
 
@@ -10,6 +11,7 @@ class ContentViewSetGroup(ViewSetGroup):
     menu_icon = "snippet"
     menu_order = 100
     items = [
+        CommunityDirectoryViewSet,
         EventViewSet,
     ]
 
