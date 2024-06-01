@@ -1,5 +1,25 @@
 from http import HTTPStatus
 from django.shortcuts import render
+from wagtail.admin.viewsets.base import ViewSetGroup
+
+from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
+from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
+from events.views import EventViewSet
+from wf_pages.views import MollyWingateBlogPageViewSet
+
+
+class ContentViewSetGroup(ViewSetGroup):
+    menu_label = "Content"
+    menu_icon = "snippet"
+    menu_order = 101
+    items = [
+        CommunityDirectoryViewSet,
+        EventViewSet,
+        OnlineWorshipViewSet,
+        MeetingDocumentViewSet,
+        PublicBoardDocumentViewSet,
+        MollyWingateBlogPageViewSet,
+    ]
 
 
 def custom_404(request, exception=None):  # noqa: W0613 # skipcq: PYL-W0613
