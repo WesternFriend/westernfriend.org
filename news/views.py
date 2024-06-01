@@ -27,8 +27,8 @@ class NewsItemFilterSet(PageListingViewSet.filterset_class):
 class NewsItemViewSet(PageListingViewSet):
     model = NewsItem
     menu_label = "News Items"
+    name = "news_items"
     icon = "list-ul"
-    add_to_admin_menu = True
     columns = [
         PageTitleColumn(
             "title",
@@ -52,6 +52,3 @@ class NewsItemViewSet(PageListingViewSet):
         ),
     ]
     filterset_class = NewsItemFilterSet
-
-
-news_item_viewset = NewsItemViewSet("news_items")

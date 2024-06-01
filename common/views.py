@@ -5,6 +5,7 @@ from wagtail.admin.viewsets.base import ViewSetGroup
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
 from events.views import EventViewSet
+from news.views import NewsItemViewSet
 from wf_pages.views import MollyWingateBlogPageViewSet
 
 
@@ -15,6 +16,7 @@ class ContentViewSetGroup(ViewSetGroup):
     items = [
         CommunityDirectoryViewSet,
         EventViewSet,
+        NewsItemViewSet,
         OnlineWorshipViewSet,
         MeetingDocumentViewSet,
         PublicBoardDocumentViewSet,
