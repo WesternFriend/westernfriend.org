@@ -17,9 +17,9 @@ class SubscriptionViewSet(ModelViewSet):
     inspect_view_fields = [
         "user",
         "paypal_subscription_id",
-        # This requires an HTTP request or cache hit
-        # so adding it to the inspect view
-        # to, hypothetically, avoid unnecessary requests.
+        # The 'is_active' field requires an HTTP request or cache hit
+        # because it fetches the current status from PayPal.
+        # Adding it to the inspect view to avoid unnecessary requests.
         "is_active",
     ]
     search_fields = [
