@@ -1,5 +1,6 @@
 from wagtail import hooks
 from .models import Meeting, Organization, Person
+from .views import ContactViewSetGroup
 
 
 @hooks.register("construct_queryset")
@@ -16,3 +17,8 @@ def prefetch_contact_related(queryset):
         )
 
     return queryset
+
+
+@hooks.register("register_admin_viewset")
+def register_contact_viewset_group():
+    return ContactViewSetGroup()
