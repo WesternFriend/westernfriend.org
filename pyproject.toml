@@ -85,7 +85,6 @@ dependencies = [
     "tzdata",
     "wagtail",
     "wagtail-color-panel",
-    "wagtail-modeladmin",
     "wagtailmedia",
     # keep-sorted end
 

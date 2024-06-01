@@ -53,7 +53,7 @@ COMMANDS = [
         alias="install",
         help_text="Install project dependencies",
         commands_list=[
-            "python -m pip install -r requirements.txt -r requirements-dev.txt",
+            "pip-sync requirements.txt requirements-dev.txt",
         ],
     ),
     Command(

@@ -3,6 +3,7 @@ from itertools import chain
 from django.views.generic import ListView
 from django.db.models import Q
 from taggit.models import Tag
+from wagtail.admin.viewsets.model import ModelViewSet
 
 from library.models import LibraryItem
 from magazine.models import MagazineArticle
@@ -67,3 +68,20 @@ class TaggedPageListView(ListView):
         )
 
         return context
+
+
+class TagViewSet(ModelViewSet):
+    model = Tag
+    menu_label = "Tags"
+    icon = "tag"
+    name = "content_tags"
+    list_display = (
+        "name",
+        "slug",
+    )
+    search_fields = ("name",)
+    ordering = ["name"]
+    form_fields = [
+        "name",
+        "slug",
+    ]

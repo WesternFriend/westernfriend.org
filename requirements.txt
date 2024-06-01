@@ -171,11 +171,8 @@ wagtail==6.1.2
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail-color-panel
-    #   wagtail-modeladmin
     #   wagtailmedia
 wagtail-color-panel==1.5.0
-    # via Western-Friend-website (pyproject.toml)
-wagtail-modeladmin==2.0.0
     # via Western-Friend-website (pyproject.toml)
 wagtailmedia==0.15.1
     # via Western-Friend-website (pyproject.toml)

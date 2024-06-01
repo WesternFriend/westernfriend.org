@@ -6,6 +6,7 @@ from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
 from events.views import EventViewSet
 from news.views import NewsItemViewSet
+from tags.views import TagViewSet
 from wf_pages.views import MollyWingateBlogPageViewSet
 
 
@@ -21,6 +22,7 @@ class ContentViewSetGroup(ViewSetGroup):
         MeetingDocumentViewSet,
         PublicBoardDocumentViewSet,
         MollyWingateBlogPageViewSet,
+        TagViewSet,
     ]
 
 
