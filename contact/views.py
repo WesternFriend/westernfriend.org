@@ -1,7 +1,7 @@
 from wagtail.admin.ui.tables import Column
 from wagtail.admin.viewsets.base import ViewSetGroup
 from wagtail.admin.viewsets.pages import PageListingViewSet
-
+from memorials.views import MemorialViewSet
 from .models import (
     Meeting,
     Organization,
@@ -70,4 +70,5 @@ class ContactViewSetGroup(ViewSetGroup):
         PersonViewSet,
         MeetingViewSet,
         OrganizationViewSet,
+        MemorialViewSet,
     ]

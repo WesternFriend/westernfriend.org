@@ -12,29 +12,7 @@ from accounts.models import User
 from community.models import CommunityDirectory, OnlineWorship
 from documents.models import MeetingDocument, PublicBoardDocument
 from events.models import Event
-from memorials.models import Memorial
 from wf_pages.models import MollyWingateBlogPage
-
-
-class MemorialModelAdmin(ModelAdmin):
-    """Memorial model admin."""
-
-    model = Memorial
-    menu_label = "Memorials"
-    menu_icon = "user"
-    menu_order = 295
-    add_to_settings_menu = False
-    exclude_from_explorer = False
-    list_display = (
-        "full_name",
-        "memorial_meeting",
-    )
-    list_filter = ("memorial_meeting",)
-    search_fields = (
-        "memorial_person__family_name",
-        "memorial_person__given_name",
-        "memorial_meeting__title",
-    )
 
 
 class MollyWingateBlogPageModelAdmin(ModelAdmin):
@@ -185,7 +163,6 @@ class CommunityGroup(ModelAdminGroup):
     items = (
         UserModelAdmin,
         EventModelAdmin,
-        MemorialModelAdmin,
         CommunityDirectoryModelAdmin,
         OnlineWorshipModelAdmin,
         PublicBoardDocumentModelAdmin,
