@@ -1,7 +1,24 @@
+import django_filters
+from wagtail.admin.filters import DateRangePickerWidget
 from wagtail.admin.ui.tables import Column
 from wagtail.admin.viewsets.pages import PageListingViewSet
 
 from .models import Event
+
+
+class EventFilterSet(PageListingViewSet.filterset_class):
+    start_date = django_filters.DateFromToRangeFilter(
+        label="Start Date",
+        widget=DateRangePickerWidget,
+    )
+
+    class Meta:
+        model = Event
+        fields = [
+            "start_date",
+            "category",
+            "live",
+        ]
 
 
 class EventViewSet(PageListingViewSet):
@@ -28,3 +45,4 @@ class EventViewSet(PageListingViewSet):
     ]
     search_fields = ["title"]
     ordering = ["-start_date"]
+    filterset_class = EventFilterSet
