@@ -103,8 +103,13 @@ p {
 }
 
 .btn-outline-primary {
-  border-color: #06669a;
-  color: #06669a;
+  border-color: #06669a !important;
+  color: #06669a !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: #06669a !important;
+  color: #ffffff !important;
 }
 
 .btn-primary:hover {
