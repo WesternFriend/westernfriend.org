@@ -24,7 +24,9 @@ class CustomRegistrationView(RegistrationView):
         return context
 
     def form_valid(self, form):
-        check_email_message = "Thanks for starting to register an account on our website. To complete your registration, please check your email for an message from us. You should have just received one. Please look in your spam / junk folder if our message is not in your inbox"
+        check_email_message = """Thanks for starting to register an account on our website.
+        To complete your registration, please check your email for an message from us.
+        You should have just received one. Please look in your spam / junk folder if our message is not in your inbox"""
         # notice we use `self.request` here since the request is a member of the CustomRegistrationView instance
         messages.info(self.request, check_email_message)
 
