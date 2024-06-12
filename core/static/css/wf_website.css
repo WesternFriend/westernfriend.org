@@ -110,6 +110,9 @@ p {
 .btn-outline-primary:hover {
   background-color: #06669a !important;
   color: #fff !important;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
 .btn-primary:hover {
@@ -121,11 +124,6 @@ p {
   background-color: #06669a !important;
   color: #fff !important;
   border-color: #06669a !important;
-}
-
-.btn-primary:hover {
-  background-color: #1283bf !important;
-  border-color: #1283bf !important;
 }
 
 .card-title {
