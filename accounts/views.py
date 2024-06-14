@@ -1,6 +1,7 @@
 from typing import Any
 from django.conf import settings
 from django.utils.decorators import method_decorator
+from django.contrib import messages
 
 from django_registration.backends.activation.views import RegistrationView  # type: ignore
 from honeypot.decorators import check_honeypot  # type: ignore
@@ -21,3 +22,12 @@ class CustomRegistrationView(RegistrationView):
         context["honeypot_field_name"] = settings.HONEYPOT_FIELD_NAME
 
         return context
+
+    def form_valid(self, form):
+        check_email_message = """Thanks for starting to register an account on our website.
+        To complete your registration, please check your email for an message from us.
+        You should have just received one. Please look in your spam / junk folder if our message is not in your inbox"""
+        # notice we use `self.request` here since the request is a member of the CustomRegistrationView instance
+        messages.info(self.request, check_email_message)
+
+        return super().form_valid(form)

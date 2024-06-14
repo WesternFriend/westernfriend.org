@@ -110,6 +110,11 @@ p {
 .btn-outline-primary:hover {
   background-color: #06669a !important;
   color: #fff !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: #06669a !important;
+  color: #fff !important;
   transition:
     background-color 0.3s,
     color 0.3s;
