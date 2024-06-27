@@ -9,7 +9,7 @@
         </h2>
 
         {% if entity.specific.description %}
-            <p class="card-text">{{ entity.specific.description | truncatewords_html:10 }}</p>
+            {{ entity.specific.description | truncatewords_html:10 | richtext }}
         {% endif %}
 
         {% if entity.specific.times_of_worship %}
