@@ -1,9 +1,11 @@
 {% load wagtailcore_tags %}
 <div class="card my-2">
     <div class="card-body">
-        <a href="{% pageurl entity %}" class="card-title lead">
-            {{ entity.title }}
-        </a>
+        <h2 class="card-title h5">
+            <a href="{% pageurl entity %}">
+                {{ entity.title }}
+            </a>
+        </h2>
 
         {% if entity.specific.authors.count %}
             <ul class="list-inline mb-1">

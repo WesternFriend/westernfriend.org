@@ -11,7 +11,7 @@ def search(request: HttpRequest) -> HttpResponse:
     number_per_page = 10
 
     # Search
-    # Using the `or` operator to search for pages that contain any of the words
+    # Using the 'or' operator to search for pages that contain any of the words
     if search_query:
         search_results = Page.objects.live().search(
             search_query,

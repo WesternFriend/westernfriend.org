@@ -2,19 +2,14 @@
 
 <div class="card my-1">
     <div class="card-body">
-        <h3 class="panel-title">
+        <h2 class="card-title h5">
             <a href="{% pageurl entity %}">
                 {{ entity.title }}
             </a>
-        </h3>
+        </h2>
 
         {% if entity.specific.description %}
             {{ entity.specific.description | truncatewords_html:10 | richtext }}
-        {% endif %}
-
-        {% if entity.specific.times_of_worship %}
-            <strong>Times of worship:</strong>
-            {{ entity.specific.times_of_worship | richtext }}
         {% endif %}
     </div>
 </div>
