@@ -12,6 +12,7 @@ class SubscriptionViewSet(ModelViewSet):
         "user",
         "paypal_subscription_id",
         "expiration_date",
+        "is_active",
     )
     inspect_view_enabled = True
     inspect_view_fields = [
