@@ -28,3 +28,10 @@ class SubscriptionViewSet(ModelViewSet):
         "paypal_subscription_id",
     ]
     ordering = ["user__email"]
+    export_filename = "western_friend_subscriptions"
+    list_export = [
+        "user",
+        "paypal_subscription_id",
+        "expiration_date",
+        "is_active",
+    ]
