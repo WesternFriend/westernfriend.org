@@ -5,6 +5,8 @@
 [![Test Coverage](https://codecov.io/gh/WesternFriend/WF-website/branch/main/graph/badge.svg?token=2GCLOZ9PIE)](https://codecov.io/gh/WesternFriend/WF-website)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/428cb97949bb46c7b8a80e0a1a7da29f)](https://app.codacy.com/gh/WesternFriend/WF-website/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/WesternFriend/westernfriend.org?quickstart=1)
+
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue-ghost.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/WesternFriend/WF-website/tree/main)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
