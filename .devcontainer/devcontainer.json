@@ -13,11 +13,11 @@
   "portsAttributes": {
     "8000": {
       "label": "Application",
-      "onAutoForward": "openPreview"
+      "onAutoForward": "openBrowser"
     }
   },
   "forwardPorts": [8000],
-  "updateContentCommand": "pip install -r requirements.txt && python manage.py migrate && pre-commit install",
+  "updateContentCommand": "pip install -r requirements.txt && python manage.py migrate && pre-commit install && python manage.py scaffold_initial_content",
   "postCreateCommand": "cp .env.example .env",
   "postAttachCommand": {
     "server": "python manage.py runserver"
