@@ -9,6 +9,17 @@
       "extensions": ["ms-python.python", "ms-python.vscode-pylance"]
     }
   },
-  "forwardPorts": [8000, 5432],
-  "postCreateCommand": "pip install --user -r requirements.txt && pre-commit install"
+  "waitFor": "onCreateCommand",
+  "portsAttributes": {
+    "8000": {
+      "label": "Application",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "forwardPorts": [8000],
+  "updateContentCommand": "pip install -r requirements.txt && python manage.py migrate && pre-commit install",
+  "postCreateCommand": "cp .env.example .env",
+  "postAttachCommand": {
+    "server": "python manage.py runserver"
+  }
 }
