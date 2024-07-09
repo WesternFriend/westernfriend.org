@@ -1,0 +1,9 @@
+{
+  "name": "Python 3 & PostgreSQL",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "features": {},
+  "forwardPorts": [8000, 5432],
+  "postCreateCommand": "pip install --user -r requirements.txt && pre-commit install"
+}
