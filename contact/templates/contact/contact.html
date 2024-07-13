@@ -51,11 +51,15 @@
             {% if page.online_worship.count %}
                 <strong>Online worship:</strong>
 
-                {% with page.online_worship.all|first as online_worship %}
-                    <a href="{% pageurl online_worship %}">
-                        {{ online_worship.title }}
-                    </a>
-                {% endwith %}
+                <ul>
+                    {% for online_worship in page.online_worship.all %}
+                        <li>
+                            <a href="{% pageurl online_worship %}">
+                                {{ online_worship.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
             {% endif %}
 
             {% if page.presiding_clerks.count %}
