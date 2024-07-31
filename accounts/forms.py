@@ -1,5 +1,4 @@
 from django import forms
-from django_recaptcha.fields import ReCaptchaField
 from django_registration.forms import RegistrationForm
 from accounts.models import User
 
@@ -9,8 +8,6 @@ class CustomUserForm(RegistrationForm):
 
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
-
-    captcha = ReCaptchaField()
 
     class Meta(RegistrationForm.Meta):
         model = User
