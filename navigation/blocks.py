@@ -36,12 +36,21 @@ class NavigationExternalLinkBlock(wagtail_blocks.StructBlock):
 class NavigationPageChooserStructValue(StructValue):
     def href(self):
         """Construct a URL with anchor if exists, otherwise use URL."""
-        url = self.get("page").url
+        page = self.get("page")
+        if page is None:
+            url = "#"  # or some other default URL
+        else:
+            url = page.url
         anchor = self.get("anchor")
 
-        href = f"{url}#{anchor}" if anchor else url
-
-        return href
+        if url and anchor:
+            return f"{url}#{anchor}"
+        elif url:
+            return url
+        elif anchor:
+            return f"#{anchor}"
+        else:
+            return "#"
 
 
 class NavigationPageChooserBlock(wagtail_blocks.StructBlock):
