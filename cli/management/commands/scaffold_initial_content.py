@@ -18,7 +18,6 @@ from facets.models import (
     TimePeriodIndexPage,
     TopicIndexPage,
 )
-from forms.models import ContactFormPage
 from home.models import HomePage
 from library.models import LibraryIndexPage
 from magazine.models import (
@@ -102,10 +101,6 @@ class Command(BaseCommand):
             title="Community",
             show_in_menus=True,
         )
-        contact_form_page = ContactFormPage(
-            title="Contact",
-            show_in_menus=True,
-        )
         events_page = EventsIndexPage(
             title="Events",
             show_in_menus=True,
@@ -152,7 +147,6 @@ class Command(BaseCommand):
         )
 
         home_page.add_child(instance=community_page)
-        home_page.add_child(instance=contact_form_page)
         home_page.add_child(instance=events_page)
         home_page.add_child(instance=library_index_page)
         home_page.add_child(instance=magazine_index_page)
@@ -364,13 +358,6 @@ class Command(BaseCommand):
                         {
                             "title": "Directories",
                             "page": community_directory_index_page,
-                        },
-                    ),
-                    (
-                        "page",
-                        {
-                            "title": "Contact Us",
-                            "page": contact_form_page,
                         },
                     ),
                 ],

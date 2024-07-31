@@ -72,7 +72,6 @@ dependencies = [
     "django-extensions",
     "django-flatpickr",
     "django-honeypot",
-    "django-recaptcha",
     "django-registration",
     "django-storages",
     "django-timezone-field",
