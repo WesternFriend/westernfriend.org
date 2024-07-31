@@ -142,7 +142,6 @@ INSTALLED_APPS = [
     "documents",
     "events",
     "facets",
-    "forms",
     "home",
     "library",
     "magazine",
