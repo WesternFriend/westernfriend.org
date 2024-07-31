@@ -164,7 +164,6 @@ INSTALLED_APPS = [
     "crispy_forms",
     "django_extensions",
     "django_flatpickr",
-    "django_recaptcha",
     "honeypot",
     "modelcluster",
     "storages",
@@ -388,11 +387,6 @@ WAGTAILADMIN_BASE_URL = "/admin"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
-
-# Recaptcha settings
-RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY", "")
-RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY", "")
-NOCAPTCHA = True
 
 # Honeypot settings
 HONEYPOT_FIELD_NAME = "email2"
