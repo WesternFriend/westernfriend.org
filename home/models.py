@@ -22,7 +22,6 @@ class HomePage(Page):
         "documents.MeetingDocumentIndexPage",
         "events.EventsIndexPage",
         "facets.FacetIndexPage",
-        "forms.ContactFormPage",
         "library.LibraryIndexPage",
         "magazine.MagazineIndexPage",
         "memorials.MemorialIndexPage",
