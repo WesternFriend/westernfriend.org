@@ -47,7 +47,7 @@ distlib==0.3.8
     # via virtualenv
 dj-database-url==2.2.0
     # via Western-Friend-website (pyproject.toml)
-django==5.0.7
+django==5.0.8
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
