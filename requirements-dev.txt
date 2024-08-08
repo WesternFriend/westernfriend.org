@@ -15,9 +15,9 @@ asgiref==3.8.1
     #   django-stubs
 beautifulsoup4==4.12.3
     # via wagtail
-boto3==1.34.153
+boto3==1.34.156
     # via Western-Friend-website (pyproject.toml)
-botocore==1.34.153
+botocore==1.34.156
     # via
     #   boto3
     #   s3transfer
@@ -35,7 +35,7 @@ click==8.1.7
     # via pip-tools
 confusable-homoglyphs==3.3.1
     # via django-registration
-coverage==7.6.0
+coverage==7.6.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   django-coverage-plugin
@@ -47,7 +47,7 @@ distlib==0.3.8
     # via virtualenv
 dj-database-url==2.2.0
     # via Western-Friend-website (pyproject.toml)
-django==5.0.7
+django==5.1
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
@@ -85,7 +85,7 @@ django-filter==24.3
     # via wagtail
 django-flatpickr==2.0.3
     # via Western-Friend-website (pyproject.toml)
-django-honeypot==1.2.0
+django-honeypot==1.2.1
     # via Western-Friend-website (pyproject.toml)
 django-modelcluster==6.3
     # via wagtail
@@ -116,7 +116,7 @@ factory-boy==3.3.0
     #   Western-Friend-website (pyproject.toml)
     #   types-factory-boy
     #   wagtail-factories
-faker==26.1.0
+faker==26.2.0
     # via factory-boy
 fastjsonschema==2.20.0
     # via validate-pyproject
@@ -190,7 +190,7 @@ pytz==2024.1
     # via
     #   django-modelcluster
     #   l18n
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via pre-commit
 requests==2.32.3
     # via
@@ -214,9 +214,9 @@ types-beautifulsoup4==4.12.0.20240511
     # via Western-Friend-website (pyproject.toml)
 types-factory-boy==0.4.1
     # via Western-Friend-website (pyproject.toml)
-types-html5lib==1.1.11.20240228
+types-html5lib==1.1.11.20240806
     # via types-beautifulsoup4
-types-pyyaml==6.0.12.20240724
+types-pyyaml==6.0.12.20240808
     # via django-stubs
 types-requests==2.32.0.20240712
     # via Western-Friend-website (pyproject.toml)
@@ -254,7 +254,7 @@ wagtail-factories==4.2.1
     # via Western-Friend-website (pyproject.toml)
 wagtailmedia==0.15.2
     # via Western-Friend-website (pyproject.toml)
-wheel==0.43.0
+wheel==0.44.0
     # via pip-tools
 willow[heif]==1.8.0
     # via
