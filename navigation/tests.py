@@ -1,5 +1,7 @@
 from django.test import TestCase
-from wagtail_factories import PageFactory
+from wagtail.models import Site
+
+from home.models import HomePage
 
 from .blocks import (
     NavigationPageChooserBlock,
@@ -52,8 +54,13 @@ class TestNavigationExternalLinkStructValue(TestCase):
 
 class TestNavigationPageChooserStructValue(TestCase):
     def setUp(self) -> None:
-        # Create a test page
-        self.test_page = PageFactory.create()
+        self.site = Site.objects.get(is_default_site=True)
+
+        self.home_page = HomePage(
+            title="Home",
+        )
+
+        self.site.root_page.add_child(instance=self.home_page)
 
     def test_href_with_anchor(self) -> None:
         # Instantiate the block
@@ -63,14 +70,14 @@ class TestNavigationPageChooserStructValue(TestCase):
         block_value = block.to_python(
             {
                 "title": "My page",
-                "page": self.test_page.id,
+                "page": self.home_page.id,
                 "anchor": "myanchor",
             },
         )
 
         self.assertEqual(
             block_value.href(),
-            f"{self.test_page.url}#myanchor",
+            f"{self.home_page.url}#myanchor",
         )
 
     def test_href_without_anchor(self) -> None:
@@ -81,7 +88,7 @@ class TestNavigationPageChooserStructValue(TestCase):
         block_value = block.to_python(
             {
                 "title": "My page",
-                "page": self.test_page.id,
+                "page": self.home_page.id,
                 "anchor": None,
             },
         )
@@ -89,5 +96,5 @@ class TestNavigationPageChooserStructValue(TestCase):
         # Now you can call methods on the StructValue instance
         self.assertEqual(
             block_value.href(),
-            self.test_page.url,
+            self.home_page.url,
         )
