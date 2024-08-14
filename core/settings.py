@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     # First party (apps from this project)
     # keep-sorted start
     "accounts",
+    "accounts.apps.CustomUsersAppConfig",
     "addresses",
     "blocks",
     "cart",
@@ -181,7 +182,6 @@ INSTALLED_APPS = [
     "wagtail.search",
     "wagtail.sites",
     "wagtail.snippets",
-    "wagtail.users",
     "wagtail_color_panel",
     "wagtailmedia",
     # keep-sorted end
