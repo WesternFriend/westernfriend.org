@@ -135,6 +135,10 @@ class PublicBoardDocument(DrupalFields, Page):
             "board_photos",
             "Board Photos",
         )
+        BOARD_MEMBERSHIP_ABOUT = (
+            "board_membership_about",
+            "Board Membership - About",
+        )
 
     publication_date = models.DateField()
     drupal_node_id = models.PositiveIntegerField(
