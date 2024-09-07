@@ -110,7 +110,10 @@ class Event(DrupalFields, Page):  # type: ignore
         db_table = "events"
         ordering = ["start_date"]
         indexes = [
+            # default ordering is by start date
             models.Index(fields=["start_date"]),
+            # Some queries also check the end date
+            models.Index(fields=["end_date"]),
         ]
 
 
