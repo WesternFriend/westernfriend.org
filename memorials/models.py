@@ -6,8 +6,8 @@ from wagtail.fields import RichTextField
 from wagtail.models import Page
 from wagtail.search import index
 
-from contact.models import Meeting
 from common.models import DrupalFields
+from contact.models import Meeting
 from pagination.helpers import get_paginated_items
 
 
