@@ -90,6 +90,17 @@ class Event(DrupalFields, Page):  # type: ignore
         index.SearchField(
             "body",
         ),
+        index.RelatedFields(
+            "sponsors",
+            [
+                index.RelatedFields(
+                    "sponsor",
+                    [
+                        index.SearchField("title"),
+                    ],
+                ),
+            ],
+        ),
     ]
 
     parent_page_types = ["events.EventsIndexPage"]

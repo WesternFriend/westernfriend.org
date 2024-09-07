@@ -108,6 +108,12 @@ class OnlineWorship(DrupalFields, Page):
         index.SearchField(
             "description",
         ),
+        index.RelatedFields(
+            "hosted_by",
+            [
+                index.SearchField("title"),
+            ],
+        ),
     ]
 
 

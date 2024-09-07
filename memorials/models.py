@@ -4,6 +4,7 @@ from django_flatpickr.widgets import DatePickerInput
 from wagtail.admin.panels import FieldPanel, PageChooserPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
+from wagtail.search import index
 
 from contact.models import Meeting
 from common.models import DrupalFields
@@ -29,6 +30,18 @@ class Memorial(DrupalFields, Page):  # type: ignore
     )
     drupal_memorial_id = models.PositiveIntegerField(null=True, blank=True)
 
+    search_fields = Page.search_fields + [
+        index.SearchField("memorial_minute"),
+        index.RelatedFields(
+            "memorial_person",
+            [
+                index.SearchField("title"),
+                index.SearchField("given_name"),
+                index.SearchField("family_name"),
+            ],
+        ),
+    ]
+
     class Meta:
         ordering = (
             "memorial_person__family_name",
@@ -50,10 +63,6 @@ class Memorial(DrupalFields, Page):  # type: ignore
     parent_page_types = [
         "memorials.MemorialIndexPage",
     ]
-
-    # TODO: determine whether we need a search index on any of the fields
-    # or remove this search fields code
-    # search_fields = []
 
 
 class MemorialIndexPage(Page):
