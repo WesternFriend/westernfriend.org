@@ -362,8 +362,22 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         verbose_name_plural = "Magazine Articles"
 
     search_fields = Page.search_fields + [
+        index.SearchField("teaser"),
         index.SearchField(
             "body",
+        ),
+        index.RelatedFields(
+            "authors",
+            [
+                index.RelatedFields(
+                    "author",
+                    [
+                        index.SearchField("title"),
+                        index.SearchField("given_name"),
+                        index.SearchField("family_name"),
+                    ],
+                ),
+            ],
         ),
     ]
 
