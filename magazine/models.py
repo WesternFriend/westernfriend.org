@@ -358,8 +358,8 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         return super().get_queryset().prefetch_related(*related_fields)
 
     class Meta:
-        verbose_name = "Page"
-        verbose_name_plural = "Pages"
+        verbose_name = "Magazine Article"
+        verbose_name_plural = "Magazine Articles"
 
     search_fields = Page.search_fields + [
         index.SearchField(
@@ -464,8 +464,8 @@ class MagazineArticleAuthor(Orderable):
     ]
 
     class Meta:
-        verbose_name = "Page"
-        verbose_name_plural = "Pages"
+        verbose_name = "Magazine Article Author"
+        verbose_name_plural = "Magazine Article Authors"
 
 
 class ArchiveArticleAuthor(Orderable):
