@@ -6,14 +6,35 @@
   "features": {},
   "customizations": {
     "vscode": {
-      "extensions": ["ms-python.python", "ms-python.vscode-pylance"]
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "charliermarsh.ruff"
+      ],
+      "settings": {
+        "python.linting.enabled": true,
+        "python.linting.lintOnSave": true,
+        "python.formatting.provider": "none",
+        "editor.formatOnSave": true,
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+          }
+        },
+        "ruff.lint.run": "onSave",
+        "ruff.format.args": ["--line-length", "100"],
+        "ruff.organizeImports": true
+      }
     }
   },
   "waitFor": "onCreateCommand",
   "portsAttributes": {
     "8000": {
-      "label": "Application",
-      "onAutoForward": "openBrowser"
+      "label": "Application"
     }
   },
   "forwardPorts": [8000],

@@ -139,6 +139,14 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
     issue_number = models.PositiveIntegerField(null=True, blank=True)
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
+    @classmethod
+    def get_queryset(cls):
+        """TODO: Prefetch related articles for performance."""
+        # TODO: Determine if it is possible or necessary to prefech the Articles for performance
+        # the main difficulty being the implicit relationship between the Issue and the Articles
+        # since the Articles are children of the Issue
+        return super().get_queryset()
+
     @property
     def featured_articles(self) -> QuerySet["MagazineArticle"]:
         # Return a cursor of related articles that are featured
@@ -182,6 +190,10 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         return self.publication_date < ARCHIVE_THRESHOLD_DATE
 
     search_template = "search/magazine_issue.html"
+    search_fields = Page.search_fields + [
+        index.SearchField("issue_number"),
+        index.SearchField("publication_date"),
+    ]
 
     content_panels = Page.content_panels + [
         FieldPanel("publication_date", widget=DatePickerInput()),
@@ -358,12 +370,26 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         return super().get_queryset().prefetch_related(*related_fields)
 
     class Meta:
-        verbose_name = "Page"
-        verbose_name_plural = "Pages"
+        verbose_name = "Magazine Article"
+        verbose_name_plural = "Magazine Articles"
 
     search_fields = Page.search_fields + [
+        index.SearchField("teaser"),
         index.SearchField(
             "body",
+        ),
+        index.RelatedFields(
+            "authors",
+            [
+                index.RelatedFields(
+                    "author",
+                    [
+                        index.SearchField("title"),
+                        index.SearchField("given_name"),
+                        index.SearchField("family_name"),
+                    ],
+                ),
+            ],
         ),
     ]
 
@@ -464,8 +490,8 @@ class MagazineArticleAuthor(Orderable):
     ]
 
     class Meta:
-        verbose_name = "Page"
-        verbose_name_plural = "Pages"
+        verbose_name = "Magazine Article Author"
+        verbose_name_plural = "Magazine Article Authors"
 
 
 class ArchiveArticleAuthor(Orderable):
@@ -530,6 +556,22 @@ class ArchiveArticle(ClusterableModel):
             "archive_authors",
             heading="Authors",
             help_text="Select one or more authors who contributed to this article",
+        ),
+    ]
+
+    search_fields = Page.search_fields + [
+        index.RelatedFields(
+            "archive_authors",
+            [
+                index.RelatedFields(
+                    "author",
+                    [
+                        index.SearchField("title"),
+                        index.SearchField("given_name"),
+                        index.SearchField("family_name"),
+                    ],
+                ),
+            ],
         ),
     ]
 

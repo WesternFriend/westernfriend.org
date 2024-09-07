@@ -1,7 +1,7 @@
-from django.utils import timezone
 from django.db import models
 from django.db.models import Q
 from django.http import Http404, HttpRequest
+from django.utils import timezone
 from modelcluster.fields import ParentalKey  # type: ignore
 from timezone_field import TimeZoneField  # type: ignore
 from wagtail.admin.panels import FieldPanel, InlinePanel, PageChooserPanel
@@ -90,6 +90,17 @@ class Event(DrupalFields, Page):  # type: ignore
         index.SearchField(
             "body",
         ),
+        index.RelatedFields(
+            "sponsors",
+            [
+                index.RelatedFields(
+                    "sponsor",
+                    [
+                        index.SearchField("title"),
+                    ],
+                ),
+            ],
+        ),
     ]
 
     parent_page_types = ["events.EventsIndexPage"]
@@ -98,6 +109,12 @@ class Event(DrupalFields, Page):  # type: ignore
     class Meta:
         db_table = "events"
         ordering = ["start_date"]
+        indexes = [
+            # default ordering is by start date
+            models.Index(fields=["start_date"]),
+            # Some queries also check the end date
+            models.Index(fields=["end_date"]),
+        ]
 
 
 class EventsIndexPage(Page):
