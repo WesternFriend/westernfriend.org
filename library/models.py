@@ -73,6 +73,8 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
     @classmethod
     def get_queryset(cls):
         related_fields = [
+            "authors__author",
+            "topics__topic",
             "item_audience",
             "item_genre",
             "item_medium",
@@ -125,6 +127,20 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
 
     search_fields = Page.search_fields + [
         index.SearchField("body"),
+        index.RelatedFields(
+            "authors",
+            [
+                index.RelatedFields(
+                    "author",
+                    [
+                        # This will cover the name for all Contact types
+                        index.SearchField("title"),
+                        index.SearchField("given_name"),  # For Person contacts
+                        index.SearchField("family_name"),  # For Person contacts
+                    ],
+                ),
+            ],
+        ),
         index.RelatedFields(
             "item_genre",
             [
