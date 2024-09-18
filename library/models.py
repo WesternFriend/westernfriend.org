@@ -125,6 +125,8 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
         ),
     ]
 
+    search_template = "search/library_item.html"
+
     search_fields = Page.search_fields + [
         index.SearchField("body"),
         index.RelatedFields(
