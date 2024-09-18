@@ -15,10 +15,10 @@ import os
 import sys
 
 import dj_database_url
+import sentry_sdk
 from django.contrib.messages import constants as messages_constants
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
-import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv()
@@ -201,13 +201,14 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.middleware.gzip.GZipMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
 
