@@ -11,13 +11,9 @@
 
             {% block title_suffix %}
                 {% wagtail_site as current_site %}
-                {% if current_site and current_site.site_name %}
-                    - {{ current_site.site_name }}
-                {% endif %}
+                {% if current_site and current_site.site_name %} - {{ current_site.site_name }}{% endif %}
             {% endblock %}
         </title>
-
-        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 
         {% if page.search_description %}
             <meta name="description" content="{{ page.search_description }}" />
@@ -38,15 +34,23 @@
             /* Insert critical CSS here */
         </style>
 
-        {# Defer non-critical CSS #}
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" media="print" onload="this.media='all'">
+        {# Load Bootstrap CSS #}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+        {# Load other CSS files #}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/wf_website.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/ckeditor.css' %}">
+
+        {# Font loading strategy #}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" media="print" onload="this.media='all'">
-        <link rel="stylesheet" href="{% static 'css/wf_website.css' %}" media="print" onload="this.media='all'">
-        <link rel="stylesheet" href="{% static 'css/ckeditor.css' %}" media="print" onload="this.media='all'">
 
         {% block extra_css %}
             {# Override this in templates to add extra stylesheets #}
         {% endblock %}
+
+        {# Favicon #}
+        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
     </head>
 
     <body class="{% block body_class %}{% endblock %} d-flex flex-column h-100">
