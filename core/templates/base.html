@@ -16,6 +16,9 @@
                 {% endif %}
             {% endblock %}
         </title>
+
+        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+
         {% if page.search_description %}
             <meta name="description" content="{{ page.search_description }}" />
         {% endif %}
@@ -26,29 +29,27 @@
             <base target="_blank">
         {% endif %}
 
-        {# Global stylesheets #}
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        {# Preload critical resources #}
+        <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" as="style">
+        <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" as="style">
 
+        {# Inline critical CSS #}
+        <style>
+            /* Insert critical CSS here */
+        </style>
 
-        <link href=" https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css " rel="stylesheet">
-
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="{% static 'css/wf_website.css' %}">
-
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="{% static 'css/ckeditor.css' %}">
+        {# Defer non-critical CSS #}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" media="print" onload="this.media='all'">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" media="print" onload="this.media='all'">
+        <link rel="stylesheet" href="{% static 'css/wf_website.css' %}" media="print" onload="this.media='all'">
+        <link rel="stylesheet" href="{% static 'css/ckeditor.css' %}" media="print" onload="this.media='all'">
 
         {% block extra_css %}
             {# Override this in templates to add extra stylesheets #}
         {% endblock %}
     </head>
 
-    <body
-        class="{% block body_class %}{% endblock %} d-flex flex-column h-100">
+    <body class="{% block body_class %}{% endblock %} d-flex flex-column h-100">
         {% wagtailuserbar %}
 
         {% include "heading.html" %}
@@ -68,29 +69,23 @@
 
         {% include "footer.html" %}
 
-        {# Global javascript #}
-        <!-- Sentry SDK -->
+        {# Defer JavaScript loading #}
         <script defer src="https://js.sentry-cdn.com/8bd55884aa744c07a111c2127292baca.min.js" crossorigin="anonymous"></script>
-
-        <!-- Bootstrap and popper (popper is for our navigation menu) -->
         <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-
-
-
 
         {% block extra_js %}
             {# Override this in templates to add extra javascript #}
         {% endblock %}
 
-        <!-- Matomo Tag Manager -->
+        {# Load Matomo asynchronously #}
         <script>
-            var _mtm = window._mtm = window._mtm || [];
-            _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
-            (function() {
+            window.addEventListener('load', function() {
+                var _mtm = window._mtm = window._mtm || [];
+                _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
                 var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-                g.async=true; g.src='https://cdn.matomo.cloud/westernfriend.matomo.cloud/container_oF9AOs3R.js'; s.parentNode.insertBefore(g,s);
-            })();
+                g.async=true; g.src='https://cdn.matomo.cloud/westernfriend.matomo.cloud/container_oF9AOs3R.js';
+                s.parentNode.insertBefore(g,s);
+            });
         </script>
-        <!-- End Matomo Tag Manager -->
     </body>
 </html>
