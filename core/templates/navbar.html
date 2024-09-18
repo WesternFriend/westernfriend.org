@@ -12,7 +12,7 @@
             <ul class="navbar-nav website-links" role="menubar">
                 {{ settings.navigation.NavigationMenuSetting.menu_items }}
             </ul>
-            <ul class="navbar-nav ms-auto" role="menubar">
+            <ul class="navbar-nav ms-auto me-lg-3" role="menubar">
                 <li class="nav-item" role="none">
                     {% if user.is_authenticated %}
                         <form id="logout-form" method="post" action="{% url 'logout' %}?next={{ request.path }}">
@@ -34,7 +34,7 @@
                 {% endif %}
             </ul>
 
-            <form action="{% url 'search' %}" method="get" class="form-inline mb-2" role="search">
+            <form action="{% url 'search' %}" method="get" class="form-inline mb-2 mb-lg-0" role="search">
                 <div class="input-group">
                     <label for="navbar-search-input" class="visually-hidden">Search</label>
                     <input id="navbar-search-input" name="query" type="search" class="form-control" placeholder="Search" aria-label="Search" />
