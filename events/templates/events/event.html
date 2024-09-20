@@ -8,55 +8,36 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
-
-
-<script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    "name": "{{ event.title|escapejs }}",
-    "startDate": "{% if event.start_date %}{{ event.start_date|date:'c' }}{% endif %}",
-    "endDate": "{% if event.end_date %}{{ event.end_date|date:'c' }}{% endif %}",
-    "eventStatus": "https://schema.org/EventScheduled",
-    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-    "description": "{{ event.body|striptags|escapejs }}",
-    "url": "{{ request.build_absolute_uri }}",
-    "eventCategory": "{{ event.get_category_display|escapejs }}",  <!-- Dynamic event category based on choices -->
-    "eventWebsite": "{% if event.website %}{{ event.website }}{% endif %}"
-  }
-</script>
-
-
 <a href="{% pageurl page.get_parent %}?category={{ page.category }}">
-  Events
+    Events
 </a>
 
 <h1>{{ event.title }}</h1>
 
 <p class="font-weight-bold mb-2">
-  {% if event.start_date %}
-  {{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
-  {% endif %}
+    {% if event.start_date %}
+    {{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
+    {% endif %}
 
-  {% if event.end_date %}
-  -
-  {{ event.end_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
-  {% endif %}
+    {% if event.end_date %}
+    -
+    {{ event.end_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
+    {% endif %}
 
-  US/Pacific
+    US/Pacific
 </p>
 
 {% if event.sponsors.all %}
 <dt class="col-sm-2">Sponsor(s):</dt>
 <dd class="col-sm-10">
-  {% for sponsor in event.sponsors.all %}
-  {% if sponsor.sponsor.live %}
-  <a href="{% pageurl sponsor.sponsor %}">
-    {{ sponsor.sponsor }}</a>{% if not forloop.last %},{% endif %}
-  {% else %}
-  {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
-  {% endif %}
-  {% endfor %}
+    {% for sponsor in event.sponsors.all %}
+    {% if sponsor.sponsor.live %}
+    <a href="{% pageurl sponsor.sponsor %}">
+        {{ sponsor.sponsor }}</a>{% if not forloop.last %},{% endif %}
+    {% else %}
+    {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
+    {% endif %}
+    {% endfor %}
 </dd>
 {% endif %}
 
@@ -67,8 +48,28 @@
 
 {% if event.website %}
 <a href="{{ event.specific.website }}" class="btn btn-primary btn-sm" target="blank">
-  <i class="bi bi-link" aria-hidden="true"></i>
-  Visit event website
+    <i class="bi bi-link" aria-hidden="true"></i>
+    Visit event website
 </a>
 {% endif %}
 {% endblock %}
+
+{% block extra_js %}
+
+    <script type="application/ld+json">
+        {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        "name": "{{ event.title|escapejs }}",
+        "startDate": "{% if event.start_date %}{{ event.start_date|date:'c' }}{% endif %}",
+        "endDate": "{% if event.end_date %}{{ event.end_date|date:'c' }}{% endif %}",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "description": "{{ event.body|striptags|escapejs }}",
+        "url": "{{ request.build_absolute_uri }}",
+        "eventCategory": "{{ event.get_category_display|escapejs }}",  <!-- Dynamic event category based on choices -->
+        "eventWebsite": "{% if event.website %}{{ event.website }}{% endif %}"
+        }
+    </script>
+
+{% endblock extra_js %}
