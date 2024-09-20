@@ -1,7 +1,10 @@
 from typing import Any
+
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import TextChoices
+from django.utils.encoding import force_str
+from django.utils.html import strip_tags
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import (
     FieldPanel,
@@ -16,7 +19,59 @@ from wagtail.search import index
 from addresses.models import Address
 
 
-class Person(Page):
+class JSONLDMixin:
+    def get_json_ld(self):
+        data = {
+            "@context": "https://schema.org",
+            "name": force_str(self.title),
+        }
+
+        if hasattr(self, "description"):
+            data["description"] = strip_tags(force_str(self.description))
+
+        if hasattr(self, "website") and self.website:
+            data["url"] = self.website
+        if hasattr(self, "email") and self.email:
+            data["email"] = self.email
+        if hasattr(self, "phone") and self.phone:
+            data["telephone"] = self.phone
+
+        if hasattr(self, "addresses") and self.addresses.count():
+            data["address"] = []
+            for address in self.addresses.all():
+                address_data = {
+                    "@type": "PostalAddress",
+                }
+                if address.street_address:
+                    address_data["streetAddress"] = force_str(address.street_address)
+                    if address.extended_address:
+                        address_data["streetAddress"] += ", " + force_str(
+                            address.extended_address,
+                        )
+                    if address.po_box_number:
+                        address_data["streetAddress"] += ", P.O. Box " + force_str(
+                            address.po_box_number,
+                        )
+                if address.locality:
+                    address_data["addressLocality"] = force_str(address.locality)
+                if address.region:
+                    address_data["addressRegion"] = force_str(address.region)
+                if address.postal_code:
+                    address_data["postalCode"] = force_str(address.postal_code)
+                if address.country:
+                    address_data["addressCountry"] = force_str(address.country)
+                if address.latitude and address.longitude:
+                    address_data["geo"] = {
+                        "@type": "GeoCoordinates",
+                        "latitude": address.latitude,
+                        "longitude": address.longitude,
+                    }
+                data["address"].append(address_data)
+
+        return data
+
+
+class Person(JSONLDMixin, Page):
     given_name = models.CharField(
         max_length=255,
         default="",
@@ -111,6 +166,17 @@ class Person(Page):
     parent_page_types = ["contact.PersonIndexPage"]
     subpage_types: list[str] = []
 
+    def get_json_ld(self):
+        data = super().get_json_ld()
+        data.update(
+            {
+                "@type": "Person",
+                "givenName": force_str(self.given_name),
+                "familyName": force_str(self.family_name),
+            },
+        )
+        return data
+
 
 class PersonIndexPage(Page):
     max_count = 1
@@ -141,7 +207,7 @@ class MeetingPresidingClerk(Orderable):
     ]
 
 
-class Meeting(Page):
+class Meeting(JSONLDMixin, Page):
     class MeetingTypeChoices(TextChoices):
         MONTHLY_MEETING = "monthly_meeting", "Monthly Meeting"
         QUARTERLY_MEETING = "quarterly_meeting", "Quarterly Meeting"
@@ -281,6 +347,27 @@ class Meeting(Page):
 
         return context
 
+    def get_json_ld(self):
+        data = super().get_json_ld()
+        data.update(
+            {
+                "@type": "Organization",
+                "organizationType": force_str(self.get_meeting_type_display()),
+            },
+        )
+
+        if self.worship_times.count():
+            data["event"] = []
+            for worship_time in self.worship_times.all():
+                event_data = {
+                    "@type": "Event",
+                    "name": force_str(worship_time.get_worship_type_display()),
+                    "description": force_str(worship_time.worship_time),
+                }
+                data["event"].append(event_data)
+
+        return data
+
 
 class MeetingAddress(Orderable, Address):
     page = ParentalKey(
@@ -321,7 +408,7 @@ class MeetingIndexPage(Page):
     template = "contact/meeting_index_page.html"
 
 
-class Organization(Page):
+class Organization(JSONLDMixin, Page):
     description = models.CharField(
         max_length=255,
         blank=True,
@@ -400,6 +487,11 @@ class Organization(Page):
             models.Index(fields=["civicrm_id"]),
             models.Index(fields=["drupal_author_id"]),
         ]
+
+    def get_json_ld(self):
+        data = super().get_json_ld()
+        data["@type"] = "Organization"
+        return data
 
 
 class OrganizationIndexPage(Page):
