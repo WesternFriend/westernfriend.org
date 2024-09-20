@@ -10,7 +10,9 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-python.debugpy",
-        "charliermarsh.ruff"
+        "charliermarsh.ruff",
+        "batisteo.vscode-django",
+        "shamanu4.django-intellisense"
       ],
       "settings": {
         "python.linting.enabled": true,
