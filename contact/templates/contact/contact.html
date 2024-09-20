@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% load wagtailcore_tags wagtailimages_tags %}
 
@@ -7,7 +7,7 @@
 
     <div class="row">
         <div class="col">
-            {{ page.specific.description | richtext }}
+            {{ page.specific.description|richtext }}
 
             {% if page.specific.phone %}
                 <dt>Phone</dt>
@@ -21,9 +21,7 @@
 
             {% if page.specific.website %}
                 <dt>Website</dt>
-                <dd>
-                    <a href="{{ page.specific.website }}">{{ page.specific.website }}</a>
-                </dd>
+                <dd><a href="{{ page.specific.website }}">{{ page.specific.website }}</a></dd>
             {% endif %}
 
             {% if page.addresses.count %}
@@ -31,7 +29,7 @@
 
                 <dl>
                     {% for address in page.addresses.all %}
-                        <dt>{{ address.address_type | title }}</dt>
+                        <dt>{{ address.address_type|title }}</dt>
                         <dd>{{ address }}</dd>
                     {% endfor %}
                 </dl>
@@ -42,7 +40,7 @@
 
                 <dl>
                     {% for worship_time in page.worship_times.all %}
-                        <dt>{{ worship_time.get_worship_type_display | title }}</dt>
+                        <dt>{{ worship_time.get_worship_type_display|title }}</dt>
                         <dd>{{ worship_time.worship_time }}</dd>
                     {% endfor %}
                 </dl>
@@ -54,9 +52,7 @@
                 <ul>
                     {% for online_worship in page.online_worship.all %}
                         <li>
-                            <a href="{% pageurl online_worship %}">
-                                {{ online_worship.title }}
-                            </a>
+                            <a href="{% pageurl online_worship %}">{{ online_worship.title }}</a>
                         </li>
                     {% endfor %}
                 </ul>
@@ -82,35 +78,27 @@
 
         <div class="col">
             {% if quarterly_meetings %}
-
                 <h2 class="fs-3">Quarterly Meetings</h2>
 
                 <ul>
                     {% for meeting in quarterly_meetings %}
                         <li class="list-unstyled">
-                            <a href="{% pageurl meeting %}">
-                                {{ meeting.title }}
-                            </a>
+                            <a href="{% pageurl meeting %}">{{ meeting.title }}</a>
                         </li>
                     {% endfor %}
                 </ul>
-
             {% endif %}
 
             {% if monthly_meetings %}
-
                 <h2 class="fs-3">Monthly Meetings</h2>
 
                 <ul>
                     {% for meeting in monthly_meetings %}
                         <li class="list-unstyled">
-                            <a href="{% pageurl meeting %}">
-                                {{ meeting.title }}
-                            </a>
+                            <a href="{% pageurl meeting %}">{{ meeting.title }}</a>
                         </li>
                     {% endfor %}
                 </ul>
-
             {% endif %}
 
             {% if worship_groups %}
@@ -119,23 +107,18 @@
                 <ul>
                     {% for meeting in worship_groups %}
                         <li class="list-unstyled">
-                            <a href="{% pageurl meeting %}">
-                                {{ meeting.title }}
-                            </a>
+                            <a href="{% pageurl meeting %}">{{ meeting.title }}</a>
                         </li>
                     {% endfor %}
                 </ul>
             {% endif %}
         </div>
-
     </div>
-
-
 
     {% if page.articles_authored.count %}
         <h2>Articles</h2>
         {% for article in page.articles_authored.all %}
-            {% include "magazine/magazine_article_summary.html" with article=article.article %}
+            {% include 'magazine/magazine_article_summary.html' with article=article.article %}
         {% endfor %}
     {% endif %}
 
@@ -146,29 +129,23 @@
             {% for article in page.archive_articles_authored.all %}
                 <li>
                     {{ article.article.issue }} -
-                    <a
-                        href="{% pageurl article.article.issue %}?pdf_page_number={{ article.article.pdf_page_number }}">
-                        {{ article.article.title }}
-                    </a>
+                    <a href="{% pageurl article.article.issue %}?pdf_page_number={{ article.article.pdf_page_number }}">{{ article.article.title }}</a>
                 </li>
             {% endfor %}
         </ul>
-
     {% endif %}
 
     {% if page.books_authored.count %}
         <h2>Books</h2>
         {% for book_author in page.books_authored.all %}
-            {% with book_author.book as book %}
+            {% with book=book_author.book %}
                 <div class="card mb-2">
                     <div class="card-body">
                         <div>
-                            <a href="{% pageurl book %}" class="card-title lead">
-                                {{ book }}
-                            </a>
+                            <a href="{% pageurl book %}" class="card-title lead">{{ book }}</a>
                         </div>
 
-                        {% image book.image max-150x150 class="float-left me-2" %}
+                        {% image book.image max - 150 x150 class='float-left me-2' %}
 
                         {% if book.authors.count %}
                             <ul class="list-inline mb-1">
@@ -185,7 +162,7 @@
                             </ul>
                         {% endif %}
 
-                        {{ book.description | richtext | truncatewords_html:30 }}
+                        {{ book.description|richtext|truncatewords_html:30 }}
                     </div>
                 </div>
             {% endwith %}
@@ -195,8 +172,8 @@
     {% if page.specific.library_items_authored.count %}
         <h2>Library items</h2>
         {% for item_authored in page.specific.library_items_authored.all %}
-            {% with item_authored.library_item as library_item %}
-                {% include "library/library_item_card.html" %}
+            {% with library_item=item_authored.library_item %}
+                {% include 'library/library_item_card.html' %}
             {% endwith %}
         {% endfor %}
     {% endif %}
@@ -205,13 +182,80 @@
         <h2>Memorials</h2>
 
         <ul class="list-group">
-            {% for memorial_minute in page.memorial_minutes.all|dictsort:"memorial_person.family_name" %}
+            {% for memorial_minute in page.memorial_minutes.all|dictsort:'memorial_person.family_name' %}
                 <li class="list-group-item">
-                    <a href="{% pageurl memorial_minute %}">
-                        {{ memorial_minute.memorial_person }}
-                    </a>
+                    <a href="{% pageurl memorial_minute %}">{{ memorial_minute.memorial_person }}</a>
                 </li>
             {% endfor %}
         </ul>
     {% endif %}
-{% endblock content %}
+{% endblock %}
+
+{% block extra_js %}
+    <script type="application/ld+json">
+        {
+        "@context": "https://schema.org",
+        {% if page.specific_class_name == 'Person' %}
+        "@type": "Person",
+        "givenName": "{{ page.specific.given_name }}",
+        "familyName": "{{ page.specific.family_name }}",
+        {% elif page.specific_class_name == 'Meeting' %}
+        "@type": "Organization",
+        "additionalType": "{{ page.specific.get_meeting_type_display }}",
+        {% else %}
+        "@type": "Organization",
+        {% endif %}
+        "name": "{{ page.title }}",
+        {% if page.specific.description %}
+        "description": "{{ page.specific.description|striptags }}",
+        {% endif %}
+        {% if page.specific.website %}
+        "url": "{{ page.specific.website }}",
+        {% endif %}
+        {% if page.specific.email %}
+        "email": "{{ page.specific.email }}",
+        {% endif %}
+        {% if page.specific.phone %}
+        "telephone": "{{ page.specific.phone }}",
+        {% endif %}
+        {% if page.addresses.count %}
+        "address": [
+            {% for address in page.addresses.all %}
+            {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ address.street_address }}{% if address.extended_address %}, {{ address.extended_address }}{% endif %}{% if address.po_box_number %}, PO Box {{ address.po_box_number }}{% endif %}",
+            "addressLocality": "{{ address.locality }}",
+            "addressRegion": "{{ address.region }}",
+            "postalCode": "{{ address.postal_code }}",
+            "addressCountry": "{{ address.country }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        {% endif %}
+        {% if page.specific_class_name == 'Meeting' and page.worship_times.count %}
+        "event": [
+            {% for worship_time in page.worship_times.all %}
+            {
+            "@type": "Event",
+            "name": "{{ worship_time.get_worship_type_display }}",
+            "description": "{{ worship_time.worship_time }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        {% endif %}
+        {% if page.specific_class_name == 'Meeting' and page.presiding_clerks.count %}
+        "member": [
+            {% for presiding_clerk in page.presiding_clerks.all %}
+            {
+            "@type": "Person",
+            "name": "{{ presiding_clerk.person.title }}",
+            "jobTitle": "Presiding Clerk"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+        {% endif %}
+        }
+    </script>
+{% endblock extra_js %}
+
+ 
