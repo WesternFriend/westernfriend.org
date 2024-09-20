@@ -40,6 +40,5 @@
     }
   },
   "forwardPorts": [8000],
-  "updateContentCommand": "pip install -r requirements-dev.txt && python manage.py migrate && pre-commit install && python manage.py scaffold_initial_content",
-  "postCreateCommand": "cp .env.example .env"
+  "postCreateCommand": "cp .env.example .env && pip install -r requirements-dev.txt && python manage.py migrate && pre-commit install && python manage.py scaffold_initial_content"
 }
