@@ -55,17 +55,17 @@
 {% block extra_js %}
     <script type="application/ld+json">
         {
-        "@context": "https://schema.org",
-        "@type": "Event",
-        "name": "{{ event.title|escapejs }}",
-        "startDate": "{% if event.start_date %}{{ event.start_date|date:'c' }}{% endif %}",
-        "endDate": "{% if event.end_date %}{{ event.end_date|date:'c' }}{% endif %}",
-        "eventStatus": "https://schema.org/EventScheduled",
-        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-        "description": "{{ event.body|striptags|escapejs }}",
-        "url": "{{ request.build_absolute_uri }}",
-        "eventCategory": "{{ event.get_category_display|escapejs }}",  <!-- Dynamic event category based on choices -->
-        "eventWebsite": "{% if event.website %}{{ event.website }}{% endif %}"
+            "@context": "https://schema.org",
+            "@type": "Event",
+            "name": "{{ event.title|escapejs }}",
+            "startDate": "{% if event.start_date %}{{ event.start_date|date:'c' }}{% endif %}",
+            "endDate": "{% if event.end_date %}{{ event.end_date|date:'c' }}{% endif %}",
+            "eventStatus": "https://schema.org/EventScheduled",
+            "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+            "description": "{{ event.body|striptags|escapejs }}",
+            "url": "{{ request.build_absolute_uri }}",
+            "eventCategory": "{{ event.get_category_display|escapejs }}",  <!-- Dynamic event category based on choices -->
+            "eventWebsite": "{% if event.website %}{{ event.website }}{% endif %}"
         }
     </script>
 {% endblock %}
