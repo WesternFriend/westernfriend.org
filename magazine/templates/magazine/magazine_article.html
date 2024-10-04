@@ -76,3 +76,53 @@
         </a>
     </p>
 {% endblock %}
+
+{% block extra_js %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ page.title }}",
+  "author": [
+    {% for author in page.authors.all %}
+    {
+      "@type": "{% if author.author.specific_class_name == 'Person' %}Person{% else %}Organization{% endif %}",
+      "name": "{{ author.author.title }}"
+      {% if author.author.specific_class_name == 'Person' %}
+      ,"givenName": "{{ author.author.specific.given_name }}",
+      "familyName": "{{ author.author.specific.family_name }}"
+      {% endif %}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ],
+  "datePublished": "{{ page.get_parent.specific.publication_date|date:'Y-m-d' }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Western Friend"
+  },
+  "isAccessibleForFree": "{{ page.is_public_access|yesno:'true,false' }}",
+  {% if page.teaser %}
+  "description": "{{ page.teaser|striptags }}",
+  {% endif %}
+  "articleSection": "{{ page.department.title }}",
+  {% if page.tags.count %}
+  "keywords": [
+    {% for tag in page.tags.all %}
+    "{{ tag }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ],
+  {% endif %}
+  "isPartOf": {
+    "@type": "PublicationIssue",
+    "issueNumber": "{{ page.get_parent.specific.issue_number }}",
+    "datePublished": "{{ page.get_parent.specific.publication_date|date:'Y-m-d' }}",
+    "name": "{{ page.get_parent.title }}"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ page.full_url }}"
+  }
+}
+</script>
+{% endblock extra_js %}
+
