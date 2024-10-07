@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags %}
 
 {% block content %}
     <h1>{{ page.title }}</h1>
@@ -145,8 +145,6 @@
                             <a href="{% pageurl book %}" class="card-title lead">{{ book }}</a>
                         </div>
 
-                        {% image book.image max - 150 x150 class='float-left me-2' %}
-
                         {% if book.authors.count %}
                             <ul class="list-inline mb-1">
                                 <li class="list-inline-item">Authored by:</li>
@@ -196,3 +194,4 @@
         {{ page.specific.get_json_ld|safe }}
     </script>
 {% endblock %}
+
