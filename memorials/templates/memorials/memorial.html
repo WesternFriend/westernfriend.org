@@ -83,3 +83,38 @@
         </div>
     </div>
 {% endblock content %}
+
+{% block extra_js %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "articleSection": "Memorial",
+  "headline": "{{ page.title }}",
+  "about": {
+    "@type": "Person",
+    "name": "{{ page.memorial_person.title }}",
+    "givenName": "{{ page.memorial_person.given_name }}",
+    "familyName": "{{ page.memorial_person.family_name }}"
+    {% if page.date_of_birth %},
+    "birthDate": "{{ page.date_of_birth|date:'Y-m-d' }}"
+    {% endif %}
+    {% if page.date_of_death %},
+    "deathDate": "{{ page.date_of_death|date:'Y-m-d' }}"
+    {% endif %}
+  },
+  {% if page.memorial_meeting %}
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ page.memorial_meeting.title }}"
+  },
+  {% endif %}
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ page.full_url }}"
+  }
+}
+</script>
+{% endblock extra_js %}
+
+
