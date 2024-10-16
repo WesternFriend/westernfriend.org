@@ -1,5 +1,5 @@
-from django.core.validators import validate_slug
 from django import forms
+from django.core.validators import validate_slug
 from django.forms.utils import flatatt
 from django.utils.html import format_html, format_html_join
 from wagtail import blocks as wagtail_blocks
@@ -44,6 +44,10 @@ class CardBlock(wagtail_blocks.StructBlock):
 
 class FormattedImageChooserStructBlock(wagtail_blocks.StructBlock):
     image = ImageChooserBlock()
+    caption = wagtail_blocks.CharBlock(
+        required=False,
+        help_text="Optional caption (tooltip) to display with the image.",
+    )
     width = wagtail_blocks.IntegerBlock(
         min_value=0,
         max_value=800,
