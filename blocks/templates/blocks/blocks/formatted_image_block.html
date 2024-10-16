@@ -8,6 +8,10 @@
 <img
     src="{{ block_image.url }}"
     width="{{ value.width }}"
+    {% if value.caption %}
+        title="{{ value.caption }}"
+        alt="{{ value.caption }}"
+    {% endif %}
     {% if value.align == "right" %}
         class="richtext-image right"
     {% elif value.align == "left" %}
