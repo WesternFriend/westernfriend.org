@@ -103,7 +103,7 @@
       "author": [
         {% for author in page.specific.authors.all %}
         {
-          "@type": "{% if author.author.specific_class_name == 'Person' %}Person{% elif author.author.specific_class_name == 'Organization' or author.author.specific_class_name == 'Meeting' %}Organization{% else %}Thing{% endif %}",
+          "@type": "{% if author.author.specific_class_name == 'Person' %}Person{% else %}Organization{% endif %}",
           "name": "{{ author.author.title }}"
           {% if author.author.specific_class_name == 'Person' %}
           ,"givenName": "{{ author.author.specific.given_name }}",
