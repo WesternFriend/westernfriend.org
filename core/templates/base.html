@@ -20,6 +20,18 @@
         {% endif %}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+        <!-- Favicons -->
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicon-16x16.png' %}">
+        <link rel="icon" href="{% static 'img/favicon.ico' %}">
+
+        <!-- PWA/Mobile -->
+        <link rel="manifest" href="{% static 'manifest.json' %}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/apple-touch-icon.png' %}">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
         {# Force all links in the live preview panel to be opened in a new tab #}
         {% if request.in_preview_panel %}
             <base target="_blank">
@@ -47,9 +59,6 @@
         {% block extra_css %}
             {# Override this in templates to add extra stylesheets #}
         {% endblock %}
-
-        {# Favicon #}
-        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
     </head>
 
     <body class="{% block body_class %}{% endblock %} d-flex flex-column h-100">
