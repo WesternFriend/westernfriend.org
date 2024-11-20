@@ -25,9 +25,10 @@
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "start_url": "/",
   "scope": "/",
-  "orientation": "portrait",
+  "orientation": "any",
   "lang": "en-US",
   "categories": [
     "social",
@@ -37,10 +38,42 @@
     "magazines",
     "education",
     "religion",
-    "books",
-    "shopping"
+    "books"
   ],
   "apple-mobile-web-app-capable": "yes",
   "apple-mobile-web-app-status-bar-style": "black-translucent",
-  "apple-mobile-web-app-title": "Western Friend"
+  "apple-mobile-web-app-title": "Western Friend",
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "screenshots": [
+    {
+      "src": "/static/img/screenshot.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Latest Magazine",
+      "url": "/magazine/",
+      "description": "View the latest magazine issue"
+    },
+    {
+      "name": "Subscribe",
+      "url": "/subscribe/",
+      "description": "Subscribe to Western Friend"
+    },
+    {
+      "name": "Donate",
+      "url": "/donate/",
+      "description": "Support Western Friend"
+    },
+    {
+      "name": "About",
+      "url": "/about/",
+      "description": "Learn more about Western Friend"
+    }
+  ]
 }
