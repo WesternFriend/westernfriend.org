@@ -15,9 +15,9 @@ asgiref==3.8.1
     #   django-stubs
 beautifulsoup4==4.12.3
     # via wagtail
-boto3==1.35.65
+boto3==1.35.79
     # via Western-Friend-website (pyproject.toml)
-botocore==1.35.65
+botocore==1.35.79
     # via
     #   boto3
     #   s3transfer
@@ -35,7 +35,7 @@ click==8.1.7
     # via pip-tools
 confusable-homoglyphs==3.3.1
     # via django-registration
-coverage==7.6.7
+coverage==7.6.9
     # via
     #   Western-Friend-website (pyproject.toml)
     #   django-coverage-plugin
@@ -47,7 +47,7 @@ distlib==0.3.9
     # via virtualenv
 dj-database-url==2.3.0
     # via Western-Friend-website (pyproject.toml)
-django==5.1.3
+django==5.1.4
     # via
     #   Western-Friend-website (pyproject.toml)
     #   crispy-bootstrap5
@@ -116,9 +116,9 @@ factory-boy==3.3.1
     #   Western-Friend-website (pyproject.toml)
     #   types-factory-boy
     #   wagtail-factories
-faker==33.0.0
+faker==33.1.0
     # via factory-boy
-fastjsonschema==2.20.0
+fastjsonschema==2.21.1
     # via validate-pyproject
 filelock==3.16.1
     # via virtualenv
@@ -126,7 +126,7 @@ filetype==1.2.0
     # via willow
 gunicorn==23.0.0
     # via Western-Friend-website (pyproject.toml)
-identify==2.6.2
+identify==2.6.3
     # via pre-commit
 idna==3.10
     # via requests
@@ -156,7 +156,7 @@ pillow==11.0.0
     # via
     #   pillow-heif
     #   wagtail
-pillow-heif==0.20.0
+pillow-heif==0.21.0
     # via willow
 pip-tools==7.4.1
     # via Western-Friend-website (pyproject.toml)
@@ -166,11 +166,11 @@ pre-commit==4.0.1
     # via Western-Friend-website (pyproject.toml)
 psycopg2-binary==2.9.10
     # via Western-Friend-website (pyproject.toml)
-pydantic==2.9.2
+pydantic==2.10.3
     # via
     #   django-flatpickr
     #   pydantic-settings
-pydantic-core==2.23.4
+pydantic-core==2.27.1
     # via pydantic
 pydantic-settings==2.6.1
     # via django-flatpickr
@@ -196,17 +196,17 @@ requests==2.32.3
     # via
     #   Western-Friend-website (pyproject.toml)
     #   wagtail
-s3transfer==0.10.3
+s3transfer==0.10.4
     # via boto3
-sentry-sdk==2.18.0
+sentry-sdk==2.19.2
     # via Western-Friend-website (pyproject.toml)
-six==1.16.0
+six==1.17.0
     # via
     #   l18n
     #   python-dateutil
 soupsieve==2.6
     # via beautifulsoup4
-sqlparse==0.5.2
+sqlparse==0.5.3
     # via django
 telepath==0.3.1
     # via wagtail
@@ -241,7 +241,7 @@ urllib3==2.2.3
     #   types-requests
 validate-pyproject==0.23
     # via Western-Friend-website (pyproject.toml)
-virtualenv==20.27.1
+virtualenv==20.28.0
     # via pre-commit
 wagtail==6.3.1
     # via
@@ -255,7 +255,7 @@ wagtail-factories==4.2.1
     # via Western-Friend-website (pyproject.toml)
 wagtailmedia==0.15.2
     # via Western-Friend-website (pyproject.toml)
-wheel==0.45.0
+wheel==0.45.1
     # via pip-tools
 willow[heif]==1.9.0
     # via
