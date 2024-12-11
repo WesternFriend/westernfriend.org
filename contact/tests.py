@@ -17,6 +17,8 @@ from contact.models import (
     Person,
     PersonIndexPage,
 )
+from django.urls import reverse
+from django.test import Client
 
 
 class PersonIndexPageFactoryTest(TestCase):
@@ -170,3 +172,28 @@ class TestMeetingGetContext(TestCase):
             list(context["worship_groups"]),
             [self.child_worship_group],
         )
+
+
+class TestSlugGeneration(TestCase):
+    def test_clean_for_slug(self):
+        from contact.static.js.contact.person_url_slug import cleanForSlug
+
+        self.assertEqual(cleanForSlug("carolina-fernández-rodríguez"), "carolina-fernandez-rodriguez")
+        self.assertEqual(cleanForSlug("Jürgen Müller"), "jurgen-muller")
+        self.assertEqual(cleanForSlug("François Dupont"), "francois-dupont")
+        self.assertEqual(cleanForSlug("Miyuki さくら"), "miyuki-sakura")
+
+    def test_generate_autoslug(self):
+        client = Client()
+        response = client.get(reverse('admin:contact_person_add'))
+        self.assertEqual(response.status_code, 200)
+
+        # Simulate filling the form and generating the slug
+        form_data = {
+            'given_name': 'Carolina',
+            'family_name': 'Fernández Rodríguez',
+            'slug': '',
+        }
+        response = client.post(reverse('admin:contact_person_add'), form_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'carolina-fernandez-rodriguez')

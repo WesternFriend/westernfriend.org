@@ -1,3 +1,5 @@
+import { unidecode } from "https://cdn.jsdelivr.net/npm/unidecode@0.1.8/unidecode.min.js";
+
 function generateAutoslug() {
   /*
   Auto-generate slug from given and family name fields.
@@ -55,12 +57,14 @@ document.addEventListener(
 function cleanForSlug(text) {
   /*
   Clean text for use in a URL by:
+  - converting Unicode characters to ASCII
   - making it lowercase
   - replacing spaces with hyphens
   - replace all sequences of one or more characters that are not
     alphanumeric, not underscores, and not hyphens, with an empty string
   */
-  const slug_text = text
+  const ascii_text = unidecode(text);
+  const slug_text = ascii_text
     .toLowerCase()
     // replace spaces with hyphens
     .replace(/ /g, "-")
