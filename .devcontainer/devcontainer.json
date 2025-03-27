@@ -3,7 +3,9 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "features": {},
+  "features": {
+    "ghcr.io/va-h/devcontainers-features/uv:1": {}
+  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -27,8 +29,12 @@
             "source.organizeImports": "explicit"
           }
         },
-        "ruff.lint.run": "onSave",
-        "ruff.format.args": ["--line-length", "100"],
+        "ruff.lineLength": 100,
+        "ruff.configuration": {
+          "format": {
+            "quote-style": "double"
+          }
+        },
         "ruff.organizeImports": true
       }
     }
@@ -40,5 +46,5 @@
     }
   },
   "forwardPorts": [8000],
-  "postCreateCommand": "cp .env.example .env && pip install -r requirements-dev.txt && python manage.py migrate && pre-commit install"
+  "postCreateCommand": "cp .env.example .env && uv venv && . .venv/bin/activate && uv sync && python manage.py migrate && pre-commit install && echo '. .venv/bin/activate' >> ~/.bashrc"
 }
