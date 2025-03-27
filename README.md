@@ -1,6 +1,5 @@
 # Western Friend website
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/76ea96b836b6b622c71c/maintainability)](https://codeclimate.com/github/WesternFriend/WF-website/maintainability)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=WesternFriend_westernfriend.org&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=WesternFriend_westernfriend.org)
 [![Test Coverage](https://codecov.io/gh/WesternFriend/WF-website/branch/main/graph/badge.svg?token=2GCLOZ9PIE)](https://codecov.io/gh/WesternFriend/WF-website)
 
