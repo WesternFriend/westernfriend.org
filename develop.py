@@ -12,15 +12,6 @@ class Command:
 
 COMMANDS = [
     Command(
-        alias="compile-deps",
-        help_text="Compile the project's dependencies",
-        commands_list=[
-            "python -m piptools compile --resolver backtracking -o requirements.txt pyproject.toml",  # noqa: E501
-            "python -m piptools compile --extra dev --resolver backtracking -o requirements-dev.txt pyproject.toml",  # noqa: E501
-            "rm -rf Western_Friend_website.egg-info",
-        ],
-    ),
-    Command(
         alias="start-db",
         help_text="Start the database",
         commands_list=[
@@ -50,28 +41,10 @@ COMMANDS = [
         ],
     ),
     Command(
-        alias="install",
-        help_text="Install project dependencies",
-        commands_list=[
-            "pip-sync requirements.txt requirements-dev.txt",
-        ],
-    ),
-    Command(
         alias="test",
         help_text="Run tests",
         commands_list=[
             "python manage.py test",
-        ],
-    ),
-    Command(
-        alias="update-deps",
-        help_text="Update dependencies and check for issues",
-        commands_list=[
-            "pre-commit autoupdate",
-            "python -m pip install --upgrade pip-tools pip wheel",
-            "python -m piptools compile --upgrade --resolver backtracking -o requirements.txt pyproject.toml",  # noqa: E501
-            "python -m piptools compile --extra dev --upgrade --resolver backtracking -o requirements-dev.txt pyproject.toml",  # noqa: E501
-            "python -m pip check",
         ],
     ),
 ]

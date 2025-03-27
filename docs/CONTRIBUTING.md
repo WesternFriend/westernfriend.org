@@ -19,6 +19,7 @@ Follow the steps below to set up your development environment.
 ### Prerequisites
 
 - [Python 3.10](https://www.python.org/) or higher
+- [UV](https://github.com/astral-sh/uv) - Modern Python package manager
 - [Django](https://www.djangoproject.com/)
 - [Wagtail CMS](https://wagtail.io/)
 
@@ -28,12 +29,15 @@ Follow the steps below to set up your development environment.
 
 1. **Clone the Repository**: `git clone git@github.com:WesternFriend/WF-website.git`
 2. **Change into the Application Directory**: `cd WF-website/`
-3. **Create a Virtual Environment**: `python3 -m venv .venv`
+3. **Create Virtual Environment and Install Dependencies**:
+   ```
+   uv venv
+   uv sync
+   ```
 4. **Activate the Virtual Environment**:
    - **Mac/Linux**: `source .venv/bin/activate`
    - **Windows PowerShell**: `.venv\Scripts\Activate.ps1`
-5. **Install Project Dependencies**: `pip install -r requirements.txt -r requirements-dev.txt`
-6. **Activate Pre-Commit**: `pre-commit install`
+5. **Activate Pre-Commit**: `pre-commit install`
 
 ### Running Background Services
 
@@ -44,19 +48,23 @@ This project uses Docker to manage a Postgres database.
 
 ### Application Configuration
 
-1. **Run Database Migrations**: `python manage.py migrate`
-2. **Create a Superuser**: `python manage.py createsuperuser`
-3. **Create .env File** (with `DJANGO_DEBUG=true`)
+1. **Create .env File** (with `DJANGO_DEBUG=true`)
+2. **Run Database Migrations**: `python manage.py migrate`
+3. **Create a Superuser**: `python manage.py createsuperuser`
 4. **Run the Server**: `python manage.py runserver` (access from http://localhost:8000)
 5. **Scaffold Initial Content**: `python manage.py scaffold_initial_content`
 
 ### Dependency Management
 
-We use `pip` and `pip-tools`. Use the following commands to manage dependencies:
+We use UV for dependency management with dependencies defined in `pyproject.toml`. Use the following commands:
 
-- **Generate Requirements Files**: `python develop.py compile-deps`
-- **Update Dependencies**: `python develop.py update-deps`
-- **Add/Remove Packages**: Modify the `dependencies` list in `pyproject.toml`, then recompile.
+- **Install All Dependencies**: `uv sync`
+- **Install with Dev Dependencies**: `uv sync --all-extras`
+- **Update Dependencies**: `uv sync --upgrade`
+- **Add New Packages**:
+  - For regular dependencies: `uv add <package-name>`
+  - For development dependencies: `uv add --dev <package-name>`
+  - After adding packages, run `uv sync` to ensure your environment is up to date
 
 ## Alternatives
 
