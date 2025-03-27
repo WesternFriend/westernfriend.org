@@ -47,6 +47,11 @@ jobs:
         with:
           python-version: 3.11
       #----------------------------------------------
+      #       install uv
+      #----------------------------------------------
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      #----------------------------------------------
       #       load cached venv if cache exists
       #----------------------------------------------
       - name: Load cached venv
@@ -54,16 +59,16 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('pyproject.toml') }}
       #----------------------------------------------
       # install dependencies if cache does not exist
       #----------------------------------------------
       - name: Install dependencies
         if: steps.cached-dependencies.outputs.cache-hit != 'true'
         run: |
-          python -m venv .venv
+          uv venv
           source .venv/bin/activate
-          pip install -r requirements-dev.txt
+          uv sync --group dev
       #----------------------------------------------
       # Run tests, generate and upload code coverage report
       #----------------------------------------------
