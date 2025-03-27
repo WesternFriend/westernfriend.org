@@ -1,0 +1,9 @@
+exclude_paths:
+  - "tests/"
+  - "docs/"
+  - ".github/"
+  - ".vscode/"
+  - ".idea/"
+  - ".git/"
+  - ".devcontainer"
+  - ".do"
