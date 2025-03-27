@@ -86,10 +86,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{github.workspace}}/coverage.xml
-      - name: Upload to Code Climate
-        uses: paambaati/codeclimate-action@v5.0.0
-        env:
-          CC_TEST_REPORTER_ID: 15a71e71a294b41066a953a4ad40a936918f4e34dc5824cc558b26174962702d
-        with:
-          coverageLocations: |
-            ${{github.workspace}}/coverage.xml:coverage.py
