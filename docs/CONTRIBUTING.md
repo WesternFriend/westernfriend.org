@@ -62,10 +62,9 @@ We use UV for dependency management with dependencies defined in `pyproject.toml
 - **Install with Dev Dependencies**: `uv sync --all-extras`
 - **Update Dependencies**: `uv sync --upgrade`
 - **Add New Packages**:
-  1. Add the package to the appropriate section in `pyproject.toml`:
-     - For main dependencies, add to the `dependencies` list
-     - For development dependencies, add to the `dev` section under `dependency-groups`
-  2. Run `uv sync` to install the updated dependencies
+  - For regular dependencies: `uv add <package-name>`
+  - For development dependencies: `uv add --dev <package-name>`
+  - After adding packages, run `uv sync` to ensure your environment is up to date
 
 ## Alternatives
 
