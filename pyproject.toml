@@ -63,7 +63,6 @@ classifiers = [
 
 ]
 dependencies = [
-    # keep-sorted start
     "boto3",
     "crispy-bootstrap5",
     "dj-database-url",
@@ -85,32 +84,11 @@ dependencies = [
     "wagtail",
     "wagtail-color-panel",
     "wagtailmedia",
-    # keep-sorted end
-
 ]
 
 [project.urls]
 Homepage = "https://westernfriend.org"
 Repository = "https://github.com/WesternFriend/WF-website"
-
-[project.optional-dependencies]
-dev = [
-    # keep-sorted start
-    "coverage",
-    "django-browser-reload",
-    "django-stubs[compatible-mypy]",
-    "factory_boy",
-    "mypy",
-    "pip-tools",
-    "pre-commit",
-    "types-beautifulsoup4",
-    "types-factory-boy",
-    "types-requests",
-    "validate-pyproject",
-    "wagtail-factories",
-    # keep-sorted end
-
-]
 
 [tool.isort]
 profile = "black"
@@ -138,3 +116,16 @@ plugins = ['django_coverage_plugin']
 
 [tool.coverage.django_coverage_plugin]
 template_extensions = 'html, txt, tex, email'
+
+[dependency-groups]
+dev = [
+    "coverage>=7.7.1",
+    "django-browser-reload>=1.18.0",
+    "django-stubs[compatible-mypy]>=5.1.3",
+    "factory-boy>=3.3.3",
+    "mypy>=1.15.0",
+    "types-beautifulsoup4>=4.12.0.20250204",
+    "types-factory-boy>=0.4.1",
+    "types-requests>=2.32.0.20250306",
+    "wagtail-factories>=4.2.1",
+]
