@@ -109,7 +109,6 @@ wf_website/env
 .mypy_cache/
 
 .idea
-.vscode/
 media/
 .data
 

@@ -1,0 +1,5 @@
+{
+  "python.experiments.optInto": ["pythonTestAdapter"],
+  "python.testing.unittestEnabled": true,
+  "python.testing.unittestArgs": []
+}
