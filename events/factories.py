@@ -1,10 +1,11 @@
+import datetime
+
 import factory
-from factory.django import DjangoModelFactory
 from django.utils.text import slugify
-import pytz
+from factory.django import DjangoModelFactory
 from wagtail.models import Page
 
-from events.models import EventsIndexPage, Event
+from events.models import Event, EventsIndexPage
 from home.factories import HomePageFactory
 from home.models import HomePage
 
@@ -14,12 +15,12 @@ class EventsIndexPageFactory(DjangoModelFactory):
         model = EventsIndexPage
 
     # You can add additional field definitions here if you need them
-    title = factory.Faker("sentence", nb_words=4)  # type: ignore
-    slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
-    intro = factory.Faker("text")  # type: ignore
+    title = factory.Faker("sentence", nb_words=4)
+    slug = factory.LazyAttribute(lambda obj: slugify(obj.title))
+    intro = factory.Faker("text")
     depth = factory.Sequence(lambda n: n + 3)  # Assumes that HomePage page depth is 1
 
-    @factory.lazy_attribute  # type: ignore
+    @factory.lazy_attribute
     def path(self):
         # Constructs a valid path by appending self.depth
         # to the path of root page
@@ -27,7 +28,7 @@ class EventsIndexPageFactory(DjangoModelFactory):
         return f"{root_path}{str(self.depth).zfill(4)}"
 
     @classmethod
-    def _create(cls, model_class, *args, **kwargs) -> EventsIndexPage:  # type: ignore
+    def _create(cls, model_class, *args, **kwargs) -> EventsIndexPage:
         instance = model_class(*args, **kwargs)
         parent = HomePage.objects.first()
 
@@ -43,17 +44,17 @@ class EventFactory(DjangoModelFactory):
     class Meta:
         model = Event
 
-    title = factory.Faker("sentence", nb_words=5)  # type: ignore
+    title = factory.Faker("sentence", nb_words=5)
     start_date = factory.Faker(
         "future_datetime",
         end_date="+90d",
-        tzinfo=pytz.UTC,
-    )  # type: ignore
+        tzinfo=datetime.UTC,
+    )
 
-    slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
+    slug = factory.LazyAttribute(lambda obj: slugify(obj.title))
     depth = factory.Sequence(lambda n: n + 4)  # Assumes that HomePage page depth is 1
 
-    @factory.lazy_attribute  # type: ignore
+    @factory.lazy_attribute
     def path(self):
         # Constructs a valid path by appending self.depth
         # to the path of root page
@@ -61,7 +62,7 @@ class EventFactory(DjangoModelFactory):
         return f"{root_path}{str(self.depth).zfill(4)}"
 
     @classmethod
-    def _create(cls, model_class, *args, **kwargs) -> Event:  # type: ignore
+    def _create(cls, model_class, *args, **kwargs) -> Event:
         instance = model_class(*args, **kwargs)
         parent = EventsIndexPage.objects.first()
 

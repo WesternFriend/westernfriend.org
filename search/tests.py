@@ -1,7 +1,9 @@
 from http import HTTPStatus
-from django.test import TestCase, Client
+
+from django.test import Client, TestCase
 from django.urls import reverse
 from wagtail.models import Page
+from wagtail.search.backends import get_search_backend
 
 
 class SearchViewTestCase(TestCase):
@@ -24,6 +26,12 @@ class SearchViewTestCase(TestCase):
         self.page1.save()
         self.page2.save()
         self.page3.save()
+
+        # Update the search index to make the pages searchable
+        search_backend = get_search_backend()
+        # Add pages one by one to the search index
+        for page in Page.objects.all():
+            search_backend.add(page)
 
     def test_search_no_query(self) -> None:
         response = self.client.get(reverse("search"))
