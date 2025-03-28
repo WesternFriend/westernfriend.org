@@ -71,7 +71,98 @@ class JSONLDMixin:
         return data
 
 
-class Person(JSONLDMixin, Page):
+class ContactBase(JSONLDMixin, Page):
+    """
+    Abstract base class for all contact types (Person, Meeting, Organization)
+    """
+
+    website = models.URLField(
+        null=True,
+        blank=True,
+        help_text="Website URL for this contact",
+    )
+    email = models.EmailField(
+        null=True,
+        blank=True,
+        help_text="Email address for this contact",
+    )
+    phone = models.CharField(
+        max_length=64,
+        null=True,
+        blank=True,
+        help_text="Phone number for this contact",
+    )
+
+    # Fields for external system integration
+    civicrm_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="ID in the CiviCRM system",
+    )
+    drupal_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+        help_text="ID of the author in Drupal",
+    )
+    drupal_duplicate_author_ids = ArrayField(
+        models.IntegerField(),
+        blank=True,
+        default=list,
+        help_text="IDs of duplicate authors in Drupal",
+    )
+    drupal_library_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="ID of the library author in Drupal",
+    )
+
+    # Common panels for all contact types
+    import_metadata_panels = [
+        FieldPanel(
+            "civicrm_id",
+            permission="superuser",
+        ),
+        FieldPanel(
+            "drupal_author_id",
+            permission="superuser",
+        ),
+        FieldPanel(
+            "drupal_duplicate_author_ids",
+            permission="superuser",
+        ),
+    ]
+
+    base_content_panels = Page.content_panels + [
+        FieldPanel("website"),
+        FieldPanel("email"),
+        FieldPanel("phone"),
+        FieldRowPanel(
+            heading="Import metadata",
+            help_text="Temporary area for troubleshooting content importers.",
+            children=import_metadata_panels,
+        ),
+    ]
+
+    base_search_fields = Page.search_fields + [
+        index.SearchField("drupal_author_id"),
+    ]
+
+    template = "contact/contact.html"
+
+    class Meta:
+        abstract = True
+        ordering = ["title"]
+        indexes = [
+            models.Index(fields=["civicrm_id"]),
+            models.Index(fields=["drupal_author_id"]),
+        ]
+
+
+class Person(ContactBase):
     given_name = models.CharField(
         max_length=255,
         default="",
@@ -85,61 +176,21 @@ class Person(JSONLDMixin, Page):
         blank=True,
         default="",
     )
-    drupal_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        unique=True,
-        db_index=True,
-    )
-    drupal_duplicate_author_ids = ArrayField(
-        models.IntegerField(),
-        blank=True,
-        default=list,
-    )
-    drupal_library_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-    civicrm_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
-    )
 
-    content_panels = [
+    content_panels = Page.content_panels + [
         FieldPanel("given_name"),
         FieldPanel("family_name"),
+        FieldPanel("website"),
+        FieldPanel("email"),
+        FieldPanel("phone"),
         FieldRowPanel(
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
-            children=[
-                FieldPanel(
-                    "civicrm_id",
-                    permission="superuser",
-                ),
-                FieldPanel(
-                    "drupal_author_id",
-                    permission="superuser",
-                ),
-                FieldPanel(
-                    "drupal_duplicate_author_ids",
-                    permission="superuser",
-                ),
-            ],
+            children=ContactBase.import_metadata_panels,
         ),
     ]
 
     template = "contact/contact.html"
-
-    class Meta:
-        db_table = "person"
-        ordering = ["title"]
-        verbose_name_plural = "people"
-        indexes = [
-            models.Index(fields=["civicrm_id"]),
-            models.Index(fields=["drupal_author_id"]),
-        ]
 
     def save(
         self,
@@ -151,16 +202,9 @@ class Person(JSONLDMixin, Page):
 
         super().save(*args, **kwargs)
 
-    search_fields = Page.search_fields + [
-        index.SearchField(
-            "given_name",
-        ),
-        index.SearchField(
-            "family_name",
-        ),
-        index.SearchField(
-            "drupal_author_id",
-        ),
+    search_fields = ContactBase.base_search_fields + [
+        index.SearchField("given_name"),
+        index.SearchField("family_name"),
     ]
 
     parent_page_types = ["contact.PersonIndexPage"]
@@ -176,6 +220,10 @@ class Person(JSONLDMixin, Page):
             },
         )
         return data
+
+    class Meta(ContactBase.Meta):
+        db_table = "person"
+        verbose_name_plural = "people"
 
 
 class PersonIndexPage(Page):
@@ -207,7 +255,7 @@ class MeetingPresidingClerk(Orderable):
     ]
 
 
-class Meeting(JSONLDMixin, Page):
+class Meeting(ContactBase):
     class MeetingTypeChoices(TextChoices):
         MONTHLY_MEETING = "monthly_meeting", "Monthly Meeting"
         QUARTERLY_MEETING = "quarterly_meeting", "Quarterly Meeting"
@@ -223,40 +271,6 @@ class Meeting(JSONLDMixin, Page):
     description = RichTextField(
         blank=True,
         null=True,
-    )
-    website = models.URLField(
-        null=True,
-        blank=True,
-    )
-    email = models.EmailField(
-        null=True,
-        blank=True,
-    )
-    phone = models.CharField(
-        max_length=64,
-        null=True,
-        blank=True,
-    )
-    civicrm_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-    drupal_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        unique=True,
-        db_index=True,
-    )
-    drupal_duplicate_author_ids = ArrayField(
-        models.IntegerField(),
-        blank=True,
-        default=list,
-    )
-    drupal_library_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
     )
     information_last_verified = models.DateField(
         null=True,
@@ -303,26 +317,16 @@ class Meeting(JSONLDMixin, Page):
     parent_page_types = ["contact.MeetingIndexPage", "Meeting"]
     subpage_types: list[str] = ["Meeting"]
 
-    template = "contact/contact.html"
-
     search_template = "search/meeting.html"
 
-    search_fields = Page.search_fields + [
-        index.SearchField(
-            "description",
-        ),
-        index.SearchField(
-            "drupal_author_id",
-        ),
+    search_fields = ContactBase.base_search_fields + [
+        index.SearchField("description"),
     ]
 
-    class Meta:
+    class Meta(ContactBase.Meta):
         db_table = "meeting"
-        ordering = ["title"]
-        indexes = [
-            models.Index(fields=["civicrm_id"]),
-            models.Index(fields=["drupal_author_id"]),
-        ]
+
+    template = "contact/contact.html"
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
@@ -408,59 +412,22 @@ class MeetingIndexPage(Page):
     template = "contact/meeting_index_page.html"
 
 
-class Organization(JSONLDMixin, Page):
+class Organization(ContactBase):
     description = models.CharField(
         max_length=255,
         blank=True,
         null=True,
     )
 
-    website = models.URLField(
-        null=True,
-        blank=True,
-    )
-    civicrm_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-    drupal_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        unique=True,
-        db_index=True,
-    )
-    drupal_duplicate_author_ids = ArrayField(
-        models.IntegerField(),
-        blank=True,
-        default=list,
-    )
-    drupal_library_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-
     content_panels = Page.content_panels + [
         FieldPanel("description"),
         FieldPanel("website"),
+        FieldPanel("email"),
+        FieldPanel("phone"),
         FieldRowPanel(
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
-            children=[
-                FieldPanel(
-                    "civicrm_id",
-                    permission="superuser",
-                ),
-                FieldPanel(
-                    "drupal_author_id",
-                    permission="superuser",
-                ),
-                FieldPanel(
-                    "drupal_duplicate_author_ids",
-                    permission="superuser",
-                ),
-            ],
+            children=ContactBase.import_metadata_panels,
         ),
     ]
 
@@ -468,25 +435,14 @@ class Organization(JSONLDMixin, Page):
     subpage_types: list[str] = []
 
     template = "contact/contact.html"
-
     search_template = "search/organization.html"
 
-    search_fields = Page.search_fields + [
-        index.SearchField(
-            "description",
-        ),
-        index.SearchField(
-            "drupal_author_id",
-        ),
+    search_fields = ContactBase.base_search_fields + [
+        index.SearchField("description"),
     ]
 
-    class Meta:
+    class Meta(ContactBase.Meta):
         db_table = "organization"
-        ordering = ["title"]
-        indexes = [
-            models.Index(fields=["civicrm_id"]),
-            models.Index(fields=["drupal_author_id"]),
-        ]
 
     def get_json_ld(self):
         data = super().get_json_ld()
