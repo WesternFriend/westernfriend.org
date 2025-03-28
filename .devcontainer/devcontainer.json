@@ -46,5 +46,5 @@
     }
   },
   "forwardPorts": [8000],
-  "postCreateCommand": "cp .env.example .env && uv venv && . .venv/bin/activate && uv sync && python manage.py migrate && pre-commit install && echo '. .venv/bin/activate' >> ~/.bashrc"
+  "postCreateCommand": "cp .env.example .env && uv venv && . .venv/bin/activate && uv sync && python manage.py migrate && pre-commit install"
 }
