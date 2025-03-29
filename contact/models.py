@@ -197,8 +197,10 @@ class Person(ContactBase):
         *args: Any,
         **kwargs: Any,
     ) -> None:
+        # Both given name and family name can technically be empty
         full_name = f"{self.given_name} {self.family_name}"
-        self.title = full_name.strip()
+        # So, we fall back to using "Unnamed Person" to make sure we have a title value
+        self.title = full_name.strip() or "Unnamed Person"
 
         super().save(*args, **kwargs)
 
