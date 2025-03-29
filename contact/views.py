@@ -1,6 +1,5 @@
 from django.db.models import OuterRef, Subquery
 from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _
 from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.ui.tables import Column
 from wagtail.admin.views.reports import ReportView
@@ -233,20 +232,20 @@ class ContactPublicationStatsFilterSet(WagtailFilterSet):
 class ContactPublicationStatsView(ReportView):
     """Admin view showing publication statistics for all contacts."""
 
-    page_title = _("Contact Publication Statistics")
+    page_title = "Contact Publication Statistics"
     header_icon = "user"
     filterset_class = ContactPublicationStatsFilterSet
 
     export_filename = "contact_publication_stats"
     export_headings = {
-        "contact__title": _("Contact Name"),
-        "contact_type": _("Contact Type"),
-        "article_count": _("Articles"),
-        "last_published_at": _("Last Published"),
+        "contact": "Contact Name",
+        "contact_type": "Contact Type",
+        "article_count": "Article Count",
+        "last_published_at": "Last Published",
     }
 
     list_export = [
-        "contact__title",
+        "contact",
         "contact_type",
         "article_count",
         "last_published_at",
