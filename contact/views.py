@@ -1,6 +1,7 @@
+import django_filters
 from django.db.models import OuterRef, Subquery
 from django.utils.html import format_html
-from wagtail.admin.filters import WagtailFilterSet
+from wagtail.admin.filters import DateRangePickerWidget, WagtailFilterSet
 from wagtail.admin.ui.tables import Column
 from wagtail.admin.views.reports import ReportView
 from wagtail.admin.viewsets.base import ViewSetGroup
@@ -224,9 +225,14 @@ class ContactViewSetGroup(ViewSetGroup):
 
 
 class ContactPublicationStatsFilterSet(WagtailFilterSet):
+    last_published_at = django_filters.DateFromToRangeFilter(
+        label="Last Published",
+        widget=DateRangePickerWidget,
+    )
+
     class Meta:
         model = ContactPublicationStatistics
-        fields = ["contact_type", "article_count"]
+        fields = ["contact_type", "article_count", "last_published_at"]
 
 
 class ContactPublicationStatsView(ReportView):
