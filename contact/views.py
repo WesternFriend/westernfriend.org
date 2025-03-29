@@ -233,8 +233,7 @@ class ContactPublicationStatsFilterSet(WagtailFilterSet):
 class ContactPublicationStatsView(ReportView):
     """Admin view showing publication statistics for all contacts."""
 
-    template_name = "contact/reports/contact_publication_stats.html"
-    title = _("Contact Publication Statistics")
+    page_title = _("Contact Publication Statistics")
     header_icon = "user"
     filterset_class = ContactPublicationStatsFilterSet
 
