@@ -1,0 +1,9 @@
+{% extends 'wagtailadmin/reports/base_report_results.html' %}
+
+{% block results %}
+    {% include 'contact/reports/include/_list_contact_publication_stats.html' %}
+{% endblock %}
+
+{% block no_results_message %}
+    <p>No publication statistics available.</p>
+{% endblock %}

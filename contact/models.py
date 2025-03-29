@@ -3,6 +3,7 @@ from typing import Any
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import TextChoices
+from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.html import strip_tags
 from modelcluster.fields import ParentalKey
@@ -17,6 +18,166 @@ from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from addresses.models import Address
+
+
+class ContactPublicationStatistics(models.Model):
+    """Tracks publication statistics for a contact."""
+
+    class ContactType(TextChoices):
+        PERSON = "person", "Person"
+        MEETING = "meeting", "Meeting"
+        ORGANIZATION = "organization", "Organization"
+
+    contact = models.OneToOneField(
+        "wagtailcore.Page",  # References the contact models
+        on_delete=models.CASCADE,
+        related_name="publication_statistics",
+        primary_key=True,
+    )
+
+    # Contact type for faster filtering
+    contact_type = models.CharField(
+        max_length=20,
+        choices=ContactType.choices,
+        db_index=True,
+    )
+
+    # Publication metrics
+    article_count = models.PositiveIntegerField(default=0)
+    last_published_at = models.DateTimeField(null=True, blank=True)
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Contact Publication Statistics"
+        verbose_name_plural = "Contact Publication Statistics"
+        indexes = [
+            models.Index(fields=["contact_type"]),
+            models.Index(fields=["article_count"]),
+            models.Index(fields=["last_published_at"]),
+        ]
+
+    def __str__(self):
+        return f"Publication stats for {self.contact}"
+
+    @classmethod
+    def update_for_contact(cls, contact):
+        """Update publication statistics for a given contact."""
+        from magazine.models import (
+            ArchiveArticleAuthor,
+            MagazineArticle,
+            MagazineArticleAuthor,
+            MagazineIssue,
+        )
+
+        # Get all magazine articles authored by this contact
+        articles_authored = MagazineArticleAuthor.objects.filter(
+            author=contact,
+        ).select_related(
+            "article",
+        )
+        archive_articles_authored = ArchiveArticleAuthor.objects.filter(
+            author=contact,
+        ).select_related("article__issue")
+
+        # Count the total number of articles
+        article_count = articles_authored.count() + archive_articles_authored.count()
+
+        # Find the most recent publication date
+        recent_article_date = None
+
+        # For magazine articles, get the publication date from the parent issue
+        if articles_authored.exists():
+            # We'll query all magazine articles by this author and find the latest one
+            magazine_article_ids = articles_authored.values_list(
+                "article_id",
+                flat=True,
+            )
+
+            # Find articles from their IDs
+            magazine_articles = MagazineArticle.objects.filter(
+                id__in=magazine_article_ids,
+            )
+
+            # Get parent issues
+            parent_issue_ids = []
+            for article in magazine_articles:
+                # Get parent page which should be a MagazineIssue
+                parent = article.get_parent()
+                if parent and isinstance(parent.specific, MagazineIssue):
+                    parent_issue_ids.append(parent.id)
+
+            # Now query all related magazine issues with their publication dates
+            if parent_issue_ids:
+                recent_issues = MagazineIssue.objects.filter(
+                    id__in=parent_issue_ids,
+                ).order_by(
+                    "-publication_date",
+                )
+
+                if recent_issues.exists():
+                    recent_issue = recent_issues.first()
+                    if hasattr(recent_issue, "publication_date"):
+                        pub_date = recent_issue.publication_date
+                        if isinstance(pub_date, timezone.datetime):
+                            recent_article_date = pub_date
+                        else:
+                            # Convert date to datetime if needed
+                            recent_article_date = timezone.datetime.combine(
+                                pub_date,
+                                timezone.datetime.min.time(),
+                                tzinfo=timezone.get_current_timezone(),
+                            )
+
+        # For archive articles, use the archive issue's publication date
+        if archive_articles_authored.exists():
+            recent_archive_articles = archive_articles_authored.order_by(
+                "-article__issue__publication_date",
+            )
+            if recent_archive_articles.exists():
+                recent_archive = recent_archive_articles.first()
+                if hasattr(recent_archive.article.issue, "publication_date"):
+                    pub_date = recent_archive.article.issue.publication_date
+                    if isinstance(pub_date, timezone.datetime):
+                        archive_date = pub_date
+                    else:
+                        # Convert date to datetime if needed
+                        archive_date = timezone.datetime.combine(
+                            pub_date,
+                            timezone.datetime.min.time(),
+                            tzinfo=timezone.get_current_timezone(),
+                        )
+
+                    if (
+                        recent_article_date is None
+                        or archive_date > recent_article_date
+                    ):
+                        recent_article_date = archive_date
+
+        # Determine contact type
+        if contact.specific_class.__name__ == "Person":
+            contact_type = cls.ContactType.PERSON
+        elif contact.specific_class.__name__ == "Meeting":
+            contact_type = cls.ContactType.MEETING
+        elif contact.specific_class.__name__ == "Organization":
+            contact_type = cls.ContactType.ORGANIZATION
+        else:
+            # Default fallback
+            contact_type = cls.ContactType.PERSON
+
+        # Create or update the statistics
+        stats, created = cls.objects.update_or_create(
+            contact=contact,
+            defaults={
+                "article_count": article_count,
+                "last_published_at": recent_article_date,
+                "contact_type": contact_type,
+            },
+        )
+
+        return stats
 
 
 class JSONLDMixin:
