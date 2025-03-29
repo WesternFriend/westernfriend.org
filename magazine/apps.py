@@ -8,6 +8,8 @@ class MagazineConfig(AppConfig):
         """Import signals when app is ready."""
         from . import signals  # noqa
 
-        # Keep signals module imported without using assert
+        # Prevent linter from complaining about unused import
+        # since it is necessary for signal registration
+        # and not used directly in the code.
         if not signals:  # This condition will never be true but keeps the import
             pass  # pragma: no cover
