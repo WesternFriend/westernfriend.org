@@ -299,23 +299,7 @@ class Meeting(ContactBase):
         FieldRowPanel(
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
-            children=[
-                FieldPanel(
-                    "civicrm_id",
-                    permission="superuser",
-                    read_only=True,
-                ),
-                FieldPanel(
-                    "drupal_author_id",
-                    permission="superuser",
-                    read_only=True,
-                ),
-                FieldPanel(
-                    "drupal_duplicate_author_ids",
-                    permission="superuser",
-                    read_only=True,
-                ),
-            ],
+            children=ContactBase.import_metadata_panels,
         ),
     ]
 
