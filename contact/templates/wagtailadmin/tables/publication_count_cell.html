@@ -1,0 +1,13 @@
+{% load i18n wagtailadmin_tags %}
+
+<div class="publication-info">
+    {% if article_count %}
+        <span class="article-count">{{ article_count }}</span>
+    {% else %}
+        <span class="article-count">0</span>
+    {% endif %}
+
+    {% if last_published_at %}
+        <br><small class="last-published">{{ last_published_at|date:"M d, Y" }}</small>
+    {% endif %}
+</div>

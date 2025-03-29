@@ -1,6 +1,8 @@
 from wagtail import hooks
+from wagtail.admin.menu import MenuItem
+
 from .models import Meeting, Organization, Person
-from .views import ContactViewSetGroup
+from .views import ContactPublicationStatsView, ContactViewSetGroup
 
 
 @hooks.register("construct_queryset")
@@ -22,3 +24,27 @@ def prefetch_contact_related(queryset):
 @hooks.register("register_admin_viewset")
 def register_contact_viewset_group():
     return ContactViewSetGroup()
+
+
+@hooks.register("register_reports_menu_item")
+def register_contact_publication_stats_menu_item():
+    """Register the contact publication statistics report in the reports menu."""
+    return MenuItem(
+        "Publication Stats",
+        "/admin/reports/contact-publication-stats/",
+        icon_name="doc-full",
+    )
+
+
+@hooks.register("register_admin_urls")
+def register_contact_publication_stats_url():
+    """Register the URL for the contact publication statistics report."""
+    from django.urls import path
+
+    return [
+        path(
+            "reports/contact-publication-stats/",
+            ContactPublicationStatsView.as_view(),
+            name="contact_publication_stats",
+        ),
+    ]
