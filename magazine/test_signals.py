@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils import timezone
 
 from contact.factories import PersonFactory
 from contact.models import ContactPublicationStatistics
@@ -37,16 +38,17 @@ class MagazineSignalsTest(TestCase):
         # Get magazine index for creating archive issue
         magazine_index = self.magazine_issue.get_parent()
 
-        # Create an archive issue
+        # Create an archive issue with timezone-aware datetime
+        archive_date = timezone.datetime(2020, 1, 1)
         self.archive_issue = ArchiveIssue(
             title="Archive Issue",
             slug="archive-issue",
-            publication_date="2020-01-01",
+            publication_date=timezone.make_aware(archive_date),
             internet_archive_identifier="test-archive",
         )
         magazine_index.add_child(instance=self.archive_issue)
 
-        # Create an archive article - properly using ArchiveArticle model, not Page
+        # Create an archive article
         self.archive_article = ArchiveArticle(
             title="Archive Article",
             toc_page_number=1,

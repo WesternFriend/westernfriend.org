@@ -3,6 +3,7 @@ from typing import Any
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import TextChoices
+from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.html import strip_tags
 from modelcluster.fields import ParentalKey
@@ -119,7 +120,16 @@ class ContactPublicationStatistics(models.Model):
                 if recent_issues.exists():
                     recent_issue = recent_issues.first()
                     if hasattr(recent_issue, "publication_date"):
-                        recent_article_date = recent_issue.publication_date
+                        pub_date = recent_issue.publication_date
+                        if isinstance(pub_date, timezone.datetime):
+                            recent_article_date = pub_date
+                        else:
+                            # Convert date to datetime if needed
+                            recent_article_date = timezone.datetime.combine(
+                                pub_date,
+                                timezone.datetime.min.time(),
+                                tzinfo=timezone.get_current_timezone(),
+                            )
 
         # For archive articles, use the archive issue's publication date
         if archive_articles_authored.exists():
@@ -129,7 +139,17 @@ class ContactPublicationStatistics(models.Model):
             if recent_archive_articles.exists():
                 recent_archive = recent_archive_articles.first()
                 if hasattr(recent_archive.article.issue, "publication_date"):
-                    archive_date = recent_archive.article.issue.publication_date
+                    pub_date = recent_archive.article.issue.publication_date
+                    if isinstance(pub_date, timezone.datetime):
+                        archive_date = pub_date
+                    else:
+                        # Convert date to datetime if needed
+                        archive_date = timezone.datetime.combine(
+                            pub_date,
+                            timezone.datetime.min.time(),
+                            tzinfo=timezone.get_current_timezone(),
+                        )
+
                     if (
                         recent_article_date is None
                         or archive_date > recent_article_date
