@@ -237,16 +237,20 @@ class ContactPublicationStatsView(ReportView):
     filterset_class = ContactPublicationStatsFilterSet
     results_template_name = "contact/reports/contact_publication_stats.html"
 
+    # Add the required URL names
+    index_url_name = "contact_publication_stats"
+    index_results_url_name = "contact_publication_stats_results"
+
     export_filename = "contact_publication_stats"
     export_headings = {
-        "contact": "Contact Name",
+        "contact__title": "Contact Name",
         "contact_type": "Contact Type",
-        "article_count": "Article Count",
+        "article_count": "Articles",
         "last_published_at": "Last Published",
     }
 
     list_export = [
-        "contact",
+        "contact__title",
         "contact_type",
         "article_count",
         "last_published_at",

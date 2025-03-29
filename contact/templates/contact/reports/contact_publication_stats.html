@@ -1,11 +1,9 @@
-{% extends 'wagtailadmin/reports/listing/_list_page_report.html' %}
+{% extends 'wagtailadmin/reports/base_report_results.html' %}
 
-{% block extra_columns %}
-    <th>Article Count</th>
+{% block results %}
+    {% include 'contact/reports/include/_list_contact_publication_stats.html' %}
 {% endblock %}
 
-{% block extra_page_data %}
-    <td valign="top">
-        {{ page.article_count }}
-    </td>
+{% block no_results_message %}
+    <p>No publication statistics available.</p>
 {% endblock %}

@@ -47,4 +47,9 @@ def register_contact_publication_stats_url():
             ContactPublicationStatsView.as_view(),
             name="contact_publication_stats",
         ),
+        path(
+            "reports/contact-publication-stats/results/",
+            ContactPublicationStatsView.as_view(results_only=True),
+            name="contact_publication_stats_results",
+        ),
     ]
