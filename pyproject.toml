@@ -117,6 +117,26 @@ plugins = ['django_coverage_plugin']
 [tool.coverage.django_coverage_plugin]
 template_extensions = 'html, txt, tex, email'
 
+# Configuration for uv's pip-compile tool used via pre-commit
+# This ensures that requirements.txt is automatically generated from pyproject.toml
+# to be compatible with Heroku buildpacks and other deployment platforms that require requirements.txt
+# The pre-commit hook will run whenever pyproject.toml changes, keeping requirements.txt in sync
+# with our actual dependencies while maintaining security and deterministic builds
+# - generate-hashes: true
+#   - This option generates hashes for all dependencies, ensuring that the exact versions are used.
+#   - This is important for security and reproducibility.
+# - upgrade: "safe"
+#   - This option allows for safe upgrades of dependencies, meaning that only non-breaking changes will be applied.
+#   - This helps to keep the dependencies up to date without introducing breaking changes.
+# - emit-exact-constraints: true
+#   - This option ensures that the exact versions of dependencies are emitted in the requirements.txt file.
+#   - This is important for reproducibility and ensures that the same versions are used in different environments.
+# - include-dev: false
+#   - This option excludes development dependencies from the requirements.txt file.
+#   - This is useful for deployment environments where only production dependencies are needed.
+[tool.uv]
+pip-compile = { generate-hashes = true, upgrade = "safe", emit-exact-constraints = true, include-dev = false }
+
 [dependency-groups]
 dev = [
     "coverage>=7.7.1",
