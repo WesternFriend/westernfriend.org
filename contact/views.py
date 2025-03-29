@@ -235,6 +235,7 @@ class ContactPublicationStatsView(ReportView):
     page_title = "Contact Publication Statistics"
     header_icon = "user"
     filterset_class = ContactPublicationStatsFilterSet
+    results_template_name = "contact/reports/contact_publication_stats.html"
 
     export_filename = "contact_publication_stats"
     export_headings = {

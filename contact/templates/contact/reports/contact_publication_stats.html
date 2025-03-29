@@ -1,39 +1,11 @@
-{% extends "wagtailadmin/reports/base_report.html" %}
-{% load i18n wagtailadmin_tags %}
+{% extends 'wagtailadmin/reports/listing/_list_page_report.html' %}
 
-{% block results %}
-    {% if object_list %}
-        <table class="listing">
-            <thead>
-                <tr>
-                    <th>{% trans "Contact" %}</th>
-                    <th>{% trans "Type" %}</th>
-                    <th>{% trans "Articles" %}</th>
-                    <th>{% trans "Last Published" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stat in object_list %}
-                    <tr>
-                        <td class="title">
-                            <a href="{% url 'wagtailadmin_pages:edit' stat.contact.id %}">
-                                {{ stat.contact.title }}
-                            </a>
-                        </td>
-                        <td>{{ stat.get_contact_type_display }}</td>
-                        <td>{{ stat.article_count }}</td>
-                        <td>
-                            {% if stat.last_published_at %}
-                                {{ stat.last_published_at|date:"M d, Y" }}
-                            {% else %}
-                                {% trans "Never" %}
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>{% trans "No publication statistics available." %}</p>
-    {% endif %}
+{% block extra_columns %}
+    <th>Article Count</th>
+{% endblock %}
+
+{% block extra_page_data %}
+    <td valign="top">
+        {{ page.article_count }}
+    </td>
 {% endblock %}
