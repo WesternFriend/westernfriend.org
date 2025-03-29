@@ -221,9 +221,14 @@ class Person(ContactBase):
         )
         return data
 
-    class Meta(ContactBase.Meta):
+    class Meta:
         db_table = "person"
         verbose_name_plural = "people"
+        ordering = ["title"]
+        indexes = [
+            models.Index(fields=["civicrm_id"]),
+            models.Index(fields=["drupal_author_id"]),
+        ]
 
 
 class PersonIndexPage(Page):
@@ -323,8 +328,13 @@ class Meeting(ContactBase):
         index.SearchField("description"),
     ]
 
-    class Meta(ContactBase.Meta):
+    class Meta:
         db_table = "meeting"
+        ordering = ["title"]
+        indexes = [
+            models.Index(fields=["civicrm_id"]),
+            models.Index(fields=["drupal_author_id"]),
+        ]
 
     template = "contact/contact.html"
 
@@ -441,8 +451,13 @@ class Organization(ContactBase):
         index.SearchField("description"),
     ]
 
-    class Meta(ContactBase.Meta):
+    class Meta:
         db_table = "organization"
+        ordering = ["title"]
+        indexes = [
+            models.Index(fields=["civicrm_id"]),
+            models.Index(fields=["drupal_author_id"]),
+        ]
 
     def get_json_ld(self):
         data = super().get_json_ld()
