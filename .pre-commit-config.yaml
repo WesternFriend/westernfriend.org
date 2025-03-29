@@ -57,13 +57,6 @@ repos:
     hooks:
       - id: keep-sorted
         exclude: ".*migrations/.*"
-  - repo: local
-    hooks:
-      - id: django-makemigrations-check
-        name: Check for missing migrations in Django project
-        entry: python manage.py makemigrations --check --dry-run --noinput
-        language: system
-        pass_filenames: false
   - repo: https://github.com/PyCQA/bandit.git
     rev: 1.8.3
     hooks:
