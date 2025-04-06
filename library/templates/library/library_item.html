@@ -92,3 +92,61 @@
         {% endif %}
     </dl>
 {% endblock %}
+
+{% block extra_js %}
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork",
+      "name": "{{ page.title }}",
+      {% if page.specific.authors.count %}
+      "author": [
+        {% for author in page.specific.authors.all %}
+        {
+          "@type": "{% if author.author.specific_class_name == 'Person' %}Person{% else %}Organization{% endif %}",
+          "name": "{{ author.author.title }}"
+          {% if author.author.specific_class_name == 'Person' %}
+          ,"givenName": "{{ author.author.specific.given_name }}",
+          "familyName": "{{ author.author.specific.family_name }}"
+          {% endif %}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      {% endif %}
+      {% if page.specific.publication_date %}
+      "datePublished": "{{ page.specific.publication_date|date:"Y-m-d" }}",
+      {% endif %}
+      {% if page.specific.item_audience %}
+      "audience": {
+        "@type": "Audience",
+        "name": "{{ page.specific.item_audience.title }}"
+      },
+      {% endif %}
+      {% if page.specific.item_genre %}
+      "genre": "{{ page.specific.item_genre.title }}",
+      {% endif %}
+      {% if page.specific.item_medium %}
+      "encodingFormat": "{{ page.specific.item_medium.title }}",
+      {% endif %}
+      {% if page.specific.item_time_period %}
+      "temporalCoverage": "{{ page.specific.item_time_period.title }}",
+      {% endif %}
+      {% if page.specific.topics.count %}
+      "about": [
+        {% for topic in page.specific.topics.all %}
+        "{{ topic.topic.title }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      {% endif %}
+      {% if page.tags.count %}
+      "keywords": [
+        {% for tag in page.tags.all %}
+        "{{ tag }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      {% endif %}
+      "url": "{{ page.full_url }}"
+    }
+</script>
+
+{% endblock extra_js %}
