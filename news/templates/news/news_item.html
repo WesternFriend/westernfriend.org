@@ -43,3 +43,40 @@
         </div>
     {% endif %}
 {% endblock %}
+
+{% block extra_js %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "{{ page.title }}",
+  "datePublished": "{{ page.publication_date|date:'Y-m-d' }}",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ page.full_url }}"
+  },
+  {% if page.teaser %}
+  "description": "{{ page.teaser }}",
+  {% endif %}
+  "publisher": {
+    "@type": "Organization",
+    "name": "Western Friend"
+  },
+  {% if page.topics.count %}
+  "about": [
+    {% for news_topic in page.topics.all %}
+    "{{ news_topic.topic.title }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ],
+  {% endif %}
+  {% if page.tags.count %}
+  "keywords": [
+    {% for tag in page.tags.all %}
+    "{{ tag }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+  {% endif %}
+}
+</script>
+{% endblock extra_js %}
+
