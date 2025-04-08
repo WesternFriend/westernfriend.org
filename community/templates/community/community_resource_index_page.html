@@ -16,7 +16,7 @@
                     </div>
                     {% if resource.description %}
                         <span>
-                            {{ resource.description | richtext }}
+                            {{ resource.description|richtext }}
                         </span>
                     {% endif %}
                 </a>
@@ -27,11 +27,11 @@
                     </div>
                     {% if resource.description %}
                         <span>
-                            {{ resource.description | richtext }}
+                            {{ resource.description|richtext }}
                         </span>
                     {% endif %}
                 </div>
             {% endif %}
         {% endfor %}
     </div>
-{% endblock %}
+{% endblock content %}

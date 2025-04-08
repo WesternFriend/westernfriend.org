@@ -15,9 +15,9 @@
 
         {% if issue.specific.publication_date %}
             <p class="card-text">
-                {{ issue.specific.publication_date | date:"M" }}
+                {{ issue.specific.publication_date|date:"M" }}
                 /
-                {{ issue.specific.publication_end_date | date:"M Y" }}
+                {{ issue.specific.publication_end_date|date:"M Y" }}
             </p>
         {% endif %}
     </div>

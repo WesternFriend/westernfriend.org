@@ -18,11 +18,11 @@
             </ul>
         {% endif %}
 
-        {{ entity.specific.teaser | richtext }}
+        {{ entity.specific.teaser|richtext }}
 
         <p>
             <a href="{% pageurl entity.get_parent %}" class="card-link">
-                {{ entity.get_parent }} ({{ entity.get_parent.specific.publication_date| date:"F Y" }})
+                {{ entity.get_parent }} ({{ entity.get_parent.specific.publication_date|date:"F Y" }})
             </a>
         </p>
     </div>

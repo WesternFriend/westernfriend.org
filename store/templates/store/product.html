@@ -5,7 +5,7 @@
 {% block content %}
     <h1>{{ page.title }}</h1>
 
-    {{ page.description | richtext }}
+    {{ page.description|richtext }}
 
     {% image page.image max-320x200 %}
 
@@ -14,4 +14,4 @@
     </p>
 
     {% include "store/add_to_cart.html" with product=page %}
-{% endblock %}
+{% endblock content %}

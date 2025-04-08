@@ -2,10 +2,10 @@
 {% load wagtailcore_tags %}
 {% block content %}
     <h1>
-        {{ selected_year }} {{ page.title }}
+        {{ selected_year }} {{ page.title }}
     </h1>
 
-    {{ page.specific.intro | richtext }}
+    {{ page.specific.intro|richtext }}
 
     <div class="mb-2">
         {% for year in news_years %}

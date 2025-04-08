@@ -10,7 +10,7 @@
         <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
     {% endfor %}
 
-    {{ page.description | richtext }}
+    {{ page.description|richtext }}
 
     {% image page.image max-320x200 %}
 
@@ -60,4 +60,4 @@
             </div>
         </div>
     </form>
-{% endblock %}
+{% endblock content %}

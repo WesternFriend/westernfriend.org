@@ -1,15 +1,14 @@
 {% extends 'base.html' %}
 
-{% load tz %}
-{% load static wagtailcore_tags %}
+{% load static tz wagtailcore_tags %}
 
 {% block body_class %}
     template-event
-{% endblock %}
+{% endblock body_class %}
 
 {% block title %}
     {{ page.title }}
-{% endblock %}
+{% endblock title %}
 
 {% block content %}
     <a href="{% pageurl page.get_parent %}?category={{ page.category }}">Events</a>
@@ -50,7 +49,7 @@
             Visit event website
         </a>
     {% endif %}
-{% endblock %}
+{% endblock content %}
 
 {% block extra_js %}
     <script type="application/ld+json">
@@ -68,4 +67,4 @@
             "eventWebsite": "{% if event.website %}{{ event.website }}{% endif %}"
         }
     </script>
-{% endblock %}
+{% endblock extra_js %}

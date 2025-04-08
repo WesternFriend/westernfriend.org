@@ -8,7 +8,7 @@
     {% csrf_token %}
 
     {% for field in form %}
-        {{ field | as_crispy_field}}
+        {{ field|as_crispy_field }}
     {% endfor %}
 
     <button type="submit" class="btn btn-outline-success float-right">Register</button>

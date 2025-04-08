@@ -9,7 +9,7 @@
     <h1>{{ page.title }}</h1>
 
     {% if page.specific.description %}
-        {{ page.specific.description | richtext }}
+        {{ page.specific.description|richtext }}
     {% endif %}
 
     {% if page.specific.website %}
@@ -20,4 +20,4 @@
             More information
         </a>
     {% endif %}
-{% endblock %}
+{% endblock content %}

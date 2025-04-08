@@ -8,7 +8,7 @@
     <h1 class="mb-3">
         {{ page.title }}
         {% if page.publication_date %}
-            ({{ page.publication_date | date:"M" }}/{{ page.publication_end_date | date:"M Y" }})
+            ({{ page.publication_date|date:"M" }}/{{ page.publication_end_date|date:"M Y" }})
         {% endif %}
     </h1>
 
@@ -73,4 +73,4 @@
         </div>
     </div>
 
-{% endblock %}
+{% endblock content %}
