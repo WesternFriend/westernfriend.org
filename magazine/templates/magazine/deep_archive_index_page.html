@@ -6,7 +6,7 @@
     <a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a>
     <h1>{{ page.title }}</h1>
 
-    {{ page.intro | richtext }}
+    {{ page.intro|richtext }}
     <div class="row">
         <div class="card mb-3">
             <div class="card-body">
@@ -80,4 +80,4 @@
             }
         }
     </script>
-{% endblock extra_js%}
+{% endblock extra_js %}

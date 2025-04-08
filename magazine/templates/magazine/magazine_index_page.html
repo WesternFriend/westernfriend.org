@@ -10,7 +10,7 @@
     </h1>
 
     <div class="intro">
-        {{ page.intro | richtext }}
+        {{ page.intro|richtext }}
     </div>
 
     <h2 id="recent-issues">
@@ -54,7 +54,7 @@
             <i class="bi bi-calendar-heart" aria-hidden="true"></i>
             Deep archive
         </h2>
-        {{ page.deep_archive_intro | richtext }}
+        {{ page.deep_archive_intro|richtext }}
 
         <a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline-primary mb-3">
             <i class="bi bi-eye" aria-hidden="true"></i>
@@ -71,4 +71,4 @@
             </div>
         </div>
     {% endif %}
-{% endblock %}
+{% endblock content %}

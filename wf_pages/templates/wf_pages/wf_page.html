@@ -29,10 +29,10 @@
             </dt>
             <dd>
                 {% for tag in page.tags.all %}
-                    <a href="{%url 'search' %}?query={{ tag }}">{{ tag }}</a>
+                    <a href="{% url 'search' %}?query={{ tag }}">{{ tag }}</a>
                     {% if not forloop.last %},{% endif %}
                 {% endfor %}
             </dd>
         </dl>
     {% endif %}
-{% endblock %}
+{% endblock content %}

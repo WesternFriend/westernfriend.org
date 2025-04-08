@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
-{% load tz %}
-
-{% load wagtailcore_tags %}
+{% load tz wagtailcore_tags %}
 
 {% block body_class %}template-magazineindexpage{% endblock %}
 
@@ -13,7 +11,7 @@
     </h1>
 
     <div class="intro">
-        {{ page.intro | richtext }}
+        {{ page.intro|richtext }}
     </div>
 
     {% if events.page %}
@@ -41,10 +39,10 @@
                                 {% endif %}
 
                                 <p>
-                                    <span class="fw-bold">Start Date:</span> {{ event.start_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
+                                    <span class="fw-bold">Start Date:</span> {{ event.start_date|timezone:"US/Pacific"|date:"F d, Y, f A" }}
                                     &nbsp;
                                     {% if event.end_date %}
-                                        <span class="fw-bold">End Date:</span> {{ event.end_date | timezone:"US/Pacific" | date:"F d, Y, f A" }}
+                                        <span class="fw-bold">End Date:</span> {{ event.end_date|timezone:"US/Pacific"|date:"F d, Y, f A" }}
                                     {% endif %}
                                     (US/Pacific)
                                 </p>
@@ -69,4 +67,4 @@
     {% else %}
         <p>There are no {{ event_category_title }} events</p>
     {% endif %}
-{% endblock %}
+{% endblock content %}

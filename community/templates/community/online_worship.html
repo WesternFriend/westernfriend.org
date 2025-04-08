@@ -30,11 +30,11 @@
     {% endif %}
 
     {% if page.specific.description %}
-        {{ page.specific.description | richtext }}
+        {{ page.specific.description|richtext }}
     {% endif %}
 
     {% if page.specific.times_of_worship %}
         <strong>Times of worship:</strong>
-        {{ page.specific.times_of_worship | richtext }}
+        {{ page.specific.times_of_worship|richtext }}
     {% endif %}
-{% endblock %}
+{% endblock content %}

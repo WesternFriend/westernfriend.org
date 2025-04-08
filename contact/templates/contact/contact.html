@@ -187,10 +187,10 @@
             {% endfor %}
         </ul>
     {% endif %}
-{% endblock %}
+{% endblock content %}
 
 {% block extra_js %}
     <script type="application/ld+json">
         {{ page.specific.get_json_ld|safe }}
     </script>
-{% endblock %}
+{% endblock extra_js %}

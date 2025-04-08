@@ -1,11 +1,9 @@
 {% extends "base.html" %}
-{% load static %}
-
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load static wagtailcore_tags wagtailimages_tags %}
 
 {% block title %}
     Western Friend cart
-{% endblock %}
+{% endblock title %}
 
 {% block content %}
     <h1>Your shopping cart</h1>
@@ -125,4 +123,4 @@
             </a>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}

@@ -17,12 +17,12 @@
 
     {{ page.body }}
 
-    {% if page.topics.count  %}
+    {% if page.topics.count %}
         <div class="topics">
             Topics:&nbsp;
             {% for news_topic in page.topics.all %}
                 <a
-                    href="{%url 'search' %}?query={{ news_topic.topic }}"
+                    href="{% url 'search' %}?query={{ news_topic.topic }}"
                     class="btn btn-outline-primary btn-sm">
                     {{ news_topic.topic }}
                 </a>
@@ -30,16 +30,16 @@
         </div>
     {% endif %}
 
-    {% if page.tags.count  %}
+    {% if page.tags.count %}
         <div class="tags">
             Tags:&nbsp;
             {% for tag in page.tags.all %}
                 <a
-                    href="{%url 'search' %}?query={{ tag }}"
+                    href="{% url 'search' %}?query={{ tag }}"
                     class="btn btn-outline-primary btn-sm">
                     {{ tag }}
                 </a>
             {% endfor %}
         </div>
     {% endif %}
-{% endblock %}
+{% endblock content %}

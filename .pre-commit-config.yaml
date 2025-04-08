@@ -52,6 +52,11 @@ repos:
     rev: 3.0.7
     hooks:
       - id: djhtml
+  - repo: https://github.com/adamchainz/djade-pre-commit
+    rev: "1.3.2"
+    hooks:
+      - id: djade
+        args: [--target-version, "5.1"]
   - repo: https://github.com/google/keep-sorted
     rev: v0.6.0
     hooks:

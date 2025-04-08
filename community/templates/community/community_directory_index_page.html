@@ -9,7 +9,7 @@
         {{ page.title }}
     </h1>
 
-    {{ page.intro | richtext }}
+    {{ page.intro|richtext }}
 
     <div class="list-group">
         {% for community_directory in self.get_children %}
@@ -21,7 +21,7 @@
 
                     {% if community_directory.specific.description %}
                         <span>
-                            {{ community_directory.specific.description | richtext }}
+                            {{ community_directory.specific.description|richtext }}
                         </span>
                     {% endif %}
                 </a>
@@ -33,11 +33,11 @@
 
                     {% if community_directory.specific.description %}
                         <span>
-                            {{ community_directory.specific.description | richtext }}
+                            {{ community_directory.specific.description|richtext }}
                         </span>
                     {% endif %}
                 </div>
             {% endif %}
         {% endfor %}
     </div>
-{% endblock %}
+{% endblock content %}

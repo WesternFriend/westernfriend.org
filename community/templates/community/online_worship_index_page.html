@@ -9,7 +9,7 @@
         {{ page.title }}
     </h1>
 
-    {{ page.intro | richtext }}
+    {{ page.intro|richtext }}
 
     {% for online_worship in online_worship_meetings %}
         <div class="card mb-3">
@@ -24,7 +24,7 @@
                             {% if online_worship.times_of_worship %}
                                 <p class="card-text">
                                     <strong>Times of worship:</strong>&nbsp;
-                                    {{ online_worship.times_of_worship | richtext }}
+                                    {{ online_worship.times_of_worship|richtext }}
                                 </p>
                             {% endif %}
 
@@ -75,4 +75,4 @@
         </div>
     {% endfor %}
 
-{% endblock %}
+{% endblock content %}
