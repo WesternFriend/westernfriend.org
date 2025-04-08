@@ -125,17 +125,13 @@ template_extensions = 'html, txt, tex, email'
 # - generate-hashes: true
 #   - This option generates hashes for all dependencies, ensuring that the exact versions are used.
 #   - This is important for security and reproducibility.
-# - upgrade: "safe"
-#   - This option allows for safe upgrades of dependencies, meaning that only non-breaking changes will be applied.
-#   - This helps to keep the dependencies up to date without introducing breaking changes.
-# - emit-exact-constraints: true
-#   - This option ensures that the exact versions of dependencies are emitted in the requirements.txt file.
-#   - This is important for reproducibility and ensures that the same versions are used in different environments.
-# - include-dev: false
-#   - This option excludes development dependencies from the requirements.txt file.
-#   - This is useful for deployment environments where only production dependencies are needed.
-[tool.uv]
-pip-compile = { generate-hashes = true, upgrade = "safe", emit-exact-constraints = true, include-dev = false }
+# - upgrade: false
+#   - This option prevents automatic upgrades of dependencies when resolving.
+#   - This ensures consistency between environments and reproducible builds.
+
+[tool.uv.pip]
+generate-hashes = true
+upgrade = false
 
 [dependency-groups]
 dev = [
