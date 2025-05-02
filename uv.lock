@@ -468,6 +468,23 @@ wheels = [
 ]
 
 [[package]]
+name = "django-tailwind"
+version = "4.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e5/14/33694e3e5ac431991b7ea2eefe8d2460a7e555f2d6e6a4b4780e718c54d9/django_tailwind-4.0.1.tar.gz", hash = "sha256:e1f411246208056e8903f304f80a548eac2e5a3c4b6c4adb14eff21ac2dfdd6d", size = 9911 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cd/8f/7a651007ab9bf552221ae8adc9305c7d21113a9814eb38153b5fdb4ef5eb/django_tailwind-4.0.1-py3-none-any.whl", hash = "sha256:33e5dd5aadd5aa6facf4bddab9144a40cb501e486d4970b93e2853dbdbef4f67", size = 16714 },
+]
+
+[package.optional-dependencies]
+reload = [
+    { name = "django-browser-reload" },
+]
+
+[[package]]
 name = "django-tasks"
 version = "0.6.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1356,6 +1373,7 @@ dependencies = [
     { name = "django-honeypot" },
     { name = "django-registration" },
     { name = "django-storages" },
+    { name = "django-tailwind", extra = ["reload"] },
     { name = "django-timezone-field" },
     { name = "gunicorn" },
     { name = "psycopg2-binary" },
@@ -1395,6 +1413,7 @@ requires-dist = [
     { name = "django-honeypot" },
     { name = "django-registration" },
     { name = "django-storages" },
+    { name = "django-tailwind", extras = ["reload"], specifier = ">=4.0.1" },
     { name = "django-timezone-field" },
     { name = "gunicorn" },
     { name = "psycopg2-binary" },
