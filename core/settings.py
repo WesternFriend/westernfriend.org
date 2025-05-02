@@ -198,6 +198,7 @@ INSTALLED_APPS = [
     # keep-sorted end
 ]
 
+TAILWIND_APP_NAME = "theme"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
