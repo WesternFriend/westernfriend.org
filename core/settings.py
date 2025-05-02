@@ -169,6 +169,7 @@ INSTALLED_APPS = [
     "modelcluster",
     "storages",
     "taggit",
+    "tailwind",
     "wagtail",
     "wagtail.admin",
     "wagtail.contrib.forms",
