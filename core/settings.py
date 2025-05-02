@@ -196,6 +196,9 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
     "django.contrib.staticfiles",
     # keep-sorted end
+    # The theme needs to be listed after tailwind
+    # because it uses tailwind's CSS
+    "theme",
 ]
 
 TAILWIND_APP_NAME = "theme"
