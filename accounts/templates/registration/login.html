@@ -1,18 +1,32 @@
 {% extends "base.html" %}
-{% load crispy_forms_tags %}
+{% load core_form_tags %}
 
 {% block content %}
-    <h1>Login</h1>
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Login</h1>
     <div class="row">
         <div class="col-12 col-lg-8">
             <form method="post" action="" class="mb-2">
                 {% csrf_token %}
-                {{ form|crispy }}
+
+                {% for field in form %}
+                    <div class="form-control mb-4">
+                        <label for="{{ field.id_for_label }}" class="label">
+                            <span class="label-text text-gray-700 font-medium">{{ field.label }}</span>
+                        </label>
+                        {{ field|add_class:"input input-bordered w-full bg-white text-gray-800" }}
+                        {% if field.help_text %}
+                            <span class="label-text-alt text-sm text-gray-600 mt-1">{{ field.help_text }}</span>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <span class="text-error text-sm mt-1">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
 
                 <input type="submit" value="login" class="btn btn-primary mt-3">
                 <input type="hidden" name="next" value="{{ next }}">
             </form>
-            <a href="{% url 'password_reset' %}">Lost password?</a>
+            <a href="{% url 'password_reset' %}" class="text-blue-600 hover:text-blue-800">Lost password?</a>
         </div>
     </div>
 {% endblock content %}
