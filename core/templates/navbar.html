@@ -1,48 +1,71 @@
 {% load wagtailsettings_tags %}
 {% get_settings use_default_site=True %}
 
-<nav class="navbar navbar-expand-lg navbar-dark pb-0 shadow-sm" style="background-color: #000;" aria-label="Main navigation">
-    <div class="container">
-        <button class="navbar-toggler mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<nav class="bg-black text-white shadow-md sticky top-0 z-50" aria-label="Main navigation">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-wrap items-center justify-between">
+            <button class="md:hidden p-2 my-2 rounded focus:outline-none"
+                    type="button"
+                    data-collapse-toggle="navbarCollapse"
+                    aria-controls="navbarCollapse"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <i class="bi bi-list text-2xl"></i>
+            </button>
 
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav website-links" role="menubar">
-                {{ settings.navigation.NavigationMenuSetting.menu_items }}
-            </ul>
-            <ul class="navbar-nav ms-auto me-lg-3" role="menubar">
-                <li class="nav-item" role="none">
-                    {% if user.is_authenticated %}
-                        <form id="logout-form" method="post" action="{% url 'logout' %}?next={{ request.path }}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-link nav-link" role="menuitem">Log out</button>
-                        </form>
-                    {% else %}
-                        <a href="{% url 'login' %}?next={{ request.path }}" class="nav-link" rel="nofollow" role="menuitem">
-                            Login
-                        </a>
-                    {% endif %}
-                </li>
-                {% if not user.is_authenticated %}
-                    <li class="nav-item" role="none">
-                        <a href="{% url 'django_registration_register' %}" class="nav-link" rel="nofollow" role="menuitem">
-                            Register
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
+            <div class="hidden w-full md:block md:w-auto" id="navbarCollapse">
+                <div class="flex flex-col md:flex-row md:items-center">
+                    <ul class="menu menu-horizontal bg-black website-links" role="menubar">
+                        {{ settings.navigation.NavigationMenuSetting.menu_items }}
+                    </ul>
 
-            <form action="{% url 'search' %}" method="get" class="form-inline mb-2 mb-lg-0" role="search">
-                <div class="input-group">
-                    <label for="navbar-search-input" class="visually-hidden">Search</label>
-                    <input id="navbar-search-input" name="query" type="search" class="form-control" placeholder="Search" aria-label="Search" />
-                    <button class="btn btn-outline-light" type="submit" aria-label="Submit search">
-                        <i class="bi bi-search" aria-hidden="true"></i>
-                    </button>
+                    <ul class="menu menu-horizontal bg-black md:ml-auto" role="menubar">
+                        <li class="nav-item" role="none">
+                            {% if user.is_authenticated %}
+                                <form id="logout-form" method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-ghost text-white px-3 py-1 hover:bg-gray-700" role="menuitem">Log out</button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-ghost text-white px-3 py-1 hover:bg-gray-700" rel="nofollow" role="menuitem">
+                                    Login
+                                </a>
+                            {% endif %}
+                        </li>
+                        {% if not user.is_authenticated %}
+                            <li class="nav-item" role="none">
+                                <a href="{% url 'django_registration_register' %}" class="btn btn-ghost text-white px-3 py-1 hover:bg-gray-700" rel="nofollow" role="menuitem">
+                                    Register
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+
+                    <form action="{% url 'search' %}" method="get" class="relative mt-2 md:mt-0" role="search">
+                        <div class="flex">
+                            <label for="navbar-search-input" class="sr-only">Search</label>
+                            <input id="navbar-search-input" name="query" type="search"
+                                   class="bg-[#ffefed] border-0 rounded-l-lg py-1 px-2 focus:outline-none focus:ring-2 focus:ring-[#aa3f2e] w-full"
+                                   placeholder="Search" aria-label="Search" />
+                            <button class="bg-gray-700 hover:bg-gray-800 text-white px-3 rounded-r-lg"
+                                    type="submit" aria-label="Submit search">
+                                <i class="bi bi-search" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const button = document.querySelector('[data-collapse-toggle="navbarCollapse"]');
+        const menu = document.getElementById('navbarCollapse');
+
+        button.addEventListener('click', function() {
+            menu.classList.toggle('hidden');
+        });
+    });
+</script>

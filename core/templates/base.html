@@ -1,7 +1,7 @@
 {% load static tailwind_tags wagtailcore_tags wagtailuserbar %}
 
 <!DOCTYPE html>
-<html class="h-100" lang="en">
+<html class="h-full" lang="en">
     <head>
         <meta charset="utf-8" />
         <title>
@@ -57,16 +57,16 @@
         {% endblock extra_css %}
     </head>
 
-    <body class="{% block body_class %}{% endblock %} d-flex flex-column h-100">
+    <body class="{% block body_class %}{% endblock %} flex flex-col h-full">
         {% wagtailuserbar %}
 
         {% include "heading.html" %}
 
-        <div class="container mt-4 mb-4 flex-shrink-0">
+        <div class="container mx-auto px-4 mt-4 mb-4 flex-shrink-0">
             {% if messages %}
                 <div class="notifications">
                     {% for message in messages %}
-                        <div class="{{ message.tags }} fw-bold">
+                        <div class="{{ message.tags }} font-bold">
                             {{ message }}
                         </div>
                     {% endfor %}
