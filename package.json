@@ -1,9 +1,0 @@
-{
-  "name": "westernfriend-website",
-  "engines": {
-    "node": "22.x"
-  },
-  "cacheDirectories": [
-    "theme/static_src/node_modules"
-  ]
-}

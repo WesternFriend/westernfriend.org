@@ -10,6 +10,14 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict
+  - repo: local
+    hooks:
+      - id: build-tailwind
+        name: Build Tailwind CSS for production
+        entry: bash -c "cd theme/static_src && npm run build"
+        language: system
+        files: ^theme/static/
+        pass_filenames: false
   - repo: https://github.com/astral-sh/uv-pre-commit
     rev: 0.6.10 # Pin to specific UV version
     hooks:
