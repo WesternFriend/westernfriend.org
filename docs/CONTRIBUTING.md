@@ -27,11 +27,10 @@ Follow the steps below to set up your development environment.
 
 ### Setup
 
-1. **Clone the Repository**: `git clone git@github.com:WesternFriend/WF-website.git`
-2. **Change into the Application Directory**: `cd WF-website/`
+1. **Clone the Repository**: `git clone git@github.com:WesternFriend/westernfriend.org.git`
+2. **Change into the Application Directory**: `cd  westernfriend.org/`
 3. **Create Virtual Environment and Install Dependencies**:
    ```
-   uv venv
    uv sync
    ```
 4. **Activate the Virtual Environment**:
@@ -53,6 +52,12 @@ This project uses Docker to manage a Postgres database.
 3. **Create a Superuser**: `python manage.py createsuperuser`
 4. **Run the Server**: `python manage.py runserver` (access from http://localhost:8000)
 5. **Scaffold Initial Content**: `python manage.py scaffold_initial_content`
+
+To edit the Tailwind CSS, run the following command in a separate terminal:
+
+```bash
+python manage.py tailwind start
+```
 
 ### Dependency Management
 
