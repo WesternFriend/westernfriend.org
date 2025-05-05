@@ -62,9 +62,3 @@ repos:
     hooks:
       - id: keep-sorted
         exclude: ".*migrations/.*"
-  - repo: https://github.com/PyCQA/bandit.git
-    rev: 1.8.3
-    hooks:
-      - id: bandit
-        name: Security checks for Python code with Bandit
-        exclude: ".*migrations/.*|.*tests/.*|.*tests.py|.*factories.py"

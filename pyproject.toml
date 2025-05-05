@@ -73,6 +73,7 @@ dependencies = [
     "django-honeypot",
     "django-registration",
     "django-storages",
+    "django-tailwind[reload]>=4.0.1",
     "django-timezone-field",
     "django_coverage_plugin",
     "gunicorn",
@@ -135,6 +136,7 @@ upgrade = false
 
 [dependency-groups]
 dev = [
+    "cookiecutter>=2.6.0",
     "coverage>=7.7.1",
     "django-browser-reload>=1.18.0",
     "django-stubs[compatible-mypy]>=5.1.3",

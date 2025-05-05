@@ -169,6 +169,7 @@ INSTALLED_APPS = [
     "modelcluster",
     "storages",
     "taggit",
+    "tailwind",
     "wagtail",
     "wagtail.admin",
     "wagtail.contrib.forms",
@@ -195,8 +196,12 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
     "django.contrib.staticfiles",
     # keep-sorted end
+    # The theme needs to be listed after tailwind
+    # because it uses tailwind's CSS
+    "theme",
 ]
 
+TAILWIND_APP_NAME = "theme"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
