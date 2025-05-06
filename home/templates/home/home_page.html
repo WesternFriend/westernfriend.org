@@ -5,56 +5,67 @@
 {% block body_class %}template-homepage{% endblock %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <header>
+        <h1>{{ page.title }}</h1>
 
-    {{ page.intro|richtext }}
+        <div class="prose">
+            {{ page.intro|richtext }}
+        </div>
+    </header>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 mt-4">
-        <div>
+        <section aria-labelledby="featured-articles-heading">
             {% if current_issue.featured_articles.count %}
-                <h2>Featured articles</h2>
+                <h2 id="featured-articles-heading">Featured articles</h2>
                 {% for article in current_issue.featured_articles.all %}
                     {% include "home/home_magazine_article_summary.html" with article=article %}
                 {% endfor %}
             {% endif %}
-        </div>
+        </section>
 
-        <div class="mt-4 md:mt-0 flex md:justify-end">
+        <section aria-labelledby="current-issue-heading" class="mt-4 md:mt-0 flex flex-col md:items-end">
             {% if current_issue %}
-                <a href="{% pageurl current_issue %}" class="home-page-featured-issue block max-w-xs">
-                    {% image current_issue.cover_image max-800x600 %}
-                    <br />
-                    {{ current_issue.title }}
-
-                    {% if current_issue.publication_date %}
-                        ({{ current_issue.publication_date|date:"M" }}/{{ current_issue.publication_end_date|date:"M Y" }})
-                    {% endif %}
+                <h2 id="current-issue-heading" class="md:text-right w-full">Current Issue</h2>
+                <a href="{% pageurl current_issue %}" class="block max-w-xs bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow" title="View the current issue: {{ current_issue.title }}">
+                    <figure>
+                        {% image current_issue.cover_image max-800x600 alt=current_issue.title class="rounded-md" %}
+                        <figcaption class="mt-2 text-center font-bold">
+                            {{ current_issue.title }}
+                            {% if current_issue.publication_date %}
+                                <span class="block text-sm font-normal">
+                                    ({{ current_issue.publication_date|date:"M" }}/{{ current_issue.publication_end_date|date:"M Y" }})
+                                </span>
+                            {% endif %}
+                        </figcaption>
+                    </figure>
                 </a>
             {% endif %}
-        </div>
+        </section>
     </div>
 
-    <div class="mt-8">
+    <section aria-labelledby="featured-events-heading" class="mt-8">
         {% if featured_events.count %}
-            <h2>Featured events</h2>
+            <h2 id="featured-events-heading">Featured events</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {% for event in featured_events.all %}
-                    <div>
-                        <div class="card h-full">
-                            <div class="card-body">
-                                <a href="{% pageurl event.event %}"
-                                   class="card-title text-xl font-bold no-underline hover:underline stretched-link">
+                    <article class="bg-base-100 rounded-lg shadow-sm h-full p-4" aria-labelledby="event-title-{{ event.event.id }}">
+                        <header>
+                            <h3 id="event-title-{{ event.event.id }}" class="text-xl font-bold">
+                                <a href="{% pageurl event.event %}" class="hover:underline" title="View details for event: {{ event.event.title }}">
                                     {{ event.event.title }}
                                 </a>
-                                <p class="card-subtitle mt-1 mb-1">{{ event.event.start_date|date:"F d, Y, f A" }} ({{ event.event.timezone }})</p>
-                                <div class="card-text">
-                                    {{ event.event.teaser|truncatewords_html:10 }}
-                                </div>
-                            </div>
+                            </h3>
+                            <time datetime="{{ event.event.start_date|date:'Y-m-d\TH:i:sO' }}" class="mt-1 mb-2 block text-sm">
+                                {{ event.event.start_date|date:"F d, Y, f A" }} ({{ event.event.timezone }})
+                            </time>
+                        </header>
+
+                        <div class="prose" aria-label="Event description">
+                            {{ event.event.teaser|truncatewords_html:10 }}
                         </div>
-                    </div>
+                    </article>
                 {% endfor %}
             </div>
         {% endif %}
-    </div>
+    </section>
 {% endblock content %}
