@@ -3,9 +3,19 @@
 {% block body_class %}template-500{% endblock %}
 
 {% block content %}
-    <h1>Internal server error</h1>
+    <div class="max-w-2xl mx-auto my-8 text-center">
+        <h1 class="text-3xl font-bold mb-4">Internal server error</h1>
 
-    <p>Sorry, there seems to be an error. We have been notified of the error.</p>
+        <div class="prose mx-auto">
+            <p>Sorry, there seems to be an error with our system. Our team has been automatically notified of this issue.</p>
+            <p>Please feel free to <a href="/contact" class="text-primary hover:underline">contact us</a> if you have any questions or concerns.</p>
+        </div>
 
-    <p>Feel free to contact us if you have any questions or concerns.</p>
+        <div class="mt-8">
+            <a href="/" class="btn btn-outline">
+                <i class="bi bi-house-door mr-2" aria-hidden="true"></i>
+                Return to Home Page
+            </a>
+        </div>
+    </div>
 {% endblock content %}

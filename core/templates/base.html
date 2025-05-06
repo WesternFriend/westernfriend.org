@@ -39,7 +39,33 @@
 
         {# Inline critical CSS #}
         <style>
-            /* Insert critical CSS here */
+            /* Skip link styling */
+            .skip-link {
+                position: absolute;
+                top: -40px;
+                left: 0;
+                background: #aa3f2e;
+                color: white;
+                padding: 8px;
+                z-index: 100;
+                transition: top 0.3s;
+            }
+            .skip-link:focus {
+                top: 0;
+                outline: 2px solid white;
+                outline-offset: 2px;
+            }
+
+            /* Focus visible polyfill for browsers that need it */
+            :focus:not(:focus-visible) {
+                outline: none;
+            }
+            :focus-visible {
+                outline: 2px solid #aa3f2e;
+                outline-offset: 2px;
+            }
+
+            /* Insert other critical CSS here */
         </style>
 
         {% tailwind_css %}
@@ -59,20 +85,23 @@
     <body class="{% block body_class %}{% endblock %} flex flex-col h-full">
         {% wagtailuserbar %}
 
+        <!-- Skip link for keyboard users -->
+        <a href="#main-content" class="skip-link">Skip to main content</a>
+
         {% include "heading.html" %}
 
-        <div class="container mx-auto px-4 mt-4 mb-4 flex-shrink-0">
+        <main id="main-content" class="container mx-auto px-4 mt-4 mb-4 flex-shrink-0">
             {% if messages %}
-                <div class="notifications">
+                <div class="notifications" role="status" aria-live="polite">
                     {% for message in messages %}
-                        <div class="{{ message.tags }} font-bold">
+                        <div class="alert alert-{{ message.tags }} font-bold mb-4">
                             {{ message }}
                         </div>
                     {% endfor %}
                 </div>
             {% endif %}
             {% block content %}{% endblock %}
-        </div>
+        </main>
 
         {% include "footer.html" %}
 
