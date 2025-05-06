@@ -14,16 +14,8 @@
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6 mt-4 max-w-screen-xl mx-auto">
-        <section aria-labelledby="featured-articles-heading" class="md:col-span-7 lg:col-span-8">
-            {% if current_issue.featured_articles.count %}
-                <h2 id="featured-articles-heading">Featured articles</h2>
-                {% for article in current_issue.featured_articles.all %}
-                    {% include "home/home_magazine_article_summary.html" with article=article %}
-                {% endfor %}
-            {% endif %}
-        </section>
-
-        <section aria-labelledby="current-issue-heading" class="mt-4 md:mt-0 md:col-span-5 lg:col-span-4 flex flex-col md:items-center">
+        <!-- Current Issue - appears first on mobile, moves to right column on md+ screens -->
+        <section aria-labelledby="current-issue-heading" class="md:col-start-8 md:col-span-5 lg:col-start-9 lg:col-span-4 flex flex-col md:items-center order-first md:order-last">
             {% if current_issue %}
                 <h2 id="current-issue-heading" class="md:text-center w-full">Current Issue</h2>
                 <a href="{% pageurl current_issue %}" class="bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow w-full" title="View the current issue: {{ current_issue.title }}">
@@ -43,31 +35,45 @@
                 </a>
             {% endif %}
         </section>
+
+        <!-- Left column container for Featured Articles and Events -->
+        <div class="md:col-span-7 lg:col-span-8 flex flex-col space-y-8">
+            <!-- Featured Articles -->
+            <section aria-labelledby="featured-articles-heading">
+                {% if current_issue.featured_articles.count %}
+                    <h2 id="featured-articles-heading">Featured articles</h2>
+                    {% for article in current_issue.featured_articles.all %}
+                        {% include "home/home_magazine_article_summary.html" with article=article %}
+                    {% endfor %}
+                {% endif %}
+            </section>
+
+            <!-- Featured Events -->
+            <section aria-labelledby="featured-events-heading">
+                {% if featured_events.count %}
+                    <h2 id="featured-events-heading">Featured events</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for event in featured_events.all %}
+                            <article class="bg-base-100 rounded-lg shadow-sm h-full p-4" aria-labelledby="event-title-{{ event.event.id }}">
+                                <header>
+                                    <h3 id="event-title-{{ event.event.id }}" class="text-xl font-bold">
+                                        <a href="{% pageurl event.event %}" class="hover:underline" title="View details for event: {{ event.event.title }}">
+                                            {{ event.event.title }}
+                                        </a>
+                                    </h3>
+                                    <time datetime="{{ event.event.start_date|date:'Y-m-d\TH:i:sO' }}" class="mt-1 mb-2 block text-sm">
+                                        {{ event.event.start_date|date:"F d, Y, f A" }} ({{ event.event.timezone }})
+                                    </time>
+                                </header>
+
+                                <div class="prose" aria-label="Event description">
+                                    {{ event.event.teaser|truncatewords_html:10 }}
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
+        </div>
     </div>
-
-    <section aria-labelledby="featured-events-heading" class="mt-8 max-w-screen-xl mx-auto">
-        {% if featured_events.count %}
-            <h2 id="featured-events-heading">Featured events</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {% for event in featured_events.all %}
-                    <article class="bg-base-100 rounded-lg shadow-sm h-full p-4" aria-labelledby="event-title-{{ event.event.id }}">
-                        <header>
-                            <h3 id="event-title-{{ event.event.id }}" class="text-xl font-bold">
-                                <a href="{% pageurl event.event %}" class="hover:underline" title="View details for event: {{ event.event.title }}">
-                                    {{ event.event.title }}
-                                </a>
-                            </h3>
-                            <time datetime="{{ event.event.start_date|date:'Y-m-d\TH:i:sO' }}" class="mt-1 mb-2 block text-sm">
-                                {{ event.event.start_date|date:"F d, Y, f A" }} ({{ event.event.timezone }})
-                            </time>
-                        </header>
-
-                        <div class="prose" aria-label="Event description">
-                            {{ event.event.teaser|truncatewords_html:10 }}
-                        </div>
-                    </article>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </section>
 {% endblock content %}
