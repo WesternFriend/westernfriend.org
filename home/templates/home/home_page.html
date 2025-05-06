@@ -29,7 +29,7 @@
                 <a href="{% pageurl current_issue %}" class="bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow w-full" title="View the current issue: {{ current_issue.title }}">
                     <figure>
                         <div class="w-full">
-                            {% srcset_image current_issue.cover_image width-{300,450,600} sizes="(max-width: 640px) 300px, (max-width: 768px) 450px, 600px" class="rounded-md mx-auto" alt=current_issue.title %}
+                            {% srcset_image current_issue.cover_image width-{300,450,600,800} sizes="(max-width: 640px) 300px, (max-width: 768px) 450px, (max-width: 1280px) 600px, 800px" class="rounded-md mx-auto" alt=current_issue.title %}
                         </div>
                         <figcaption class="mt-2 text-center font-bold">
                             {{ current_issue.title }}
