@@ -71,9 +71,7 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            <div class="prose prose-base max-w-none text-gray-900 text-gray-100">
-                {% block content %}{% endblock %}
-            </div>
+            {% block content %}{% endblock %}
         </div>
 
         {% include "footer.html" %}
