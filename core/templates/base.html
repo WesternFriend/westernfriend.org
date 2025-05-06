@@ -56,7 +56,7 @@
         {% endblock extra_css %}
     </head>
 
-    <body class="{% block body_class %}{% endblock %} flex flex-col h-full bg-gray-100 text-gray-900">
+    <body class="{% block body_class %}{% endblock %} flex flex-col h-full bg-gray-100 text-gray-900" data-theme="light">
         {% wagtailuserbar %}
 
         {% include "heading.html" %}
@@ -71,7 +71,9 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            {% block content %}{% endblock %}
+            <div class="prose prose-base max-w-none text-gray-900 text-gray-100">
+                {% block content %}{% endblock %}
+            </div>
         </div>
 
         {% include "footer.html" %}
