@@ -13,8 +13,8 @@
         </div>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 mt-4">
-        <section aria-labelledby="featured-articles-heading">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6 mt-4 max-w-screen-xl mx-auto">
+        <section aria-labelledby="featured-articles-heading" class="md:col-span-7 lg:col-span-8">
             {% if current_issue.featured_articles.count %}
                 <h2 id="featured-articles-heading">Featured articles</h2>
                 {% for article in current_issue.featured_articles.all %}
@@ -23,12 +23,14 @@
             {% endif %}
         </section>
 
-        <section aria-labelledby="current-issue-heading" class="mt-4 md:mt-0 flex flex-col md:items-end">
+        <section aria-labelledby="current-issue-heading" class="mt-4 md:mt-0 md:col-span-5 lg:col-span-4 flex flex-col md:items-center">
             {% if current_issue %}
-                <h2 id="current-issue-heading" class="md:text-right w-full">Current Issue</h2>
-                <a href="{% pageurl current_issue %}" class="block max-w-xs bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow" title="View the current issue: {{ current_issue.title }}">
+                <h2 id="current-issue-heading" class="md:text-center w-full">Current Issue</h2>
+                <a href="{% pageurl current_issue %}" class="bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow w-full" title="View the current issue: {{ current_issue.title }}">
                     <figure>
-                        {% image current_issue.cover_image max-800x600 alt=current_issue.title class="rounded-md" %}
+                        <div class="w-full">
+                            {% srcset_image current_issue.cover_image width-{300,450,600} sizes="(max-width: 640px) 300px, (max-width: 768px) 450px, 600px" class="rounded-md mx-auto" alt=current_issue.title %}
+                        </div>
                         <figcaption class="mt-2 text-center font-bold">
                             {{ current_issue.title }}
                             {% if current_issue.publication_date %}
@@ -43,7 +45,7 @@
         </section>
     </div>
 
-    <section aria-labelledby="featured-events-heading" class="mt-8">
+    <section aria-labelledby="featured-events-heading" class="mt-8 max-w-screen-xl mx-auto">
         {% if featured_events.count %}
             <h2 id="featured-events-heading">Featured events</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
