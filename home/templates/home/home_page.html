@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load static wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-homepage{% endblock %}
+
+{% block og_type %}organization{% endblock %}
 
 {% block content %}
     <header>
@@ -62,4 +64,63 @@
             </section>
         </div>
     </div>
+
+    <!-- Organization schema for hompage -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "@id": "{{ request.scheme }}://{{ request.site.hostname }}/#organization",
+            "name": "Western Friend",
+            "alternateName": "Friends Bulletin Corporation",
+            "legalName": "Friends Bulletin Corporation",
+            "description": "Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States, published by the Friends Bulletin Corporation.",
+            "url": "{{ request.scheme }}://{{ request.site.hostname }}/",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ request.scheme }}://{{ request.site.hostname }}{% static 'img/WF-header.png' %}",
+                "width": "1200",
+                "height": "174"
+            },
+            "foundingDate": "1929",
+            "email": "office@westernfriend.org",
+            "telephone": "+15039979711",
+            "taxID": "93-1156843",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "4207 SE Woodstock Blvd, #305",
+                "addressLocality": "Portland",
+                "addressRegion": "OR",
+                "postalCode": "97206",
+                "addressCountry": "US"
+            },
+            "publishingPrinciples": "{{ request.scheme }}://{{ request.site.hostname }}/about",
+            "isAccessibleForFree": "False",
+            "keywords": "Quaker, Friends, Western Friend, Quakerism, Religious Society of Friends, pacifism, social justice, spirituality",
+            "sameAs": [
+                "https://twitter.com/westernfriend",
+                "https://www.facebook.com/western.friend",
+                "https://www.instagram.com/westernfriend/",
+                "https://mastodon.ie/@westernfriend",
+                "https://github.com/WesternFriend/"
+            ],
+            "parentOrganization": [
+                {
+                    "@type": "Organization",
+                    "name": "Pacific Yearly Meeting",
+                    "url": "https://www.pacificyearlymeeting.org/"
+                },
+                {
+                    "@type": "Organization",
+                    "name": "North Pacific Yearly Meeting",
+                    "url": "https://www.npym.org/"
+                },
+                {
+                    "@type": "Organization",
+                    "name": "Intermountain Yearly Meeting",
+                    "url": "https://imym.org/"
+                }
+            ]
+        }
+    </script>
 {% endblock content %}

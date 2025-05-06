@@ -1,0 +1,57 @@
+{% load wagtailcore_tags %}
+
+{% if page and page.get_ancestors|length > 1 %}
+    <nav aria-label="Breadcrumb" class="mb-4">
+        <ol class="flex flex-wrap items-center gap-2 text-sm">
+            <li class="inline-flex items-center">
+                <a href="/" class="text-primary hover:underline focus:outline-none focus:underline">
+                    Home
+                </a>
+            </li>
+
+            {% for ancestor in page.get_ancestors|slice:"1:" %}
+                {% if not ancestor.is_root %}
+                    <li class="inline-flex items-center">
+                        <span class="mx-1 text-gray-500">/</span>
+                        <a href="{% pageurl ancestor %}" class="text-primary hover:underline focus:outline-none focus:underline">
+                            {{ ancestor.title }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            <li class="inline-flex items-center" aria-current="page">
+                <span class="mx-1 text-gray-500">/</span>
+                <span class="text-gray-700">{{ page.title }}</span>
+            </li>
+        </ol>
+    </nav>
+
+<!-- Structured breadcrumb data -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Home",
+                    "item": "{{ request.scheme }}://{{ request.site.hostname }}/"
+                }{% if page.get_ancestors|length > 1 %}{% for ancestor in page.get_ancestors|slice:"1:" %}{% if not ancestor.is_root %},
+                    {
+                        "@type": "ListItem",
+                        "position": {{ forloop.counter|add:1 }},
+                        "name": "{{ ancestor.title }}",
+                        "item": "{{ request.scheme }}://{{ request.site.hostname }}{% pageurl ancestor %}"
+                    }{% endif %}{% endfor %}{% endif %},
+                {
+                    "@type": "ListItem",
+                    "position": {{ page.get_ancestors|length }},
+                    "name": "{{ page.title }}",
+                    "item": "{{ request.scheme }}://{{ request.site.hostname }}{% pageurl page %}"
+                }
+            ]
+        }
+    </script>
+{% endif %}
