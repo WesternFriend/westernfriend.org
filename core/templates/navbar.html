@@ -4,7 +4,7 @@
 <nav class="bg-black text-white shadow-md sticky top-0 z-50" aria-label="Main navigation">
     <div class="container mx-auto px-2">
         <div class="flex flex-wrap items-center justify-between">
-            <button class="lg:hidden p-1 my-1 rounded focus:outline-none"
+            <button class="xl:hidden p-1 my-1 rounded focus:outline-none"
                     type="button"
                     data-collapse-toggle="navbarCollapse"
                     aria-controls="navbarCollapse"
@@ -13,13 +13,13 @@
                 <i class="bi bi-list text-2xl"></i>
             </button>
 
-            <div class="hidden w-full lg:block lg:w-auto" id="navbarCollapse">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:space-x-1">
+            <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:space-x-1">
                     <ul class="menu menu-horizontal menu-compact bg-black website-links" role="menubar">
                         {{ settings.navigation.NavigationMenuSetting.menu_items }}
                     </ul>
 
-                    <ul class="menu menu-horizontal menu-compact bg-black lg:ml-2" role="menubar">
+                    <ul class="menu menu-horizontal menu-compact bg-black xl:ml-2" role="menubar">
                         <li class="nav-item" role="none">
                             {% if user.is_authenticated %}
                                 <form id="logout-form" method="post" action="{% url 'logout' %}?next={{ request.path }}">
@@ -41,7 +41,7 @@
                         {% endif %}
                     </ul>
 
-                    <form action="{% url 'search' %}" method="get" class="relative mt-2 lg:mt-0 lg:ml-1" role="search">
+                    <form action="{% url 'search' %}" method="get" class="relative mt-2 mb-3 xl:mb-0 xl:mt-0 xl:ml-2" role="search">
                         <div class="flex">
                             <label for="navbar-search-input" class="sr-only">Search</label>
                             <input id="navbar-search-input" name="query" type="search"
