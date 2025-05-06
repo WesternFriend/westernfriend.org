@@ -2,9 +2,9 @@
 {% get_settings use_default_site=True %}
 
 <nav class="bg-black text-white shadow-md sticky top-0 z-50" aria-label="Main navigation">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-2">
         <div class="flex flex-wrap items-center justify-between">
-            <button class="md:hidden p-2 my-2 rounded focus:outline-none"
+            <button class="lg:hidden p-1 my-1 rounded focus:outline-none"
                     type="button"
                     data-collapse-toggle="navbarCollapse"
                     aria-controls="navbarCollapse"
@@ -13,41 +13,41 @@
                 <i class="bi bi-list text-2xl"></i>
             </button>
 
-            <div class="hidden w-full md:block md:w-auto" id="navbarCollapse">
-                <div class="flex flex-col md:flex-row md:items-center">
-                    <ul class="menu menu-horizontal bg-black website-links" role="menubar">
+            <div class="hidden w-full lg:block lg:w-auto" id="navbarCollapse">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:space-x-1">
+                    <ul class="menu menu-horizontal menu-compact bg-black website-links" role="menubar">
                         {{ settings.navigation.NavigationMenuSetting.menu_items }}
                     </ul>
 
-                    <ul class="menu menu-horizontal bg-black md:ml-auto" role="menubar">
+                    <ul class="menu menu-horizontal menu-compact bg-black lg:ml-2" role="menubar">
                         <li class="nav-item" role="none">
                             {% if user.is_authenticated %}
                                 <form id="logout-form" method="post" action="{% url 'logout' %}?next={{ request.path }}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-ghost text-white px-3 py-1 hover:bg-gray-700" role="menuitem">Log out</button>
+                                    <button type="submit" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700" role="menuitem">Log out</button>
                                 </form>
                             {% else %}
-                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-ghost text-white px-3 py-1 hover:bg-gray-700" rel="nofollow" role="menuitem">
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700" rel="nofollow" role="menuitem">
                                     Login
                                 </a>
                             {% endif %}
                         </li>
                         {% if not user.is_authenticated %}
                             <li class="nav-item" role="none">
-                                <a href="{% url 'django_registration_register' %}" class="btn btn-ghost text-white px-3 py-1 hover:bg-gray-700" rel="nofollow" role="menuitem">
+                                <a href="{% url 'django_registration_register' %}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700" rel="nofollow" role="menuitem">
                                     Register
                                 </a>
                             </li>
                         {% endif %}
                     </ul>
 
-                    <form action="{% url 'search' %}" method="get" class="relative mt-2 md:mt-0" role="search">
+                    <form action="{% url 'search' %}" method="get" class="relative mt-2 lg:mt-0 lg:ml-1" role="search">
                         <div class="flex">
                             <label for="navbar-search-input" class="sr-only">Search</label>
                             <input id="navbar-search-input" name="query" type="search"
-                                   class="bg-[#ffefed] border-0 rounded-l-lg py-1 px-2 focus:outline-none focus:ring-2 focus:ring-[#aa3f2e] w-full"
+                                   class="bg-[#ffefed] border-0 rounded-l-lg py-1 px-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#aa3f2e] w-full"
                                    placeholder="Search" aria-label="Search" />
-                            <button class="bg-gray-700 hover:bg-gray-800 text-white px-3 rounded-r-lg"
+                            <button class="bg-gray-700 hover:bg-gray-800 text-white px-2 rounded-r-lg"
                                     type="submit" aria-label="Submit search">
                                 <i class="bi bi-search" aria-hidden="true"></i>
                             </button>
