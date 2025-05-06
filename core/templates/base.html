@@ -1,7 +1,7 @@
 {% load static tailwind_tags wagtailcore_tags wagtailuserbar %}
 
 <!DOCTYPE html>
-<html class="h-full" lang="en">
+<html class="h-full" lang="en" data-theme="light">
     <head>
         <meta charset="utf-8" />
         <title>
@@ -56,7 +56,7 @@
         {% endblock extra_css %}
     </head>
 
-    <body class="{% block body_class %}{% endblock %} flex flex-col h-full bg-gray-100 text-gray-900" data-theme="light">
+    <body class="{% block body_class %}{% endblock %} flex flex-col h-full">
         {% wagtailuserbar %}
 
         {% include "heading.html" %}
