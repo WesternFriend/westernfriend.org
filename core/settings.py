@@ -163,6 +163,7 @@ INSTALLED_APPS = [
     # keep-sorted start
     "crispy_bootstrap5",
     "crispy_forms",
+    "django_browser_reload",
     "django_extensions",
     "django_flatpickr",
     "honeypot",
@@ -215,6 +216,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
