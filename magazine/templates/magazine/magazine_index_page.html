@@ -35,13 +35,18 @@
                 Recent Archive
             </h2>
 
-            <div class="ml-1 mb-4">
-                {% for year in archive_issues_years %}
-                    <span>
-                        <a href="?year={{ year }}" class="text-primary hover:underline">{{ year }}</a>{% if not forloop.last %},{% endif %}
-                    </span>
-                {% endfor %}
-            </div>
+            <nav aria-label="Filter magazine archive by year" class="ml-1 mb-4">
+                <ul class="flex flex-wrap gap-1">
+                    {% for year in archive_issues_years %}
+                        <li class="inline-block">
+                            <a href="?year={{ year }}" class="text-primary hover:underline focus:underline focus:outline-offset-2"
+                               {% if request.GET.year == year|stringformat:"i" %}aria-current="page"{% endif %}>
+                                {{ year }}
+                            </a>{% if not forloop.last %}<span class="ml-1 mr-1">,</span>{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
                 {% for issue in archive_issues.page %}
@@ -69,7 +74,7 @@
                     {{ page.deep_archive_intro|richtext }}
                 </div>
 
-                <a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline mb-6 inline-flex items-center">
+                <a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline mb-6 inline-flex items-center focus:outline-offset-2" aria-label="View the deep archive of Western Friend magazine">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -78,10 +83,10 @@
                 </a>
 
                 <div class="max-w-sm">
-                    <a href="{% pageurl page.deep_archive_page %}" class="block card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+                    <a href="{% pageurl page.deep_archive_page %}" class="block card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow" aria-label="View the deep archive featuring {{ page.featured_deep_archive_issue.title }}">
                         <figure>
                             <img src="https://archive.org/services/img/{{ page.featured_deep_archive_issue.internet_archive_identifier }}"
-                                 alt="Cover of a featured deep archive issue"
+                                 alt="Cover of {{ page.featured_deep_archive_issue.title }}"
                                  class="w-full h-auto">
                         </figure>
                     </a>

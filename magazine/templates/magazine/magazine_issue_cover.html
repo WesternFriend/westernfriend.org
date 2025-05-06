@@ -1,16 +1,19 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
-<a href="{% pageurl issue %}" class="bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow w-full h-full flex flex-col" title="View issue: {{ issue.title }}">
+<a href="{% pageurl issue %}"
+   class="bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow w-full h-full flex flex-col focus:outline-offset-2 focus:ring-2 focus:ring-primary"
+   title="View issue: {{ issue.title }}"
+   aria-labelledby="issue-title-{{ issue.id }}">
     <figure class="flex-grow flex flex-col">
         <div class="w-full flex-grow flex justify-center">
-            {% srcset_image issue.specific.cover_image width-{300,450,600,800} sizes="(max-width: 640px) 300px, (max-width: 768px) 350px, (max-width: 1280px) 400px, 450px" class="rounded-md mx-auto object-contain" alt=issue.title %}
+            {% srcset_image issue.specific.cover_image width-{300,450,600,800} sizes="(max-width: 640px) 300px, (max-width: 768px) 350px, (max-width: 1280px) 400px, 450px" class="rounded-md mx-auto object-contain" alt="Cover of {{ issue.title }}" %}
         </div>
         <figcaption class="mt-2 text-center font-bold">
-            {{ issue.title }}
+            <span id="issue-title-{{ issue.id }}">{{ issue.title }}</span>
             {% if issue.specific.publication_date %}
-                <span class="block text-sm font-normal">
+                <time datetime="{{ issue.specific.publication_date|date:'Y-m' }}" class="block text-sm font-normal">
                     ({{ issue.specific.publication_date|date:"M" }}/{{ issue.specific.publication_end_date|date:"M Y" }})
-                </span>
+                </time>
             {% endif %}
         </figcaption>
     </figure>
