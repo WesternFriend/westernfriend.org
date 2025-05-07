@@ -89,5 +89,19 @@
                 button.focus();
             }
         });
+
+        // Fix for dropdown carets not resetting when clicking outside
+        document.addEventListener('click', function(event) {
+            // Get all open details elements inside the navigation
+            const openDropdowns = menu.querySelectorAll('details[open]');
+
+            // Check if the click was outside of any open dropdown
+            for (const dropdown of openDropdowns) {
+                // If click target is not inside this dropdown, close it
+                if (!dropdown.contains(event.target)) {
+                    dropdown.removeAttribute('open');
+                }
+            }
+        });
     });
 </script>
