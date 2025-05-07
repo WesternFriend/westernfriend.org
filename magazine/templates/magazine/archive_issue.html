@@ -3,75 +3,88 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <a href="{% pageurl page.get_parent %}">Archive</a>
-    <h1>
-        {{ page.title }}
-    </h1>
+    <main>
+        <nav class="breadcrumbs mb-4" aria-label="Breadcrumb">
+            <ul>
+                <li><a href="{% pageurl page.get_parent %}">Archive</a></li>
+                <li>{{ page.title }}</li>
+            </ul>
+        </nav>
 
-    <p>Scroll down past the Table of Contents to see the magazine. Click on a “view page” button to see a specific article. Click on an author name for a list of all articles on our website by that author.</p>
+        <header>
+            <h1>
+                {{ page.title }}
+            </h1>
 
-    {% if page.archive_articles.count %}
-        <h2>Table of Contents</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>View page</th>
-                    <th>Article</th>
-                    <th>Author(s)</th>
-                    <th>Page</th>
-                </tr>
-            </thead>
+            <p>Scroll down past the Table of Contents to see the magazine. Click on a "view page" button to see a specific article. Click on an author name for a list of all articles on our website by that author.</p>
+        </header>
 
-            {% for article in page.archive_articles.all|dictsort:"pdf_page_number" %}
-                <tr
-                    class="article"
-                    data-pdf-page-number="{{ article.pdf_page_number }}"
-                    data-internet-archive-identifier="{{ page.internet_archive_identifier }}"
-                    onclick="turnPage(this)"
-                >
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-eye"></i>
-                            <i class="bi bi-file-earmark-text"></i>
-                            {{ article.value.pdf_page_number }}
-                        </button>
-                    </td>
+        {% if page.archive_articles.count %}
+            <section class="mb-8" aria-labelledby="table-of-contents">
+                <h2 id="table-of-contents">Table of Contents</h2>
 
-                    <td>{{ article.title }}</td>
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                            <tr>
+                                <th class="text-left">View page</th>
+                                <th class="text-left">Article</th>
+                                <th class="text-left">Author(s)</th>
+                                <th class="text-left">Page</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for article in page.archive_articles.all|dictsort:"pdf_page_number" %}
+                                <tr
+                                    class="hover cursor-pointer"
+                                    data-pdf-page-number="{{ article.pdf_page_number }}"
+                                    data-internet-archive-identifier="{{ page.internet_archive_identifier }}"
+                                    onclick="turnPage(this)"
+                                >
+                                    <td>
+                                        <button class="btn btn-sm btn-outline" aria-label="View page {{ article.value.pdf_page_number }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            {{ article.value.pdf_page_number }}
+                                        </button>
+                                    </td>
+                                    <td>{{ article.title }}</td>
+                                    <td>
+                                        {% for archive_author in article.archive_authors.all %}
+                                            {% if archive_author.author.live %}
+                                                <a href="{% pageurl archive_author.author %}" class="link">{{ archive_author.author }}</a>{% if not forloop.last %},{% endif %}
+                                            {% else %}
+                                                {{ archive_author.author }}{% if not forloop.last %},{% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {{ article.toc_page_number }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        {% endif %}
 
-                    <td>
-                        {% for archive_author in article.archive_authors.all %}
-                            {% if archive_author.author.live %}
-                                <a href="{% pageurl archive_author.author %}">{{ archive_author.author }}</a>{% if not forloop.last %},{% endif %}
-                            {% else %}
-                                {{ archive_author.author }}{% if not forloop.last %},{% endif %}
-                            {% endif %}
-                        {% endfor %}
-
-                    </td>
-
-                    <td>
-                        {{ article.toc_page_number }}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
-
-
-    <div style="height: 700px">
-        <iframe
-            id="archive-pdf-viewer"
-            src="https://archive.org/stream/{{ page.internet_archive_identifier }}?ui=embed#page/n0"
-            width="100%"
-            frameborder="0"
-            webkitallowfullscreen="true"
-            mozallowfullscreen="true"
-            allowfullscreen>
-        </iframe>
-    </div>
-
-
+        <section aria-label="Magazine Viewer" class="h-[700px] w-full mb-4">
+            <iframe
+                id="archive-pdf-viewer"
+                src="https://archive.org/stream/{{ page.internet_archive_identifier }}?ui=embed#page/n0"
+                width="100%"
+                height="100%"
+                frameborder="0"
+                title="Magazine Issue PDF"
+                webkitallowfullscreen="true"
+                mozallowfullscreen="true"
+                allowfullscreen>
+            </iframe>
+        </section>
+    </main>
 {% endblock content %}
 
 {% block extra_js %}

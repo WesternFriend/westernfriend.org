@@ -3,18 +3,26 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    {% if request.GET.tag|length %}
-        <h1>Articles tagged "{{ request.GET.tag }}"</h1>
+    <main>
+        {% if request.GET.tag|length %}
+            <header>
+                <h1>Articles tagged "{{ request.GET.tag }}"</h1>
+            </header>
 
-        {% if articles.all.count %}
-            {% for article in articles %}
-                {% include "magazine/magazine_article_summary.html" with article=article %}
-            {% endfor %}
+            {% if articles.all.count %}
+                <section class="space-y-4">
+                    {% for article in articles %}
+                        {% include "magazine/magazine_article_summary.html" with article=article %}
+                    {% endfor %}
+                </section>
+            {% else %}
+                <p class="py-4">No articles found with the tag "{{ request.GET.tag }}".</p>
+            {% endif %}
         {% else %}
-            <p>No articles found with the tag "{{ request.GET.tag }}".</p>
+            <header>
+                <h1>{{ page.title }}</h1>
+                <p>No tag provided.</p>
+            </header>
         {% endif %}
-    {% else %}
-        <h1>{{ page.title }}</h1>
-        <p>No tag provided.</p>
-    {% endif %}
+    </main>
 {% endblock content %}

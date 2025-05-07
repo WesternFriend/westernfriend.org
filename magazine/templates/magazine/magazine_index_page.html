@@ -7,17 +7,17 @@
 {% block content %}
     <main>
         <header>
-            <h1 class="text-3xl font-bold mb-4">
+            <h1>
                 {{ page.title }}
             </h1>
 
-            <div class="prose mb-6">
+            <div class="prose">
                 {{ page.intro|richtext }}
             </div>
         </header>
 
         <section aria-labelledby="recent-issues">
-            <h2 id="recent-issues" class="text-2xl font-bold mb-4">
+            <h2 id="recent-issues">
                 Recent issues
             </h2>
 
@@ -31,7 +31,7 @@
         </section>
 
         <section aria-labelledby="archive-issues">
-            <h2 id="archive-issues" class="text-2xl font-bold mb-4">
+            <h2 id="archive-issues">
                 Recent Archive
             </h2>
 
@@ -39,7 +39,7 @@
                 <ul class="flex flex-wrap gap-1">
                     {% for year in archive_issues_years %}
                         <li class="inline-block">
-                            <a href="?year={{ year }}" class="text-primary hover:underline focus:underline focus:outline-offset-2"
+                            <a href="?year={{ year }}" class="text-primary"
                                {% if request.GET.year == year|stringformat:"i" %}aria-current="page"{% endif %}>
                                 {{ year }}
                             </a>{% if not forloop.last %}<span class="ml-1 mr-1">,</span>{% endif %}
@@ -63,7 +63,7 @@
 
         {% if page.deep_archive_page %}
             <section aria-labelledby="deep-archive">
-                <h2 id="deep-archive" class="text-2xl font-bold mb-4">
+                <h2 id="deep-archive">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
@@ -74,7 +74,7 @@
                     {{ page.deep_archive_intro|richtext }}
                 </div>
 
-                <a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline mb-6 inline-flex items-center focus:outline-offset-2" aria-label="View the deep archive of Western Friend magazine">
+                <a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline mb-6 inline-flex items-center" aria-label="View the deep archive of Western Friend magazine">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />

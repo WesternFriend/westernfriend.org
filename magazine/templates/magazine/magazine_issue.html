@@ -5,72 +5,79 @@
 {% block body_class %}template-magazineissue{% endblock %}
 
 {% block content %}
-    <h1 class="mb-3">
-        {{ page.title }}
-        {% if page.publication_date %}
-            ({{ page.publication_date|date:"M" }}/{{ page.publication_end_date|date:"M Y" }})
-        {% endif %}
-    </h1>
+    <main>
+        <header>
+            <h1>
+                {{ page.title }}
+                {% if page.publication_date %}
+                    <span class="font-normal">({{ page.publication_date|date:"M" }}/{{ page.publication_end_date|date:"M Y" }})</span>
+                {% endif %}
+            </h1>
+        </header>
 
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <section class="col-span-1 md:col-span-2" aria-labelledby="articles-heading">
+                {% if page.featured_articles.count %}
+                    <h2 id="featured-articles-heading" class="ml-4">Featured Articles</h2>
 
+                    <ul class="ml-6 space-y-2">
+                        {% for featured_article in page.featured_articles.all %}
+                            <li>
+                                <a href="{% pageurl featured_article %}" class="font-bold">{{ featured_article.title }}</a>
+                                &nbsp;by
+                                {% for author in featured_article.authors.all %}
+                                    {% if author.author.live %}
+                                        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                                    {% else %}
+                                        {{ author.author }}{% if not forloop.last %},{% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
 
-    <div class="row">
-        <div class="col">
-            {% if page.featured_articles.count %}
-                <h2 class="h3 ms-4">Featured Articles</h2>
+                {% regroup page.specific.articles_by_department by specific.department as departments %}
 
-                <ul class="list-unstyled">
-                    {% for featured_article in page.featured_articles.all %}
-                        <li class="ms-5 mb-2">
-                            <a href="{% pageurl featured_article %}" class="fw-bold">{{ featured_article.title }}</a>
-                            &nbsp;by
-                            {% for author in featured_article.authors.all %}
-                                {% if author.author.live %}
-                                    <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                                {% else %}
-                                    {{ author.author }}{% if not forloop.last %},{% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        </li>
-                    {% endfor %}
+                {% for department in departments %}
+                    <h2 id="department-{{ department.grouper|slugify }}" class="ml-4">
+                        {{ department.grouper }}
+                    </h2>
 
-                </ul>
-            {% endif %}
+                    <ul class="ml-6 space-y-2">
+                        {% for article in department.list %}
+                            <li>
+                                <a href="{% pageurl article %}" class="font-bold">
+                                    {{ article }} {% if article.is_featured %}<span class="font-normal">(featured)</span>{% endif %}
+                                </a>
+                                &nbsp;by
+                                {% for author in article.authors.all %}
+                                    {% if author.author.live %}
+                                        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                                    {% else %}
+                                        {{ author.author }}{% if not forloop.last %},{% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </section>
 
-            {% regroup page.specific.articles_by_department by specific.department as departments %}
+            <aside class="col-span-1 pt-2">
+                <figure>
+                    {% srcset_image page.cover_image width-{300,500,800,1200} sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1280px) 30vw, 25vw" class="rounded-md mx-auto object-contain" alt="Cover image of {{ page.title }} magazine issue" %}
+                    {% if page.cover_image.caption %}
+                        <figcaption class="text-center mt-2">{{ page.cover_image.caption }}</figcaption>
+                    {% endif %}
+                </figure>
 
-            {% for department in departments %}
-                <h2 class="h3 ms-4">
-                    {{ department.grouper }}
-                </h2>
-
-                <ul class="list-unstyled ms-5">
-                    {% for article in department.list %}
-                        <li class="mb-2">
-                            <a href="{% pageurl article %}" class="fw-bold">{{ article }} {% if article.is_featured %}(featured){% endif %}</a>
-                            &nbsp;by
-                            {% for author in article.authors.all %}
-                                {% if author.author.live %}
-                                    <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                                {% else %}
-                                    {{ author.author }}{% if not forloop.last %},{% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endfor %}
+                <nav class="mt-4">
+                    <a href="{{ page.get_parent.url }}" class="link link-primary">
+                        Return to {{ page.get_parent.title }} Collection
+                    </a>
+                </nav>
+            </aside>
         </div>
-
-        <div class="col pt-2">
-            {% image page.cover_image width-480 %}
-
-            <p class="mt-3">
-                <a href="{{ page.get_parent.url }}">
-                    Return to {{ page.get_parent.title }} Collection
-                </a>
-            </p>
-        </div>
-    </div>
-
+    </main>
 {% endblock content %}

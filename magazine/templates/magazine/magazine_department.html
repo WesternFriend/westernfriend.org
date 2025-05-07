@@ -1,13 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <main>
+        <header>
+            <h1>{{ page.title }}</h1>
+        </header>
 
+        {% if page.articles.count %}
+            <section aria-labelledby="articles-heading">
+                <h2 id="articles-heading">Articles</h2>
 
-    {% if page.articles.count %}
-        <h2>Articles</h2>
-        {% for article in page.articles.all %}
-            {% include "magazine/magazine_article_summary.html" with article=article %}
-        {% endfor %}
-    {% endif %}
+                <div class="space-y-4">
+                    {% for article in page.articles.all %}
+                        {% include "magazine/magazine_article_summary.html" with article=article %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+    </main>
 {% endblock content %}
