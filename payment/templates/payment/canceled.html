@@ -3,7 +3,31 @@
 {% block title %}Payment canceled{% endblock %}
 
 {% block content %}
-    <h1>Payment canceled</h1>
+    <main class="container mx-auto px-4 py-6">
+        <header>
+            <h1>Payment canceled</h1>
+        </header>
 
-    <p>Your payment was canceled.</p>
+        <section class="my-6">
+            <div class="bg-warning/10 border border-warning/20 rounded-lg p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="bi bi-exclamation-circle text-warning text-2xl"></i>
+                    <p class="text-lg font-medium">Your payment was canceled.</p>
+                </div>
+
+                <p class="text-gray-600 dark:text-gray-400">
+                    No charges were made to your account. You can try again or contact us if you need assistance.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-4 mt-8">
+                <a href="/" class="btn btn-outline" aria-label="Return to homepage">
+                    Return to homepage
+                </a>
+                <a href="{% url 'payment:process' %}" class="btn btn-primary" aria-label="Try again">
+                    Try again
+                </a>
+            </div>
+        </section>
+    </main>
 {% endblock content %}
