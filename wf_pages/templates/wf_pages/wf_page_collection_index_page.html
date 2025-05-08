@@ -2,19 +2,33 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <main class="container mx-auto px-4 py-6">
+        <header>
+            <h1>{{ page.title }}</h1>
 
-    {{ page.intro|richtext }}
+            {% if page.intro %}
+                <div class="prose dark:prose-invert">
+                    {{ page.intro|richtext }}
+                </div>
+            {% endif %}
+        </header>
 
-    {% if collections.count %}
-        <ul>
-            {% for collection in collections.all %}
-                <li>
-                    <a href="{% pageurl collection %}">
-                        {{ collection }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+        {% if collections.count %}
+            <section aria-labelledby="collections-heading">
+                <h2 id="collections-heading" class="sr-only">Collections</h2>
+                <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for collection in collections.all %}
+                        <li>
+                            <a href="{% pageurl collection %}"
+                               class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow duration-200 h-full block">
+                                <div class="card-body">
+                                    <h3 class="card-title">{{ collection }}</h3>
+                                </div>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+    </main>
 {% endblock content %}
