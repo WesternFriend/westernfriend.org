@@ -1,9 +1,9 @@
 {% load static %}
 
-<div class="sticky-top">
-    <a href="/">
-        <img src="{% static 'img/WF-header.png' %}" alt="Western Friend logo">
+<header class="bg-white w-full">
+    <a href="/" class="block" aria-label="Western Friend - return to home page">
+        <img src="{% static 'img/WF-header.png' %}" alt="Western Friend logo and header image" class="w-full" width="1200" height="174">
     </a>
+</header>
 
-    {% include "navbar.html" %}
-</div>
+{% include "navbar.html" %}

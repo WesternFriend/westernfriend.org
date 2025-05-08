@@ -1,13 +1,11 @@
-<div class="card h-100" >
-    <div class="card-header fw-bold text-bg-wf-primary">
+<article class="card h-full bg-base-100 shadow-md">
+    <header class="card-header bg-primary text-primary-content p-4 font-bold">
         {{ value.page.title }}
-    </div>
+    </header>
     <div class="card-body">
         {% if value.text %}
-            <p class="card-text">
-                {{ value.text }}
-            </p>
+            <p>{{ value.text }}</p>
         {% endif %}
     </div>
-    <a href="{{ value.page.url }}" class="stretched-link"></a>
-</div>
+    <a href="{{ value.page.url }}" class="absolute inset-0" aria-label="Go to {{ value.page.title }}"></a>
+</article>

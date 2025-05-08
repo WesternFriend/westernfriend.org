@@ -1,8 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Activation complete</h1>
-    <p>Your account has been activated.</p>
-    <p>You can now <a href="{% url 'login' %}">log in</a>.</p>
+    <main class="container mx-auto px-4 py-6">
+        <h1>Activation Complete</h1>
+
+        <div class="max-w-2xl">
+            <div class="alert alert-success mb-6">
+                <i class="bi bi-check-circle-fill shrink-0 h-6 w-6"></i>
+                <span>Your account has been successfully activated.</span>
+            </div>
+
+            <div class="prose">
+                <p>You can now <a href="{% url 'login' %}">log in</a> with your username and password.</p>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <a href="{% url 'login' %}" class="btn btn-primary">Log in</a>
+        </div>
+    </main>
 {% endblock content %}
-```

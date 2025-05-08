@@ -5,76 +5,82 @@
 {% block body_class %}template-magazinearticlepage{% endblock %}
 
 {% block content %}
-    <h1>
-        {{ page.title }}
-    </h1>
+    <main>
+        <article>
+            <header>
+                <h1>
+                    {{ page.title }}
+                </h1>
+            </header>
 
-    <dl class="row">
-        {% if page.authors.count %}
-            <dt class="col-sm-2">Author(s):</dt>
-            <dd class="col-sm-10">
-                {% for author in page.authors.all %}
-                    {% if author.author.live %}
-                        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                    {% else %}
-                        {{ author.author }}{% if not forloop.last %},{% endif %}
+            <div class="mb-6">
+                <dl class="grid grid-cols-1 sm:grid-cols-[8rem_1fr] gap-y-2">
+                    {% if page.authors.count %}
+                        <dt class="font-medium">Author(s):</dt>
+                        <dd>
+                            {% for author in page.authors.all %}
+                                {% if author.author.live %}
+                                    <a href="{% pageurl author.author %}" class="link">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                                {% else %}
+                                    {{ author.author }}{% if not forloop.last %},{% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </dd>
                     {% endif %}
-                {% endfor %}
-            </dd>
-        {% endif %}
 
-        <dt class="col-sm-2">
-            Issue:
-        </dt>
-        <dd class="col-sm-10">
-            <a href="{% pageurl page.get_parent %}">
-                {{ page.get_parent }} ({{ page.get_parent.specific.publication_date|date:"F Y" }})
-            </a>
-        </dd>
+                    <dt class="font-medium">Issue:</dt>
+                    <dd>
+                        <a href="{% pageurl page.get_parent %}" class="link">
+                            {{ page.get_parent }} ({{ page.get_parent.specific.publication_date|date:"F Y" }})
+                        </a>
+                    </dd>
 
-        {% if page.department %}
-            <dt class="col-sm-2">
-                Department:
-            </dt>
-            <dd class="col-sm-10">
-                <a href="{% pageurl page.department %}">
-                    {{ page.department }}
-                </a>
-            </dd>
-        {% endif %}
-    </dl>
+                    {% if page.department %}
+                        <dt class="font-medium">Department:</dt>
+                        <dd>
+                            <a href="{% pageurl page.department %}" class="link">
+                                {{ page.department }}
+                            </a>
+                        </dd>
+                    {% endif %}
+                </dl>
+            </div>
 
-    <div class="card mb-2">
-        <div class="card-body">
-            {% if user_can_view_full_article %}
-                {% include_block page.body %}
-            {% else %}
-                {{ page.teaser|richtext }}
+            <div class="mb-6">
+                {% if user_can_view_full_article %}
+                    <div class="prose">
+                        {% include_block page.body %}
+                    </div>
+                {% else %}
+                    <div class="prose">
+                        {{ page.teaser|richtext }}
+                    </div>
 
-                <a href="/subscribe/" class="btn btn-outline btn-success mt-2">
-                    Subscribe now for full access.
-                </a>
+                    <a href="/subscribe/" class="btn btn-outline btn-success mt-4">
+                        Subscribe now for full access
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if page.tags.count %}
+                <footer class="mb-4">
+                    <div class="flex flex-wrap gap-2">
+                        {% for tag in page.tags.all %}
+                            <a href="{% url 'tags:tagged_page_list' tag.slug %}" class="badge badge-outline">
+                                {{ tag }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </footer>
             {% endif %}
-        </div>
-    </div>
 
-    {% if page.tags.count %}
-        <div class="tags">
-            {% for tag in page.tags.all %}
-                <a
-                    href="{% url 'tags:tagged_page_list' tag.slug %}"
-                    class="btn btn-outline-primary btn-sm">
-                    {{ tag }}
+            <nav class="mt-6">
+                <a href="{{ page.get_parent.url }}" class="link link-primary">
+                    Return to "{{ page.get_parent.title }}" issue
                 </a>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <p class="mt-3">
-        <a href="{{ page.get_parent.url }}">
-            Return to "{{ page.get_parent.title }}" issue
-        </a>
-    </p>
+            </nav>
+        </article>
+    </main>
 {% endblock content %}
 
 {% block extra_js %}

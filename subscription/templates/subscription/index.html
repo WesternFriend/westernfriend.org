@@ -2,10 +2,14 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <header>
+        <h1>{{ page.title }}</h1>
+    </header>
 
     {% if page.intro %}
-        {{ page.intro|richtext }}
+        <div class="prose mb-6">
+            {{ page.intro|richtext }}
+        </div>
     {% endif %}
 
     {% if user.is_authenticated is not True %}
@@ -18,17 +22,21 @@
         {% if request.user.is_superuser %}
             <!-- warn superuser not to subscribe since it may cause unexpected difficulties -->
             <div class="alert alert-warning" role="alert">
-                <h2 class="alert-heading fs-4">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    Warning
-                </h2>
-                <p>As a superuser, <b>you should not subscribe to a plan</b>. Doing so may cause unexpected difficulties or errors.</p>
-                <p class="mb-0">
-                    If you want to test the subscription process, <b>please create a new user and subscribe as that user</b>.
-                </p>
+                <div>
+                    <i class="bi bi-exclamation-triangle-fill shrink-0 h-6 w-6"></i>
+                    <div>
+                        <h2 class="font-bold">Warning</h2>
+                        <p>As a superuser, <strong>you should not subscribe to a plan</strong>. Doing so may cause unexpected difficulties or errors.</p>
+                        <p class="mb-0">
+                            If you want to test the subscription process, <strong>please create a new user and subscribe as that user</strong>.
+                        </p>
+                    </div>
+                </div>
             </div>
         {% endif %}
 
-        {% include_block page.body %}
+        <section class="subscription-options">
+            {% include_block page.body %}
+        </section>
     {% endif %}
 {% endblock content %}

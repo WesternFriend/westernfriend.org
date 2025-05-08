@@ -3,16 +3,23 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <main class="container mx-auto px-4 py-6">
+        <header class="mb-6">
+            <h1>{{ page.title }}</h1>
+        </header>
 
-    <h2>Library items</h2>
+        <section aria-labelledby="library-items-heading">
+            <h2 id="library-items-heading" class="text-xl font-semibold mb-4">Library items</h2>
 
-    {% if library_items %}
-        {% for library_item in library_items %}
-            {% include "library/library_item_card.html" %}
-        {% endfor %}
-
-    {% else %}
-        <p>No media items found.</p>
-    {% endif %}
+            {% if library_items %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for library_item in library_items %}
+                        {% include "library/library_item_card.html" %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No media items found.</p>
+            {% endif %}
+        </section>
+    </main>
 {% endblock content %}

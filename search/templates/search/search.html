@@ -6,46 +6,60 @@
 {% block title %}Search{% endblock %}
 
 {% block content %}
-    <h1>Search</h1>
+    <header>
+        <h1>Search</h1>
+    </header>
 
-    <form action="{% url 'search' %}" method="get" class="form-inline">
-        <div class="input-group mb-3">
-            <input
-                type="text"
-                name="query"{% if search_query %}
-                    value="{{ search_query }}"{% endif %}
-                class="form-control form-control-sm me-1"
-                aria-label="Search query"
-                aria-describedby="search-button"
-            >
-            <div class="input-group-append">
-                <input type="submit" value="Search" class="btn btn-outline-primary btn-sm" id="search-button">
+    <section aria-label="Search form">
+        <form action="{% url 'search' %}" method="get" class="mb-6">
+            <div class="join w-full max-w-md">
+                <input
+                    type="text"
+                    name="query"{% if search_query %}
+                        value="{{ search_query }}"{% endif %}
+                    class="input input-bordered join-item flex-1"
+                    placeholder="Enter search terms"
+                    aria-label="Search query"
+                >
+                <button type="submit" class="btn btn-primary join-item">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <span>Search</span>
+                </button>
             </div>
+        </form>
+
+        <div class="alert alert-info mb-6">
+            <i class="bi bi-info-circle-fill shrink-0 w-6 h-6"></i>
+            <span>A search result that only shows a person's name often links to a list of articles written by that person.</span>
         </div>
-    </form>
+    </section>
 
-    <p><strong>A search result that only shows a person’s name often links to a list of articles written by that person.</strong></p>
+    <section aria-live="polite" aria-label="Search results">
+        {% if paginated_search_results %}
+            <div class="space-y-4">
+                {% for result in paginated_search_results.page %}
+                    {% if result.specific.search_template %}
+                        {% include result.specific.search_template with entity=result %}
+                    {% else %}
+                        <article class="card bg-base-100 shadow">
+                            <div class="card-body">
+                                <h2 class="card-title text-lg">
+                                    <a href="{% pageurl result %}">
+                                        {{ result }}
+                                    </a>
+                                </h2>
+                            </div>
+                        </article>
+                    {% endif %}
+                {% endfor %}
+            </div>
 
-    {% if paginated_search_results %}
-
-        {% for result in paginated_search_results.page %}
-            {% if result.specific.search_template %}
-                {% include result.specific.search_template with entity=result %}
-            {% else %}
-                <div class="card my-1">
-                    <div class="card-body">
-                        <h2 class="card-title h5">
-                            <a href="{% pageurl result %}">
-                                {{ result }}
-                            </a>
-                        </h2>
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
-
-        {% include "paginator.html" with paginated_items=paginated_search_results current_querystring=search_querystring %}
-    {% elif search_query %}
-        No results found
-    {% endif %}
+            {% include "paginator.html" with paginated_items=paginated_search_results current_querystring=search_querystring %}
+        {% elif search_query %}
+            <div class="alert">
+                <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                <span>No results found for "{{ search_query }}"</span>
+            </div>
+        {% endif %}
+    </section>
 {% endblock content %}

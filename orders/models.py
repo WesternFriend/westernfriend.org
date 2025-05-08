@@ -1,4 +1,5 @@
 from decimal import Decimal
+
 from django.db import models
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.models import ClusterableModel  # type: ignore
@@ -57,6 +58,9 @@ class Order(ClusterableModel):
         max_length=255,
         default="United States",
         help_text="Country for shipping.",
+        choices=[
+            ("United States", "United States"),
+        ],
     )
     shipping_cost = models.DecimalField(
         max_digits=10,

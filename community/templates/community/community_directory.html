@@ -6,18 +6,35 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <main class="container mx-auto px-4 py-6">
+        <nav class="breadcrumbs mb-4" aria-label="Breadcrumb">
+            <ul>
+                <li><a href="{% pageurl page.get_parent %}">Community Directories</a></li>
+                <li>{{ page.title }}</li>
+            </ul>
+        </nav>
 
-    {% if page.specific.description %}
-        {{ page.specific.description|richtext }}
-    {% endif %}
+        <h1>{{ page.title }}</h1>
 
-    {% if page.specific.website %}
-        <a
-            href="{{ page.specific.website }}"
-            class="btn btn-primary"
-        >
-            More information
-        </a>
-    {% endif %}
+        {% if page.specific.description %}
+            <div class="prose my-6">
+                {{ page.specific.description|richtext }}
+            </div>
+        {% endif %}
+
+        {% if page.specific.website %}
+            <div class="mt-4">
+                <a
+                    href="{{ page.specific.website }}"
+                    class="btn btn-primary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="More information about {{ page.title }}"
+                >
+                    More information
+                    <i class="bi bi-box-arrow-up-right ml-2" aria-hidden="true"></i>
+                </a>
+            </div>
+        {% endif %}
+    </main>
 {% endblock content %}

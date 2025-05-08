@@ -3,31 +3,45 @@
 {% block body_class %}template-404{% endblock %}
 
 {% block content %}
-    <h1>Page not found</h1>
+    <div class="max-w-2xl mx-auto my-8 text-center">
+        <h1 class="text-3xl font-bold mb-4">Page not found</h1>
 
-    <p>We apologize, but it seems like this page doesn't exist. Don't worry, we're here to assist you in finding what you're looking for. You can use the search form below to help locate the content you need.</p>
-
-    <form
-        action="{% url 'search' %}"
-        method="get"
-        class="form col-2-md">
-        <div class="input-group">
-            <input
-                id="search-input"
-                name="query"
-                type="text"
-                class="form-control"
-                value="{{ search_query }}"
-                aria-label="Search"
-            />
-
-            <button
-                class="btn btn-outline-dark"
-                type="submit"
-                aria-label="Submit query">
-                <i class="bi bi-search"></i>
-                Search
-            </button>
+        <div class="prose mx-auto">
+            <p>We apologize, but it seems like this page doesn't exist. Don't worry, we're here to assist you in finding what you're looking for.</p>
         </div>
-    </form>
+
+        <div class="mt-6">
+            <form action="{% url 'search' %}" method="get" class="max-w-md mx-auto">
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <div class="grow">
+                        <label for="search-input" class="sr-only">Search query</label>
+                        <input
+                            id="search-input"
+                            name="query"
+                            type="text"
+                            class="input input-bordered w-full"
+                            value="{{ search_query }}"
+                            aria-label="Search query"
+                            placeholder="What are you looking for?"
+                        />
+                    </div>
+
+                    <button
+                        class="btn btn-primary"
+                        type="submit"
+                        aria-label="Submit search query">
+                        <i class="bi bi-search mr-2" aria-hidden="true"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="mt-8">
+            <a href="/" class="btn btn-outline">
+                <i class="bi bi-house-door mr-2" aria-hidden="true"></i>
+                Return to Home Page
+            </a>
+        </div>
+    </div>
 {% endblock content %}

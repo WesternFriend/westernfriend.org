@@ -5,33 +5,45 @@
 {% block body_class %}template-community-resources{% endblock %}
 
 {% block content %}
-    <h1>Resources</h1>
+    <main class="container mx-auto px-4 py-6">
+        <h1>{{ page.title }}</h1>
 
-    <div class="list-group">
-        {% for resource in resources %}
-            {% if resource.website %}
-                <a href="{{ resource.website }}" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h3 class="mb-1">{{ resource.title }}</h3>
-                    </div>
-                    {% if resource.description %}
-                        <span>
-                            {{ resource.description|richtext }}
-                        </span>
-                    {% endif %}
-                </a>
-            {% else %}
-                <div class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h3 class="mb-1">{{ resource.title }}</h3>
-                    </div>
-                    {% if resource.description %}
-                        <span>
-                            {{ resource.description|richtext }}
-                        </span>
-                    {% endif %}
-                </div>
-            {% endif %}
-        {% endfor %}
-    </div>
+        {% if page.intro %}
+            <div class="prose my-4">
+                {{ page.intro|richtext }}
+            </div>
+        {% endif %}
+
+        <section class="mt-6">
+            <ul class="grid grid-cols-1 gap-4">
+                {% for resource in resources %}
+                    <li class="card card-border bg-base-100">
+                        <div class="card-body">
+                            <h2 class="card-title">{{ resource.title }}</h2>
+
+                            {% if resource.description %}
+                                <div class="prose">
+                                    {{ resource.description|richtext }}
+                                </div>
+                            {% endif %}
+
+                            {% if resource.website %}
+                                <div class="card-actions justify-end mt-4">
+                                    <a
+                                        href="{{ resource.website }}"
+                                        class="btn btn-primary"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label="Visit {{ resource.title }} website">
+                                        Visit Website
+                                        <i class="bi bi-box-arrow-up-right ml-2" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
 {% endblock content %}

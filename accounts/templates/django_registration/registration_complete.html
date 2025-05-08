@@ -1,6 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Activate your account</h1>
-    <p>We have emailed you instructions to activate your account.</p>
+    <main class="container mx-auto px-4 py-6">
+        <h1>Activate your account</h1>
+
+        <div class="max-w-2xl">
+            <div class="alert alert-info mb-6">
+                <i class="bi bi-info-circle-fill shrink-0 w-6 h-6"></i>
+                <span>We have emailed you instructions to activate your account.</span>
+            </div>
+
+            <div class="prose">
+                <p>Please check your email inbox and follow the instructions in the activation email.</p>
+                <p>If you don't receive the email within a few minutes, please check your spam folder.</p>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <a href="{% url 'home' %}" class="btn btn-outline">Return to Home</a>
+        </div>
+    </main>
 {% endblock content %}

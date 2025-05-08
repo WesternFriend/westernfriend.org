@@ -3,28 +3,39 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <main class="container mx-auto px-4 py-6">
+        <header class="mb-6">
+            <h1>{{ page.title }}</h1>
 
-    {% if page.intro %}
-        <p>{{ page.intro|richtext }}</p>
-    {% endif %}
-    {% comment "" %}
+            {% if page.intro %}
+                <div class="prose my-4">
+                    {{ page.intro|richtext }}
+                </div>
+            {% endif %}
+        </header>
+
+    {% comment %}
     This code is a bit hard to decipher, but it's basically saying:
     "Get all the children of this page, sort them by category, and then group them by category."
     https://docs.djangoproject.com/en/4.2/ref/templates/builtins/#regroup
     {% endcomment %}
-    {% regroup page.get_children|dictsort:"specific.category" by specific.get_category_display as documents_by_category %}
+        {% regroup page.get_children|dictsort:"specific.category" by specific.get_category_display as documents_by_category %}
 
-    {% for category, documents in documents_by_category %}
-        <h2>{{ category }}</h2>
-        <ul>
-            {% for document in documents %}
-                <li>
-                    <a href="{% pageurl document %}">
-                        {{ document.title }}
-                    </a>
-                </li>
+        <div class="space-y-8">
+            {% for category, documents in documents_by_category %}
+                <section aria-labelledby="category-heading-{{ forloop.counter }}">
+                    <h2 id="category-heading-{{ forloop.counter }}" class="text-xl font-semibold mb-2">{{ category }}</h2>
+                    <ul class="list-disc ms-5 space-y-1">
+                        {% for document in documents %}
+                            <li>
+                                <a href="{% pageurl document %}" class="link link-primary hover:underline">
+                                    {{ document.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
             {% endfor %}
-        </ul>
-    {% endfor %}
+        </div>
+    </main>
 {% endblock content %}

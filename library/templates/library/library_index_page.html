@@ -3,201 +3,213 @@
 
 
 {% block content %}
-    <h1>
-        {{ page.title }}
-    </h1>
+    <main class="container mx-auto px-4 py-6">
+        <header class="mb-6">
+            <h1>{{ page.title }}</h1>
 
-    {{ page.specific.intro|richtext }}
-
-    <div class="row" id="facets">
-        <div class="col-sm-12 col-md-3">
-            <div class="card mb-2 pb-3">
-                <div class="card-body">
-                    <h2 class="card-title">
-                        Facets
-                        <a href="{{ request.path }}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-eraser-fill"></i>
-                            Clear
-                        </a>
-                    </h2>
+            {% if page.specific.intro %}
+                <div class="prose my-4">
+                    {{ page.specific.intro|richtext }}
                 </div>
-                <form id="facetForm" class="mx-2">
-                    <div class="form-group">
-                        <label for="audience">
-                            Audience
-                        </label>
-                        <select class="form-select" name="item_audience__title" id="audience">
-                            {% if not request.GET.item_audience__title %}
-                                <option selected disabled hidden>Select...</option>
-                            {% endif %}
+            {% endif %}
+        </header>
 
-                            {% for audience in audiences %}
-                                <option
-                                    value="{{ audience }}"
-                                    {% if request.GET.item_audience__title == audience.title %}selected{% endif %}
-                                >
-                                    {{ audience }}
-                                </option>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6" id="facets">
+            <aside class="lg:col-span-3">
+                <div class="card card-border bg-base-100 mb-4">
+                    <div class="card-body">
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 class="card-title">Facets</h2>
+                            <a href="{{ request.path }}"
+                               class="btn btn-sm btn-outline btn-primary"
+                               aria-label="Clear all filters">
+                                <i class="bi bi-eraser-fill me-1" aria-hidden="true"></i>
+                                Clear
+                            </a>
+                        </div>
 
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="genre">
-                            Genre
-                        </label>
-                        <select class="form-select" name="item_genre__title" id="genre">
-                            {% if not request.GET.item_genre__title %}
-                                <option selected disabled hidden>Select...</option>
-                            {% endif %}
-
-                            {% for genre in genres %}
-                                <option
-                                    value="{{ genre }}"
-                                    {% if request.GET.item_genre__title == genre.title %}selected{% endif %}
-                                >
-                                    {{ genre }}
-                                </option>
-
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="medium">
-                            Medium
-                        </label>
-                        <select class="form-select" name="item_medium__title" id="medium">
-                            {% if not request.GET.item_medium__title %}
-                                <option selected disabled hidden>Select...</option>
-                            {% endif %}
-
-                            {% for medium in mediums %}
-                                <option
-                                    value="{{ medium }}"
-                                    {% if request.GET.item_medium__title == medium.title %}selected{% endif %}
-                                >
-                                    {{ medium }}
-                                </option>
-
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="time_period">
-                            Time Period
-                        </label>
-                        <select class="form-select" name="item_time_period__title" id="time_period">
-                            {% if not request.GET.item_time_period__title %}
-                                <option selected disabled hidden>Select...</option>
-                            {% endif %}
-                            {% for time_period in time_periods %}
-                                <option
-                                    value="{{ time_period }}"
-                                    {% if request.GET.item_time_period__title == time_period.title %}selected{% endif %}
-                                >
-                                    {{ time_period }}
-                                </option>
-
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="topic">
-                            Topic
-                        </label>
-
-                        <select class="form-select" name="topics__topic__title" id="topic">
-                            {% if not request.GET.topics__topic__title %}
-                                <option selected disabled hidden>Select...</option>
-                            {% endif %}
-
-                            {% for topic in topics %}
-                                <option
-                                    value="{{ topic }}"
-                                    {% if request.GET.topics__topic__title|stringformat:"s" == topic|stringformat:"s" %}selected{% endif %}
-                                >
-                                    {{ topic }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="col col-md-9" id="app">
-            <div class="card mb-2">
-                <div class="card-header">
-                    Search by
-                </div>
-                <div class="card-body">
-                    <form action="" method="get">
-                        <div class="row g-1">
-                            <div class="col-sm-12 col-md-6 col-lg-4">
-                                <label for="author-select-list" class="form-label">Author</label>
-                                <input
-                                    class="form-control"
-                                    list="author-select-options"
-                                    id="author-select-list"
-                                    name="authors__author__title"
-                                    autocomplete="off"
-                                    {% if request.GET.authors__author__title %}
-                                        value="{{ request.GET.authors__author__title }}"
+                        <form id="facetForm">
+                            <div class="form-control mb-3">
+                                <label for="audience" class="label">
+                                    <span class="label-text">Audience</span>
+                                </label>
+                                <select class="select select-bordered w-full" name="item_audience__title" id="audience">
+                                    {% if not request.GET.item_audience__title %}
+                                        <option selected disabled hidden>Select...</option>
                                     {% endif %}
-                                >
-                                <datalist id="author-select-options">
-                                    {% for author in authors %}
+
+                                    {% for audience in audiences %}
                                         <option
-                                            value="{{ author }}"
+                                            value="{{ audience }}"
+                                            {% if request.GET.item_audience__title == audience.title %}selected{% endif %}
                                         >
-                                            {{ author }}
+                                            {{ audience }}
                                         </option>
                                     {% endfor %}
-                                </datalist>
+                                </select>
                             </div>
-                            <div class="col-sm-12 col-md-6 col-lg-5">
-                                <label for="title-search" class="form-label">Title</label>
-                                <input
-                                    type="text"
-                                    name="title__icontains"
-                                    class="form-control"
-                                    id="title-search"
-                                    {% if request.GET.title__icontains %}
-                                        value="{{ request.GET.title__icontains }}"
+
+                            <div class="form-control mb-3">
+                                <label for="genre" class="label">
+                                    <span class="label-text">Genre</span>
+                                </label>
+                                <select class="select select-bordered w-full" name="item_genre__title" id="genre">
+                                    {% if not request.GET.item_genre__title %}
+                                        <option selected disabled hidden>Select...</option>
                                     {% endif %}
-                                >
+
+                                    {% for genre in genres %}
+                                        <option
+                                            value="{{ genre }}"
+                                            {% if request.GET.item_genre__title == genre.title %}selected{% endif %}
+                                        >
+                                            {{ genre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
                             </div>
-                            <div class="col-sm-12 col-md-12 col-lg-3 align-self-end">
-                                <div class="btn-group mb-1" role="group" aria-label="Basic example">
-                                    <button type="submit" class="btn btn-sm btn-primary">
-                                        <i class="bi bi-search"></i>
-                                        Search
-                                    </button>
-                                    <a href="{{ request.path }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eraser-fill"></i>
-                                        Clear
-                                    </a>
+
+                            <div class="form-control mb-3">
+                                <label for="medium" class="label">
+                                    <span class="label-text">Medium</span>
+                                </label>
+                                <select class="select select-bordered w-full" name="item_medium__title" id="medium">
+                                    {% if not request.GET.item_medium__title %}
+                                        <option selected disabled hidden>Select...</option>
+                                    {% endif %}
+
+                                    {% for medium in mediums %}
+                                        <option
+                                            value="{{ medium }}"
+                                            {% if request.GET.item_medium__title == medium.title %}selected{% endif %}
+                                        >
+                                            {{ medium }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-control mb-3">
+                                <label for="time_period" class="label">
+                                    <span class="label-text">Time Period</span>
+                                </label>
+                                <select class="select select-bordered w-full" name="item_time_period__title" id="time_period">
+                                    {% if not request.GET.item_time_period__title %}
+                                        <option selected disabled hidden>Select...</option>
+                                    {% endif %}
+                                    {% for time_period in time_periods %}
+                                        <option
+                                            value="{{ time_period }}"
+                                            {% if request.GET.item_time_period__title == time_period.title %}selected{% endif %}
+                                        >
+                                            {{ time_period }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-control mb-3">
+                                <label for="topic" class="label">
+                                    <span class="label-text">Topic</span>
+                                </label>
+                                <select class="select select-bordered w-full" name="topics__topic__title" id="topic">
+                                    {% if not request.GET.topics__topic__title %}
+                                        <option selected disabled hidden>Select...</option>
+                                    {% endif %}
+
+                                    {% for topic in topics %}
+                                        <option
+                                            value="{{ topic }}"
+                                            {% if request.GET.topics__topic__title|stringformat:"s" == topic|stringformat:"s" %}selected{% endif %}
+                                        >
+                                            {{ topic }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="lg:col-span-9" id="library-items" aria-label="Library items">
+                <div class="card card-border bg-base-100 mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Search by</h2>
+
+                        <form action="" method="get" class="mt-2">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div class="lg:col-span-1">
+                                    <label for="author-select-list" class="label">
+                                        <span class="label-text">Author</span>
+                                    </label>
+                                    <input
+                                        class="input input-bordered w-full"
+                                        list="author-select-options"
+                                        id="author-select-list"
+                                        name="authors__author__title"
+                                        autocomplete="off"
+                                        {% if request.GET.authors__author__title %}
+                                            value="{{ request.GET.authors__author__title }}"
+                                        {% endif %}
+                                    >
+                                    <datalist id="author-select-options">
+                                        {% for author in authors %}
+                                            <option value="{{ author }}">
+                                                {{ author }}
+                                            </option>
+                                        {% endfor %}
+                                    </datalist>
+                                </div>
+
+                                <div class="lg:col-span-2">
+                                    <label for="title-search" class="label">
+                                        <span class="label-text">Title</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="title__icontains"
+                                        class="input input-bordered w-full"
+                                        id="title-search"
+                                        {% if request.GET.title__icontains %}
+                                            value="{{ request.GET.title__icontains }}"
+                                        {% endif %}
+                                    >
+                                </div>
+
+                                <div class="lg:col-span-1 flex items-end">
+                                    <div class="join w-full">
+                                        <button type="submit" class="btn btn-primary join-item">
+                                            <i class="bi bi-search me-1" aria-hidden="true"></i>
+                                            Search
+                                        </button>
+                                        <a href="{{ request.path }}" class="btn btn-outline btn-primary join-item">
+                                            <i class="bi bi-eraser-fill me-1" aria-hidden="true"></i>
+                                            Clear
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
-            </div>
 
-            {% if paginated_items.page %}
-                {% for library_item in paginated_items.page %}
-                    {% include "library/library_item_card.html" %}
-                {% endfor %}
+                <div class="mt-4">
+                    {% if paginated_items.page %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {% for library_item in paginated_items.page %}
+                                {% include "library/library_item_card.html" %}
+                            {% endfor %}
+                        </div>
 
-                {% include "paginator.html" with paginated_items=paginated_items current_querystring=current_querystring %}
-            {% else %}
-                <p>No media items found.</p>
-            {% endif %}
+                        {% include "paginator.html" with paginated_items=paginated_items current_querystring=current_querystring %}
+                    {% else %}
+                        <p>No media items found.</p>
+                    {% endif %}
+                </div>
+            </section>
         </div>
-    </div>
+    </main>
 {% endblock content %}
 
 {% block extra_js %}
@@ -206,6 +218,5 @@
         document.getElementById("facetForm").addEventListener("change", function () {
             this.submit();
         });
-
     </script>
 {% endblock extra_js %}

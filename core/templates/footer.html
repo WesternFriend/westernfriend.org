@@ -1,47 +1,59 @@
-<section class="footer bg-dark bg-gradient text-white mt-auto pt-1">
-    <div class="container">
-        <div class="h-100 d-flex justify-content-start align-items-start">
-            <div class="flex-fill">
-                <p class="vcard" style="margin-top: 1em;">
-                    <span class="fn org">Western Friend</span>
-                    <span class="address">
+<footer class="bg-gradient-to-b from-gray-800 to-gray-900 text-white mt-auto pt-4">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+            <div class="flex-1">
+                <address class="vcard mt-4 not-italic">
+                    <span class="fn org font-semibold">Western Friend</span>
+                    <span class="block address">
                         <span class="street-address">4207 SE Woodstock Blvd, #305</span>
-                        <span class="locality">Portland</span>, <abbr class="region" title="California">OR</abbr> <span class="postal-code">97206</span>
-                        <abbr class="country-name" title="United States of America">USA</abbr><br>
+                        <span class="locality">Portland</span>, <abbr class="region" title="Oregon">OR</abbr> <span class="postal-code">97206</span>
+                        <abbr class="country-name" title="United States of America">USA</abbr>
                     </span>
-                </p>
-                <p>Western Friend is published by the Friends Bulletin Corporation, an independent 501(c)3 non-profit (EIN-93-1156843), established jointly by Pacific, North Pacific, and Intermountain Yearly Meetings.</p>
-                <p>This website is <a href="https://github.com/WesternFriend/WF-website" target="_blank" class="link" style="color: #F0F4F7;">Open Source on GitHub</a>.</p>
+                    <span class="block mt-1">
+                        <a href="mailto:editor@westernfriend.org" class="email text-gray-100 hover:text-white focus:underline focus:ring-2 focus:ring-gray-300 focus:outline-none">
+                            editor@westernfriend.org
+                        </a>
+                    </span>
+                    <span class="block mt-1">
+                        <a href="tel:+15039979711" class="tel text-gray-100 hover:text-white focus:underline focus:ring-2 focus:ring-gray-300 focus:outline-none">
+                            (503) 997-9711
+                        </a>
+                    </span>
+                </address>
+                <p class="my-2">Western Friend is published by the Friends Bulletin Corporation, an independent 501(c)3 non-profit (EIN-93-1156843), established jointly by Pacific, North Pacific, and Intermountain Yearly Meetings.</p>
+                <p class="mb-4">This website is <a href="https://github.com/WesternFriend/WF-website" target="_blank" rel="noopener" class="text-gray-100 hover:text-white focus:underline focus:ring-2 focus:ring-gray-300 focus:outline-none underline">Open Source on GitHub</a>.</p>
             </div>
 
-            <div class="h-100 d-flex flex-column mt-auto mb-auto ms-1">
-                <a href="/contact" class="btn btn-light">
+            <div class="flex flex-col justify-center items-center self-stretch">
+                <a href="/contact" class="btn bg-white text-black hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 focus:outline-none">
                     Contact&nbsp;Us
                 </a>
             </div>
 
-            <div class="h-100 d-flex flex-column ms-3 mt-auto mb-auto">
-                <a href="https://www.facebook.com/western.friend/" class="text-light" aria-label="WesternFriend Facebook profile link">
-                    <i class="bi bi-facebook"></i>
+            <nav aria-label="Social media links" class="flex flex-row md:flex-col gap-4 md:gap-2">
+                <a href="https://www.facebook.com/western.friend/" class="text-white hover:text-gray-300 focus:underline focus:ring-2 focus:ring-gray-300 focus:outline-none" aria-label="Western Friend Facebook profile" rel="me">
+                    <i class="bi bi-facebook text-xl" aria-hidden="true"></i>
+                    <span class="sr-only">Facebook</span>
                 </a>
 
-                <a href="https://www.instagram.com/westernfriend/" class="text-light" aria-label="WesternFriend Instgram profile link">
-                    <i class="bi bi-instagram"></i>
+                <a href="https://www.instagram.com/westernfriend/" class="text-white hover:text-gray-300 focus:underline focus:ring-2 focus:ring-gray-300 focus:outline-none" aria-label="Western Friend Instagram profile" rel="me">
+                    <i class="bi bi-instagram text-xl" aria-hidden="true"></i>
+                    <span class="sr-only">Instagram</span>
                 </a>
 
-                <a href="https://twitter.com/westernfriend" class="text-light" aria-label="WesternFriend Twitter profile link">
-                    <i class="bi bi-twitter"></i>
+                <a href="https://twitter.com/westernfriend" class="text-white hover:text-gray-300 focus:underline focus:ring-2 focus:ring-gray-300 focus:outline-none" aria-label="Western Friend Twitter profile" rel="me">
+                    <i class="bi bi-twitter text-xl" aria-hidden="true"></i>
+                    <span class="sr-only">Twitter</span>
                 </a>
 
-                <a href="https://mastodon.ie/@westernfriend" class="text-light" aria-label="WesternFriend Mastodon profile link">
-                    <i class="bi bi-mastodon"></i>
+                <a href="https://mastodon.ie/@westernfriend" class="text-white hover:text-gray-300 focus:underline focus:ring-2 focus:ring-gray-300 focus:outline-none" aria-label="Western Friend Mastodon profile" rel="me">
+                    <i class="bi bi-mastodon text-xl" aria-hidden="true"></i>
+                    <span class="sr-only">Mastodon</span>
                 </a>
-            </div>
+            </nav>
         </div>
     </div>
-</section>
-
-
+</footer>
 
 <script type="application/ld+json">
     {
@@ -49,7 +61,14 @@
         "@type": "NGO",
         "name": "Western Friend",
         "alternateName": "Friends Bulletin Corporation",
+        "legalName": "Friends Bulletin Corporation",
+        "description": "Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States, published by the Friends Bulletin Corporation.",
         "url": "https://westernfriend.org",
+        "logo": "https://westernfriend.org/static/img/WF-header.png",
+        "foundingDate": "1929",
+        "email": "editor@westernfriend.org",
+        "telephone": "+15039979711",
+        "taxID": "93-1156843",
         "address": {
             "@type": "PostalAddress",
             "streetAddress": "4207 SE Woodstock Blvd, #305",
@@ -60,8 +79,10 @@
         },
         "sameAs": [
             "https://twitter.com/westernfriend",
-            "https://www.facebook.com/WesternFriendWire",
-            "https://github.com/WesternFriend/"
+            "https://www.facebook.com/western.friend",
+            "https://github.com/WesternFriend/",
+            "https://www.instagram.com/westernfriend/",
+            "https://mastodon.ie/@westernfriend"
         ]
     }
 </script>

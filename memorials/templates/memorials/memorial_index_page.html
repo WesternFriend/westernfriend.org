@@ -3,104 +3,142 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <main class="container mx-auto px-4 py-6">
+        <header class="mb-6">
+            <h1>{{ page.title }}</h1>
 
-    {% if page.intro %}
-        {{ page.intro|richtext }}
-    {% endif %}
-
-
-    <div class="card">
-        <div class="card-body">
-            <form id="filter-form">
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="title">Person</label>
-                            <input id="title" name="title" type="text" class="form-control" placeholder="Person name">
-                        </div>
-                    </div>
-
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="meeting">
-                                Meeting
-                            </label>
-                            <select name="memorial_meeting__title" id="memorial_meeting__title" class="form-control">
-                                <option selected disabled hidden>Choose a meeting...</option>
-                                {% for meeting in meetings %}
-                                    <option>{{ meeting }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-1">
-                        <button
-                            type="submit"
-                            class="btn btn-outline-primary align-baseline mt-4">
-                            Go
-                        </button>
-                    </div>
-
-                    <div class="col-1 me-3">
-                        <button
-                            id="clear-search-button"
-                            class="btn btn-outline-primary mt-4"
-                            onclick="clearSearch()"
-                            type="button">
-                            Clear
-                        </button>
-                    </div>
+            {% if page.intro %}
+                <div class="prose my-4">
+                    {{ page.intro|richtext }}
                 </div>
+            {% endif %}
+        </header>
 
-            </form>
-        </div>
-    </div>
+        <section class="mb-6" aria-labelledby="filter-heading">
+            <div class="card card-border bg-base-100">
+                <div class="card-body">
+                    <h2 id="filter-heading" class="sr-only">Filter Memorials</h2>
+                    <form id="filter-form" aria-label="Memorial filter form">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                            <div class="md:col-span-5">
+                                <div class="form-control">
+                                    <label for="title" class="label">
+                                        <span class="label-text">Person</span>
+                                    </label>
+                                    <input
+                                        id="title"
+                                        name="title"
+                                        type="text"
+                                        class="input input-bordered w-full"
+                                        placeholder="Person name"
+                                    >
+                                </div>
+                            </div>
 
+                            <div class="md:col-span-5">
+                                <div class="form-control">
+                                    <label for="memorial_meeting__title" class="label">
+                                        <span class="label-text">Meeting</span>
+                                    </label>
+                                    <select
+                                        name="memorial_meeting__title"
+                                        id="memorial_meeting__title"
+                                        class="select select-bordered w-full"
+                                    >
+                                        <option selected disabled hidden>Choose a meeting...</option>
+                                        {% for meeting in meetings %}
+                                            <option>{{ meeting }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
 
-    {% if memorials %}
+                            <div class="md:col-span-2 flex items-end space-x-2">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                    aria-label="Apply filters"
+                                >
+                                    <i class="bi bi-search me-1" aria-hidden="true"></i>
+                                    Search
+                                </button>
 
-        <div class="list-group">
-            {% for memorial in memorials.page %}
-                <!-- Bootstrap 5 card with memorial title for heading -->
-                <div class="card mt-2">
-
-                    <div class="card-body">
-                        <h2 class="d-flex w-100">
-                            {{ memorial.title }}
-                        </h2>
-                        <p class="mb-1">
-                            <span class="me-3">
-                                Born: {{ memorial.date_of_birth }}
-                            </span>
-
-                            <span>
-                                Died: {{ memorial.date_of_death }}
-                            </span>
-                        </p>
-
-                        <a
-                            href="{% pageurl memorial %}"
-                            class="btn btn-primary btn-sm stretched-link">
-                            View
-                        </a>
-                    </div>
+                                <button
+                                    id="clear-search-button"
+                                    class="btn btn-outline"
+                                    onclick="clearSearch()"
+                                    type="button"
+                                    aria-label="Clear all filters"
+                                >
+                                    <i class="bi bi-x-lg me-1" aria-hidden="true"></i>
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            {% endfor %}
-
-            <div class="d-flex w-100 justify-content-center mt-2">
-                {% include "paginator.html" with paginated_items=memorials %}
             </div>
-        </div>
-    {% else %}
-        <div class="card-body">
-            <p>There are no memorials.</p>
-        </div>
-    {% endif %}
+        </section>
 
+        <section aria-labelledby="memorials-heading">
+            <h2 id="memorials-heading" class="sr-only">Memorial Listings</h2>
 
+            {% if memorials %}
+                <div class="space-y-4">
+                    {% for memorial in memorials.page %}
+                        <article class="card card-border bg-base-100">
+                            <div class="card-body">
+                                <h3 class="card-title">
+                                    {{ memorial.title }}
+                                </h3>
 
+                                <div class="flex flex-wrap gap-4 mb-2">
+                                    {% if memorial.date_of_birth %}
+                                        <div>
+                                            <span class="font-semibold">Born:</span>
+                                            <time datetime="{{ memorial.date_of_birth|date:'Y-m-d' }}">
+                                                {{ memorial.date_of_birth }}
+                                            </time>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if memorial.date_of_death %}
+                                        <div>
+                                            <span class="font-semibold">Died:</span>
+                                            <time datetime="{{ memorial.date_of_death|date:'Y-m-d' }}">
+                                                {{ memorial.date_of_death }}
+                                            </time>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="card-actions">
+                                    <a
+                                        href="{% pageurl memorial %}"
+                                        class="btn btn-primary btn-sm"
+                                        aria-label="View memorial for {{ memorial.title }}"
+                                    >
+                                        <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                                        View
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+
+                    <nav class="mt-6 flex justify-center" aria-label="Memorial pagination">
+                        {% include "paginator.html" with paginated_items=memorials %}
+                    </nav>
+                </div>
+            {% else %}
+                <div class="card card-border bg-base-100">
+                    <div class="card-body">
+                        <p>There are no memorials.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+    </main>
 {% endblock content %}
 
 {% block extra_js %}
@@ -111,9 +149,6 @@
 
         // if filter query exists
         if (window.location.search) {
-            // Display clear filter button
-            var clearFiltersButton = document.getElementById("clear-search-button");
-
             // Update search facet fields with value(s) from search parameters
             var urlParams = new URLSearchParams(window.location.search);
 

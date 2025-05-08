@@ -1,0 +1,20 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<a href="{% pageurl issue %}"
+   class="bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow w-full focus:outline-offset-2 focus:ring-2 focus:ring-primary"
+   title="View issue: {{ issue.title }}"
+   aria-labelledby="issue-title-{{ issue.id }}">
+    <figure class="flex flex-col">
+        <div class="w-full flex justify-center">
+            {% srcset_image issue.specific.cover_image width-{300,500,800,1200} sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1280px) 30vw, 25vw" class="rounded-md mx-auto object-contain" alt="Cover of {{ issue.title }}" %}
+        </div>
+        <figcaption class="mt-2 text-center font-bold">
+            <span id="issue-title-{{ issue.id }}">{{ issue.title }}</span>
+            {% if issue.specific.publication_date %}
+                <time datetime="{{ issue.specific.publication_date|date:'Y-m' }}" class="block text-sm font-normal">
+                    ({{ issue.specific.publication_date|date:"M" }}/{{ issue.specific.publication_end_date|date:"M Y" }})
+                </time>
+            {% endif %}
+        </figcaption>
+    </figure>
+</a>

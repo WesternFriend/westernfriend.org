@@ -1,24 +1,28 @@
 {% load wagtailcore_tags %}
 
-<div class="card mb-2">
+<article class="card card-border bg-base-100 h-full">
     <div class="card-body">
-        <p class="card-title fs-4">
+        <h3 class="card-title">
             {{ news_item.title }}
-        </p>
+        </h3>
 
-        <p class="card-subtitle mb-2 text-muted">
+        <time datetime="{{ news_item.publication_date|date:'Y-m-d' }}" class="text-gray-600">
             {{ news_item.publication_date }}
-        </p>
+        </time>
 
         {% if news_item.teaser %}
-            <p class="card-text">
+            <div class="prose my-2">
                 {{ news_item.teaser|richtext }}
-            </p>
+            </div>
         {% endif %}
 
-
-        <a href="{% pageurl news_item %}" class="card-link stretched-link">
-            Read more
-        </a>
+        <div class="card-actions justify-end mt-auto">
+            <a href="{% pageurl news_item %}"
+               class="btn btn-outline btn-primary btn-sm"
+               aria-label="Read more about {{ news_item.title }}">
+                Read more
+                <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+            </a>
+        </div>
     </div>
-</div>
+</article>

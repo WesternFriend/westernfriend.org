@@ -1,11 +1,17 @@
 {% load wagtailcore_tags %}
 
-<div class="card my-1">
+<article class="card bg-base-100 shadow mb-4">
     <div class="card-body">
-        <h2 class="card-title h5">
+        <h2 class="card-title text-lg">
             <a href="{% pageurl entity %}">
                 {{ entity.title }}
             </a>
         </h2>
+
+        {% if entity.specific.item_description %}
+            <div class="prose">
+                {{ entity.specific.item_description|truncatewords_html:15|richtext }}
+            </div>
+        {% endif %}
     </div>
-</div>
+</article>

@@ -1,11 +1,14 @@
-<div class="d-flex mb-2">
-    <a href="{{ value.url }}" class="btn btn-sm btn-outline-primary">
-        <i class="bi bi-cloud-download"></i>
+<div class="mb-4">
+    <a href="{{ value.url }}"
+       class="btn btn-outline btn-primary"
+       download
+       aria-label="Download document">
+        <i class="bi bi-cloud-download me-2" aria-hidden="true"></i>
         Download
     </a>
 </div>
 
-<div id="pdf-container-{{ value.id }}"></div>
+<div id="pdf-container-{{ value.id }}" class="w-full h-[700px] my-4" aria-label="PDF document viewer"></div>
 
 <script
     src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.10/pdfobject.min.js"
@@ -14,5 +17,7 @@
     referrerpolicy="no-referrer"></script>
 
 <script>
-    PDFObject.embed("{{ value.url }}", "#pdf-container-{{ value.id }}");
+    PDFObject.embed("{{ value.url }}", "#pdf-container-{{ value.id }}", {
+        fallbackLink: "<p>This browser does not support inline PDFs. Please <a href='{{ value.url }}'>download the PDF</a> to view it.</p>"
+    });
 </script>
