@@ -32,7 +32,7 @@
         <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
         <meta property="og:url" content="{{ request.scheme }}://{{ request.site.hostname }}{{ request.path }}" />
         <meta property="og:title" content="{% if page.seo_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %} - Western Friend" />
-        <meta property="og:description" content="{% if page.search_description %}{{ page.search_description }}{% else %}Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States.{% endif %}" />
+        <meta property="og:description" content="{% if page.search_description %}{{ page.search_description %}{% else %}Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States.{% endif %}" />
         <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.site.hostname }}{% static 'img/og-default.jpg' %}{% endblock %}" />
         <meta property="og:site_name" content="Western Friend" />
         <meta property="og:locale" content="en_US" />
@@ -114,6 +114,29 @@
 
         {% include "heading.html" %}
 
+        <!-- Theme toggle button with explicit labels -->
+        <div class="theme-toggle fixed top-4 right-4 z-40 bg-base-100 p-2 rounded-lg shadow-md">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <!-- Light mode label with sun icon -->
+                <div class="flex items-center">
+                    <i class="bi bi-sun-fill" aria-hidden="true"></i>
+                    <span class="sr-only">Light mode</span>
+                </div>
+
+                <!-- The toggle switch -->
+                <input type="checkbox" id="theme-toggle" class="toggle toggle-sm theme-controller" aria-label="Toggle between light and dark modes" />
+
+                <!-- Dark mode label with moon icon -->
+                <div class="flex items-center">
+                    <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+                    <span class="sr-only">Dark mode</span>
+                </div>
+
+                <!-- Visually hidden label text for screen readers -->
+                <span class="sr-only" id="theme-status">Current theme: light</span>
+            </label>
+        </div>
+
         <main id="main-content" class="container mx-auto px-4 mt-4 mb-4 flex-shrink-0">
             {% if messages %}
                 <div class="notifications" role="status" aria-live="polite">
@@ -145,6 +168,38 @@
         {% block extra_js %}
             {# Override this in templates to add extra javascript #}
         {% endblock extra_js %}
+
+        <!-- Theme toggle script -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Get theme toggle checkbox and status elements
+                const themeToggle = document.getElementById('theme-toggle');
+                const themeStatus = document.getElementById('theme-status');
+                const htmlElement = document.documentElement;
+
+                // Set default theme to light if no preference in localStorage
+                const savedTheme = localStorage.getItem('theme') || 'light';
+
+                // Apply the saved theme
+                htmlElement.setAttribute('data-theme', savedTheme);
+
+                // Set toggle state based on current theme
+                themeToggle.checked = savedTheme === 'dark';
+
+                // Update theme status text for screen readers
+                themeStatus.textContent = `Current theme: ${savedTheme}`;
+
+                // Listen for toggle changes
+                themeToggle.addEventListener('change', function() {
+                    const newTheme = this.checked ? 'dark' : 'light';
+                    htmlElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+
+                    // Update theme status text for screen readers
+                    themeStatus.textContent = `Current theme: ${newTheme}`;
+                });
+            });
+        </script>
 
         {# Load Matomo asynchronously #}
         <script>
