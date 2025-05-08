@@ -12,7 +12,7 @@
             {% for ancestor in page.get_ancestors|slice:"1:" %}
                 {% if not ancestor.is_root %}
                     {% with specific_ancestor=ancestor.specific %}
-                        {% if specific_ancestor|model_name != 'personindexpage' and specific_ancestor|model_name != 'meetingindexpage' and specific_ancestor|model_name != 'organizationindexpage' %}
+                        {% if not specific_ancestor|exclude_from_breadcrumbs %}
                             <li class="inline-flex items-center">
                                 <span class="mx-1 text-gray-500">/</span>
                                 <a href="{% pageurl ancestor %}" class="text-primary hover:underline focus:outline-none focus:underline">
@@ -42,7 +42,7 @@
                     "position": 1,
                     "name": "Home",
                     "item": "{{ request.scheme }}://{{ request.site.hostname }}/"
-                }{% if page.get_ancestors|length > 1 %}{% with position_counter=2 %}{% for ancestor in page.get_ancestors|slice:"1:" %}{% if not ancestor.is_root %}{% with specific_ancestor=ancestor.specific %}{% if specific_ancestor|model_name != 'PersonIndexPage' and specific_ancestor|model_name != 'MeetingIndexPage' and specific_ancestor|model_name != 'OrganizationIndexPage' %},
+                }{% if page.get_ancestors|length > 1 %}{% with position_counter=2 %}{% for ancestor in page.get_ancestors|slice:"1:" %}{% if not ancestor.is_root %}{% with specific_ancestor=ancestor.specific %}{% if not specific_ancestor|exclude_from_breadcrumbs %},
                     {
                         "@type": "ListItem",
                         "position": {{ position_counter }},
