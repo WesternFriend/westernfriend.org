@@ -3,9 +3,42 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a>: {{ page.title }}
-    <h1>{{ page.title }}</h1>
-    <p>{{ page.publication_date }}</p>
-    <p>{{ page.get_document_type_display }}</p>
-    {{ page.body }}
+    <main class="container mx-auto px-4 py-6">
+        <nav class="breadcrumbs mb-4" aria-label="Breadcrumb">
+            <ul>
+                <li>
+                    <a href="{% pageurl page.get_parent %}" class="link link-primary">
+                        {{ page.get_parent.title }}
+                    </a>
+                </li>
+                <li>{{ page.title }}</li>
+            </ul>
+        </nav>
+
+        <article>
+            <header class="mb-4">
+                <h1>{{ page.title }}</h1>
+
+                <div class="flex flex-wrap gap-4 mt-2 text-gray-600">
+                    {% if page.publication_date %}
+                        <time datetime="{{ page.publication_date|date:'Y-m-d' }}">
+                            <i class="bi bi-calendar me-1" aria-hidden="true"></i>
+                            {{ page.publication_date }}
+                        </time>
+                    {% endif %}
+
+                    {% if page.get_document_type_display %}
+                        <div>
+                            <i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>
+                            <span>{{ page.get_document_type_display }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </header>
+
+            <div class="prose max-w-none">
+                {{ page.body|richtext }}
+            </div>
+        </article>
+    </main>
 {% endblock content %}
