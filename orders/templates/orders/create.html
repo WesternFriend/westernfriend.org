@@ -1,120 +1,287 @@
 {% extends "base.html" %}
 
-{% load crispy_forms_tags %}
-
 {% block title %}
     Create order
 {% endblock title %}
 
 {% block content %}
-    <h1>
-        Create order
-    </h1>
+    <main class="container mx-auto px-4 py-6">
+        <header class="mb-6">
+            <h1>Create order</h1>
+        </header>
 
-    <table class="table table-sm">
-        <thead>
-            <th>Quantity</th>
-            <th>Product</th>
-            <th>Line total</th>
-        </thead>
-        {% for item in cart %}
-            <tr>
-                <td>
-                    {{ item.quantity }}
-                </td>
-                <td>
-                    {{ item.product_title }}
-                </td>
-                <td class="text-right">
-                    ${{ item.total_price }}
-                </td>
-            </tr>
-        {% endfor %}
-        <tr>
-            <th scope="row" colspan="2" class="text-right">Subtotal</th>
-            <td class="text-right">${{ cart.get_subtotal_price }}</td>
-        </tr>
-        <tr>
-            <th scope="row" colspan="2" class="text-right">Shipping</th>
-            <td class="text-right">${{ cart.get_shipping_cost }}</td>
-        </tr>
-        <tr>
-            <th scope="row" colspan="2" class="text-right">Total</th>
-            <td class="text-right">${{ cart.get_total_price }}</td>
-        </tr>
-    </table>
-
-    <form action="#" method="post">
-        <h2>Purchaser</h2>
-
-        <div class="row">
-            <div class="col-md-3">
-                {{ form.purchaser_given_name|as_crispy_field }}
+        <section aria-labelledby="cart-summary" class="mb-6">
+            <h2 id="cart-summary" class="sr-only">Cart Summary</h2>
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Quantity</th>
+                            <th>Product</th>
+                            <th class="text-right">Line total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart %}
+                            <tr>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.product_title }}</td>
+                                <td class="text-right">${{ item.total_price }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th scope="row" colspan="2" class="text-right">Subtotal</th>
+                            <td class="text-right">${{ cart.get_subtotal_price }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" colspan="2" class="text-right">Shipping</th>
+                            <td class="text-right">${{ cart.get_shipping_cost }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" colspan="2" class="text-right">Total</th>
+                            <td class="text-right">${{ cart.get_total_price }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
-            <div class="col-md-3">
-                {{ form.purchaser_family_name|as_crispy_field }}
-            </div>
-        </div>
+        </section>
 
-        <div class="row">
-            <div class="col-md-6">
-                {{ form.purchaser_meeting_or_organization|as_crispy_field }}
-            </div>
-        </div>
+        <form action="#" method="post" class="space-y-6">
+            <section aria-labelledby="purchaser-information">
+                <h2 id="purchaser-information">Purchaser</h2>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label for="{{ form.purchaser_given_name.id_for_label }}" class="label">
+                            <span class="label-text">{{ form.purchaser_given_name.label }}</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="{{ form.purchaser_given_name.name }}"
+                            id="{{ form.purchaser_given_name.id_for_label }}"
+                            class="input input-bordered w-full{% if form.purchaser_given_name.errors %} input-error{% endif %}"
+                            {% if form.purchaser_given_name.value %}value="{{ form.purchaser_given_name.value }}"{% endif %}
+                            required="{{ form.purchaser_given_name.field.required|yesno:'true,false' }}"
+                        >
+                        {% if form.purchaser_given_name.errors %}
+                            <div class="text-error text-sm mt-1">{{ form.purchaser_given_name.errors }}</div>
+                        {% endif %}
+                        {% if form.purchaser_given_name.help_text %}
+                            <div class="text-gray-600 text-sm mt-1">{{ form.purchaser_given_name.help_text }}</div>
+                        {% endif %}
+                    </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                {{ form.purchaser_email|as_crispy_field }}
-            </div>
-        </div>
+                    <div class="form-control">
+                        <label for="{{ form.purchaser_family_name.id_for_label }}" class="label">
+                            <span class="label-text">{{ form.purchaser_family_name.label }}</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="{{ form.purchaser_family_name.name }}"
+                            id="{{ form.purchaser_family_name.id_for_label }}"
+                            class="input input-bordered w-full{% if form.purchaser_family_name.errors %} input-error{% endif %}"
+                            {% if form.purchaser_family_name.value %}value="{{ form.purchaser_family_name.value }}"{% endif %}
+                            required="{{ form.purchaser_family_name.field.required|yesno:'true,false' }}"
+                        >
+                        {% if form.purchaser_family_name.errors %}
+                            <div class="text-error text-sm mt-1">{{ form.purchaser_family_name.errors }}</div>
+                        {% endif %}
+                        {% if form.purchaser_family_name.help_text %}
+                            <div class="text-gray-600 text-sm mt-1">{{ form.purchaser_family_name.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
 
-        <h2>Recipient</h2>
-        <div class="row">
-            <div class="col-md-6">
-                {{ form.recipient_name|as_crispy_field }}
-            </div>
-        </div>
+                <div class="mt-4 form-control">
+                    <label for="{{ form.purchaser_meeting_or_organization.id_for_label }}" class="label">
+                        <span class="label-text">{{ form.purchaser_meeting_or_organization.label }}</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="{{ form.purchaser_meeting_or_organization.name }}"
+                        id="{{ form.purchaser_meeting_or_organization.id_for_label }}"
+                        class="input input-bordered w-full{% if form.purchaser_meeting_or_organization.errors %} input-error{% endif %}"
+                        {% if form.purchaser_meeting_or_organization.value %}value="{{ form.purchaser_meeting_or_organization.value }}"{% endif %}
+                        required="{{ form.purchaser_meeting_or_organization.field.required|yesno:'true,false' }}"
+                    >
+                    {% if form.purchaser_meeting_or_organization.errors %}
+                        <div class="text-error text-sm mt-1">{{ form.purchaser_meeting_or_organization.errors }}</div>
+                    {% endif %}
+                    {% if form.purchaser_meeting_or_organization.help_text %}
+                        <div class="text-gray-600 text-sm mt-1">{{ form.purchaser_meeting_or_organization.help_text }}</div>
+                    {% endif %}
+                </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                {{ form.recipient_street_address|as_crispy_field }}
-            </div>
-        </div>
+                <div class="mt-4 form-control">
+                    <label for="{{ form.purchaser_email.id_for_label }}" class="label">
+                        <span class="label-text">{{ form.purchaser_email.label }}</span>
+                    </label>
+                    <input
+                        type="email"
+                        name="{{ form.purchaser_email.name }}"
+                        id="{{ form.purchaser_email.id_for_label }}"
+                        class="input input-bordered w-full{% if form.purchaser_email.errors %} input-error{% endif %}"
+                        {% if form.purchaser_email.value %}value="{{ form.purchaser_email.value }}"{% endif %}
+                        required="{{ form.purchaser_email.field.required|yesno:'true,false' }}"
+                    >
+                    {% if form.purchaser_email.errors %}
+                        <div class="text-error text-sm mt-1">{{ form.purchaser_email.errors }}</div>
+                    {% endif %}
+                    {% if form.purchaser_email.help_text %}
+                        <div class="text-gray-600 text-sm mt-1">{{ form.purchaser_email.help_text }}</div>
+                    {% endif %}
+                </div>
+            </section>
 
-        <div class="row">
-            <div class="form-group col-md-2 mb-0">
-                {{ form.recipient_address_locality|as_crispy_field }}
-            </div>
-            <div class="form-group col-md-2 mb-0">
-                {{ form.recipient_address_region|as_crispy_field }}
-            </div>
-            <div class="form-group col-md-2 mb-0">
-                {{ form.recipient_postal_code|as_crispy_field }}
-            </div>
-        </div>
+            <section aria-labelledby="recipient-information">
+                <h2 id="recipient-information">Recipient</h2>
 
-        <div class="row">
-            <div class="col-md-6">
-                {{ form.recipient_address_country|as_crispy_field }}
-            </div>
-        </div>
+                <div class="form-control">
+                    <label for="{{ form.recipient_name.id_for_label }}" class="label">
+                        <span class="label-text">{{ form.recipient_name.label }}</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="{{ form.recipient_name.name }}"
+                        id="{{ form.recipient_name.id_for_label }}"
+                        class="input input-bordered w-full{% if form.recipient_name.errors %} input-error{% endif %}"
+                        {% if form.recipient_name.value %}value="{{ form.recipient_name.value }}"{% endif %}
+                        required="{{ form.recipient_name.field.required|yesno:'true,false' }}"
+                    >
+                    {% if form.recipient_name.errors %}
+                        <div class="text-error text-sm mt-1">{{ form.recipient_name.errors }}</div>
+                    {% endif %}
+                    {% if form.recipient_name.help_text %}
+                        <div class="text-gray-600 text-sm mt-1">{{ form.recipient_name.help_text }}</div>
+                    {% endif %}
+                </div>
 
-        <div class="text-right">
-            <div class="btn-group" role="group" aria-label="Cart navigation">
-                <a
-                    href="/cart"
-                    class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i>
-                    Back to cart
-                </a>
-                <button type="submit" class="btn btn-outline-primary">
-                    Create order
-                    <i class="bi bi-arrow-right ms-1"></i>
-                </button>
-            </div>
-        </div>
+                <div class="mt-4 form-control">
+                    <label for="{{ form.recipient_street_address.id_for_label }}" class="label">
+                        <span class="label-text">{{ form.recipient_street_address.label }}</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="{{ form.recipient_street_address.name }}"
+                        id="{{ form.recipient_street_address.id_for_label }}"
+                        class="input input-bordered w-full{% if form.recipient_street_address.errors %} input-error{% endif %}"
+                        {% if form.recipient_street_address.value %}value="{{ form.recipient_street_address.value }}"{% endif %}
+                        required="{{ form.recipient_street_address.field.required|yesno:'true,false' }}"
+                    >
+                    {% if form.recipient_street_address.errors %}
+                        <div class="text-error text-sm mt-1">{{ form.recipient_street_address.errors }}</div>
+                    {% endif %}
+                    {% if form.recipient_street_address.help_text %}
+                        <div class="text-gray-600 text-sm mt-1">{{ form.recipient_street_address.help_text }}</div>
+                    {% endif %}
+                </div>
 
-        {% csrf_token %}
-    </form>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div class="form-control">
+                        <label for="{{ form.recipient_address_locality.id_for_label }}" class="label">
+                            <span class="label-text">{{ form.recipient_address_locality.label }}</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="{{ form.recipient_address_locality.name }}"
+                            id="{{ form.recipient_address_locality.id_for_label }}"
+                            class="input input-bordered w-full{% if form.recipient_address_locality.errors %} input-error{% endif %}"
+                            {% if form.recipient_address_locality.value %}value="{{ form.recipient_address_locality.value }}"{% endif %}
+                            required="{{ form.recipient_address_locality.field.required|yesno:'true,false' }}"
+                        >
+                        {% if form.recipient_address_locality.errors %}
+                            <div class="text-error text-sm mt-1">{{ form.recipient_address_locality.errors }}</div>
+                        {% endif %}
+                        {% if form.recipient_address_locality.help_text %}
+                            <div class="text-gray-600 text-sm mt-1">{{ form.recipient_address_locality.help_text }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-control">
+                        <label for="{{ form.recipient_address_region.id_for_label }}" class="label">
+                            <span class="label-text">{{ form.recipient_address_region.label }}</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="{{ form.recipient_address_region.name }}"
+                            id="{{ form.recipient_address_region.id_for_label }}"
+                            class="input input-bordered w-full{% if form.recipient_address_region.errors %} input-error{% endif %}"
+                            {% if form.recipient_address_region.value %}value="{{ form.recipient_address_region.value }}"{% endif %}
+                            required="{{ form.recipient_address_region.field.required|yesno:'true,false' }}"
+                        >
+                        {% if form.recipient_address_region.errors %}
+                            <div class="text-error text-sm mt-1">{{ form.recipient_address_region.errors }}</div>
+                        {% endif %}
+                        {% if form.recipient_address_region.help_text %}
+                            <div class="text-gray-600 text-sm mt-1">{{ form.recipient_address_region.help_text }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-control">
+                        <label for="{{ form.recipient_postal_code.id_for_label }}" class="label">
+                            <span class="label-text">{{ form.recipient_postal_code.label }}</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="{{ form.recipient_postal_code.name }}"
+                            id="{{ form.recipient_postal_code.id_for_label }}"
+                            class="input input-bordered w-full{% if form.recipient_postal_code.errors %} input-error{% endif %}"
+                            {% if form.recipient_postal_code.value %}value="{{ form.recipient_postal_code.value }}"{% endif %}
+                            required="{{ form.recipient_postal_code.field.required|yesno:'true,false' }}"
+                        >
+                        {% if form.recipient_postal_code.errors %}
+                            <div class="text-error text-sm mt-1">{{ form.recipient_postal_code.errors }}</div>
+                        {% endif %}
+                        {% if form.recipient_postal_code.help_text %}
+                            <div class="text-gray-600 text-sm mt-1">{{ form.recipient_postal_code.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-4 form-control">
+                    <label for="{{ form.recipient_address_country.id_for_label }}" class="label">
+                        <span class="label-text">{{ form.recipient_address_country.label }}</span>
+                    </label>
+                    <select
+                        name="{{ form.recipient_address_country.name }}"
+                        id="{{ form.recipient_address_country.id_for_label }}"
+                        class="select select-bordered w-full{% if form.recipient_address_country.errors %} select-error{% endif %}"
+                        required="{{ form.recipient_address_country.field.required|yesno:'true,false' }}"
+                    >
+                        {% for value, text in form.recipient_address_country.field.choices %}
+                            <option
+                                value="{{ value }}"
+                                {% if form.recipient_address_country.value == value %}selected{% endif %}
+                            >
+                                {{ text }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.recipient_address_country.errors %}
+                        <div class="text-error text-sm mt-1">{{ form.recipient_address_country.errors }}</div>
+                    {% endif %}
+                    {% if form.recipient_address_country.help_text %}
+                        <div class="text-gray-600 text-sm mt-1">{{ form.recipient_address_country.help_text }}</div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <div class="flex justify-end mt-6">
+                <div class="join" role="group" aria-label="Cart navigation">
+                    <a href="/cart" class="btn btn-outline btn-primary join-item">
+                        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+                        Back to cart
+                    </a>
+                    <button type="submit" class="btn btn-primary join-item">
+                        Create order
+                        <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            {% csrf_token %}
+        </form>
+    </main>
 {% endblock content %}
