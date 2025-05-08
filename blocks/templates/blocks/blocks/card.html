@@ -1,21 +1,23 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
-<div class="card mb-1 d-flex flex-row">
-    {% if value.image_align == "left" %}
-        {% image value.image fill-200x200 class="img-fluid rounded" %}
-    {% endif %}
+<article class="card mb-4 shadow-md overflow-hidden {% if value.image_align == 'left' %}sm:flex{% else %}sm:flex flex-row-reverse{% endif %}">
+    <figure class="{% if value.image %}p-0 sm:w-1/3 md:w-1/4 shrink-0{% endif %}">
+        {% if value.image %}
+            {% image value.image fill-200x200 class="h-full w-full object-cover" alt=value.image.title %}
+        {% endif %}
+    </figure>
 
-    <div class="card-body">
+    <div class="card-body grow">
         <h2 class="card-title">
             {{ value.title }}
         </h2>
-        {{ value.text|richtext }}
+        <div class="prose">
+            {{ value.text|richtext }}
+        </div>
         {% if value.button.page_link %}
-            {% include_block value.button %}
+            <div class="card-actions mt-4">
+                {% include_block value.button %}
+            </div>
         {% endif %}
     </div>
-
-    {% if value.image_align == "right" %}
-        {% image value.image fill-200x200 class="img-fluid rounded" %}
-    {% endif %}
-</div>
+</article>

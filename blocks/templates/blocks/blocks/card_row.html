@@ -1,9 +1,9 @@
 {% load wagtailcore_tags %}
 
-<div class="row mb-3">
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-{{ self|length }} gap-6 mb-8">
     {% for block in self %}
-        <div class="col">
+        <div class="h-full">
             {% include_block block %}
         </div>
     {% endfor %}
-</div>
+</section>
