@@ -7,12 +7,9 @@
       "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
-    --color-red-600: oklch(57.7% 0.245 27.325);
     --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-blue-800: oklch(42.4% 0.199 265.638);
-    --color-purple-700: oklch(49.6% 0.265 301.924);
-    --color-purple-900: oklch(38.1% 0.176 304.987);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
     --color-gray-300: oklch(87.2% 0.01 258.338);
@@ -3255,45 +3252,6 @@
 :root {
   font-size: 16px;
 }
-a:not([role="button"]):not([class*="btn"]) {
-  color: var(--color-blue-600);
-  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
-  transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-  transition-duration: var(--tw-duration, var(--default-transition-duration));
-  --tw-duration: 200ms;
-  transition-duration: 200ms;
-}
-@media (hover: hover) {
-  a:not([role="button"]):not([class*="btn"]):hover {
-    color: var(--color-blue-800);
-  }
-}
-a:not([role="button"]):not([class*="btn"]):focus {
-  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-a:not([role="button"]):not([class*="btn"]):focus {
-  --tw-ring-color: var(--color-blue-500);
-}
-a:not([role="button"]):not([class*="btn"]):focus {
-  --tw-ring-offset-width: 2px;
-  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-}
-a:not([role="button"]):not([class*="btn"]):focus {
-  --tw-outline-style: none;
-  outline-style: none;
-}
-a:not([role="button"]):not([class*="btn"]):visited {
-  color: var(--color-purple-700);
-}
-@media (hover: hover) {
-  a:not([role="button"]):not([class*="btn"]):visited:hover {
-    color: var(--color-purple-900);
-  }
-}
-a:not([role="button"]):not([class*="btn"]):active {
-  color: var(--color-red-600);
-}
 iframe {
   aspect-ratio: 16 / 9;
   width: 100%;
@@ -3324,7 +3282,7 @@ h3 {
   font-weight: var(--font-weight-semibold);
 }
 p {
-  margin-bottom: calc(var(--spacing) * 4);
+  margin-bottom: calc(var(--spacing) * 3);
 }
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=light]:checked),[data-theme=light] {

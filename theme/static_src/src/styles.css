@@ -17,19 +17,6 @@
   font-size: 16px;
 }
 
-/* Standard link styles following web conventions, excluding button-styled links */
-a:not([role="button"]):not([class*="btn"]) {
-  @apply text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200;
-}
-
-a:not([role="button"]):not([class*="btn"]):visited {
-  @apply text-purple-700 hover:text-purple-900;
-}
-
-a:not([role="button"]):not([class*="btn"]):active {
-  @apply text-red-600;
-}
-
 /* Make sure embedded videos take up full with
 while preserving the typical aspect ratio */
 iframe {
@@ -51,5 +38,5 @@ h3 {
 }
 
 p {
-  @apply mb-4;
+  @apply mb-3;
 }
