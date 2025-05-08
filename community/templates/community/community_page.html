@@ -5,9 +5,13 @@
 {% block body_class %}template-community-page{% endblock %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <main class="container mx-auto px-4 py-6">
+        <h1>{{ page.title }}</h1>
 
-    {% for block in page.body %}
-        {% include_block block %}
-    {% endfor %}
+        <article class="prose my-6 max-w-none">
+            {% for block in page.body %}
+                {% include_block block %}
+            {% endfor %}
+        </article>
+    </main>
 {% endblock content %}

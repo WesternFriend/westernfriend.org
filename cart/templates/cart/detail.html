@@ -7,9 +7,11 @@
 
 {% block content %}
     <main class="container mx-auto px-4 py-6">
-        <h1>Your shopping cart</h1>
+        <div class="flex justify-between items-center">
+            <h1>Your Cart</h1>
+        </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto" role="table" aria-label="Shopping cart">
             <table class="table table-zebra w-full">
                 <thead>
                     <tr>

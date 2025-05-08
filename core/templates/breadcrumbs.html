@@ -1,4 +1,4 @@
-{% load wagtailcore_tags %}
+{% load core_tags wagtailcore_tags %}
 
 {% if page and page.get_ancestors|length > 1 %}
     <nav aria-label="Breadcrumb" class="mb-4">
@@ -11,12 +11,16 @@
 
             {% for ancestor in page.get_ancestors|slice:"1:" %}
                 {% if not ancestor.is_root %}
-                    <li class="inline-flex items-center">
-                        <span class="mx-1 text-gray-500">/</span>
-                        <a href="{% pageurl ancestor %}" class="text-primary hover:underline focus:outline-none focus:underline">
-                            {{ ancestor.title }}
-                        </a>
-                    </li>
+                    {% with specific_ancestor=ancestor.specific %}
+                        {% if specific_ancestor|model_name != 'personindexpage' and specific_ancestor|model_name != 'meetingindexpage' and specific_ancestor|model_name != 'organizationindexpage' %}
+                            <li class="inline-flex items-center">
+                                <span class="mx-1 text-gray-500">/</span>
+                                <a href="{% pageurl ancestor %}" class="text-primary hover:underline focus:outline-none focus:underline">
+                                    {{ ancestor.title }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endwith %}
                 {% endif %}
             {% endfor %}
 
@@ -38,16 +42,16 @@
                     "position": 1,
                     "name": "Home",
                     "item": "{{ request.scheme }}://{{ request.site.hostname }}/"
-                }{% if page.get_ancestors|length > 1 %}{% for ancestor in page.get_ancestors|slice:"1:" %}{% if not ancestor.is_root %},
+                }{% if page.get_ancestors|length > 1 %}{% with position_counter=2 %}{% for ancestor in page.get_ancestors|slice:"1:" %}{% if not ancestor.is_root %}{% with specific_ancestor=ancestor.specific %}{% if specific_ancestor|model_name != 'PersonIndexPage' and specific_ancestor|model_name != 'MeetingIndexPage' and specific_ancestor|model_name != 'OrganizationIndexPage' %},
                     {
                         "@type": "ListItem",
-                        "position": {{ forloop.counter|add:1 }},
+                        "position": {{ position_counter }},
                         "name": "{{ ancestor.title }}",
                         "item": "{{ request.scheme }}://{{ request.site.hostname }}{% pageurl ancestor %}"
-                    }{% endif %}{% endfor %}{% endif %},
+                    }{% with position_counter=position_counter|add:1 %}{% endwith %}{% endif %}{% endwith %}{% endif %}{% endfor %}{% endwith %}{% endif %},
                 {
                     "@type": "ListItem",
-                    "position": {{ page.get_ancestors|length }},
+                    "position": {{ page.get_visible_ancestors|length }},
                     "name": "{{ page.title }}",
                     "item": "{{ request.scheme }}://{{ request.site.hostname }}{% pageurl page %}"
                 }
