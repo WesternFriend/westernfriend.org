@@ -6,121 +6,120 @@
 {% endblock title %}
 
 {% block content %}
-    <h1>Your shopping cart</h1>
+    <main class="container mx-auto px-4 py-6">
+        <h1>Your shopping cart</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Image</th>
-                <th scope="col">Product</th>
-                <th scope="col">Quantity</th>
-                <th scope="col">Remove</th>
-                <th scope="col">Unit price</th>
-                <th scope="col">Price</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in cart %}
-                {% with product=item.product %}
+        <div class="overflow-x-auto">
+            <table class="table table-zebra w-full">
+                <thead>
                     <tr>
-                        <td class="align-middle">
-                            <a href="{% pageurl product %}">
-                                {% image product.image max-100x100 %}
-                            </a>
-                        </td>
-                        <td class="align-middle">
-                            <a href="{% pageurl product %}">
-                                {{ product.title }}
-                            </a>
-                        </td>
-                        <td>
-                            <form
-                                action="{% url "cart:add" product.id %}"
-                                method="post"
-                                class="form-inline"
-                            >
-
-                                {% csrf_token %}
-
-                                <div class="input-group">
-                                    <input
-                                        id="update-button-{{ product.id }}"
-                                        type="number"
-                                        name="quantity"
-                                        min="1"
-                                        required=""
-                                        id="quantity"
-                                        aria-label="quantity"
-                                        class="form-control"
-                                        value="{{ item.quantity }}"
-                                        style="max-width: 10em"
+                        <th scope="col">Image</th>
+                        <th scope="col">Product</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Remove</th>
+                        <th scope="col">Unit price</th>
+                        <th scope="col">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart %}
+                        {% with product=item.product %}
+                            <tr>
+                                <td class="align-middle">
+                                    <a href="{% pageurl product %}">
+                                        {% image product.image max-100x100 alt=product.title %}
+                                    </a>
+                                </td>
+                                <td class="align-middle">
+                                    <a href="{% pageurl product %}">
+                                        {{ product.title }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <form
+                                        action="{% url "cart:add" product.id %}"
+                                        method="post"
+                                        class="flex items-center space-x-2"
                                     >
+                                        {% csrf_token %}
 
-
-                                    <input
-                                        type="submit"
-                                        value="Update"
-                                        aria-label="update quantity"
-                                        aria-describedby="update-button-{{ product.id }}"
-                                        class="btn btn-outline-primary btn-sm">
-
-                                </div>
-                            </form>
-                        </td>
-                        <td class="align-middle">
-                            <a
-                                href="{% url "cart:remove" product.id %}"
-                                class="btn btn-outline-danger"
-                            >
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
-                        <td class="num align-middle">
-                            ${{ item.price }}
-                        </td>
-                        <td class="num align-middle text-right">
-                            ${{ item.total_price }}
+                                        <div class="join">
+                                            <input
+                                                id="update-button-{{ product.id }}"
+                                                type="number"
+                                                name="quantity"
+                                                min="1"
+                                                required=""
+                                                aria-label="quantity"
+                                                class="input input-bordered w-20 join-item"
+                                                value="{{ item.quantity }}"
+                                            >
+                                            <button
+                                                type="submit"
+                                                aria-label="Update quantity for {{ product.title }}"
+                                                class="btn btn-outline join-item">
+                                                Update
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                                <td class="align-middle">
+                                    <a
+                                        href="{% url "cart:remove" product.id %}"
+                                        class="btn btn-outline btn-error"
+                                        aria-label="Remove {{ product.title }} from cart"
+                                    >
+                                        <i class="bi bi-trash" aria-hidden="true"></i>
+                                    </a>
+                                </td>
+                                <td class="text-right align-middle">
+                                    ${{ item.price }}
+                                </td>
+                                <td class="text-right align-middle font-medium">
+                                    ${{ item.total_price }}
+                                </td>
+                            </tr>
+                        {% endwith %}
+                    {% endfor %}
+                    <tr>
+                        <td colspan="5" class="text-right font-medium">Subtotal</td>
+                        <td class="text-right font-medium">
+                            ${{ cart.get_subtotal_cost }}
                         </td>
                     </tr>
-                {% endwith %}
-            {% endfor %}
-            <tr>
-                <td colspan="5" class="text-right font-italic">Subtotal</td>
-                <td class="num text-right">
-                    ${{ cart.get_subtotal_cost }}
-                </td>
-            </tr>
-            <tr>
-                <td colspan="5" class="text-right font-italic">Shipping</td>
-                <td class="num text-right">
-                    ${{ cart.get_shipping_cost }}
-                </td>
-            </tr>
-            <tr class="font-weight-bold">
-                <td colspan="5" class="text-right">Total</td>
-                <td class="num text-right">
-                    ${{ cart.get_total_cost }}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="text-right">
-        <div class="btn-group" role="group" aria-label="Cart navigation">
-            {% if store_index_page %}
-                <a
-                    href="{% pageurl store_index_page %}"
-                    class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i>
-                    Back to bookstore
-                </a>
-            {% endif %}
-            <a
-                href="{% url "orders:order_create" %}"
-                class="btn btn-outline-primary">
-                Checkout
-                <i class="bi bi-arrow-right"></i>
-            </a>
+                    <tr>
+                        <td colspan="5" class="text-right font-medium">Shipping</td>
+                        <td class="text-right font-medium">
+                            ${{ cart.get_shipping_cost }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" class="text-right font-bold text-lg">Total</td>
+                        <td class="text-right font-bold text-lg">
+                            ${{ cart.get_total_cost }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    </div>
+
+        <div class="flex justify-end mt-8">
+            <div class="join" role="group" aria-label="Cart navigation">
+                {% if store_index_page %}
+                    <a
+                        href="{% pageurl store_index_page %}"
+                        class="btn btn-outline join-item">
+                        <i class="bi bi-arrow-left mr-2" aria-hidden="true"></i>
+                        Back to bookstore
+                    </a>
+                {% endif %}
+                <a
+                    href="{% url "orders:order_create" %}"
+                    class="btn btn-primary join-item">
+                    Checkout
+                    <i class="bi bi-arrow-right ml-2" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    </main>
 {% endblock content %}
