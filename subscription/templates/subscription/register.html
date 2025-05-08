@@ -1,15 +1,40 @@
 {% load crispy_forms_tags %}
 
-<p>
-    Please register to continue the subscription process.
-</p>
+<section class="max-w-lg mx-auto">
+    <div class="prose mb-4">
+        <p>
+            Please register to continue the subscription process.
+        </p>
+    </div>
 
-<form method="post">
-    {% csrf_token %}
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
 
-    {% for field in form %}
-        {{ field|as_crispy_field }}
-    {% endfor %}
+        <fieldset class="space-y-4">
+            <legend class="sr-only">Registration Information</legend>
+            {% for field in form %}
+                <div class="form-control w-full">
+                    <label for="{{ field.id_for_label }}" class="label">
+                        <span class="label-text">{{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}</span>
+                    </label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <span class="label-text-alt text-sm text-gray-600 mt-1">{{ field.help_text }}</span>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="text-error text-sm mt-1" role="alert">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </fieldset>
 
-    <button type="submit" class="btn btn-outline-success float-right">Register</button>
-</form>
+        <div class="mt-6">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-person-plus-fill mr-2" aria-hidden="true"></i>
+                Register
+            </button>
+        </div>
+    </form>
+</section>

@@ -2,32 +2,69 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <main class="max-w-4xl mx-auto">
+        <header>
+            <h1>{{ page.title }}</h1>
 
-    {{ page.intro|richtext }}
-
-
-    {% if request.user.subscription %}
-        <h2>Active subscription details</h2>
-        <!--
-            TODO: allow multiple active subscriptions
-            e.g. user.get_active_subscriptions
-            since we can't currently limit to only one
-            and we may have use cases where users manage multiple subscriptions
-        -->
-        {% with subscription=request.user.subscription %}
-            <div class="card">
-                <div class="card-body">
-                    <p class="card-title">
-                        PayPal Subscription ID: {{ subscription.paypal_subscription_id }}
-                    </p>
-                    <p class="card-subtitle mb-2 text-muted">
-                        Active: {{ subscription.is_active }}
-                    </p>
-                </div>
+            <div class="prose mb-6">
+                {{ page.intro|richtext }}
             </div>
-        {% endwith %}
-    {% else %}
-        <p>No active subscription found.</p>
-    {% endif %}
+        </header>
+
+        <section aria-labelledby="subscription-details">
+            {% if request.user.subscription %}
+                <h2 id="subscription-details" class="mb-4">Active subscription details</h2>
+                <!--
+                    TODO: allow multiple active subscriptions
+                    e.g. user.get_active_subscriptions
+                    since we can't currently limit to only one
+                    and we may have use cases where users manage multiple subscriptions
+                -->
+                {% with subscription=request.user.subscription %}
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <h3 class="card-title text-lg">
+                                Subscription Information
+                            </h3>
+                            <dl class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-600">PayPal Subscription ID:</dt>
+                                    <dd>{{ subscription.paypal_subscription_id }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-600">Status:</dt>
+                                    <dd>
+                                        {% if subscription.is_active %}
+                                            <span class="badge badge-success">Active</span>
+                                        {% else %}
+                                            <span class="badge badge-error">Inactive</span>
+                                        {% endif %}
+                                    </dd>
+                                </div>
+                            </dl>
+
+                            <div class="card-actions mt-4 justify-end">
+                                <a href="https://www.paypal.com/myaccount/autopay/" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
+                                    <i class="bi bi-paypal me-2" aria-hidden="true"></i>
+                                    Manage in PayPal
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endwith %}
+            {% else %}
+                <div class="alert shadow-lg">
+                    <div>
+                        <i class="bi bi-info-circle" aria-hidden="true"></i>
+                        <span>No active subscription found.</span>
+                    </div>
+                    <div class="flex-none">
+                        <a href="{% url 'subscription_index' %}" class="btn btn-primary btn-sm">
+                            Subscribe now
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+    </main>
 {% endblock content %}

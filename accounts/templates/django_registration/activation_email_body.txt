@@ -2,4 +2,4 @@ Thanks for beginning your registration process on the Western Friend website.
 
 To complete your registration, click on the link below. If the link doesn't respond, please cut an paste it into your browser, then hit your return key.
 
-https://westernfriend.org{% url 'django_registration_activate' activation_key %}
+https://westernfriend.org{% url 'django_registration_activate' %}?activation_key={{ activation_key }}
