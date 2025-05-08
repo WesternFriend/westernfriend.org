@@ -1,11 +1,14 @@
-<div class="card">
+<section class="card bg-base-100 shadow">
     <div class="card-body text-center">
-        <p class="card-title h2">{{ value.paypal_plan_name }}</p>
-        <p class="card-text h3">${{ value.paypal_plan_price }}</p>
+        <h3 class="card-title justify-center">{{ value.paypal_plan_name }}</h3>
+        <p class="text-2xl font-bold">${{ value.paypal_plan_price }}</p>
 
-        <div id="paypal-button-container-{{ value.paypal_plan_id }}"></div>
+        <div id="paypal-button-container-{{ value.paypal_plan_id }}"
+             aria-label="PayPal subscription button for {{ value.paypal_plan_name }} plan"
+             class="mt-4">
+        </div>
     </div>
-</div>
+</section>
 
 <script>
     // render PayPal subscription buttons

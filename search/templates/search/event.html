@@ -1,19 +1,26 @@
 {% load wagtailcore_tags %}
 
-<div class="card my-1">
+<article class="card bg-base-100 shadow mb-4">
     <div class="card-body">
-        <h2 class="card-title h5">
+        <h2 class="card-title text-lg">
             <a href="{% pageurl entity %}">
                 {{ entity.title }}
             </a>
         </h2>
 
         {% if entity.specific.date %}
-            {{ entity.specific.date }}
+            <div class="flex items-center gap-1 text-gray-600 mb-2">
+                <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                <time datetime="{{ entity.specific.date|date:'Y-m-d' }}">
+                    {{ entity.specific.date }}
+                </time>
+            </div>
         {% endif %}
 
         {% if entity.specific.description %}
-            {{ entity.specific.description|truncatewords_html:10|richtext }}
+            <div class="prose">
+                {{ entity.specific.description|truncatewords_html:10|richtext }}
+            </div>
         {% endif %}
     </div>
-</div>
+</article>

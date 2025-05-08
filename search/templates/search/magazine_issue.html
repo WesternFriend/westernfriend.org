@@ -1,19 +1,22 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
-<div class="card my-1">
+<article class="card bg-base-100 shadow mb-4">
     <div class="card-body">
-        <h2 class="card-title h5">
+        <h2 class="card-title text-lg">
             <a href="{% pageurl entity %}">
                 {{ entity.title }}
             </a>
         </h2>
 
         {% if entity.specific.publication_date %}
-            <p class="card-text">
-                {{ entity.specific.publication_date|date:"M" }}
-                /
-                {{ entity.specific.publication_end_date|date:"M Y" }}
-            </p>
+            <div class="flex items-center gap-1 text-gray-600">
+                <i class="bi bi-calendar" aria-hidden="true"></i>
+                <time datetime="{{ entity.specific.publication_date|date:'Y-m' }}">
+                    {{ entity.specific.publication_date|date:"M" }}
+                    /
+                    {{ entity.specific.publication_end_date|date:"M Y" }}
+                </time>
+            </div>
         {% endif %}
     </div>
-</div>
+</article>
