@@ -40,3 +40,20 @@ h3 {
 p {
   @apply mb-3;
 }
+
+/* Responsive toggle sizing for theme switcher */
+@media (max-width: 64rem) {
+  .toggle {
+    --toggle-p: calc(var(--size) * 0.1);
+    --size: calc(var(--size-selector, 0.25rem) * 5);
+    width: calc((var(--size) * 2) - (var(--border) + var(--toggle-p)) * 2);
+  }
+}
+
+@media (max-width: 48rem) {
+  .toggle {
+    --toggle-p: calc(var(--size) * 0.1);
+    --size: calc(var(--size-selector, 0.25rem) * 4);
+    width: calc((var(--size) * 2) - (var(--border) + var(--toggle-p)) * 2);
+  }
+}
