@@ -5,66 +5,84 @@
 {% block body_class %}template-magazineindexpage{% endblock %}
 
 {% block content %}
-    <h1>
-        {{ event_category_title }}&nbsp;
-        {{ page.title }}
-    </h1>
+    <main class="container mx-auto px-4 py-6">
+        <header>
+            <h1>
+                {{ event_category_title }}&nbsp;{{ page.title }}
+            </h1>
 
-    <div class="intro">
-        {{ page.intro|richtext }}
-    </div>
-
-    {% if events.page %}
-        {% for event in events.page %}
-            <div class="card mb-2">
-                <div class="card-body">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-10">
-                                <h2 class="card-title">
-                                    {{ event.title }}
-                                </h2>
-                                {% if event.teaser %}
-                                    <p class="card-text">
-                                        {{ event.teaser }}
-                                    </p>
-                                {% endif %}
-
-                                {% if event.sponsors %}
-                                    <p><span class="fw-bold">Hosted/sponsored by:</span>
-                                        {% for sponsor in event.sponsors.all %}
-                                            {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
-                                        {% endfor %}
-                                    </p>
-                                {% endif %}
-
-                                <p>
-                                    <span class="fw-bold">Start Date:</span> {{ event.start_date|timezone:"US/Pacific"|date:"F d, Y, f A" }}
-                                    &nbsp;
-                                    {% if event.end_date %}
-                                        <span class="fw-bold">End Date:</span> {{ event.end_date|timezone:"US/Pacific"|date:"F d, Y, f A" }}
-                                    {% endif %}
-                                    (US/Pacific)
-                                </p>
-                            </div>
-
-                            <div class="col-md-2">
-                                <a href="{% pageurl event %}" class="btn btn-outline-primary btn-sm stretched-link mt-3">
-                                    <i class="bi bi-info-circle" aria-hidden="true"></i>
-                                    View details
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+            {% if page.intro %}
+                <div class="prose my-6">
+                    {{ page.intro|richtext }}
                 </div>
-            </div>
-        {% endfor %}
+            {% endif %}
+        </header>
 
+        {% if events.page %}
+            <section aria-label="Events listing">
+                <div class="space-y-4">
+                    {% for event in events.page %}
+                        <article class="card card-border bg-base-100">
+                            <div class="card-body">
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                    <div class="md:col-span-10">
+                                        <h2 class="card-title">
+                                            {{ event.title }}
+                                        </h2>
 
-        <div class="step-links mt-1 text-center">
-            {% include "paginator.html" with paginated_items=events %}
-        </div>
-    {% else %}
-        <p>There are no {{ event_category_title }} events</p>
-    {% endif %}
+                                        {% if event.teaser %}
+                                            <p>
+                                                {{ event.teaser }}
+                                            </p>
+                                        {% endif %}
+
+                                        {% if event.sponsors %}
+                                            <p class="mt-2">
+                                                <span class="font-semibold">Hosted/sponsored by:</span>
+                                                {% for sponsor in event.sponsors.all %}
+                                                    {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
+                                                {% endfor %}
+                                            </p>
+                                        {% endif %}
+
+                                        <div class="mt-2">
+                                            <p>
+                                                <span class="font-semibold">Start Date:</span>
+                                                <time datetime="{{ event.start_date|date:'c' }}">
+                                                    {{ event.start_date|timezone:"US/Pacific"|date:"F d, Y, f A" }}
+                                                </time>
+
+                                                {% if event.end_date %}
+                                                    <span class="font-semibold ml-2">End Date:</span>
+                                                    <time datetime="{{ event.end_date|date:'c' }}">
+                                                        {{ event.end_date|timezone:"US/Pacific"|date:"F d, Y, f A" }}
+                                                    </time>
+                                                {% endif %}
+                                                <span class="text-gray-600">(US/Pacific)</span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="md:col-span-2 flex items-end justify-end">
+                                        <a href="{% pageurl event %}"
+                                           class="btn btn-outline btn-primary btn-sm"
+                                           aria-label="View details for {{ event.title }}">
+                                            <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                                            View details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+
+                <nav class="my-6 text-center" aria-label="Pagination">
+                    {% include "paginator.html" with paginated_items=events %}
+                </nav>
+            </section>
+        {% else %}
+            <p>There are no {{ event_category_title }} events</p>
+        {% endif %}
+    </main>
 {% endblock content %}

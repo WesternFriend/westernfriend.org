@@ -2963,6 +2963,11 @@
     }
   }
   @media (width >= 48rem) {
+    .md\:col-span-10 {
+      grid-column: span 10 / span 10;
+    }
+  }
+  @media (width >= 48rem) {
     .md\:col-start-8 {
       grid-column-start: 8;
     }
