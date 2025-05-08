@@ -3018,6 +3018,21 @@
     }
   }
   @media (width >= 64rem) {
+    .lg\:col-span-1 {
+      grid-column: span 1 / span 1;
+    }
+  }
+  @media (width >= 64rem) {
+    .lg\:col-span-2 {
+      grid-column: span 2 / span 2;
+    }
+  }
+  @media (width >= 64rem) {
+    .lg\:col-span-3 {
+      grid-column: span 3 / span 3;
+    }
+  }
+  @media (width >= 64rem) {
     .lg\:col-span-4 {
       grid-column: span 4 / span 4;
     }
@@ -3025,6 +3040,11 @@
   @media (width >= 64rem) {
     .lg\:col-span-8 {
       grid-column: span 8 / span 8;
+    }
+  }
+  @media (width >= 64rem) {
+    .lg\:col-span-9 {
+      grid-column: span 9 / span 9;
     }
   }
   @media (width >= 64rem) {
@@ -3040,6 +3060,11 @@
   @media (width >= 64rem) {
     .lg\:grid-cols-4 {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (width >= 64rem) {
+    .lg\:grid-cols-12 {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
     }
   }
   @media (width >= 64rem) {
