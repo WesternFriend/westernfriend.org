@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>You are now logged out.</p>
+    <main class="container mx-auto px-4 py-6">
+        <h1>Logged Out</h1>
+
+        <div class="max-w-2xl prose">
+            <p>You have been successfully logged out.</p>
+            <p>Thank you for visiting Western Friend.</p>
+        </div>
+
+        <div class="mt-6">
+            <a href="{% url 'login' %}" class="btn btn-primary">Log in again</a>
+        </div>
+    </main>
 {% endblock content %}

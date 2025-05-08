@@ -1,6 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Activate your account</h1>
-    <p>We have emailed you instructions to activate your account.</p>
+    <main class="container mx-auto px-4 py-6">
+        <h1>Activate your account</h1>
+
+        <div class="max-w-2xl">
+            <div class="alert alert-info mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>We have emailed you instructions to activate your account.</span>
+            </div>
+
+            <div class="prose">
+                <p>Please check your email inbox and follow the instructions in the activation email.</p>
+                <p>If you don't receive the email within a few minutes, please check your spam folder.</p>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <a href="{% url 'home' %}" class="btn btn-outline">Return to Home</a>
+        </div>
+    </main>
 {% endblock content %}
