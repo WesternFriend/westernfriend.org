@@ -10,8 +10,9 @@ module.exports = {
             }
         },
         daisyui: {
-            themes: [ "light", "dark", "cupcake" ],
-            darkTheme: "dark",
+            themes: [ "silk", "black", ],
+            darkTheme: "black",
+            lightTheme: "silk",
             base: true,
             styled: true,
             utils: true
