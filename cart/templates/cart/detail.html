@@ -108,14 +108,17 @@
                 {% if store_index_page %}
                     <a
                         href="{% pageurl store_index_page %}"
-                        class="btn btn-outline join-item">
+                        class="btn btn-outline join-item"
+                        aria-label="Back to bookstore">
                         <i class="bi bi-arrow-left mr-2" aria-hidden="true"></i>
                         Back to bookstore
                     </a>
                 {% endif %}
                 <a
                     href="{% url "orders:order_create" %}"
-                    class="btn btn-primary join-item">
+                    role="button"
+                    class="btn btn-primary join-item"
+                    aria-label="Proceed to checkout">
                     Checkout
                     <i class="bi bi-arrow-right ml-2" aria-hidden="true"></i>
                 </a>
