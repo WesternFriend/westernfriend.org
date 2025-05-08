@@ -22,7 +22,7 @@ We're moving towards using Tailwind CSS with daisyUI components. There may be so
 
 Make sure to use the Context7 tool to fetch the latest Tailwind CSS 4.x and daisyUI 5.x style rules so our styles are up to date.
 
-For consistency, we define global styles in `/theme/static_src/src/styles.css`. The `styles.css` file is the main entry point for our CSS. It should include all other CSS files and contain any global styles that are not specific to a component. This includes styles for the body, headings, links, and any other global styles that apply to the entire site.
+For consistency, we define global styles in `/theme/static_src/src/styles.css`. The `styles.css` file is the main entry point for our CSS. It should include all other CSS files and contain any global styles that are not specific to a component. This includes styles for the body, headings, links, and any other global styles that apply to the entire site. Avoid using local style classes in components where an equivalent style exists in the global styles. If you need to add a new global style, add it to `styles.css` and use it in components.
 
 ### Tailwind prose
 
