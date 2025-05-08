@@ -3,61 +3,66 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <article class="max-w-4xl mx-auto">
+        <header class="mb-4">
+            <h1>{{ page.title }}</h1>
 
-    Authored by:
-    {% for author in page.authors.all %}
-        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-    {% endfor %}
+            {% if page.authors.all %}
+                <div class="text-gray-700 mb-4">
+                    <span class="font-medium">Authored by:</span>
+                    {% for author in page.authors.all %}
+                        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </header>
 
-    {{ page.description|richtext }}
+        <div class="flex flex-col md:flex-row gap-8 mb-6">
+            <div class="md:w-1/3">
+                {% if page.image %}
+                    <figure class="mb-4">
+                        {% image page.image max-320x400 class="rounded-lg shadow-md w-full h-auto" alt="Cover of '{{ page.title }}'" %}
+                    </figure>
+                {% endif %}
+            </div>
 
-    {% image page.image max-320x200 %}
+            <div class="md:w-2/3">
+                <div class="prose mb-6">
+                    {{ page.description|richtext }}
+                </div>
 
-    <p>
-        Price: ${{ page.price }}
-    </p>
+                <div class="flex flex-col gap-4">
+                    <p class="text-2xl font-bold">
+                        ${{ page.price }}
+                    </p>
 
-    <form
-        action="{% url "cart:add" page.id %}"
-        method="post"
-        class="form-inline">
+                    <form action="{% url 'cart:add' page.id %}" method="post" class="flex items-end gap-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="update" value="False" id="update">
 
-        {% csrf_token %}
+                        <div class="form-control w-24">
+                            <label for="quantity" class="label">
+                                <span class="label-text">Quantity:</span>
+                            </label>
+                            <input
+                                type="number"
+                                name="quantity"
+                                id="quantity"
+                                value="1"
+                                min="1"
+                                aria-describedby="quantityLabel"
+                                required
+                                class="input input-bordered w-full"
+                            >
+                        </div>
 
-        <input
-            type="hidden"
-            name="update"
-            value="False"
-            id="update">
-
-        <div class="form-group">
-            <label
-                for="quantity"
-                id="quantityLabel"
-            >
-                Quantity:
-            </label>
-
-            <div class="input-group">
-                <input
-                    type="number"
-                    name="quantity"
-                    required=""
-                    value="1"
-                    min="1"
-                    id="quantity"
-                    aria-describedby="quantityLabel"
-                    class="form-control ms-2">
-
-                <div class="input-group-append">
-                    <input
-                        type="submit"
-                        value="Add to cart"
-                        class="btn btn-outline-primary ms-2"
-                    >
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-cart-plus mr-2" aria-hidden="true"></i>
+                            Add to cart
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-    </form>
+    </article>
 {% endblock content %}

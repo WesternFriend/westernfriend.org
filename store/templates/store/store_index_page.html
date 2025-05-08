@@ -3,33 +3,38 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
-    {{ page.intro|richtext }}
+    <header>
+        <h1>{{ page.title }}</h1>
+        <div class="prose mb-6">
+            {{ page.intro|richtext }}
+        </div>
+    </header>
 
-    {% for product in products %}
-        <div class="card mb-2">
-            <div class="card-body">
-                <h2>
-                    <a href="{% pageurl product %}">
-                        {{ product.title }}
-                    </a>
-                </h2>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-2">
-                            {% image product.image max-150x150 class="float-left me-2" %}
+    <section class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {% for product in products %}
+            <article class="card bg-base-100 shadow-lg h-full flex flex-col">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        <a href="{% pageurl product %}" class="hover:underline">
+                            {{ product.title }}
+                        </a>
+                    </h2>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                        <div class="flex-shrink-0">
+                            {% image product.image max-150x150 class="rounded-lg object-cover" %}
                         </div>
-                        <div class="col">
+                        <div class="prose flex-grow">
                             {{ product.description|richtext }}
                         </div>
                     </div>
+                    <p class="font-bold text-lg">
+                        ${{ product.price }}
+                    </p>
+                    <div class="card-actions justify-end mt-auto">
+                        {% include "store/add_to_cart.html" %}
+                    </div>
                 </div>
-                <p>
-                    Price ${{ product.price }}
-                </p>
-                {% include "store/add_to_cart.html" %}
-            </div>
-        </div>
-    {% endfor %}
-
+            </article>
+        {% endfor %}
+    </section>
 {% endblock content %}

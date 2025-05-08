@@ -1,42 +1,24 @@
-<form
-    action="{% url "cart:add" product.id %}"
-    method="post"
-    class="form-inline">
-
+<form action="{% url 'cart:add' product.id %}" method="post" class="flex items-end gap-3">
     {% csrf_token %}
+    <input type="hidden" name="update" value="False" id="update">
 
-    <input
-        type="hidden"
-        name="update"
-        value="False"
-        id="update">
-
-    <div class="form-group">
-        <label
-            for="quantity"
-            id="quantityLabel"
-        >
-            Quantity:
+    <div class="form-control w-24">
+        <label for="quantity-{{ product.id }}" class="label">
+            <span class="label-text">Quantity:</span>
         </label>
-
-        <div class="input-group">
-            <input
-                type="number"
-                name="quantity"
-                required=""
-                value="1"
-                min="1"
-                id="quantity"
-                aria-describedby="quantityLabel"
-                class="form-control ms-2">
-
-            <div class="input-group-append">
-                <input
-                    type="submit"
-                    value="Add to cart"
-                    class="btn btn-outline-primary ms-2"
-                >
-            </div>
-        </div>
+        <input
+            type="number"
+            name="quantity"
+            id="quantity-{{ product.id }}"
+            value="1"
+            min="1"
+            required
+            class="input input-bordered w-full"
+        >
     </div>
+
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-cart-plus mr-2" aria-hidden="true"></i>
+        Add to cart
+    </button>
 </form>
