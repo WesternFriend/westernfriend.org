@@ -118,8 +118,17 @@
             {% if messages %}
                 <div class="notifications" role="status" aria-live="polite">
                     {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} font-bold mb-4">
-                            {{ message }}
+                        <div role="alert" class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} mb-4">
+                            {% if message.tags == 'error' %}
+                                <i class="bi bi-exclamation-circle-fill h-6 w-6 shrink-0" aria-hidden="true"></i>
+                            {% elif message.tags == 'warning' %}
+                                <i class="bi bi-exclamation-triangle-fill h-6 w-6 shrink-0" aria-hidden="true"></i>
+                            {% elif message.tags == 'success' %}
+                                <i class="bi bi-check-circle-fill h-6 w-6 shrink-0" aria-hidden="true"></i>
+                            {% else %}
+                                <i class="bi bi-info-circle-fill h-6 w-6 shrink-0" aria-hidden="true"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
                         </div>
                     {% endfor %}
                 </div>
