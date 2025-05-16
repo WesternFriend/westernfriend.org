@@ -3,85 +3,55 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
+    <main class="container mx-auto px-4 py-6">
+        <header class="mb-6">
+            <h1>{{ page.title }}</h1>
+        </header>
 
-    <a href="{% pageurl page.get_parent %}">Memorials</a>{% if page.memorial_meeting %}: <a href="{% pageurl page.memorial_meeting %}">{{ page.memorial_meeting }}</a>{% endif %}
-
-
-    <h1>
-        {{ page.title }}
-    </h1>
-
-    <div class="container">
-        <div class="row">
-            <div class="col-sm">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h2 class="card-title">
-                            Date of birth
-                        </h2>
-
-                        <div class="card-text">
-                            {{ page.date_of_birth }}{% if page.dates_are_approximate %}*{% endif %}
-                        </div>
-                    </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <section class="card card-border bg-base-100 h-full" aria-labelledby="birth-heading">
+                <div class="card-body">
+                    <h2 id="birth-heading" class="card-title">Date of birth</h2>
+                    <time datetime="{{ page.date_of_birth|date:'Y-m-d' }}">
+                        {{ page.date_of_birth }}{% if page.dates_are_approximate %}*{% endif %}
+                    </time>
                 </div>
-            </div>
+            </section>
 
-            <div class="col-sm">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h2 class="card-title">
-                            Date of death
-                        </h2>
-
-                        <div class="card-text">
-                            {{ page.date_of_death }}{% if page.dates_are_approximate %}*{% endif %}
-                        </div>
-                    </div>
+            <section class="card card-border bg-base-100 h-full" aria-labelledby="death-heading">
+                <div class="card-body">
+                    <h2 id="death-heading" class="card-title">Date of death</h2>
+                    <time datetime="{{ page.date_of_death|date:'Y-m-d' }}">
+                        {{ page.date_of_death }}{% if page.dates_are_approximate %}*{% endif %}
+                    </time>
                 </div>
-            </div>
+            </section>
 
-            <div class="col-sm">
-                <div class="card">
-                    <div class="card-body">
-                        <h2 class="card-title">
-                            Meeting
-                        </h2>
-
-                        <div class="card-text">
-                            {{ page.memorial_meeting }}
-                        </div>
-                    </div>
+            <section class="card card-border bg-base-100 h-full" aria-labelledby="meeting-heading">
+                <div class="card-body">
+                    <h2 id="meeting-heading" class="card-title">Meeting</h2>
+                    <div>{{ page.memorial_meeting }}</div>
                 </div>
-            </div>
+            </section>
         </div>
 
         {% if page.dates_are_approximate %}
-            <div class="row">
-                <div class="col-sm">
-                    <span class="text-secondary">
-                        *Date(s) of birth and/or death approximate
-                    </span>
-                </div>
+            <div class="mt-2 italic">
+                *Date(s) of birth and/or death approximate
             </div>
         {% endif %}
 
-        <div class="row mt-3">
-            <div class="col-sm">
-                <div class="card">
-                    <div class="card-body">
-                        <h2 class="card-title">
-                            Memorial minute
-                        </h2>
-
-                        <div class="card-text">
-                            {{ page.memorial_minute|richtext }}
-                        </div>
+        <section class="mt-6" aria-labelledby="memorial-minute-heading">
+            <div class="card card-border bg-base-100">
+                <div class="card-body">
+                    <h2 id="memorial-minute-heading" class="card-title">Memorial minute</h2>
+                    <div class="prose max-w-none">
+                        {{ page.memorial_minute|richtext }}
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 {% endblock content %}
 
 {% block extra_js %}

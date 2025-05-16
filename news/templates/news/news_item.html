@@ -6,40 +6,50 @@
 {% block body_class %}template-newsitem{% endblock %}
 
 {% block content %}
-    <a href="{% pageurl page.get_parent %}">News</a>
-    <h1>
-        {{ page.title }}
-    </h1>
+    <main class="container mx-auto px-4 py-6">
+        <article>
+            <header class="mb-4">
+                <h1>{{ page.title }}</h1>
 
-    <p class="text-muted">
-        Published: {{ page.publication_date }}
-    </p>
+                <time datetime="{{ page.publication_date|date:'Y-m-d' }}">
+                    Published: {{ page.publication_date }}
+                </time>
+            </header>
 
-    {{ page.body }}
+            <div class="prose max-w-none my-6">
+                {{ page.body }}
+            </div>
 
-    {% if page.topics.count %}
-        <div class="topics">
-            Topics:&nbsp;
-            {% for news_topic in page.topics.all %}
-                <a
-                    href="{% url 'search' %}?query={{ news_topic.topic }}"
-                    class="btn btn-outline-primary btn-sm">
-                    {{ news_topic.topic }}
-                </a>
-            {% endfor %}
-        </div>
-    {% endif %}
+            <footer class="mt-6">
+                {% if page.topics.count %}
+                    <div class="mb-3">
+                        <span class="font-semibold">Topics:</span>
+                        <div class="flex flex-wrap gap-2 mt-1">
+                            {% for topic in page.specific.topics.all %}
+                                <a href="{% pageurl topic.topic %}" class="link link-primary">
+                                    {{ topic.topic }}
+                                </a>{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
 
-    {% if page.tags.count %}
-        <div class="tags">
-            Tags:&nbsp;
-            {% for tag in page.tags.all %}
-                <a
-                    href="{% url 'search' %}?query={{ tag }}"
-                    class="btn btn-outline-primary btn-sm">
-                    {{ tag }}
-                </a>
-            {% endfor %}
-        </div>
-    {% endif %}
+                {% if page.tags.count %}
+                    <div>
+                        <span class="font-semibold">Tags:</span>
+                        <div class="flex flex-wrap gap-2 mt-1">
+                            {% for tag in page.tags.all %}
+                                <a
+                                    href="{% url 'tags:tagged_page_list' tag.slug %}"
+                                    class="btn btn-outline btn-sm">
+                                    <i class="bi bi-tag me-1" aria-hidden="true"></i>
+                                    {{ tag }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </footer>
+        </article>
+    </main>
 {% endblock content %}

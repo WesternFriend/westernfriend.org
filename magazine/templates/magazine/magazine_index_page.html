@@ -5,70 +5,88 @@
 {% block body_class %}template-magazineindexpage{% endblock %}
 
 {% block content %}
-    <h1>
-        {{ page.title }}
-    </h1>
+    <main>
+        <header>
+            <h1>
+                {{ page.title }}
+            </h1>
 
-    <div class="intro">
-        {{ page.intro|richtext }}
-    </div>
-
-    <h2 id="recent-issues">
-        Recent issues
-    </h2>
-
-    <div class="row mb-4">
-        {% for issue in recent_issues %}
-            <div class="col-sm-4 mb-4">
-                {% include "magazine/magazine_issue_card.html" %}
+            <div class="prose">
+                {{ page.intro|richtext }}
             </div>
-        {% endfor %}
-    </div>
+        </header>
 
-    <h2 id="archive-issues">
-        Recent Archive
-    </h2>
+        <section aria-labelledby="recent-issues">
+            <h2 id="recent-issues">
+                Recent issues
+            </h2>
 
-    <div class="ms-1 mb-2">
-        {% for year in archive_issues_years %}
-            <span>
-                <a href="?year={{ year }}">{{ year }}</a>{% if not forloop.last %},{% endif %}
-            </span>
-        {% endfor %}
-    </div>
-
-    <div class="row">
-        {% for issue in archive_issues.page %}
-            <div class="col-sm-3 mb-4">
-                {% include "magazine/magazine_issue_card.html" %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+                {% for issue in recent_issues %}
+                    <div class="flex">
+                        {% include "magazine/magazine_issue_cover.html" with issue=issue %}
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-    </div>
+        </section>
 
-    {% if archive_issues.page.has_other_pages %}
-        {% include "paginator.html" with paginated_items=archive_issues fragment_identifier=archive_issues_fragment_identifier %}
-    {% endif %}
+        <section aria-labelledby="archive-issues">
+            <h2 id="archive-issues">
+                Recent Archive
+            </h2>
 
-    {% if page.deep_archive_page %}
-        <h2 id="deep-archive">
-            <i class="bi bi-calendar-heart" aria-hidden="true"></i>
-            Deep archive
-        </h2>
-        {{ page.deep_archive_intro|richtext }}
+            <nav aria-label="Filter magazine archive by year" class="ml-1 mb-4">
+                <ul class="flex flex-wrap gap-1">
+                    {% for year in archive_issues_years %}
+                        <li class="inline-block">
+                            <a href="?year={{ year }}" class="text-primary"
+                               {% if request.GET.year == year|stringformat:"i" %}aria-current="page"{% endif %}>
+                                {{ year }}
+                            </a>{% if not forloop.last %}<span class="ml-1 mr-1">,</span>{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
 
-        <a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline-primary mb-3">
-            <i class="bi bi-eye" aria-hidden="true"></i>
-            View deep archive
-        </a>
-        <div class="row">
-            <div class="col-sm-4 mb-4">
-                <div class="card">
-                    <a href=" {% pageurl page.deep_archive_page %}">
-                        <img class="card-img-top"
-                             src="https://archive.org/services/img/{{ page.featured_deep_archive_issue.internet_archive_identifier }}">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+                {% for issue in archive_issues.page %}
+                    <div class="flex">
+                        {% include "magazine/magazine_issue_cover.html" with issue=issue %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if archive_issues.page.has_other_pages %}
+                {% include "paginator.html" with paginated_items=archive_issues fragment_identifier=archive_issues_fragment_identifier %}
+            {% endif %}
+        </section>
+
+        {% if page.deep_archive_page %}
+            <section aria-labelledby="deep-archive">
+                <h2 id="deep-archive">
+                    <i class="bi bi-calendar-week h-6 w-6 inline-block" aria-hidden="true"></i>
+                    Deep archive
+                </h2>
+
+                <div class="prose mb-4">
+                    {{ page.deep_archive_intro|richtext }}
+                </div>
+
+                <a href="{% pageurl page.deep_archive_page %}" class="btn btn-outline mb-6 inline-flex items-center" aria-label="View the deep archive of Western Friend magazine">
+                    <i class="bi bi-eye-fill h-5 w-5 mr-2" aria-hidden="true"></i>
+                    View deep archive
+                </a>
+
+                <div class="max-w-sm">
+                    <a href="{% pageurl page.deep_archive_page %}" class="block card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow" aria-label="View the deep archive featuring {{ page.featured_deep_archive_issue.title }}">
+                        <figure>
+                            <img src="https://archive.org/services/img/{{ page.featured_deep_archive_issue.internet_archive_identifier }}"
+                                 alt="Cover of {{ page.featured_deep_archive_issue.title }}"
+                                 class="w-full h-auto">
+                        </figure>
                     </a>
                 </div>
-            </div>
-        </div>
-    {% endif %}
+            </section>
+        {% endif %}
+    </main>
 {% endblock content %}

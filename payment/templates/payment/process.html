@@ -4,19 +4,28 @@
 {% block title %}Pay online{% endblock %}
 
 {% block content %}
-    <h1>Pay online</h1>
+    <main class="container mx-auto px-4 py-6">
+        <header>
+            <h1>Pay online</h1>
+        </header>
 
-    <p class="text-muted">
-        This page will send your credit card information directly to PayPal. None of your credit card
-        information will ever be visible to Western Friend.
-    </p>
+        <section class="my-6">
+            <p>
+                This page will send your credit card information directly to PayPal. None of your credit card
+                information will ever be visible to Western Friend.
+            </p>
 
-    <p class="text-muted">Although PayPal transacts all of Western Friend's online purchases, you can choose whether to pay with a credit card or a PayPal account. You do not need to have a PayPal account to make a payment here.</p>
+            <p>
+                Although PayPal transacts all of Western Friend's online purchases, you can choose whether to pay with a credit card or a PayPal account. You do not need to have a PayPal account to make a payment here.
+            </p>
 
-    <p>Payment total: ${{ order.get_total_cost }}</p>
+            <div class="bg-base-200 p-4 rounded-lg my-6">
+                <p class="text-lg font-medium">Payment total: <span class="font-bold">${{ order.get_total_cost }}</span></p>
+            </div>
 
-    <div id="paypal-button-container"></div>
-
+            <div id="paypal-button-container" aria-label="PayPal payment buttons" class="mt-4"></div>
+        </section>
+    </main>
 {% endblock content %}
 
 {% block extra_js %}

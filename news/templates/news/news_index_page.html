@@ -1,41 +1,58 @@
 {% extends "base.html" %}
 {% load wagtailcore_tags %}
+
 {% block content %}
-    <h1>
-        {{ selected_year }} {{ page.title }}
-    </h1>
+    <main class="container mx-auto px-4 py-6">
+        <header class="mb-6">
+            <h1>{{ selected_year }} {{ page.title }}</h1>
 
-    {{ page.specific.intro|richtext }}
+            <div class="prose my-4">
+                {{ page.specific.intro|richtext }}
+            </div>
+        </header>
 
-    <div class="mb-2">
-        {% for year in news_years %}
-            {% if year == selected_year %}
-                <a
-                    href="?year={{ year }}"
-                    class="btn btn-primary"
-                >
-                    {{ year }}
-                </a>
-            {% else %}
-                <a
-                    href="?year={{ year }}"
-                    class="btn btn-outline-primary"
-                >
-                    {{ year }}
-                </a>
-            {% endif %}
-        {% endfor %}
-    </div>
+        <section aria-labelledby="year-filter" class="mb-6">
+            <h2 id="year-filter" class="sr-only">Filter by year</h2>
+            <div class="flex flex-wrap gap-2">
+                {% for year in news_years %}
+                    {% if year == selected_year %}
+                        <a href="?year={{ year }}"
+                           class="btn btn-primary"
+                           aria-label="Current filter: {{ year }}"
+                           aria-current="true">
+                            {{ year }}
+                        </a>
+                    {% else %}
+                        <a href="?year={{ year }}"
+                           class="btn btn-outline btn-primary"
+                           aria-label="Filter by year {{ year }}">
+                            {{ year }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </section>
 
-    {% for topic, items in grouped_news_items.items %}
-        <h2>{{ topic }}</h2>
-        <ul>
-            {% for news_item in items %}
-                <li>
-                    <a href="{% pageurl news_item %}">{{ news_item }}</a>&nbsp;
-                    <span class="text-muted">{{ news_item.publication_date }}</span>
-                </li>
+        <section class="space-y-6">
+            {% for topic, items in grouped_news_items.items %}
+                <div>
+                    <h2 class="text-xl font-semibold mb-2">{{ topic }}</h2>
+                    <ul class="list-disc ml-5 space-y-1">
+                        {% for news_item in items %}
+                            <li>
+                                <a href="{% pageurl news_item %}" class="link link-primary">
+                                    {{ news_item }}
+                                </a>
+                                <span class="ml-1">
+                                    <time datetime="{{ news_item.publication_date|date:'Y-m-d' }}">
+                                        {{ news_item.publication_date }}
+                                    </time>
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             {% endfor %}
-        </ul>
-    {% endfor %}
+        </section>
+    </main>
 {% endblock content %}

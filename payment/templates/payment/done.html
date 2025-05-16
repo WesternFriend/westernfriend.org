@@ -3,7 +3,28 @@
 {% block title %}Payment successful{% endblock %}
 
 {% block content %}
-    <h1>Payment successful!</h1>
+    <main class="container mx-auto px-4 py-6">
+        <header>
+            <h1>Payment successful!</h1>
+        </header>
 
-    <p>Your payment was processed successfully.</p>
+        <section class="my-6">
+            <div class="bg-success/10 border border-success/20 rounded-lg p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="bi bi-check-lg text-success text-2xl"></i>
+                    <p class="text-lg font-medium">Your payment was processed successfully.</p>
+                </div>
+
+                <p>
+                    Thank you for your payment. A confirmation has been sent to your email address.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-4 mt-8">
+                <a href="/" class="btn btn-outline" aria-label="Return to homepage">
+                    Return to homepage
+                </a>
+            </div>
+        </section>
+    </main>
 {% endblock content %}

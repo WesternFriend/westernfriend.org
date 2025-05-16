@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load common_form_tags %}
+
+{% block content %}
+    <main class="container mx-auto px-4 py-6">
+        <h1>Activate Account</h1>
+
+        <section class="max-w-2xl">
+            {% if activation_error %}
+                <div class="alert alert-error mb-6" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>
+                        {% if activation_error.code == "already_activated" %}
+                            This account has already been activated.
+                        {% elif activation_error.code == "bad_username" %}
+                            The account associated with this activation key is no longer available.
+                        {% elif activation_error.code == "expired" %}
+                            This activation key has expired.
+                        {% else %}
+                            There was an error activating your account. Please try again.
+                        {% endif %}
+                    </span>
+                </div>
+            {% endif %}
+
+            <p class="mb-6 prose">Please enter your activation key to activate your account. If your activation key was included in your URL, it should already be filled in.</p>
+
+            <form method="post" action="" class="max-w-md">
+                {% csrf_token %}
+
+                <fieldset class="space-y-4">
+                    <legend class="sr-only">Activation Information</legend>
+                    {% for field in form %}
+                        <div class="form-control">
+                            <label for="{{ field.id_for_label }}" class="label">
+                                <span class="label-text font-medium">{{ field.label }}</span>
+                            </label>
+                            {{ field|add_class:"input input-bordered w-full bg-white" }}
+                            {% if field.help_text %}
+                                <span class="label-text-alt text-sm mt-1">{{ field.help_text }}</span>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <span class="text-error text-sm mt-1" role="alert">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </fieldset>
+
+                <div class="mt-6">
+                    <button type="submit" class="btn btn-primary">Activate Account</button>
+                </div>
+            </form>
+
+            <div class="mt-4">
+                <a href="{% url 'login' %}" class="link link-primary">Return to login</a>
+            </div>
+        </section>
+    </main>
+{% endblock content %}

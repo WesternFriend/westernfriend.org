@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <main>
+        <nav class="breadcrumbs mb-4" aria-label="Breadcrumb">
+            <ul>
+                <li><a href="{% url 'departments' %}">Departments</a></li>
+                <li>{{ department.name }}</li>
+            </ul>
+        </nav>
+
+        <header>
+            <h1>{{ department.name }}</h1>
+
+            {% if department.description %}
+                <div class="prose">
+                    {{ department.description|richtext }}
+                </div>
+            {% endif %}
+        </header>
+
+        {% if department.articles.count %}
+            <section aria-labelledby="articles-heading">
+                <h2 id="articles-heading">Articles in this Department</h2>
+
+                <div class="space-y-4 mt-4">
+                    {% for article in department.articles.all %}
+                        {% include "magazine/magazine_article_summary.html" with article=article %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% else %}
+            <p class="py-4">No articles found in this department.</p>
+        {% endif %}
+
+        <nav class="mt-6">
+            <a href="{% url 'departments' %}" class="link link-primary">
+                Return to all departments
+            </a>
+        </nav>
+    </main>
+{% endblock content %}

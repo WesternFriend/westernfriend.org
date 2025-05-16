@@ -5,11 +5,26 @@
 {% endblock title %}
 
 {% block content %}
-    <h1>
-        We appreciate your order.
-    </h1>
+    <main class="container mx-auto px-4 py-6">
+        <section class="card card-border bg-base-100 max-w-md mx-auto">
+            <div class="card-body">
+                <header class="mb-4">
+                    <h1 class="card-title text-2xl">
+                        We appreciate your order.
+                    </h1>
+                </header>
 
-    <p>
-        Your order (ID #<strong>{{ order.id }}</strong>) has been placed.
-    </p>
+                <p>
+                    Your order (ID #<strong>{{ order.id }}</strong>) has been placed.
+                </p>
+
+                <div class="mt-6">
+                    <a href="/" class="btn btn-primary">
+                        <i class="bi bi-house me-2" aria-hidden="true"></i>
+                        Return to homepage
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
 {% endblock content %}

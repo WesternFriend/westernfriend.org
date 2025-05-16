@@ -3,19 +3,25 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <main class="container mx-auto px-4 py-6">
+        <header>
+            <h1>{{ page.title }}</h1>
+        </header>
 
-
-    {% if page.pages.count %}
-        <h2>Pages</h2>
-        <ul>
-            {% for page in collection.pages.all %}
-                <li>
-                    <a href="{% pageurl page %}">
-                        {{ page }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+        {% if page.pages.count %}
+            <section aria-labelledby="collection-pages-heading" class="mt-8">
+                <h2 id="collection-pages-heading">Pages</h2>
+                <ul class="space-y-2 divide-y divide-base-200">
+                    {% for page in collection.pages.all %}
+                        <li class="py-2">
+                            <a href="{% pageurl page %}"
+                               class="block p-4 rounded-lg hover:bg-base-200 transition-colors duration-200">
+                                <h3>{{ page }}</h3>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+    </main>
 {% endblock content %}

@@ -3,36 +3,41 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>
-        {{ page.title }}
-    </h1>
+    <main class="container mx-auto px-4 py-6">
+        <article>
+            <header>
+                <h1>{{ page.title }}</h1>
+            </header>
 
-    {% include_block page.body %}
+            <div class="prose dark:prose-invert">
+                {% include_block page.body %}
+            </div>
 
-    {% if page.collection %}
-        <dl>
-            <dt>
-                Collection
-            </dt>
-            <dd>
-                <a href="{% pageurl page.collection %}">
-                    {{ page.collection }}
-                </a>
-            </dd>
-        </dl>
-    {% endif %}
+            <footer class="mt-8 pt-4 border-t border-base-300">
+                {% if page.collection %}
+                    <div class="mb-4">
+                        <h2>Collection</h2>
+                        <a href="{% pageurl page.collection %}" class="link link-hover">
+                            {{ page.collection }}
+                        </a>
+                    </div>
+                {% endif %}
 
-    {% if page.tags.all %}
-        <dl>
-            <dt>
-                Tags
-            </dt>
-            <dd>
-                {% for tag in page.tags.all %}
-                    <a href="{% url 'search' %}?query={{ tag }}">{{ tag }}</a>
-                    {% if not forloop.last %},{% endif %}
-                {% endfor %}
-            </dd>
-        </dl>
-    {% endif %}
+                {% if page.tags.all %}
+                    <div>
+                        <h2>Tags</h2>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            {% for tag in page.tags.all %}
+                                <a href="{% url 'search' %}?query={{ tag }}"
+                                   class="badge badge-outline hover:bg-base-200 transition-colors"
+                                   aria-label="Search for {{ tag }}">
+                                    {{ tag }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </footer>
+        </article>
+    </main>
 {% endblock content %}

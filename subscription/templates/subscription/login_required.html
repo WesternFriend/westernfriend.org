@@ -1,17 +1,21 @@
-<div class="card" style="width: 18rem;">
+<div class="card bg-base-100 shadow-sm w-full max-w-md mx-auto">
     <div class="card-body">
         <p>Please login or register in order to subscribe.</p>
 
-        <a
-            href="{% url 'login' %}?next={{ request.get_full_path }}"
-            class="btn btn-outline-primary">
-            Login
-        </a>
-        <!--TODO: add custom registration view that supports "next" querystring -->
-        <a
-            href="{% url 'django_registration_register' %}?next={{ request.get_full_path }}"
-            class="btn btn-outline-primary float-right">
-            Register
-        </a>
+        <div class="flex flex-col sm:flex-row gap-4 justify-between mt-4">
+            <a
+                href="{% url 'login' %}?next={{ request.get_full_path }}"
+                class="btn btn-outline flex-1">
+                <i class="bi bi-box-arrow-in-right mr-2" aria-hidden="true"></i>
+                Login
+            </a>
+
+            <a
+                href="{% url 'django_registration_register' %}?next={{ request.get_full_path }}"
+                class="btn btn-primary flex-1">
+                <i class="bi bi-person-plus mr-2" aria-hidden="true"></i>
+                Register
+            </a>
+        </div>
     </div>
 </div>

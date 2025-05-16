@@ -1,31 +1,36 @@
 {% load wagtailcore_tags %}
-<div class="card mb-2">
+
+<article class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow mb-4">
     <div class="card-body">
-        <a href="{% pageurl article %}" class="card-title fs-3 fw-bold magazine-article-summary-title-link">
-            {{ article.title }}
-        </a>
+        <h3 class="card-title">
+            <a href="{% pageurl article %}">
+                {{ article.title }}
+            </a>
+        </h3>
 
         {% if article.authors.count %}
-            <ul class="list-inline mb-1">
-                <li class="list-inline-item">Author(s):</li>
+            <div class="mb-2">
+                <span class="font-medium">Author(s):</span>
                 {% for author in article.authors.all %}
-                    <li class="list-inline-item">
-                        {% if author.author.live %}
-                            <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                        {% else %}
-                            {{ author.author }}{% if not forloop.last %},{% endif %}
-                        {% endif %}
-                    </li>
+                    {% if author.author.live %}
+                        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                    {% else %}
+                        {{ author.author }}{% if not forloop.last %},{% endif %}
+                    {% endif %}
                 {% endfor %}
-            </ul>
+            </div>
         {% endif %}
 
-        {{ article.teaser|richtext }}
+        <div class="prose">
+            {{ article.teaser|richtext }}
+        </div>
 
-        <p>
-            Issue: <a href="{% pageurl article.get_parent %}">
-                {{ article.get_parent }} ({{ article.get_parent.specific.publication_date|date:"F Y" }})
-            </a>
-        </p>
+        <div class="card-actions">
+            <span>
+                Issue: <a href="{% pageurl article.get_parent %}" class="link">
+                    {{ article.get_parent }} ({{ article.get_parent.specific.publication_date|date:"F Y" }})
+                </a>
+            </span>
+        </div>
     </div>
-</div>
+</article>

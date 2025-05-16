@@ -3,59 +3,76 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a>
-    <h1>{{ page.title }}</h1>
+    <main>
+        <nav class="breadcrumbs mb-4" aria-label="Breadcrumb">
+            <ul>
+                <li><a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a></li>
+                <li>{{ page.title }}</li>
+            </ul>
+        </nav>
 
-    {{ page.intro|richtext }}
-    <div class="row">
-        <div class="card mb-3">
-            <div class="card-body">
-                <form class="form">
-                    <div class="row justify-content-center">
-                        <div class="col-12 col-sm-9 col-md-9">
-                            <div class="input-group mb-3">
-                                <label class="input-group-text" for="publication_date__year">Filter by year</label>
-                                <select name="publication_date__year" id="publication_date__year" class="form-select">
-                                    <option selected disabled hidden>Choose a year</option>
-                                    {% for year in publication_years %}
-                                        <option>{{ year }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button type="submit" class="btn btn-outline-primary">Go</button>
+        <header>
+            <h1>{{ page.title }}</h1>
+
+            <div class="prose">
+                {{ page.intro|richtext }}
+            </div>
+        </header>
+
+        <section aria-labelledby="filter-heading" class="mb-6">
+            <div class="card bg-base-100 shadow-sm">
+                <div class="card-body">
+                    <form class="form">
+                        <div class="flex flex-col sm:flex-row gap-3 items-end justify-center">
+                            <div class="flex-grow">
+                                <div class="form-control w-full">
+                                    <label class="label" for="publication_date__year">
+                                        <span class="label-text">Filter by year</span>
+                                    </label>
+                                    <select name="publication_date__year" id="publication_date__year" class="select select-bordered w-full">
+                                        <option selected disabled hidden>Choose a year</option>
+                                        {% for year in publication_years %}
+                                            <option>{{ year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button type="submit" class="btn btn-primary">Go</button>
+                                <button id="clear-search-button" class="btn btn-outline" onclick="clearSearch()" type="button">
+                                    Clear filter
+                                </button>
                             </div>
                         </div>
-
-                        <div class="col-12 col-sm-3 col-md-3">
-                            <button id="clear-search-button" class="btn btn-outline-primary w-100" onclick="clearSearch()" type="button">
-                                Clear filter
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-        </div>
-    </div>
-    <div class="row">
-        {% for issue in archive_issues.page %}
-            <div class="col-sm-3 mb-4">
-                <div class="card">
-                    <a href=" {% pageurl issue %}">
-                        <img class="card-img-top"
-                             src="https://archive.org/services/img/{{ issue.specific.internet_archive_identifier }}">
-                        <div class="card-body">
-                            {{ issue }}
-                        </div>
-                    </a>
+                    </form>
                 </div>
             </div>
-        {% endfor %}
-    </div>
+        </section>
 
-    <div class="list-group-item d-flex w-100 justify-content-center">
-        {% include "paginator.html" with paginated_items=archive_issues %}
-    </div>
+        <section aria-label="Magazine Archive Issues" class="mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {% for issue in archive_issues.page %}
+                    <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+                        <a href="{% pageurl issue %}" class="h-full flex flex-col">
+                            <figure>
+                                <img src="https://archive.org/services/img/{{ issue.specific.internet_archive_identifier }}"
+                                     alt="Cover of {{ issue }}"
+                                     class="w-full object-contain">
+                            </figure>
+                            <div class="card-body p-4">
+                                <h3 class="card-title">{{ issue }}</h3>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
 
+        <nav aria-label="Pagination" class="flex justify-center">
+            {% include "paginator.html" with paginated_items=archive_issues %}
+        </nav>
+    </main>
 {% endblock content %}
 
 {% block extra_js %}

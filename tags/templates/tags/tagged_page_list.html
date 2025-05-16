@@ -3,35 +3,41 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>Pages tagged "{{ tag_name }}"</h1>
+    <main>
+        <header>
+            <h1>Pages tagged "{{ tag_name }}"</h1>
+        </header>
 
-    {% if paginated_items %}
-        {% for item in paginated_items.page %}
-            {% if item.specific.search_template %}
-                {% include item.specific.search_template with entity=item %}
-            {% else %}
-                <div class="card my-1">
-                    <div class="card-body">
-                        <h2 class="card-title">
-                            <a href="{% pageurl item %}">
-                                {{ item }} ({{ item.content_type.name }})
-                            </a>
-                        </h2>
+        {% if paginated_items %}
+            <section class="space-y-4" aria-label="Tagged pages">
+                {% for item in paginated_items.page %}
+                    {% if item.specific.search_template %}
+                        {% include item.specific.search_template with entity=item %}
+                    {% else %}
+                        <article class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+                            <div class="card-body">
+                                <h2 class="card-title">
+                                    <a href="{% pageurl item %}">
+                                        {{ item }} <span class="text-sm font-normal text-base-content/70">({{ item.content_type.name }})</span>
+                                    </a>
+                                </h2>
+                            </div>
+                        </article>
+                    {% endif %}
+                {% endfor %}
+
+                {% if paginator.num_pages > 1 %}
+                    <div class="text-sm text-base-content/70 mt-4">
+                        <span>Page {{ page_obj.number }} of {{ paginator.num_pages }}.</span>
                     </div>
-                </div>
-            {% endif %}
-        {% endfor %}
+                {% endif %}
 
-        {% if paginator.num_pages > 1 %}
-            <div class="pagination">
-                <span>Page {{ page_obj.number }} of {{ paginator.num_pages }}.</span>
-            </div>
+                {% include "paginator.html" with paginated_items=paginated_items %}
+            </section>
+        {% else %}
+            <p>
+                There are no pages tagged {{ tag }}.
+            </p>
         {% endif %}
-
-        {% include "paginator.html" with paginated_items=paginated_items %}
-    {% else %}
-        <p>
-            There are no pages tagged {{ tag }}.
-        </p>
-    {% endif %}
+    </main>
 {% endblock content %}

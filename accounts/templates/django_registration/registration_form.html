@@ -1,28 +1,50 @@
 {% extends "base.html" %}
-{% load crispy_forms_tags honeypot %}
+{% load common_form_tags honeypot %}
 
 {% block content %}
-    <h1>Register</h1>
-    <div class="row">
-        <div class="col-md-6">
-            {% if user.is_authenticated %}
-                <p>You are already registered.</p>
-            {% else %}
-                <ul>
-                    <li>Paid magazine subscribers can register below and then request that their login account be marked as a “paid subscriber account.” This allows paid subscribers to read articles “behind the paywall.”</li>
-                    <li>Free newsletter subscribers can register for our weekly email newsletter <a href="https://westernfriend.us4.list-manage.com/subscribe?u=0f903ecd7fe40d2cc1c8380a3&id=d3975648f3">here</a></li>.
+    <main class="container mx-auto px-4 py-6">
+        <h1>Register</h1>
+
+        {% if user.is_authenticated %}
+            <p>You are already registered.</p>
+        {% else %}
+            <section class="max-w-2xl">
+                <ul class="list-disc pl-5 mb-6 prose">
+                    <li>Paid magazine subscribers can register below and then request that their login account be marked as a "paid subscriber account." This allows paid subscribers to read articles "behind the paywall."</li>
+                    <li>Free newsletter subscribers can register for our weekly email newsletter <a href="https://westernfriend.us4.list-manage.com/subscribe?u=0f903ecd7fe40d2cc1c8380a3&id=d3975648f3">here</a>.</li>
                 </ul>
-                <form method="post" action="">
+
+                <form method="post" action="" class="max-w-md">
                     {% csrf_token %}
 
                     {% render_honeypot_field honeypot_field_name %}
 
-                    {{ form|crispy }}
+                    <fieldset class="space-y-4">
+                        <legend class="sr-only">Registration Information</legend>
+                        {% for field in form %}
+                            <div class="form-control">
+                                <label for="{{ field.id_for_label }}" class="label">
+                                    <span class="label-text font-medium">{{ field.label }}</span>
+                                </label>
+                                {{ field|add_class:"input input-bordered w-full bg-white" }}
+                                {% if field.help_text %}
+                                    <span class="label-text-alt text-sm mt-1">{{ field.help_text }}</span>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <span class="text-error text-sm mt-1" role="alert">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </fieldset>
 
-                    <input type="submit" value="register" class="btn btn-primary">
+                    <div class="mt-6">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
                 </form>
-                <a href="{% url 'login' %}">Already registered?</a>
-            {% endif %}
-        </div>
-    </div>
+                <div class="mt-4">
+                    <a href="{% url 'login' %}">Already registered?</a>
+                </div>
+            </section>
+        {% endif %}
+    </main>
 {% endblock content %}

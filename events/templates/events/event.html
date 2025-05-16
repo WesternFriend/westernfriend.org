@@ -2,53 +2,77 @@
 
 {% load static tz wagtailcore_tags %}
 
-{% block body_class %}
-    template-event
-{% endblock body_class %}
+{% block body_class %}template-event{% endblock %}
 
-{% block title %}
-    {{ page.title }}
-{% endblock title %}
+{% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
-    <a href="{% pageurl page.get_parent %}?category={{ page.category }}">Events</a>
+    <main class="container mx-auto px-4 py-6">
+        <article>
+            <header class="mb-4">
+                <h1>{{ event.title }}</h1>
 
-    <h1>{{ event.title }}</h1>
+                <div class="flex flex-col md:flex-row gap-2 md:items-center mb-4">
+                    <div class="flex items-center">
+                        <i class="bi bi-calendar me-2" aria-hidden="true"></i>
+                        <time datetime="{% if event.start_date %}{{ event.start_date|date:'c' }}{% endif %}" class="font-semibold">
+                            {% if event.start_date %}
+                                {{ event.start_date|timezone:'US/Pacific'|date:'F d, Y, f A' }}
+                            {% endif %}
 
-    <p class="font-weight-bold mb-2">
-        {% if event.start_date %}
-            {{ event.start_date|timezone:'US/Pacific'|date:'F d, Y, f A' }}
-        {% endif %}
+                            {% if event.end_date %}
+                                -
+                                <time datetime="{{ event.end_date|date:'c' }}">
+                                    {{ event.end_date|timezone:'US/Pacific'|date:'F d, Y, f A' }}
+                                </time>
+                            {% endif %}
+                        </time>
+                        <span class="ms-1">(US/Pacific)</span>
+                    </div>
+                </div>
+            </header>
 
-        {% if event.end_date %}
-            -
-            {{ event.end_date|timezone:'US/Pacific'|date:'F d, Y, f A' }}
-        {% endif %}US/Pacific
-    </p>
+            {% if event.sponsors.all %}
+                <section class="mb-4">
+                    <div class="flex flex-wrap gap-2">
+                        <h2 class="text-lg font-semibold">Sponsor(s):</h2>
+                        <ul class="flex flex-wrap gap-2">
+                            {% for sponsor in event.sponsors.all %}
+                                <li>
+                                    {% if sponsor.sponsor.live %}
+                                        <a href="{% pageurl sponsor.sponsor %}" class="link link-primary">
+                                            {{ sponsor.sponsor }}
+                                        </a>{% if not forloop.last %},{% endif %}
+                                    {% else %}
+                                        {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </section>
+            {% endif %}
 
-    {% if event.sponsors.all %}
-        <dt class="col-sm-2">Sponsor(s):</dt>
-        <dd class="col-sm-10">
-            {% for sponsor in event.sponsors.all %}
-                {% if sponsor.sponsor.live %}
-                    <a href="{% pageurl sponsor.sponsor %}">{{ sponsor.sponsor }}</a>{% if not forloop.last %},{% endif %}
-                {% else %}
-                    {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
-                {% endif %}
-            {% endfor %}
-        </dd>
-    {% endif %}
+            {% if event.body %}
+                <section class="prose max-w-none my-6">
+                    {{ event.body }}
+                </section>
+            {% endif %}
 
-    {% if event.body %}
-        {{ event.body }}
-    {% endif %}
-
-    {% if event.website %}
-        <a href="{{ event.specific.website }}" class="btn btn-primary btn-sm" target="blank">
-            <i class="bi bi-link" aria-hidden="true"></i>
-            Visit event website
-        </a>
-    {% endif %}
+            {% if event.website %}
+                <div class="mt-6">
+                    <a href="{{ event.specific.website }}"
+                       class="btn btn-primary"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="Visit external event website">
+                        <i class="bi bi-link me-2" aria-hidden="true"></i>
+                        Visit event website
+                    </a>
+                </div>
+            {% endif %}
+        </article>
+    </main>
 {% endblock content %}
 
 {% block extra_js %}
