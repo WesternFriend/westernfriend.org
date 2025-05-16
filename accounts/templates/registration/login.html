@@ -14,11 +14,11 @@
                     {% for field in form %}
                         <div class="form-control">
                             <label for="{{ field.id_for_label }}" class="label">
-                                <span class="label-text text-gray-700 font-medium">{{ field.label }}</span>
+                                <span class="label-text font-medium">{{ field.label }}</span>
                             </label>
-                            {{ field|add_class:"input input-bordered w-full bg-white text-gray-800" }}
+                            {{ field|add_class:"input input-bordered w-full bg-white" }}
                             {% if field.help_text %}
-                                <span class="label-text-alt text-sm text-gray-600 mt-1">{{ field.help_text }}</span>
+                                <span class="label-text-alt text-sm mt-1">{{ field.help_text }}</span>
                             {% endif %}
                             {% for error in field.errors %}
                                 <span class="text-error text-sm mt-1" role="alert">{{ error }}</span>

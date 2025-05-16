@@ -9,7 +9,7 @@
         </h2>
 
         {% if entity.specific.publication_date %}
-            <div class="flex items-center gap-1 text-gray-600">
+            <div class="flex items-center gap-1">
                 <i class="bi bi-calendar" aria-hidden="true"></i>
                 <time datetime="{{ entity.specific.publication_date|date:'Y-m' }}">
                     {{ entity.specific.publication_date|date:"M" }}

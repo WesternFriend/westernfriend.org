@@ -11,7 +11,7 @@ def add_class(field, css_class):
     to apply tailwind/daisyUI styling to Django forms across the site.
 
     Example usage:
-    {{ form.field|add_class:"input input-bordered w-full bg-white text-gray-800" }}
+    {{ form.field|add_class:"input input-bordered w-full bg-white" }}
     """
     return field.as_widget(
         attrs={

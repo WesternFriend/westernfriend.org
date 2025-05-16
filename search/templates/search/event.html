@@ -9,7 +9,7 @@
         </h2>
 
         {% if entity.specific.date %}
-            <div class="flex items-center gap-1 text-gray-600 mb-2">
+            <div class="flex items-center gap-1 mb-2">
                 <i class="bi bi-calendar-event" aria-hidden="true"></i>
                 <time datetime="{{ entity.specific.date|date:'Y-m-d' }}">
                     {{ entity.specific.date }}
