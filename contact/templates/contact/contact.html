@@ -8,10 +8,11 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
             <!-- Contact Information Column -->
-            <section class="lg:col-span-1" aria-labelledby="contact-info-heading">
+            <section class="lg:col-span-1" aria-labelledby="contact-info-heading" itemscope itemtype="https://schema.org/{% if page.specific.is_organization %}Organization{% else %}Person{% endif %}">
+                <meta itemprop="name" content="{{ page.title }}">
                 <h2 id="contact-info-heading" class="sr-only">Contact Information</h2>
 
-                <div class="prose">
+                <div class="prose" itemprop="description">
                     {{ page.specific.description|richtext }}
                 </div>
 
@@ -19,7 +20,7 @@
                     {% if page.specific.phone %}
                         <dt class="font-semibold">Phone</dt>
                         <dd class="mb-2">
-                            <a href="tel:{{ page.specific.phone }}" aria-label="Phone: {{ page.specific.phone }}">
+                            <a href="tel:{{ page.specific.phone }}" aria-label="Phone: {{ page.specific.phone }}" itemprop="telephone">
                                 {{ page.specific.phone }}
                             </a>
                         </dd>
@@ -28,7 +29,7 @@
                     {% if page.specific.email %}
                         <dt class="font-semibold">Email</dt>
                         <dd class="mb-2">
-                            <a href="mailto:{{ page.specific.email }}" aria-label="Email: {{ page.specific.email }}">
+                            <a href="mailto:{{ page.specific.email }}" aria-label="Email: {{ page.specific.email }}" itemprop="email">
                                 {{ page.specific.email }}
                             </a>
                         </dd>
@@ -37,7 +38,7 @@
                     {% if page.specific.website %}
                         <dt class="font-semibold">Website</dt>
                         <dd class="mb-2">
-                            <a href="{{ page.specific.website }}" aria-label="Visit website: {{ page.specific.website }}" target="_blank" rel="noopener noreferrer">
+                            <a href="{{ page.specific.website }}" aria-label="Visit website: {{ page.specific.website }}" target="_blank" rel="noopener noreferrer" itemprop="url">
                                 {{ page.specific.website }}
                             </a>
                         </dd>
@@ -52,7 +53,9 @@
                             {% for address in page.addresses.all %}
                                 <dt class="font-semibold">{{ address.address_type|title }}</dt>
                                 <dd class="mb-2">
-                                    <address>{{ address }}</address>
+                                    <address itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
+                                        <span itemprop="streetAddress">{{ address }}</span>
+                                    </address>
                                 </dd>
                             {% endfor %}
                         </dl>
@@ -172,7 +175,8 @@
                 <h2 id="articles-heading" class="text-2xl font-semibold mb-4">Articles</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                     {% for article in page.articles_authored.all %}
-                        <div class="flex">
+                        <div class="flex" itemprop="author" itemscope itemtype="https://schema.org/Article">
+                            <meta itemprop="author" content="{{ page.title }}">
                             {% include 'magazine/magazine_article_summary.html' with article=article.article %}
                         </div>
                     {% endfor %}
@@ -186,10 +190,12 @@
 
                 <ul class="list-disc pl-5">
                     {% for article in page.archive_articles_authored.all %}
-                        <li class="mb-2">
+                        <li class="mb-2" itemprop="author" itemscope itemtype="https://schema.org/Article">
+                            <meta itemprop="author" content="{{ page.title }}">
                             {{ article.article.issue }} -
                             <a href="{% pageurl article.article.issue %}?pdf_page_number={{ article.article.pdf_page_number }}"
-                               aria-label="Read '{{ article.article.title }}' in {{ article.article.issue }}">
+                               aria-label="Read '{{ article.article.title }}' in {{ article.article.issue }}"
+                               itemprop="name">
                                 {{ article.article.title }}
                             </a>
                         </li>
@@ -204,9 +210,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                     {% for book_author in page.books_authored.all %}
                         {% with book=book_author.book %}
-                            <article class="border rounded shadow p-4">
+                            <article class="border rounded shadow p-4" itemscope itemtype="https://schema.org/Book">
                                 <h3 class="text-lg font-medium mb-2">
-                                    <a href="{% pageurl book %}" aria-label="View book: {{ book }}">{{ book }}</a>
+                                    <a href="{% pageurl book %}" aria-label="View book: {{ book }}" itemprop="name">{{ book }}</a>
                                 </h3>
 
                                 {% if book.authors.count %}
@@ -214,19 +220,22 @@
                                         <span>Authored by:</span>
                                         {% for author in book.authors.all %}
                                             {% if author.author.live %}
-                                                <span>
-                                                    <a href="{% pageurl author.author %}" aria-label="View author: {{ author.author.title }}">
+                                                <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                                                    <a href="{% pageurl author.author %}" aria-label="View author: {{ author.author.title }}" itemprop="name">
                                                         {{ author.author.title }}
                                                     </a>{% if not forloop.last %},{% endif %}
                                                 </span>
                                             {% else %}
-                                                <span>{{ author.author }}{% if not forloop.last %},{% endif %}</span>
+                                                <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                                                    <meta itemprop="name" content="{{ author.author }}">
+                                                    {{ author.author }}{% if not forloop.last %},{% endif %}
+                                                </span>
                                             {% endif %}
                                         {% endfor %}
                                     </div>
                                 {% endif %}
 
-                                <div class="prose">
+                                <div class="prose" itemprop="description">
                                     {{ book.description|richtext|truncatewords_html:30 }}
                                 </div>
                             </article>
@@ -242,7 +251,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {% for item_authored in page.specific.library_items_authored.all %}
                         {% with library_item=item_authored.library_item %}
-                            <div class="flex">
+                            <div class="flex" itemscope itemtype="https://schema.org/CreativeWork">
+                                <meta itemprop="author" content="{{ page.title }}">
                                 {% include 'library/library_item_card.html' %}
                             </div>
                         {% endwith %}
@@ -256,15 +266,19 @@
                 <h2 id="memorials-heading" class="text-2xl font-semibold mb-4">Memorials</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                     {% for memorial_minute in page.memorial_minutes.all|dictsort:'memorial_person.family_name' %}
-                        <article class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <article class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow duration-300"
+                                 itemscope itemtype="https://schema.org/Article">
+                            <meta itemprop="about" itemscope itemtype="https://schema.org/Person">
+                            <meta itemprop="name" content="Memorial for {{ memorial_minute.memorial_person }}">
                             <div class="card-body">
-                                <h3 class="card-title">
+                                <h3 class="card-title" itemprop="headline">
                                     {{ memorial_minute.memorial_person }}
                                 </h3>
                                 <div class="card-actions justify-end mt-2">
                                     <a href="{% pageurl memorial_minute %}"
                                        class="btn btn-primary btn-sm"
-                                       aria-label="View memorial for {{ memorial_minute.memorial_person }}">
+                                       aria-label="View memorial for {{ memorial_minute.memorial_person }}"
+                                       itemprop="url">
                                         View Memorial
                                     </a>
                                 </div>

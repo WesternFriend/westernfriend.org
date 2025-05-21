@@ -5,24 +5,29 @@
 {% block body_class %}template-community-quaker-organizations{% endblock %}
 
 {% block content %}
-    <main id="main-content" tabindex="-1">
+    <main id="main-content" tabindex="-1" itemscope itemtype="https://schema.org/CollectionPage">
+        <meta itemprop="name" content="{{ page.title }}">
         <h1>{{ page.title }}</h1>
 
-        <section aria-label="Organizations list">
+        <section aria-label="Organizations list" itemprop="mainEntity" itemscope itemtype="https://schema.org/ItemList">
+            <meta itemprop="numberOfItems" content="{{ page.get_descendants.all|length }}">
             <ul class="space-y-6 list-none pl-0">
                 {% for organization in page.get_descendants.all %}
-                    <li class="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <article>
-                            <h2 class="text-xl font-semibold mb-2">{{ organization }}</h2>
+                    <li class="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
+                        itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <meta itemprop="position" content="{{ forloop.counter }}">
+                        <article itemprop="item" itemscope itemtype="https://schema.org/Organization">
+                            <h2 class="text-xl font-semibold mb-2" itemprop="name">{{ organization }}</h2>
                             {% if organization.specific.description %}
-                                <div class="mb-3">{{ organization.specific.description }}</div>
+                                <div class="mb-3" itemprop="description">{{ organization.specific.description }}</div>
                             {% endif %}
                             {% if organization.specific.website %}
                                 <a href="{{ organization.specific.website }}"
                                    class="text-blue-600 hover:underline"
                                    target="_blank"
                                    rel="noopener noreferrer"
-                                   aria-label="Visit website for {{ organization }}: {{ organization.specific.website }}">
+                                   aria-label="Visit website for {{ organization }}: {{ organization.specific.website }}"
+                                   itemprop="url">
                                     <span class="inline-flex items-center">
                                         <span>{{ organization.specific.website }}</span>
                                         <i class="bi bi-box-arrow-up-right ml-1" aria-hidden="true"></i>
