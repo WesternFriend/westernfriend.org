@@ -5,24 +5,29 @@
 {% block content %}
     <h1>{{ page.title }}</h1>
 
-    <div class="row">
-        <div class="col">
-            {{ page.specific.description|richtext }}
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Contact Information Column -->
+        <div class="lg:col-span-1">
+            <div class="prose">
+                {{ page.specific.description|richtext }}
+            </div>
 
-            {% if page.specific.phone %}
-                <dt>Phone</dt>
-                <dd>{{ page.specific.phone }}</dd>
-            {% endif %}
+            <dl>
+                {% if page.specific.phone %}
+                    <dt>Phone</dt>
+                    <dd>{{ page.specific.phone }}</dd>
+                {% endif %}
 
-            {% if page.specific.email %}
-                <dt>Email</dt>
-                <dd>{{ page.specific.email }}</dd>
-            {% endif %}
+                {% if page.specific.email %}
+                    <dt>Email</dt>
+                    <dd>{{ page.specific.email }}</dd>
+                {% endif %}
 
-            {% if page.specific.website %}
-                <dt>Website</dt>
-                <dd><a href="{{ page.specific.website }}">{{ page.specific.website }}</a></dd>
-            {% endif %}
+                {% if page.specific.website %}
+                    <dt>Website</dt>
+                    <dd><a href="{{ page.specific.website }}">{{ page.specific.website }}</a></dd>
+                {% endif %}
+            </dl>
 
             {% if page.addresses.count %}
                 <h2>Address(es)</h2>
@@ -61,7 +66,7 @@
             {% if page.presiding_clerks.count %}
                 <h2>Presiding clerk(s)</h2>
 
-                <ul class="list-unstyled">
+                <ul class="list-none pl-0">
                     {% for presiding_clerk in page.presiding_clerks.all %}
                         <li>{{ presiding_clerk.person }}</li>
                     {% endfor %}
@@ -76,50 +81,58 @@
             {% endif %}
         </div>
 
-        <div class="col">
-            {% if quarterly_meetings %}
-                <h2 class="fs-3">Quarterly Meetings</h2>
-
-                <ul>
+        <!-- Quarterly Meetings Column -->
+        {% if quarterly_meetings %}
+            <div class="lg:col-span-1">
+                <h2 class="text-xl font-semibold">Quarterly Meetings</h2>
+                <ul class="pl-0">
                     {% for meeting in quarterly_meetings %}
-                        <li class="list-unstyled">
+                        <li class="list-none mb-2">
                             <a href="{% pageurl meeting %}">{{ meeting.title }}</a>
                         </li>
                     {% endfor %}
                 </ul>
-            {% endif %}
+            </div>
+        {% endif %}
 
-            {% if monthly_meetings %}
-                <h2 class="fs-3">Monthly Meetings</h2>
-
-                <ul>
+        <!-- Monthly Meetings Column -->
+        {% if monthly_meetings %}
+            <div class="lg:col-span-1">
+                <h2 class="text-xl font-semibold">Monthly Meetings</h2>
+                <ul class="pl-0">
                     {% for meeting in monthly_meetings %}
-                        <li class="list-unstyled">
+                        <li class="list-none mb-2">
                             <a href="{% pageurl meeting %}">{{ meeting.title }}</a>
                         </li>
                     {% endfor %}
                 </ul>
-            {% endif %}
+            </div>
+        {% endif %}
 
-            {% if worship_groups %}
-                <h2 class="fs-3">Worship Groups</h2>
-
-                <ul>
+        <!-- Worship Groups Column -->
+        {% if worship_groups %}
+            <div class="lg:col-span-1">
+                <h2 class="text-xl font-semibold">Worship Groups</h2>
+                <ul class="pl-0">
                     {% for meeting in worship_groups %}
-                        <li class="list-unstyled">
+                        <li class="list-none mb-2">
                             <a href="{% pageurl meeting %}">{{ meeting.title }}</a>
                         </li>
                     {% endfor %}
                 </ul>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
     </div>
 
     {% if page.articles_authored.count %}
         <h2>Articles</h2>
-        {% for article in page.articles_authored.all %}
-            {% include 'magazine/magazine_article_summary.html' with article=article.article %}
-        {% endfor %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {% for article in page.articles_authored.all %}
+                <div class="flex">
+                    {% include 'magazine/magazine_article_summary.html' with article=article.article %}
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
 
     {% if page.archive_articles_authored.count %}
@@ -137,34 +150,36 @@
 
     {% if page.books_authored.count %}
         <h2>Books</h2>
-        {% for book_author in page.books_authored.all %}
-            {% with book=book_author.book %}
-                <div class="card mb-2">
-                    <div class="card-body">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {% for book_author in page.books_authored.all %}
+                {% with book=book_author.book %}
+                    <div class="border rounded shadow p-4">
                         <div>
-                            <a href="{% pageurl book %}" class="card-title lead">{{ book }}</a>
+                            <a href="{% pageurl book %}" class="text-lg font-medium">{{ book }}</a>
                         </div>
 
                         {% if book.authors.count %}
-                            <ul class="list-inline mb-1">
-                                <li class="list-inline-item">Authored by:</li>
+                            <div class="mb-2">
+                                <span>Authored by:</span>
                                 {% for author in book.authors.all %}
                                     {% if author.author.live %}
-                                        <li class="list-inline-item">
+                                        <span>
                                             <a href="{% pageurl author.author %}">{{ author.author.title }}</a>{% if not forloop.last %},{% endif %}
-                                        </li>
+                                        </span>
                                     {% else %}
                                         {{ author.author }}{% if not forloop.last %},{% endif %}
                                     {% endif %}
                                 {% endfor %}
-                            </ul>
+                            </div>
                         {% endif %}
 
-                        {{ book.description|richtext|truncatewords_html:30 }}
+                        <div class="prose">
+                            {{ book.description|richtext|truncatewords_html:30 }}
+                        </div>
                     </div>
-                </div>
-            {% endwith %}
-        {% endfor %}
+                {% endwith %}
+            {% endfor %}
+        </div>
     {% endif %}
 
     {% if page.specific.library_items_authored.count %}
@@ -183,9 +198,9 @@
     {% if page.memorial_minutes.count %}
         <h2>Memorials</h2>
 
-        <ul class="list-group">
+        <ul class="border divide-y">
             {% for memorial_minute in page.memorial_minutes.all|dictsort:'memorial_person.family_name' %}
-                <li class="list-group-item">
+                <li class="p-3">
                     <a href="{% pageurl memorial_minute %}">{{ memorial_minute.memorial_person }}</a>
                 </li>
             {% endfor %}
