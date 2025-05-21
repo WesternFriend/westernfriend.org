@@ -19,7 +19,7 @@
                 <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {% for department in departments %}
                         <li>
-                            <a href="{% url 'department-detail' department.slug %}"
+                            <a href="{% pageurl department %}"
                                class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow block p-4">
                                 <h3 class="card-title">{{ department }}</h3>
                             </a>
