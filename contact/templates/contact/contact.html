@@ -197,14 +197,22 @@
 
     {% if page.memorial_minutes.count %}
         <h2>Memorials</h2>
-
-        <ul class="border divide-y">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {% for memorial_minute in page.memorial_minutes.all|dictsort:'memorial_person.family_name' %}
-                <li class="p-3">
-                    <a href="{% pageurl memorial_minute %}">{{ memorial_minute.memorial_person }}</a>
-                </li>
+                <div class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            {{ memorial_minute.memorial_person }}
+                        </h3>
+                        <div class="card-actions justify-end mt-2">
+                            <a href="{% pageurl memorial_minute %}" class="btn btn-primary btn-sm">
+                                View Memorial
+                            </a>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
     {% endif %}
 {% endblock content %}
 
