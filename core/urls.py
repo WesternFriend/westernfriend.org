@@ -8,7 +8,6 @@ from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
 
 from accounts.views import CustomRegistrationView
-from magazine import urls as magazine_urls
 from search import views as search_views
 
 handler404 = "common.views.custom_404"
@@ -23,7 +22,6 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("admin/", include(wagtailadmin_urls)),
     path("cart/", include("cart.urls", namespace="cart")),
-    path("magazine/", include(magazine_urls), name="magazine"),
     path("orders/", include("orders.urls", namespace="orders")),
     path("payment/", include("payment.urls", namespace="payment")),
     path("paypal/", include("paypal.urls", namespace="paypal")),
