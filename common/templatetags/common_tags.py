@@ -22,6 +22,7 @@ EXCLUDED_BREADCRUMB_MODELS = [
     "mediumindexpage",
     "timeperiodindexpage",
     "topicindexpage",
+    "productindexpage",
 ]
 
 
