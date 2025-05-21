@@ -5,14 +5,38 @@
 {% block body_class %}template-community-quaker-organizations{% endblock %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
-    <ul class="list-group">
-        {% for organization in page.get_descendants.all %}
-            <li class="list-group-item flex-column align-items-start">
-                <h2>{{ organization }}</h2>
-                <p class="mb-1">{{ organization.specific.description }}</p>
-                <a href="{{ organization.specific.website }}">{{ organization.specific.website }}</a>
-            </li>
-        {% endfor %}
-    </ul>
+    <main id="main-content" tabindex="-1">
+        <h1>{{ page.title }}</h1>
+
+        <section aria-label="Organizations list">
+            <ul class="space-y-6 list-none pl-0">
+                {% for organization in page.get_descendants.all %}
+                    <li class="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <article>
+                            <h2 class="text-xl font-semibold mb-2">{{ organization }}</h2>
+                            {% if organization.specific.description %}
+                                <div class="mb-3">{{ organization.specific.description }}</div>
+                            {% endif %}
+                            {% if organization.specific.website %}
+                                <a href="{{ organization.specific.website }}"
+                                   class="text-blue-600 hover:underline"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   aria-label="Visit website for {{ organization }}: {{ organization.specific.website }}">
+                                    <span class="inline-flex items-center">
+                                        <span>{{ organization.specific.website }}</span>
+                                        <i class="bi bi-box-arrow-up-right ml-1" aria-hidden="true"></i>
+                                    </span>
+                                </a>
+                            {% endif %}
+                        </article>
+                    </li>
+                {% empty %}
+                    <li>
+                        <p>No organizations found.</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
 {% endblock content %}

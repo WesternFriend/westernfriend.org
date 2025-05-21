@@ -3,217 +3,278 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
+    <main id="main-content" tabindex="-1">
+        <h1>{{ page.title }}</h1>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Contact Information Column -->
-        <div class="lg:col-span-1">
-            <div class="prose">
-                {{ page.specific.description|richtext }}
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Contact Information Column -->
+            <section class="lg:col-span-1" aria-labelledby="contact-info-heading">
+                <h2 id="contact-info-heading" class="sr-only">Contact Information</h2>
 
-            <dl>
-                {% if page.specific.phone %}
-                    <dt>Phone</dt>
-                    <dd>{{ page.specific.phone }}</dd>
-                {% endif %}
-
-                {% if page.specific.email %}
-                    <dt>Email</dt>
-                    <dd>{{ page.specific.email }}</dd>
-                {% endif %}
-
-                {% if page.specific.website %}
-                    <dt>Website</dt>
-                    <dd><a href="{{ page.specific.website }}">{{ page.specific.website }}</a></dd>
-                {% endif %}
-            </dl>
-
-            {% if page.addresses.count %}
-                <h2>Address(es)</h2>
-
-                <dl>
-                    {% for address in page.addresses.all %}
-                        <dt>{{ address.address_type|title }}</dt>
-                        <dd>{{ address }}</dd>
-                    {% endfor %}
-                </dl>
-            {% endif %}
-
-            {% if page.worship_times.count %}
-                <h2>Worship time(s)</h2>
-
-                <dl>
-                    {% for worship_time in page.worship_times.all %}
-                        <dt>{{ worship_time.get_worship_type_display|title }}</dt>
-                        <dd>{{ worship_time.worship_time }}</dd>
-                    {% endfor %}
-                </dl>
-            {% endif %}
-
-            {% if page.online_worship.count %}
-                <strong>Online worship:</strong>
-
-                <ul>
-                    {% for online_worship in page.online_worship.all %}
-                        <li>
-                            <a href="{% pageurl online_worship %}">{{ online_worship.title }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-
-            {% if page.presiding_clerks.count %}
-                <h2>Presiding clerk(s)</h2>
-
-                <ul class="list-none pl-0">
-                    {% for presiding_clerk in page.presiding_clerks.all %}
-                        <li>{{ presiding_clerk.person }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-
-            {% if page.information_last_verified %}
-                <p>
-                    <strong>Information last verified:</strong>
-                    {{ page.information_last_verified }}
-                </p>
-            {% endif %}
-        </div>
-
-        <!-- Quarterly Meetings Column -->
-        {% if quarterly_meetings %}
-            <div class="lg:col-span-1">
-                <h2 class="text-xl font-semibold">Quarterly Meetings</h2>
-                <ul class="pl-0">
-                    {% for meeting in quarterly_meetings %}
-                        <li class="list-none mb-2">
-                            <a href="{% pageurl meeting %}">{{ meeting.title }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
-
-        <!-- Monthly Meetings Column -->
-        {% if monthly_meetings %}
-            <div class="lg:col-span-1">
-                <h2 class="text-xl font-semibold">Monthly Meetings</h2>
-                <ul class="pl-0">
-                    {% for meeting in monthly_meetings %}
-                        <li class="list-none mb-2">
-                            <a href="{% pageurl meeting %}">{{ meeting.title }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
-
-        <!-- Worship Groups Column -->
-        {% if worship_groups %}
-            <div class="lg:col-span-1">
-                <h2 class="text-xl font-semibold">Worship Groups</h2>
-                <ul class="pl-0">
-                    {% for meeting in worship_groups %}
-                        <li class="list-none mb-2">
-                            <a href="{% pageurl meeting %}">{{ meeting.title }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
-    </div>
-
-    {% if page.articles_authored.count %}
-        <h2>Articles</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {% for article in page.articles_authored.all %}
-                <div class="flex">
-                    {% include 'magazine/magazine_article_summary.html' with article=article.article %}
+                <div class="prose">
+                    {{ page.specific.description|richtext }}
                 </div>
-            {% endfor %}
-        </div>
-    {% endif %}
 
-    {% if page.archive_articles_authored.count %}
-        <h2>Archive Articles</h2>
-
-        <ul>
-            {% for article in page.archive_articles_authored.all %}
-                <li>
-                    {{ article.article.issue }} -
-                    <a href="{% pageurl article.article.issue %}?pdf_page_number={{ article.article.pdf_page_number }}">{{ article.article.title }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-
-    {% if page.books_authored.count %}
-        <h2>Books</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {% for book_author in page.books_authored.all %}
-                {% with book=book_author.book %}
-                    <div class="border rounded shadow p-4">
-                        <div>
-                            <a href="{% pageurl book %}" class="text-lg font-medium">{{ book }}</a>
-                        </div>
-
-                        {% if book.authors.count %}
-                            <div class="mb-2">
-                                <span>Authored by:</span>
-                                {% for author in book.authors.all %}
-                                    {% if author.author.live %}
-                                        <span>
-                                            <a href="{% pageurl author.author %}">{{ author.author.title }}</a>{% if not forloop.last %},{% endif %}
-                                        </span>
-                                    {% else %}
-                                        {{ author.author }}{% if not forloop.last %},{% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                        <div class="prose">
-                            {{ book.description|richtext|truncatewords_html:30 }}
-                        </div>
-                    </div>
-                {% endwith %}
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    {% if page.specific.library_items_authored.count %}
-        <h2>Library items</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for item_authored in page.specific.library_items_authored.all %}
-                {% with library_item=item_authored.library_item %}
-                    <div class="flex">
-                        {% include 'library/library_item_card.html' %}
-                    </div>
-                {% endwith %}
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    {% if page.memorial_minutes.count %}
-        <h2>Memorials</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {% for memorial_minute in page.memorial_minutes.all|dictsort:'memorial_person.family_name' %}
-                <div class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow duration-300">
-                    <div class="card-body">
-                        <h3 class="card-title">
-                            {{ memorial_minute.memorial_person }}
-                        </h3>
-                        <div class="card-actions justify-end mt-2">
-                            <a href="{% pageurl memorial_minute %}" class="btn btn-primary btn-sm">
-                                View Memorial
+                <dl class="mb-4">
+                    {% if page.specific.phone %}
+                        <dt class="font-semibold">Phone</dt>
+                        <dd class="mb-2">
+                            <a href="tel:{{ page.specific.phone }}" aria-label="Phone: {{ page.specific.phone }}">
+                                {{ page.specific.phone }}
                             </a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+                        </dd>
+                    {% endif %}
+
+                    {% if page.specific.email %}
+                        <dt class="font-semibold">Email</dt>
+                        <dd class="mb-2">
+                            <a href="mailto:{{ page.specific.email }}" aria-label="Email: {{ page.specific.email }}">
+                                {{ page.specific.email }}
+                            </a>
+                        </dd>
+                    {% endif %}
+
+                    {% if page.specific.website %}
+                        <dt class="font-semibold">Website</dt>
+                        <dd class="mb-2">
+                            <a href="{{ page.specific.website }}" aria-label="Visit website: {{ page.specific.website }}" target="_blank" rel="noopener noreferrer">
+                                {{ page.specific.website }}
+                            </a>
+                        </dd>
+                    {% endif %}
+                </dl>
+
+                {% if page.addresses.count %}
+                    <section aria-labelledby="addresses-heading">
+                        <h2 id="addresses-heading" class="text-xl font-semibold mb-2">Address(es)</h2>
+
+                        <dl>
+                            {% for address in page.addresses.all %}
+                                <dt class="font-semibold">{{ address.address_type|title }}</dt>
+                                <dd class="mb-2">
+                                    <address>{{ address }}</address>
+                                </dd>
+                            {% endfor %}
+                        </dl>
+                    </section>
+                {% endif %}
+
+                {% if page.worship_times.count %}
+                    <section aria-labelledby="worship-times-heading">
+                        <h2 id="worship-times-heading" class="text-xl font-semibold mb-2">Worship time(s)</h2>
+
+                        <dl>
+                            {% for worship_time in page.worship_times.all %}
+                                <dt class="font-semibold">{{ worship_time.get_worship_type_display|title }}</dt>
+                                <dd class="mb-2">
+                                    <time>{{ worship_time.worship_time }}</time>
+                                </dd>
+                            {% endfor %}
+                        </dl>
+                    </section>
+                {% endif %}
+
+                {% if page.online_worship.count %}
+                    <section aria-labelledby="online-worship-heading">
+                        <h2 id="online-worship-heading" class="text-xl font-semibold mb-2">Online worship</h2>
+
+                        <ul class="list-disc pl-5">
+                            {% for online_worship in page.online_worship.all %}
+                                <li>
+                                    <a href="{% pageurl online_worship %}" aria-label="Online worship: {{ online_worship.title }}">
+                                        {{ online_worship.title }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                {% endif %}
+
+                {% if page.presiding_clerks.count %}
+                    <section aria-labelledby="clerks-heading">
+                        <h2 id="clerks-heading" class="text-xl font-semibold mb-2">Presiding clerk(s)</h2>
+
+                        <ul class="list-disc pl-5">
+                            {% for presiding_clerk in page.presiding_clerks.all %}
+                                <li>{{ presiding_clerk.person }}</li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                {% endif %}
+
+                {% if page.information_last_verified %}
+                    <p class="mt-4">
+                        <strong>Information last verified:</strong>
+                        <time datetime="{{ page.information_last_verified|date:'Y-m-d' }}">
+                            {{ page.information_last_verified }}
+                        </time>
+                    </p>
+                {% endif %}
+            </section>
+
+            <!-- Quarterly Meetings Column -->
+            {% if quarterly_meetings %}
+                <section class="lg:col-span-1" aria-labelledby="quarterly-meetings-heading">
+                    <h2 id="quarterly-meetings-heading" class="text-xl font-semibold mb-3">Quarterly Meetings</h2>
+                    <nav aria-label="Quarterly meetings navigation">
+                        <ul class="pl-0">
+                            {% for meeting in quarterly_meetings %}
+                                <li class="list-none mb-2">
+                                    <a href="{% pageurl meeting %}" aria-label="Go to {{ meeting.title }} quarterly meeting">
+                                        {{ meeting.title }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                </section>
+            {% endif %}
+
+            <!-- Monthly Meetings Column -->
+            {% if monthly_meetings %}
+                <section class="lg:col-span-1" aria-labelledby="monthly-meetings-heading">
+                    <h2 id="monthly-meetings-heading" class="text-xl font-semibold mb-3">Monthly Meetings</h2>
+                    <nav aria-label="Monthly meetings navigation">
+                        <ul class="pl-0">
+                            {% for meeting in monthly_meetings %}
+                                <li class="list-none mb-2">
+                                    <a href="{% pageurl meeting %}" aria-label="Go to {{ meeting.title }} monthly meeting">
+                                        {{ meeting.title }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                </section>
+            {% endif %}
+
+            <!-- Worship Groups Column -->
+            {% if worship_groups %}
+                <section class="lg:col-span-1" aria-labelledby="worship-groups-heading">
+                    <h2 id="worship-groups-heading" class="text-xl font-semibold mb-3">Worship Groups</h2>
+                    <nav aria-label="Worship groups navigation">
+                        <ul class="pl-0">
+                            {% for meeting in worship_groups %}
+                                <li class="list-none mb-2">
+                                    <a href="{% pageurl meeting %}" aria-label="Go to {{ meeting.title }} worship group">
+                                        {{ meeting.title }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                </section>
+            {% endif %}
         </div>
-    {% endif %}
+
+        {% if page.articles_authored.count %}
+            <section aria-labelledby="articles-heading">
+                <h2 id="articles-heading" class="text-2xl font-semibold mb-4">Articles</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    {% for article in page.articles_authored.all %}
+                        <div class="flex">
+                            {% include 'magazine/magazine_article_summary.html' with article=article.article %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
+        {% if page.archive_articles_authored.count %}
+            <section aria-labelledby="archive-articles-heading">
+                <h2 id="archive-articles-heading" class="text-2xl font-semibold mb-4">Archive Articles</h2>
+
+                <ul class="list-disc pl-5">
+                    {% for article in page.archive_articles_authored.all %}
+                        <li class="mb-2">
+                            {{ article.article.issue }} -
+                            <a href="{% pageurl article.article.issue %}?pdf_page_number={{ article.article.pdf_page_number }}"
+                               aria-label="Read '{{ article.article.title }}' in {{ article.article.issue }}">
+                                {{ article.article.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+
+        {% if page.books_authored.count %}
+            <section aria-labelledby="books-heading">
+                <h2 id="books-heading" class="text-2xl font-semibold mb-4">Books</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    {% for book_author in page.books_authored.all %}
+                        {% with book=book_author.book %}
+                            <article class="border rounded shadow p-4">
+                                <h3 class="text-lg font-medium mb-2">
+                                    <a href="{% pageurl book %}" aria-label="View book: {{ book }}">{{ book }}</a>
+                                </h3>
+
+                                {% if book.authors.count %}
+                                    <div class="mb-2">
+                                        <span>Authored by:</span>
+                                        {% for author in book.authors.all %}
+                                            {% if author.author.live %}
+                                                <span>
+                                                    <a href="{% pageurl author.author %}" aria-label="View author: {{ author.author.title }}">
+                                                        {{ author.author.title }}
+                                                    </a>{% if not forloop.last %},{% endif %}
+                                                </span>
+                                            {% else %}
+                                                <span>{{ author.author }}{% if not forloop.last %},{% endif %}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                <div class="prose">
+                                    {{ book.description|richtext|truncatewords_html:30 }}
+                                </div>
+                            </article>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
+        {% if page.specific.library_items_authored.count %}
+            <section aria-labelledby="library-items-heading">
+                <h2 id="library-items-heading" class="text-2xl font-semibold mb-4">Library items</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for item_authored in page.specific.library_items_authored.all %}
+                        {% with library_item=item_authored.library_item %}
+                            <div class="flex">
+                                {% include 'library/library_item_card.html' %}
+                            </div>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
+        {% if page.memorial_minutes.count %}
+            <section aria-labelledby="memorials-heading">
+                <h2 id="memorials-heading" class="text-2xl font-semibold mb-4">Memorials</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    {% for memorial_minute in page.memorial_minutes.all|dictsort:'memorial_person.family_name' %}
+                        <article class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow duration-300">
+                            <div class="card-body">
+                                <h3 class="card-title">
+                                    {{ memorial_minute.memorial_person }}
+                                </h3>
+                                <div class="card-actions justify-end mt-2">
+                                    <a href="{% pageurl memorial_minute %}"
+                                       class="btn btn-primary btn-sm"
+                                       aria-label="View memorial for {{ memorial_minute.memorial_person }}">
+                                        View Memorial
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+    </main>
 {% endblock content %}
 
 {% block extra_js %}
