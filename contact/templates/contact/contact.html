@@ -169,11 +169,15 @@
 
     {% if page.specific.library_items_authored.count %}
         <h2>Library items</h2>
-        {% for item_authored in page.specific.library_items_authored.all %}
-            {% with library_item=item_authored.library_item %}
-                {% include 'library/library_item_card.html' %}
-            {% endwith %}
-        {% endfor %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for item_authored in page.specific.library_items_authored.all %}
+                {% with library_item=item_authored.library_item %}
+                    <div class="flex">
+                        {% include 'library/library_item_card.html' %}
+                    </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
     {% endif %}
 
     {% if page.memorial_minutes.count %}
