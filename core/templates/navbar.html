@@ -115,6 +115,9 @@
             // Return focus to toggle
             button.focus();
 
+            // Collapse any open dropdown submenus
+            menu.querySelectorAll('details[open]').forEach(dropdown => dropdown.removeAttribute('open'));
+
             // Tear down listeners
             document.removeEventListener('click', handleOutsideClick);
             document.removeEventListener('keydown', handleEscape);
