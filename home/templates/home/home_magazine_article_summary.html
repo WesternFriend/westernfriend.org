@@ -1,22 +1,21 @@
 {% load wagtailcore_tags %}
 <article class="bg-base-100 rounded-lg shadow-sm mb-4 p-4" aria-labelledby="article-title-{{ article.id }}">
     <header>
-        <h2 id="article-title-{{ article.id }}" class="text-2xl font-bold">
-            <a href="{% pageurl article %}" class="hover:underline" title="Read the full article: {{ article.title }}">
+        <h3 id="article-title-{{ article.id }}" class="text-2xl font-bold">
+            <a href="{% pageurl article %}" class="hover:underline">
                 {{ article.title }}
             </a>
-        </h2>
+        </h3>
 
         {% if article.authors.count %}
-            <div aria-label="Article authors" class="mt-1 mb-2">
+            <div class="mt-1 mb-2">
                 <ul class="flex flex-wrap gap-1 text-sm" aria-label="List of authors">
                     <li aria-hidden="true">Author{% if article.authors.count > 1 %}s{% endif %}:</li>
                     {% for author in article.authors.all %}
                         <li>
                             {% if author.author.live %}
                                 <a href="{% pageurl author.author %}"
-                                   class="text-primary hover:underline"
-                                   title="View author profile for {{ author.author }}">
+                                   class="text-primary hover:underline">
                                     {{ author.author }}
                                 </a>{% if not forloop.last %},{% endif %}
                             {% else %}
@@ -29,7 +28,7 @@
         {% endif %}
     </header>
 
-    <div class="prose" aria-label="Article excerpt">
+    <div class="prose">
         {{ article.teaser|richtext|truncatewords_html:50 }}
     </div>
 </article>

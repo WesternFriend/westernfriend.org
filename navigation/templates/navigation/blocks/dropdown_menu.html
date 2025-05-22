@@ -1,10 +1,12 @@
-<li class="dropdown">
+<li role="none" class="dropdown">
     <details>
-        <summary class="btn btn-ghost m-1">
+        <summary role="menuitem" id="summary-for-{{ submenu_id }}" aria-haspopup="true" aria-controls="{{ submenu_id }}" class="btn btn-ghost m-1">
             {{ value.title }}
         </summary>
-        <ul class="p-2 shadow menu dropdown-content z-[1] bg-white rounded-box w-52">
+        <ul role="menu" id="{{ submenu_id }}" aria-labelledby="summary-for-{{ submenu_id }}" class="p-2 shadow menu dropdown-content z-[1] bg-white rounded-box w-52">
             {% for item in value.menu_items %}
+                {# Ensure item rendering respects ARIA roles for menu items #}
+                {# This assumes 'item' will be rendered by nav_link.html or this template again if nested #}
                 {{ item }}
             {% endfor %}
         </ul>

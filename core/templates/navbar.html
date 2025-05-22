@@ -63,21 +63,38 @@
     document.addEventListener('DOMContentLoaded', function() {
         const button = document.querySelector('[data-collapse-toggle="navbarCollapse"]');
         const menu = document.getElementById('navbarCollapse');
+        const menuButton = document.querySelector('[data-collapse-toggle="navbarCollapse"]');
 
-        // Update ARIA expanded state when toggling the menu
+        // Function to find all focusable elements within an element
+        function getFocusableElements(element) {
+            return Array.from(
+                element.querySelectorAll(
+                    'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), details summary, [tabindex]:not([tabindex="-1"])'
+                )
+            ).filter(el => el.offsetParent !== null); // Ensure elements are visible
+        }
+
+        // Update ARIA expanded state and manage focus when toggling the menu
         button.addEventListener('click', function() {
-            const expanded = menu.classList.toggle('hidden');
-            button.setAttribute('aria-expanded', !expanded);
+            const isExpanded = menu.classList.toggle('hidden');
+            button.setAttribute('aria-expanded', !isExpanded);
 
-            // Close menu when clicking outside
-            if (!expanded) {
-                document.addEventListener('click', function closeMenu(event) {
+            if (!isExpanded) { // Menu is open
+                const focusableElements = getFocusableElements(menu);
+                if (focusableElements.length > 0) {
+                    focusableElements[0].focus();
+                }
+                // Close menu when clicking outside
+                document.addEventListener('click', function closeMenuOnClickOutside(event) {
                     if (!menu.contains(event.target) && !button.contains(event.target)) {
                         menu.classList.add('hidden');
                         button.setAttribute('aria-expanded', 'false');
-                        document.removeEventListener('click', closeMenu);
+                        // No need to explicitly return focus to button here, as Escape handler or next interaction will manage it.
+                        document.removeEventListener('click', closeMenuOnClickOutside);
                     }
                 });
+            } else { // Menu is closed
+                button.focus();
             }
         });
 
