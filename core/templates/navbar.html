@@ -89,7 +89,7 @@
                     if (!menu.contains(event.target) && !button.contains(event.target)) {
                         menu.classList.add('hidden');
                         button.setAttribute('aria-expanded', 'false');
-                        // No need to explicitly return focus to button here, as Escape handler or next interaction will manage it.
+                        button.focus(); // Explicitly return focus to the button for better accessibility
                         document.removeEventListener('click', closeMenuOnClickOutside);
                     }
                 });
