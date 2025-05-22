@@ -75,10 +75,11 @@
 
         // Update ARIA expanded state and manage focus when toggling the menu
         button.addEventListener('click', function() {
-            const isExpanded = menu.classList.toggle('hidden');
-            button.setAttribute('aria-expanded', !isExpanded);
+            const isHidden = menu.classList.toggle('hidden');
+            const isExpanded = !isHidden; // Correctly reflect the menu state
+            button.setAttribute('aria-expanded', isExpanded);
 
-            if (!isExpanded) { // Menu is open
+            if (isExpanded) { // Menu is open
                 const focusableElements = getFocusableElements(menu);
                 if (focusableElements.length > 0) {
                     focusableElements[0].focus();
@@ -95,7 +96,7 @@
             } else { // Menu is closed
                 button.focus();
             }
-        }, { once: true });
+        });
 
         // Handle Escape key to close menu
         document.addEventListener('keydown', function(event) {
