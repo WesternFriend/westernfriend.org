@@ -73,51 +73,59 @@
             ).filter(el => el.offsetParent !== null); // Ensure elements are visible
         }
 
-        // Update ARIA expanded state and manage focus when toggling the menu
-        button.addEventListener('click', function() {
-            const isHidden = menu.classList.toggle('hidden');
-            const isExpanded = !isHidden; // Correctly reflect the menu state
-            button.setAttribute('aria-expanded', isExpanded);
-
-            if (isExpanded) { // Menu is open
-                const focusableElements = getFocusableElements(menu);
-                if (focusableElements.length > 0) {
-                    focusableElements[0].focus();
-                }
-                // Close menu when clicking outside
-                document.addEventListener('click', function closeMenuOnClickOutside(event) {
-                    if (!menu.contains(event.target) && !button.contains(event.target)) {
-                        menu.classList.add('hidden');
-                        button.setAttribute('aria-expanded', 'false');
-                        button.focus(); // Explicitly return focus to the button for better accessibility
-                        document.removeEventListener('click', closeMenuOnClickOutside);
-                    }
-                });
-            } else { // Menu is closed
-                button.focus();
+        // Named handlers so we can add/remove cleanly
+        function handleOutsideClick(event) {
+            if (!menu.contains(event.target) && !button.contains(event.target)) {
+                closeMenu();
             }
-        });
 
-        // Handle Escape key to close menu
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && !menu.classList.contains('hidden')) {
-                menu.classList.add('hidden');
-                button.setAttribute('aria-expanded', 'false');
-                button.focus();
-            }
-        });
-
-        // Fix for dropdown carets not resetting when clicking outside
-        document.addEventListener('click', function(event) {
-            // Get all open details elements inside the navigation
+            // Handle dropdown carets when clicking outside
             const openDropdowns = menu.querySelectorAll('details[open]');
-
-            // Check if the click was outside of any open dropdown
             for (const dropdown of openDropdowns) {
                 // If click target is not inside this dropdown, close it
                 if (!dropdown.contains(event.target)) {
                     dropdown.removeAttribute('open');
                 }
+            }
+        }
+
+        function handleEscape(event) {
+            if (event.key === 'Escape') {
+                closeMenu();
+            }
+        }
+
+        function openMenu() {
+            menu.classList.remove('hidden');
+            button.setAttribute('aria-expanded', 'true');
+
+            // Focus first item
+            const first = getFocusableElements(menu)[0];
+            if (first) first.focus();
+
+            // Wire up listeners
+            document.addEventListener('click', handleOutsideClick);
+            document.addEventListener('keydown', handleEscape);
+        }
+
+        function closeMenu() {
+            menu.classList.add('hidden');
+            button.setAttribute('aria-expanded', 'false');
+
+            // Return focus to toggle
+            button.focus();
+
+            // Tear down listeners
+            document.removeEventListener('click', handleOutsideClick);
+            document.removeEventListener('keydown', handleEscape);
+        }
+
+        button.addEventListener('click', () => {
+            const isOpen = !menu.classList.contains('hidden');
+            if (isOpen) {
+                closeMenu();
+            } else {
+                openMenu();
             }
         });
     });
