@@ -13,7 +13,7 @@
                 <i class="bi bi-list text-2xl" aria-hidden="true"></i>
             </button>
 
-            <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse">
+            <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse" aria-hidden="true">
                 <div class="flex flex-col xl:flex-row xl:items-center xl:space-x-1">
                     <ul class="menu menu-horizontal menu-compact bg-black website-links" role="menubar" aria-label="Site navigation links">
                         {{ settings.navigation.NavigationMenuSetting.menu_items }}
@@ -98,6 +98,7 @@
         function openMenu() {
             menu.classList.remove('hidden');
             button.setAttribute('aria-expanded', 'true');
+            menu.setAttribute('aria-hidden', 'false');
 
             // Focus first item
             const first = getFocusableElements(menu)[0];
@@ -111,6 +112,7 @@
         function closeMenu() {
             menu.classList.add('hidden');
             button.setAttribute('aria-expanded', 'false');
+            menu.setAttribute('aria-hidden', 'true');
 
             // Return focus to toggle
             button.focus();
@@ -124,7 +126,7 @@
         }
 
         button.addEventListener('click', () => {
-            const isOpen = !menu.classList.contains('hidden');
+            const isOpen = button.getAttribute('aria-expanded') === 'true';
             if (isOpen) {
                 closeMenu();
             } else {
