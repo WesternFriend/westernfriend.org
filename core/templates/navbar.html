@@ -95,7 +95,7 @@
             } else { // Menu is closed
                 button.focus();
             }
-        });
+        }, { once: true });
 
         // Handle Escape key to close menu
         document.addEventListener('keydown', function(event) {
