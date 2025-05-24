@@ -4,9 +4,11 @@ from wagtail.models import Site
 from home.models import HomePage
 
 from .blocks import (
-    NavigationPageChooserBlock,
+    NavigationDropdownMenuBlock,
+    NavigationDropdownMenuStructValue,
     NavigationExternalLinkBlock,
     NavigationExternalLinkStructValue,
+    NavigationPageChooserBlock,
 )
 
 
@@ -97,4 +99,51 @@ class TestNavigationPageChooserStructValue(TestCase):
         self.assertEqual(
             block_value.href(),
             self.home_page.url,
+        )
+
+
+class TestNavigationDropdownMenuStructValue(TestCase):
+    def test_submenu_id_with_simple_title(self) -> None:
+        """Test submenu_id generation with a simple title."""
+        nav_struct_value = NavigationDropdownMenuStructValue(
+            NavigationDropdownMenuBlock(),
+            {
+                "title": "About Us",
+                "menu_items": [],
+            },
+        )
+
+        self.assertEqual(
+            nav_struct_value.submenu_id(),
+            "dropdown-menu-about-us",
+        )
+
+    def test_submenu_id_with_special_characters(self) -> None:
+        """Test submenu_id generation with special characters in the title."""
+        nav_struct_value = NavigationDropdownMenuStructValue(
+            NavigationDropdownMenuBlock(),
+            {
+                "title": "FAQ & Support!",
+                "menu_items": [],
+            },
+        )
+
+        self.assertEqual(
+            nav_struct_value.submenu_id(),
+            "dropdown-menu-faq--support",
+        )
+
+    def test_submenu_id_with_empty_title(self) -> None:
+        """Test submenu_id generation with an empty title."""
+        nav_struct_value = NavigationDropdownMenuStructValue(
+            NavigationDropdownMenuBlock(),
+            {
+                "title": "",
+                "menu_items": [],
+            },
+        )
+
+        self.assertEqual(
+            nav_struct_value.submenu_id(),
+            "dropdown-menu-",
         )

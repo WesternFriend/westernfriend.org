@@ -13,7 +13,7 @@
                 <i class="bi bi-list text-2xl" aria-hidden="true"></i>
             </button>
 
-            <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse">
+            <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse" aria-hidden="true">
                 <div class="flex flex-col xl:flex-row xl:items-center xl:space-x-1">
                     <ul class="menu menu-horizontal menu-compact bg-black website-links" role="menubar" aria-label="Site navigation links">
                         {{ settings.navigation.NavigationMenuSetting.menu_items }}
@@ -64,43 +64,73 @@
         const button = document.querySelector('[data-collapse-toggle="navbarCollapse"]');
         const menu = document.getElementById('navbarCollapse');
 
-        // Update ARIA expanded state when toggling the menu
-        button.addEventListener('click', function() {
-            const expanded = menu.classList.toggle('hidden');
-            button.setAttribute('aria-expanded', !expanded);
+        // Function to find all focusable elements within an element
+        function getFocusableElements(element) {
+            return Array.from(
+                element.querySelectorAll(
+                    'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), details summary, [tabindex]:not([tabindex="-1"])'
+                )
+            ).filter(el => el.offsetParent !== null); // Ensure elements are visible
+        }
 
-            // Close menu when clicking outside
-            if (!expanded) {
-                document.addEventListener('click', function closeMenu(event) {
-                    if (!menu.contains(event.target) && !button.contains(event.target)) {
-                        menu.classList.add('hidden');
-                        button.setAttribute('aria-expanded', 'false');
-                        document.removeEventListener('click', closeMenu);
-                    }
-                });
+        // Named handlers so we can add/remove cleanly
+        function handleOutsideClick(event) {
+            if (!menu.contains(event.target) && !button.contains(event.target)) {
+                closeMenu();
             }
-        });
 
-        // Handle Escape key to close menu
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && !menu.classList.contains('hidden')) {
-                menu.classList.add('hidden');
-                button.setAttribute('aria-expanded', 'false');
-                button.focus();
-            }
-        });
-
-        // Fix for dropdown carets not resetting when clicking outside
-        document.addEventListener('click', function(event) {
-            // Get all open details elements inside the navigation
+            // Handle dropdown carets when clicking outside
             const openDropdowns = menu.querySelectorAll('details[open]');
-
-            // Check if the click was outside of any open dropdown
             for (const dropdown of openDropdowns) {
                 // If click target is not inside this dropdown, close it
                 if (!dropdown.contains(event.target)) {
                     dropdown.removeAttribute('open');
                 }
+            }
+        }
+
+        function handleEscape(event) {
+            if (event.key === 'Escape') {
+                closeMenu();
+            }
+        }
+
+        function openMenu() {
+            menu.classList.remove('hidden');
+            button.setAttribute('aria-expanded', 'true');
+            menu.setAttribute('aria-hidden', 'false');
+
+            // Focus first item
+            const first = getFocusableElements(menu)[0];
+            if (first) first.focus();
+
+            // Wire up listeners
+            document.addEventListener('click', handleOutsideClick);
+            document.addEventListener('keydown', handleEscape);
+        }
+
+        function closeMenu() {
+            menu.classList.add('hidden');
+            button.setAttribute('aria-expanded', 'false');
+            menu.setAttribute('aria-hidden', 'true');
+
+            // Return focus to toggle
+            button.focus();
+
+            // Collapse any open dropdown submenus
+            menu.querySelectorAll('details[open]').forEach(dropdown => dropdown.removeAttribute('open'));
+
+            // Tear down listeners
+            document.removeEventListener('click', handleOutsideClick);
+            document.removeEventListener('keydown', handleEscape);
+        }
+
+        button.addEventListener('click', () => {
+            const isOpen = button.getAttribute('aria-expanded') === 'true';
+            if (isOpen) {
+                closeMenu();
+            } else {
+                openMenu();
             }
         });
     });

@@ -45,7 +45,7 @@
                             <article class="bg-base-100 rounded-lg shadow-sm h-full p-4" aria-labelledby="event-title-{{ event.event.id }}">
                                 <header>
                                     <h3 id="event-title-{{ event.event.id }}" class="text-xl font-bold">
-                                        <a href="{% pageurl event.event %}" class="hover:underline" title="View details for event: {{ event.event.title }}">
+                                        <a href="{% pageurl event.event %}" class="hover:underline">
                                             {{ event.event.title }}
                                         </a>
                                     </h3>
@@ -54,7 +54,7 @@
                                     </time>
                                 </header>
 
-                                <div class="prose" aria-label="Event description">
+                                <div class="prose">
                                     {{ event.event.teaser|truncatewords_html:10 }}
                                 </div>
                             </article>
