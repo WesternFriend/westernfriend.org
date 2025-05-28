@@ -11,7 +11,9 @@ anyascii==0.3.2 \
 asgiref==3.8.1 \
     --hash=sha256:3e1e3ecc849832fe52ccf2cb6686b7a55f82bb1d6aee72a58826471390335e47 \
     --hash=sha256:c343bd80a0bec947a9860adb4c432ffa7db769836c64238fc34bdc3fec84d590
-    # via django
+    # via
+    #   django
+    #   django-browser-reload
 beautifulsoup4==4.13.3 \
     --hash=sha256:1bd32405dacc920b42b83ba01644747ed77456a65760e285fbc47633ceddaf8b \
     --hash=sha256:99045d7d3f08f91f0d656bc9b7efbae189426cd913d830294a15eefa0ea4df16
@@ -209,6 +211,7 @@ django==5.1.8 \
     # via
     #   western-friend-website (pyproject.toml)
     #   dj-database-url
+    #   django-browser-reload
     #   django-extensions
     #   django-filter
     #   django-flatpickr
@@ -219,6 +222,7 @@ django==5.1.8 \
     #   django-storages
     #   django-stubs-ext
     #   django-taggit
+    #   django-tailwind
     #   django-tasks
     #   django-timezone-field
     #   django-treebeard
@@ -226,6 +230,10 @@ django==5.1.8 \
     #   laces
     #   wagtail
     #   wagtailmedia
+django-browser-reload==1.18.0 \
+    --hash=sha256:c5f0b134723cbf2a0dc9ae1ee1d38e42db28fe23c74cdee613ba3ef286d04735 \
+    --hash=sha256:ed4cc2fb83c3bf6c30b54107a1a6736c0b896e62e4eba666d81005b9f2ecf6f8
+    # via django-tailwind
 django-coverage-plugin==3.1.0 \
     --hash=sha256:223d34bf92bebadcb8b7b89932480e41c7bd98b44a8156934488fbe7f4a71f99 \
     --hash=sha256:eb0ea8ffdb0db11a02994fc99be6500550efb496c350d709f418ff3d8e553a67
@@ -270,6 +278,10 @@ django-taggit==6.1.0 \
     --hash=sha256:ab776264bbc76cb3d7e49e1bf9054962457831bd21c3a42db9138b41956e4cf0 \
     --hash=sha256:c4d1199e6df34125dd36db5eb0efe545b254dec3980ce5dd80e6bab3e78757c3
     # via wagtail
+django-tailwind==4.0.1 \
+    --hash=sha256:33e5dd5aadd5aa6facf4bddab9144a40cb501e486d4970b93e2853dbdbef4f67 \
+    --hash=sha256:e1f411246208056e8903f304f80a548eac2e5a3c4b6c4adb14eff21ac2dfdd6d
+    # via western-friend-website (pyproject.toml)
 django-tasks==0.6.1 \
     --hash=sha256:4086e7eb9e965f79c4ac76f5c3690ec3bf41c461585237b71b4bde729ced9826 \
     --hash=sha256:b3648e28bdcda809cb7831f3aff98aa46c327025447c462b8943cce9dfbb0281
