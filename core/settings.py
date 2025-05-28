@@ -161,8 +161,6 @@ INSTALLED_APPS = [
     # keep-sorted end
     # Third party (apps that have been installed)
     # keep-sorted start
-    "crispy_bootstrap5",
-    "crispy_forms",
     "django_browser_reload",
     "django_extensions",
     "django_flatpickr",
