@@ -2,17 +2,14 @@
 
 {% image value.image width-800 jpegquality-80 as block_image %}
 
-<figure class="my-4 {% if value.align == 'right' %}float-right ml-4 clear-right{% elif value.align == 'left' %}float-left mr-4 clear-left{% else %}mx-auto{% endif %}">
+<figure
+    class="my-4 {% if value.align == 'right' %}float-right ml-4 clear-right{% elif value.align == 'left' %}float-left mr-4 clear-left{% else %}mx-auto max-w-fit{% endif %}">
     {% if value.link %}
         <a href="{{ value.link }}" class="block">
     {% endif %}
-    <img
-        src="{{ block_image.url }}"
-        width="{{ value.width }}"
-        alt="{% if value.caption %}{{ value.caption }}{% else %}{{ value.image.title }}{% endif %}"
-        class="max-w-full rounded-md block"
-        loading="lazy"
-    />
+    <img src="{{ block_image.url }}" width="{{ value.width }}"
+         alt="{% if value.caption %}{{ value.caption }}{% else %}{{ value.image.title }}{% endif %}"
+         class="max-w-full rounded-md block" loading="lazy" />
     {% if value.link %}
         </a>
     {% endif %}
