@@ -11,6 +11,7 @@
         width="{{ value.width }}"
         alt="{% if value.caption %}{{ value.caption }}{% else %}{{ value.image.title }}{% endif %}"
         class="max-w-full rounded-md block"
+        loading="lazy"
     />
     {% if value.link %}
         </a>
