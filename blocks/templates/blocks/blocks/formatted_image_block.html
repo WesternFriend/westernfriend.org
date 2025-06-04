@@ -9,8 +9,9 @@
            {% elif value.align == 'left' %}
                float-left mr-4 clear-left
            {% else %}
-               mx-auto max-w-fit
+               mx-auto
            {% endif %}"
+    style="width: min({{ value.width }}px, 100%);"
 >
     {% if value.link %}
         <a href="{{ value.link }}" class="block">
