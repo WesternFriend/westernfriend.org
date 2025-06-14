@@ -2565,9 +2565,6 @@
   .max-w-4xl {
     max-width: var(--container-4xl);
   }
-  .max-w-fit {
-    max-width: fit-content;
-  }
   .max-w-full {
     max-width: 100%;
   }

@@ -36,19 +36,21 @@
 
     <section aria-live="polite" aria-label="Search results">
         {% if paginated_search_results %}
-            <div class="space-y-4">
+            <ul role="list" class="list-none space-y-4">
                 {% for result in paginated_search_results.page %}
-                    <article class="card bg-base-100 shadow">
-                        <div class="card-body">
-                            <h2 class="card-title text-lg">
-                                <a href="{% pageurl result %}">
-                                    {{ result }}
-                                </a>
-                            </h2>
-                        </div>
-                    </article>
+                    <li role="listitem">
+                        <article class="card bg-base-100 shadow">
+                            <div class="card-body">
+                                <h2 class="card-title text-lg">
+                                    <a href="{% pageurl result %}">
+                                        {{ result }}
+                                    </a>
+                                </h2>
+                            </div>
+                        </article>
+                    </li>
                 {% endfor %}
-            </div>
+            </ul>
 
             {% include "paginator.html" with paginated_items=paginated_search_results current_querystring=search_querystring %}
         {% elif search_query %}
