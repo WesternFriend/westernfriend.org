@@ -27,6 +27,9 @@ load_dotenv()
 if len(sys.argv) > 1 and sys.argv[1] == "test":
     logging.disable(logging.CRITICAL)
 
+# Check if we're running tests
+RUNNING_TESTS = len(sys.argv) > 1 and sys.argv[1] == "test"
+
 default_allowed_hosts = "127.0.0.1,localhost,westernfriend.eu.ngrok.io"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default_allowed_hosts).split(",")
@@ -234,7 +237,8 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
             ],
-            "debug": DEBUG,
+            # Enable template debugging for tests and when DEBUG is True
+            "debug": DEBUG or RUNNING_TESTS,
         },
     },
 ]

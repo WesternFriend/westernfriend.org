@@ -107,11 +107,19 @@ class MagazineArticleFactory(factory.django.DjangoModelFactory):
         *args: Any,
         **kwargs: Any,
     ) -> MagazineArticle:
+        # Extract parent argument if provided
+        parent = kwargs.pop("parent", None)
+
         instance = model_class(*args, **kwargs)  # type: ignore
-        parent = MagazineIssue.objects.first()
+
+        # Use provided parent or find/create a default one
         if parent:
             parent.add_child(instance=instance)
         else:
-            magazine_issue = MagazineIssueFactory.create()
-            magazine_issue.add_child(instance=instance)
+            default_parent = MagazineIssue.objects.first()
+            if default_parent:
+                default_parent.add_child(instance=instance)
+            else:
+                magazine_issue = MagazineIssueFactory.create()
+                magazine_issue.add_child(instance=instance)
         return instance
