@@ -38,19 +38,15 @@
         {% if paginated_search_results %}
             <div class="space-y-4">
                 {% for result in paginated_search_results.page %}
-                    {% if result.specific.search_template %}
-                        {% include result.specific.search_template with entity=result %}
-                    {% else %}
-                        <article class="card bg-base-100 shadow">
-                            <div class="card-body">
-                                <h2 class="card-title text-lg">
-                                    <a href="{% pageurl result %}">
-                                        {{ result }}
-                                    </a>
-                                </h2>
-                            </div>
-                        </article>
-                    {% endif %}
+                    <article class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <h2 class="card-title text-lg">
+                                <a href="{% pageurl result %}">
+                                    {{ result }}
+                                </a>
+                            </h2>
+                        </div>
+                    </article>
                 {% endfor %}
             </div>
 
