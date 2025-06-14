@@ -23,12 +23,12 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv()
 
-# Disable logging while running tests
-if len(sys.argv) > 1 and sys.argv[1] == "test":
-    logging.disable(logging.CRITICAL)
-
-# Check if we're running tests
+# Determine whether we are executing the test suite with Django's test runner.
 RUNNING_TESTS = len(sys.argv) > 1 and sys.argv[1] == "test"
+
+# Disable logging while running tests
+if RUNNING_TESTS:
+    logging.disable(logging.CRITICAL)
 
 default_allowed_hosts = "127.0.0.1,localhost,westernfriend.eu.ngrok.io"
 
