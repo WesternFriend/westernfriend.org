@@ -23,8 +23,11 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv()
 
+# Determine whether we are executing the test suite with Django's test runner.
+RUNNING_TESTS = len(sys.argv) > 1 and sys.argv[1] == "test"
+
 # Disable logging while running tests
-if len(sys.argv) > 1 and sys.argv[1] == "test":
+if RUNNING_TESTS:
     logging.disable(logging.CRITICAL)
 
 default_allowed_hosts = "127.0.0.1,localhost,westernfriend.eu.ngrok.io"
@@ -234,7 +237,8 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
             ],
-            "debug": DEBUG,
+            # Enable template debugging for tests and when DEBUG is True
+            "debug": DEBUG or RUNNING_TESTS,
         },
     },
 ]
