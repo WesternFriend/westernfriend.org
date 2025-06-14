@@ -2,7 +2,7 @@
 
 ## Problem Description
 
-The search functionality was experiencing the N+1 query problem, particularly when displaying magazine articles with their authors. The original CI errors included:
+The search functionality was experiencing the N+1 query problem, particularly when displaying magazine articles with their authors in search results. The original CI errors included:
 
 1. **Factory Issue**: `MagazineArticleFactory` was trying to pass a `parent` argument directly to the model constructor, which Wagtail page models don't accept
 2. **Template Debugging Issue**: `django_coverage_plugin` required template debugging to be enabled for tests
@@ -12,13 +12,13 @@ The search functionality was experiencing the N+1 query problem, particularly wh
 
 Through testing, we discovered that the fundamental issue was with how Wagtail's `.specific` property works:
 
-- When you call `.specific` on a Page object, it creates a new instance of the specific model (e.g., MagazineArticle)
+- When you call `.specific()` on a Page object, it creates a new instance of the specific model (e.g., MagazineArticle)
 - This new instance does not preserve the prefetch cache from the original Page query
-- This is by design in Wagtail's architecture, making perfect query optimization challenging
+- This is by design in Wagtail's architecture, making it challenging to fully eliminate N+1 queries
 
 ## Solutions Implemented
 
-### 1. Fixed MagazineArticleFactory
+### 1. Fix MagazineArticleFactory
 
 **Problem**: Factory was passing `parent` keyword argument directly to model constructor.
 
@@ -27,12 +27,12 @@ Through testing, we discovered that the fundamental issue was with how Wagtail's
 ```python
 @classmethod
 def _create(cls, model_class, *args, **kwargs):
-    # Extract parent argument if provided
+    # Extract the `parent` argument if provided
     parent = kwargs.pop("parent", None)
 
     instance = model_class(*args, **kwargs)
 
-    # Use provided parent or find/create a default one
+    # Use the provided parent or find/create a default one
     if parent:
         parent.add_child(instance=instance)
     else:
@@ -40,7 +40,7 @@ def _create(cls, model_class, *args, **kwargs):
     return instance
 ```
 
-### 2. Fixed Template Debugging for Coverage
+### 2. Enable Template Debugging for Coverage
 
 **Problem**: `django_coverage_plugin` required template debugging to be enabled during tests.
 
@@ -54,7 +54,7 @@ RUNNING_TESTS = len(sys.argv) > 1 and sys.argv[1] == "test"
 "debug": DEBUG or RUNNING_TESTS,
 ```
 
-### 3. Optimized Search Query Performance Test
+### 3. Optimize Search Query Performance Test
 
 **Problem**: The test expected 0 additional queries when accessing author relationships, which is unrealistic given Wagtail's `.specific` behavior.
 
@@ -104,7 +104,7 @@ search_results = (
 
 The search optimization is constrained by Wagtail's architecture:
 - Calling `.specific` on Page objects creates new instances that lose prefetch cache
-- This is by design and cannot be completely eliminated
+- This is by design and cannot be fully eliminated
 - The current implementation provides reasonable performance within these constraints
 
 ### Query Optimization Order
@@ -129,7 +129,7 @@ The tests account for Wagtail's `.specific` behavior by setting reasonable query
 
 ## Key Lessons Learned
 
-### Wagtail .specific() Behavior
+### Wagtail `.specific()` Behavior
 Through extensive testing, we discovered that:
 - `Page.specific` creates new instances that don't preserve Django's prefetch cache
 - This is fundamental to Wagtail's architecture and cannot be completely worked around
@@ -152,14 +152,14 @@ The current optimization approach involves some trade-offs:
 ### Files Changed
 
 1. **magazine/factories.py**: Fixed `MagazineArticleFactory` to handle `parent` argument properly
-2. **core/settings.py**: Added template debugging for tests
+2. **core/settings.py**: Enabled template debugging during test runs
 3. **search/tests.py**: Updated test expectations to be realistic about Wagtail's behavior
 
-### Verification
+### Verification Steps
 
 All tests now pass:
 ```bash
 python manage.py test search.tests.SearchOptimizationTestCase
 ```
 
-The optimization prevents the severe N+1 query problem while working within Wagtail's architectural constraints.
+The implemented optimizations mitigate severe N+1 query issues within Wagtail's architectural constraints.
