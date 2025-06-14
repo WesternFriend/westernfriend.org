@@ -173,6 +173,23 @@ class SearchOptimizationTestCase(TestCase):
         # Verify that authors are accessible (this would fail if prefetch wasn't working)
         for article in magazine_articles:
             authors = article.specific.authors.all()
-            # Just accessing this should work without errors
             author_count = len(authors)
-            self.assertGreaterEqual(author_count, 0)
+            # Assert that we have the expected number of authors based on our test data
+            # article1 has 2 authors, article2 has 1 author
+            self.assertGreater(
+                author_count,
+                0,
+                f"Article '{article.title}' should have at least one author",
+            )
+            if article.title == "Test Article One":
+                self.assertEqual(
+                    author_count,
+                    2,
+                    "Test Article One should have exactly 2 authors",
+                )
+            elif article.title == "Test Article Two":
+                self.assertEqual(
+                    author_count,
+                    1,
+                    "Test Article Two should have exactly 1 author",
+                )
