@@ -116,7 +116,7 @@ class MagazineArticleFactory(factory.django.DjangoModelFactory):
         if parent:
             parent.add_child(instance=instance)
         else:
-            default_parent = MagazineIssue.objects.first()
+            default_parent = MagazineIssue.objects.order_by("id").first()
             if default_parent:
                 default_parent.add_child(instance=instance)
             else:
