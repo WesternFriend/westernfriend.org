@@ -8,6 +8,41 @@ The search functionality was experiencing N+1 query issues, particularly when di
 2. Additional `COUNT(*)` queries for each magazine article to check `magazinearticleauthor` relationships
 3. Additional queries to fetch author details when accessing `author.author.title` in templates
 
+## Solution Implemented
+
+The optimization was implemented in `/search/views.py` by applying Django ORM optimizations to the base queryset before calling `.search()`:
+
+```python
+search_results = (
+    Page.objects.live()  # type: ignore[attr-defined]
+    .specific()  # Get specific page types
+    .select_related(  # Fetch related fields in single query
+        "owner",
+        "content_type",
+        "locale",
+    )
+    .prefetch_related(  # Prefetch related fields to avoid N+1 queries
+        # For magazine articles - prefetch authors and departments
+        "magazinearticle__authors__author",
+        "magazinearticle__department",
+        # For magazine issues - prefetch cover images
+        "magazineissue__cover_image",
+        # For archive articles - prefetch authors
+        "archiveissue__archive_articles__archive_authors__author",
+    )
+    .search(
+        search_query,
+        operator="or",
+    )
+)
+```
+
+### Key Technical Details
+
+1. **Order matters**: Optimizations must be applied to the base queryset before calling `.search()`
+2. **Wagtail compatibility**: The search results object (`PostgresSearchResults` or `DatabaseSearchResults`) doesn't support query optimizations directly
+3. **Type checking**: Added `# type: ignore[attr-defined]` to suppress mypy warnings about `Page.objects.live()`
+
 ## SQL Queries Observed
 
 The problematic pattern showed queries like:
@@ -18,30 +53,6 @@ WHERE "magazine_magazinearticleauthor"."article_id" = %s
 ```
 
 This query was being executed once for each magazine article in the search results, creating the classic N+1 pattern.
-
-## Solution
-
-### Modified `search/views.py`
-
-The search view was optimized to use `prefetch_related()` to eagerly load related data:
-
-```python
-search_results = (
-    Page.objects.live()
-    .search(search_query, operator="or")
-    .select_related("owner", "content_type", "locale")
-    .prefetch_related(
-        # For magazine articles - prefetch authors and departments
-        "magazinearticle__authors__author",
-        "magazinearticle__department",
-        # For magazine issues - prefetch cover images
-        "magazineissue__cover_image",
-        # For archive articles - prefetch authors
-        "archivearticle__archive_authors__author",
-    )
-    .specific()
-)
-```
 
 ### Key Changes
 
@@ -55,7 +66,7 @@ search_results = (
 - `"magazinearticle__authors__author"`: Prefetches the MagazineArticleAuthor relationship and the related author Page object
 - `"magazinearticle__department"`: Prefetches the department for magazine articles
 - `"magazineissue__cover_image"`: Prefetches cover images for magazine issues
-- `"archivearticle__archive_authors__author"`: Prefetches authors for archive articles
+- `"archiveissue__archive_articles__archive_authors__author"`: Prefetches authors for archive articles through archive issues
 
 ### Template Optimization
 
@@ -84,6 +95,36 @@ The tests use Django's `override_settings(DEBUG=True)` to enable query logging a
 - Initial search queries execute properly
 - Accessing prefetched relationships triggers zero additional queries
 - Search results maintain proper functionality
+
+## Implementation Summary
+
+### Changes Made
+
+1. **Optimized Search View** (`/search/views.py`):
+   - Applied `select_related()` for direct foreign key relationships (owner, content_type, locale)
+   - Applied `prefetch_related()` for many-to-many and reverse foreign key relationships
+   - Ensured optimizations are applied before calling `.search()` for compatibility with Wagtail's search API
+
+2. **Comprehensive Testing** (`/search/tests.py`):
+   - Added `SearchOptimizationTestCase` with database query tracking
+   - Test verifies that accessing authors in search results doesn't trigger additional queries
+   - Test ensures optimization works in realistic template usage scenarios
+
+3. **Documentation and Type Safety**:
+   - Added type ignore comment for `Page.objects.live()` to satisfy type checker
+   - Updated documentation to reflect the implemented solution
+
+### Verification
+
+The optimization can be verified by:
+1. Running the test: `python manage.py test search.tests.SearchOptimizationTestCase.test_search_query_optimization`
+2. The test creates magazine articles with authors, performs a search, and verifies that accessing author data doesn't trigger additional database queries
+
+### Performance Impact
+
+- **Before**: N+1 queries (1 search + N author queries for N magazine articles)
+- **After**: Fixed number of queries regardless of result count
+- **Specific improvement**: Eliminates `COUNT(*)` queries on `magazinearticleauthor` table
 
 ## Expected Results
 

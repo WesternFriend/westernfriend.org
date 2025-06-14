@@ -13,15 +13,11 @@ def search(request: HttpRequest) -> HttpResponse:
     # Search
     # Using the 'or' operator to search for pages that contain any of the words
     if search_query:
-        # First get the search results
-        search_results = Page.objects.live().search(
-            search_query,
-            operator="or",
-        )
-
-        # Then apply optimizations and get specific instances
+        # Build an optimized queryset and then search it
         search_results = (
-            search_results.select_related(  # Fetch related fields in single query
+            Page.objects.live()  # type: ignore[attr-defined]
+            .specific()  # Get specific page types
+            .select_related(  # Fetch related fields in single query
                 "owner",
                 "content_type",
                 "locale",
@@ -32,10 +28,13 @@ def search(request: HttpRequest) -> HttpResponse:
                 "magazinearticle__department",
                 # For magazine issues - prefetch cover images
                 "magazineissue__cover_image",
-                # For archive articles - prefetch authors
-                "archivearticle__archive_authors__author",
+                # For archive issues - prefetch archive articles and their authors
+                "archiveissue__archive_articles__archive_authors__author",
             )
-            .specific()  # Get specific page types
+            .search(
+                search_query,
+                operator="or",
+            )
         )
     else:
         search_results = Page.objects.none()
