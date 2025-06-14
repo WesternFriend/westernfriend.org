@@ -152,7 +152,7 @@ class SearchOptimizationTestCase(TestCase):
                     _ = author.author.title if author.author else "Unknown"
 
     def test_search_results_include_authors(self) -> None:
-        """Test that search results properly include author information without additional queries."""
+        """Test that search results include author information in the response context."""
         response = self.client.get(reverse("search"), {"query": "Test Article"})
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
