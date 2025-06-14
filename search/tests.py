@@ -1,6 +1,5 @@
 from http import HTTPStatus
 
-from django.db import connection
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from wagtail.models import Page
@@ -111,9 +110,6 @@ class SearchOptimizationTestCase(TestCase):
     @override_settings(DEBUG=True)
     def test_search_query_optimization(self) -> None:
         """Test that search queries are optimized to avoid N+1 database queries."""
-        # Reset the query log
-        connection.queries_log.clear()
-
         # Perform the search
         response = self.client.get(reverse("search"), {"query": "Test Article"})
 
@@ -137,33 +133,23 @@ class SearchOptimizationTestCase(TestCase):
 
         # Now simulate what the template does - access the authors
         # This should NOT trigger additional queries if optimization works
-        connection.queries_log.clear()
-
-        for article in magazine_articles:
-            # Access authors (this is what the template does)
-            authors = list(article.authors.all())
-            for author in authors:
-                # Access author details (what template does with author.author.title)
-                # We don't need to store this, just access it to trigger potential queries
-                _ = author.author.title if author.author else "Unknown"
-
-        # Check that no additional queries were made when accessing the authors
-        additional_queries = len(connection.queries)
-
         # The key assertion: accessing authors should not trigger excessive additional queries
         # Note: Due to Wagtail's .specific behavior creating new instances, some additional queries
         # are expected. We're testing that it's not a severe N+1 problem (one query per author).
         # With proper prefetching, we should see a reasonable number of queries regardless of
         # the number of articles or authors.
         max_reasonable_queries = (
-            10  # Allow for some overhead due to Wagtail's architecture
+            5  # Allow for some overhead due to Wagtail's architecture
         )
-        self.assertLessEqual(
-            additional_queries,
-            max_reasonable_queries,
-            f"Expected at most {max_reasonable_queries} additional queries when accessing authors, "
-            f"but got {additional_queries}. This suggests a severe N+1 query problem.",
-        )
+
+        with self.assertNumQueries(max_reasonable_queries):
+            for article in magazine_articles:
+                # Access authors (this is what the template does)
+                authors = list(article.authors.all())
+                for author in authors:
+                    # Access author details (what template does with author.author.title)
+                    # We don't need to store this, just access it to trigger potential queries
+                    _ = author.author.title if author.author else "Unknown"
 
     def test_search_results_include_authors(self) -> None:
         """Test that search results properly include author information without additional queries."""
