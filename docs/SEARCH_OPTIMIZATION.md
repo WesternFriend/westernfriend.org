@@ -1,12 +1,12 @@
-# Search Query Optimization
+# Optimizing the Search View to Prevent N+1 Queries
 
 ## Problem Description
 
-The search functionality was experiencing N+1 query issues, particularly when displaying magazine articles with their authors. The original CI errors included:
+The search functionality was experiencing the N+1 query problem, particularly when displaying magazine articles with their authors. The original CI errors included:
 
 1. **Factory Issue**: `MagazineArticleFactory` was trying to pass a `parent` argument directly to the model constructor, which Wagtail page models don't accept
 2. **Template Debugging Issue**: `django_coverage_plugin` required template debugging to be enabled for tests
-3. **Search Optimization**: The search view was not properly optimized to prevent N+1 queries when accessing author relationships
+3. **Search Optimization**: The search view was not properly optimized to prevent the N+1 query issue when accessing author relationships
 
 ## Root Cause Analysis
 
@@ -58,7 +58,7 @@ RUNNING_TESTS = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 **Problem**: The test expected 0 additional queries when accessing author relationships, which is unrealistic given Wagtail's `.specific` behavior.
 
-**Solution**: Updated the test to be more realistic while still preventing severe N+1 problems:
+**Solution**: Updated the test to be more realistic while still preventing the severe N+1 query problem:
 
 ```python
 # Updated test expectation
@@ -67,7 +67,7 @@ self.assertLessEqual(
     additional_queries,
     max_reasonable_queries,
     f"Expected at most {max_reasonable_queries} additional queries when accessing authors, "
-    f"but got {additional_queries}. This suggests a severe N+1 query problem.",
+    f"but got {additional_queries}. This suggests the severe N+1 query problem.",
 )
 ```
 
@@ -84,7 +84,7 @@ search_results = (
         "content_type",
         "locale",
     )
-    .prefetch_related(  # Prefetch related fields to avoid N+1 queries
+    .prefetch_related(  # Prefetch related fields to avoid the N+1 query problem
         # For magazine articles - prefetch authors and departments
         "magazinearticle__authors__author",
         "magazinearticle__department",
@@ -122,7 +122,7 @@ The test suite includes realistic expectations about Wagtail's behavior:
 
 ### SearchOptimizationTestCase
 
-1. **test_search_query_optimization**: Verifies that the search view doesn't have severe N+1 query problems
+1. **test_search_query_optimization**: Verifies that the search view doesn't have the severe N+1 query problem
 2. **test_search_results_include_authors**: Ensures author information is properly accessible
 
 The tests account for Wagtail's `.specific` behavior by setting reasonable query thresholds rather than expecting perfect optimization.
@@ -143,7 +143,7 @@ Through extensive testing, we discovered that:
 ### Performance Trade-offs
 
 The current optimization approach involves some trade-offs:
-- **Initial query complexity**: Search queries are slightly more complex (higher execution time) due to prefetch joins, but this prevents N+1 query problems
+- **Initial query complexity**: Search queries are slightly more complex (higher execution time) due to prefetch joins, but this prevents the N+1 query problem
 - **Memory usage**: Prefetching loads more data upfront but reduces total database round trips
 - **Overall performance**: Despite higher initial query complexity, total page load time is improved by eliminating multiple subsequent queries
 
@@ -162,4 +162,4 @@ All tests now pass:
 python manage.py test search.tests.SearchOptimizationTestCase
 ```
 
-The optimization prevents severe N+1 query problems while working within Wagtail's architectural constraints.
+The optimization prevents the severe N+1 query problem while working within Wagtail's architectural constraints.
