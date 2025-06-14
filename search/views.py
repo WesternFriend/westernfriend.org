@@ -22,15 +22,6 @@ def search(request: HttpRequest) -> HttpResponse:
                 "content_type",
                 "locale",
             )
-            .prefetch_related(  # Prefetch related fields to avoid N+1 queries
-                # For magazine articles - prefetch authors and departments
-                "magazinearticle__authors__author",
-                "magazinearticle__department",
-                # For magazine issues - prefetch cover images
-                "magazineissue__cover_image",
-                # For archive issues - prefetch archive articles and their authors
-                "archiveissue__archive_articles__archive_authors__author",
-            )
             .search(
                 search_query,
                 operator="or",

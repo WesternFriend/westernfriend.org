@@ -36,11 +36,9 @@
 
     <section aria-live="polite" aria-label="Search results">
         {% if paginated_search_results %}
-            <div class="space-y-4">
+            <ul role="list" class="list-none space-y-4">
                 {% for result in paginated_search_results.page %}
-                    {% if result.specific.search_template %}
-                        {% include result.specific.search_template with entity=result %}
-                    {% else %}
+                    <li role="listitem">
                         <article class="card bg-base-100 shadow">
                             <div class="card-body">
                                 <h2 class="card-title text-lg">
@@ -50,9 +48,9 @@
                                 </h2>
                             </div>
                         </article>
-                    {% endif %}
+                    </li>
                 {% endfor %}
-            </div>
+            </ul>
 
             {% include "paginator.html" with paginated_items=paginated_search_results current_querystring=search_querystring %}
         {% elif search_query %}
