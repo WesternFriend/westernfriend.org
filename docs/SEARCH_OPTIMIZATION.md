@@ -107,6 +107,15 @@ The search optimization is constrained by Wagtail's architecture:
 - This is by design and cannot be completely eliminated
 - The current implementation provides reasonable performance within these constraints
 
+### Query Optimization Order
+
+The search view applies optimizations in the correct order within the Django ORM query chain:
+1. `select_related()` and `prefetch_related()` are applied to the base queryset
+2. `.search()` is called on the optimized queryset
+3. This ensures that the search operation benefits from the pre-configured optimizations
+
+The key is that optimizations must be integrated into the query chain **before** invoking `.search()`, not after receiving search results.
+
 ## Testing Strategy
 
 The test suite includes realistic expectations about Wagtail's behavior:
@@ -130,6 +139,13 @@ Through extensive testing, we discovered that:
 - **Before fix**: Factory errors and template debugging issues prevented tests from running
 - **After fix**: Tests run successfully with reasonable performance expectations
 - **Search optimization**: While not perfect due to Wagtail limitations, the search view includes appropriate prefetch_related optimizations
+
+### Performance Trade-offs
+
+The current optimization approach involves some trade-offs:
+- **Initial query complexity**: Search queries are slightly more complex (higher execution time) due to prefetch joins, but this prevents N+1 query problems
+- **Memory usage**: Prefetching loads more data upfront but reduces total database round trips
+- **Overall performance**: Despite higher initial query complexity, total page load time is improved by eliminating multiple subsequent queries
 
 ## Implementation Summary
 
