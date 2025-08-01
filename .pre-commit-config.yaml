@@ -18,34 +18,35 @@ repos:
   #       language: system
   #       files: ^theme/static/
   #       pass_filenames: false
-  - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.6.10 # Pin to specific UV version
+  - repo: local
     hooks:
       # Ensure our project is compatible with Heroku buildpacks
       # which require a `requirements.txt` file.
-      - id: pip-compile
-        name: Generate requirements.txt
-        args: [pyproject.toml, -o, requirements.txt]
-        files: ^pyproject\.toml$
+      - id: export-requirements
+        name: Generate requirements.txt from lock file
+        entry: uv export --format requirements-txt --output-file requirements.txt
+        language: system
+        files: ^uv\.lock$
+        pass_filenames: false
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.1
+    rev: v3.20.0
     hooks:
       - id: pyupgrade
         args: [--py311-plus]
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.23.1
+    rev: 1.25.0
     hooks:
       - id: django-upgrade
         args: [--target-version, "5.0"]
   - repo: https://github.com/asottile/add-trailing-comma
-    rev: v3.1.0
+    rev: v3.2.0
     hooks:
       - id: add-trailing-comma
         args: [--py36-plus]
         exclude: ".*migrations/.*"
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.9.8
+    rev: v0.12.7
     hooks:
       # Run the linter.
       - id: ruff
@@ -57,16 +58,16 @@ repos:
     hooks:
       - id: curlylint
   - repo: https://github.com/rtts/djhtml
-    rev: 3.0.7
+    rev: 3.0.8
     hooks:
       - id: djhtml
   - repo: https://github.com/adamchainz/djade-pre-commit
-    rev: "1.3.2"
+    rev: "1.4.0"
     hooks:
       - id: djade
         args: [--target-version, "5.1"]
   - repo: https://github.com/google/keep-sorted
-    rev: v0.6.0
+    rev: v0.6.1
     hooks:
       - id: keep-sorted
         exclude: ".*migrations/.*"
