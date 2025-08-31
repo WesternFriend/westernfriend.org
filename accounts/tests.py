@@ -114,7 +114,7 @@ class CustomLoginViewTests(TestCase):
             secure=secure,
         )
         view = CustomLoginView()
-        view.request = request
+        view.setup(request)
         return view.get_success_url()
 
     def test_fallback_when_reverse_missing_and_next_is_admin(self):
@@ -148,13 +148,32 @@ class CustomLoginViewTests(TestCase):
         url = self._call_get_success_url("https://testserver/safe/", secure=True)
         self.assertEqual(url, "https://testserver/safe/")
 
+    def test_fallback_when_relative_admin_without_slash(self):
+        url = self._call_get_success_url("admin")
+        self.assertEqual(url, resolve_url(settings.LOGIN_REDIRECT_URL))
+
+    def test_fallback_when_no_next(self):
+        request = self.factory.get("/accounts/login/")
+        view = CustomLoginView()
+        view.setup(request)
+        self.assertEqual(
+            view.get_success_url(),
+            resolve_url(settings.LOGIN_REDIRECT_URL),
+        )
+
+    def test_fallback_when_reverse_returns_custom_admin_path(self):
+        with patch("accounts.views.reverse", return_value="/dashboard"):
+            url = self._call_get_success_url("/dashboard/stats")
+        self.assertEqual(url, resolve_url(settings.LOGIN_REDIRECT_URL))
+
 
 class CustomPasswordResetViewTests(TestCase):
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_password_reset_sends_text_and_html(self):
-        user = User.objects.create_user(email="pr@example.com", password="x")
+        user = User.objects.create_user(email="pr@example.com", password="x")  # noqa: S106 (test-only)
         resp = self.client.post(reverse("password_reset"), {"email": user.email})
         self.assertEqual(resp.status_code, 302)
+        self.assertRedirects(resp, reverse("password_reset_done"))
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual(msg.to, [user.email])
@@ -162,3 +181,6 @@ class CustomPasswordResetViewTests(TestCase):
         self.assertTrue(getattr(msg, "alternatives", None))
         self.assertGreaterEqual(len(msg.alternatives), 1)
         self.assertEqual(msg.alternatives[0][1], "text/html")
+        self.assertTrue(msg.subject.strip())
+        html_body, html_mime = msg.alternatives[0]
+        self.assertTrue(str(html_body).strip())
