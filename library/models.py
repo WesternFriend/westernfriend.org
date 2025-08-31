@@ -72,16 +72,21 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
 
     @classmethod
     def get_queryset(cls):
-        related_fields = [
+        related_prefetch = [
             "authors__author",
             "topics__topic",
-            "item_audience",
-            "item_genre",
-            "item_medium",
-            "item_time_period",
             "tags",
         ]
-        return cls.objects.live().prefetch_related(*related_fields)
+        return (
+            cls.objects.live()
+            .select_related(
+                "item_audience",
+                "item_genre",
+                "item_medium",
+                "item_time_period",
+            )
+            .prefetch_related(*related_prefetch)
+        )
 
     content_panels = Page.content_panels + [
         InlinePanel(
