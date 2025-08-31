@@ -25,15 +25,42 @@ class TaggedPageListView(ListView):
         # Get all the pages tagged with the given tag
         filter_condition = Q(tags__slug__in=[tag])
 
-        library_items = LibraryItem.objects.filter(filter_condition).order_by("title")
-
-        magazine_articles = MagazineArticle.objects.filter(filter_condition).order_by(
-            "title",
+        library_items = (
+            LibraryItem.get_queryset()
+            .filter(filter_condition)
+            .live()
+            .public()
+            .select_related("content_type")
+            .prefetch_related("authors__author")
+            # DB-level ordering unnecessary; combined list is sorted below
         )
 
-        news_items = NewsItem.objects.filter(filter_condition).order_by("title")
+        magazine_articles = (
+            MagazineArticle.get_queryset()
+            .filter(filter_condition)
+            .live()
+            .public()
+            .select_related("content_type")
+            .prefetch_related("authors__author")
+            # DB-level ordering unnecessary; combined list is sorted below
+        )
 
-        pages = WfPage.objects.filter(filter_condition).order_by("title")
+        news_items = (
+            NewsItem.objects.filter(filter_condition)
+            .live()
+            .public()
+            .select_related("content_type")
+            # DB-level ordering unnecessary; combined list is sorted below
+        )
+
+        pages = (
+            WfPage.get_queryset()
+            .filter(filter_condition)
+            .live()
+            .public()
+            .select_related("content_type")
+            # DB-level ordering unnecessary; combined list is sorted below
+        )
 
         combined_queryset_list = list(
             chain(

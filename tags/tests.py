@@ -1,14 +1,16 @@
+import re
 from django.test import TestCase
 from django.urls import reverse
 from taggit.models import Tag
 from library.models import LibraryItem
 from library.factories import LibraryItemFactory
 from magazine.factories import MagazineArticleFactory
-from magazine.models import MagazineArticle
+from magazine.models import MagazineArticle, MagazineArticleAuthor
 from news.factories import NewsItemFactory
 from news.models import NewsItem
 from wf_pages.factories import WfPageFactory
 from wf_pages.models import WfPage
+from contact.factories import PersonFactory
 
 
 class TaggedPageListViewQuerysetAndContentOrderTest(TestCase):
@@ -157,3 +159,65 @@ class TaggedPageListViewPaginationTest(TestCase):
             paginated_context.page.previous_page_number(),
             expected_previous_page,
         )
+
+
+class TaggedPageListViewTemplateRenderingTest(TestCase):
+    def setUp(self):
+        self.tag = Tag.objects.create(name="Authors Tag", slug="authors-tag")
+        self.url = reverse("tags:tagged_page_list", kwargs={"tag": self.tag.slug})
+
+        # Create a magazine article and attach authors
+        self.article = MagazineArticleFactory(title="Article With Authors")
+        self.article.tags.add(self.tag)
+        self.article.save()
+
+        self.person_live = PersonFactory()
+        # Publish person_live so template renders it as a link
+        self.person_live.save_revision().publish()
+
+        self.person_not_live = PersonFactory()
+        # Ensure non-live stays unpublished for template logic
+        self.person_not_live.live = False
+        self.person_not_live.save()
+
+        MagazineArticleAuthor.objects.create(
+            article=self.article,
+            author=self.person_live,
+        )
+        MagazineArticleAuthor.objects.create(
+            article=self.article,
+            author=self.person_not_live,
+        )
+
+    def test_authors_and_issue_render_with_accessible_markup(self):
+        response = self.client.get(self.url)
+        html = response.content.decode()
+
+        # Authors label and list present with dynamic id
+        self.assertIn("Authors", html)
+        # Extract actual authors-label id from the span
+        m = re.search(
+            r"<span[^>]*id=\"(authors-label-[^\"]+)\"[^>]*>\s*Authors\s*:</span>",
+            html,
+        )
+        self.assertIsNotNone(m, "Could not find authors label span with id")
+        label_id = m.group(1)
+        # Verify aria-labelledby matches the extracted id
+        self.assertIn(f'aria-labelledby="{label_id}"', html)
+
+        # Live author should be linked
+        live_title = self.person_live.title
+        self.assertRegex(html, rf"<a[^>]*>\s*{re.escape(live_title)}\s*</a>")
+        # Non-live author should be plain text (no anchor)
+        non_live_title = self.person_not_live.title
+        self.assertIn(non_live_title, html)
+        self.assertIsNone(
+            re.search(rf"<a[^>]*>\s*{re.escape(non_live_title)}\s*</a>", html),
+        )
+
+        # Issue label and machine-readable date present
+        self.assertIn("Issue", html)
+        expected_date = self.article.get_parent().specific.publication_date.strftime(
+            "%Y-%m-%d",
+        )
+        self.assertIn(f'<time datetime="{expected_date}"', html)

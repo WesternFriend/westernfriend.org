@@ -299,17 +299,6 @@ class MagazineDepartment(Page):
     ) -> dict:
         context = super().get_context(request)
 
-        context["articles"] = (
-            MagazineArticle.objects.filter(
-                department__title=self.title,
-            )
-            .live()
-            .prefetch_related(
-                "authors__author",
-                "issue",
-            )
-        )
-
         articles = (
             MagazineArticle.objects.filter(
                 department__title=self.title,
@@ -317,7 +306,6 @@ class MagazineDepartment(Page):
             .live()
             .prefetch_related(
                 "authors__author",
-                "issue",
             )
         )
 
@@ -365,9 +353,16 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
 
     @classmethod
     def get_queryset(cls):
-        """Prefetch authors and tags for performance."""
-        related_fields = ["authors__author", "tags__tag", "department"]
-        return super().get_queryset().prefetch_related(*related_fields)
+        """Optimize related fetches for listings.
+
+        Note: Use cls.objects rather than super().get_queryset() because the
+        base class does not provide a classmethod get_queryset.
+        """
+        return (
+            cls.objects.defer_streamfields()
+            .select_related("department")
+            .prefetch_related("authors__author", "tags")
+        )
 
     class Meta:
         verbose_name = "Magazine Article"
