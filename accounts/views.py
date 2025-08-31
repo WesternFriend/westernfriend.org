@@ -9,6 +9,8 @@ from honeypot.decorators import check_honeypot  # type: ignore
 from accounts.forms import CustomUserForm
 from django.contrib.auth.views import PasswordResetView, LoginView
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.urls import reverse
+from urllib.parse import urlparse
 
 
 @method_decorator(check_honeypot, name="post")
@@ -64,6 +66,9 @@ class CustomLoginView(LoginView):
         if not redirect_to:
             return super().get_success_url()
 
+        parsed = urlparse(redirect_to)
+        is_absolute = bool(parsed.netloc)
+
         # Ensure the redirect target is allowed for this host.
         if not url_has_allowed_host_and_scheme(
             redirect_to,
@@ -71,9 +76,33 @@ class CustomLoginView(LoginView):
         ):
             return super().get_success_url()
 
-        # Avoid redirecting to admin for regular users
-        admin_base = getattr(settings, "WAGTAILADMIN_BASE_URL", "/admin")
-        if redirect_to.startswith(admin_base):
+        # If absolute URL and current request is secure, only allow https scheme
+        if is_absolute and request.is_secure() and parsed.scheme != "https":
+            return super().get_success_url()
+
+        # Determine canonical admin paths to avoid redirecting users there
+        try:
+            wagtail_admin_home = reverse("wagtailadmin_home")
+        except Exception:
+            wagtail_admin_home = "/admin/"
+
+        admin_base_setting = getattr(settings, "WAGTAILADMIN_BASE_URL", "/admin")
+        admin_base_path = urlparse(admin_base_setting).path or admin_base_setting
+
+        def normalize(p: str) -> str:
+            return p if p.startswith("/") else f"/{p}"
+
+        def is_under(path: str, base: str) -> bool:
+            base = base.rstrip("/")
+            return path == base or path.startswith(base + "/")
+
+        redirect_path = parsed.path or redirect_to
+        redirect_path = normalize(redirect_path)
+
+        if any(
+            is_under(redirect_path, normalize(p))
+            for p in (wagtail_admin_home, admin_base_path)
+        ):
             return super().get_success_url()
 
         return redirect_to

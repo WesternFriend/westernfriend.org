@@ -33,6 +33,12 @@ urlpatterns = [
         CustomPasswordResetView.as_view(),
         name="password_reset",
     ),
+    # Redirect any Wagtail/Django admin password reset attempts to the public reset form
+    re_path(
+        r"^admin/password_reset/.*$",
+        RedirectView.as_view(pattern_name="password_reset", permanent=False),
+        name="admin_password_reset_redirect",
+    ),
     path("accounts/", include("django_registration.backends.activation.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("admin/", include(wagtailadmin_urls)),
@@ -58,12 +64,4 @@ if settings.DEBUG:
     urlpatterns += static(
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT,
-    )
-    # Redirect any Wagtail/Django admin password reset attempts to the public reset form
-    (
-        re_path(
-            r"^admin/password_reset/.*$",
-            RedirectView.as_view(pattern_name="password_reset", permanent=False),
-            name="admin_password_reset_redirect",
-        ),
     )
