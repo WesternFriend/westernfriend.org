@@ -7,7 +7,11 @@ from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
 
-from accounts.views import CustomRegistrationView, CustomPasswordResetView
+from accounts.views import (
+    CustomRegistrationView,
+    CustomPasswordResetView,
+    CustomLoginView,
+)
 from search import views as search_views
 
 handler404 = "common.views.custom_404"
@@ -17,6 +21,11 @@ urlpatterns = [
         "accounts/register/",
         CustomRegistrationView.as_view(),
         name="django_registration_register",
+    ),
+    path(
+        "accounts/login/",
+        CustomLoginView.as_view(),
+        name="login",
     ),
     path(
         "accounts/password_reset/",
