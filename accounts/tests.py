@@ -1,8 +1,9 @@
 from unittest.mock import PropertyMock, patch
 from django.conf import settings
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from django.shortcuts import resolve_url
 from django.urls import reverse, NoReverseMatch
+from django.core import mail
 from .models import User
 from subscription.models import Subscription
 from accounts.views import CustomLoginView
@@ -113,7 +114,7 @@ class CustomLoginViewTests(TestCase):
             secure=secure,
         )
         view = CustomLoginView()
-        view.setup(request)
+        view.request = request
         return view.get_success_url()
 
     def test_fallback_when_reverse_missing_and_next_is_admin(self):
@@ -137,3 +138,27 @@ class CustomLoginViewTests(TestCase):
         # When request is secure, an absolute HTTP URL to same host should fallback
         url = self._call_get_success_url("http://testserver/unsafe-http/", secure=True)
         self.assertEqual(url, resolve_url(settings.LOGIN_REDIRECT_URL))
+
+    @override_settings(WAGTAILADMIN_BASE_URL="/cms")
+    def test_fallback_when_next_under_custom_admin_base(self):
+        url = self._call_get_success_url("/cms/section/")
+        self.assertEqual(url, resolve_url(settings.LOGIN_REDIRECT_URL))
+
+    def test_allows_https_when_secure_request_and_next_https_same_host(self):
+        url = self._call_get_success_url("https://testserver/safe/", secure=True)
+        self.assertEqual(url, "https://testserver/safe/")
+
+
+class CustomPasswordResetViewTests(TestCase):
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_password_reset_sends_text_and_html(self):
+        user = User.objects.create_user(email="pr@example.com", password="x")
+        resp = self.client.post(reverse("password_reset"), {"email": user.email})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(len(mail.outbox), 1)
+        msg = mail.outbox[0]
+        self.assertEqual(msg.to, [user.email])
+        self.assertTrue(msg.body.strip())  # plain text body
+        self.assertTrue(getattr(msg, "alternatives", None))
+        self.assertGreaterEqual(len(msg.alternatives), 1)
+        self.assertEqual(msg.alternatives[0][1], "text/html")
