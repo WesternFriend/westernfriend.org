@@ -41,5 +41,6 @@ class CustomPasswordResetView(PasswordResetView):
     - `html_email_template_name` is the HTML alternative.
     """
 
+    subject_template_name = "registration/password_reset_subject.txt"
     email_template_name = "registration/password_reset_email.txt"
     html_email_template_name = "registration/password_reset_email.html"
