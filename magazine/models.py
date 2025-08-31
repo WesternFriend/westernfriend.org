@@ -353,10 +353,15 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
 
     @classmethod
     def get_queryset(cls):
-        """Optimize related loads: select FK, prefetch M2M/Orderables."""
-        related_prefetch = ["authors__author", "tags"]
-        return cls.objects.select_related("department").prefetch_related(
-            *related_prefetch,
+        """Optimize related fetches for listings.
+
+        Note: Use cls.objects rather than super().get_queryset() because the
+        base class does not provide a classmethod get_queryset.
+        """
+        return (
+            cls.objects.defer_streamfields()
+            .select_related("department")
+            .prefetch_related("authors__author", "tags")
         )
 
     class Meta:
