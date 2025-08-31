@@ -32,14 +32,14 @@
             {{ article.teaser|richtext }}
         </div>
 
-        {% with issue=article.get_parent %}
+        {% with issue=article.get_parent.specific %}
             <div class="card-actions">
                 <span>
                     <span class="font-medium">{% translate "Issue" %}:</span>
                     <a href="{% pageurl issue %}" class="link">{{ issue }}</a>
-                    {% if issue.specific.publication_date %}
-                        (<time datetime="{{ issue.specific.publication_date|date:'Y-m-d' }}">
-                            {{ issue.specific.publication_date|date:"F Y" }}
+                    {% if issue.publication_date %}
+                        (<time datetime="{{ issue.publication_date|date:'Y-m-d' }}">
+                            {{ issue.publication_date|date:"F Y" }}
                         </time>)
                     {% endif %}
                 </span>
