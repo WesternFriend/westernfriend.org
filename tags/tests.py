@@ -170,16 +170,19 @@ class TaggedPageListViewTemplateRenderingTest(TestCase):
         self.article.tags.add(self.tag)
         self.article.save()
 
-        person_live = PersonFactory()
+        self.person_live = PersonFactory()
         # Publish person_live so template renders it as a link
-        person_live.save_revision().publish()
+        self.person_live.save_revision().publish()
 
-        person_not_live = PersonFactory()
+        self.person_not_live = PersonFactory()
 
-        MagazineArticleAuthor.objects.create(article=self.article, author=person_live)
         MagazineArticleAuthor.objects.create(
             article=self.article,
-            author=person_not_live,
+            author=self.person_live,
+        )
+        MagazineArticleAuthor.objects.create(
+            article=self.article,
+            author=self.person_not_live,
         )
 
     def test_authors_and_issue_render_with_accessible_markup(self):
@@ -195,4 +198,7 @@ class TaggedPageListViewTemplateRenderingTest(TestCase):
 
         # Issue label and machine-readable date present
         self.assertIn("Issue", html)
-        self.assertIn('<time datetime="', html)
+        expected_date = self.article.get_parent().specific.publication_date.strftime(
+            "%Y-%m-%d",
+        )
+        self.assertIn(f'<time datetime="{expected_date}"', html)
