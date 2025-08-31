@@ -11,8 +11,8 @@
         {% with author_links=article.authors.all %}
             {% if author_links %}
                 <div class="mb-2">
-                    <span id="authors-label" class="font-medium">{% translate "Authors" %}:</span>
-                    <ul class="inline list-none p-0 m-0" aria-labelledby="authors-label">
+                    <span id="authors-label-{{ article.pk }}" class="font-medium">{% translate "Authors" %}:</span>
+                    <ul class="inline list-none p-0 m-0" aria-labelledby="authors-label-{{ article.pk }}">
                         {% for author in author_links %}
                             <li class="inline">
                                 {% if author.author.live %}

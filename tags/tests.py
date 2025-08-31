@@ -189,9 +189,11 @@ class TaggedPageListViewTemplateRenderingTest(TestCase):
         response = self.client.get(self.url)
         html = response.content.decode()
 
-        # Authors label and list present
+        # Authors label and list present with dynamic id
         self.assertIn("Authors", html)
-        self.assertIn('aria-labelledby="authors-label"', html)
+        expected_label_id = f"authors-label-{self.article.pk}"
+        self.assertIn(f'id="{expected_label_id}"', html)
+        self.assertIn(f'aria-labelledby="{expected_label_id}"', html)
 
         # One live author should be linked, one plain text
         self.assertIn(f">{self.article.authors.first().author.title}<", html)
