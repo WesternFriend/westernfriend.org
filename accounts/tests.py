@@ -1,6 +1,7 @@
 from unittest.mock import PropertyMock, patch
 from django.conf import settings
 from django.test import TestCase, RequestFactory
+from django.shortcuts import resolve_url
 from django.urls import reverse, NoReverseMatch
 from .models import User
 from subscription.models import Subscription
@@ -115,8 +116,8 @@ class CustomLoginViewTests(TestCase):
         # Patch accounts.views.reverse to raise NoReverseMatch to trigger fallback
         with patch("accounts.views.reverse", side_effect=NoReverseMatch()):
             url = self._call_get_success_url("/admin/")
-        # Should fall back to LOGIN_REDIRECT_URL instead of admin
-        self.assertEqual(url, settings.LOGIN_REDIRECT_URL)
+        # Should fall back to LOGIN_REDIRECT_URL (resolve if it's a name)
+        self.assertEqual(url, resolve_url(settings.LOGIN_REDIRECT_URL))
 
     def test_redirect_allows_safe_non_admin_next_when_reverse_missing(self):
         with patch("accounts.views.reverse", side_effect=NoReverseMatch()):
