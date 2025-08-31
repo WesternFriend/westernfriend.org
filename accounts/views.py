@@ -103,6 +103,7 @@ class CustomLoginView(LoginView):
             is_under(redirect_path, normalize(p))
             for p in (wagtail_admin_home, admin_base_path)
         ):
-            return super().get_success_url()
+            # Avoid redirecting users into the admin; use default redirect
+            return self.get_default_redirect_url()
 
         return redirect_to

@@ -1,9 +1,10 @@
 from unittest.mock import PropertyMock, patch
 from django.conf import settings
-from django.test import TestCase
-from django.urls import reverse
+from django.test import TestCase, RequestFactory
+from django.urls import reverse, NoReverseMatch
 from .models import User
 from subscription.models import Subscription
+from accounts.views import CustomLoginView
 
 
 class UserManagerTest(TestCase):
@@ -98,3 +99,26 @@ class HoneypotTest(TestCase):
             response,
             settings.HONEYPOT_FIELD_NAME,
         )
+
+
+class CustomLoginViewTests(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+
+    def _call_get_success_url(self, next_value: str):
+        request = self.factory.get("/accounts/login/", {"next": next_value})
+        view = CustomLoginView()
+        view.request = request
+        return view.get_success_url()
+
+    def test_fallback_when_reverse_missing_and_next_is_admin(self):
+        # Patch accounts.views.reverse to raise NoReverseMatch to trigger fallback
+        with patch("accounts.views.reverse", side_effect=NoReverseMatch()):
+            url = self._call_get_success_url("/admin/")
+        # Should fall back to LOGIN_REDIRECT_URL instead of admin
+        self.assertEqual(url, settings.LOGIN_REDIRECT_URL)
+
+    def test_redirect_allows_safe_non_admin_next_when_reverse_missing(self):
+        with patch("accounts.views.reverse", side_effect=NoReverseMatch()):
+            url = self._call_get_success_url("/some-safe-page/")
+        self.assertEqual(url, "/some-safe-page/")
