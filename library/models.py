@@ -79,6 +79,7 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
         ]
         return (
             cls.objects.live()
+            .defer_streamfields()
             .select_related(
                 "item_audience",
                 "item_genre",
