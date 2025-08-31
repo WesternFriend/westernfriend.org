@@ -79,16 +79,9 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
             "item_genre",
             "item_medium",
             "item_time_period",
-            "tags__tag",
+            "tags",
         ]
-        return (
-            super()
-            .get_queryset()
-            .filter(live=True)
-            .prefetch_related(
-                *related_fields,
-            )
-        )
+        return cls.objects.live().prefetch_related(*related_fields)
 
     content_panels = Page.content_panels + [
         InlinePanel(
