@@ -7,6 +7,7 @@ from django_registration.backends.activation.views import RegistrationView  # ty
 from honeypot.decorators import check_honeypot  # type: ignore
 
 from accounts.forms import CustomUserForm
+from django.contrib.auth.views import PasswordResetView
 
 
 @method_decorator(check_honeypot, name="post")
@@ -31,3 +32,14 @@ class CustomRegistrationView(RegistrationView):
         messages.info(self.request, check_email_message)
 
         return super().form_valid(form)
+
+
+class CustomPasswordResetView(PasswordResetView):
+    """Send both plain text and HTML password reset emails.
+
+    - `email_template_name` is the plain-text body.
+    - `html_email_template_name` is the HTML alternative.
+    """
+
+    email_template_name = "registration/password_reset_email.txt"
+    html_email_template_name = "registration/password_reset_email.html"
