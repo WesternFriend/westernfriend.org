@@ -106,10 +106,14 @@ class CustomLoginViewTests(TestCase):
     def setUp(self) -> None:
         self.factory = RequestFactory()
 
-    def _call_get_success_url(self, next_value: str):
-        request = self.factory.get("/accounts/login/", {"next": next_value})
+    def _call_get_success_url(self, next_value: str, *, secure: bool = False):
+        request = self.factory.get(
+            "/accounts/login/",
+            {"next": next_value},
+            secure=secure,
+        )
         view = CustomLoginView()
-        view.request = request
+        view.setup(request)
         return view.get_success_url()
 
     def test_fallback_when_reverse_missing_and_next_is_admin(self):
@@ -123,3 +127,13 @@ class CustomLoginViewTests(TestCase):
         with patch("accounts.views.reverse", side_effect=NoReverseMatch()):
             url = self._call_get_success_url("/some-safe-page/")
         self.assertEqual(url, "/some-safe-page/")
+
+    def test_fallback_when_next_absolute_to_other_host(self):
+        # Absolute URL to a different host should be rejected
+        url = self._call_get_success_url("https://example.com/elsewhere/")
+        self.assertEqual(url, resolve_url(settings.LOGIN_REDIRECT_URL))
+
+    def test_fallback_when_secure_request_and_next_http_same_host(self):
+        # When request is secure, an absolute HTTP URL to same host should fallback
+        url = self._call_get_success_url("http://testserver/unsafe-http/", secure=True)
+        self.assertEqual(url, resolve_url(settings.LOGIN_REDIRECT_URL))
