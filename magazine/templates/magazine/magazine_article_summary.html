@@ -11,8 +11,8 @@
         {% with author_links=article.authors.all %}
             {% if author_links %}
                 <div class="mb-2">
-                    <span class="font-medium">{% translate "Authors" %}:</span>
-                    <ul class="inline">
+                    <span id="authors-label" class="font-medium">{% translate "Authors" %}:</span>
+                    <ul class="inline list-none p-0 m-0" aria-labelledby="authors-label">
                         {% for author in author_links %}
                             <li class="inline">
                                 {% if author.author.live %}
@@ -36,14 +36,12 @@
             <div class="card-actions">
                 <span>
                     <span class="font-medium">{% translate "Issue" %}:</span>
-                    <a href="{% pageurl issue %}" class="link">
-                        {{ issue }}
-                        {% if issue.specific.publication_date %}
-                            (<time datetime="{{ issue.specific.publication_date|date:'Y-m-d' }}">
-                                {{ issue.specific.publication_date|date:"F Y" }}
-                            </time>)
-                        {% endif %}
-                    </a>
+                    <a href="{% pageurl issue %}" class="link">{{ issue }}</a>
+                    {% if issue.specific.publication_date %}
+                        (<time datetime="{{ issue.specific.publication_date|date:'Y-m-d' }}">
+                            {{ issue.specific.publication_date|date:"F Y" }}
+                        </time>)
+                    {% endif %}
                 </span>
             </div>
         {% endwith %}
