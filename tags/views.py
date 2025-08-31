@@ -27,6 +27,8 @@ class TaggedPageListView(ListView):
 
         library_items = (
             LibraryItem.objects.filter(filter_condition)
+            .live()
+            .public()
             .select_related("content_type")
             .prefetch_related("authors__author")
             .order_by("title")
@@ -34,19 +36,25 @@ class TaggedPageListView(ListView):
 
         magazine_articles = (
             MagazineArticle.objects.filter(filter_condition)
+            .live()
+            .public()
             .select_related("content_type")
-            .prefetch_related("authors__author", "issue")
+            .prefetch_related("authors__author")
             .order_by("title")
         )
 
         news_items = (
             NewsItem.objects.filter(filter_condition)
+            .live()
+            .public()
             .select_related("content_type")
             .order_by("title")
         )
 
         pages = (
             WfPage.objects.filter(filter_condition)
+            .live()
+            .public()
             .select_related("content_type")
             .order_by("title")
         )
