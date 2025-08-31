@@ -26,7 +26,8 @@ class TaggedPageListView(ListView):
         filter_condition = Q(tags__slug__in=[tag])
 
         library_items = (
-            LibraryItem.objects.filter(filter_condition)
+            LibraryItem.get_queryset()
+            .filter(filter_condition)
             .live()
             .public()
             .select_related("content_type")
@@ -35,7 +36,8 @@ class TaggedPageListView(ListView):
         )
 
         magazine_articles = (
-            MagazineArticle.objects.filter(filter_condition)
+            MagazineArticle.get_queryset()
+            .filter(filter_condition)
             .live()
             .public()
             .select_related("content_type")
@@ -52,7 +54,8 @@ class TaggedPageListView(ListView):
         )
 
         pages = (
-            WfPage.objects.filter(filter_condition)
+            WfPage.get_queryset()
+            .filter(filter_condition)
             .live()
             .public()
             .select_related("content_type")
