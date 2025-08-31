@@ -9,7 +9,7 @@ from honeypot.decorators import check_honeypot  # type: ignore
 from accounts.forms import CustomUserForm
 from django.contrib.auth.views import PasswordResetView, LoginView
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.urls import reverse
+from django.urls import reverse, NoReverseMatch
 from urllib.parse import urlparse
 
 
@@ -83,7 +83,7 @@ class CustomLoginView(LoginView):
         # Determine canonical admin paths to avoid redirecting users there
         try:
             wagtail_admin_home = reverse("wagtailadmin_home")
-        except Exception:
+        except NoReverseMatch:
             wagtail_admin_home = "/admin/"
 
         admin_base_setting = getattr(settings, "WAGTAILADMIN_BASE_URL", "/admin")
