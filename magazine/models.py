@@ -299,17 +299,6 @@ class MagazineDepartment(Page):
     ) -> dict:
         context = super().get_context(request)
 
-        context["articles"] = (
-            MagazineArticle.objects.filter(
-                department__title=self.title,
-            )
-            .live()
-            .prefetch_related(
-                "authors__author",
-                "issue",
-            )
-        )
-
         articles = (
             MagazineArticle.objects.filter(
                 department__title=self.title,
@@ -317,7 +306,6 @@ class MagazineDepartment(Page):
             .live()
             .prefetch_related(
                 "authors__author",
-                "issue",
             )
         )
 
