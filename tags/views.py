@@ -31,7 +31,7 @@ class TaggedPageListView(ListView):
             .public()
             .select_related("content_type")
             .prefetch_related("authors__author")
-            .order_by("title")
+            # DB-level ordering unnecessary; combined list is sorted below
         )
 
         magazine_articles = (
@@ -40,7 +40,7 @@ class TaggedPageListView(ListView):
             .public()
             .select_related("content_type")
             .prefetch_related("authors__author")
-            .order_by("title")
+            # DB-level ordering unnecessary; combined list is sorted below
         )
 
         news_items = (
@@ -48,7 +48,7 @@ class TaggedPageListView(ListView):
             .live()
             .public()
             .select_related("content_type")
-            .order_by("title")
+            # DB-level ordering unnecessary; combined list is sorted below
         )
 
         pages = (
@@ -56,7 +56,7 @@ class TaggedPageListView(ListView):
             .live()
             .public()
             .select_related("content_type")
-            .order_by("title")
+            # DB-level ordering unnecessary; combined list is sorted below
         )
 
         combined_queryset_list = list(
