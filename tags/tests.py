@@ -4,11 +4,12 @@ from taggit.models import Tag
 from library.models import LibraryItem
 from library.factories import LibraryItemFactory
 from magazine.factories import MagazineArticleFactory
-from magazine.models import MagazineArticle
+from magazine.models import MagazineArticle, MagazineArticleAuthor
 from news.factories import NewsItemFactory
 from news.models import NewsItem
 from wf_pages.factories import WfPageFactory
 from wf_pages.models import WfPage
+from contact.factories import PersonFactory
 
 
 class TaggedPageListViewQuerysetAndContentOrderTest(TestCase):
@@ -157,3 +158,41 @@ class TaggedPageListViewPaginationTest(TestCase):
             paginated_context.page.previous_page_number(),
             expected_previous_page,
         )
+
+
+class TaggedPageListViewTemplateRenderingTest(TestCase):
+    def setUp(self):
+        self.tag = Tag.objects.create(name="Authors Tag", slug="authors-tag")
+        self.url = reverse("tags:tagged_page_list", kwargs={"tag": self.tag.slug})
+
+        # Create a magazine article and attach authors
+        self.article = MagazineArticleFactory(title="Article With Authors")
+        self.article.tags.add(self.tag)
+        self.article.save()
+
+        person_live = PersonFactory()
+        # Publish person_live so template renders it as a link
+        person_live.save_revision().publish()
+
+        person_not_live = PersonFactory()
+
+        MagazineArticleAuthor.objects.create(article=self.article, author=person_live)
+        MagazineArticleAuthor.objects.create(
+            article=self.article,
+            author=person_not_live,
+        )
+
+    def test_authors_and_issue_render_with_accessible_markup(self):
+        response = self.client.get(self.url)
+        html = response.content.decode()
+
+        # Authors label and list present
+        self.assertIn("Authors", html)
+        self.assertIn('aria-labelledby="authors-label"', html)
+
+        # One live author should be linked, one plain text
+        self.assertIn(f">{self.article.authors.first().author.title}<", html)
+
+        # Issue label and machine-readable date present
+        self.assertIn("Issue", html)
+        self.assertIn('<time datetime="', html)
