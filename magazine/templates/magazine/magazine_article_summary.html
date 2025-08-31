@@ -12,7 +12,7 @@
             {% if author_links %}
                 <div class="mb-2">
                     <span class="font-medium">{% translate "Authors" %}:</span>
-                    <ul class="inline list-disc list-inside" role="list">
+                    <ul class="inline">
                         {% for author in author_links %}
                             <li class="inline">
                                 {% if author.author.live %}
@@ -35,7 +35,8 @@
         {% with issue=article.get_parent %}
             <div class="card-actions">
                 <span>
-                    Issue: <a href="{% pageurl issue %}" class="link">
+                    <span class="font-medium">{% translate "Issue" %}:</span>
+                    <a href="{% pageurl issue %}" class="link">
                         {{ issue }}
                         {% if issue.specific.publication_date %}
                             (<time datetime="{{ issue.specific.publication_date|date:'Y-m-d' }}">
