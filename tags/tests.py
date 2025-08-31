@@ -1,3 +1,4 @@
+import re
 from django.test import TestCase
 from django.urls import reverse
 from taggit.models import Tag
@@ -175,6 +176,9 @@ class TaggedPageListViewTemplateRenderingTest(TestCase):
         self.person_live.save_revision().publish()
 
         self.person_not_live = PersonFactory()
+        # Ensure non-live stays unpublished for template logic
+        self.person_not_live.live = False
+        self.person_not_live.save()
 
         MagazineArticleAuthor.objects.create(
             article=self.article,
@@ -191,12 +195,25 @@ class TaggedPageListViewTemplateRenderingTest(TestCase):
 
         # Authors label and list present with dynamic id
         self.assertIn("Authors", html)
-        expected_label_id = f"authors-label-{self.article.pk}"
-        self.assertIn(f'id="{expected_label_id}"', html)
-        self.assertIn(f'aria-labelledby="{expected_label_id}"', html)
+        # Extract actual authors-label id from the span
+        m = re.search(
+            r"<span[^>]*id=\"(authors-label-[^\"]+)\"[^>]*>\s*Authors\s*:</span>",
+            html,
+        )
+        self.assertIsNotNone(m, "Could not find authors label span with id")
+        label_id = m.group(1)
+        # Verify aria-labelledby matches the extracted id
+        self.assertIn(f'aria-labelledby="{label_id}"', html)
 
-        # One live author should be linked, one plain text
-        self.assertIn(f">{self.article.authors.first().author.title}<", html)
+        # Live author should be linked
+        live_title = self.person_live.title
+        self.assertRegex(html, rf"<a[^>]*>\s*{re.escape(live_title)}\s*</a>")
+        # Non-live author should be plain text (no anchor)
+        non_live_title = self.person_not_live.title
+        self.assertIn(non_live_title, html)
+        self.assertIsNone(
+            re.search(rf"<a[^>]*>\s*{re.escape(non_live_title)}\s*</a>", html),
+        )
 
         # Issue label and machine-readable date present
         self.assertIn("Issue", html)
