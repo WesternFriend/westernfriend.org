@@ -127,6 +127,7 @@ class MagazineIndexPage(Page):
 class MagazineIssue(DrupalFields, Page):  # type: ignore
     cover_image = models.ForeignKey(
         "wagtailimages.Image",
+        help_text="When uploading images,please choose the highest quality available that meets the upload requirements",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
