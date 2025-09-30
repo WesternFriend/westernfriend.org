@@ -167,7 +167,6 @@ INSTALLED_APPS = [
     "django_browser_reload",
     "django_extensions",
     "django_flatpickr",
-    "honeypot",
     "modelcluster",
     "storages",
     "taggit",
@@ -397,9 +396,6 @@ WAGTAILADMIN_BASE_URL = "/admin"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
-
-# Honeypot settings
-HONEYPOT_FIELD_NAME = "email2"
 
 
 MESSAGE_TAGS = {

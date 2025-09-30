@@ -553,7 +553,7 @@ class MeetingWorshipTime(Orderable):
     )
     worship_type = models.CharField(
         max_length=255,
-        choices=WorshipTypeChoices.choices,
+        choices=WorshipTypeChoices,
         null=True,
         blank=True,
     )
