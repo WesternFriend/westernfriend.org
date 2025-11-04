@@ -16,10 +16,7 @@ class CustomRegistrationView(RegistrationView):
     success_url = "/"
     template_name = "django_registration/registration_form.html"
 
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        """Add field to context."""
-        context = super().get_context_data(**kwargs)
-        return context
+   
 
     def form_valid(self, form):
         check_email_message = """Thanks for starting to register an account on our website.
