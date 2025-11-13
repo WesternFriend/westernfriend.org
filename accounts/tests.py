@@ -94,13 +94,6 @@ class UserModelTest(TestCase):
         self.assertFalse(self.user.is_subscriber)
 
 
-class HoneypotTest(TestCase):
-    def test_register_page_contains_honeypot_field(self):
-        response = self.client.get(reverse("django_registration_register"))
-        self.assertContains(
-            response,
-            settings.HONEYPOT_FIELD_NAME,
-        )
 
 
 class CustomLoginViewTests(TestCase):

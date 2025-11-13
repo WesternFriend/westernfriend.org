@@ -248,7 +248,6 @@ django==5.2.4 ; python_full_version >= '3.12' \
     #   django-extensions
     #   django-filter
     #   django-flatpickr
-    #   django-honeypot
     #   django-modelcluster
     #   django-permissionedforms
     #   django-registration

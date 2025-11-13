@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load common_form_tags honeypot %}
+{% load common_form_tags %}
 
 {% block content %}
     <main class="container mx-auto px-4 py-6">
@@ -17,7 +17,6 @@
                 <form method="post" action="" class="max-w-md">
                     {% csrf_token %}
 
-                    {% render_honeypot_field honeypot_field_name %}
 
                     <fieldset class="space-y-4">
                         <legend class="sr-only">Registration Information</legend>
