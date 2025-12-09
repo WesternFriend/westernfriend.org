@@ -21,34 +21,38 @@
             </div>
 
             <footer class="mt-6">
-                {% if page.topics.exists %}
-                    <div class="mb-3">
-                        <span class="font-semibold">Topics:</span>
-                        <div class="flex flex-wrap gap-2 mt-1">
-                            {% for topic in page.specific.topics.all %}
-                                <a href="{% pageurl topic.topic %}" class="link link-primary">
-                                    {{ topic.topic }}
-                                </a>{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
+                {% with topics=page.topics.all %}
+                    {% if topics %}
+                        <div class="mb-3">
+                            <span class="font-semibold">Topics:</span>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                {% for topic in topics %}
+                                    <a href="{% pageurl topic.topic %}" class="link link-primary">
+                                        {{ topic.topic }}
+                                    </a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
-                {% endif %}
+                    {% endif %}
+                {% endwith %}
 
-                {% if page.tags.exists %}
-                    <div>
-                        <span class="font-semibold">Tags:</span>
-                        <div class="flex flex-wrap gap-2 mt-1">
-                            {% for tag in page.tags.all %}
-                                <a
-                                    href="{% url 'tags:tagged_page_list' tag.slug %}"
-                                    class="btn btn-outline btn-sm">
-                                    <i class="bi bi-tag me-1" aria-hidden="true"></i>
-                                    {{ tag }}
-                                </a>
-                            {% endfor %}
+                {% with tags=page.tags.all %}
+                    {% if tags %}
+                        <div>
+                            <span class="font-semibold">Tags:</span>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                {% for tag in tags %}
+                                    <a
+                                        href="{% url 'tags:tagged_page_list' tag.slug %}"
+                                        class="btn btn-outline btn-sm">
+                                        <i class="bi bi-tag me-1" aria-hidden="true"></i>
+                                        {{ tag }}
+                                    </a>
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
-                {% endif %}
+                    {% endif %}
+                {% endwith %}
             </footer>
         </article>
     </main>
