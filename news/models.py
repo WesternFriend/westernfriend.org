@@ -3,8 +3,8 @@ from datetime import date, datetime
 
 from django.db import models
 from django.http import HttpRequest
-from modelcluster.fields import ParentalKey
 from modelcluster.contrib.taggit import ClusterTaggableManager
+from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
 from wagtail.admin.panels import (
     FieldPanel,
@@ -69,10 +69,13 @@ class NewsIndexPage(Page):
         # Grouping NewsItems by Topic title
         grouped_news_items = defaultdict(list)
         for item in news_items:
-            if item.topics.count() == 0:
+            # Cache topics list to avoid repeated queries on prefetched data
+            item_topics = list(item.topics.all())
+
+            if len(item_topics) == 0:
                 grouped_news_items[uncategorized_topic].append(item)
 
-            for topic_relation in item.topics.all():
+            for topic_relation in item_topics:
                 title = topic_relation.topic.title
                 grouped_news_items[title].append(item)
 
@@ -154,6 +157,14 @@ class NewsItem(DrupalFields, Page):
         "NewsIndexPage",
     ]
     subpage_types: list[str] = []
+
+    @classmethod
+    def get_queryset(cls):
+        """Optimize related fetches for listings."""
+        return cls.objects.defer_streamfields().prefetch_related(
+            "topics__topic",  # Prefetch NewsItemTopic and related Topic pages
+            "tags",
+        )
 
 
 class NewsItemTopic(Orderable):
