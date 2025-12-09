@@ -69,7 +69,9 @@ class SearchViewTestCase(TestCase):
     def test_search_pagination_out_of_range(self) -> None:
         response = self.client.get("/search/?query=Test&page=100")
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(response.context["paginated_search_results"].page.number, 1)
+        # Page 100 exceeds max_page_limit of 50, so we expect the limit exceeded message
+        self.assertTrue(response.context.get("page_limit_exceeded"))
+        self.assertIsNone(response.context["paginated_search_results"])
 
 
 class SearchOptimizationTestCase(TestCase):

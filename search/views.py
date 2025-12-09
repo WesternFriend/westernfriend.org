@@ -1,4 +1,3 @@
-from django.core.cache import cache
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from wagtail.models import Page
@@ -28,17 +27,6 @@ def search(request: HttpRequest) -> HttpResponse:
                     "page_limit_exceeded": True,
                     "max_page_limit": max_page_limit,
                 },
-            )
-
-        # Try to get cached results
-        cache_key = f"search:{search_query}:{page}:{number_per_page}"
-        cached_results = cache.get(cache_key)
-
-        if cached_results is not None:
-            return render(
-                request,
-                "search/search.html",
-                cached_results,
             )
 
         # Build an optimized queryset and then search it
@@ -77,18 +65,12 @@ def search(request: HttpRequest) -> HttpResponse:
         # Replace the object_list with specific instances
         paginated_search_results.page.object_list = specific_results
 
-    context = {
-        "search_query": search_query,
-        "search_querystring": f"query={search_query}",
-        "paginated_search_results": paginated_search_results,
-    }
-
-    # Cache results for 10 minutes
-    if search_query:
-        cache.set(cache_key, context, 600)
-
     return render(
         request,
         "search/search.html",
-        context,
+        {
+            "search_query": search_query,
+            "search_querystring": f"query={search_query}",
+            "paginated_search_results": paginated_search_results,
+        },
     )
