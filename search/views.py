@@ -32,14 +32,6 @@ def search(request: HttpRequest) -> HttpResponse:
         # Build an optimized queryset and then search it
         search_results = (
             Page.objects.live()  # type: ignore[attr-defined]
-            .only(
-                "id",
-                "content_type_id",
-                "title",
-                "url_path",
-                "slug",
-                "live",
-            )  # Reduce data fetched during initial search
             .select_related(  # Fetch related fields in single query
                 "content_type",
             )
