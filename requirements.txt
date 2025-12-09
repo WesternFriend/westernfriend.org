@@ -203,7 +203,6 @@ django==6.0 \
     #   django-coverage-plugin
     #   django-extensions
     #   django-filter
-    #   django-honeypot
     #   django-modelcluster
     #   django-permissionedforms
     #   django-registration
@@ -237,10 +236,6 @@ django-filter==25.2 \
     --hash=sha256:760e984a931f4468d096f5541787efb8998c61217b73006163bf2f9523fe8f23 \
     --hash=sha256:9c0f8609057309bba611062fe1b720b4a873652541192d232dd28970383633e3
     # via wagtail
-django-honeypot==1.3.0 \
-    --hash=sha256:6ffe08c5f0081155bc3828168e04eb09eb09ba6a0c234ce93790d0b70bdaff08 \
-    --hash=sha256:afe0a24933b1eb8c6f9986abc1178ccabaf0f297c633940300fa2e5b851928ed
-    # via western-friend-website
 django-modelcluster==6.4.1 \
     --hash=sha256:ccc190cd9e22c24900ea2410bff64d444d48f43f0f4aedeed0f6cd94e2536698 \
     --hash=sha256:e736fcee925f83b63218dbf9c869ab50618b0f5e98869a5aa497f7a5331aa263
