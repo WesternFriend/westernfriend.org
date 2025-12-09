@@ -18,16 +18,6 @@ repos:
   #       language: system
   #       files: ^theme/static/
   #       pass_filenames: false
-  - repo: local
-    hooks:
-      # Ensure our project is compatible with Heroku buildpacks
-      # which require a `requirements.txt` file.
-      - id: export-requirements
-        name: Generate requirements.txt from lock file
-        entry: uv export --format requirements-txt --output-file requirements.txt
-        language: system
-        files: ^uv\.lock$
-        pass_filenames: false
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.20.0
     hooks:
