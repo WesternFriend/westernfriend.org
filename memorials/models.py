@@ -1,6 +1,5 @@
 from django.db import models
 from django.http import HttpRequest
-from django_flatpickr.widgets import DatePickerInput
 from wagtail.admin.panels import FieldPanel, PageChooserPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
@@ -53,8 +52,8 @@ class Memorial(DrupalFields, Page):  # type: ignore
 
     content_panels = Page.content_panels + [
         PageChooserPanel("memorial_person"),
-        FieldPanel("date_of_birth", widget=DatePickerInput()),
-        FieldPanel("date_of_death", widget=DatePickerInput()),
+        FieldPanel("date_of_birth"),
+        FieldPanel("date_of_death"),
         FieldPanel("dates_are_approximate"),
         FieldPanel("memorial_minute"),
         PageChooserPanel("memorial_meeting"),

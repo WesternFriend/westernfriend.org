@@ -166,7 +166,6 @@ INSTALLED_APPS = [
     # keep-sorted start
     "django_browser_reload",
     "django_extensions",
-    "django_flatpickr",
     "modelcluster",
     "storages",
     "taggit",
@@ -396,7 +395,6 @@ WAGTAILADMIN_BASE_URL = "/admin"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
-
 
 
 MESSAGE_TAGS = {
