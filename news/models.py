@@ -59,7 +59,8 @@ class NewsIndexPage(Page):
         # and items from selected year
         # reverse chronological order
         news_items = (
-            NewsItem.objects.live()
+            NewsItem.get_queryset()
+            .live()
             .filter(publication_date__year=context["selected_year"])
             .order_by("-publication_date")
         )
