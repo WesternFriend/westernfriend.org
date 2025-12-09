@@ -67,7 +67,6 @@ dependencies = [
     "dj-database-url",
     "django",
     "django-extensions",
-    "django-flatpickr",
     "django-honeypot",
     "django-registration",
     "django-storages",

@@ -1,6 +1,5 @@
 from django.db import models
 from django.http import HttpRequest
-from django_flatpickr.widgets import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
 from modelcluster.fields import ParentalKey  # type: ignore
 from taggit.models import TaggedItemBase  # type: ignore
@@ -100,7 +99,6 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
             children=[
                 FieldPanel(
                     "publication_date",
-                    widget=DatePickerInput(),
                 ),
                 FieldPanel(
                     "publication_date_is_approximate",

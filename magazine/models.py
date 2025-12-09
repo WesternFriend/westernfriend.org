@@ -4,7 +4,6 @@ from datetime import timedelta
 from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from django_flatpickr.widgets import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.models import ClusterableModel  # type: ignore
@@ -197,7 +196,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
     ]
 
     content_panels = Page.content_panels + [
-        FieldPanel("publication_date", widget=DatePickerInput()),
+        FieldPanel("publication_date"),
         FieldPanel("cover_image"),
     ]
 
@@ -596,7 +595,7 @@ class ArchiveIssue(DrupalFields, Page):  # type: ignore
     )
 
     content_panels = Page.content_panels + [
-        FieldPanel("publication_date", widget=DatePickerInput()),
+        FieldPanel("publication_date"),
         FieldPanel("internet_archive_identifier"),
         FieldPanel("western_friend_volume"),
         InlinePanel(
