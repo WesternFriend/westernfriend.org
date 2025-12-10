@@ -342,12 +342,25 @@ class SearchTemplateConsistencyTestCase(TestCase):
 
     def test_custom_search_templates_exist(self) -> None:
         """Test that expected custom search templates exist."""
-        # Magazine article template should exist
-        try:
-            template = self.template_loader("search/magazine_article.html")
-            self.assertIsNotNone(template)
-        except TemplateDoesNotExist as e:
-            self.fail(f"Magazine article search template should exist: {e}")
+        # All custom search templates should exist
+        expected_templates = [
+            "search/magazine_article.html",
+            "search/event.html",
+            "search/meeting.html",
+            "search/organization.html",
+            "search/library_item.html",
+            "search/online_worship.html",
+            "search/magazine_issue.html",
+            "search/community_directory.html",
+        ]
+
+        for template_name in expected_templates:
+            with self.subTest(template=template_name):
+                try:
+                    template = self.template_loader(template_name)
+                    self.assertIsNotNone(template)
+                except TemplateDoesNotExist as e:
+                    self.fail(f"Template {template_name} should exist: {e}")
 
 
 class CustomSearchTemplateRenderingTestCase(TestCase):
