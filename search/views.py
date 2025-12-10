@@ -59,23 +59,45 @@ def search(request: HttpRequest) -> HttpResponse:
         # Note: Only magazine articles have complex relationships (authors, parent issue)
         # Other content types (events, meetings, library items, etc.) only access
         # simple fields, so no additional prefetching is needed for them
-        specific_queryset = (
-            Page.objects.filter(id__in=[p.id for p in paginated_results])
-            .specific()
-            .prefetch_related(
-                # For magazine articles - prefetch authors and their author pages
-                "magazinearticle__authors__author",
-            )
-            .select_related(
-                # Fetch content type for all pages
-                "content_type",
-                # Fetch parent pages (used by magazine articles to get issue info)
-                "parent_page",
-            )
+        base_queryset = Page.objects.filter(
+            id__in=[p.id for p in paginated_results],
+        ).select_related(
+            # Fetch content type for all pages
+            "content_type",
+            # Fetch parent pages (used by magazine articles to get issue info)
+            "parent_page",
         )
 
+        # Get specific instances
+        specific_instances = list(base_queryset.specific())
+
+        # Apply prefetch to the specific instances
+        # This must be done after .specific() to work on the concrete model instances
+        from magazine.models import MagazineArticle
+
+        magazine_article_ids = [
+            page.id for page in specific_instances if isinstance(page, MagazineArticle)
+        ]
+
+        if magazine_article_ids:
+            # Re-fetch magazine articles with prefetch applied
+            prefetched_articles = MagazineArticle.objects.filter(
+                id__in=magazine_article_ids,
+            ).prefetch_related("authors__author")
+
+            # Create mapping for replacement
+            article_map = {article.id: article for article in prefetched_articles}
+
+            # Replace magazine articles with prefetched versions
+            specific_instances = [
+                article_map.get(page.id, page)
+                if isinstance(page, MagazineArticle)
+                else page
+                for page in specific_instances
+            ]
+
         # Create a mapping of page IDs to specific instances
-        specific_map = {page.id: page for page in specific_queryset}
+        specific_map = {page.id: page for page in specific_instances}
 
         # Replace with specific instances in the same order
         paginated_search_results.page.object_list = [
