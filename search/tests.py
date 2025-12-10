@@ -137,6 +137,59 @@ class SearchOptimizationTestCase(TestCase):
                         _ = author_link.author.title if author_link.author else ""
 
     @override_settings(DEBUG=True)
+    def test_search_prefetches_parent_pages(self) -> None:
+        """Test that search view prefetches parent pages for magazine articles."""
+
+        # Perform the search
+        response = self.client.get(reverse("search"), {"query": "Test Article"})
+
+        # Verify the search worked
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        search_results = response.context["paginated_search_results"].page.object_list
+
+        # With parent page prefetching, accessing get_parent().specific should not trigger queries
+        with self.assertNumQueries(0):
+            for result in search_results:
+                if isinstance(result, MagazineArticle):
+                    # Access parent page - should be prefetched
+                    parent = result.get_parent()
+                    # Access specific parent - should also be prefetched
+                    _ = parent.specific
+
+    @override_settings(DEBUG=True)
+    def test_search_full_request_query_count(self) -> None:
+        """Test total queries for complete search request including template rendering.
+
+        This is the most important test - it catches N+1 issues that only appear
+        during template rendering (like the parent page issue we had).
+
+        Expected query breakdown for search with 2 magazine articles:
+        1. Content type lookup for search
+        2. Count query for pagination
+        3. Search query (main results)
+        4. Magazine articles with departments (select_related)
+        5. Prefetch authors
+        6. Prefetch author pages
+        7. Prefetch tags
+        8-9. Parent pages (1 bulk query + specific())
+        10-12. Additional ancestor navigation (magazine index)
+        13-20. Template rendering (navigation, site, locale queries)
+
+        Total: 19 queries (constant regardless of number of results)
+        """
+        # Count queries for the ENTIRE request/response cycle
+        with self.assertNumQueries(19):  # Baseline with all optimizations
+            response = self.client.get(reverse("search"), {"query": "Test Article"})
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        # Verify we got results
+        self.assertGreater(
+            len(response.context["paginated_search_results"].page.object_list),
+            0,
+        )
+
+    @override_settings(DEBUG=True)
     def test_search_query_optimization(self) -> None:
         """Test that search queries are optimized to avoid N+1 database queries."""
         # Perform the search

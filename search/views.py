@@ -77,19 +77,46 @@ def search(request: HttpRequest) -> HttpResponse:
             # - defer_streamfields() to avoid loading large body/body_migrated fields
             # - select_related("department") for efficient department access
             # - prefetch_related("authors__author", "tags") for related data
-            magazine_articles = MagazineArticle.get_queryset().filter(
-                id__in=[p.id for p in magazine_article_pages],
+            magazine_articles = list(
+                MagazineArticle.get_queryset().filter(
+                    id__in=[p.id for p in magazine_article_pages],
+                ),
             )
+
+            # Prefetch parent pages (magazine issues) to avoid N+1 queries in templates
+            # Templates use article.get_parent().specific, which triggers queries
+            # We need to manually cache parents since Wagtail's get_parent() uses path lookups
+            parent_paths = [
+                article.path[: -article.steplen] for article in magazine_articles
+            ]
+
+            if parent_paths:
+                # Type checker doesn't recognize Wagtail's .specific() method on PageQuerySet
+                parent_pages = Page.objects.filter(path__in=parent_paths).specific()  # type: ignore[attr-defined]
+                parent_map = {page.path: page for page in parent_pages}
+
+                # Manually cache parent on each article by overriding get_parent()
+                # We use a closure to capture the parent and return it
+                for article in magazine_articles:
+                    parent_path = article.path[: -article.steplen]
+                    if parent_path in parent_map:
+                        cached_parent = parent_map[parent_path]
+                        # Override get_parent method to return cached parent
+                        article.get_parent = (
+                            lambda cached_parent=cached_parent: cached_parent
+                        )
+
             specific_instances.extend(magazine_articles)
 
         # Fetch other page types using standard .specific()
         if other_pages:
+            # Type checker doesn't recognize Wagtail's .specific() method on PageQuerySet
             other_specific = (
                 Page.objects.filter(
                     id__in=[p.id for p in other_pages],
                 )
                 .select_related("content_type")
-                .specific()
+                .specific()  # type: ignore[attr-defined]
             )
             specific_instances.extend(other_specific)
 
