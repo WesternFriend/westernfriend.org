@@ -165,18 +165,32 @@ class SearchOptimizationTestCase(TestCase):
         during template rendering (like the parent page issue we had).
 
         Expected query breakdown for search with 2 magazine articles:
-        1. Content type lookup for search
-        2. Count query for pagination
-        3. Search query (main results)
+
+        SEARCH-SPECIFIC QUERIES (12 queries):
+        1. Content type lookup for searchable models
+        2. Count query for pagination total
+        3. Search query (main results with ranking)
         4. Magazine articles with departments (select_related)
-        5. Prefetch authors
-        6. Prefetch author pages
-        7. Prefetch tags
-        8-9. Parent pages (1 bulk query + specific())
-        10-12. Additional ancestor navigation (magazine index)
-        13-20. Template rendering (navigation, site, locale queries)
+        5. Prefetch magazine article authors (MagazineArticleAuthor)
+        6. Prefetch author pages (Person pages)
+        7. Prefetch article tags
+        8. Parent pages lookup (path-based, for magazine issues)
+        9. Parent pages .specific() call (convert to MagazineIssue)
+        10-11. Additional ancestor queries (for breadcrumbs/navigation in templates)
+        12. Magazine index page query (template ancestor navigation)
+
+        BASE TEMPLATE OVERHEAD (7 queries):
+        13. Site lookup by hostname (wagtailcore_site)
+        14. Default site lookup (wagtailcore_site)
+        15. Navigation menu settings (navigation_navigationmenusetting)
+        16-17. Navigation settings INSERT (test setup only, not in production)
+        18. Site + root page + locale join
+        19. Page translation lookup by translation_key
 
         Total: 19 queries (constant regardless of number of results)
+
+        KEY INSIGHT: Only queries 1-12 scale with search complexity. The base template
+        queries (13-19) are the same for ANY page in the site, not search-specific.
         """
         # Count queries for the ENTIRE request/response cycle
         with self.assertNumQueries(19):  # Baseline with all optimizations
