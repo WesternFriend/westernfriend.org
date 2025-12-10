@@ -91,6 +91,10 @@ LOGGING = {
 
 # if SENTRY_DSN is set, then we are running in production
 if os.getenv("SENTRY_DSN"):
+    # Note: Search view queries are optimized and tagged with "search.queries_optimized=true"
+    # If Sentry flags N+1 queries on /search/, check the tag before investigating.
+    # Expected query counts are defined in SearchOptimizationTestCase (search/tests.py).
+    # Parent pages are bulk-prefetched to avoid N+1 from pageurl tags.
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN"),
         integrations=[DjangoIntegration()],

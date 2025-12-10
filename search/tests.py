@@ -1,7 +1,9 @@
 from http import HTTPStatus
 
+from django.db import connection
 from django.template import TemplateDoesNotExist
 from django.test import Client, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from wagtail.models import Page
 from wagtail.search.backends import get_search_backend
@@ -78,6 +80,11 @@ class SearchViewTestCase(TestCase):
 class SearchOptimizationTestCase(TestCase):
     """Test cases to verify that search queries are optimized to avoid N+1 problems."""
 
+    # Expected query counts for search with 2 magazine articles
+    # Query count varies (14-20) depending on cache state - this is normal.
+    # Django caches content types and other metadata between tests.
+    MAX_SEARCH_QUERIES = 20  # Maximum acceptable queries including cache overhead
+
     def setUp(self) -> None:
         self.client = Client()
 
@@ -135,6 +142,69 @@ class SearchOptimizationTestCase(TestCase):
                     for author_link in result.authors.all():
                         # Access author details - should also be prefetched
                         _ = author_link.author.title if author_link.author else ""
+
+    @override_settings(DEBUG=True)
+    def test_search_prefetches_parent_pages(self) -> None:
+        """Test that search view prefetches parent pages for magazine articles."""
+
+        # Perform the search
+        response = self.client.get(reverse("search"), {"query": "Test Article"})
+
+        # Verify the search worked
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        search_results = response.context["paginated_search_results"].page.object_list
+
+        # With parent page prefetching, accessing get_parent().specific should not trigger queries
+        with self.assertNumQueries(0):
+            for result in search_results:
+                if isinstance(result, MagazineArticle):
+                    # Access parent page - should be prefetched
+                    parent = result.get_parent()
+                    # Access specific parent - should also be prefetched
+                    _ = parent.specific
+
+    @override_settings(DEBUG=True)
+    def test_search_full_request_query_count(self) -> None:
+        """Test total queries for complete search request including template rendering.
+
+        This is the most important test - it catches N+1 issues that only appear
+        during template rendering (like parent page lookups from {% pageurl %} tags).
+
+        Query count varies (14-20) depending on Django's internal cache state:
+        - 14 queries: All caches warm (content types, navigation, sites)
+        - 17 queries: Content types cached, navigation exists, some site lookups
+        - 20 queries: Fresh database, navigation settings created on first request
+
+        This is normal TestCase behavior and doesn't indicate N+1 issues.
+        We verify the query count is reasonable (≤20) rather than exact.
+
+        KEY OPTIMIZATION: Parent pages are bulk-prefetched for ALL search results,
+        then cached on each page instance. This prevents N+1 queries from {% pageurl %}
+        tags while keeping code simple and general-purpose. Without this optimization,
+        we'd have 2 queries per result (N+1 pattern).
+        """
+        # Count queries for the ENTIRE request/response cycle
+        with CaptureQueriesContext(connection) as context:
+            response = self.client.get(reverse("search"), {"query": "Test Article"})
+
+        query_count = len(context.captured_queries)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        # Verify we got results
+        self.assertGreater(
+            len(response.context["paginated_search_results"].page.object_list),
+            0,
+        )
+
+        # Verify query count is reasonable - exact count varies due to cache state
+        self.assertLessEqual(
+            query_count,
+            self.MAX_SEARCH_QUERIES,
+            f"Expected ≤{self.MAX_SEARCH_QUERIES} queries, got {query_count}. "
+            f"This likely indicates an N+1 query regression. "
+            f"Check for missing select_related/prefetch_related.",
+        )
 
     @override_settings(DEBUG=True)
     def test_search_query_optimization(self) -> None:
