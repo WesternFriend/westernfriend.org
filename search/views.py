@@ -64,8 +64,6 @@ def search(request: HttpRequest) -> HttpResponse:
         ).select_related(
             # Fetch content type for all pages
             "content_type",
-            # Fetch parent pages (used by magazine articles to get issue info)
-            "parent_page",
         )
 
         # Get specific instances
