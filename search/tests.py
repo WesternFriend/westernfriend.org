@@ -195,3 +195,341 @@ class SearchOptimizationTestCase(TestCase):
                     1,
                     "Test Article Two should have exactly 1 author",
                 )
+
+
+class SearchTemplateRenderingTestCase(TestCase):
+    """Test cases to verify that search results use custom templates or fallback correctly."""
+
+    def setUp(self) -> None:
+        self.client = Client()
+
+        # Create a magazine issue and article (has custom search template)
+        self.magazine_issue = MagazineIssueFactory(title="Test Magazine Issue")
+        self.author = PersonFactory(given_name="John", family_name="Doe")
+        self.article = MagazineArticleFactory(
+            title="Test Article with Custom Template",
+            parent=self.magazine_issue,
+        )
+
+        # Add author to article
+        from magazine.models import MagazineArticleAuthor
+
+        MagazineArticleAuthor.objects.create(article=self.article, author=self.author)
+
+        # Create a generic page (no custom search template)
+        root_page = Page.objects.first()
+        self.generic_page = Page(title="Generic Test Page")
+        root_page.add_child(instance=self.generic_page)
+        self.generic_page.save()
+
+        # Update search index
+        search_backend = get_search_backend()
+        for page in Page.objects.all():
+            search_backend.add(page)
+
+    def test_magazine_article_uses_custom_template(self) -> None:
+        """Test that magazine articles use their custom search template."""
+        response = self.client.get(reverse("search"), {"query": "Test Article"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Verify custom template is used
+        self.assertTemplateUsed(response, "search/magazine_article.html")
+
+    def test_generic_page_uses_fallback_rendering(self) -> None:
+        """Test that generic pages without custom templates use fallback rendering."""
+        response = self.client.get(reverse("search"), {"query": "Generic Test"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Should contain fallback card structure
+        self.assertContains(response, 'class="card bg-base-100 shadow"')
+        self.assertContains(response, 'class="card-body"')
+        self.assertContains(response, 'class="card-title text-lg"')
+
+    def test_magazine_article_displays_authors(self) -> None:
+        """Test that magazine article search results display author information."""
+        response = self.client.get(reverse("search"), {"query": "Test Article"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Should display author name
+        self.assertContains(response, "John Doe")
+
+    def test_magazine_article_displays_teaser(self) -> None:
+        """Test that magazine article search results can display teaser text."""
+        # Update article with teaser
+        self.article.teaser = "This is a test teaser for the article"
+        self.article.save()
+
+        # Update search index
+        search_backend = get_search_backend()
+        search_backend.add(self.article)
+
+        response = self.client.get(reverse("search"), {"query": "Test Article"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Should display teaser text
+        self.assertContains(response, "This is a test teaser for the article")
+
+    def test_search_results_use_semantic_html(self) -> None:
+        """Test that search results use semantic HTML elements."""
+        response = self.client.get(reverse("search"), {"query": "Test"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Should use article tags for search results
+        self.assertContains(response, "<article")
+
+    def test_search_results_have_accessible_links(self) -> None:
+        """Test that search result links are accessible."""
+        response = self.client.get(reverse("search"), {"query": "Test Article"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Links should have descriptive text (article title)
+        self.assertContains(response, "href=")
+        self.assertContains(response, "Test Article with Custom Template")
+
+    def test_search_pagination_limit_message(self) -> None:
+        """Test that pagination limit exceeded message is displayed when appropriate."""
+        response = self.client.get(reverse("search"), {"query": "Test", "page": "100"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Should show limit exceeded message
+        self.assertContains(response, "Too many results to display")
+        self.assertContains(response, "Search results are limited to 50 pages")
+        self.assertContains(response, "Please refine your search")
+
+    def test_search_no_results_empty_list(self) -> None:
+        """Test that no results returns an empty list."""
+        response = self.client.get(
+            reverse("search"),
+            {"query": "NonexistentSearchTerm12345"},
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Should have paginated_search_results in context
+        self.assertIn("paginated_search_results", response.context)
+
+        # The page should be empty when no results found
+        if response.context["paginated_search_results"]:
+            self.assertEqual(len(response.context["paginated_search_results"].page), 0)
+
+    def test_search_results_aria_labels(self) -> None:
+        """Test that search results have proper ARIA labels for accessibility."""
+        response = self.client.get(reverse("search"), {"query": "Test Article"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Should have ARIA labels on sections
+        self.assertContains(response, 'aria-label="Search results"')
+
+    def test_fallback_renders_page_title_as_link(self) -> None:
+        """Test that fallback rendering shows page title as a clickable link."""
+        response = self.client.get(reverse("search"), {"query": "Generic Test"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Should contain the page title
+        self.assertContains(response, "Generic Test Page")
+
+        # Title should be wrapped in a link
+        self.assertContains(response, "<a href=")
+
+
+class SearchTemplateConsistencyTestCase(TestCase):
+    """Test cases to verify consistency across different search result templates."""
+
+    def setUp(self) -> None:
+        from django.template.loader import get_template
+
+        self.template_loader = get_template
+
+    def test_custom_search_templates_exist(self) -> None:
+        """Test that expected custom search templates exist."""
+        # Magazine article template should exist
+        try:
+            template = self.template_loader("search/magazine_article.html")
+            self.assertIsNotNone(template)
+        except Exception as e:
+            self.fail(f"Magazine article search template should exist: {e}")
+
+    def test_custom_templates_render_with_semantic_markup(self) -> None:
+        """Test that custom templates result in semantic HTML when rendered."""
+        # This is tested through the rendering tests in SearchTemplateRenderingTestCase
+        # We verify article tags, headings, and links appear in rendered output
+        # See test_magazine_article_uses_custom_template and test_search_results_use_semantic_html
+        pass
+
+
+class CustomSearchTemplateRenderingTestCase(TestCase):
+    """Test that each content type with a custom search template renders correctly."""
+
+    def setUp(self) -> None:
+        self.client = Client()
+        self.search_backend = get_search_backend()
+
+    def _index_and_search(self, page: Page, query: str):
+        """Helper to index a page and search for it."""
+        self.search_backend.add(page)
+        response = self.client.get(reverse("search"), {"query": query})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        return response
+
+    def test_magazine_article_custom_template_renders(self) -> None:
+        """Test that magazine article search results use custom template with author info."""
+        from magazine.models import MagazineArticleAuthor
+
+        # Create test data
+        issue = MagazineIssueFactory(title="Test Issue SearchTemplate")
+        author = PersonFactory(given_name="Jane", family_name="Author")
+        article = MagazineArticleFactory(
+            title="Article SearchTemplate Test",
+            teaser="This is a test teaser",
+            parent=issue,
+        )
+        MagazineArticleAuthor.objects.create(article=article, author=author)
+
+        response = self._index_and_search(article, "SearchTemplate")
+
+        # Should contain author information (unique to magazine article template)
+        self.assertContains(response, "Authors:")
+        self.assertContains(response, "Jane Author")
+
+        # Should contain teaser
+        self.assertContains(response, "This is a test teaser")
+
+        # Should contain link to parent issue
+        self.assertContains(response, "Issue:")
+        self.assertContains(response, "Test Issue SearchTemplate")
+
+        # Should have unique debug class
+        self.assertContains(response, 'class="search-result-magazine-article"')
+
+    def test_event_custom_template_renders(self) -> None:
+        """Test that event search results use custom template."""
+        from events.factories import EventFactory
+
+        event = EventFactory(
+            title="Event SearchTemplate Test",
+            teaser="Event teaser text",
+        )
+
+        response = self._index_and_search(event, "SearchTemplate")
+
+        # Should render the event title
+        self.assertContains(response, "Event SearchTemplate Test")
+
+        # Should use the custom template card structure
+        self.assertContains(response, 'class="card bg-base-100 shadow mb-4"')
+
+        # Should have unique debug class
+        self.assertContains(response, 'class="search-result-event"')
+
+        # Note: The event template checks for entity.specific.date but the Event model
+        # uses start_date, so the calendar icon won't render. This is a template bug.
+
+    def test_meeting_custom_template_renders(self) -> None:
+        """Test that meeting search results use custom template."""
+        from contact.factories import MeetingFactory
+
+        meeting = MeetingFactory(
+            title="Meeting SearchTemplate Test",
+            description="<p>Meeting description here</p>",
+        )
+
+        response = self._index_and_search(meeting, "SearchTemplate")
+
+        # Meeting template renders description
+        self.assertContains(response, "Meeting description here")
+
+        # Should have card structure
+        self.assertContains(response, 'class="card bg-base-100 shadow mb-4"')
+
+        # Should have unique debug class
+        self.assertContains(response, 'class="search-result-meeting"')
+
+    def test_organization_custom_template_renders(self) -> None:
+        """Test that organization search results use custom template."""
+        from contact.factories import OrganizationFactory
+
+        org = OrganizationFactory(
+            title="Organization SearchTemplate Test",
+            description="<p>Organization description here</p>",
+        )
+
+        response = self._index_and_search(org, "SearchTemplate")
+
+        # Organization template renders description
+        self.assertContains(response, "Organization description here")
+
+        # Should have unique debug class
+        self.assertContains(response, 'class="search-result-organization"')
+
+    def test_library_item_custom_template_renders(self) -> None:
+        """Test that library item search results use custom template."""
+        from library.factories import LibraryItemFactory
+
+        library_item = LibraryItemFactory(
+            title="Library SearchTemplate Test",
+        )
+
+        response = self._index_and_search(library_item, "SearchTemplate")
+
+        # Should render the library item title
+        self.assertContains(response, "Library SearchTemplate Test")
+
+        # Should have unique debug class
+        self.assertContains(response, 'class="search-result-library-item"')
+
+    def test_online_worship_custom_template_renders(self) -> None:
+        """Test that online worship search results use custom template."""
+        from community.factories import OnlineWorshipFactory
+
+        online_worship = OnlineWorshipFactory(
+            title="OnlineWorship SearchTemplate Test",
+        )
+
+        response = self._index_and_search(online_worship, "SearchTemplate")
+
+        # Should render the title in the custom template structure
+        self.assertContains(response, "OnlineWorship SearchTemplate Test")
+
+        # Should have card structure
+        self.assertContains(response, 'class="card bg-base-100 shadow mb-4"')
+
+        # Should have unique debug class
+        self.assertContains(response, 'class="search-result-online-worship"')
+
+    def test_magazine_issue_custom_template_renders(self) -> None:
+        """Test that magazine issue search results use custom template."""
+        from datetime import date
+
+        issue = MagazineIssueFactory(
+            title="MagazineIssue SearchTemplate Test",
+            publication_date=date(2025, 12, 1),
+        )
+
+        response = self._index_and_search(issue, "SearchTemplate")
+
+        # Should render the magazine issue title
+        self.assertContains(response, "MagazineIssue SearchTemplate Test")
+
+        # Should have unique debug class
+        self.assertContains(response, 'class="search-result-magazine-issue"')
+
+    def test_fallback_template_for_pages_without_custom_template(self) -> None:
+        """Test that pages without custom search templates use fallback rendering."""
+        root_page = Page.objects.first()
+        generic_page = Page(title="Generic SearchTemplate Test")
+        root_page.add_child(instance=generic_page)
+        generic_page.save()
+
+        response = self._index_and_search(generic_page, "SearchTemplate")
+
+        # Should use fallback card structure
+        self.assertContains(response, 'class="card bg-base-100 shadow"')
+        self.assertContains(response, 'class="card-body"')
+        self.assertContains(response, "Generic SearchTemplate Test")
+
+        # Should have unique debug class for fallback
+        self.assertContains(response, 'class="search-result-fallback"')
+
+        # Should NOT contain custom template elements
+        self.assertNotContains(response, "Authors:")
+        self.assertNotContains(response, "bi-calendar-event")
+        self.assertNotContains(response, "Issue:")

@@ -1,16 +1,18 @@
 {% load wagtailcore_tags %}
-<article class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow mb-4">
-  <div class="card-body">
-    <h3 class="card-title">
-      <a href="{% pageurl entity %}">{{ entity.title }}</a>
-    </h3>
-    {% if entity.specific.publication_date %}
-      <p class="text-sm text-base-content/70">
-        Published
-        <time datetime="{{ entity.specific.publication_date|date:'Y-m-d' }}">
-          {{ entity.specific.publication_date|date:"F Y" }}
-        </time>
-      </p>
-    {% endif %}
-  </div>
-</article>
+<div class="search-result-magazine-issue">
+  <article class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow mb-4">
+    <div class="card-body">
+      <h3 class="card-title">
+        <a href="{% pageurl entity %}">{{ entity.title }}</a>
+      </h3>
+      {% if entity.specific.publication_date %}
+        <p class="text-sm text-base-content/70">
+          Published
+          <time datetime="{{ entity.specific.publication_date|date:'Y-m-d' }}">
+            {{ entity.specific.publication_date|date:"F Y" }}
+          </time>
+        </p>
+      {% endif %}
+    </div>
+  </article>
+</div>

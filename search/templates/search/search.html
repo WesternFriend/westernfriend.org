@@ -52,15 +52,17 @@
                         {% if result.specific.search_template %}
                             {% include result.specific.search_template with entity=result %}
                         {% else %}
-                            <article class="card bg-base-100 shadow">
-                                <div class="card-body">
-                                    <h2 class="card-title text-lg">
-                                        <a href="{% pageurl result %}">
-                                            {{ result }}
-                                        </a>
-                                    </h2>
-                                </div>
-                            </article>
+                            <div class="search-result-fallback">
+                                <article class="card bg-base-100 shadow">
+                                    <div class="card-body">
+                                        <h2 class="card-title text-lg">
+                                            <a href="{% pageurl result %}">
+                                                {{ result }}
+                                            </a>
+                                        </h2>
+                                    </div>
+                                </article>
+                            </div>
                         {% endif %}
                     </li>
                 {% endfor %}

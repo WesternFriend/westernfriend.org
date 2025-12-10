@@ -94,8 +94,6 @@ class UserModelTest(TestCase):
         self.assertFalse(self.user.is_subscriber)
 
 
-
-
 class CustomLoginViewTests(TestCase):
     def setUp(self) -> None:
         self.factory = RequestFactory()
