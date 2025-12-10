@@ -114,6 +114,7 @@ class SearchOptimizationTestCase(TestCase):
     def test_search_prefetches_related_data(self) -> None:
         """Test that search view prefetches related data to avoid N+1 queries."""
         from django.db import connection
+        from django.test.utils import CaptureQueriesContext
 
         # Perform the search and capture query count
         # Note: This count includes Django setup queries, search queries, and template rendering
@@ -125,19 +126,17 @@ class SearchOptimizationTestCase(TestCase):
         # Now access the data in templates - should not trigger additional queries
         search_results = response.context["paginated_search_results"].page.object_list
 
-        # Count queries when accessing authors (like templates do)
-        query_count_before = len(connection.queries)
+        # Count queries when accessing authors (like templates do), in an isolated context
+        with CaptureQueriesContext(connection) as ctx:
+            for result in search_results:
+                if hasattr(result, "magazinearticle"):
+                    # Access authors - should be prefetched
+                    _ = list(result.magazinearticle.authors.all())
+                    for author_link in result.magazinearticle.authors.all():
+                        # Access author details - should also be prefetched
+                        _ = author_link.author.title if author_link.author else ""
 
-        for result in search_results:
-            if hasattr(result, "magazinearticle"):
-                # Access authors - should be prefetched
-                _ = list(result.magazinearticle.authors.all())
-                for author_link in result.magazinearticle.authors.all():
-                    # Access author details - should also be prefetched
-                    _ = author_link.author.title if author_link.author else ""
-
-        query_count_after = len(connection.queries)
-        additional_queries = query_count_after - query_count_before
+        additional_queries = len(ctx)
 
         # Should be 0 additional queries if prefetch works perfectly
         # Allow a small number for any edge cases
