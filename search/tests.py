@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from django.template import TemplateDoesNotExist
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from wagtail.models import Page
@@ -345,15 +346,8 @@ class SearchTemplateConsistencyTestCase(TestCase):
         try:
             template = self.template_loader("search/magazine_article.html")
             self.assertIsNotNone(template)
-        except Exception as e:
+        except TemplateDoesNotExist as e:
             self.fail(f"Magazine article search template should exist: {e}")
-
-    def test_custom_templates_render_with_semantic_markup(self) -> None:
-        """Test that custom templates result in semantic HTML when rendered."""
-        # This is tested through the rendering tests in SearchTemplateRenderingTestCase
-        # We verify article tags, headings, and links appear in rendered output
-        # See test_magazine_article_uses_custom_template and test_search_results_use_semantic_html
-        pass
 
 
 class CustomSearchTemplateRenderingTestCase(TestCase):
@@ -511,6 +505,9 @@ class CustomSearchTemplateRenderingTestCase(TestCase):
 
         # Should have unique debug class
         self.assertContains(response, 'class="search-result-magazine-issue"')
+
+        # Should render publication date
+        self.assertContains(response, "December 2025")
 
     def test_fallback_template_for_pages_without_custom_template(self) -> None:
         """Test that pages without custom search templates use fallback rendering."""
