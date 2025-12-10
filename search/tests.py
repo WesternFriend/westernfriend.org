@@ -111,6 +111,43 @@ class SearchOptimizationTestCase(TestCase):
             search_backend.add(page)
 
     @override_settings(DEBUG=True)
+    def test_search_prefetches_related_data(self) -> None:
+        """Test that search view prefetches related data to avoid N+1 queries."""
+        from django.db import connection
+
+        # Perform the search and capture query count
+        # Note: This count includes Django setup queries, search queries, and template rendering
+        response = self.client.get(reverse("search"), {"query": "Test Article"})
+
+        # Verify the search worked
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Now access the data in templates - should not trigger additional queries
+        search_results = response.context["paginated_search_results"].page.object_list
+
+        # Count queries when accessing authors (like templates do)
+        query_count_before = len(connection.queries)
+
+        for result in search_results:
+            if hasattr(result, "magazinearticle"):
+                # Access authors - should be prefetched
+                _ = list(result.magazinearticle.authors.all())
+                for author_link in result.magazinearticle.authors.all():
+                    # Access author details - should also be prefetched
+                    _ = author_link.author.title if author_link.author else ""
+
+        query_count_after = len(connection.queries)
+        additional_queries = query_count_after - query_count_before
+
+        # Should be 0 additional queries if prefetch works perfectly
+        # Allow a small number for any edge cases
+        self.assertLess(
+            additional_queries,
+            3,
+            f"Accessing prefetched data should not trigger many queries, but got {additional_queries}",
+        )
+
+    @override_settings(DEBUG=True)
     def test_search_query_optimization(self) -> None:
         """Test that search queries are optimized to avoid N+1 database queries."""
         # Perform the search

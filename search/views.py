@@ -49,13 +49,38 @@ def search(request: HttpRequest) -> HttpResponse:
         page,
     )
 
-    # Call .specific() only on the paginated slice to reduce overhead
-    if search_query:
+    # Optimize specific page loading with prefetch_related for common patterns
+    if search_query and paginated_search_results:
+        # Get the base queryset for the paginated results
         paginated_results = paginated_search_results.page.object_list
-        specific_results = [result.specific for result in paginated_results]
 
-        # Replace the object_list with specific instances
-        paginated_search_results.page.object_list = specific_results
+        # Use Wagtail's bulk specific() method to fetch all specific types efficiently
+        # Also prefetch common related data to avoid N+1 queries
+        # Note: Only magazine articles have complex relationships (authors, parent issue)
+        # Other content types (events, meetings, library items, etc.) only access
+        # simple fields, so no additional prefetching is needed for them
+        specific_queryset = (
+            Page.objects.filter(id__in=[p.id for p in paginated_results])
+            .specific()
+            .prefetch_related(
+                # For magazine articles - prefetch authors and their author pages
+                "magazinearticle__authors__author",
+            )
+            .select_related(
+                # Fetch content type for all pages
+                "content_type",
+                # Fetch parent pages (used by magazine articles to get issue info)
+                "parent_page",
+            )
+        )
+
+        # Create a mapping of page IDs to specific instances
+        specific_map = {page.id: page for page in specific_queryset}
+
+        # Replace with specific instances in the same order
+        paginated_search_results.page.object_list = [
+            specific_map.get(p.id, p) for p in paginated_results
+        ]
 
     return render(
         request,
