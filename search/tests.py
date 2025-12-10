@@ -364,14 +364,23 @@ class SearchTemplateConsistencyTestCase(TestCase):
 
 
 class CustomSearchTemplateRenderingTestCase(TestCase):
-    """Test that each content type with a custom search template renders correctly."""
+    """Test that each content type with a custom search template renders correctly.
+
+    Note: Django's TestCase provides transaction isolation, so each test runs
+    in its own transaction and database changes are rolled back after each test.
+    This ensures search index isolation between tests.
+    """
 
     def setUp(self) -> None:
         self.client = Client()
         self.search_backend = get_search_backend()
 
     def _index_and_search(self, page: Page, query: str):
-        """Helper to index a page and search for it."""
+        """Helper to index a page and search for it.
+
+        The database search backend works synchronously, so the page is
+        immediately searchable after adding it to the index.
+        """
         self.search_backend.add(page)
         response = self.client.get(reverse("search"), {"query": query})
         self.assertEqual(response.status_code, HTTPStatus.OK)
