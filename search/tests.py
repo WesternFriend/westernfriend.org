@@ -78,6 +78,12 @@ class SearchViewTestCase(TestCase):
 class SearchOptimizationTestCase(TestCase):
     """Test cases to verify that search queries are optimized to avoid N+1 problems."""
 
+    # Expected query counts for search with 2 magazine articles
+    # These are the source of truth - update these when optimizations change
+    EXPECTED_SEARCH_QUERIES = 11  # Search-specific queries (incl. parent prefetch)
+    EXPECTED_BASE_TEMPLATE_QUERIES = 6  # Navigation, site lookups, etc.
+    EXPECTED_TOTAL_QUERIES = EXPECTED_SEARCH_QUERIES + EXPECTED_BASE_TEMPLATE_QUERIES
+
     def setUp(self) -> None:
         self.client = Client()
 
@@ -162,38 +168,20 @@ class SearchOptimizationTestCase(TestCase):
         """Test total queries for complete search request including template rendering.
 
         This is the most important test - it catches N+1 issues that only appear
-        during template rendering (like the parent page issue we had).
+        during template rendering (like parent page lookups from {% pageurl %} tags).
 
-        Expected query breakdown for search with 2 magazine articles:
+        Query breakdown for search with 2 magazine articles (same parent):
+        - EXPECTED_SEARCH_QUERIES (11): Search, prefetches, and parent page bulk fetch
+        - EXPECTED_BASE_TEMPLATE_QUERIES (6): Navigation, site lookups (constant overhead)
+        - EXPECTED_TOTAL_QUERIES (17): Sum of above
 
-        SEARCH-SPECIFIC QUERIES (12 queries):
-        1. Content type lookup for searchable models
-        2. Count query for pagination total
-        3. Search query (main results with ranking)
-        4. Magazine articles with departments (select_related)
-        5. Prefetch magazine article authors (MagazineArticleAuthor)
-        6. Prefetch author pages (Person pages)
-        7. Prefetch article tags
-        8. Parent pages lookup (path-based, for magazine issues)
-        9. Parent pages .specific() call (convert to MagazineIssue)
-        10-11. Additional ancestor queries (for breadcrumbs/navigation in templates)
-        12. Magazine index page query (template ancestor navigation)
-
-        BASE TEMPLATE OVERHEAD (7 queries):
-        13. Site lookup by hostname (wagtailcore_site)
-        14. Default site lookup (wagtailcore_site)
-        15. Navigation menu settings (navigation_navigationmenusetting)
-        16-17. Navigation settings INSERT (test setup only, not in production)
-        18. Site + root page + locale join
-        19. Page translation lookup by translation_key
-
-        Total: 19 queries (constant regardless of number of results)
-
-        KEY INSIGHT: Only queries 1-12 scale with search complexity. The base template
-        queries (13-19) are the same for ANY page in the site, not search-specific.
+        KEY OPTIMIZATION: Parent pages are bulk-prefetched for ALL search results,
+        then cached on each page instance. This prevents N+1 queries from {% pageurl %}
+        tags while keeping code simple and general-purpose. Without this optimization,
+        we'd have 2 queries per result (N+1 pattern).
         """
         # Count queries for the ENTIRE request/response cycle
-        with self.assertNumQueries(19):  # Baseline with all optimizations
+        with self.assertNumQueries(self.EXPECTED_TOTAL_QUERIES):
             response = self.client.get(reverse("search"), {"query": "Test Article"})
 
         self.assertEqual(response.status_code, HTTPStatus.OK)

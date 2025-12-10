@@ -51,9 +51,9 @@ def search(request: HttpRequest) -> HttpResponse:
     )
 
     # Optimize specific page loading with prefetch_related for common patterns
-    # NOTE FOR SENTRY: This section contains intentional bulk queries (19 total)
-    # to avoid N+1 issues. All queries are properly prefetched and tested.
-    # See test_search_full_request_query_count for query breakdown.
+    # NOTE FOR SENTRY: This section contains optimized queries.
+    # All search result parent pages are bulk-prefetched to avoid N+1 from pageurl tags.
+    # See SearchOptimizationTestCase.EXPECTED_TOTAL_QUERIES in search/tests.py for counts.
     if search_query and paginated_search_results:
         # Tag Sentry transaction to indicate this is an optimized query pattern
         try:
@@ -63,8 +63,7 @@ def search(request: HttpRequest) -> HttpResponse:
             sentry_sdk.set_context(
                 "search_optimization",
                 {
-                    "expected_queries": 19,
-                    "note": "Queries are prefetched to avoid N+1. See test_search_full_request_query_count.",
+                    "note": "Parent pages bulk-prefetched for all results. See SearchOptimizationTestCase in search/tests.py.",
                 },
             )
         except ImportError:
@@ -101,29 +100,6 @@ def search(request: HttpRequest) -> HttpResponse:
                 ),
             )
 
-            # Prefetch parent pages (magazine issues) to avoid N+1 queries in templates
-            # Templates use article.get_parent().specific, which triggers queries
-            # We need to manually cache parents since Wagtail's get_parent() uses path lookups
-            parent_paths = [
-                article.path[: -article.steplen] for article in magazine_articles
-            ]
-
-            if parent_paths:
-                # Type checker doesn't recognize Wagtail's .specific() method on PageQuerySet
-                parent_pages = Page.objects.filter(path__in=parent_paths).specific()  # type: ignore[attr-defined]
-                parent_map = {page.path: page for page in parent_pages}
-
-                # Manually cache parent on each article by overriding get_parent()
-                # We use a closure to capture the parent and return it
-                for article in magazine_articles:
-                    parent_path = article.path[: -article.steplen]
-                    if parent_path in parent_map:
-                        cached_parent = parent_map[parent_path]
-                        # Override get_parent method to return cached parent
-                        article.get_parent = (
-                            lambda cached_parent=cached_parent: cached_parent
-                        )
-
             specific_instances.extend(magazine_articles)
 
         # Fetch other page types using standard .specific()
@@ -137,6 +113,33 @@ def search(request: HttpRequest) -> HttpResponse:
                 .specific()  # type: ignore[attr-defined]
             )
             specific_instances.extend(other_specific)
+
+        # Prefetch parent pages for all search results to optimize {% pageurl %} tag
+        # The pageurl tag needs parent information to construct URLs, which would otherwise
+        # trigger N+1 queries. We bulk fetch all unique parent pages and cache them.
+        if specific_instances:
+            # Collect unique parent paths (exclude root pages which have no parent)
+            parent_paths = set()
+            for page in specific_instances:
+                if page.depth > 1:  # Not root page
+                    parent_path = page.path[: -page.steplen]
+                    parent_paths.add(parent_path)
+
+            if parent_paths:
+                # Bulk fetch all parent pages
+                parent_pages = Page.objects.filter(path__in=parent_paths).specific()  # type: ignore[attr-defined]
+                parent_map = {page.path: page for page in parent_pages}
+
+                # Cache parent on each page by overriding get_parent() method
+                for page in specific_instances:
+                    if page.depth > 1:
+                        parent_path = page.path[: -page.steplen]
+                        if parent_path in parent_map:
+                            cached_parent = parent_map[parent_path]
+                            # Override get_parent method to return cached parent
+                            page.get_parent = (
+                                lambda cached_parent=cached_parent: cached_parent
+                            )
 
         # Create a mapping of page IDs to specific instances
         specific_map = {page.id: page for page in specific_instances}

@@ -22,13 +22,6 @@
             <div class="prose">
                 {{ entity.specific.teaser|richtext }}
             </div>
-
-            <div class="card-actions justify-end mt-2">
-                <a href="{% pageurl entity.get_parent %}" class="link-hover flex items-center gap-1">
-                    <i class="bi bi-journal" aria-hidden="true"></i>
-                    {{ entity.get_parent }} ({{ entity.get_parent.specific.publication_date|date:"F Y" }})
-                </a>
-            </div>
         </div>
     </article>
 </div>

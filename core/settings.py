@@ -93,8 +93,8 @@ LOGGING = {
 if os.getenv("SENTRY_DSN"):
     # Note: Search view queries are optimized and tagged with "search.queries_optimized=true"
     # If Sentry flags N+1 queries on /search/, check the tag before investigating.
-    # Expected baseline: 19 queries (12 search-specific + 7 base template overhead)
-    # See search/tests.py::test_search_full_request_query_count for details
+    # Expected query counts are defined in SearchOptimizationTestCase (search/tests.py).
+    # Parent pages are bulk-prefetched to avoid N+1 from pageurl tags.
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN"),
         integrations=[DjangoIntegration()],
