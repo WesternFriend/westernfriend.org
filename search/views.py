@@ -80,10 +80,13 @@ def search(request: HttpRequest) -> HttpResponse:
         ]
 
         if magazine_article_ids:
-            # Re-fetch magazine articles with prefetch applied
-            prefetched_articles = MagazineArticle.objects.filter(
+            # Re-fetch magazine articles using get_queryset() to inherit all optimizations:
+            # - defer_streamfields() to avoid loading large body/body_migrated fields
+            # - select_related("department") for efficient department access
+            # - prefetch_related("authors__author", "tags") for related data
+            prefetched_articles = MagazineArticle.get_queryset().filter(
                 id__in=magazine_article_ids,
-            ).prefetch_related("authors__author")
+            )
 
             # Create mapping for replacement
             article_map = {article.id: article for article in prefetched_articles}
