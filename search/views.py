@@ -55,46 +55,43 @@ def search(request: HttpRequest) -> HttpResponse:
         # Get the base queryset for the paginated results
         paginated_results = paginated_search_results.page.object_list
 
-        # Use Wagtail's bulk specific() method to fetch all specific types efficiently
-        # Also prefetch common related data to avoid N+1 queries
-        # Note: Only magazine articles have complex relationships (authors, parent issue)
-        # Other content types (events, meetings, library items, etc.) only access
-        # simple fields, so no additional prefetching is needed for them
-        base_queryset = Page.objects.filter(
-            id__in=[p.id for p in paginated_results],
-        ).select_related(
-            # Fetch content type for all pages
-            "content_type",
-        )
+        # Optimize by grouping pages by content type to avoid double-fetching
+        # Magazine articles need special optimization, fetch them separately
+        from django.contrib.contenttypes.models import ContentType
 
-        # Get specific instances
-        specific_instances = list(base_queryset.specific())
+        magazine_article_ct = ContentType.objects.get_for_model(MagazineArticle)
 
-        # Apply prefetch to the specific instances
-        # This must be done after .specific() to work on the concrete model instances
-        magazine_article_ids = [
-            page.id for page in specific_instances if isinstance(page, MagazineArticle)
+        # Separate magazine articles from other page types
+        magazine_article_pages = [
+            p for p in paginated_results if p.content_type_id == magazine_article_ct.id
+        ]
+        other_pages = [
+            p for p in paginated_results if p.content_type_id != magazine_article_ct.id
         ]
 
-        if magazine_article_ids:
-            # Re-fetch magazine articles using get_queryset() to inherit all optimizations:
+        specific_instances = []
+
+        # Fetch magazine articles with all optimizations (no double-fetch)
+        if magazine_article_pages:
+            # Use get_queryset() to inherit all optimizations:
             # - defer_streamfields() to avoid loading large body/body_migrated fields
             # - select_related("department") for efficient department access
             # - prefetch_related("authors__author", "tags") for related data
-            prefetched_articles = MagazineArticle.get_queryset().filter(
-                id__in=magazine_article_ids,
+            magazine_articles = MagazineArticle.get_queryset().filter(
+                id__in=[p.id for p in magazine_article_pages],
             )
+            specific_instances.extend(magazine_articles)
 
-            # Create mapping for replacement
-            article_map = {article.id: article for article in prefetched_articles}
-
-            # Replace magazine articles with prefetched versions
-            specific_instances = [
-                article_map.get(page.id, page)
-                if isinstance(page, MagazineArticle)
-                else page
-                for page in specific_instances
-            ]
+        # Fetch other page types using standard .specific()
+        if other_pages:
+            other_specific = (
+                Page.objects.filter(
+                    id__in=[p.id for p in other_pages],
+                )
+                .select_related("content_type")
+                .specific()
+            )
+            specific_instances.extend(other_specific)
 
         # Create a mapping of page IDs to specific instances
         specific_map = {page.id: page for page in specific_instances}
