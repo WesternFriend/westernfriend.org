@@ -81,10 +81,9 @@ class SearchOptimizationTestCase(TestCase):
     """Test cases to verify that search queries are optimized to avoid N+1 problems."""
 
     # Expected query counts for search with 2 magazine articles
-    # These are the source of truth - update these when optimizations change
-    EXPECTED_SEARCH_QUERIES = 14  # Search-specific queries (incl. parent prefetch)
-    # Note: Template overhead queries vary (14-17 total) depending on cache state.
-    # This is normal - Django caches content types and other metadata between tests.
+    # Query count varies (14-20) depending on cache state - this is normal.
+    # Django caches content types and other metadata between tests.
+    MAX_SEARCH_QUERIES = 20  # Maximum acceptable queries including cache overhead
 
     def setUp(self) -> None:
         self.client = Client()
@@ -178,7 +177,7 @@ class SearchOptimizationTestCase(TestCase):
         - 20 queries: Fresh database, navigation settings created on first request
 
         This is normal TestCase behavior and doesn't indicate N+1 issues.
-        We verify the query count is reasonable (≤17) rather than exact.
+        We verify the query count is reasonable (≤20) rather than exact.
 
         KEY OPTIMIZATION: Parent pages are bulk-prefetched for ALL search results,
         then cached on each page instance. This prevents N+1 queries from {% pageurl %}
@@ -201,8 +200,8 @@ class SearchOptimizationTestCase(TestCase):
         # Verify query count is reasonable - exact count varies due to cache state
         self.assertLessEqual(
             query_count,
-            20,
-            f"Expected ≤20 queries, got {query_count}. "
+            self.MAX_SEARCH_QUERIES,
+            f"Expected ≤{self.MAX_SEARCH_QUERIES} queries, got {query_count}. "
             f"This likely indicates an N+1 query regression. "
             f"Check for missing select_related/prefetch_related.",
         )
