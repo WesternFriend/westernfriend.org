@@ -131,6 +131,10 @@ def search(request: HttpRequest) -> HttpResponse:
                 parent_map = {page.path: page for page in parent_pages}
 
                 # Cache parent on each page by overriding get_parent() method
+                # NOTE: Monkey-patching get_parent() is required because {% pageurl %} internally
+                # calls it, and we can't modify Wagtail's template tag behavior. While this
+                # approach can be surprising to future contributors, it's the most pragmatic
+                # solution for preventing N+1 queries without modifying templates or Wagtail internals.
                 for page in specific_instances:
                     if page.depth > 1:
                         parent_path = page.path[: -page.steplen]
