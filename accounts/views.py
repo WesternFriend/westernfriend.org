@@ -1,4 +1,3 @@
-from typing import Any
 from django.conf import settings
 from django.contrib import messages
 
@@ -15,8 +14,6 @@ class CustomRegistrationView(RegistrationView):
     form_class = CustomUserForm
     success_url = "/"
     template_name = "django_registration/registration_form.html"
-
-   
 
     def form_valid(self, form):
         check_email_message = """Thanks for starting to register an account on our website.
