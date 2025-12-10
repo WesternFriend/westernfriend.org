@@ -2,6 +2,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from wagtail.models import Page
 
+from magazine.models import MagazineArticle
 from pagination.helpers import get_paginated_items
 
 
@@ -71,8 +72,6 @@ def search(request: HttpRequest) -> HttpResponse:
 
         # Apply prefetch to the specific instances
         # This must be done after .specific() to work on the concrete model instances
-        from magazine.models import MagazineArticle
-
         magazine_article_ids = [
             page.id for page in specific_instances if isinstance(page, MagazineArticle)
         ]
