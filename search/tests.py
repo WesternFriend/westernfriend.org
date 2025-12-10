@@ -111,6 +111,32 @@ class SearchOptimizationTestCase(TestCase):
             search_backend.add(page)
 
     @override_settings(DEBUG=True)
+    def test_search_prefetches_related_data(self) -> None:
+        """Test that search view prefetches related data to avoid N+1 queries."""
+
+        # Perform the search and capture query count
+        # Note: This count includes Django setup queries, search queries, and template rendering
+        response = self.client.get(reverse("search"), {"query": "Test Article"})
+
+        # Verify the search worked
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Now access the data in templates - should not trigger additional queries
+        search_results = response.context["paginated_search_results"].page.object_list
+
+        # With perfect prefetching, accessing authors should trigger exactly 0 queries.
+        # This verifies that all related data (authors and their linked author pages)
+        # has been prefetched by the view.
+        with self.assertNumQueries(0):
+            for result in search_results:
+                if isinstance(result, MagazineArticle):
+                    # Access authors - should be prefetched
+                    _ = list(result.authors.all())
+                    for author_link in result.authors.all():
+                        # Access author details - should also be prefetched
+                        _ = author_link.author.title if author_link.author else ""
+
+    @override_settings(DEBUG=True)
     def test_search_query_optimization(self) -> None:
         """Test that search queries are optimized to avoid N+1 database queries."""
         # Perform the search
@@ -120,11 +146,9 @@ class SearchOptimizationTestCase(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         search_results = response.context["paginated_search_results"].page
 
-        # Find magazine articles in the results
+        # Find magazine articles in the results (already specific from view)
         magazine_articles = [
-            result.specific
-            for result in search_results
-            if isinstance(result.specific, MagazineArticle)
+            result for result in search_results if isinstance(result, MagazineArticle)
         ]
 
         # We should have found our test articles
@@ -135,17 +159,9 @@ class SearchOptimizationTestCase(TestCase):
         )
 
         # Now simulate what the template does - access the authors
-        # This should NOT trigger additional queries if optimization works
-        # The key assertion: accessing authors should not trigger excessive additional queries
-        # Note: Due to Wagtail's .specific behavior creating new instances, some additional queries
-        # are expected. We're testing that it's not a severe N+1 problem (one query per author).
-        # With proper prefetching, we should see a reasonable number of queries regardless of
-        # the number of articles or authors.
-        max_reasonable_queries = (
-            5  # Allow for some overhead due to Wagtail's architecture
-        )
-
-        with self.assertNumQueries(max_reasonable_queries):
+        # This should NOT trigger additional queries since the view already prefetched everything
+        # The results from the view are already specific instances with prefetched data
+        with self.assertNumQueries(0):
             for article in magazine_articles:
                 # Access authors (this is what the template does)
                 authors = list(article.authors.all())
