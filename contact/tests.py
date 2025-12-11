@@ -187,7 +187,8 @@ class ContactQueryOptimizationTestCase(TestCase):
         """Set up test fixtures for query optimization tests."""
         self.factory = RequestFactory()
 
-        # Import models needed for test setup
+        # Import models here and store as instance attributes to avoid circular imports
+        # at module level while keeping them accessible to all test methods
         from library.models import LibraryItem, LibraryItemAuthor
         from magazine.models import (
             ArchiveArticle,
@@ -432,11 +433,26 @@ class ContactQueryOptimizationTestCase(TestCase):
 
             reset_queries()
 
-            # Access all prefetched relationships
-            _ = list(context["page"].articles_authored.all())
-            _ = list(context["page"].archive_articles_authored.all())
-            _ = list(context["page"].books_authored.all())
-            _ = list(context["page"].library_items_authored.all())
+            # Access all prefetched relationships including nested relationships
+            articles = list(context["page"].articles_authored.all())
+            for article_link in articles:
+                _ = article_link.article.department.title
+                for author in article_link.article.authors.all():
+                    _ = author.author.title
+
+            archive_articles = list(context["page"].archive_articles_authored.all())
+            for archive_link in archive_articles:
+                _ = archive_link.article.issue.title
+
+            books = list(context["page"].books_authored.all())
+            for book_link in books:
+                for author in book_link.book.authors.all():
+                    _ = author.author.title
+
+            library_items = list(context["page"].library_items_authored.all())
+            for item_link in library_items:
+                for author in item_link.library_item.authors.all():
+                    _ = author.author.title
 
             query_count = len(connection.queries)
             self.assertEqual(
@@ -526,11 +542,26 @@ class ContactQueryOptimizationTestCase(TestCase):
 
             reset_queries()
 
-            # Access all prefetched relationships
-            _ = list(context["page"].articles_authored.all())
-            _ = list(context["page"].archive_articles_authored.all())
-            _ = list(context["page"].books_authored.all())
-            _ = list(context["page"].library_items_authored.all())
+            # Access all prefetched relationships including nested relationships
+            articles = list(context["page"].articles_authored.all())
+            for article_link in articles:
+                _ = article_link.article.department.title
+                for author in article_link.article.authors.all():
+                    _ = author.author.title
+
+            archive_articles = list(context["page"].archive_articles_authored.all())
+            for archive_link in archive_articles:
+                _ = archive_link.article.issue.title
+
+            books = list(context["page"].books_authored.all())
+            for book_link in books:
+                for author in book_link.book.authors.all():
+                    _ = author.author.title
+
+            library_items = list(context["page"].library_items_authored.all())
+            for item_link in library_items:
+                for author in item_link.library_item.authors.all():
+                    _ = author.author.title
 
             query_count = len(connection.queries)
             self.assertEqual(
