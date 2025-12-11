@@ -353,13 +353,16 @@ class ContactBase(JSONLDMixin, Page):
             )
         )
 
+        # Initialize prefetch cache before any relationship optimization
+        # This ensures the cache exists even if articles_authored is not present
+        self._prefetched_objects_cache = getattr(
+            self,
+            "_prefetched_objects_cache",
+            {},
+        )
+
         # Apply optimized queryset to articles_authored relationship
         if hasattr(self, "articles_authored"):
-            self._prefetched_objects_cache = getattr(
-                self,
-                "_prefetched_objects_cache",
-                {},
-            )
             self._prefetched_objects_cache["articles_authored"] = list(
                 optimized_articles_qs.filter(author=self),
             )
