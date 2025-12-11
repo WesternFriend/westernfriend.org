@@ -434,6 +434,9 @@ class ContactBase(JSONLDMixin, Page):
                                 article.get_parent = lambda cached=cached_parent: cached
 
         # Add Sentry transaction context for debugging/monitoring
+        # Note: optimization_query_count is only meaningful in development/staging (DEBUG=True)
+        # because connection.queries is empty in production. In production, we rely on
+        # relationship counts and Sentry's automatic performance monitoring instead.
         try:
             import sentry_sdk
 
@@ -445,7 +448,7 @@ class ContactBase(JSONLDMixin, Page):
                 "contact_optimization",
                 {
                     "contact_type": self.__class__.__name__,
-                    "optimization_query_count": query_count,
+                    "optimization_query_count": query_count,  # Only non-zero when DEBUG=True
                     "articles_count": len(
                         self._prefetched_objects_cache.get("articles_authored", []),
                     ),
