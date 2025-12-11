@@ -408,11 +408,11 @@ class ContactBase(JSONLDMixin, Page):
                 .first()
             )
 
-            # Copy prefetched data to current instance
+            # Merge prefetched data to preserve any existing prefetches
             if self_with_prefetch:
-                self._prefetched_objects_cache = (
-                    self_with_prefetch._prefetched_objects_cache
-                )
+                existing = getattr(self, "_prefetched_objects_cache", {})
+                new = getattr(self_with_prefetch, "_prefetched_objects_cache", {})
+                self._prefetched_objects_cache = {**existing, **new}
 
         # Bulk prefetch parent MagazineIssue pages for articles
         if hasattr(self, "articles_authored") and hasattr(
