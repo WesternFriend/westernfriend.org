@@ -1,9 +1,12 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models
 from django.db.models import TextChoices
 from django.http import HttpRequest
+
+if TYPE_CHECKING:
+    from django.db.models import Prefetch
 from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.html import strip_tags
@@ -315,28 +318,17 @@ class ContactBase(JSONLDMixin, Page):
 
     template = "contact/contact.html"
 
-    def get_context(
-        self,
-        request: HttpRequest,
-        *args: Any,
-        **kwargs: Any,
-    ) -> dict:
-        """Optimize queries for contact page to prevent N+1 queries.
+    def _build_prefetch_objects(self) -> "list[Prefetch]":
+        """Build list of Prefetch objects for all related content.
 
-        This method prefetches all related content (articles, books, library items,
-        memorials) and their nested relationships to avoid N+1 query patterns that
-        would otherwise occur when the template iterates over these relationships.
+        Returns:
+            List of Prefetch objects for optimized queryset loading.
         """
-        from django.conf import settings
         from django.db.models import Prefetch
 
         from magazine.models import MagazineArticleAuthor
 
-        # Track initial query count for Sentry diagnostics
-        initial_queries = len(connection.queries) if settings.DEBUG else 0
-
-        # Build list of prefetch objects for all relationships
-        prefetch_objects = []
+        prefetch_objects: list[Prefetch] = []
 
         # Optimize magazine articles with deferred streamfields
         if hasattr(self, "articles_authored"):
@@ -399,61 +391,64 @@ class ContactBase(JSONLDMixin, Page):
                 Prefetch("memorial_minute", queryset=memorials_qs),
             )
 
-        # Apply all prefetches at once
-        if prefetch_objects:
-            # Reload the instance with prefetches
-            self_with_prefetch = (
-                self.__class__.objects.filter(pk=self.pk)
-                .prefetch_related(*prefetch_objects)
-                .first()
-            )
+        return prefetch_objects
 
-            # Merge prefetched data to preserve any existing prefetches
-            if self_with_prefetch:
-                existing = getattr(self, "_prefetched_objects_cache", {})
-                new = getattr(self_with_prefetch, "_prefetched_objects_cache", {})
-                self._prefetched_objects_cache = {**existing, **new}
+    def _cache_article_parents(self) -> None:
+        """Bulk-fetch and cache parent pages for articles.
 
-        # Bulk prefetch parent MagazineIssue pages for articles
-        if hasattr(self, "articles_authored") and hasattr(
+        This prevents N+1 queries when templates call {% pageurl issue %}.
+        """
+        if not hasattr(self, "articles_authored") or not hasattr(
             self,
             "_prefetched_objects_cache",
         ):
-            article_author_links = self._prefetched_objects_cache.get(
-                "articles_authored",
-                [],
-            )
-            if article_author_links:
-                # Collect unique parent paths for all articles
-                parent_paths = set()
-                for article_link in article_author_links:
-                    article = article_link.article
-                    if article.depth > 1:  # Skip root pages
-                        parent_path = article.path[: -article.steplen]
-                        parent_paths.add(parent_path)
+            return
 
-                if parent_paths:
-                    # Bulk fetch all parent pages and create lookup map
-                    parent_pages = Page.objects.filter(path__in=parent_paths).specific()  # type: ignore[attr-defined]
-                    parent_map = {page.path: page for page in parent_pages}
+        article_author_links = self._prefetched_objects_cache.get(
+            "articles_authored",
+            [],
+        )
+        if not article_author_links:
+            return
 
-                    # Cache parent on each article by monkey-patching get_parent()
-                    # This prevents N+1 queries when template calls {% pageurl issue %}
-                    for article_link in article_author_links:
-                        article = article_link.article
-                        if article.depth > 1:
-                            parent_path = article.path[: -article.steplen]
-                            if parent_path in parent_map:
-                                cached_parent = parent_map[parent_path]
-                                # Override get_parent to return cached parent
-                                article.get_parent = lambda cached=cached_parent: cached
+        # Collect unique parent paths for all articles
+        parent_paths = set()
+        for article_link in article_author_links:
+            article = article_link.article
+            if article.depth > 1:  # Skip root pages
+                parent_path = article.path[: -article.steplen]
+                parent_paths.add(parent_path)
 
-        # Add Sentry transaction context for debugging/monitoring
-        # Note: optimization_query_count is only meaningful in development/staging (DEBUG=True)
-        # because connection.queries is empty in production. In production, we rely on
-        # relationship counts and Sentry's automatic performance monitoring instead.
+        if not parent_paths:
+            return
+
+        # Bulk fetch all parent pages and create lookup map
+        parent_pages = Page.objects.filter(path__in=parent_paths).specific()  # type: ignore[attr-defined]
+        parent_map = {page.path: page for page in parent_pages}
+
+        # Cache parent on each article by monkey-patching get_parent()
+        for article_link in article_author_links:
+            article = article_link.article
+            if article.depth > 1:
+                parent_path = article.path[: -article.steplen]
+                if parent_path in parent_map:
+                    cached_parent = parent_map[parent_path]
+                    # Override get_parent to return cached parent
+                    article.get_parent = lambda cached=cached_parent: cached
+
+    def _add_sentry_context(self, initial_queries: int) -> None:
+        """Add Sentry transaction context for debugging/monitoring.
+
+        Note: optimization_query_count is only meaningful in development/staging (DEBUG=True)
+        because connection.queries is empty in production. In production, we rely on
+        relationship counts and Sentry's automatic performance monitoring instead.
+
+        Args:
+            initial_queries: Query count before optimization.
+        """
         try:
             import sentry_sdk
+            from django.conf import settings
 
             final_queries = len(connection.queries) if settings.DEBUG else 0
             query_count = final_queries - initial_queries
@@ -482,6 +477,46 @@ class ContactBase(JSONLDMixin, Page):
         except ImportError:
             # Sentry not installed, skip tagging
             pass
+
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: Any,
+        **kwargs: Any,
+    ) -> dict:
+        """Optimize queries for contact page to prevent N+1 queries.
+
+        This method prefetches all related content (articles, books, library items,
+        memorials) and their nested relationships to avoid N+1 query patterns that
+        would otherwise occur when the template iterates over these relationships.
+        """
+        from django.conf import settings
+
+        # Track initial query count for Sentry diagnostics
+        initial_queries = len(connection.queries) if settings.DEBUG else 0
+
+        # Build and apply prefetch objects
+        prefetch_objects = self._build_prefetch_objects()
+
+        if prefetch_objects:
+            # Reload the instance with prefetches
+            self_with_prefetch = (
+                self.__class__.objects.filter(pk=self.pk)
+                .prefetch_related(*prefetch_objects)
+                .first()
+            )
+
+            # Merge prefetched data to preserve any existing prefetches
+            if self_with_prefetch:
+                existing = getattr(self, "_prefetched_objects_cache", {})
+                new = getattr(self_with_prefetch, "_prefetched_objects_cache", {})
+                self._prefetched_objects_cache = {**existing, **new}
+
+        # Bulk prefetch parent MagazineIssue pages for articles
+        self._cache_article_parents()
+
+        # Add Sentry diagnostics
+        self._add_sentry_context(initial_queries)
 
         # Call parent get_context to get the base context
         context = super().get_context(request, *args, **kwargs)
