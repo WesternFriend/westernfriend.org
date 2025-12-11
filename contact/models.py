@@ -1,8 +1,9 @@
 from typing import Any
 
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import connection, models
 from django.db.models import TextChoices
+from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.html import strip_tags
@@ -314,6 +315,169 @@ class ContactBase(JSONLDMixin, Page):
 
     template = "contact/contact.html"
 
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: Any,
+        **kwargs: Any,
+    ) -> dict:
+        """Optimize queries for contact page to prevent N+1 queries.
+
+        This method prefetches all related content (articles, books, library items,
+        memorials) and their nested relationships to avoid N+1 query patterns that
+        would otherwise occur when the template iterates over these relationships.
+        """
+        context = super().get_context(request, *args, **kwargs)
+
+        # Import here to avoid circular dependency
+        # Track initial query count for Sentry diagnostics
+        # Check if DEBUG=True to see if queries are being logged
+        from django.conf import settings
+
+        from magazine.models import MagazineArticleAuthor
+
+        initial_queries = len(connection.queries) if settings.DEBUG else 0
+
+        # Optimize magazine articles with deferred streamfields
+        # Defer body and body_migrated fields since contact.html doesn't render article content
+        optimized_articles_qs = (
+            MagazineArticleAuthor.objects.select_related(
+                "article__department",  # Department name displayed in article summary
+            )
+            .prefetch_related(
+                "article__authors__author",  # Author links in magazine_article_summary.html
+            )
+            .defer(
+                "article__body",  # StreamField not rendered on contact page
+                "article__body_migrated",  # Legacy field not rendered on contact page
+            )
+        )
+
+        # Initialize prefetch cache before any relationship optimization
+        # This ensures the cache exists even if articles_authored is not present
+        self._prefetched_objects_cache = getattr(
+            self,
+            "_prefetched_objects_cache",
+            {},
+        )
+
+        # Apply optimized queryset to articles_authored relationship
+        if hasattr(self, "articles_authored"):
+            self._prefetched_objects_cache["articles_authored"] = list(
+                optimized_articles_qs.filter(author=self),
+            )
+
+        # Optimize archive articles with issue relationship
+        # select_related used because article.issue is accessed in template
+        if hasattr(self, "archive_articles_authored"):
+            archive_articles = self.archive_articles_authored.select_related(
+                "article__issue",  # Issue title and URL displayed in template
+            )
+            self._prefetched_objects_cache["archive_articles_authored"] = list(
+                archive_articles,
+            )
+
+        # Optimize books with author relationships
+        # Template iterates over book.authors.all() to display co-authors
+        if hasattr(self, "books_authored"):
+            books = self.books_authored.prefetch_related(
+                "book__authors__author",  # Co-author links displayed for each book
+            )
+            self._prefetched_objects_cache["books_authored"] = list(books)
+
+        # Optimize library items with author relationships
+        # library_item_card.html template loops through authors
+        if hasattr(self, "library_items_authored"):
+            library_items = self.library_items_authored.prefetch_related(
+                "library_item__authors__author",  # Author links in library_item_card.html
+            )
+            self._prefetched_objects_cache["library_items_authored"] = list(
+                library_items,
+            )
+
+        # Optimize memorial minutes with person relationship
+        # Template displays memorial_person name and details
+        if hasattr(self, "memorial_minute"):
+            memorials = self.memorial_minute.select_related(
+                "memorial_person",  # Person's given_name and family_name accessed in template
+            )
+            self._prefetched_objects_cache["memorial_minute"] = list(memorials)
+
+        # Bulk prefetch parent MagazineIssue pages for articles
+        # This prevents N+1 queries from {% pageurl issue %} and article.get_parent().specific
+        # in magazine_article_summary.html template (line 36)
+        if "articles_authored" in self._prefetched_objects_cache:
+            article_author_links = self._prefetched_objects_cache["articles_authored"]
+            if article_author_links:
+                # Collect unique parent paths for all articles
+                parent_paths = set()
+                for article_link in article_author_links:
+                    article = article_link.article
+                    if article.depth > 1:  # Skip root pages
+                        parent_path = article.path[: -article.steplen]
+                        parent_paths.add(parent_path)
+
+                if parent_paths:
+                    # Bulk fetch all parent pages and create lookup map
+                    parent_pages = Page.objects.filter(path__in=parent_paths).specific()  # type: ignore[attr-defined]
+                    parent_map = {page.path: page for page in parent_pages}
+
+                    # Cache parent on each article by monkey-patching get_parent()
+                    # This prevents N+1 queries when template calls {% pageurl issue %}
+                    for article_link in article_author_links:
+                        article = article_link.article
+                        if article.depth > 1:
+                            parent_path = article.path[: -article.steplen]
+                            if parent_path in parent_map:
+                                cached_parent = parent_map[parent_path]
+                                # Override get_parent to return cached parent
+                                article.get_parent = lambda cached=cached_parent: cached
+
+        # Add Sentry transaction context for debugging/monitoring
+        # Note: optimization_query_count is only meaningful in development/staging (DEBUG=True)
+        # because connection.queries is empty in production. In production, we rely on
+        # relationship counts and Sentry's automatic performance monitoring instead.
+        try:
+            import sentry_sdk
+
+            final_queries = len(connection.queries) if settings.DEBUG else 0
+            query_count = final_queries - initial_queries
+
+            sentry_sdk.set_tag("contact.queries_optimized", "true")
+            sentry_sdk.set_context(
+                "contact_optimization",
+                {
+                    "contact_type": self.__class__.__name__,
+                    "optimization_query_count": query_count,  # Only non-zero when DEBUG=True
+                    "articles_count": len(
+                        self._prefetched_objects_cache.get("articles_authored", []),
+                    ),
+                    "archive_articles_count": len(
+                        self._prefetched_objects_cache.get(
+                            "archive_articles_authored",
+                            [],
+                        ),
+                    ),
+                    "books_count": len(
+                        self._prefetched_objects_cache.get("books_authored", []),
+                    ),
+                    "library_items_count": len(
+                        self._prefetched_objects_cache.get(
+                            "library_items_authored",
+                            [],
+                        ),
+                    ),
+                    "memorials_count": len(
+                        self._prefetched_objects_cache.get("memorial_minute", []),
+                    ),
+                },
+            )
+        except ImportError:
+            # Sentry not installed, skip tagging
+            pass
+
+        return context
+
     class Meta:
         abstract = True
         ordering = ["title"]
@@ -486,7 +650,8 @@ class Meeting(ContactBase):
     template = "contact/contact.html"
 
     def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
+        # Call parent with all arguments to preserve ContactBase query optimizations
+        context = super().get_context(request, *args, **kwargs)
 
         context["quarterly_meetings"] = (
             Meeting.objects.child_of(self)
