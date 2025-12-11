@@ -349,6 +349,18 @@ class ContactQueryOptimizationTestCase(TestCase):
                 _ = memorial.memorial_person.given_name
                 _ = memorial.memorial_person.family_name
 
+            # Test .count() method works (production bug fix)
+            # Template uses {% if page.articles_authored.count %}
+            # Previously failed with: TypeError: list.count() takes exactly one argument (0 given)
+            self.assertIsInstance(context["page"].articles_authored.count(), int)
+            self.assertIsInstance(
+                context["page"].archive_articles_authored.count(),
+                int,
+            )
+            self.assertIsInstance(context["page"].books_authored.count(), int)
+            self.assertIsInstance(context["page"].library_items_authored.count(), int)
+            self.assertIsInstance(context["page"].memorial_minute.count(), int)
+
             # Assert no additional queries were made
             query_count = len(connection.queries)
             self.assertEqual(
