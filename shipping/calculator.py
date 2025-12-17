@@ -20,13 +20,13 @@ def get_book_shipping_cost(book_quantity: int = 1) -> Decimal:
     if book_quantity >= 16:
         shipping_rate = 0
     elif book_quantity in range(11, 16):
-        shipping_rate = 2
-    elif book_quantity in range(5, 11):
         shipping_rate = 3
-    elif book_quantity in range(2, 5):
+    elif book_quantity in range(5, 11):
         shipping_rate = 4
-    else:
+    elif book_quantity in range(2, 5):
         shipping_rate = 5
+    else:
+        shipping_rate = 6
 
     shipping_cost = book_quantity * shipping_rate
 
