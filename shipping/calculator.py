@@ -12,10 +12,10 @@ def get_book_shipping_cost(book_quantity: int = 1) -> Decimal:
     """
 
     # Apply shipping rules based on total number of books
-    # one book is five dollars
-    # two to four books are four dollars each
-    # five to ten books are three dollars each
-    # eleven to fifteen books are two dollars each
+    # one book is six dollars
+    # two to four books are five dollars each
+    # five to ten books are four dollars each
+    # eleven to fifteen books are three dollars each
     # sixteen or more books have free shipping
     if book_quantity >= 16:
         shipping_rate = 0
