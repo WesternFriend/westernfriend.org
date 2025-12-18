@@ -11,6 +11,10 @@ class BookShippingTest(SimpleTestCase):
     def test_book_shipping_cost(self) -> None:
         # define a mapping of book_quantity to expected shipping_cost
         quantity_cost_expectations = {
+            # edge cases
+            0: Decimal("0.00"),  # no books = no shipping
+            100: Decimal("0.00"),  # large quantity
+            17: Decimal("0.00"),  # above 16 threshold
             # 16 or more books shipping is free
             16: Decimal("0.00"),
             # 11 through 15 books, the shipping cost is 3 * book_quantity
