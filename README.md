@@ -1,11 +1,10 @@
 # Western Friend website
 
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=WesternFriend_westernfriend.org&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=WesternFriend_westernfriend.org)
-[![Test Coverage](https://codecov.io/gh/WesternFriend/WF-website/branch/main/graph/badge.svg?token=2GCLOZ9PIE)](https://codecov.io/gh/WesternFriend/WF-website)
+[![codecov](https://codecov.io/gh/WesternFriend/westernfriend.org/graph/badge.svg?token=2GCLOZ9PIE)](https://codecov.io/gh/WesternFriend/westernfriend.org)
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/WesternFriend/westernfriend.org?quickstart=1)
 
-[![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue-ghost.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/WesternFriend/WF-website/tree/main)
+[![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue-ghost.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/WesternFriend/westernfriend.org/tree/main)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
