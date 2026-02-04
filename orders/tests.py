@@ -450,8 +450,6 @@ class OrderNotificationTest(TransactionTestCase):
 
         # Check that no email was sent
         self.assertEqual(len(mail.outbox), 0)
-        # Check that no email was sent
-        self.assertEqual(len(mail.outbox), 0)
 
     def test_notification_error_does_not_prevent_save(self):
         """Test that email sending errors don't prevent order from being saved."""

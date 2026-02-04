@@ -94,9 +94,9 @@ def send_order_paid_notification(order: Order) -> bool:
 
         return True
 
-    except Exception as e:
+    except Exception:
         # Log all exceptions to Sentry without re-raising
         logger.exception(
-            f"Failed to send order paid notification for order #{order.id}: {str(e)}",  # type: ignore
+            f"Failed to send order paid notification for order #{order.id}",  # type: ignore
         )
         return False
