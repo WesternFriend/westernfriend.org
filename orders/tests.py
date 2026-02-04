@@ -284,12 +284,15 @@ class CreateCartOrderItemsTest(TestCase):
         )
 
 
-class BookstoreOrderNotificationSettingsTest(TestCase):
-    """Test the bookstore order notification settings model."""
+class WagtailSiteSetupMixin:
+    """Mixin providing common Wagtail site setup for notification tests."""
 
     def setUp(self):
-        """Set up test site."""
-        from wagtail.models import Page, Site
+        """Set up Wagtail site and locale for tests."""
+        from wagtail.models import Locale, Page, Site
+
+        # Create a locale for Wagtail pages (needed for TransactionTestCase)
+        Locale.objects.get_or_create(language_code="en")
 
         # Create a root page if it doesn't exist
         try:
@@ -303,6 +306,10 @@ class BookstoreOrderNotificationSettingsTest(TestCase):
             root_page=root,
             is_default_site=True,
         )
+
+
+class BookstoreOrderNotificationSettingsTest(WagtailSiteSetupMixin, TestCase):
+    """Test the bookstore order notification settings model."""
 
     def test_default_email_is_set(self):
         """Test that default email is set when settings are created."""
@@ -322,7 +329,7 @@ class BookstoreOrderNotificationSettingsTest(TestCase):
         self.assertIn("manager@example.com", settings.notification_emails)
 
 
-class OrderNotificationTest(TransactionTestCase):
+class OrderNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
     """Test order notification functionality.
 
     Uses TransactionTestCase because we need transaction.on_commit() to fire
@@ -331,23 +338,8 @@ class OrderNotificationTest(TransactionTestCase):
 
     def setUp(self):
         """Set up test data."""
-        from wagtail.models import Locale, Page, Site
-
-        # Create a locale for Wagtail pages
-        Locale.objects.get_or_create(language_code="en")
-
-        # Create a root page if it doesn't exist
-        try:
-            root = Page.objects.get(depth=1)
-        except Page.DoesNotExist:
-            root = Page.add_root(title="Root", slug="root")
-
-        # Create a default site
-        self.site = Site.objects.create(
-            hostname="testserver",
-            root_page=root,
-            is_default_site=True,
-        )
+        # Call parent setUp to create site
+        super().setUp()
 
         self.order = Order.objects.create(
             purchaser_given_name="Jane",
@@ -504,7 +496,7 @@ class OrderNotificationTest(TransactionTestCase):
         self.assertIn("1x", email.body)  # quantity for second item
 
 
-class SendOrderPaidNotificationTest(TransactionTestCase):
+class SendOrderPaidNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
     """Test the send_order_paid_notification function directly.
 
     Uses TransactionTestCase to properly test database updates.
@@ -512,23 +504,8 @@ class SendOrderPaidNotificationTest(TransactionTestCase):
 
     def setUp(self):
         """Set up test data."""
-        from wagtail.models import Locale, Page, Site
-
-        # Create a locale for Wagtail pages
-        Locale.objects.get_or_create(language_code="en")
-
-        # Create a root page if it doesn't exist
-        try:
-            root = Page.objects.get(depth=1)
-        except Page.DoesNotExist:
-            root = Page.add_root(title="Root", slug="root")
-
-        # Create a default site
-        self.site = Site.objects.create(
-            hostname="testserver",
-            root_page=root,
-            is_default_site=True,
-        )
+        # Call parent setUp to create site
+        super().setUp()
 
         self.order = Order.objects.create(
             purchaser_given_name="Test",
