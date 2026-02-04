@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
+from django.utils import timezone
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.models import ClusterableModel  # type: ignore
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
@@ -208,7 +209,12 @@ class Order(ClusterableModel):
         # Check if we need to send notification
         should_notify = self.paid and self.notification_sent_at is None
 
-        # Save the order first
+        # If we're going to notify, set the timestamp now to prevent duplicates
+        # if the same instance is saved again
+        if should_notify:
+            self.notification_sent_at = timezone.now()
+
+        # Save the order
         super().save(*args, **kwargs)
 
         # Schedule notification after transaction commits

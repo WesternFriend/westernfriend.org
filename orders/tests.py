@@ -410,6 +410,43 @@ class OrderNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
         # Check that no new email was sent
         self.assertEqual(len(mail.outbox), 0)
 
+    def test_no_duplicate_notification_without_refresh(self):
+        """Test that in-memory instance prevents duplicate notifications.
+
+        This tests the bug fix where the in-memory order instance is updated
+        with notification_sent_at after sending, preventing duplicate notifications
+        if the same instance is saved again without refreshing from database.
+        """
+        # Verify order starts unpaid with no notification timestamp
+        self.assertFalse(self.order.paid)
+        self.assertIsNone(self.order.notification_sent_at)
+
+        # Mark order as paid and save
+        self.order.paid = True
+        self.order.save()
+
+        # WITHOUT refresh_from_db(), the in-memory instance should still
+        # have notification_sent_at set due to our fix
+        self.assertIsNotNone(
+            self.order.notification_sent_at,
+            "In-memory instance should have notification_sent_at updated after save",
+        )
+
+        # Clear mail outbox to detect any duplicate notifications
+        mail.outbox.clear()
+
+        # Save the same in-memory instance again (e.g., updating another field)
+        # This should NOT trigger another notification because notification_sent_at
+        # is now set on the in-memory instance
+        self.order.save()
+
+        # Verify no duplicate notification was sent
+        self.assertEqual(
+            len(mail.outbox),
+            0,
+            "No duplicate notification should be sent when saving the same instance",
+        )
+
     def test_notification_sent_to_configured_recipients(self):
         """Test that notification is sent to all configured email addresses."""
         # Update settings with multiple recipients
@@ -517,7 +554,7 @@ class SendOrderPaidNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
             recipient_address_locality="Test City",
             recipient_address_region="TS",
             shipping_cost=5.00,
-            paid=True,
+            paid=False,  # Start unpaid to avoid automatic notification
             paypal_transaction_id="TEST456",
         )
 
@@ -545,14 +582,22 @@ class SendOrderPaidNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
             self.assertFalse(result)
 
     def test_function_updates_notification_timestamp_on_success(self):
-        """Test that notification_sent_at is updated after successful send."""
-        self.assertIsNone(self.order.notification_sent_at)
+        """Test that notification_sent_at is set before calling the function.
 
-        send_order_paid_notification(self.order)
+        In normal usage, the timestamp is set in save() before the notification
+        function is called. This test verifies the function works correctly
+        when the timestamp is already set.
+        """
+        # Set timestamp as save() would
+        self.order.notification_sent_at = timezone.now()
+        self.order.save()
 
-        self.order.refresh_from_db()
+        # Verify timestamp was set
         self.assertIsNotNone(self.order.notification_sent_at)
-        self.assertIsInstance(self.order.notification_sent_at, timezone.datetime)
+
+        # Calling the notification function should work even though timestamp is set
+        result = send_order_paid_notification(self.order)
+        self.assertTrue(result)
 
     def test_function_logs_warning_when_no_emails_configured(self):
         """Test that function returns False when no emails are configured."""

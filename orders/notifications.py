@@ -3,7 +3,6 @@ import logging
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from django.utils import timezone
 
 from orders.models import BookstoreOrderNotificationSettings, Order
 
@@ -83,9 +82,6 @@ def send_order_paid_notification(order: Order) -> bool:
             html_message=html_message,
             fail_silently=False,
         )
-
-        # Update notification timestamp using update() to avoid triggering save() again
-        Order.objects.filter(pk=order.pk).update(notification_sent_at=timezone.now())
 
         logger.info(
             f"Order paid notification sent successfully for order #{order.id} "  # type: ignore
