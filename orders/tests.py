@@ -1,17 +1,27 @@
+from datetime import datetime
 from decimal import Decimal
 from http import HTTPStatus
 from unittest.mock import MagicMock, Mock, patch
+
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.test import Client, RequestFactory, TestCase
+from django.core import mail
+from django.test import (
+    Client,
+    RequestFactory,
+    TestCase,
+    TransactionTestCase,
+    override_settings,
+)
 from django.urls import reverse
+from django.utils import timezone
+
 from cart.cart import Cart
 from cart.tests import scaffold_product_index_page
-
 from orders.views import create_cart_order_items
 from store.factories import ProductFactory
 
-
-from .models import Order, OrderItem
+from .models import BookstoreOrderNotificationSettings, Order, OrderItem
+from .notifications import send_order_paid_notification
 
 
 class OrderModelTest(TestCase):
@@ -273,3 +283,320 @@ class CreateCartOrderItemsTest(TestCase):
             item2.quantity,
             self.product2_quantity,
         )
+
+
+class WagtailSiteSetupMixin:
+    """Mixin providing common Wagtail site setup for notification tests."""
+
+    def setUp(self):
+        """Set up Wagtail site and locale for tests."""
+        from wagtail.models import Locale, Page, Site
+
+        # Create a locale for Wagtail pages (needed for TransactionTestCase)
+        Locale.objects.get_or_create(language_code="en")
+
+        # Create a root page if it doesn't exist
+        try:
+            root = Page.objects.get(depth=1)
+        except Page.DoesNotExist:
+            root = Page.add_root(title="Root", slug="root")
+
+        # Create a default site
+        self.site = Site.objects.create(
+            hostname="testserver",
+            root_page=root,
+            is_default_site=True,
+        )
+
+
+class BookstoreOrderNotificationSettingsTest(WagtailSiteSetupMixin, TestCase):
+    """Test the bookstore order notification settings model."""
+
+    def test_default_email_is_set(self):
+        """Test that default email is set when settings are created."""
+        settings = BookstoreOrderNotificationSettings.for_site(self.site)
+        self.assertEqual(settings.notification_emails, ["editor@westernfriend.org"])
+
+    def test_custom_emails_can_be_set(self):
+        """Test that custom emails can be configured."""
+        settings = BookstoreOrderNotificationSettings.for_site(self.site)
+        settings.notification_emails = ["admin@example.com", "manager@example.com"]
+        settings.save()
+
+        # Reload settings
+        settings = BookstoreOrderNotificationSettings.for_site(self.site)
+        self.assertEqual(len(settings.notification_emails), 2)
+        self.assertIn("admin@example.com", settings.notification_emails)
+        self.assertIn("manager@example.com", settings.notification_emails)
+
+
+class OrderNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
+    """Test order notification functionality.
+
+    Uses TransactionTestCase because we need transaction.on_commit() to fire
+    when testing the order.save() notification trigger.
+    """
+
+    def setUp(self):
+        """Set up test data."""
+        # Call parent setUp to create site
+        super().setUp()
+
+        self.order = Order.objects.create(
+            purchaser_given_name="Jane",
+            purchaser_family_name="Smith",
+            purchaser_email="jane@example.com",
+            purchaser_meeting_or_organization="Test Meeting",
+            recipient_name="Jane Smith",
+            recipient_street_address="123 Test St",
+            recipient_postal_code="12345",
+            recipient_address_locality="Test City",
+            recipient_address_region="TS",
+            shipping_cost=5.00,
+            paid=False,
+            paypal_transaction_id="TEST123",
+        )
+
+        # Create order items
+        OrderItem.objects.create(
+            order=self.order,
+            product_title="Test Book",
+            product_id=1,
+            price=19.99,
+            quantity=2,
+        )
+
+    def test_notification_not_sent_when_order_created_unpaid(self):
+        """Test that notification is not sent when order is created as unpaid."""
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertIsNone(self.order.notification_sent_at)
+
+    def test_notification_sent_when_order_marked_paid(self):
+        """Test that notification is sent when order is marked as paid."""
+        # Mark order as paid
+        self.order.paid = True
+        self.order.save()
+
+        # Check that email was sent
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+
+        # Check email content
+        self.assertIn("Order #", email.subject)
+        self.assertIn("Jane Smith", email.subject)
+        self.assertIn("jane@example.com", email.body)
+        self.assertIn("TEST123", email.body)
+        self.assertIn("Test Book", email.body)
+        self.assertIn("/admin/bookstore_orders/inspect/", email.body)
+
+        # Check that notification timestamp was set
+        self.order.refresh_from_db()
+        self.assertIsNotNone(self.order.notification_sent_at)
+
+    def test_notification_not_sent_twice(self):
+        """Test that notification is only sent once per order."""
+        # Mark order as paid first time
+        self.order.paid = True
+        self.order.save()
+
+        # Refresh from database to get updated notification_sent_at
+        self.order.refresh_from_db()
+
+        # Clear mail outbox
+        mail.outbox.clear()
+
+        # Save order again (still paid)
+        self.order.save()
+
+        # Check that no new email was sent
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_no_duplicate_notification_without_refresh(self):
+        """Test that in-memory instance prevents duplicate notifications.
+
+        This tests the bug fix where the in-memory order instance is updated
+        with notification_sent_at after sending, preventing duplicate notifications
+        if the same instance is saved again without refreshing from database.
+        """
+        # Verify order starts unpaid with no notification timestamp
+        self.assertFalse(self.order.paid)
+        self.assertIsNone(self.order.notification_sent_at)
+
+        # Mark order as paid and save
+        self.order.paid = True
+        self.order.save()
+
+        # WITHOUT refresh_from_db(), the in-memory instance should still
+        # have notification_sent_at set due to our fix
+        self.assertIsNotNone(
+            self.order.notification_sent_at,
+            "In-memory instance should have notification_sent_at updated after save",
+        )
+
+        # Clear mail outbox to detect any duplicate notifications
+        mail.outbox.clear()
+
+        # Save the same in-memory instance again (e.g., updating another field)
+        # This should NOT trigger another notification because notification_sent_at
+        # is now set on the in-memory instance
+        self.order.save()
+
+        # Verify no duplicate notification was sent
+        self.assertEqual(
+            len(mail.outbox),
+            0,
+            "No duplicate notification should be sent when saving the same instance",
+        )
+
+    def test_notification_sent_to_configured_recipients(self):
+        """Test that notification is sent to all configured email addresses."""
+        # Update settings with multiple recipients
+        settings = BookstoreOrderNotificationSettings.for_site(self.site)
+        settings.notification_emails = [
+            "editor@westernfriend.org",
+            "admin@westernfriend.org",
+        ]
+        settings.save()
+
+        self.order.paid = True
+        self.order.save()
+
+        # Check that email was sent to all recipients
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+        self.assertEqual(len(email.to), 2)
+        self.assertIn("editor@westernfriend.org", email.to)
+        self.assertIn("admin@westernfriend.org", email.to)
+
+    def test_notification_skipped_when_no_emails_configured(self):
+        """Test that notification is skipped when no emails are configured."""
+        # Update settings with no emails
+        settings = BookstoreOrderNotificationSettings.for_site(self.site)
+        settings.notification_emails = []
+        settings.save()
+
+        self.order.paid = True
+        self.order.save()
+
+        # Check that no email was sent
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_notification_error_does_not_prevent_save(self):
+        """Test that email sending errors don't prevent order from being saved."""
+        with patch("orders.notifications.send_mail") as mock_send_mail:
+            # Make send_mail raise an exception
+            mock_send_mail.side_effect = Exception("SMTP Error")
+
+            # This should not raise an exception
+            self.order.paid = True
+            self.order.save()
+
+            # Order should still be saved as paid
+            self.order.refresh_from_db()
+            self.assertTrue(self.order.paid)
+
+    def test_notification_url_construction(self):
+        """Test that admin URL is correctly constructed."""
+        self.order.paid = True
+        self.order.save()
+
+        email = mail.outbox[0]
+        expected_path = f"/admin/bookstore_orders/inspect/{self.order.id}/"
+        self.assertIn(expected_path, email.body)
+
+    @override_settings(DEFAULT_FROM_EMAIL="custom@westernfriend.org")
+    def test_notification_uses_default_from_email(self):
+        """Test that notification uses Django's DEFAULT_FROM_EMAIL setting."""
+        self.order.paid = True
+        self.order.save()
+
+        email = mail.outbox[0]
+        self.assertEqual(email.from_email, "custom@westernfriend.org")
+
+    def test_order_items_displayed_in_notification(self):
+        """Test that all order items are displayed in the notification."""
+        # Add another item
+        OrderItem.objects.create(
+            order=self.order,
+            product_title="Another Book",
+            product_id=2,
+            price=24.99,
+            quantity=1,
+        )
+
+        self.order.paid = True
+        self.order.save()
+
+        email = mail.outbox[0]
+        self.assertIn("Test Book", email.body)
+        self.assertIn("Another Book", email.body)
+        self.assertIn("2x", email.body)  # quantity for first item
+        self.assertIn("1x", email.body)  # quantity for second item
+
+
+class SendOrderPaidNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
+    """Test the send_order_paid_notification function directly.
+
+    Uses TransactionTestCase to properly test database updates.
+    """
+
+    def setUp(self):
+        """Set up test data."""
+        # Call parent setUp to create site
+        super().setUp()
+
+        self.order = Order.objects.create(
+            purchaser_given_name="Test",
+            purchaser_family_name="User",
+            purchaser_email="test@example.com",
+            recipient_name="Test User",
+            recipient_street_address="123 Test St",
+            recipient_postal_code="12345",
+            recipient_address_locality="Test City",
+            recipient_address_region="TS",
+            shipping_cost=5.00,
+            paid=False,  # Start unpaid to avoid automatic notification
+            paypal_transaction_id="TEST456",
+        )
+
+    def test_function_returns_true_on_success(self):
+        """Test that function returns True when email is sent successfully."""
+        result = send_order_paid_notification(self.order)
+        self.assertTrue(result)
+
+    def test_function_returns_false_when_no_emails_configured(self):
+        """Test that function returns False when no emails are configured."""
+        # Update settings with no emails
+        settings = BookstoreOrderNotificationSettings.for_site(self.site)
+        settings.notification_emails = []
+        settings.save()
+
+        result = send_order_paid_notification(self.order)
+        self.assertFalse(result)
+
+    def test_function_returns_false_on_error(self):
+        """Test that function returns False when an error occurs."""
+        with patch("orders.notifications.send_mail") as mock_send_mail:
+            mock_send_mail.side_effect = Exception("Test error")
+
+            result = send_order_paid_notification(self.order)
+            self.assertFalse(result)
+
+    def test_function_updates_notification_timestamp_on_success(self):
+        """Test that notification_sent_at is set before calling the function.
+
+        In normal usage, the timestamp is set in save() before the notification
+        function is called. This test verifies the function works correctly
+        when the timestamp is already set.
+        """
+        # Set timestamp as save() would
+        self.order.notification_sent_at = timezone.now()
+        self.order.save()
+
+        # Verify timestamp was set
+        self.assertIsNotNone(self.order.notification_sent_at)
+        self.assertIsInstance(self.order.notification_sent_at, datetime)
+
+        # Calling the notification function should work even though timestamp is set
+        result = send_order_paid_notification(self.order)
+        self.assertTrue(result)

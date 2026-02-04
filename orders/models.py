@@ -1,10 +1,48 @@
 from decimal import Decimal
 
-from django.db import models
+from django.contrib.postgres.fields import ArrayField
+from django.db import models, transaction
+from django.utils import timezone
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.models import ClusterableModel  # type: ignore
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
+from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.models import Orderable
+
+
+def get_default_notification_emails():
+    """Return default notification email list."""
+    return ["editor@westernfriend.org"]
+
+
+@register_setting
+class BookstoreOrderNotificationSettings(BaseSiteSetting):
+    """
+    Settings for bookstore order email notifications.
+
+    Configure which email addresses should receive notifications when
+    bookstore orders are successfully paid.
+
+    Note: This can be moved to a dedicated Notifications section if other
+    notification types are added in the future.
+    """
+
+    notification_emails = ArrayField(
+        models.EmailField(),
+        default=get_default_notification_emails,
+        blank=True,
+        help_text=(
+            "Email addresses that will receive notifications when bookstore "
+            "orders are paid. One email per line. Default: editor@westernfriend.org"
+        ),
+    )
+
+    panels = [
+        FieldPanel("notification_emails"),
+    ]
+
+    class Meta:
+        verbose_name = "Bookstore Order Notifications"
 
 
 class Order(ClusterableModel):
@@ -83,6 +121,11 @@ class Order(ClusterableModel):
         default="",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    notification_sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Timestamp when the order paid notification email was sent.",
+    )
 
     class Meta:
         indexes = [
@@ -155,6 +198,32 @@ class Order(ClusterableModel):
             full_name += self.purchaser_meeting_or_organization
         # Combine any available name data, removing leading or trailing whitespace
         return full_name.rstrip()
+
+    def save(self, *args, **kwargs):
+        """
+        Override save to send email notification when order is marked as paid.
+
+        Sends notification only once (when paid=True and notification_sent_at is None).
+        Uses transaction.on_commit() to ensure notification is sent after database commit.
+        """
+        # Check if we need to send notification
+        should_notify = self.paid and self.notification_sent_at is None
+
+        # If we're going to notify, set the timestamp now to prevent duplicates
+        # if the same instance is saved again
+        if should_notify:
+            self.notification_sent_at = timezone.now()
+
+        # Save the order
+        super().save(*args, **kwargs)
+
+        # Schedule notification after transaction commits
+        if should_notify:
+            # Import inside method to avoid circular import
+            from orders.notifications import send_order_paid_notification
+
+            # Use on_commit to ensure notification is sent after successful database commit
+            transaction.on_commit(lambda: send_order_paid_notification(self))
 
 
 class OrderItem(Orderable):
