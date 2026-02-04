@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from http import HTTPStatus
 from unittest.mock import MagicMock, Mock, patch
@@ -594,6 +595,7 @@ class SendOrderPaidNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
 
         # Verify timestamp was set
         self.assertIsNotNone(self.order.notification_sent_at)
+        self.assertIsInstance(self.order.notification_sent_at, datetime)
 
         # Calling the notification function should work even though timestamp is set
         result = send_order_paid_notification(self.order)
