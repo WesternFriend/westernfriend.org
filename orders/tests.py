@@ -370,6 +370,54 @@ class OrderNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
         self.assertEqual(len(mail.outbox), 0)
         self.assertIsNone(self.order.notification_sent_at)
 
+    def test_notification_sent_when_order_created_paid(self):
+        """Test that notification is sent when order is initially created as paid.
+
+        This covers the scenario where orders are created with paid=True from the start,
+        such as when importing orders or using management commands.
+        """
+        # Create a new order that is initially marked as paid
+        paid_order = Order.objects.create(
+            purchaser_given_name="John",
+            purchaser_family_name="Doe",
+            purchaser_email="john@example.com",
+            purchaser_meeting_or_organization="Another Meeting",
+            recipient_name="John Doe",
+            recipient_street_address="456 Another St",
+            recipient_postal_code="54321",
+            recipient_address_locality="Another City",
+            recipient_address_region="AC",
+            shipping_cost=7.50,
+            paid=True,  # Created as paid from the start
+            paypal_transaction_id="TEST789",
+        )
+
+        # Create order items
+        OrderItem.objects.create(
+            order=paid_order,
+            product_title="Another Book",
+            product_id=2,
+            price=24.99,
+            quantity=1,
+        )
+
+        # The order was created with paid=True, so notification should have been sent
+        # Note: mail.outbox already has 1 email from setUp's self.order being created
+        # So we expect 1 email total (just from this paid order)
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+
+        # Check email content
+        self.assertIn("Order #", email.subject)
+        self.assertIn("John Doe", email.subject)
+        self.assertIn("john@example.com", email.body)
+        self.assertIn("TEST789", email.body)
+        self.assertIn("Another Book", email.body)
+
+        # Ensure notification_sent_at was set
+        paid_order.refresh_from_db()
+        self.assertIsNotNone(paid_order.notification_sent_at)
+
     def test_notification_sent_when_order_marked_paid(self):
         """Test that notification is sent when order is marked as paid."""
         # Mark order as paid
