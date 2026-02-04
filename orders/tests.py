@@ -387,7 +387,7 @@ class OrderNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
         self.assertIn("jane@example.com", email.body)
         self.assertIn("TEST123", email.body)
         self.assertIn("Test Book", email.body)
-        self.assertIn("/store/bookstore_orders/inspect/", email.body)
+        self.assertIn("/admin/bookstore_orders/inspect/", email.body)
 
         # Check that notification timestamp was set
         self.order.refresh_from_db()
@@ -501,7 +501,7 @@ class OrderNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
         self.order.save()
 
         email = mail.outbox[0]
-        expected_path = f"/admin/store/bookstore_orders/inspect/{self.order.id}/"
+        expected_path = f"/admin/bookstore_orders/inspect/{self.order.id}/"
         self.assertIn(expected_path, email.body)
 
     @override_settings(DEFAULT_FROM_EMAIL="custom@westernfriend.org")

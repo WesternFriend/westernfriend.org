@@ -26,13 +26,9 @@ def send_order_paid_notification(order: Order) -> bool:
     """
     try:
         # Get notification settings for the default site
-        from wagtail.models import Site
+        from core.utils import get_default_site
 
-        try:
-            site = Site.objects.get(is_default_site=True)
-        except Site.DoesNotExist:
-            # If no default site, try to get any site
-            site = Site.objects.first()
+        site = get_default_site()
 
         if site is None:
             logger.warning("No site found, cannot send order notification.")
@@ -48,15 +44,11 @@ def send_order_paid_notification(order: Order) -> bool:
             )
             return False
 
-        # Construct admin URL for viewing the order using Wagtail's URL helper
-        # Import locally to avoid circular dependency (store.views imports orders.models)
-        from store.views import OrderViewSet
+        # Construct admin URL for viewing the order using Django's URL reversing
+        from django.urls import reverse
 
-        viewset = OrderViewSet()
-        admin_url = (
-            f"{settings.WAGTAILADMIN_BASE_URL}"
-            f"{viewset.url_helper.get_action_url('inspect', order.id)}"  # type: ignore
-        )
+        # The reversed URL already includes the full path including /admin prefix
+        admin_url = reverse("bookstore_orders:inspect", args=[order.id])  # type: ignore
 
         # Prepare email context
         context = {
