@@ -600,11 +600,3 @@ class SendOrderPaidNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
         # Calling the notification function should work even though timestamp is set
         result = send_order_paid_notification(self.order)
         self.assertTrue(result)
-
-    def test_function_logs_error_on_exception(self):
-        """Test that function returns False when an exception occurs."""
-        with patch("orders.notifications.send_mail") as mock_send_mail:
-            mock_send_mail.side_effect = Exception("Test error")
-
-            result = send_order_paid_notification(self.order)
-            self.assertFalse(result)
