@@ -21,7 +21,8 @@ def send_order_paid_notification(order: Order) -> bool:
 
     Note:
         All exceptions are caught and logged to Sentry without re-raising.
-        After successful send, updates order.notification_sent_at timestamp.
+        The order.notification_sent_at timestamp should be set by the caller before invoking this function to prevent duplicate notifications.
+
     """
     try:
         # Get notification settings for the default site
@@ -47,9 +48,15 @@ def send_order_paid_notification(order: Order) -> bool:
             )
             return False
 
-        # Construct admin URL for viewing the order
-        admin_base_url = settings.WAGTAILADMIN_BASE_URL
-        admin_url = f"{admin_base_url}/store/bookstore_orders/inspect/{order.id}/"  # type: ignore
+        # Construct admin URL for viewing the order using Wagtail's URL helper
+        # Import locally to avoid circular dependency (store.views imports orders.models)
+        from store.views import OrderViewSet
+
+        viewset = OrderViewSet()
+        admin_url = (
+            f"{settings.WAGTAILADMIN_BASE_URL}"
+            f"{viewset.url_helper.get_action_url('inspect', order.id)}"  # type: ignore
+        )
 
         # Prepare email context
         context = {
