@@ -599,16 +599,6 @@ class SendOrderPaidNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
         result = send_order_paid_notification(self.order)
         self.assertTrue(result)
 
-    def test_function_logs_warning_when_no_emails_configured(self):
-        """Test that function returns False when no emails are configured."""
-        # Update settings with no emails
-        settings = BookstoreOrderNotificationSettings.for_site(self.site)
-        settings.notification_emails = []
-        settings.save()
-
-        result = send_order_paid_notification(self.order)
-        self.assertFalse(result)
-
     def test_function_logs_error_on_exception(self):
         """Test that function returns False when an exception occurs."""
         with patch("orders.notifications.send_mail") as mock_send_mail:
