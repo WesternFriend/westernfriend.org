@@ -1,18 +1,17 @@
 import logging
 from typing import Any
-from django.shortcuts import redirect
 
-from django.utils import timezone
 from django.conf import settings
 from django.db import models
 from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect
+from django.utils import timezone
+from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
-from wagtail import blocks as wagtail_blocks
 from wagtail.models import Page
 
 from paypal import blocks as paypal_blocks
-
 from paypal import subscriptions as paypal_subscriptions
 
 logger = logging.getLogger(__name__)
@@ -55,7 +54,6 @@ class Subscription(models.Model):
         FieldPanel("user"),
         FieldPanel(
             "paypal_subscription_id",
-            read_only=True,
         ),
         FieldPanel("expiration_date"),
     ]
