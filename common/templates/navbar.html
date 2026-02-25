@@ -13,7 +13,7 @@
                 <i class="bi bi-list text-2xl" aria-hidden="true"></i>
             </button>
 
-            <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse" aria-hidden="true">
+            <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse">
                 <div class="flex flex-col xl:flex-row xl:items-center xl:space-x-1">
                     <ul class="menu menu-horizontal menu-compact bg-black website-links" role="menubar" aria-label="Site navigation links">
                         {{ settings.navigation.NavigationMenuSetting.menu_items }}
@@ -77,10 +77,16 @@
                 const hamburger = nav.querySelector('[data-collapse-toggle="navbarCollapse"]');
                 const xlQuery = window.matchMedia('(min-width: 1280px)');
 
+                // Store refs needed for beforeUnmount cleanup
+                this._mobileMenu = mobileMenu;
+                this._hamburger = hamburger;
+                this._xlQuery = xlQuery;
+
                 // --- Dropdown state management ---
                 const allDropdowns = nav.querySelectorAll('.website-links details');
+                this._dropdownHandlers = [];
                 allDropdowns.forEach(details => {
-                    details.addEventListener('toggle', () => {
+                    const handler = () => {
                         if (details.open) {
                             if (this.openDetails && this.openDetails !== details) {
                                 this.openDetails.open = false;
@@ -91,11 +97,13 @@
                                 this.openDetails = null;
                             }
                         }
-                    });
+                    };
+                    details.addEventListener('toggle', handler);
+                    this._dropdownHandlers.push({ el: details, handler });
                 });
 
                 // Close open dropdown and/or mobile menu when clicking outside the nav
-                document.addEventListener('click', (e) => {
+                this._clickHandler = (e) => {
                     const clickedInsideNav = nav.contains(e.target);
                     if (!clickedInsideNav) {
                         if (this.openDetails) {
@@ -110,10 +118,11 @@
                         this.openDetails.open = false;
                         this.openDetails = null;
                     }
-                });
+                };
+                document.addEventListener('click', this._clickHandler);
 
                 // Close open dropdown (and mobile menu) on Escape
-                document.addEventListener('keydown', (e) => {
+                this._keydownHandler = (e) => {
                     if (e.key === 'Escape') {
                         if (this.openDetails) {
                             this.openDetails.open = false;
@@ -123,20 +132,37 @@
                             this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
                         }
                     }
-                });
+                };
+                document.addEventListener('keydown', this._keydownHandler);
 
                 // Sync aria-hidden with actual visibility (xl:block can override 'hidden')
+                this._xlChangeHandler = () => this.syncAriaHidden(mobileMenu, xlQuery);
                 this.syncAriaHidden(mobileMenu, xlQuery);
-                xlQuery.addEventListener('change', () => this.syncAriaHidden(mobileMenu, xlQuery));
+                xlQuery.addEventListener('change', this._xlChangeHandler);
 
                 // --- Mobile hamburger toggle ---
-                hamburger.addEventListener('click', () => {
+                this._hamburgerHandler = () => {
                     if (this.mobileMenuOpen) {
                         this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
                     } else {
                         this.openMobileMenu(mobileMenu, hamburger, xlQuery);
                     }
+                };
+                hamburger.addEventListener('click', this._hamburgerHandler);
+            },
+
+            beforeUnmount() {
+                document.removeEventListener('click', this._clickHandler);
+                document.removeEventListener('keydown', this._keydownHandler);
+                this._xlQuery.removeEventListener('change', this._xlChangeHandler);
+                this._hamburger.removeEventListener('click', this._hamburgerHandler);
+                this._dropdownHandlers.forEach(({ el, handler }) => {
+                    el.removeEventListener('toggle', handler);
                 });
+                if (this.mobileMenuOpen) {
+                    this.closeMobileMenu(this._mobileMenu, this._hamburger, this._xlQuery);
+                }
+                this.openDetails = null;
             },
 
             methods: {
