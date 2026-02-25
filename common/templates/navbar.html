@@ -75,6 +75,7 @@
                 const nav = this.$el;
                 const mobileMenu = document.getElementById('navbarCollapse');
                 const hamburger = nav.querySelector('[data-collapse-toggle="navbarCollapse"]');
+                const xlQuery = window.matchMedia('(min-width: 1280px)');
 
                 // --- Dropdown state management ---
                 const allDropdowns = nav.querySelectorAll('.website-links details');
@@ -102,7 +103,7 @@
                             this.openDetails = null;
                         }
                         if (this.mobileMenuOpen) {
-                            this.closeMobileMenu(mobileMenu, hamburger);
+                            this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
                         }
                     } else if (this.openDetails && !this.openDetails.closest('li').contains(e.target)) {
                         // Clicked inside nav but outside the open dropdown
@@ -119,36 +120,45 @@
                             this.openDetails = null;
                         }
                         if (this.mobileMenuOpen) {
-                            this.closeMobileMenu(mobileMenu, hamburger);
+                            this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
                         }
                     }
                 });
 
+                // Sync aria-hidden with actual visibility (xl:block can override 'hidden')
+                this.syncAriaHidden(mobileMenu, xlQuery);
+                xlQuery.addEventListener('change', () => this.syncAriaHidden(mobileMenu, xlQuery));
+
                 // --- Mobile hamburger toggle ---
                 hamburger.addEventListener('click', () => {
                     if (this.mobileMenuOpen) {
-                        this.closeMobileMenu(mobileMenu, hamburger);
+                        this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
                     } else {
-                        this.openMobileMenu(mobileMenu, hamburger);
+                        this.openMobileMenu(mobileMenu, hamburger, xlQuery);
                     }
                 });
             },
 
             methods: {
-                openMobileMenu(menu, button) {
+                syncAriaHidden(menu, xlQuery) {
+                    const isVisible = xlQuery.matches || !menu.classList.contains('hidden');
+                    menu.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+                },
+
+                openMobileMenu(menu, button, xlQuery) {
                     menu.classList.remove('hidden');
                     button.setAttribute('aria-expanded', 'true');
-                    menu.setAttribute('aria-hidden', 'false');
+                    this.syncAriaHidden(menu, xlQuery);
                     this.mobileMenuOpen = true;
 
                     const first = this.getFocusableElements(menu)[0];
                     if (first) first.focus();
                 },
 
-                closeMobileMenu(menu, button) {
+                closeMobileMenu(menu, button, xlQuery) {
                     menu.classList.add('hidden');
                     button.setAttribute('aria-expanded', 'false');
-                    menu.setAttribute('aria-hidden', 'true');
+                    this.syncAriaHidden(menu, xlQuery);
                     this.mobileMenuOpen = false;
                     button.focus();
 
