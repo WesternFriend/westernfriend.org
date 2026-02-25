@@ -1,7 +1,7 @@
 {% load wagtailsettings_tags %}
 {% get_settings use_default_site=True %}
 
-<nav class="bg-black text-white shadow-md sticky top-0 z-50" aria-label="Main navigation">
+<nav id="nav-vue-app" class="bg-black text-white shadow-md sticky top-0 z-50" aria-label="Main navigation">
     <div class="container mx-auto px-2">
         <div class="flex flex-wrap items-center justify-between">
             <button class="xl:hidden p-1 my-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300"
@@ -13,7 +13,7 @@
                 <i class="bi bi-list text-2xl" aria-hidden="true"></i>
             </button>
 
-            <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse" aria-hidden="true">
+            <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse">
                 <div class="flex flex-col xl:flex-row xl:items-center xl:space-x-1">
                     <ul class="menu menu-horizontal menu-compact bg-black website-links" role="menubar" aria-label="Site navigation links">
                         {{ settings.navigation.NavigationMenuSetting.menu_items }}
@@ -60,78 +60,148 @@
 </nav>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const button = document.querySelector('[data-collapse-toggle="navbarCollapse"]');
-        const menu = document.getElementById('navbarCollapse');
+    document.addEventListener('DOMContentLoaded', function () {
+        const { createApp } = Vue;
 
-        // Function to find all focusable elements within an element
-        function getFocusableElements(element) {
-            return Array.from(
-                element.querySelectorAll(
-                    'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), details summary, [tabindex]:not([tabindex="-1"])'
-                )
-            ).filter(el => el.offsetParent !== null); // Ensure elements are visible
-        }
+        createApp({
+            data() {
+                return {
+                    openDetails: null,
+                    mobileMenuOpen: false,
+                };
+            },
 
-        // Named handlers so we can add/remove cleanly
-        function handleOutsideClick(event) {
-            if (!menu.contains(event.target) && !button.contains(event.target)) {
-                closeMenu();
-            }
+            mounted() {
+                const nav = this.$el;
+                const mobileMenu = document.getElementById('navbarCollapse');
+                const hamburger = nav.querySelector('[data-collapse-toggle="navbarCollapse"]');
+                const xlQuery = window.matchMedia('(min-width: 1280px)');
 
-            // Handle dropdown carets when clicking outside
-            const openDropdowns = menu.querySelectorAll('details[open]');
-            for (const dropdown of openDropdowns) {
-                // If click target is not inside this dropdown, close it
-                if (!dropdown.contains(event.target)) {
-                    dropdown.removeAttribute('open');
+                // Store refs needed for beforeUnmount cleanup
+                this._mobileMenu = mobileMenu;
+                this._hamburger = hamburger;
+                this._xlQuery = xlQuery;
+
+                // --- Dropdown state management ---
+                const allDropdowns = nav.querySelectorAll('.website-links details');
+                this._dropdownHandlers = [];
+                allDropdowns.forEach(details => {
+                    const handler = () => {
+                        if (details.open) {
+                            if (this.openDetails && this.openDetails !== details) {
+                                this.openDetails.open = false;
+                            }
+                            this.openDetails = details;
+                        } else {
+                            if (this.openDetails === details) {
+                                this.openDetails = null;
+                            }
+                        }
+                    };
+                    details.addEventListener('toggle', handler);
+                    this._dropdownHandlers.push({ el: details, handler });
+                });
+
+                // Close open dropdown and/or mobile menu when clicking outside the nav
+                this._clickHandler = (e) => {
+                    const clickedInsideNav = nav.contains(e.target);
+                    if (!clickedInsideNav) {
+                        if (this.openDetails) {
+                            this.openDetails.open = false;
+                            this.openDetails = null;
+                        }
+                        if (this.mobileMenuOpen) {
+                            this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
+                        }
+                    } else if (this.openDetails && !this.openDetails.closest('li').contains(e.target)) {
+                        // Clicked inside nav but outside the open dropdown
+                        this.openDetails.open = false;
+                        this.openDetails = null;
+                    }
+                };
+                document.addEventListener('click', this._clickHandler);
+
+                // Close open dropdown (and mobile menu) on Escape
+                this._keydownHandler = (e) => {
+                    if (e.key === 'Escape') {
+                        if (this.openDetails) {
+                            this.openDetails.open = false;
+                            this.openDetails = null;
+                        }
+                        if (this.mobileMenuOpen) {
+                            this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
+                        }
+                    }
+                };
+                document.addEventListener('keydown', this._keydownHandler);
+
+                // Sync aria-hidden with actual visibility (xl:block can override 'hidden')
+                this._xlChangeHandler = () => this.syncAriaHidden(mobileMenu, xlQuery);
+                this.syncAriaHidden(mobileMenu, xlQuery);
+                xlQuery.addEventListener('change', this._xlChangeHandler);
+
+                // --- Mobile hamburger toggle ---
+                this._hamburgerHandler = () => {
+                    if (this.mobileMenuOpen) {
+                        this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
+                    } else {
+                        this.openMobileMenu(mobileMenu, hamburger, xlQuery);
+                    }
+                };
+                hamburger.addEventListener('click', this._hamburgerHandler);
+            },
+
+            beforeUnmount() {
+                document.removeEventListener('click', this._clickHandler);
+                document.removeEventListener('keydown', this._keydownHandler);
+                this._xlQuery.removeEventListener('change', this._xlChangeHandler);
+                this._hamburger.removeEventListener('click', this._hamburgerHandler);
+                this._dropdownHandlers.forEach(({ el, handler }) => {
+                    el.removeEventListener('toggle', handler);
+                });
+                if (this.mobileMenuOpen) {
+                    this.closeMobileMenu(this._mobileMenu, this._hamburger, this._xlQuery);
                 }
-            }
-        }
+                this.openDetails = null;
+            },
 
-        function handleEscape(event) {
-            if (event.key === 'Escape') {
-                closeMenu();
-            }
-        }
+            methods: {
+                syncAriaHidden(menu, xlQuery) {
+                    const isVisible = xlQuery.matches || !menu.classList.contains('hidden');
+                    menu.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+                },
 
-        function openMenu() {
-            menu.classList.remove('hidden');
-            button.setAttribute('aria-expanded', 'true');
-            menu.setAttribute('aria-hidden', 'false');
+                openMobileMenu(menu, button, xlQuery) {
+                    menu.classList.remove('hidden');
+                    button.setAttribute('aria-expanded', 'true');
+                    this.syncAriaHidden(menu, xlQuery);
+                    this.mobileMenuOpen = true;
 
-            // Focus first item
-            const first = getFocusableElements(menu)[0];
-            if (first) first.focus();
+                    const first = this.getFocusableElements(menu)[0];
+                    if (first) first.focus();
+                },
 
-            // Wire up listeners
-            document.addEventListener('click', handleOutsideClick);
-            document.addEventListener('keydown', handleEscape);
-        }
+                closeMobileMenu(menu, button, xlQuery) {
+                    menu.classList.add('hidden');
+                    button.setAttribute('aria-expanded', 'false');
+                    this.syncAriaHidden(menu, xlQuery);
+                    this.mobileMenuOpen = false;
+                    button.focus();
 
-        function closeMenu() {
-            menu.classList.add('hidden');
-            button.setAttribute('aria-expanded', 'false');
-            menu.setAttribute('aria-hidden', 'true');
+                    if (this.openDetails) {
+                        this.openDetails.open = false;
+                        this.openDetails = null;
+                    }
+                },
 
-            // Return focus to toggle
-            button.focus();
-
-            // Collapse any open dropdown submenus
-            menu.querySelectorAll('details[open]').forEach(dropdown => dropdown.removeAttribute('open'));
-
-            // Tear down listeners
-            document.removeEventListener('click', handleOutsideClick);
-            document.removeEventListener('keydown', handleEscape);
-        }
-
-        button.addEventListener('click', () => {
-            const isOpen = button.getAttribute('aria-expanded') === 'true';
-            if (isOpen) {
-                closeMenu();
-            } else {
-                openMenu();
-            }
-        });
+                getFocusableElements(element) {
+                    return Array.from(
+                        element.querySelectorAll(
+                            'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), details summary, [tabindex]:not([tabindex="-1"])'
+                        )
+                    ).filter(el => el.offsetParent !== null);
+                },
+            },
+        }).mount('#nav-vue-app');
     });
 </script>
