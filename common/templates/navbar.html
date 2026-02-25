@@ -93,9 +93,19 @@
                     });
                 });
 
-                // Close open dropdown when clicking outside the nav
+                // Close open dropdown and/or mobile menu when clicking outside the nav
                 document.addEventListener('click', (e) => {
-                    if (this.openDetails && !this.openDetails.closest('li').contains(e.target)) {
+                    const clickedInsideNav = nav.contains(e.target);
+                    if (!clickedInsideNav) {
+                        if (this.openDetails) {
+                            this.openDetails.open = false;
+                            this.openDetails = null;
+                        }
+                        if (this.mobileMenuOpen) {
+                            this.closeMobileMenu(mobileMenu, hamburger);
+                        }
+                    } else if (this.openDetails && !this.openDetails.closest('li').contains(e.target)) {
+                        // Clicked inside nav but outside the open dropdown
                         this.openDetails.open = false;
                         this.openDetails = null;
                     }
