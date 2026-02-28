@@ -25,14 +25,23 @@ Follow the steps below to set up your development environment.
 
 **Note:** If you're using Windows, please use PowerShell. If your system uses the `python3` command instead of `python`, substitute it as needed.
 
+Optionally, install [Claude context mode](https://github.com/mksglu/claude-context-mode) manager for better AI-assisted development using Claude Code:
+
+```bash
+/plugin marketplace add mksglu/claude-context-mode
+/plugin install context-mode@claude-context-mode
+```
+
 ### Setup
 
 1. **Clone the Repository**: `git clone git@github.com:WesternFriend/westernfriend.org.git`
 2. **Change into the Application Directory**: `cd  westernfriend.org/`
 3. **Create Virtual Environment and Install Dependencies**:
-   ```
+
+   ```sh
    uv sync
    ```
+
 4. **Activate the Virtual Environment**:
    - **Mac/Linux**: `source .venv/bin/activate`
    - **Windows PowerShell**: `.venv\Scripts\Activate.ps1`
