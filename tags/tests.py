@@ -5,7 +5,7 @@ from taggit.models import Tag
 from library.models import LibraryItem
 from library.factories import LibraryItemFactory
 from magazine.factories import MagazineArticleFactory
-from magazine.models import MagazineArticle, MagazineArticleAuthor
+from magazine.models import MagazineArticle, MagazineArticleAuthor, MagazineIssue
 from news.factories import NewsItemFactory
 from news.models import NewsItem
 from wf_pages.factories import WfPageFactory
@@ -221,3 +221,32 @@ class TaggedPageListViewTemplateRenderingTest(TestCase):
             "%Y-%m-%d",
         )
         self.assertIn(f'<time datetime="{expected_date}"', html)
+
+
+class TaggedPageListViewQueryOptimizationTest(TestCase):
+    """Verify parent MagazineIssue pages are pre-fetched to prevent N+1 queries."""
+
+    def setUp(self):
+        self.tag = Tag.objects.create(name="Optimization Tag", slug="optimization-tag")
+        self.url = reverse("tags:tagged_page_list", kwargs={"tag": self.tag.slug})
+
+        for i in range(3):
+            article = MagazineArticleFactory(title=f"Optimization Article {i}")
+            article.tags.add(self.tag)
+            article.save()
+
+    def test_parent_page_annotated_after_view(self):
+        """The view calls annotate_parent_page() so every article in the response
+        has _parent_page set to its MagazineIssue without additional DB queries."""
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+        items = response.context["paginated_items"].page.object_list
+        magazine_articles = [
+            item for item in items if isinstance(item, MagazineArticle)
+        ]
+        self.assertGreater(len(magazine_articles), 0)
+
+        for article in magazine_articles:
+            self.assertIsNotNone(article._parent_page)
+            self.assertIsInstance(article.parent_issue, MagazineIssue)

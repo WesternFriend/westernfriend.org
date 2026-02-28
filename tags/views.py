@@ -4,6 +4,7 @@ from django.views.generic import ListView
 from django.db.models import Q
 from taggit.models import Tag
 from wagtail.admin.viewsets.model import ModelViewSet
+from wagtail.models import Page
 
 from library.models import LibraryItem
 from magazine.models import MagazineArticle
@@ -35,15 +36,19 @@ class TaggedPageListView(ListView):
             # DB-level ordering unnecessary; combined list is sorted below
         )
 
-        magazine_articles = (
+        magazine_articles = list(
             MagazineArticle.get_queryset()
             .filter(filter_condition)
             .live()
             .public()
             .select_related("content_type")
-            .prefetch_related("authors__author")
+            .prefetch_related("authors__author"),
             # DB-level ordering unnecessary; combined list is sorted below
         )
+
+        # Bulk-annotate parent MagazineIssues to avoid N+1 from
+        # article._parent_page in magazine_article_summary.html
+        Page.objects.annotate_parent_page(magazine_articles)  # type: ignore[attr-defined]
 
         news_items = (
             NewsItem.objects.filter(filter_condition)

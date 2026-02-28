@@ -32,7 +32,7 @@
             {{ article.teaser|richtext }}
         </div>
 
-        {% with issue=article.get_parent.specific %}
+        {% with issue=article.parent_issue %}
             <div class="card-actions">
                 <span>
                     <span class="font-medium">{% translate "Issue" %}:</span>
