@@ -5,7 +5,7 @@ from taggit.models import Tag
 from library.models import LibraryItem
 from library.factories import LibraryItemFactory
 from magazine.factories import MagazineArticleFactory
-from magazine.models import MagazineArticle, MagazineArticleAuthor
+from magazine.models import MagazineArticle, MagazineArticleAuthor, MagazineIssue
 from news.factories import NewsItemFactory
 from news.models import NewsItem
 from wf_pages.factories import WfPageFactory
@@ -235,9 +235,9 @@ class TaggedPageListViewQueryOptimizationTest(TestCase):
             article.tags.add(self.tag)
             article.save()
 
-    def test_parent_issue_cache_populated_after_view(self):
-        """get_parent() on articles in the response should require no DB queries
-        because the view pre-populates _parent_page_cache in bulk."""
+    def test_parent_page_annotated_after_view(self):
+        """The view calls annotate_parent_page() so every article in the response
+        has _parent_page set to its MagazineIssue without additional DB queries."""
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
@@ -247,6 +247,6 @@ class TaggedPageListViewQueryOptimizationTest(TestCase):
         ]
         self.assertGreater(len(magazine_articles), 0)
 
-        with self.assertNumQueries(0):
-            for article in magazine_articles:
-                _ = article.get_parent()
+        for article in magazine_articles:
+            self.assertIsNotNone(article._parent_page)
+            self.assertIsInstance(article.parent_issue, MagazineIssue)

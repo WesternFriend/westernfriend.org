@@ -100,6 +100,10 @@ def search(request: HttpRequest) -> HttpResponse:
                 ),
             )
 
+            # Bulk-annotate parent pages so magazine_article_summary.html can
+            # access article._parent_page without triggering N+1 queries
+            Page.objects.annotate_parent_page(magazine_articles)  # type: ignore[attr-defined]
+
             specific_instances.extend(magazine_articles)
 
         # Fetch other page types using standard .specific()

@@ -351,6 +351,19 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
 
     search_template = "search/magazine_article.html"
 
+    @property
+    def parent_issue(self):
+        """Return the parent MagazineIssue.
+
+        Uses the value pre-populated by Page.objects.annotate_parent_page()
+        when available (set as _parent_page), avoiding a DB query.
+        Falls back to get_parent().specific in contexts where annotation
+        was not performed.
+        """
+        if hasattr(self, "_parent_page") and self._parent_page is not None:
+            return self._parent_page
+        return self.get_parent().specific
+
     @classmethod
     def get_queryset(cls):
         """Optimize related fetches for listings.
