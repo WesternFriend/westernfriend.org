@@ -3,7 +3,11 @@ from django.test import RequestFactory, TestCase
 from wagtail.models import Page, Site
 from accounts.models import User
 from home.models import HomePage
-from magazine.factories import MagazineIndexPageFactory, MagazineIssueFactory
+from magazine.factories import (
+    MagazineArticleFactory,
+    MagazineIndexPageFactory,
+    MagazineIssueFactory,
+)
 from subscription.models import (
     Subscription,
 )
@@ -681,3 +685,30 @@ class TestMagazineIssueFactory(TestCase):
             magazine_issue.get_parent().specific,
             MagazineIndexPage,
         )
+
+
+class MagazineArticleParentIssueTest(TestCase):
+    def setUp(self) -> None:
+        self.issue = MagazineIssueFactory.create()
+        self.article = MagazineArticleFactory.create(parent=self.issue)
+
+    def test_parent_issue_returns_magazine_issue(self) -> None:
+        """parent_issue returns the correct MagazineIssue via DB lookup."""
+        self.assertIsInstance(self.article.parent_issue, MagazineIssue)
+        self.assertEqual(self.article.parent_issue.pk, self.issue.pk)
+
+    def test_parent_issue_uses_annotated_value_when_set(self) -> None:
+        """parent_issue returns _parent_page directly when pre-populated
+        by annotate_parent_page(), without hitting the database."""
+        self.article._parent_page = self.issue
+        with self.assertNumQueries(0):
+            result = self.article.parent_issue
+        self.assertEqual(result.pk, self.issue.pk)
+
+    def test_parent_issue_falls_back_to_db_when_not_annotated(self) -> None:
+        """parent_issue queries the DB when _parent_page is not set."""
+        # Ensure _parent_page is absent (default state, no annotation)
+        self.assertFalse(hasattr(self.article, "_parent_page"))
+        result = self.article.parent_issue
+        self.assertIsInstance(result, MagazineIssue)
+        self.assertEqual(result.pk, self.issue.pk)
