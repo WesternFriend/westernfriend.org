@@ -4,9 +4,10 @@ from django.views.generic import ListView
 from django.db.models import Q
 from taggit.models import Tag
 from wagtail.admin.viewsets.model import ModelViewSet
+from wagtail.models import Page
 
 from library.models import LibraryItem
-from magazine.models import MagazineArticle
+from magazine.models import MagazineArticle, MagazineIssue
 from news.models import NewsItem
 from pagination.helpers import get_paginated_items
 from wf_pages.models import WfPage
@@ -35,15 +36,29 @@ class TaggedPageListView(ListView):
             # DB-level ordering unnecessary; combined list is sorted below
         )
 
-        magazine_articles = (
+        magazine_articles = list(
             MagazineArticle.get_queryset()
             .filter(filter_condition)
             .live()
             .public()
             .select_related("content_type")
-            .prefetch_related("authors__author")
+            .prefetch_related("authors__author"),
             # DB-level ordering unnecessary; combined list is sorted below
         )
+
+        # Prefetch parent MagazineIssues in bulk to avoid N+1 from
+        # article.get_parent().specific in magazine_article_summary.html
+        if magazine_articles:
+            step_len = Page.steplen
+            parent_paths = {a.path[:-step_len] for a in magazine_articles}
+            parent_issues_by_path = {
+                issue.path: issue
+                for issue in MagazineIssue.objects.filter(path__in=parent_paths)
+            }
+            for article in magazine_articles:
+                parent = parent_issues_by_path.get(article.path[:-step_len])
+                if parent is not None:
+                    article._parent_page_cache = parent
 
         news_items = (
             NewsItem.objects.filter(filter_condition)

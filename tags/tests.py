@@ -221,3 +221,32 @@ class TaggedPageListViewTemplateRenderingTest(TestCase):
             "%Y-%m-%d",
         )
         self.assertIn(f'<time datetime="{expected_date}"', html)
+
+
+class TaggedPageListViewQueryOptimizationTest(TestCase):
+    """Verify parent MagazineIssue pages are pre-fetched to prevent N+1 queries."""
+
+    def setUp(self):
+        self.tag = Tag.objects.create(name="Optimization Tag", slug="optimization-tag")
+        self.url = reverse("tags:tagged_page_list", kwargs={"tag": self.tag.slug})
+
+        for i in range(3):
+            article = MagazineArticleFactory(title=f"Optimization Article {i}")
+            article.tags.add(self.tag)
+            article.save()
+
+    def test_parent_issue_cache_populated_after_view(self):
+        """get_parent() on articles in the response should require no DB queries
+        because the view pre-populates _parent_page_cache in bulk."""
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+        items = response.context["paginated_items"].page.object_list
+        magazine_articles = [
+            item for item in items if isinstance(item, MagazineArticle)
+        ]
+        self.assertGreater(len(magazine_articles), 0)
+
+        with self.assertNumQueries(0):
+            for article in magazine_articles:
+                _ = article.get_parent()
