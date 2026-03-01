@@ -4,7 +4,8 @@ from django.conf import settings
 from django.core.signals import request_finished, request_started
 from django.forms import CharField, TextInput
 from django.forms.forms import Form
-from django.test import TestCase
+from django.template.loader import render_to_string
+from django.test import RequestFactory, TestCase
 
 from common.apps import CommonConfig, _locale_cache_local
 from common.templatetags.common_form_tags import add_class
@@ -260,3 +261,81 @@ class LocaleCacheTest(TestCase):
             )
         finally:
             request_finished.send(sender=None)
+
+
+class BreadcrumbsTemplateTest(TestCase):
+    """Rendering tests for breadcrumbs.html.
+
+    Uses a real Wagtail page tree so that get_ancestors(), specific_pages(),
+    and pageurl all exercise their normal code paths, giving the template
+    measurable coverage.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        from wagtail.models import Page, Site
+
+        try:
+            root = Page.objects.get(depth=1)
+        except Page.DoesNotExist:
+            root = Page.add_root(title="Root", slug="root")
+
+        cls.home = root.add_child(
+            instance=Page(title="BC Home", slug="bc-test-home"),
+        )
+        cls.child = cls.home.add_child(
+            instance=Page(title="BC Child", slug="bc-test-child"),
+        )
+
+        # Ensure a default site exists so pageurl can resolve URLs.
+        cls.site = Site.objects.filter(is_default_site=True).first()
+        if cls.site is None:
+            cls.site = Site.objects.create(
+                hostname="localhost",
+                port=80,
+                root_page=root,
+                is_default_site=True,
+                site_name="Test",
+            )
+
+    def _render(self, page):
+        request = RequestFactory().get("/")
+        request.site = self.site
+        return render_to_string(
+            "breadcrumbs.html",
+            {"page": page, "request": request},
+            request=request,
+        )
+
+    def test_no_output_when_page_is_none(self):
+        """Template produces no output when page is None."""
+        self.assertEqual(self._render(None).strip(), "")
+
+    def test_no_output_for_shallow_page(self):
+        """No breadcrumbs for a page with only one ancestor (the root)."""
+        self.assertEqual(self._render(self.home).strip(), "")
+
+    def test_nav_rendered_for_deep_page(self):
+        """Breadcrumb nav appears when the page has more than one ancestor."""
+        output = self._render(self.child)
+        self.assertIn('aria-label="Breadcrumb"', output)
+        self.assertIn("BC Home", output)
+
+    def test_current_page_marked_with_aria_current(self):
+        """Current page item carries aria-current=page."""
+        output = self._render(self.child)
+        self.assertIn('aria-current="page"', output)
+        self.assertIn("BC Child", output)
+
+    def test_json_ld_included(self):
+        """JSON-LD script block is present for deep pages."""
+        output = self._render(self.child)
+        self.assertIn("application/ld+json", output)
+        self.assertIn("BreadcrumbList", output)
+
+    def test_json_ld_positions_are_sequential(self):
+        """JSON-LD positions: Home=1, visible ancestor=2, current page=3."""
+        output = self._render(self.child)
+        self.assertIn('"position": 1', output)
+        self.assertIn('"position": 2', output)
+        self.assertIn('"position": 3', output)
