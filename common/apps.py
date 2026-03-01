@@ -1,4 +1,14 @@
+import threading
+
 from django.apps import AppConfig
+from django.core.signals import request_finished, request_started
+
+# Thread-local storage for the per-request locale cache.
+# Each worker thread keeps its own dict that is created at the start of an
+# HTTP request and discarded at the end.  Code that runs outside the
+# request/response cycle (tests, management commands) sees no cache at all,
+# so stale data across database resets is never a problem.
+_locale_cache_local = threading.local()
 
 
 class CommonConfig(AppConfig):
@@ -10,22 +20,44 @@ class CommonConfig(AppConfig):
 
     @staticmethod
     def _patch_locale_manager():
-        """Cache LocaleManager.get_for_language to avoid a DB hit per call.
+        """Cache LocaleManager.get_for_language for the duration of each request.
 
-        With WAGTAIL_I18N_ENABLED=True, Wagtail 7.3 calls
-        Locale.objects.get_for_language() on every page.localized access
-        (e.g. once per rich-text page link during template rendering) without
-        any caching.  Locale rows are effectively static in production, so a
-        simple process-level cache eliminates the N+1.
+        Problem
+        -------
+        With WAGTAIL_I18N_ENABLED=True, Wagtail 7.3's PageLinkHandler calls
+        ``page.localized.url`` for every internal link when rendering a
+        RichTextBlock.  Each call bottoms out in
+        ``LocaleManager.get_for_language()``, which issues an uncached
+        ``SELECT … FROM wagtailcore_locale WHERE language_code = %s``.
+        A page with many links therefore produces an N+1 of identical queries.
+
+        Fix
+        ---
+        Wrap ``get_for_language`` so it caches results in a thread-local dict
+        that is initialised at ``request_started`` and cleared at
+        ``request_finished``.  Outside the request lifecycle the original,
+        uncached method is called directly, which keeps tests and management
+        commands unaffected by any stale state.
         """
         from wagtail.models import LocaleManager
 
         _original = LocaleManager.get_for_language
-        _cache: dict = {}
 
         def _cached(self, language_code):
-            if language_code not in _cache:
-                _cache[language_code] = _original(self, language_code)
-            return _cache[language_code]
+            cache = getattr(_locale_cache_local, "locale_cache", None)
+            if cache is None:
+                # Not inside an HTTP request – skip the cache entirely.
+                return _original(self, language_code)
+            if language_code not in cache:
+                cache[language_code] = _original(self, language_code)
+            return cache[language_code]
+
+        def _init_cache(**kwargs):
+            _locale_cache_local.locale_cache = {}
+
+        def _clear_cache(**kwargs):
+            _locale_cache_local.locale_cache = None
 
         LocaleManager.get_for_language = _cached
+        request_started.connect(_init_cache)
+        request_finished.connect(_clear_cache)
