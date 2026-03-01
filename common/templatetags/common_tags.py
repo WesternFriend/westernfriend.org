@@ -49,7 +49,7 @@ def visible_breadcrumb_ancestors(ancestors):
     """
     if not ancestors:
         return []
-    return [a for a in ancestors if not a.is_root and not exclude_from_breadcrumbs(a)]
+    return [a for a in ancestors if not a.is_root() and not exclude_from_breadcrumbs(a)]
 
 
 @register.filter

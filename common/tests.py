@@ -157,7 +157,7 @@ class VisibleBreadcrumbAncestorsTest(TestCase):
 
     def _make_page(self, model_name, is_root=False):
         page = MagicMock()
-        page.is_root = is_root
+        page.is_root.return_value = is_root
         page._meta.model_name = model_name
         return page
 
