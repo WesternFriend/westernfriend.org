@@ -388,9 +388,9 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         }
         for article in articles:
             if article.depth > 1:
-                article._parent_page = issue_by_path.get(  # type: ignore[attr-defined]
-                    article.path[: -article.steplen],
-                )
+                parent = issue_by_path.get(article.path[: -article.steplen])
+                if parent is not None:
+                    article._parent_page = parent  # type: ignore[attr-defined]
 
     @classmethod
     def get_queryset(cls):
