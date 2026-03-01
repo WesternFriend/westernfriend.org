@@ -196,16 +196,18 @@ class LocaleCacheTest(TestCase):
         self.assertIsNone(_locale_cache_local.locale_cache)
 
     def test_locale_cached_within_request(self):
-        """Two calls within the same request return the identical object."""
+        """Two calls within the same request return the identical object.
+
+        The cache is activated directly (rather than via request_started) to
+        avoid Django's close_old_connections handler tearing down the test DB
+        connection as a side-effect of sending that signal.
+        """
         from wagtail.models import Locale
 
-        request_started.send(sender=None, environ={})
-        try:
-            first = Locale.objects.get_for_language(settings.LANGUAGE_CODE)
-            second = Locale.objects.get_for_language(settings.LANGUAGE_CODE)
-            self.assertIs(first, second)
-        finally:
-            request_finished.send(sender=None)
+        _locale_cache_local.locale_cache = {}
+        first = Locale.objects.get_for_language(settings.LANGUAGE_CODE)
+        second = Locale.objects.get_for_language(settings.LANGUAGE_CODE)
+        self.assertIs(first, second)
 
     def test_no_cross_request_cache_leakage(self):
         """Each new request starts with a fresh, empty cache."""

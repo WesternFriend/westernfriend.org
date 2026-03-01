@@ -68,5 +68,7 @@ class CommonConfig(AppConfig):
             _locale_cache_local.locale_cache = None
 
         LocaleManager.get_for_language = _cached
-        request_started.connect(_init_cache)
-        request_finished.connect(_clear_cache)
+        # weak=False prevents the closures from being garbage-collected after
+        # _patch_locale_manager() returns (Django holds only a weakref by default).
+        request_started.connect(_init_cache, weak=False)
+        request_finished.connect(_clear_cache, weak=False)
