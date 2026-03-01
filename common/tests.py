@@ -109,6 +109,7 @@ class CommonTagsTests(TestCase):
 
         # Test with all excluded model types
         excluded_models = [
+            "homepage",
             "personindexpage",
             "meetingindexpage",
             "organizationindexpage",

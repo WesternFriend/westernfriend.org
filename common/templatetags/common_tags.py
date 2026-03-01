@@ -13,6 +13,7 @@ def model_name(value):
 
 
 EXCLUDED_BREADCRUMB_MODELS = [
+    "homepage",
     "personindexpage",
     "meetingindexpage",
     "organizationindexpage",
