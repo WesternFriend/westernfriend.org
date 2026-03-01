@@ -375,6 +375,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         MagazineIssue-specific fields (e.g. ``publication_date``) are accessed.
         This method fetches MagazineIssue objects directly, avoiding that N+1.
         """
+        articles = list(articles)
         parent_paths = {
             article.path[: -article.steplen]
             for article in articles
