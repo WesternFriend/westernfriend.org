@@ -100,9 +100,13 @@ def search(request: HttpRequest) -> HttpResponse:
                 ),
             )
 
-            # Bulk-annotate parent pages so parent_issue property can use
-            # _parent_page without triggering N+1 queries
-            Page.objects.annotate_parent_page(magazine_articles)  # type: ignore[attr-defined]
+            # Bulk-annotate parent MagazineIssue instances so parent_issue
+            # property can use _parent_page without triggering N+1 queries.
+            # Uses prefetch_parent_issues() rather than the generic
+            # Page.objects.annotate_parent_page(), which fetches deferred
+            # specific instances and causes per-article queries when
+            # MagazineIssue-specific fields are accessed in the template.
+            MagazineArticle.prefetch_parent_issues(magazine_articles)
 
             specific_instances.extend(magazine_articles)
 

@@ -638,3 +638,63 @@ class CustomSearchTemplateRenderingTestCase(TestCase):
         self.assertNotContains(response, "Authors:")
         self.assertNotContains(response, "bi-calendar-event")
         self.assertNotContains(response, "Issue:")
+
+
+class WagtailAPICompatibilityTestCase(TestCase):
+    """Verify that Wagtail built-ins used for query optimisation still exist.
+
+    These tests catch Wagtail upgrades that rename or remove methods we depend
+    on, turning a silent runtime failure into an explicit test failure.
+    """
+
+    def test_magazine_article_has_prefetch_parent_issues(self):
+        """MagazineArticle.prefetch_parent_issues must exist as a callable."""
+        self.assertTrue(
+            callable(getattr(MagazineArticle, "prefetch_parent_issues", None)),
+            "MagazineArticle.prefetch_parent_issues not found - method may have been renamed or removed",
+        )
+
+    def test_magazine_article_queryset_has_defer_streamfields(self):
+        """MagazineArticle.objects.defer_streamfields must exist (PageQuerySet)."""
+        self.assertTrue(
+            callable(getattr(MagazineArticle.objects, "defer_streamfields", None)),
+            "MagazineArticle.objects.defer_streamfields not found - check Wagtail version",
+        )
+
+
+class PrefetchParentIssuesTestCase(TestCase):
+    """Verify MagazineArticle.prefetch_parent_issues() avoids N+1 queries."""
+
+    def setUp(self):
+        self.issue = MagazineIssueFactory(title="Test Issue")
+        self.article1 = MagazineArticleFactory(title="Article One", parent=self.issue)
+        self.article2 = MagazineArticleFactory(title="Article Two", parent=self.issue)
+
+    def test_prefetch_sets_parent_page(self):
+        articles = list(
+            MagazineArticle.objects.filter(id__in=[self.article1.id, self.article2.id]),
+        )
+        MagazineArticle.prefetch_parent_issues(articles)
+        for article in articles:
+            self.assertTrue(
+                hasattr(article, "_parent_page"),
+                f"{article.title} missing _parent_page after prefetch",
+            )
+            self.assertIsInstance(article._parent_page, type(self.issue))
+
+    @override_settings(DEBUG=True)
+    def test_prefetch_parent_issues_no_n1(self):
+        """Accessing parent_issue.publication_date must not fire per-article queries."""
+        articles = list(
+            MagazineArticle.objects.filter(id__in=[self.article1.id, self.article2.id]),
+        )
+        MagazineArticle.prefetch_parent_issues(articles)
+        with self.assertNumQueries(0):
+            for article in articles:
+                _ = article.parent_issue.publication_date
+
+    @override_settings(DEBUG=True)
+    def test_empty_list_is_safe(self):
+        """prefetch_parent_issues on an empty list must not raise or query."""
+        with self.assertNumQueries(0):
+            MagazineArticle.prefetch_parent_issues([])

@@ -4,7 +4,6 @@ from django.views.generic import ListView
 from django.db.models import Q
 from taggit.models import Tag
 from wagtail.admin.viewsets.model import ModelViewSet
-from wagtail.models import Page
 
 from library.models import LibraryItem
 from magazine.models import MagazineArticle
@@ -48,7 +47,7 @@ class TaggedPageListView(ListView):
 
         # Bulk-annotate parent MagazineIssues to avoid N+1 from
         # article._parent_page in magazine_article_summary.html
-        Page.objects.annotate_parent_page(magazine_articles)  # type: ignore[attr-defined]
+        MagazineArticle.prefetch_parent_issues(magazine_articles)
 
         news_items = (
             NewsItem.objects.filter(filter_condition)
