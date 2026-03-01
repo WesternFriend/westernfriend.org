@@ -373,6 +373,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         """
         return (
             cls.objects.defer_streamfields()
+            .defer("body_migrated")
             .select_related("department")
             .prefetch_related("authors__author", "tags")
         )
