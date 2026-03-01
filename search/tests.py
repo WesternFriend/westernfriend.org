@@ -647,11 +647,11 @@ class WagtailAPICompatibilityTestCase(TestCase):
     on, turning a silent runtime failure into an explicit test failure.
     """
 
-    def test_page_manager_has_annotate_parent_page(self):
-        """Page.objects.annotate_parent_page must exist (BasePageManager)."""
+    def test_magazine_article_has_prefetch_parent_issues(self):
+        """MagazineArticle.prefetch_parent_issues must exist as a callable."""
         self.assertTrue(
-            callable(getattr(Page.objects, "annotate_parent_page", None)),
-            "Page.objects.annotate_parent_page not found - check Wagtail version",
+            callable(getattr(MagazineArticle, "prefetch_parent_issues", None)),
+            "MagazineArticle.prefetch_parent_issues not found - method may have been renamed or removed",
         )
 
     def test_magazine_article_queryset_has_defer_streamfields(self):
