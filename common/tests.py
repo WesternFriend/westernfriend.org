@@ -201,12 +201,19 @@ class LocaleCacheTest(TestCase):
         _locale_cache_local.locale_cache = None
 
     def test_patch_is_idempotent(self):
-        """Calling _patch_locale_manager() a second time does not stack wrappers."""
+        """Calling _patch_locale_manager() a second time does not stack wrappers.
+
+        The test explicitly enables i18n and applies the patch once so that the
+        assertion is always testing the 'already patched' path, not a trivial
+        no-op caused by WAGTAIL_I18N_ENABLED being False at startup.
+        """
         from wagtail.models import LocaleManager
 
-        before = LocaleManager.get_for_language
-        CommonConfig._patch_locale_manager()
-        self.assertIs(LocaleManager.get_for_language, before)
+        with self.settings(WAGTAIL_I18N_ENABLED=True):
+            CommonConfig._patch_locale_manager()  # ensure patch is applied
+            before = LocaleManager.get_for_language
+            CommonConfig._patch_locale_manager()  # second call must be a no-op
+            self.assertIs(LocaleManager.get_for_language, before)
 
     def test_patch_skipped_when_i18n_disabled(self):
         """No wrapping occurs when WAGTAIL_I18N_ENABLED is falsy."""
