@@ -2,7 +2,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from wagtail.models import Page
 
-from magazine.models import MagazineArticle
+from magazine.models import MagazineArticle, MagazineIssue
 from pagination.helpers import get_paginated_items
 
 
@@ -100,9 +100,23 @@ def search(request: HttpRequest) -> HttpResponse:
                 ),
             )
 
-            # Bulk-annotate parent pages so magazine_article_summary.html can
-            # access article._parent_page without triggering N+1 queries
-            Page.objects.annotate_parent_page(magazine_articles)  # type: ignore[attr-defined]
+            # Bulk-fetch parent MagazineIssue instances so parent_issue property
+            # can use _parent_page without triggering N+1 queries
+            article_parent_paths = {
+                a.path[: -a.steplen] for a in magazine_articles if a.depth > 1
+            }
+            if article_parent_paths:
+                parent_issue_map = {
+                    issue.path: issue
+                    for issue in MagazineIssue.objects.filter(
+                        path__in=article_parent_paths,
+                    )
+                }
+                for article in magazine_articles:
+                    if article.depth > 1:
+                        article._parent_page = parent_issue_map.get(  # type: ignore[attr-defined]
+                            article.path[: -article.steplen],
+                        )
 
             specific_instances.extend(magazine_articles)
 

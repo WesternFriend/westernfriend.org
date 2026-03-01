@@ -372,7 +372,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         base class does not provide a classmethod get_queryset.
         """
         return (
-            cls.objects.defer_streamfields()
+            cls.objects.defer("body", "body_migrated")
             .select_related("department")
             .prefetch_related("authors__author", "tags")
         )
