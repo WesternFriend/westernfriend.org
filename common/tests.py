@@ -1,9 +1,18 @@
+from unittest.mock import MagicMock
+
+from django.conf import settings
+from django.core.signals import request_finished, request_started
 from django.forms import CharField, TextInput
 from django.forms.forms import Form
 from django.test import TestCase
 
+from common.apps import _locale_cache_local
 from common.templatetags.common_form_tags import add_class
-from common.templatetags.common_tags import exclude_from_breadcrumbs, model_name
+from common.templatetags.common_tags import (
+    exclude_from_breadcrumbs,
+    model_name,
+    specific_pages,
+)
 
 
 class MockModel:
@@ -116,3 +125,82 @@ class CommonTagsTests(TestCase):
                     model_name = excluded_model  # Using the string from the list
 
             self.assertTrue(exclude_from_breadcrumbs(ExcludedPage()))
+
+
+class SpecificPagesFilterTest(TestCase):
+    """Tests for the specific_pages template filter."""
+
+    def test_calls_specific_on_queryset(self):
+        """specific_pages delegates to queryset.specific()."""
+        mock_qs = MagicMock()
+        mock_qs.specific.return_value = sentinel = object()
+        self.assertIs(specific_pages(mock_qs), sentinel)
+        mock_qs.specific.assert_called_once_with()
+
+    def test_returns_result_of_specific(self):
+        """Return value is whatever .specific() produces."""
+        mock_qs = MagicMock()
+        mock_qs.specific.return_value = ["page_a", "page_b"]
+        self.assertEqual(specific_pages(mock_qs), ["page_a", "page_b"])
+
+
+class LocaleCacheTest(TestCase):
+    """Tests for the per-request LocaleManager.get_for_language cache.
+
+    The cache is thread-local and is activated only for the lifetime of an
+    HTTP request (between request_started and request_finished signals).
+    Outside that window – which includes ordinary unit-test code – the
+    original uncached method is used, preventing stale data across test
+    database resets.
+    """
+
+    def setUp(self):
+        # Ensure every test begins outside any request.
+        _locale_cache_local.locale_cache = None
+
+    def tearDown(self):
+        # Leave the thread in a clean state for subsequent tests.
+        _locale_cache_local.locale_cache = None
+
+    def test_cache_is_none_outside_request(self):
+        """No cache dict exists before a request starts."""
+        self.assertIsNone(getattr(_locale_cache_local, "locale_cache", None))
+
+    def test_request_started_initialises_cache(self):
+        """request_started creates an empty cache dict."""
+        request_started.send(sender=None, environ={})
+        self.assertIsInstance(_locale_cache_local.locale_cache, dict)
+        self.assertEqual(_locale_cache_local.locale_cache, {})
+
+    def test_request_finished_clears_cache(self):
+        """request_finished sets the cache back to None."""
+        request_started.send(sender=None, environ={})
+        request_finished.send(sender=None)
+        self.assertIsNone(_locale_cache_local.locale_cache)
+
+    def test_locale_cached_within_request(self):
+        """Two calls within the same request return the identical object."""
+        from wagtail.models import Locale
+
+        request_started.send(sender=None, environ={})
+        try:
+            first = Locale.objects.get_for_language(settings.LANGUAGE_CODE)
+            second = Locale.objects.get_for_language(settings.LANGUAGE_CODE)
+            self.assertIs(first, second)
+        finally:
+            request_finished.send(sender=None)
+
+    def test_no_cross_request_cache_leakage(self):
+        """Each new request starts with a fresh, empty cache."""
+        request_started.send(sender=None, environ={})
+        request_finished.send(sender=None)
+
+        request_started.send(sender=None, environ={})
+        try:
+            self.assertEqual(
+                _locale_cache_local.locale_cache,
+                {},
+                "Cache should be empty at the start of a new request.",
+            )
+        finally:
+            request_finished.send(sender=None)
