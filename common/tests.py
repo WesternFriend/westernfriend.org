@@ -6,7 +6,7 @@ from django.forms import CharField, TextInput
 from django.forms.forms import Form
 from django.test import TestCase
 
-from common.apps import _locale_cache_local
+from common.apps import CommonConfig, _locale_cache_local
 from common.templatetags.common_form_tags import add_class
 from common.templatetags.common_tags import (
     exclude_from_breadcrumbs,
@@ -161,6 +161,23 @@ class LocaleCacheTest(TestCase):
     def tearDown(self):
         # Leave the thread in a clean state for subsequent tests.
         _locale_cache_local.locale_cache = None
+
+    def test_patch_is_idempotent(self):
+        """Calling _patch_locale_manager() a second time does not stack wrappers."""
+        from wagtail.models import LocaleManager
+
+        before = LocaleManager.get_for_language
+        CommonConfig._patch_locale_manager()
+        self.assertIs(LocaleManager.get_for_language, before)
+
+    def test_patch_skipped_when_i18n_disabled(self):
+        """No wrapping occurs when WAGTAIL_I18N_ENABLED is falsy."""
+        from wagtail.models import LocaleManager
+
+        with self.settings(WAGTAIL_I18N_ENABLED=False):
+            original = LocaleManager.get_for_language
+            CommonConfig._patch_locale_manager()
+            self.assertIs(LocaleManager.get_for_language, original)
 
     def test_cache_is_none_outside_request(self):
         """No cache dict exists before a request starts."""

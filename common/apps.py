@@ -39,7 +39,14 @@ class CommonConfig(AppConfig):
         uncached method is called directly, which keeps tests and management
         commands unaffected by any stale state.
         """
+        from django.conf import settings
         from wagtail.models import LocaleManager
+
+        if not getattr(settings, "WAGTAIL_I18N_ENABLED", False):
+            return
+
+        if getattr(LocaleManager.get_for_language, "__patched_by_app__", False):
+            return
 
         _original = LocaleManager.get_for_language
 
@@ -51,6 +58,8 @@ class CommonConfig(AppConfig):
             if language_code not in cache:
                 cache[language_code] = _original(self, language_code)
             return cache[language_code]
+
+        _cached.__patched_by_app__ = True
 
         def _init_cache(**kwargs):
             _locale_cache_local.locale_cache = {}
