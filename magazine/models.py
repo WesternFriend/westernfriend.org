@@ -355,7 +355,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     def parent_issue(self):
         """Return the parent MagazineIssue.
 
-        Uses the value pre-populated by Page.objects.annotate_parent_page()
+        Uses the value pre-populated by prefetch_parent_issues()
         when available (set as _parent_page), avoiding a DB query.
         Falls back to get_parent().specific in contexts where annotation
         was not performed.
@@ -363,6 +363,34 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         if hasattr(self, "_parent_page") and self._parent_page is not None:
             return self._parent_page
         return self.get_parent().specific
+
+    @classmethod
+    def prefetch_parent_issues(cls, articles):
+        """Bulk-annotate a list of MagazineArticle instances with their parent
+        MagazineIssue, setting ``_parent_page`` on each.
+
+        Prefer this over ``Page.objects.annotate_parent_page()`` for
+        MagazineArticle lists: the generic helper fetches parents as deferred
+        specific instances, which trigger per-article queries when
+        MagazineIssue-specific fields (e.g. ``publication_date``) are accessed.
+        This method fetches MagazineIssue objects directly, avoiding that N+1.
+        """
+        parent_paths = {
+            article.path[: -article.steplen]
+            for article in articles
+            if article.depth > 1
+        }
+        if not parent_paths:
+            return
+        issue_by_path = {
+            issue.path: issue
+            for issue in MagazineIssue.objects.filter(path__in=parent_paths)
+        }
+        for article in articles:
+            if article.depth > 1:
+                article._parent_page = issue_by_path.get(  # type: ignore[attr-defined]
+                    article.path[: -article.steplen],
+                )
 
     @classmethod
     def get_queryset(cls):
