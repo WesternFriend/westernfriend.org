@@ -53,7 +53,7 @@ class CommonConfig(AppConfig):
         def _cached(self, language_code):
             cache = getattr(_locale_cache_local, "locale_cache", None)
             if cache is None:
-                # Not inside an HTTP request – skip the cache entirely.
+                # Not inside an HTTP request - skip the cache entirely.
                 return _original(self, language_code)
             if language_code not in cache:
                 cache[language_code] = _original(self, language_code)

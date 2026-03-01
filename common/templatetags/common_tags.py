@@ -34,7 +34,22 @@ def specific_pages(queryset):
     query per ancestor) with a single batched fetch via Wagtail's
     PageQuerySet.specific().
     """
+    if not queryset:
+        return queryset
     return queryset.specific()
+
+
+@register.filter
+def visible_breadcrumb_ancestors(ancestors):
+    """Return only the ancestors that appear as visible breadcrumb items.
+
+    Filters out root pages and pages excluded by exclude_from_breadcrumbs,
+    returning a plain list safe to iterate multiple times (e.g. for both the
+    HTML nav and the JSON-LD structured data block).
+    """
+    if not ancestors:
+        return []
+    return [a for a in ancestors if not a.is_root and not exclude_from_breadcrumbs(a)]
 
 
 @register.filter

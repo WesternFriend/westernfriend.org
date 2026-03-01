@@ -12,6 +12,7 @@ from common.templatetags.common_tags import (
     exclude_from_breadcrumbs,
     model_name,
     specific_pages,
+    visible_breadcrumb_ancestors,
 )
 
 
@@ -116,6 +117,7 @@ class CommonTagsTests(TestCase):
             "mediumindexpage",
             "timeperiodindexpage",
             "topicindexpage",
+            "productindexpage",
         ]
 
         for excluded_model in excluded_models:
@@ -143,13 +145,48 @@ class SpecificPagesFilterTest(TestCase):
         mock_qs.specific.return_value = ["page_a", "page_b"]
         self.assertEqual(specific_pages(mock_qs), ["page_a", "page_b"])
 
+    def test_returns_falsy_input_unchanged(self):
+        """None and other falsy values are returned without calling .specific()."""
+        self.assertIsNone(specific_pages(None))
+        self.assertEqual(specific_pages([]), [])
+
+
+class VisibleBreadcrumbAncestorsTest(TestCase):
+    """Tests for the visible_breadcrumb_ancestors template filter."""
+
+    def _make_page(self, model_name, is_root=False):
+        page = MagicMock()
+        page.is_root = is_root
+        page._meta.model_name = model_name
+        return page
+
+    def test_falsy_input_returns_empty_list(self):
+        self.assertEqual(visible_breadcrumb_ancestors(None), [])
+        self.assertEqual(visible_breadcrumb_ancestors([]), [])
+
+    def test_excludes_root_pages(self):
+        root = self._make_page("page", is_root=True)
+        normal = self._make_page("page", is_root=False)
+        self.assertEqual(visible_breadcrumb_ancestors([root, normal]), [normal])
+
+    def test_excludes_breadcrumb_excluded_models(self):
+        excluded = self._make_page("personindexpage")
+        normal = self._make_page("magazineissue")
+        result = visible_breadcrumb_ancestors([excluded, normal])
+        self.assertEqual(result, [normal])
+
+    def test_preserves_order_of_visible_ancestors(self):
+        a = self._make_page("magazineissue")
+        b = self._make_page("magazinearticle")
+        self.assertEqual(visible_breadcrumb_ancestors([a, b]), [a, b])
+
 
 class LocaleCacheTest(TestCase):
     """Tests for the per-request LocaleManager.get_for_language cache.
 
     The cache is thread-local and is activated only for the lifetime of an
     HTTP request (between request_started and request_finished signals).
-    Outside that window – which includes ordinary unit-test code – the
+    Outside that window - which includes ordinary unit-test code - the
     original uncached method is used, preventing stale data across test
     database resets.
     """
