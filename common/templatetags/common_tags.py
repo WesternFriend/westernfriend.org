@@ -27,6 +27,17 @@ EXCLUDED_BREADCRUMB_MODELS = [
 
 
 @register.filter
+def specific_pages(queryset):
+    """Return ancestors as their specific page types, fetched in bulk.
+
+    Replaces per-item `ancestor.specific` calls in templates (which issue one
+    query per ancestor) with a single batched fetch via Wagtail's
+    PageQuerySet.specific().
+    """
+    return queryset.specific()
+
+
+@register.filter
 def exclude_from_breadcrumbs(page):
     """
     Check if a page's model should be excluded from breadcrumbs.
