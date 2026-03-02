@@ -20,6 +20,7 @@
                     class="input input-bordered join-item flex-1"
                     placeholder="Enter search terms"
                     aria-label="Search query"
+                    maxlength="{{ max_query_length }}"
                 >
                 <button type="submit" class="btn btn-primary join-item">
                     <i class="bi bi-search" aria-hidden="true"></i>
@@ -39,6 +40,16 @@
                 <div>
                     <h3 class="font-bold">Too many results to display</h3>
                     <p class="text-sm">Search results are limited to {{ max_page_limit }} pages. Please refine your search terms to find more specific results.</p>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if query_truncated %}
+            <div class="alert alert-warning mb-6" role="status">
+                <i class="bi bi-exclamation-triangle-fill shrink-0 w-6 h-6" aria-hidden="true"></i>
+                <div>
+                    <h3 class="font-bold">Search query shortened</h3>
+                    <p class="text-sm">Your search query was shortened to keep results fast. Showing results for "{{ search_query }}".</p>
                 </div>
             </div>
         {% endif %}

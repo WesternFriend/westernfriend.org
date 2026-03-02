@@ -5,12 +5,26 @@ from wagtail.models import Page
 from magazine.models import MagazineArticle
 from pagination.helpers import get_paginated_items
 
+MAX_QUERY_LENGTH = 30  # characters
+MAX_QUERY_WORDS = 5  # words
+
 
 def search(request: HttpRequest) -> HttpResponse:
     search_query = request.GET.get("query", None)
     page = request.GET.get("page", "1")
     number_per_page = 25  # Increased from 10 to reduce pagination depth
     max_page_limit = 50  # Maximum page number allowed
+    query_truncated = False
+
+    # Sanitize query to prevent runaway tsquery complexity with OR operator
+    if search_query:
+        if len(search_query) > MAX_QUERY_LENGTH:
+            search_query = search_query[:MAX_QUERY_LENGTH]
+            query_truncated = True
+        words = search_query.split()
+        if len(words) > MAX_QUERY_WORDS:
+            search_query = " ".join(words[:MAX_QUERY_WORDS])
+            query_truncated = True
 
     # Search
     # Using the 'or' operator to search for pages that contain any of the words
@@ -27,6 +41,9 @@ def search(request: HttpRequest) -> HttpResponse:
                     "paginated_search_results": None,
                     "page_limit_exceeded": True,
                     "max_page_limit": max_page_limit,
+                    "query_truncated": query_truncated,
+                    "max_query_words": MAX_QUERY_WORDS,
+                    "max_query_length": MAX_QUERY_LENGTH,
                 },
             )
 
@@ -149,8 +166,8 @@ def search(request: HttpRequest) -> HttpResponse:
                         if parent_path in parent_map:
                             cached_parent = parent_map[parent_path]
                             # Override get_parent method to return cached parent
-                            page.get_parent = (
-                                lambda cached_parent=cached_parent: cached_parent
+                            page.get_parent = lambda cached_parent=cached_parent: (
+                                cached_parent
                             )
 
         # Create a mapping of page IDs to specific instances
@@ -168,5 +185,8 @@ def search(request: HttpRequest) -> HttpResponse:
             "search_query": search_query,
             "search_querystring": f"query={search_query}",
             "paginated_search_results": paginated_search_results,
+            "query_truncated": query_truncated,
+            "max_query_words": MAX_QUERY_WORDS,
+            "max_query_length": MAX_QUERY_LENGTH,
         },
     )

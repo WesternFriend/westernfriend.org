@@ -11,6 +11,7 @@ from wagtail.search.backends import get_search_backend
 from contact.factories import PersonFactory
 from magazine.factories import MagazineArticleFactory, MagazineIssueFactory
 from magazine.models import MagazineArticle
+from search.views import MAX_QUERY_LENGTH, MAX_QUERY_WORDS
 
 
 class SearchViewTestCase(TestCase):
@@ -698,3 +699,38 @@ class PrefetchParentIssuesTestCase(TestCase):
         """prefetch_parent_issues on an empty list must not raise or query."""
         with self.assertNumQueries(0):
             MagazineArticle.prefetch_parent_issues([])
+
+
+class SearchQueryLimitTestCase(TestCase):
+    """Verify that excessively long or many-worded queries are safely truncated."""
+
+    def test_query_exceeding_max_length_is_truncated(self) -> None:
+        long_query = "a" * (MAX_QUERY_LENGTH + 100)
+        response = self.client.get(reverse("search"), {"query": long_query})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(response.context["query_truncated"])
+        self.assertLessEqual(len(response.context["search_query"]), MAX_QUERY_LENGTH)
+
+    def test_query_exceeding_max_words_is_truncated(self) -> None:
+        # Single-letter words well over the limit but under the char limit
+        many_words_query = " ".join("a" * (MAX_QUERY_WORDS + 10))
+        response = self.client.get(reverse("search"), {"query": many_words_query})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(response.context["query_truncated"])
+        self.assertLessEqual(
+            len(response.context["search_query"].split()),
+            MAX_QUERY_WORDS,
+        )
+
+    def test_short_query_not_truncated(self) -> None:
+        response = self.client.get(reverse("search"), {"query": "hello world test"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertFalse(response.context["query_truncated"])
+        self.assertEqual(response.context["search_query"], "hello world test")
+
+    def test_max_length_boundary_not_truncated(self) -> None:
+        exactly_max = "a" * MAX_QUERY_LENGTH
+        response = self.client.get(reverse("search"), {"query": exactly_max})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertFalse(response.context["query_truncated"])
+        self.assertEqual(response.context["search_query"], exactly_max)
