@@ -108,7 +108,8 @@ class MagazineIndexPage(Page):
                 publication_date__year=archive_year,
             )
 
-        page_number = request.GET.get("page", "1")
+        _page_raw = request.GET.get("page", "1")
+        page_number = int(_page_raw) if _page_raw.isdigit() else 1
         items_per_page = 8
 
         context["archive_issues"] = get_paginated_items(
@@ -701,13 +702,14 @@ class DeepArchiveIndexPage(Page):
             query=query,  # type: ignore[arg-type]
         )
 
-        page = request.GET.get("page", "1")
+        _page_raw = request.GET.get("page", "1")
+        page_number = int(_page_raw) if _page_raw.isdigit() else 1
         items_per_page = 12
 
         context["archive_issues"] = get_paginated_items(
             items=archive_issues,
             items_per_page=items_per_page,
-            page_number=page,
+            page_number=page_number,
         )
 
         # Add publication years to context, for select menu

@@ -15,18 +15,15 @@ class PaginatorPageWithElidedPageRange:
 def get_paginated_items(
     items: QuerySet,
     items_per_page: int,
-    page_number: str = "1",
+    page_number: int = 1,
 ) -> PaginatorPageWithElidedPageRange:
     """Paginate items and return a page of items."""
 
     paginator: Paginator = Paginator(items, items_per_page)
 
-    paginator_page_number = 1
-
-    # Make sure page is numeric
-    # and less than or equal to the total pages
-    if page_number.isdigit() and int(page_number) <= paginator.num_pages:
-        paginator_page_number = int(page_number)
+    paginator_page_number = (
+        page_number if 1 <= page_number <= paginator.num_pages else 1
+    )
 
     elided_page_range = paginator.get_elided_page_range(
         paginator_page_number,

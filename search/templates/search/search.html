@@ -80,7 +80,7 @@
             </ul>
 
             {% include "paginator.html" with paginated_items=paginated_search_results current_querystring=search_querystring %}
-        {% elif search_query %}
+        {% elif search_query and not page_limit_exceeded %}
             <div class="alert">
                 <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
                 <span>No results found for "{{ search_query }}"</span>

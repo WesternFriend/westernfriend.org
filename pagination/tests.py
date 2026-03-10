@@ -29,11 +29,11 @@ class GetPaginatedItemsTests(TestCase):
             expected_result_number,
         )
 
-    def test_page_number_is_digit(self) -> None:
+    def test_page_number_is_valid(self) -> None:
         result: PaginatorPageWithElidedPageRange = get_paginated_items(
             self.users,
             items_per_page=9,
-            page_number="3",
+            page_number=3,
         )
         expected_result_number = 3
         self.assertEqual(
@@ -41,11 +41,11 @@ class GetPaginatedItemsTests(TestCase):
             expected_result_number,
         )
 
-    def test_page_number_is_not_digit(self) -> None:
+    def test_page_number_out_of_range(self) -> None:
         result: PaginatorPageWithElidedPageRange = get_paginated_items(
             self.users,
             items_per_page=9,
-            page_number="abc",
+            page_number=0,
         )
         expected_result_number = 1
         self.assertEqual(
@@ -57,7 +57,7 @@ class GetPaginatedItemsTests(TestCase):
         result: PaginatorPageWithElidedPageRange = get_paginated_items(
             self.users,
             items_per_page=9,
-            page_number="100",
+            page_number=100,
         )
         expected_result_number = 1
         self.assertEqual(
@@ -69,7 +69,7 @@ class GetPaginatedItemsTests(TestCase):
         result: PaginatorPageWithElidedPageRange = get_paginated_items(
             self.users,
             items_per_page=9,
-            page_number="1",
+            page_number=1,
         )
         expected_len_result = 9
         self.assertEqual(
@@ -81,7 +81,7 @@ class GetPaginatedItemsTests(TestCase):
         result: PaginatorPageWithElidedPageRange = get_paginated_items(
             self.users,
             items_per_page=9,
-            page_number="10",
+            page_number=10,
         )
         self.assertEqual(
             list(result.elided_page_range),
@@ -106,7 +106,7 @@ class GetPaginatedItemsTests(TestCase):
         result: PaginatorPageWithElidedPageRange = get_paginated_items(
             self.users,
             items_per_page=9,
-            page_number="1",
+            page_number=1,
         )
         self.assertEqual(
             list(result.elided_page_range),
@@ -125,7 +125,7 @@ class GetPaginatedItemsTests(TestCase):
         result: PaginatorPageWithElidedPageRange = get_paginated_items(
             self.users,
             items_per_page=9,
-            page_number="23",
+            page_number=23,
         )
         self.assertEqual(
             list(result.elided_page_range),

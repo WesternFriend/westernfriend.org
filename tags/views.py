@@ -90,7 +90,8 @@ class TaggedPageListView(ListView):
 
         context["tag_name"] = tag_name
 
-        page_number = self.request.GET.get("page", "1")
+        _page_raw = self.request.GET.get("page", "1")
+        page_number = int(_page_raw) if _page_raw.isdigit() else 1
 
         context["paginated_items"] = get_paginated_items(
             items=self.get_queryset(),
