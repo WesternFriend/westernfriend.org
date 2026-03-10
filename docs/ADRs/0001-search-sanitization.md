@@ -22,14 +22,18 @@ reusable.)
 
 ## Decision
 
-Strip PostgreSQL tsquery operator characters from user-supplied search queries
-in the view layer (`search/views.py`), before the query reaches the search
-backend. The stripped characters are: `( ) & | ! : * \`.
+Replace PostgreSQL tsquery operator characters in user-supplied search queries
+with spaces, in the view layer (`search/views.py`), before the query reaches the
+search backend. The replaced characters are: `( ) & | ! : * \`.
+
+Replacement with a space (rather than deletion) preserves word boundaries, so a
+query like `"foo&bar"` becomes `"foo bar"` (two searchable terms) rather than
+`"foobar"` (one unrecognised term).
 
 This is implemented as a compiled regex constant (`_TSQUERY_SPECIAL_CHARS`) and
 applied at the start of the existing sanitization block, alongside the existing
-length and word-count limits. If stripping renders the query empty, it is treated
-as no query (returns no results).
+length and word-count limits. If replacement renders the query empty (e.g. the
+entire input was operators), it is treated as no query (returns no results).
 
 ## Consequences
 

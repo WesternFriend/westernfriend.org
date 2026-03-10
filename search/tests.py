@@ -745,6 +745,18 @@ class SearchQueryLimitTestCase(TestCase):
         for char in r"()&|!:*\\":
             self.assertNotIn(char, response.context["search_query"])
 
+    def test_special_chars_replaced_with_spaces_preserving_word_boundaries(
+        self,
+    ) -> None:
+        """Operator chars between words must become spaces, not be deleted.
+
+        "foo&bar" should sanitize to "foo bar" (two terms), not "foobar" (one
+        unrecognised term), so both words remain searchable.
+        """
+        response = self.client.get(reverse("search"), {"query": "foo&bar"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.context["search_query"], "foo bar")
+
     def test_query_of_only_special_chars_returns_no_results(self) -> None:
         """A query that reduces to empty after stripping should show no results."""
         response = self.client.get(reverse("search"), {"query": "((()))"})
