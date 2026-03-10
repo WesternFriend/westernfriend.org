@@ -734,3 +734,19 @@ class SearchQueryLimitTestCase(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertFalse(response.context["query_truncated"])
         self.assertEqual(response.context["search_query"], exactly_max)
+
+    def test_query_with_tsquery_special_chars_is_sanitized(self) -> None:
+        """Queries with tsquery operators should not crash with a PostgreSQL SyntaxError."""
+        response = self.client.get(
+            reverse("search"),
+            {"query": "What type(s) of damage(s) may"},
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        for char in r"()&|!:*\\":
+            self.assertNotIn(char, response.context["search_query"])
+
+    def test_query_of_only_special_chars_returns_no_results(self) -> None:
+        """A query that reduces to empty after stripping should show no results."""
+        response = self.client.get(reverse("search"), {"query": "((()))"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertIsNone(response.context["search_query"])
