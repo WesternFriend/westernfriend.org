@@ -44,7 +44,7 @@ class SearchViewTestCase(TestCase):
     def test_search_no_query(self) -> None:
         response = self.client.get(reverse("search"))
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(len(response.context["paginated_search_results"].page), 0)
+        self.assertIsNone(response.context["paginated_search_results"])
 
     def test_search_query(self) -> None:
         response = self.client.get(

@@ -1,5 +1,6 @@
 import re
 
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from wagtail.models import Page
@@ -21,6 +22,8 @@ def search(request: HttpRequest) -> HttpResponse:
     number_per_page = 25  # Increased from 10 to reduce pagination depth
     max_page_limit = 50  # Maximum page number allowed
     query_truncated = False
+    page_limit_exceeded = False
+    paginated_search_results = None
 
     # Sanitize query to prevent runaway tsquery complexity with OR operator
     if search_query:
@@ -38,43 +41,26 @@ def search(request: HttpRequest) -> HttpResponse:
     # Search
     # Using the 'or' operator to search for pages that contain any of the words
     if search_query:
-        # Check if requested page exceeds limit
         page_number = int(page) if page.isdigit() else 1
         if page_number > max_page_limit:
-            return render(
-                request,
-                "search/search.html",
-                {
-                    "search_query": search_query,
-                    "search_querystring": f"query={search_query}",
-                    "paginated_search_results": None,
-                    "page_limit_exceeded": True,
-                    "max_page_limit": max_page_limit,
-                    "query_truncated": query_truncated,
-                    "max_query_words": MAX_QUERY_WORDS,
-                    "max_query_length": MAX_QUERY_LENGTH,
-                },
+            page_limit_exceeded = True
+        else:
+            # Build an optimized queryset and then search it
+            search_results = (
+                Page.objects.live()  # type: ignore[attr-defined]
+                .select_related(  # Fetch related fields in single query
+                    "content_type",
+                )
+                .search(
+                    search_query,
+                    operator="or",
+                )
             )
-
-        # Build an optimized queryset and then search it
-        search_results = (
-            Page.objects.live()  # type: ignore[attr-defined]
-            .select_related(  # Fetch related fields in single query
-                "content_type",
+            paginated_search_results = get_paginated_items(
+                search_results,
+                number_per_page,
+                page,
             )
-            .search(
-                search_query,
-                operator="or",
-            )
-        )
-    else:
-        search_results = Page.objects.none()
-
-    paginated_search_results = get_paginated_items(
-        search_results,
-        number_per_page,
-        page,
-    )
 
     # Optimize specific page loading with prefetch_related for common patterns
     # NOTE FOR SENTRY: This section contains optimized queries.
@@ -100,17 +86,15 @@ def search(request: HttpRequest) -> HttpResponse:
 
         # Optimize by grouping pages by content type to avoid double-fetching
         # Magazine articles need special optimization, fetch them separately
-        from django.contrib.contenttypes.models import ContentType
-
         magazine_article_ct = ContentType.objects.get_for_model(MagazineArticle)
 
         # Separate magazine articles from other page types
-        magazine_article_pages = [
-            p for p in paginated_results if p.content_type_id == magazine_article_ct.id
-        ]
-        other_pages = [
-            p for p in paginated_results if p.content_type_id != magazine_article_ct.id
-        ]
+        magazine_article_pages, other_pages = [], []
+        for p in paginated_results:
+            if p.content_type_id == magazine_article_ct.id:
+                magazine_article_pages.append(p)
+            else:
+                other_pages.append(p)
 
         specific_instances = []
 
@@ -194,6 +178,8 @@ def search(request: HttpRequest) -> HttpResponse:
             "search_query": search_query,
             "search_querystring": f"query={search_query}" if search_query else "",
             "paginated_search_results": paginated_search_results,
+            "page_limit_exceeded": page_limit_exceeded,
+            "max_page_limit": max_page_limit,
             "query_truncated": query_truncated,
             "max_query_words": MAX_QUERY_WORDS,
             "max_query_length": MAX_QUERY_LENGTH,
