@@ -36,11 +36,14 @@ def search(request: HttpRequest) -> HttpResponse:
                 search_query = " ".join(words[:MAX_QUERY_WORDS])
                 query_truncated = True
 
+    # Validate and clamp page number before any paginator call.
+    # max(1, ...) prevents page=0 from reaching the paginator (which raises EmptyPage).
+    page_number = max(1, int(page) if page.isdigit() else 1)
+
     # Search
     # Using the 'or' operator to search for pages that contain any of the words
     if search_query:
         # Check if requested page exceeds limit
-        page_number = int(page) if page.isdigit() else 1
         if page_number > max_page_limit:
             return render(
                 request,
@@ -74,7 +77,7 @@ def search(request: HttpRequest) -> HttpResponse:
     paginated_search_results = get_paginated_items(
         search_results,
         number_per_page,
-        page,
+        str(page_number),
     )
 
     # Optimize specific page loading with prefetch_related for common patterns
