@@ -734,3 +734,32 @@ class SearchQueryLimitTestCase(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertFalse(response.context["query_truncated"])
         self.assertEqual(response.context["search_query"], exactly_max)
+
+    def test_query_with_tsquery_special_chars_is_sanitized(self) -> None:
+        """Queries with tsquery operators should not crash with a PostgreSQL SyntaxError."""
+        response = self.client.get(
+            reverse("search"),
+            {"query": "What type(s) of damage(s) may"},
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        for char in r"()&|!:*\\":
+            self.assertNotIn(char, response.context["search_query"])
+
+    def test_special_chars_replaced_with_spaces_preserving_word_boundaries(
+        self,
+    ) -> None:
+        """Operator chars between words must become spaces, not be deleted.
+
+        "foo&bar" should sanitize to "foo bar" (two terms), not "foobar" (one
+        unrecognised term), so both words remain searchable.
+        """
+        response = self.client.get(reverse("search"), {"query": "foo&bar"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.context["search_query"], "foo bar")
+
+    def test_query_of_only_special_chars_returns_no_results(self) -> None:
+        """A query that reduces to empty after stripping should show no results."""
+        response = self.client.get(reverse("search"), {"query": "((()))"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertIsNone(response.context["search_query"])
+        self.assertEqual(response.context["search_querystring"], "")

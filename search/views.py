@@ -1,3 +1,5 @@
+import re
+
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from wagtail.models import Page
@@ -7,6 +9,10 @@ from pagination.helpers import get_paginated_items
 
 MAX_QUERY_LENGTH = 30  # characters
 MAX_QUERY_WORDS = 5  # words
+
+# PostgreSQL tsquery treats these as syntax operators; replace them with spaces
+# to preserve word boundaries (e.g. "foo&bar" → "foo bar", not "foobar")
+_TSQUERY_SPECIAL_CHARS = re.compile(r"[()&|!:*\\]")
 
 
 def search(request: HttpRequest) -> HttpResponse:
@@ -18,13 +24,16 @@ def search(request: HttpRequest) -> HttpResponse:
 
     # Sanitize query to prevent runaway tsquery complexity with OR operator
     if search_query:
-        if len(search_query) > MAX_QUERY_LENGTH:
-            search_query = search_query[:MAX_QUERY_LENGTH]
-            query_truncated = True
-        words = search_query.split()
-        if len(words) > MAX_QUERY_WORDS:
-            search_query = " ".join(words[:MAX_QUERY_WORDS])
-            query_truncated = True
+        # Strip PostgreSQL tsquery special characters to prevent syntax errors
+        search_query = _TSQUERY_SPECIAL_CHARS.sub(" ", search_query).strip() or None
+        if search_query:
+            if len(search_query) > MAX_QUERY_LENGTH:
+                search_query = search_query[:MAX_QUERY_LENGTH]
+                query_truncated = True
+            words = search_query.split()
+            if len(words) > MAX_QUERY_WORDS:
+                search_query = " ".join(words[:MAX_QUERY_WORDS])
+                query_truncated = True
 
     # Search
     # Using the 'or' operator to search for pages that contain any of the words
@@ -183,7 +192,7 @@ def search(request: HttpRequest) -> HttpResponse:
         "search/search.html",
         {
             "search_query": search_query,
-            "search_querystring": f"query={search_query}",
+            "search_querystring": f"query={search_query}" if search_query else "",
             "paginated_search_results": paginated_search_results,
             "query_truncated": query_truncated,
             "max_query_words": MAX_QUERY_WORDS,
