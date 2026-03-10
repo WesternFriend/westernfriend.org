@@ -192,7 +192,7 @@ def search(request: HttpRequest) -> HttpResponse:
         "search/search.html",
         {
             "search_query": search_query,
-            "search_querystring": f"query={search_query}",
+            "search_querystring": f"query={search_query}" if search_query else "",
             "paginated_search_results": paginated_search_results,
             "query_truncated": query_truncated,
             "max_query_words": MAX_QUERY_WORDS,

@@ -762,3 +762,4 @@ class SearchQueryLimitTestCase(TestCase):
         response = self.client.get(reverse("search"), {"query": "((()))"})
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIsNone(response.context["search_query"])
+        self.assertEqual(response.context["search_querystring"], "")
