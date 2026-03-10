@@ -77,7 +77,7 @@ def search(request: HttpRequest) -> HttpResponse:
     paginated_search_results = get_paginated_items(
         search_results,
         number_per_page,
-        str(page_number),
+        page_number,
     )
 
     # Optimize specific page loading with prefetch_related for common patterns

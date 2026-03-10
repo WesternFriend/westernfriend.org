@@ -262,7 +262,8 @@ class LibraryIndexPage(Page):
             .order_by("-publication_date")
             .prefetch_related("authors__author")
         )
-        page_number = request.GET.get("page", "1")
+        _page_raw = request.GET.get("page", "1")
+        page_number = int(_page_raw) if _page_raw.isdigit() else 1
         items_per_page = 10
 
         # Provide filtered, paginated library items
