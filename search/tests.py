@@ -763,3 +763,41 @@ class SearchQueryLimitTestCase(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIsNone(response.context["search_query"])
         self.assertEqual(response.context["search_querystring"], "")
+
+    def test_query_with_multiple_spaces_no_empty_tokens(self) -> None:
+        """Special-char replacements and consecutive spaces are normalized to single spaces.
+
+        Special chars are replaced with spaces by the sanitizer (e.g. "foo&&bar" → "foo  bar").
+        The resulting consecutive spaces must be collapsed to prevent PostgreSQL tsquery errors.
+        """
+        response = self.client.get(reverse("search"), {"query": "foo    bar"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.context["search_query"], "foo bar")
+
+        response = self.client.get(reverse("search"), {"query": "foo&&||bar"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.context["search_query"], "foo bar")
+
+        response = self.client.get(reverse("search"), {"query": "  foo & bar  "})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.context["search_query"], "foo bar")
+
+    def test_internal_consecutive_spaces_no_tsquery_syntax_error(self) -> None:
+        """Regression: special chars between words must not produce empty tsquery tokens.
+
+        When special chars separate words (e.g. "article!!preserving meaningful"),
+        the substitution creates internal consecutive spaces. Without normalization,
+        Wagtail's PostgreSQL backend splits on single spaces and passes an empty
+        string to tsquery, raising:
+          ProgrammingError: syntax error in tsquery: "((('' | 'article') | ...)"
+        Reported in production on 2026-03-10.
+        """
+        response = self.client.get(
+            reverse("search"),
+            {"query": "article!!preserving meaningful"},
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(
+            response.context["search_query"],
+            "article preserving meaningful",
+        )

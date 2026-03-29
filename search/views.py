@@ -33,8 +33,9 @@ def search(request: HttpRequest) -> HttpResponse:
                 query_truncated = True
             words = search_query.split()
             if len(words) > MAX_QUERY_WORDS:
-                search_query = " ".join(words[:MAX_QUERY_WORDS])
+                words = words[:MAX_QUERY_WORDS]
                 query_truncated = True
+            search_query = " ".join(words) or None
 
     # Validate and clamp page number before any paginator call.
     # max(1, ...) prevents page=0 from reaching the paginator (which raises EmptyPage).
