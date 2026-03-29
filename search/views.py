@@ -32,9 +32,15 @@ def search(request: HttpRequest) -> HttpResponse:
                 search_query = search_query[:MAX_QUERY_LENGTH]
                 query_truncated = True
             words = search_query.split()
+            # Filter out empty strings to prevent tsquery syntax errors (e.g., "('' | 'word')")
+            # This handles edge cases from character truncation or multiple consecutive spaces
+            words = [word for word in words if word]
             if len(words) > MAX_QUERY_WORDS:
                 search_query = " ".join(words[:MAX_QUERY_WORDS])
                 query_truncated = True
+            else:
+                # Rejoin filtered words to normalize consecutive spaces
+                search_query = " ".join(words) if words else None
 
     # Validate and clamp page number before any paginator call.
     # max(1, ...) prevents page=0 from reaching the paginator (which raises EmptyPage).

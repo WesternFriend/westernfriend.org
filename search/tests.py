@@ -763,3 +763,30 @@ class SearchQueryLimitTestCase(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIsNone(response.context["search_query"])
         self.assertEqual(response.context["search_querystring"], "")
+
+    def test_query_with_multiple_spaces_no_empty_tokens(self) -> None:
+        """Queries with multiple consecutive spaces should not produce empty tokens.
+
+        This prevents PostgreSQL tsquery syntax errors like:
+        "syntax error in tsquery: '(('' | 'article') | 'word')'"
+
+        Edge cases that could create empty tokens:
+        - Multiple consecutive spaces
+        - Special chars replaced with spaces creating consecutive spaces
+        - Character truncation at space boundaries
+        """
+        # Test with multiple consecutive spaces
+        response = self.client.get(reverse("search"), {"query": "foo    bar"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.context["search_query"], "foo bar")
+
+        # Test special chars creating multiple spaces
+        response = self.client.get(reverse("search"), {"query": "foo&&||bar"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        # Should normalize to single spaces between words
+        self.assertEqual(response.context["search_query"], "foo bar")
+
+        # Test leading/trailing spaces with special chars
+        response = self.client.get(reverse("search"), {"query": "  foo & bar  "})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.context["search_query"], "foo bar")
