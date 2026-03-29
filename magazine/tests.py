@@ -1,6 +1,6 @@
 import datetime
 
-from django.db import connection
+from django.db import connection, reset_queries
 from django.test import RequestFactory, TestCase, override_settings
 from wagtail.models import Page, Site
 
@@ -794,7 +794,7 @@ class ArchiveIssueQueryOptimizationTestCase(TestCase):
         request = self.factory.get("/")
 
         # Reset queries to get a clean count
-        connection.queries_log.clear()
+        reset_queries()
 
         # Get the context with prefetched data
         context = self.archive_issue.get_context(request)
@@ -834,7 +834,7 @@ class ArchiveIssueQueryOptimizationTestCase(TestCase):
         request = self.factory.get("/")
 
         # Reset queries
-        connection.queries_log.clear()
+        reset_queries()
 
         # Get context and access all data
         context = self.archive_issue.get_context(request)
