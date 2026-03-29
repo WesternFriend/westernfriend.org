@@ -1,7 +1,11 @@
 import datetime
-from django.test import RequestFactory, TestCase
+
+from django.db import connection
+from django.test import RequestFactory, TestCase, override_settings
 from wagtail.models import Page, Site
+
 from accounts.models import User
+from contact.models import Person, PersonIndexPage
 from home.models import HomePage
 from magazine.factories import (
     MagazineArticleFactory,
@@ -11,14 +15,17 @@ from magazine.factories import (
 from subscription.models import (
     Subscription,
 )
+
 from .models import (
+    ArchiveArticle,
+    ArchiveArticleAuthor,
     ArchiveIssue,
     DeepArchiveIndexPage,
-    MagazineDepartmentIndexPage,
-    MagazineDepartment,
-    MagazineIssue,
-    MagazineIndexPage,
     MagazineArticle,
+    MagazineDepartment,
+    MagazineDepartmentIndexPage,
+    MagazineIndexPage,
+    MagazineIssue,
     MagazineTagIndexPage,
 )
 
@@ -712,3 +719,144 @@ class MagazineArticleParentIssueTest(TestCase):
         result = self.article.parent_issue
         self.assertIsInstance(result, MagazineIssue)
         self.assertEqual(result.pk, self.issue.pk)
+
+
+class ArchiveIssueQueryOptimizationTestCase(TestCase):
+    """Test that ArchiveIssue.get_context() optimizes queries to avoid N+1.
+
+    Validates that accessing article.archive_authors.all and archive_author.author
+    does not trigger per-article or per-author queries when the queryset is
+    properly prefetched in get_context().
+    """
+
+    def setUp(self) -> None:
+        """Create test data: 1 archive issue with 3 articles, each with 2 authors."""
+        self.factory = RequestFactory()
+        self.root = Site.objects.get(is_default_site=True).root_page
+
+        # Create magazine index and deep archive index pages
+        self.magazine_index = MagazineIndexPage(title="Magazine")
+        self.root.add_child(instance=self.magazine_index)
+
+        self.deep_archive_index = DeepArchiveIndexPage(title="Deep Archive")
+        self.magazine_index.add_child(instance=self.deep_archive_index)
+
+        # Create a person index page for author pages
+        self.person_index = PersonIndexPage(title="People")
+        self.root.add_child(instance=self.person_index)
+
+        # Create an archive issue
+        self.archive_issue = ArchiveIssue(
+            title="Test Archive Issue",
+            internet_archive_identifier="test-issue-123",
+            publication_date=datetime.date(1950, 1, 1),
+        )
+        self.deep_archive_index.add_child(instance=self.archive_issue)
+
+        # Create 6 author pages (Person instances)
+        self.authors = []
+        for i in range(6):
+            author = Person(
+                title=f"Author {i}",
+                given_name=f"Given{i}",
+                family_name=f"Family{i}",
+            )
+            self.person_index.add_child(instance=author)
+            self.authors.append(author)
+
+        # Create 3 archive articles with 2 authors each
+        self.articles = []
+        for article_num in range(3):
+            article = ArchiveArticle(
+                title=f"Test Article {article_num}",
+                issue=self.archive_issue,
+                toc_page_number=article_num + 1,
+                pdf_page_number=article_num + 1,
+            )
+            article.save()
+            self.articles.append(article)
+
+            # Add 2 authors to each article
+            for author_offset in range(2):
+                author_index = article_num * 2 + author_offset
+                ArchiveArticleAuthor.objects.create(
+                    article=article,
+                    author=self.authors[author_index],
+                )
+
+    @override_settings(DEBUG=True)
+    def test_get_context_prefetches_authors(self) -> None:
+        """Verify that get_context() prefetches authors to prevent N+1 queries.
+
+        After calling get_context(), accessing article.archive_authors.all and
+        archive_author.author should not trigger additional queries.
+        """
+        request = self.factory.get("/")
+
+        # Reset queries to get a clean count
+        connection.queries_log.clear()
+
+        # Get the context with prefetched data
+        context = self.archive_issue.get_context(request)
+        articles = context["archive_articles"]
+
+        # Record query count after get_context
+        queries_after_context = len(connection.queries)
+
+        # Now access archive_authors and author for all articles
+        # This should NOT trigger additional queries if prefetch worked
+        for article in articles:
+            for archive_author in article.archive_authors.all():
+                # Access author fields that would normally trigger queries
+                _ = archive_author.author.title
+                _ = archive_author.author.live
+
+        # Record final query count
+        queries_after_access = len(connection.queries)
+
+        # Assert NO additional queries were made when accessing authors
+        additional_queries = queries_after_access - queries_after_context
+
+        self.assertEqual(
+            additional_queries,
+            0,
+            f"Expected 0 additional queries, but got {additional_queries}. "
+            f"Prefetch did not prevent N+1 queries.",
+        )
+
+    @override_settings(DEBUG=True)
+    def test_total_query_count_is_reasonable(self) -> None:
+        """Verify total query count is independent of article/author count.
+
+        The total query count should be low (≤5) and not scale with the number
+        of articles or authors, confirming the optimization is effective.
+        """
+        request = self.factory.get("/")
+
+        # Reset queries
+        connection.queries_log.clear()
+
+        # Get context and access all data
+        context = self.archive_issue.get_context(request)
+        articles = context["archive_articles"]
+
+        # Access all article and author data
+        for article in articles:
+            for archive_author in article.archive_authors.all():
+                _ = archive_author.author.title
+                _ = archive_author.author.live
+
+        total_queries = len(connection.queries)
+
+        # With proper prefetching, we should have:
+        # 1-2 queries for page/issue data
+        # 1 query for articles
+        # 1 query for archive_authors
+        # 1 query for author pages
+        # Total should be ≤ 5 regardless of data volume
+        self.assertLessEqual(
+            total_queries,
+            5,
+            f"Expected ≤5 queries with prefetch optimization, but got {total_queries}. "
+            f"Queries: {[q['sql'] for q in connection.queries]}",
+        )

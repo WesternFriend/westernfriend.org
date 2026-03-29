@@ -19,7 +19,7 @@
             <p>Scroll down past the Table of Contents to see the magazine. Click on a "view page" button to see a specific article. Click on an author name for a list of all articles on our website by that author.</p>
         </header>
 
-        {% if page.archive_articles.count %}
+        {% if archive_articles %}
             <section class="mb-8" aria-labelledby="table-of-contents">
                 <h2 id="table-of-contents">Table of Contents</h2>
 
@@ -34,7 +34,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for article in page.archive_articles.all|dictsort:"pdf_page_number" %}
+                            {% for article in archive_articles|dictsort:"pdf_page_number" %}
                                 <tr
                                     class="hover cursor-pointer"
                                     data-pdf-page-number="{{ article.pdf_page_number }}"

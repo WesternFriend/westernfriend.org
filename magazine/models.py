@@ -652,6 +652,32 @@ class ArchiveIssue(DrupalFields, Page):  # type: ignore
     parent_page_types = ["DeepArchiveIndexPage"]
     subpage_types: list[str] = []
 
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
+        """Override get_context to prefetch archive author relationships.
+
+        Prevents N+1 queries when template loops through article.archive_authors.all
+        by prefetching author pages in a single query.
+        """
+        context = super().get_context(request, *args, **kwargs)
+
+        # Prefetch archive_authors and their related author pages to avoid N+1 queries
+        # when the template accesses article.archive_authors.all and archive_author.author
+        # Force evaluation with list() to execute queries within get_context()
+        articles = list(
+            self.archive_articles.prefetch_related(
+                "archive_authors__author",
+            ).all(),
+        )
+
+        context["archive_articles"] = articles
+
+        return context
+
     class Meta:
         indexes = [
             models.Index(fields=["internet_archive_identifier"]),
