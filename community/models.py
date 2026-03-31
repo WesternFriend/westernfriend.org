@@ -138,8 +138,9 @@ class OnlineWorshipIndexPage(Page):
         context = super().get_context(request, *args, **kwargs)
 
         # Get all live OnlineWorship objects sorted by title
-        online_worship_meetings = OnlineWorship.objects.live().order_by(
-            "title",
+        # Use select_related to fetch hosted_by pages in a single query
+        online_worship_meetings = (
+            OnlineWorship.objects.live().select_related("hosted_by").order_by("title")
         )
 
         context["online_worship_meetings"] = online_worship_meetings
