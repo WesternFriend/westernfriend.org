@@ -1,13 +1,12 @@
 from django.db import models
 from django.http import HttpRequest
+from timezone_field import TimeZoneField  # type: ignore
 from wagtail import blocks as wagtail_blocks
 from wagtail.admin.panels import FieldPanel, PageChooserPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Page
 from wagtail.search import index
-
-from timezone_field import TimeZoneField  # type: ignore
 
 from blocks import blocks as wf_blocks
 from common.models import DrupalFields
