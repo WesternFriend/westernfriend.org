@@ -1,3 +1,5 @@
+import datetime
+
 from django.test import RequestFactory, TestCase
 from wagtail.models import Page, Site
 
@@ -20,8 +22,6 @@ class TestMollyWingateBlogIndexPage(TestCase):
 
     def test_get_context(self) -> None:
         """Test that get_context returns blog posts ordered by publication date."""
-        import datetime
-
         # Create blog posts with different dates and a duplicate date
         blog_post_1 = MollyWingateBlogPage(
             title="First Post",
