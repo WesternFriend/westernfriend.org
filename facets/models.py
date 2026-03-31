@@ -25,6 +25,21 @@ class Audience(Page):
     parent_page_types = ["AudienceIndexPage"]
     subpage_types: list[str] = []
 
+    def get_context(self, request, *args, **kwargs):
+        # Avoid circular import
+        from library.models import LibraryItem
+
+        context = super().get_context(request, *args, **kwargs)
+
+        # Get live library items matching audience
+        context["library_items"] = (
+            LibraryItem.objects.live()
+            .filter(item_audience=self)
+            .prefetch_related("authors__author")
+        )
+
+        return context
+
 
 class GenreIndexPage(Page):
     parent_page_types = ["FacetIndexPage"]
@@ -36,6 +51,21 @@ class GenreIndexPage(Page):
 class Genre(Page):
     parent_page_types = ["GenreIndexPage"]
     subpage_types: list[str] = []
+
+    def get_context(self, request, *args, **kwargs):
+        # Avoid circular import
+        from library.models import LibraryItem
+
+        context = super().get_context(request, *args, **kwargs)
+
+        # Get live library items matching genre
+        context["library_items"] = (
+            LibraryItem.objects.live()
+            .filter(item_genre=self)
+            .prefetch_related("authors__author")
+        )
+
+        return context
 
 
 class MediumIndexPage(Page):
@@ -49,6 +79,21 @@ class Medium(Page):
     parent_page_types = ["MediumIndexPage"]
     subpage_types: list[str] = []
 
+    def get_context(self, request, *args, **kwargs):
+        # Avoid circular import
+        from library.models import LibraryItem
+
+        context = super().get_context(request, *args, **kwargs)
+
+        # Get live library items matching medium
+        context["library_items"] = (
+            LibraryItem.objects.live()
+            .filter(item_medium=self)
+            .prefetch_related("authors__author")
+        )
+
+        return context
+
 
 class TimePeriodIndexPage(Page):
     parent_page_types = ["FacetIndexPage"]
@@ -60,6 +105,21 @@ class TimePeriodIndexPage(Page):
 class TimePeriod(Page):
     parent_page_types = ["TimePeriodIndexPage"]
     subpage_types: list[str] = []
+
+    def get_context(self, request, *args, **kwargs):
+        # Avoid circular import
+        from library.models import LibraryItem
+
+        context = super().get_context(request, *args, **kwargs)
+
+        # Get live library items matching time period
+        context["library_items"] = (
+            LibraryItem.objects.live()
+            .filter(item_time_period=self)
+            .prefetch_related("authors__author")
+        )
+
+        return context
 
 
 class TopicIndexPage(Page):
