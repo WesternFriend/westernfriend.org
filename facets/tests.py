@@ -144,3 +144,90 @@ class TestTopicGetContext(TestCase):
                 ),
             ),
         )
+
+
+class TestAudienceGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.audience = AudienceFactory.create()
+
+    def test_get_context(self) -> None:
+        """Test that get_context returns library_items filtered by audience."""
+        library_items = LibraryItemFactory.create_batch(3, item_audience=self.audience)
+        # Create some items without this audience
+        LibraryItemFactory.create_batch(2)
+
+        request = self.factory.get("/")
+        context = self.audience.get_context(request)
+
+        self.assertIn("library_items", context)
+        context_library_item_pks = [item.pk for item in context["library_items"]]
+        expected_pks = [item.pk for item in library_items]
+
+        self.assertListEqual(sorted(context_library_item_pks), sorted(expected_pks))
+
+
+class TestGenreGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.genre = GenreFactory.create()
+
+    def test_get_context(self) -> None:
+        """Test that get_context returns library_items filtered by genre."""
+        library_items = LibraryItemFactory.create_batch(3, item_genre=self.genre)
+        # Create some items without this genre
+        LibraryItemFactory.create_batch(2)
+
+        request = self.factory.get("/")
+        context = self.genre.get_context(request)
+
+        self.assertIn("library_items", context)
+        context_library_item_pks = [item.pk for item in context["library_items"]]
+        expected_pks = [item.pk for item in library_items]
+
+        self.assertListEqual(sorted(context_library_item_pks), sorted(expected_pks))
+
+
+class TestMediumGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.medium = MediumFactory.create()
+
+    def test_get_context(self) -> None:
+        """Test that get_context returns library_items filtered by medium."""
+        library_items = LibraryItemFactory.create_batch(3, item_medium=self.medium)
+        # Create some items without this medium
+        LibraryItemFactory.create_batch(2)
+
+        request = self.factory.get("/")
+        context = self.medium.get_context(request)
+
+        self.assertIn("library_items", context)
+        context_library_item_pks = [item.pk for item in context["library_items"]]
+        expected_pks = [item.pk for item in library_items]
+
+        self.assertListEqual(sorted(context_library_item_pks), sorted(expected_pks))
+
+
+class TestTimePeriodGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.time_period = TimePeriodFactory.create()
+
+    def test_get_context(self) -> None:
+        """Test that get_context returns library_items filtered by time_period."""
+        library_items = LibraryItemFactory.create_batch(
+            3,
+            item_time_period=self.time_period,
+        )
+        # Create some items without this time period
+        LibraryItemFactory.create_batch(2)
+
+        request = self.factory.get("/")
+        context = self.time_period.get_context(request)
+
+        self.assertIn("library_items", context)
+        context_library_item_pks = [item.pk for item in context["library_items"]]
+        expected_pks = [item.pk for item in library_items]
+
+        self.assertListEqual(sorted(context_library_item_pks), sorted(expected_pks))

@@ -174,6 +174,26 @@ class ManageSubscriptionPageTestCase(TestCase):
         # assert that the context["subscription"] does not exist
         self.assertNotIn("subscription", context)
 
+    def test_manage_subscription_includes_subscription_index_page(self) -> None:
+        """Test that get_context includes subscription_index_page."""
+        # Create a SubscriptionIndexPage
+        subscription_index_page = SubscriptionIndexPage(
+            title="Subscribe",
+        )
+        self.home_page.add_child(instance=subscription_index_page)
+
+        mock_http_request = Mock(
+            spec=HttpRequest,
+            user=self.user,
+        )
+
+        context = self.manage_subscription_page.get_context(
+            request=mock_http_request,
+        )
+
+        self.assertIn("subscription_index_page", context)
+        self.assertEqual(context["subscription_index_page"], subscription_index_page)
+
 
 class TestSubscriptionModel(TestCase):
     @patch("subscription.models.paypal_subscriptions.subscription_is_active")

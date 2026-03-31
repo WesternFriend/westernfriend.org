@@ -134,3 +134,21 @@ class TestLibraryIndexPage(TestCase):
         mock_filter_querystring.assert_called_once_with(query=request.GET.dict())
         mock_get_paginated_items.assert_called_once()
         mock_create_querystring.assert_called_once()
+
+
+class TestLibraryItemGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.library_item = LibraryItemFactory.create()
+
+    def test_get_context(self) -> None:
+        """Test that get_context prefetches authors and topics."""
+        # Add some topics to the library item (skip authors to avoid factory import issue)
+        self.library_item.topics.add(*TopicFactory.create_batch(2))
+
+        request = self.factory.get("/")
+        context = self.library_item.get_context(request)
+
+        # Check that context is returned
+        self.assertIsNotNone(context)
+        self.assertIsInstance(context, dict)

@@ -407,6 +407,49 @@ class MagazineDepartmentTest(TestCase):
         department = MagazineDepartment(title="Department 1")
         self.assertEqual(department.autocomplete_label(), "Department 1")
 
+    def test_get_context(self) -> None:
+        """Test that get_context returns articles for the department."""
+        # Set up page hierarchy
+        site_root = Page.objects.get(id=2)
+        home_page = HomePage(title="Home")
+        site_root.add_child(instance=home_page)
+        Site.objects.all().update(root_page=home_page)
+
+        magazine_index = MagazineIndexPage(title="Magazine")
+        home_page.add_child(instance=magazine_index)
+
+        magazine_issue = MagazineIssue(
+            title="Test Issue",
+            publication_date=datetime.date.today(),
+        )
+        magazine_index.add_child(instance=magazine_issue)
+
+        department_index = MagazineDepartmentIndexPage(title="Departments")
+        magazine_index.add_child(instance=department_index)
+
+        department = MagazineDepartment(title="Test Department")
+        department_index.add_child(instance=department)
+
+        # Create some articles
+        article1 = MagazineArticle(
+            title="Article 1",
+            department=department,
+        )
+        article2 = MagazineArticle(
+            title="Article 2",
+            department=department,
+        )
+        magazine_issue.add_child(instance=article1)
+        magazine_issue.add_child(instance=article2)
+
+        factory = RequestFactory()
+        request = factory.get("/")
+        context = department.get_context(request)
+
+        self.assertIn("articles", context)
+        articles = list(context["articles"])
+        self.assertEqual(len(articles), 2)
+
 
 class MagazineArticleTest(TestCase):
     def setUp(self) -> None:
