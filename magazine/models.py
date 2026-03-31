@@ -301,8 +301,9 @@ class MagazineDepartment(Page):
         context = super().get_context(request)
 
         # Use optimized queryset with all prefetch optimizations
+        # Filter by FK directly (department=self) instead of department__title for better performance
         articles = list(
-            MagazineArticle.get_queryset().filter(department__title=self.title).live(),
+            MagazineArticle.get_queryset().filter(department=self).live(),
         )
 
         # Bulk-fetch parent issues to avoid N+1 from parent_issue property

@@ -115,11 +115,10 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
             .first()
         )
 
-        # Merge prefetched data to preserve any existing prefetches
+        # Replace the page instance in context with the prefetched version
+        # This avoids touching Django's internal _prefetched_objects_cache
         if self_with_prefetch:
-            existing = getattr(self, "_prefetched_objects_cache", {})
-            new = getattr(self_with_prefetch, "_prefetched_objects_cache", {})
-            self._prefetched_objects_cache = {**existing, **new}
+            context["page"] = self_with_prefetch
 
         return context
 

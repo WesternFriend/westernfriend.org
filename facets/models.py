@@ -1,6 +1,28 @@
 from wagtail.models import Page
 
 
+def get_library_items_for_facet(facet_instance, filter_field):
+    """Helper to get library items filtered by facet with consistent ordering.
+
+    Args:
+        facet_instance: The facet page instance (Audience, Genre, Medium, or TimePeriod)
+        filter_field: The field name to filter on (e.g., "item_audience")
+
+    Returns:
+        QuerySet of LibraryItem objects filtered by the facet, ordered by publication date,
+        with authors prefetched to avoid N+1 queries.
+    """
+    # Avoid circular import
+    from library.models import LibraryItem
+
+    return (
+        LibraryItem.objects.live()
+        .filter(**{filter_field: facet_instance})
+        .order_by("-publication_date")
+        .prefetch_related("authors__author")
+    )
+
+
 class FacetIndexPage(Page):
     parent_page_types = ["library.LibraryIndexPage"]
     subpage_types: list[str] = [
@@ -26,18 +48,8 @@ class Audience(Page):
     subpage_types: list[str] = []
 
     def get_context(self, request, *args, **kwargs):
-        # Avoid circular import
-        from library.models import LibraryItem
-
         context = super().get_context(request, *args, **kwargs)
-
-        # Get live library items matching audience
-        context["library_items"] = (
-            LibraryItem.objects.live()
-            .filter(item_audience=self)
-            .prefetch_related("authors__author")
-        )
-
+        context["library_items"] = get_library_items_for_facet(self, "item_audience")
         return context
 
 
@@ -53,18 +65,8 @@ class Genre(Page):
     subpage_types: list[str] = []
 
     def get_context(self, request, *args, **kwargs):
-        # Avoid circular import
-        from library.models import LibraryItem
-
         context = super().get_context(request, *args, **kwargs)
-
-        # Get live library items matching genre
-        context["library_items"] = (
-            LibraryItem.objects.live()
-            .filter(item_genre=self)
-            .prefetch_related("authors__author")
-        )
-
+        context["library_items"] = get_library_items_for_facet(self, "item_genre")
         return context
 
 
@@ -80,18 +82,8 @@ class Medium(Page):
     subpage_types: list[str] = []
 
     def get_context(self, request, *args, **kwargs):
-        # Avoid circular import
-        from library.models import LibraryItem
-
         context = super().get_context(request, *args, **kwargs)
-
-        # Get live library items matching medium
-        context["library_items"] = (
-            LibraryItem.objects.live()
-            .filter(item_medium=self)
-            .prefetch_related("authors__author")
-        )
-
+        context["library_items"] = get_library_items_for_facet(self, "item_medium")
         return context
 
 
@@ -107,18 +99,8 @@ class TimePeriod(Page):
     subpage_types: list[str] = []
 
     def get_context(self, request, *args, **kwargs):
-        # Avoid circular import
-        from library.models import LibraryItem
-
         context = super().get_context(request, *args, **kwargs)
-
-        # Get live library items matching time period
-        context["library_items"] = (
-            LibraryItem.objects.live()
-            .filter(item_time_period=self)
-            .prefetch_related("authors__author")
-        )
-
+        context["library_items"] = get_library_items_for_facet(self, "item_time_period")
         return context
 
 
@@ -139,10 +121,11 @@ class Topic(Page):
 
         context = super().get_context(request, *args, **kwargs)
 
-        # Get live library items matching topic
+        # Get live library items matching topic, ordered by publication date
         context["library_items"] = (
             LibraryItem.objects.live()
             .filter(topics__topic=self)
+            .order_by("-publication_date")
             .prefetch_related("authors__author")
         )
 

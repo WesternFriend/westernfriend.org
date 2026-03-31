@@ -3,9 +3,10 @@ from django.test import RequestFactory, TestCase
 from facets.models import Audience, FacetIndexPage, Genre, Medium, TimePeriod, Topic
 from library.factories import LibraryItemFactory
 from library.models import LibraryIndexPage, LibraryItemTopic
+
 from .factories import (
-    FacetIndexPageFactory,
     AudienceFactory,
+    FacetIndexPageFactory,
     GenreFactory,
     MediumFactory,
     TimePeriodFactory,
@@ -134,8 +135,8 @@ class TestTopicGetContext(TestCase):
         # Get the primary keys of the LibraryItem instances in the context
         context_library_item_pks = [item.pk for item in context["library_items"]]
 
-        # Check that the library_items in the context are correct
-        self.assertListEqual(
+        # Check that the library_items in the context are correct (order may vary by publication_date)
+        self.assertCountEqual(
             context_library_item_pks,
             list(
                 self.topic.related_library_items.values_list(

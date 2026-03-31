@@ -1,20 +1,20 @@
 from datetime import timedelta
-from django.utils import timezone
+from unittest.mock import Mock, patch
+
 from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
-
-from unittest.mock import Mock, patch
+from django.utils import timezone
 from wagtail.models import Site
 
 from accounts.factories import UserFactory
 from accounts.models import User
+from home.models import HomePage
 from subscription.factories import SubscriptionFactory
 from subscription.models import (
     ManageSubscriptionPage,
     Subscription,
     SubscriptionIndexPage,
 )
-from home.models import HomePage
 
 
 class SubscriptionTestCase(TestCase):

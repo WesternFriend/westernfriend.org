@@ -1,6 +1,8 @@
 import random
 from unittest.mock import Mock, patch
+
 from django.test import RequestFactory, SimpleTestCase, TestCase
+
 from facets.factories import (
     AudienceFactory,
     GenreFactory,
@@ -9,18 +11,16 @@ from facets.factories import (
     TopicFactory,
 )
 from home.models import HomePage
-
+from library.helpers import (
+    QUERYSTRING_FACETS,
+    create_querystring_from_facets,
+    filter_querystring_facets,
+)
 from library.models import LibraryIndexPage
 
 from .factories import (
     LibraryIndexPageFactory,
     LibraryItemFactory,
-)
-
-from library.helpers import (
-    QUERYSTRING_FACETS,
-    create_querystring_from_facets,
-    filter_querystring_facets,
 )
 
 
