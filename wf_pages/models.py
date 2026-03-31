@@ -1,8 +1,7 @@
 from django.db import models
 from django.http import HttpRequest
-
-from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
+from modelcluster.fields import ParentalKey  # type: ignore
 from taggit.models import TaggedItemBase  # type: ignore
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
@@ -21,6 +20,19 @@ class MollyWingateBlogIndexPage(Page):
     parent_page_types = ["home.HomePage"]
     subpage_types: list[str] = ["wf_pages.MollyWingateBlogPage"]
     max_count = 1
+
+    def get_context(self, request: HttpRequest, *args, **kwargs) -> dict:
+        context = super().get_context(request, *args, **kwargs)
+
+        # Get all blog posts, ordered by publication date (newest first)
+        blog_posts = (
+            MollyWingateBlogPage.objects.live()
+            .descendant_of(self)
+            .order_by("-publication_date", "-id")
+        )
+        context["blog_posts"] = blog_posts
+
+        return context
 
 
 class WfPageCollectionIndexPage(Page):

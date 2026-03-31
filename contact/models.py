@@ -382,13 +382,22 @@ class ContactBase(JSONLDMixin, Page):
                 Prefetch("library_items_authored", queryset=library_items_qs),
             )
 
-        # Optimize memorial minutes with person relationship
+        # Optimize memorial minutes with person relationship (Person pages)
         if hasattr(self, "memorial_minute"):
             memorials_qs = self.memorial_minute.model.objects.select_related(
                 "memorial_person",
             )
             prefetch_objects.append(
                 Prefetch("memorial_minute", queryset=memorials_qs),
+            )
+
+        # Optimize memorial minutes with person relationship (Meeting pages)
+        if hasattr(self, "memorial_minutes"):
+            memorials_qs = self.memorial_minutes.model.objects.select_related(
+                "memorial_person",
+            )
+            prefetch_objects.append(
+                Prefetch("memorial_minutes", queryset=memorials_qs),
             )
 
         return prefetch_objects
@@ -471,7 +480,8 @@ class ContactBase(JSONLDMixin, Page):
                     "library_items_count": len(
                         prefetch_cache.get("library_items_authored", []),
                     ),
-                    "memorials_count": len(prefetch_cache.get("memorial_minute", [])),
+                    "memorials_count": len(prefetch_cache.get("memorial_minute", []))
+                    + len(prefetch_cache.get("memorial_minutes", [])),
                 },
             )
         except ImportError:

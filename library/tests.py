@@ -1,6 +1,8 @@
 import random
 from unittest.mock import Mock, patch
+
 from django.test import RequestFactory, SimpleTestCase, TestCase
+
 from facets.factories import (
     AudienceFactory,
     GenreFactory,
@@ -8,19 +10,18 @@ from facets.factories import (
     TimePeriodFactory,
     TopicFactory,
 )
+from contact.factories import PersonFactory
 from home.models import HomePage
-
-from library.models import LibraryIndexPage
-
-from .factories import (
-    LibraryIndexPageFactory,
-    LibraryItemFactory,
-)
-
 from library.helpers import (
     QUERYSTRING_FACETS,
     create_querystring_from_facets,
     filter_querystring_facets,
+)
+from library.models import LibraryIndexPage, LibraryItemAuthor, LibraryItemTopic
+
+from .factories import (
+    LibraryIndexPageFactory,
+    LibraryItemFactory,
 )
 
 
@@ -134,3 +135,54 @@ class TestLibraryIndexPage(TestCase):
         mock_filter_querystring.assert_called_once_with(query=request.GET.dict())
         mock_get_paginated_items.assert_called_once()
         mock_create_querystring.assert_called_once()
+
+
+class TestLibraryItemGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.library_item = LibraryItemFactory.create()
+
+    def test_get_context(self) -> None:
+        """Test that get_context prefetches authors and topics."""
+        authors = PersonFactory.create_batch(2)
+        topics = TopicFactory.create_batch(2)
+
+        for author in authors:
+            LibraryItemAuthor.objects.create(
+                library_item=self.library_item,
+                author=author,
+            )
+
+        for topic in topics:
+            LibraryItemTopic.objects.create(
+                library_item=self.library_item,
+                topic=topic,
+            )
+
+        request = self.factory.get("/")
+        with self.assertNumQueries(4):
+            context = self.library_item.get_context(request)
+
+        self.assertIsNotNone(context)
+        self.assertIsInstance(context, dict)
+        self.assertIn("page", context)
+        self.assertEqual(context["page"].pk, self.library_item.pk)
+
+        with self.assertNumQueries(0):
+            context_authors = [
+                library_item_author.author
+                for library_item_author in context["page"].authors.all()
+            ]
+            context_topics = [
+                library_item_topic.topic
+                for library_item_topic in context["page"].topics.all()
+            ]
+
+        self.assertCountEqual(
+            [author.pk for author in context_authors],
+            [author.pk for author in authors],
+        )
+        self.assertCountEqual(
+            [topic.pk for topic in context_topics],
+            [topic.pk for topic in topics],
+        )

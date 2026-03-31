@@ -300,15 +300,14 @@ class MagazineDepartment(Page):
     ) -> dict:
         context = super().get_context(request)
 
-        articles = (
-            MagazineArticle.objects.filter(
-                department__title=self.title,
-            )
-            .live()
-            .prefetch_related(
-                "authors__author",
-            )
+        # Use optimized queryset with all prefetch optimizations
+        # Filter by FK directly (department=self) instead of department__title for better performance
+        articles = list(
+            MagazineArticle.get_queryset().filter(department=self).live(),
         )
+
+        # Bulk-fetch parent issues to avoid N+1 from parent_issue property
+        MagazineArticle.prefetch_parent_issues(articles)
 
         context["articles"] = articles
 

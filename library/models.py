@@ -88,6 +88,40 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
             .prefetch_related(*related_prefetch)
         )
 
+    def get_context(self, request, *args, **kwargs):
+        """Override get_context to prefetch author and topic relationships.
+
+        Prevents N+1 queries when template loops through authors and topics
+        by prefetching related pages in a single query.
+        """
+        from django.db.models import Prefetch
+
+        context = super().get_context(request, *args, **kwargs)
+
+        # Reload instance with prefetches to avoid N+1 queries in template
+        self_with_prefetch = (
+            self.__class__.objects.filter(pk=self.pk)
+            .prefetch_related(
+                Prefetch(
+                    "authors",
+                    queryset=LibraryItemAuthor.objects.select_related("author"),
+                ),
+                Prefetch(
+                    "topics",
+                    queryset=LibraryItemTopic.objects.select_related("topic"),
+                ),
+                "tags",
+            )
+            .first()
+        )
+
+        # Replace the page instance in context with the prefetched version
+        # This avoids touching Django's internal _prefetched_objects_cache
+        if self_with_prefetch:
+            context["page"] = self_with_prefetch
+
+        return context
+
     content_panels = Page.content_panels + [
         InlinePanel(
             "authors",

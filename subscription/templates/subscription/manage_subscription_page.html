@@ -58,11 +58,13 @@
                         <i class="bi bi-info-circle" aria-hidden="true"></i>
                         <span>No active subscription found.</span>
                     </div>
-                    <div class="flex-none">
-                        <a href="{% url 'subscription_index' %}" class="btn btn-primary btn-sm">
-                            Subscribe now
-                        </a>
-                    </div>
+                    {% if subscription_index_page %}
+                        <div class="flex-none">
+                            <a href="{{ subscription_index_page.url }}" class="btn btn-primary btn-sm">
+                                Subscribe now
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
             {% endif %}
         </section>

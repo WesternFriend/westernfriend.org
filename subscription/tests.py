@@ -1,20 +1,20 @@
 from datetime import timedelta
-from django.utils import timezone
+from unittest.mock import Mock, patch
+
 from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
-
-from unittest.mock import Mock, patch
+from django.utils import timezone
 from wagtail.models import Site
 
 from accounts.factories import UserFactory
 from accounts.models import User
+from home.models import HomePage
 from subscription.factories import SubscriptionFactory
 from subscription.models import (
     ManageSubscriptionPage,
     Subscription,
     SubscriptionIndexPage,
 )
-from home.models import HomePage
 
 
 class SubscriptionTestCase(TestCase):
@@ -173,6 +173,39 @@ class ManageSubscriptionPageTestCase(TestCase):
 
         # assert that the context["subscription"] does not exist
         self.assertNotIn("subscription", context)
+
+    def test_manage_subscription_includes_subscription_index_page(self) -> None:
+        """Test that get_context includes subscription_index_page."""
+        # Create a SubscriptionIndexPage
+        subscription_index_page = SubscriptionIndexPage(
+            title="Subscribe",
+        )
+        self.home_page.add_child(instance=subscription_index_page)
+
+        mock_http_request = Mock(
+            spec=HttpRequest,
+            user=self.user,
+        )
+
+        context = self.manage_subscription_page.get_context(
+            request=mock_http_request,
+        )
+
+        self.assertIn("subscription_index_page", context)
+        self.assertEqual(context["subscription_index_page"], subscription_index_page)
+
+    def test_manage_subscription_without_subscription_index_page(self) -> None:
+        """Test that get_context omits subscription_index_page when none exist."""
+        mock_http_request = Mock(
+            spec=HttpRequest,
+            user=self.user,
+        )
+
+        context = self.manage_subscription_page.get_context(
+            request=mock_http_request,
+        )
+
+        self.assertNotIn("subscription_index_page", context)
 
 
 class TestSubscriptionModel(TestCase):
