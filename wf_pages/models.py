@@ -22,6 +22,19 @@ class MollyWingateBlogIndexPage(Page):
     subpage_types: list[str] = ["wf_pages.MollyWingateBlogPage"]
     max_count = 1
 
+    def get_context(self, request: HttpRequest, *args, **kwargs) -> dict:
+        context = super().get_context(request)
+
+        # Get all blog posts, ordered by publication date (newest first)
+        blog_posts = (
+            MollyWingateBlogPage.objects.live()
+            .descendant_of(self)
+            .order_by("-publication_date")
+        )
+        context["blog_posts"] = blog_posts
+
+        return context
+
 
 class WfPageCollectionIndexPage(Page):
     intro = RichTextField(blank=True)
