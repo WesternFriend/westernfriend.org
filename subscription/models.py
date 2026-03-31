@@ -186,4 +186,9 @@ class ManageSubscriptionPage(Page):
         ):
             context["subscription"] = request.user.subscription
 
+        # Add SubscriptionIndexPage to context for "Subscribe now" link
+        subscription_index_page = SubscriptionIndexPage.objects.live().first()
+        if subscription_index_page:
+            context["subscription_index_page"] = subscription_index_page
+
         return context
