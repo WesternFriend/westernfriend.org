@@ -429,6 +429,8 @@ class MagazineDepartmentTest(TestCase):
 
         department = MagazineDepartment(title="Test Department")
         department_index.add_child(instance=department)
+        other_department = MagazineDepartment(title="Other Department")
+        department_index.add_child(instance=other_department)
 
         # Create some articles
         article1 = MagazineArticle(
@@ -439,8 +441,13 @@ class MagazineDepartmentTest(TestCase):
             title="Article 2",
             department=department,
         )
+        other_article = MagazineArticle(
+            title="Article 3",
+            department=other_department,
+        )
         magazine_issue.add_child(instance=article1)
         magazine_issue.add_child(instance=article2)
+        magazine_issue.add_child(instance=other_article)
 
         factory = RequestFactory()
         request = factory.get("/")
@@ -449,6 +456,10 @@ class MagazineDepartmentTest(TestCase):
         self.assertIn("articles", context)
         articles = list(context["articles"])
         self.assertEqual(len(articles), 2)
+        self.assertCountEqual(
+            [article.pk for article in articles],
+            [article1.pk, article2.pk],
+        )
 
 
 class MagazineArticleTest(TestCase):

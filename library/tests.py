@@ -10,13 +10,14 @@ from facets.factories import (
     TimePeriodFactory,
     TopicFactory,
 )
+from contact.factories import PersonFactory
 from home.models import HomePage
 from library.helpers import (
     QUERYSTRING_FACETS,
     create_querystring_from_facets,
     filter_querystring_facets,
 )
-from library.models import LibraryIndexPage
+from library.models import LibraryIndexPage, LibraryItemAuthor, LibraryItemTopic
 
 from .factories import (
     LibraryIndexPageFactory,
@@ -143,12 +144,45 @@ class TestLibraryItemGetContext(TestCase):
 
     def test_get_context(self) -> None:
         """Test that get_context prefetches authors and topics."""
-        # Add some topics to the library item (skip authors to avoid factory import issue)
-        self.library_item.topics.add(*TopicFactory.create_batch(2))
+        authors = PersonFactory.create_batch(2)
+        topics = TopicFactory.create_batch(2)
+
+        for author in authors:
+            LibraryItemAuthor.objects.create(
+                library_item=self.library_item,
+                author=author,
+            )
+
+        for topic in topics:
+            LibraryItemTopic.objects.create(
+                library_item=self.library_item,
+                topic=topic,
+            )
 
         request = self.factory.get("/")
-        context = self.library_item.get_context(request)
+        with self.assertNumQueries(4):
+            context = self.library_item.get_context(request)
 
-        # Check that context is returned
         self.assertIsNotNone(context)
         self.assertIsInstance(context, dict)
+        self.assertIn("page", context)
+        self.assertEqual(context["page"].pk, self.library_item.pk)
+
+        with self.assertNumQueries(0):
+            context_authors = [
+                library_item_author.author
+                for library_item_author in context["page"].authors.all()
+            ]
+            context_topics = [
+                library_item_topic.topic
+                for library_item_topic in context["page"].topics.all()
+            ]
+
+        self.assertCountEqual(
+            [author.pk for author in context_authors],
+            [author.pk for author in authors],
+        )
+        self.assertCountEqual(
+            [topic.pk for topic in context_topics],
+            [topic.pk for topic in topics],
+        )

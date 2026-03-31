@@ -165,7 +165,7 @@ class TestAudienceGetContext(TestCase):
         context_library_item_pks = [item.pk for item in context["library_items"]]
         expected_pks = [item.pk for item in library_items]
 
-        self.assertListEqual(sorted(context_library_item_pks), sorted(expected_pks))
+        self.assertCountEqual(context_library_item_pks, expected_pks)
 
 
 class TestGenreGetContext(TestCase):

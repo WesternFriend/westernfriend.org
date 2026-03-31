@@ -194,6 +194,19 @@ class ManageSubscriptionPageTestCase(TestCase):
         self.assertIn("subscription_index_page", context)
         self.assertEqual(context["subscription_index_page"], subscription_index_page)
 
+    def test_manage_subscription_without_subscription_index_page(self) -> None:
+        """Test that get_context omits subscription_index_page when none exist."""
+        mock_http_request = Mock(
+            spec=HttpRequest,
+            user=self.user,
+        )
+
+        context = self.manage_subscription_page.get_context(
+            request=mock_http_request,
+        )
+
+        self.assertNotIn("subscription_index_page", context)
+
 
 class TestSubscriptionModel(TestCase):
     @patch("subscription.models.paypal_subscriptions.subscription_is_active")

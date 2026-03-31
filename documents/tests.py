@@ -55,6 +55,15 @@ class TestMeetingDocumentIndexPage(TestCase):
         # The context should have the documents with publishing_meeting prefetched
         meeting_documents = list(context["meeting_documents"])
         self.assertEqual(len(meeting_documents), 2)
-        # Verify the documents are returned
         self.assertIn(document1, meeting_documents)
         self.assertIn(document2, meeting_documents)
+
+        with self.assertNumQueries(0):
+            publishing_meeting_pks = [
+                document.publishing_meeting.pk for document in meeting_documents
+            ]
+
+        self.assertEqual(
+            publishing_meeting_pks,
+            [self.meeting.pk, self.meeting.pk],
+        )

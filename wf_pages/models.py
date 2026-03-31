@@ -28,7 +28,7 @@ class MollyWingateBlogIndexPage(Page):
         blog_posts = (
             MollyWingateBlogPage.objects.live()
             .descendant_of(self)
-            .order_by("-publication_date")
+            .order_by("-publication_date", "-id")
         )
         context["blog_posts"] = blog_posts
 
