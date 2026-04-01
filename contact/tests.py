@@ -133,6 +133,26 @@ class OrganizationFactoryTest(TestCase):
         )
 
 
+class TestMeetingIndexPageGetContext(TestCase):
+    def setUp(self) -> None:
+        self.request = RequestFactory().get("/")
+        self.meeting_index = MeetingIndexPageFactory.create()
+        self.child_meeting = MeetingFactory.build()
+        self.meeting_index.add_child(instance=self.child_meeting)
+
+    def test_get_context_includes_meetings(self) -> None:
+        context = self.meeting_index.get_context(self.request)
+
+        self.assertIn("meetings", context)
+        self.assertIn(self.child_meeting, context["meetings"])
+
+    def test_get_context_meetings_are_specific(self) -> None:
+        context = self.meeting_index.get_context(self.request)
+
+        for meeting in context["meetings"]:
+            self.assertIsInstance(meeting, Meeting)
+
+
 class TestMeetingGetContext(TestCase):
     def setUp(self) -> None:
         self.request = RequestFactory().get("/")
