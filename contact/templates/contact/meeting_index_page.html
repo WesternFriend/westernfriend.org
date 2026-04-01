@@ -10,32 +10,30 @@
         <h1>{{ page.title }}</h1>
 
         <section aria-label="Meetings list" itemprop="mainEntity" itemscope itemtype="https://schema.org/ItemList">
-            <meta itemprop="numberOfItems" content="{{ page.get_descendants.live|length }}">
+            <meta itemprop="numberOfItems" content="{{ meetings|length }}">
 
             <ul class="space-y-6 list-none pl-0">
-                {% for meeting in page.get_descendants.live %}
-                    {% with meeting_page=meeting.specific %}
-                        <li class="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
-                            itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-                            <meta itemprop="position" content="{{ forloop.counter }}">
-                            <article itemprop="item" itemscope itemtype="https://schema.org/Organization">
-                                <h2 class="text-xl font-semibold mb-2" itemprop="name">
-                                    <a href="{% pageurl meeting_page %}" class="link link-primary">{{ meeting_page.title }}</a>
-                                </h2>
+                {% for meeting in meetings %}
+                    <li class="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
+                        itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <meta itemprop="position" content="{{ forloop.counter }}">
+                        <article itemprop="item" itemscope itemtype="https://schema.org/Organization">
+                            <h2 class="text-xl font-semibold mb-2" itemprop="name">
+                                <a href="{% pageurl meeting %}" class="link link-primary">{{ meeting.title }}</a>
+                            </h2>
 
-                                {% if meeting_page.get_meeting_type_display %}
-                                    <p class="mb-2">
-                                        <span class="font-semibold">Type:</span>
-                                        {{ meeting_page.get_meeting_type_display }}
-                                    </p>
-                                {% endif %}
+                            {% if meeting.get_meeting_type_display %}
+                                <p class="mb-2">
+                                    <span class="font-semibold">Type:</span>
+                                    {{ meeting.get_meeting_type_display }}
+                                </p>
+                            {% endif %}
 
-                                {% if meeting_page.description %}
-                                    <div class="prose max-w-none" itemprop="description">{{ meeting_page.description|richtext }}</div>
-                                {% endif %}
-                            </article>
-                        </li>
-                    {% endwith %}
+                            {% if meeting.description %}
+                                <div class="prose max-w-none" itemprop="description">{{ meeting.description|richtext }}</div>
+                            {% endif %}
+                        </article>
+                    </li>
                 {% empty %}
                     <li>
                         <p>No meetings found.</p>

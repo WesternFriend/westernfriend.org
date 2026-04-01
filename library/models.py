@@ -29,6 +29,13 @@ class LibraryItemTag(TaggedItemBase):
 
 
 class LibraryItem(DrupalFields, Page):  # type: ignore
+    ITEM_SELECT_RELATED_FIELDS = (
+        "item_audience",
+        "item_genre",
+        "item_medium",
+        "item_time_period",
+    )
+
     publication_date = models.DateField("Publication date", null=True, blank=True)
     publication_date_is_approximate = models.BooleanField(
         default=False,
@@ -79,12 +86,7 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
         return (
             cls.objects.live()
             .defer_streamfields()
-            .select_related(
-                "item_audience",
-                "item_genre",
-                "item_medium",
-                "item_time_period",
-            )
+            .select_related(*cls.ITEM_SELECT_RELATED_FIELDS)
             .prefetch_related(*related_prefetch)
         )
 
@@ -101,12 +103,7 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
         # Reload instance with prefetches to avoid N+1 queries in template
         self_with_prefetch = (
             self.__class__.objects.filter(pk=self.pk)
-            .select_related(
-                "item_audience",
-                "item_genre",
-                "item_medium",
-                "item_time_period",
-            )
+            .select_related(*self.ITEM_SELECT_RELATED_FIELDS)
             .prefetch_related(
                 Prefetch(
                     "authors",
