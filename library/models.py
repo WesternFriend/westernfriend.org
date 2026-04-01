@@ -101,6 +101,12 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
         # Reload instance with prefetches to avoid N+1 queries in template
         self_with_prefetch = (
             self.__class__.objects.filter(pk=self.pk)
+            .select_related(
+                "item_audience",
+                "item_genre",
+                "item_medium",
+                "item_time_period",
+            )
             .prefetch_related(
                 Prefetch(
                     "authors",
