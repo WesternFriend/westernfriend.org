@@ -12,7 +12,7 @@
 
                 <div class="mt-2">
                     <span class="font-semibold">Authored by:</span>
-                    {% for author in page.specific.authors.all %}
+                    {% for author in page.authors.all %}
                         {% if author.author.live %}
                             <a href="{% pageurl author.author %}" class="link link-primary">{{ author.author }}</a>{% if not forloop.last %}, {% endif %}
                         {% else %}
@@ -28,55 +28,55 @@
 
             <section class="mt-6">
                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {% if page.specific.item_audience %}
+                    {% if page.item_audience %}
                         <div class="mb-3">
                             <dt class="font-semibold">Audience:</dt>
                             <dd>
-                                <a href="{% pageurl page.specific.item_audience %}" class="link link-primary">
-                                    {{ page.specific.item_audience }}
+                                <a href="{% pageurl page.item_audience %}" class="link link-primary">
+                                    {{ page.item_audience }}
                                 </a>
                             </dd>
                         </div>
                     {% endif %}
 
-                    {% if page.specific.item_genre %}
+                    {% if page.item_genre %}
                         <div class="mb-3">
                             <dt class="font-semibold">Genre:</dt>
                             <dd>
-                                <a href="{% pageurl page.specific.item_genre %}" class="link link-primary">
-                                    {{ page.specific.item_genre }}
+                                <a href="{% pageurl page.item_genre %}" class="link link-primary">
+                                    {{ page.item_genre }}
                                 </a>
                             </dd>
                         </div>
                     {% endif %}
 
-                    {% if page.specific.item_medium %}
+                    {% if page.item_medium %}
                         <div class="mb-3">
                             <dt class="font-semibold">Medium:</dt>
                             <dd>
-                                <a href="{% pageurl page.specific.item_medium %}" class="link link-primary">
-                                    {{ page.specific.item_medium }}
+                                <a href="{% pageurl page.item_medium %}" class="link link-primary">
+                                    {{ page.item_medium }}
                                 </a>
                             </dd>
                         </div>
                     {% endif %}
 
-                    {% if page.specific.item_time_period %}
+                    {% if page.item_time_period %}
                         <div class="mb-3">
                             <dt class="font-semibold">Time period:</dt>
                             <dd>
-                                <a href="{% pageurl page.specific.item_time_period %}" class="link link-primary">
-                                    {{ page.specific.item_time_period }}
+                                <a href="{% pageurl page.item_time_period %}" class="link link-primary">
+                                    {{ page.item_time_period }}
                                 </a>
                             </dd>
                         </div>
                     {% endif %}
 
-                    {% if page.specific.topics.count %}
+                    {% if page.topics.count %}
                         <div class="mb-3">
                             <dt class="font-semibold">Topics:</dt>
                             <dd>
-                                {% for topic in page.specific.topics.all %}
+                                {% for topic in page.topics.all %}
                                     <a href="{% pageurl topic.topic %}" class="link link-primary">
                                         {{ topic.topic }}
                                     </a>{% if not forloop.last %}, {% endif %}

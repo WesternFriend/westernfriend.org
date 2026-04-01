@@ -787,6 +787,11 @@ class MeetingIndexPage(Page):
 
     template = "contact/meeting_index_page.html"
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["meetings"] = list(self.get_descendants().live().specific())
+        return context
+
 
 class Organization(ContactBase):
     description = models.CharField(
