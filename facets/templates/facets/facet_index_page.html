@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <main class="container mx-auto px-4 py-6">
+        <header class="mb-6">
+            <h1>{{ page.title }}</h1>
+        </header>
+
+        <section aria-labelledby="facets-heading">
+            <h2 id="facets-heading" class="text-xl font-semibold mb-4">Facet categories</h2>
+
+            {% if child_pages %}
+                <ul class="flex flex-col gap-2">
+                    {% for child in child_pages %}
+                        <li>
+                            <a href="{% pageurl child %}" class="link link-primary">{{ child.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No facet categories found.</p>
+            {% endif %}
+        </section>
+    </main>
+{% endblock content %}

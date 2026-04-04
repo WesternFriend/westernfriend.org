@@ -35,12 +35,22 @@ class FacetIndexPage(Page):
 
     max_count = 1
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["child_pages"] = self.get_children().live().order_by("title")
+        return context
+
 
 class AudienceIndexPage(Page):
     parent_page_types = ["FacetIndexPage"]
     subpage_types: list[str] = ["Audience"]
 
     max_count = 1
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["child_pages"] = self.get_children().live().order_by("title")
+        return context
 
 
 class Audience(Page):
@@ -59,6 +69,11 @@ class GenreIndexPage(Page):
 
     max_count = 1
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["child_pages"] = self.get_children().live().order_by("title")
+        return context
+
 
 class Genre(Page):
     parent_page_types = ["GenreIndexPage"]
@@ -75,6 +90,11 @@ class MediumIndexPage(Page):
     subpage_types: list[str] = ["Medium"]
 
     max_count = 1
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["child_pages"] = self.get_children().live().order_by("title")
+        return context
 
 
 class Medium(Page):
@@ -93,6 +113,11 @@ class TimePeriodIndexPage(Page):
 
     max_count = 1
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["child_pages"] = self.get_children().live().order_by("title")
+        return context
+
 
 class TimePeriod(Page):
     parent_page_types = ["TimePeriodIndexPage"]
@@ -109,6 +134,11 @@ class TopicIndexPage(Page):
     subpage_types: list[str] = ["Topic"]
 
     max_count = 1
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["child_pages"] = self.get_children().live().order_by("title")
+        return context
 
 
 class Topic(Page):
