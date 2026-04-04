@@ -26,6 +26,8 @@ def get_library_items_for_facet(facet_instance, filter_field):
 class ChildPagesMixin:
     """Mixin that provides a child_pages context variable for index pages."""
 
+    template = "facets/facet_index_page.html"
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         context["child_pages"] = self.get_children().live().order_by("title")
