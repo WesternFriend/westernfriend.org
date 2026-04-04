@@ -15,6 +15,83 @@ MAX_QUERY_WORDS = 5  # words
 # to preserve word boundaries (e.g. "foo&bar" → "foo bar", not "foobar")
 _TSQUERY_SPECIAL_CHARS = re.compile(r"[()&|!:*\\]")
 
+# PostgreSQL English full-text search stopwords (pg_catalog.english).
+# These words are discarded by the FTS engine before indexing and querying, so
+# including them as OR terms in a tsquery inflates intermediate result sets
+# without narrowing matches.  Filtering them here prevents expensive COUNT and
+# SELECT queries when a user (or bot) submits a query that contains only (or
+# mostly) stopwords such as "and", "the", or "or".
+STOPWORDS: frozenset[str] = frozenset(
+    {
+        "a",
+        "an",
+        "and",
+        "are",
+        "as",
+        "at",
+        "be",
+        "been",
+        "but",
+        "by",
+        "for",
+        "from",
+        "had",
+        "has",
+        "have",
+        "he",
+        "her",
+        "him",
+        "his",
+        "how",
+        "i",
+        "if",
+        "in",
+        "is",
+        "it",
+        "its",
+        "me",
+        "my",
+        "no",
+        "not",
+        "of",
+        "on",
+        "or",
+        "our",
+        "she",
+        "so",
+        "than",
+        "that",
+        "the",
+        "their",
+        "them",
+        "then",
+        "there",
+        "these",
+        "they",
+        "this",
+        "those",
+        "through",
+        "to",
+        "too",
+        "up",
+        "was",
+        "we",
+        "were",
+        "what",
+        "when",
+        "where",
+        "which",
+        "while",
+        "who",
+        "why",
+        "will",
+        "with",
+        "would",
+        "you",
+        "your",
+    },
+)
+
 
 def search(request: HttpRequest) -> HttpResponse:
     search_query = request.GET.get("query", None)
@@ -32,10 +109,16 @@ def search(request: HttpRequest) -> HttpResponse:
                 search_query = search_query[:MAX_QUERY_LENGTH]
                 query_truncated = True
             words = search_query.split()
-            if len(words) > MAX_QUERY_WORDS:
-                words = words[:MAX_QUERY_WORDS]
-                query_truncated = True
-            search_query = " ".join(words) or None
+            # Remove stopwords before enforcing the word-count limit so the
+            # limit applies to meaningful terms only.
+            words = [w for w in words if w.lower() not in STOPWORDS]
+            if not words:
+                search_query = None
+            else:
+                if len(words) > MAX_QUERY_WORDS:
+                    words = words[:MAX_QUERY_WORDS]
+                    query_truncated = True
+                search_query = " ".join(words) or None
 
     # Validate and clamp page number before any paginator call.
     # max(1, ...) prevents page=0 from reaching the paginator (which raises EmptyPage).
