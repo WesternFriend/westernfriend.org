@@ -712,8 +712,10 @@ class SearchQueryLimitTestCase(TestCase):
         self.assertLessEqual(len(response.context["search_query"]), MAX_QUERY_LENGTH)
 
     def test_query_exceeding_max_words_is_truncated(self) -> None:
-        # Single-letter words well over the limit but under the char limit
-        many_words_query = " ".join("a" * (MAX_QUERY_WORDS + 10))
+        # Single-letter words well over the limit but under the char limit.
+        # "b" is used rather than "a" because "a" is a PostgreSQL stopword and
+        # would be filtered before the word-count check, preventing truncation.
+        many_words_query = " ".join("b" * (MAX_QUERY_WORDS + 10))
         response = self.client.get(reverse("search"), {"query": many_words_query})
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTrue(response.context["query_truncated"])
@@ -781,6 +783,51 @@ class SearchQueryLimitTestCase(TestCase):
         response = self.client.get(reverse("search"), {"query": "  foo & bar  "})
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.context["search_query"], "foo bar")
+
+    def test_stopwords_only_query_returns_no_search(self) -> None:
+        """A query composed entirely of stopwords should be treated as no query.
+
+        search_query must be None, query_truncated must be False, and the
+        response must show no results — no database search should run.
+        """
+        response = self.client.get(reverse("search"), {"query": "the and or"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertIsNone(response.context["search_query"])
+        self.assertFalse(response.context["query_truncated"])
+        self.assertEqual(len(response.context["paginated_search_results"].page), 0)
+
+    def test_truncation_then_all_stopwords_clears_truncated_flag(self) -> None:
+        """query_truncated must be False when character truncation fires but the
+        remaining words are all stopwords.
+
+        Sequence: raw query exceeds MAX_QUERY_LENGTH → truncated (flag set True)
+                  → after truncation all words are stopwords → search_query=None
+                  → query_truncated must be reset to False.
+        """
+        # "the " repeated 8 times = 32 chars, triggers char truncation (>30),
+        # but the surviving words are still only stopwords.
+        long_stopwords_query = "the " * 8  # 32 chars
+        response = self.client.get(reverse("search"), {"query": long_stopwords_query})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertIsNone(response.context["search_query"])
+        self.assertFalse(response.context["query_truncated"])
+
+    def test_post_filter_word_count_truncation(self) -> None:
+        """query_truncated must be True when stopword removal leaves more than
+        MAX_QUERY_WORDS non-stopword terms, and the query must be capped.
+
+        "quick brown fox jumps over lazy dog" → remove stopwords ("over") → 6
+        content words → truncated to MAX_QUERY_WORDS (5).
+        """
+        # 7 words; "over" is a stopword → 6 content words remain → truncated to 5
+        query = "quick brown fox jumps over lazy dog"
+        response = self.client.get(reverse("search"), {"query": query})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(response.context["query_truncated"])
+        self.assertLessEqual(
+            len(response.context["search_query"].split()),
+            MAX_QUERY_WORDS,
+        )
 
     def test_internal_consecutive_spaces_no_tsquery_syntax_error(self) -> None:
         """Regression: special chars between words must not produce empty tsquery tokens.
