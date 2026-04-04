@@ -31,3 +31,16 @@ Content that uses the Wagtail `richtext` filter should be wrapped in a `prose` c
 ### UI Icons
 
 We have the Bootstrap Icons package available in the project. When we see an icon class like `bi bi-<icon-name>`, we can use it as it is. Additionally, ensure that icons are used consistently across the project for better UI coherence.
+
+## Git Workflow
+
+### Avoid mixing GitHub MCP API commits with local git commits on the same branch
+
+When pushing files via the GitHub MCP API (`mcp_github_github_push_files`), GitHub creates new commits on its servers with independent SHA hashes. If local commits for the same work also exist (e.g. made via `git commit`), the local and remote branch trees diverge immediately — even when the file content is identical.
+
+**Rule:** Pick one approach per branch and stick to it:
+
+- Use `git push` for all commits on the branch, **or**
+- Use the GitHub MCP API exclusively (no local commits).
+
+Mixing both requires a force-push to reconcile, which rewrites history and should be avoided on shared branches.
