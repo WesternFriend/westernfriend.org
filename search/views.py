@@ -113,7 +113,10 @@ def search(request: HttpRequest) -> HttpResponse:
             # limit applies to meaningful terms only.
             words = [w for w in words if w.lower() not in STOPWORDS]
             if not words:
+                # All terms were stopwords; treat as no query and clear any
+                # truncation flag set above — there is nothing to display.
                 search_query = None
+                query_truncated = False
             else:
                 if len(words) > MAX_QUERY_WORDS:
                     words = words[:MAX_QUERY_WORDS]
