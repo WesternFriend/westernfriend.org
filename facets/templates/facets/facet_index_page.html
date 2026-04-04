@@ -8,13 +8,15 @@
     </header>
 
     {% if child_pages %}
-        <ul class="flex flex-col gap-2">
-            {% for child in child_pages %}
-                <li>
-                    <a href="{% pageurl child %}" class="link link-primary">{{ child.title }}</a>
-                </li>
-            {% endfor %}
-        </ul>
+        <nav aria-label="{{ page.title }}">
+            <ul class="flex flex-col gap-2">
+                {% for child in child_pages %}
+                    <li>
+                        <a href="{% pageurl child %}" class="link link-primary">{{ child.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </nav>
     {% else %}
         <p>No items found.</p>
     {% endif %}
