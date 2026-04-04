@@ -59,7 +59,7 @@ class TestAudience(TestCase):
 
         self.assertIsInstance(
             audience.get_parent().specific,
-            FacetIndexPage,
+            AudienceIndexPage,
         )
 
 
@@ -75,7 +75,7 @@ class TestGenre(TestCase):
 
         self.assertIsInstance(
             genre.get_parent().specific,
-            FacetIndexPage,
+            GenreIndexPage,
         )
 
 
@@ -91,7 +91,7 @@ class TestMedium(TestCase):
 
         self.assertIsInstance(
             medium.get_parent().specific,
-            FacetIndexPage,
+            MediumIndexPage,
         )
 
 
@@ -107,7 +107,7 @@ class TestTimePeriod(TestCase):
 
         self.assertIsInstance(
             time_period.get_parent().specific,
-            FacetIndexPage,
+            TimePeriodIndexPage,
         )
 
 
@@ -123,7 +123,7 @@ class TestTopic(TestCase):
 
         self.assertIsInstance(
             topic.get_parent().specific,
-            FacetIndexPage,
+            TopicIndexPage,
         )
 
 
@@ -239,7 +239,13 @@ class TestFacetIndexPageGetContext(TestCase):
         self.assertIn("child_pages", context)
 
     def test_get_context_child_pages_are_instance_of_facet_index_page(self) -> None:
-        self.assertIsInstance(self.facet_index_page, FacetIndexPage)
+        AudienceIndexPageFactory.create()
+        self.facet_index_page.refresh_from_db()
+        request = self.factory.get("/")
+        context = self.facet_index_page.get_context(request)
+        child_pages = list(context["child_pages"])
+        self.assertEqual(len(child_pages), 1)
+        self.assertEqual(child_pages[0].specific_class, AudienceIndexPage)
 
 
 class TestAudienceIndexPageGetContext(TestCase):
@@ -254,7 +260,13 @@ class TestAudienceIndexPageGetContext(TestCase):
         self.assertIn("child_pages", context)
 
     def test_get_context_child_pages_are_instance_of_audience_index_page(self) -> None:
-        self.assertIsInstance(self.audience_index_page, AudienceIndexPage)
+        AudienceFactory.create()
+        self.audience_index_page.refresh_from_db()
+        request = self.factory.get("/")
+        context = self.audience_index_page.get_context(request)
+        child_pages = list(context["child_pages"])
+        self.assertEqual(len(child_pages), 1)
+        self.assertEqual(child_pages[0].specific_class, Audience)
 
 
 class TestGenreIndexPageGetContext(TestCase):
@@ -269,7 +281,13 @@ class TestGenreIndexPageGetContext(TestCase):
         self.assertIn("child_pages", context)
 
     def test_get_context_child_pages_are_instance_of_genre_index_page(self) -> None:
-        self.assertIsInstance(self.genre_index_page, GenreIndexPage)
+        GenreFactory.create()
+        self.genre_index_page.refresh_from_db()
+        request = self.factory.get("/")
+        context = self.genre_index_page.get_context(request)
+        child_pages = list(context["child_pages"])
+        self.assertEqual(len(child_pages), 1)
+        self.assertEqual(child_pages[0].specific_class, Genre)
 
 
 class TestMediumIndexPageGetContext(TestCase):
@@ -284,7 +302,13 @@ class TestMediumIndexPageGetContext(TestCase):
         self.assertIn("child_pages", context)
 
     def test_get_context_child_pages_are_instance_of_medium_index_page(self) -> None:
-        self.assertIsInstance(self.medium_index_page, MediumIndexPage)
+        MediumFactory.create()
+        self.medium_index_page.refresh_from_db()
+        request = self.factory.get("/")
+        context = self.medium_index_page.get_context(request)
+        child_pages = list(context["child_pages"])
+        self.assertEqual(len(child_pages), 1)
+        self.assertEqual(child_pages[0].specific_class, Medium)
 
 
 class TestTimePeriodIndexPageGetContext(TestCase):
@@ -301,7 +325,13 @@ class TestTimePeriodIndexPageGetContext(TestCase):
     def test_get_context_child_pages_are_instance_of_time_period_index_page(
         self,
     ) -> None:
-        self.assertIsInstance(self.time_period_index_page, TimePeriodIndexPage)
+        TimePeriodFactory.create()
+        self.time_period_index_page.refresh_from_db()
+        request = self.factory.get("/")
+        context = self.time_period_index_page.get_context(request)
+        child_pages = list(context["child_pages"])
+        self.assertEqual(len(child_pages), 1)
+        self.assertEqual(child_pages[0].specific_class, TimePeriod)
 
 
 class TestTopicIndexPageGetContext(TestCase):
@@ -316,4 +346,10 @@ class TestTopicIndexPageGetContext(TestCase):
         self.assertIn("child_pages", context)
 
     def test_get_context_child_pages_are_instance_of_topic_index_page(self) -> None:
-        self.assertIsInstance(self.topic_index_page, TopicIndexPage)
+        TopicFactory.create()
+        self.topic_index_page.refresh_from_db()
+        request = self.factory.get("/")
+        context = self.topic_index_page.get_context(request)
+        child_pages = list(context["child_pages"])
+        self.assertEqual(len(child_pages), 1)
+        self.assertEqual(child_pages[0].specific_class, Topic)
