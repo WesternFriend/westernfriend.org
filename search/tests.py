@@ -11,7 +11,7 @@ from wagtail.search.backends import get_search_backend
 from contact.factories import PersonFactory
 from magazine.factories import MagazineArticleFactory, MagazineIssueFactory
 from magazine.models import MagazineArticle
-from search.views import MAX_QUERY_LENGTH, MAX_QUERY_WORDS
+from search.views import MAX_QUERY_LENGTH, MAX_QUERY_WORDS, STOPWORDS
 
 
 class SearchViewTestCase(TestCase):
@@ -848,3 +848,53 @@ class SearchQueryLimitTestCase(TestCase):
             response.context["search_query"],
             "article preserving meaningful",
         )
+
+
+class StopwordSyncTestCase(TestCase):
+    """Warn when STOPWORDS drifts from PostgreSQL's canonical english.stop list.
+
+    This test fetches the authoritative file from the PostgreSQL source tree and
+    issues a warning (rather than a hard failure) so that a transient network
+    outage or a deliberate intentional divergence does not break CI.  A warning
+    is still visible in the test output and surfaces the drift without blocking
+    merges.
+    """
+
+    _PG_STOPWORDS_URL = (
+        "https://raw.githubusercontent.com/postgres/postgres/"
+        "master/src/backend/snowball/stopwords/english.stop"
+    )
+
+    def test_stopwords_match_postgresql_canonical_list(self) -> None:
+        import urllib.error
+        import urllib.request
+        import warnings
+
+        try:
+            with urllib.request.urlopen(self._PG_STOPWORDS_URL, timeout=5) as resp:
+                canonical = frozenset(
+                    line.strip()
+                    for line in resp.read().decode().splitlines()
+                    if line.strip() and not line.startswith("#")
+                )
+        except (urllib.error.URLError, OSError) as exc:
+            warnings.warn(
+                f"Could not fetch PostgreSQL english.stop to verify STOPWORDS "
+                f"({exc}); skipping canonical-sync check.",
+                stacklevel=2,
+            )
+            return
+
+        missing = canonical - STOPWORDS
+        extra = STOPWORDS - canonical
+
+        if missing or extra:
+            warnings.warn(
+                f"STOPWORDS in search/views.py has drifted from PostgreSQL's "
+                f"canonical english.stop list. "
+                f"Missing: {sorted(missing) or 'none'}. "
+                f"Extra: {sorted(extra) or 'none'}. "
+                f"Update STOPWORDS to keep the pre-filter in sync with "
+                f"PostgreSQL's FTS engine.",
+                stacklevel=2,
+            )
