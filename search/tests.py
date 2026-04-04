@@ -804,9 +804,12 @@ class SearchQueryLimitTestCase(TestCase):
                   → after truncation all words are stopwords → search_query=None
                   → query_truncated must be reset to False.
         """
-        # "the " repeated 8 times = 32 chars, triggers char truncation (>30),
-        # but the surviving words are still only stopwords.
-        long_stopwords_query = "the " * 8  # 32 chars
+        # "a " repeated 16 times = 32 chars, triggers char truncation (>30).
+        # Using a 2-char pattern ("a ") ensures the 30-char truncation always
+        # lands on a space (index 29 is a space in the alternating a/ pattern),
+        # so no partial word is created.  All surviving tokens ("a") are
+        # stopwords, so query_truncated must be reset to False.
+        long_stopwords_query = "a " * 16  # 32 chars
         response = self.client.get(reverse("search"), {"query": long_stopwords_query})
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIsNone(response.context["search_query"])
