@@ -1,16 +1,33 @@
 from django.test import RequestFactory, TestCase
 
-from facets.models import Audience, FacetIndexPage, Genre, Medium, TimePeriod, Topic
+from facets.models import (
+    Audience,
+    AudienceIndexPage,
+    FacetIndexPage,
+    Genre,
+    GenreIndexPage,
+    Medium,
+    MediumIndexPage,
+    TimePeriod,
+    TimePeriodIndexPage,
+    Topic,
+    TopicIndexPage,
+)
 from library.factories import LibraryItemFactory
 from library.models import LibraryIndexPage, LibraryItemTopic
 
 from .factories import (
     AudienceFactory,
+    AudienceIndexPageFactory,
     FacetIndexPageFactory,
     GenreFactory,
+    GenreIndexPageFactory,
     MediumFactory,
+    MediumIndexPageFactory,
     TimePeriodFactory,
+    TimePeriodIndexPageFactory,
     TopicFactory,
+    TopicIndexPageFactory,
 )
 
 
@@ -210,25 +227,93 @@ class TestMediumGetContext(TestCase):
         self.assertListEqual(sorted(context_library_item_pks), sorted(expected_pks))
 
 
-class TestTimePeriodGetContext(TestCase):
+class TestFacetIndexPageGetContext(TestCase):
     def setUp(self) -> None:
         self.factory = RequestFactory()
-        self.time_period = TimePeriodFactory.create()
+        self.facet_index_page = FacetIndexPageFactory.create()
 
-    def test_get_context(self) -> None:
-        """Test that get_context returns library_items filtered by time_period."""
-        library_items = LibraryItemFactory.create_batch(
-            3,
-            item_time_period=self.time_period,
-        )
-        # Create some items without this time period
-        LibraryItemFactory.create_batch(2)
-
+    def test_get_context_contains_child_pages(self) -> None:
         request = self.factory.get("/")
-        context = self.time_period.get_context(request)
+        context = self.facet_index_page.get_context(request)
 
-        self.assertIn("library_items", context)
-        context_library_item_pks = [item.pk for item in context["library_items"]]
-        expected_pks = [item.pk for item in library_items]
+        self.assertIn("child_pages", context)
 
-        self.assertListEqual(sorted(context_library_item_pks), sorted(expected_pks))
+    def test_get_context_child_pages_are_instance_of_facet_index_page(self) -> None:
+        self.assertIsInstance(self.facet_index_page, FacetIndexPage)
+
+
+class TestAudienceIndexPageGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.audience_index_page = AudienceIndexPageFactory.create()
+
+    def test_get_context_contains_child_pages(self) -> None:
+        request = self.factory.get("/")
+        context = self.audience_index_page.get_context(request)
+
+        self.assertIn("child_pages", context)
+
+    def test_get_context_child_pages_are_instance_of_audience_index_page(self) -> None:
+        self.assertIsInstance(self.audience_index_page, AudienceIndexPage)
+
+
+class TestGenreIndexPageGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.genre_index_page = GenreIndexPageFactory.create()
+
+    def test_get_context_contains_child_pages(self) -> None:
+        request = self.factory.get("/")
+        context = self.genre_index_page.get_context(request)
+
+        self.assertIn("child_pages", context)
+
+    def test_get_context_child_pages_are_instance_of_genre_index_page(self) -> None:
+        self.assertIsInstance(self.genre_index_page, GenreIndexPage)
+
+
+class TestMediumIndexPageGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.medium_index_page = MediumIndexPageFactory.create()
+
+    def test_get_context_contains_child_pages(self) -> None:
+        request = self.factory.get("/")
+        context = self.medium_index_page.get_context(request)
+
+        self.assertIn("child_pages", context)
+
+    def test_get_context_child_pages_are_instance_of_medium_index_page(self) -> None:
+        self.assertIsInstance(self.medium_index_page, MediumIndexPage)
+
+
+class TestTimePeriodIndexPageGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.time_period_index_page = TimePeriodIndexPageFactory.create()
+
+    def test_get_context_contains_child_pages(self) -> None:
+        request = self.factory.get("/")
+        context = self.time_period_index_page.get_context(request)
+
+        self.assertIn("child_pages", context)
+
+    def test_get_context_child_pages_are_instance_of_time_period_index_page(
+        self,
+    ) -> None:
+        self.assertIsInstance(self.time_period_index_page, TimePeriodIndexPage)
+
+
+class TestTopicIndexPageGetContext(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+        self.topic_index_page = TopicIndexPageFactory.create()
+
+    def test_get_context_contains_child_pages(self) -> None:
+        request = self.factory.get("/")
+        context = self.topic_index_page.get_context(request)
+
+        self.assertIn("child_pages", context)
+
+    def test_get_context_child_pages_are_instance_of_topic_index_page(self) -> None:
+        self.assertIsInstance(self.topic_index_page, TopicIndexPage)
