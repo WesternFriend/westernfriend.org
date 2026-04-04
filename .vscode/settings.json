@@ -1,5 +1,18 @@
 {
-  "python.experiments.optInto": ["pythonTestAdapter"],
+  "[markdown]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.markdownlint": "explicit"
+  },
+  "markdownlint.run": "onSave",
+  "markdownlint.config": {
+    "MD013": false
+  },
+  "python.experiments.optInto": [
+    "pythonTestAdapter"
+  ],
   "python.testing.unittestEnabled": true,
   "python.testing.unittestArgs": []
 }
