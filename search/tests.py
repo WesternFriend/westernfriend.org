@@ -11,7 +11,7 @@ from wagtail.search.backends import get_search_backend
 from contact.factories import PersonFactory
 from magazine.factories import MagazineArticleFactory, MagazineIssueFactory
 from magazine.models import MagazineArticle
-from search.views import MAX_QUERY_LENGTH, MAX_QUERY_WORDS
+from search.views import MAX_QUERY_LENGTH, MAX_QUERY_WORDS, STOPWORDS
 
 
 class SearchViewTestCase(TestCase):
@@ -712,8 +712,10 @@ class SearchQueryLimitTestCase(TestCase):
         self.assertLessEqual(len(response.context["search_query"]), MAX_QUERY_LENGTH)
 
     def test_query_exceeding_max_words_is_truncated(self) -> None:
-        # Single-letter words well over the limit but under the char limit
-        many_words_query = " ".join("a" * (MAX_QUERY_WORDS + 10))
+        # Single-letter words well over the limit but under the char limit.
+        # "b" is used rather than "a" because "a" is a PostgreSQL stopword and
+        # would be filtered before the word-count check, preventing truncation.
+        many_words_query = " ".join("b" * (MAX_QUERY_WORDS + 10))
         response = self.client.get(reverse("search"), {"query": many_words_query})
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTrue(response.context["query_truncated"])
@@ -782,6 +784,54 @@ class SearchQueryLimitTestCase(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.context["search_query"], "foo bar")
 
+    def test_stopwords_only_query_returns_no_search(self) -> None:
+        """A query composed entirely of stopwords should be treated as no query.
+
+        search_query must be None, query_truncated must be False, and the
+        response must show no results — no database search should run.
+        """
+        response = self.client.get(reverse("search"), {"query": "the and or"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertIsNone(response.context["search_query"])
+        self.assertFalse(response.context["query_truncated"])
+        self.assertEqual(len(response.context["paginated_search_results"].page), 0)
+
+    def test_truncation_then_all_stopwords_clears_truncated_flag(self) -> None:
+        """query_truncated must be False when character truncation fires but the
+        remaining words are all stopwords.
+
+        Sequence: raw query exceeds MAX_QUERY_LENGTH → truncated (flag set True)
+                  → after truncation all words are stopwords → search_query=None
+                  → query_truncated must be reset to False.
+        """
+        # "a " repeated 16 times = 32 chars, triggers char truncation (>30).
+        # Using a 2-char pattern ("a ") ensures the 30-char truncation always
+        # lands on a space (index 29 is a space in the alternating a/ pattern),
+        # so no partial word is created.  All surviving tokens ("a") are
+        # stopwords, so query_truncated must be reset to False.
+        long_stopwords_query = "a " * 16  # 32 chars
+        response = self.client.get(reverse("search"), {"query": long_stopwords_query})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertIsNone(response.context["search_query"])
+        self.assertFalse(response.context["query_truncated"])
+
+    def test_post_filter_word_count_truncation(self) -> None:
+        """query_truncated must be True when stopword removal leaves more than
+        MAX_QUERY_WORDS non-stopword terms, and the query must be capped.
+
+        "quick brown fox jumps over lazy dog" → remove stopwords ("over") → 6
+        content words → truncated to MAX_QUERY_WORDS (5).
+        """
+        # 7 words; "over" is a stopword → 6 content words remain → truncated to 5
+        query = "quick brown fox jumps over lazy dog"
+        response = self.client.get(reverse("search"), {"query": query})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(response.context["query_truncated"])
+        self.assertLessEqual(
+            len(response.context["search_query"].split()),
+            MAX_QUERY_WORDS,
+        )
+
     def test_internal_consecutive_spaces_no_tsquery_syntax_error(self) -> None:
         """Regression: special chars between words must not produce empty tsquery tokens.
 
@@ -801,3 +851,53 @@ class SearchQueryLimitTestCase(TestCase):
             response.context["search_query"],
             "article preserving meaningful",
         )
+
+
+class StopwordSyncTestCase(TestCase):
+    """Warn when STOPWORDS drifts from PostgreSQL's canonical english.stop list.
+
+    This test fetches the authoritative file from the PostgreSQL source tree and
+    issues a warning (rather than a hard failure) so that a transient network
+    outage or a deliberate intentional divergence does not break CI.  A warning
+    is still visible in the test output and surfaces the drift without blocking
+    merges.
+    """
+
+    _PG_STOPWORDS_URL = (
+        "https://raw.githubusercontent.com/postgres/postgres/"
+        "master/src/backend/snowball/stopwords/english.stop"
+    )
+
+    def test_stopwords_match_postgresql_canonical_list(self) -> None:
+        import urllib.error
+        import urllib.request
+        import warnings
+
+        try:
+            with urllib.request.urlopen(self._PG_STOPWORDS_URL, timeout=5) as resp:
+                canonical = frozenset(
+                    line.strip()
+                    for line in resp.read().decode().splitlines()
+                    if line.strip() and not line.startswith("#")
+                )
+        except (urllib.error.URLError, OSError) as exc:
+            warnings.warn(
+                f"Could not fetch PostgreSQL english.stop to verify STOPWORDS "
+                f"({exc}); skipping canonical-sync check.",
+                stacklevel=2,
+            )
+            return
+
+        missing = canonical - STOPWORDS
+        extra = STOPWORDS - canonical
+
+        if missing or extra:
+            warnings.warn(
+                f"STOPWORDS in search/views.py has drifted from PostgreSQL's "
+                f"canonical english.stop list. "
+                f"Missing: {sorted(missing) or 'none'}. "
+                f"Extra: {sorted(extra) or 'none'}. "
+                f"Update STOPWORDS to keep the pre-filter in sync with "
+                f"PostgreSQL's FTS engine.",
+                stacklevel=2,
+            )
