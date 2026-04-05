@@ -23,7 +23,18 @@ def get_library_items_for_facet(facet_instance, filter_field):
     )
 
 
-class FacetIndexPage(Page):
+class ChildPagesMixin:
+    """Mixin that provides a child_pages context variable for index pages."""
+
+    template = "facets/facet_index_page.html"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["child_pages"] = self.get_children().live().order_by("title")
+        return context
+
+
+class FacetIndexPage(ChildPagesMixin, Page):
     parent_page_types = ["library.LibraryIndexPage"]
     subpage_types: list[str] = [
         "AudienceIndexPage",
@@ -36,7 +47,7 @@ class FacetIndexPage(Page):
     max_count = 1
 
 
-class AudienceIndexPage(Page):
+class AudienceIndexPage(ChildPagesMixin, Page):
     parent_page_types = ["FacetIndexPage"]
     subpage_types: list[str] = ["Audience"]
 
@@ -53,7 +64,7 @@ class Audience(Page):
         return context
 
 
-class GenreIndexPage(Page):
+class GenreIndexPage(ChildPagesMixin, Page):
     parent_page_types = ["FacetIndexPage"]
     subpage_types: list[str] = ["Genre"]
 
@@ -70,7 +81,7 @@ class Genre(Page):
         return context
 
 
-class MediumIndexPage(Page):
+class MediumIndexPage(ChildPagesMixin, Page):
     parent_page_types = ["FacetIndexPage"]
     subpage_types: list[str] = ["Medium"]
 
@@ -87,7 +98,7 @@ class Medium(Page):
         return context
 
 
-class TimePeriodIndexPage(Page):
+class TimePeriodIndexPage(ChildPagesMixin, Page):
     parent_page_types = ["FacetIndexPage"]
     subpage_types: list[str] = ["TimePeriod"]
 
@@ -104,7 +115,7 @@ class TimePeriod(Page):
         return context
 
 
-class TopicIndexPage(Page):
+class TopicIndexPage(ChildPagesMixin, Page):
     parent_page_types = ["FacetIndexPage"]
     subpage_types: list[str] = ["Topic"]
 

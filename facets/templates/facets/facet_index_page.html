@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <header class="mb-6">
+        <h1>{{ page.title }}</h1>
+    </header>
+
+    {% if child_pages %}
+        <nav aria-label="{{ page.title }}">
+            <ul class="flex flex-col gap-2">
+                {% for child in child_pages %}
+                    <li>
+                        <a href="{% pageurl child %}" class="link link-primary">{{ child.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </nav>
+    {% else %}
+        <p>No items found.</p>
+    {% endif %}
+{% endblock content %}
