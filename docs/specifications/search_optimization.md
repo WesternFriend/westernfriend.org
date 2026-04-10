@@ -127,11 +127,11 @@ The full query sanitization pipeline executes in this order:
 
 ```text
 raw query string
-  → strip tsquery special characters       (§1)
-  → truncate to MAX_QUERY_LENGTH chars      (§2)
+  → replace all non-alphanumeric characters with spaces  (§1)
+  → truncate to MAX_QUERY_LENGTH chars                   (§2)
   → split into words
-  → remove stopwords                        (§3)
-  → truncate to MAX_QUERY_WORDS words       (§2)
+  → remove stopwords                                     (§3)
+  → truncate to MAX_QUERY_WORDS words                    (§2)
   → rejoin into sanitised query string
 ```
 
