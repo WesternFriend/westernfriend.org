@@ -738,26 +738,60 @@ class SearchQueryLimitTestCase(TestCase):
         self.assertEqual(response.context["search_query"], exactly_max)
 
     def test_query_with_tsquery_special_chars_is_sanitized(self) -> None:
-        """Queries with tsquery operators should not crash with a PostgreSQL SyntaxError."""
+        """Queries with non-alphanumeric characters should not crash with a PostgreSQL SyntaxError."""
         response = self.client.get(
             reverse("search"),
             {"query": "What type(s) of damage(s) may"},
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        for char in r"()&|!:*\\":
-            self.assertNotIn(char, response.context["search_query"])
+        import re
+
+        self.assertIsNone(
+            re.search(r"[^a-zA-Z0-9 ]", response.context["search_query"]),
+            "search_query should contain only letters, digits, and spaces",
+        )
 
     def test_special_chars_replaced_with_spaces_preserving_word_boundaries(
         self,
     ) -> None:
-        """Operator chars between words must become spaces, not be deleted.
+        """Non-alphanumeric chars between words must become spaces, not be deleted.
 
-        "foo&bar" should sanitize to "foo bar" (two terms), not "foobar" (one
-        unrecognised term), so both words remain searchable.
+        "foo&bar" and "foo-bar" should each sanitize to "foo bar" (two terms),
+        not "foobar" (one unrecognised term), so both words remain searchable.
         """
         response = self.client.get(reverse("search"), {"query": "foo&bar"})
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.context["search_query"], "foo bar")
+
+        response = self.client.get(reverse("search"), {"query": "foo-bar"})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.context["search_query"], "foo bar")
+
+    def test_hyphen_only_word_does_not_crash(self) -> None:
+        """Regression: a hyphen token surviving sanitization caused tsquery SyntaxError.
+
+        Real query: "Urban heat islandsTR Oke - The Routledge Handbook of urban
+        ecology, 2011".  The hyphen was not in the old blacklist, survived into
+        a Wagtail Lexeme, and PostgreSQL rejected the empty lexeme with
+        ProgrammingError: syntax error in tsquery.
+        """
+        response = self.client.get(
+            reverse("search"),
+            {
+                "query": "Urban heat islandsTR Oke - The Routledge Handbook of urban ecology, 2011",
+            },
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        import re
+
+        self.assertIsNotNone(
+            response.context["search_query"],
+            "sanitization of a mixed query should produce a non-empty search_query",
+        )
+        self.assertIsNone(
+            re.search(r"[^a-zA-Z0-9 ]", response.context["search_query"]),
+            "search_query should contain only letters, digits, and spaces",
+        )
 
     def test_query_of_only_special_chars_returns_no_results(self) -> None:
         """A query that reduces to empty after stripping should show no results."""

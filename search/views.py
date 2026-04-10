@@ -11,9 +11,11 @@ from pagination.helpers import get_paginated_items
 MAX_QUERY_LENGTH = 30  # characters
 MAX_QUERY_WORDS = 5  # words
 
-# PostgreSQL tsquery treats these as syntax operators; replace them with spaces
-# to preserve word boundaries (e.g. "foo&bar" → "foo bar", not "foobar")
-_TSQUERY_SPECIAL_CHARS = re.compile(r"[()&|!:*\\]")
+# Only ASCII letters and digits are safe tsquery lexeme characters.  Replace
+# everything else with a space to preserve word boundaries
+# (e.g. "foo-bar" → "foo bar", not "foobar").  Using a whitelist rather than
+# a blacklist means no punctuation character can ever produce an invalid lexeme.
+_NON_WORD_CHARS = re.compile(r"[^a-zA-Z0-9]")
 
 # PostgreSQL English full-text search stopwords (pg_catalog.english).
 # These words are discarded by the FTS engine before indexing and querying, so
@@ -167,8 +169,8 @@ def search(request: HttpRequest) -> HttpResponse:
 
     # Sanitize query to prevent runaway tsquery complexity with OR operator
     if search_query:
-        # Strip PostgreSQL tsquery special characters to prevent syntax errors
-        search_query = _TSQUERY_SPECIAL_CHARS.sub(" ", search_query).strip() or None
+        # Strip non-alphanumeric characters to prevent tsquery syntax errors
+        search_query = _NON_WORD_CHARS.sub(" ", search_query).strip() or None
         if search_query:
             if len(search_query) > MAX_QUERY_LENGTH:
                 search_query = search_query[:MAX_QUERY_LENGTH]
