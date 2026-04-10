@@ -784,11 +784,14 @@ class SearchQueryLimitTestCase(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         import re
 
-        if response.context["search_query"] is not None:
-            self.assertIsNone(
-                re.search(r"[^a-zA-Z0-9 ]", response.context["search_query"]),
-                "search_query should contain only letters, digits, and spaces",
-            )
+        self.assertIsNotNone(
+            response.context["search_query"],
+            "sanitization of a mixed query should produce a non-empty search_query",
+        )
+        self.assertIsNone(
+            re.search(r"[^a-zA-Z0-9 ]", response.context["search_query"]),
+            "search_query should contain only letters, digits, and spaces",
+        )
 
     def test_query_of_only_special_chars_returns_no_results(self) -> None:
         """A query that reduces to empty after stripping should show no results."""
