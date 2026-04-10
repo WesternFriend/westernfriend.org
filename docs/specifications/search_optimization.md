@@ -11,21 +11,23 @@ Related ADRs: [ADR 0001](../ADRs/0001-search-sanitization.md) ·
 
 ---
 
-## 1. Special-Character Sanitization
+## 1. Non-Alphanumeric Character Sanitization
 
 **ADR:** [0001](../ADRs/0001-search-sanitization.md)
 
-PostgreSQL `tsquery` syntax operators (`( ) & | ! : * \`) are stripped from
-user-supplied queries and replaced with spaces before the query reaches the
-search backend. Replacement with a space (rather than deletion) preserves word
-boundaries so that `"foo&bar"` becomes two searchable terms (`foo bar`) rather
-than one (`foobar`).
+Every character that is not an ASCII letter or digit is replaced with a space
+before the query reaches the search backend.  This whitelist approach covers all
+tsquery operators (`( ) & | ! : * \`) as well as any other punctuation (hyphens,
+commas, etc.) that the PostgreSQL `modelsearch` backend cannot safely convert to
+a tsquery lexeme.  Replacement with a space preserves word boundaries so that
+`"foo-bar"` becomes two searchable terms (`foo bar`) rather than one (`foobar`).
+Digits are preserved so that year-qualified queries such as `PYM 2025` work.
 
-If the entire query consists of operator characters, the sanitised result is
-empty and is treated as no query (returns no results).
+If the entire query consists of non-alphanumeric characters, the sanitised
+result is empty and is treated as no query (returns no results).
 
-**Implementation:** `_TSQUERY_SPECIAL_CHARS` compiled regex constant applied via
-`.sub(" ", search_query).strip()`.
+**Implementation:** `_NON_WORD_CHARS` compiled regex constant (`[^a-zA-Z0-9]`)
+applied via `.sub(" ", search_query).strip()`.
 
 ---
 
