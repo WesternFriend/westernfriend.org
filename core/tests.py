@@ -95,6 +95,11 @@ class RobotsTxtTest(TestCase):
 
         self.assertIn("Disallow: /admin/", response.content.decode())
 
+    def test_robots_txt_disallows_search(self):
+        response = self.client.get("/robots.txt")
+
+        self.assertIn("Disallow: /search/", response.content.decode())
+
     def test_robots_txt_allows_search_and_ai_use(self):
         response = self.client.get("/robots.txt")
 
