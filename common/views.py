@@ -94,7 +94,7 @@ def robots_txt(request):
 def _llms_link(request, item):
     """Format a navigation menu link as an llms.txt list item."""
     page = item.get("page")
-    if page is not None and not page.live:
+    if page is not None and (not page.live or page.get_view_restrictions().exists()):
         return None
 
     line = f"- [{item['title']}]({request.build_absolute_uri(item.href())})"

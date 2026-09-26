@@ -1,7 +1,7 @@
 """Tests for core utility functions."""
 
 from django.test import TestCase
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from core.utils import get_default_site
 from navigation.models import NavigationMenuSetting
@@ -168,6 +168,11 @@ class LlmsTxtTest(TestCase):
         )
         draft = home.add_child(instance=Page(title="Draft", slug="draft"))
         draft.unpublish()
+        members = home.add_child(instance=Page(title="Members", slug="members"))
+        PageViewRestriction.objects.create(
+            page=members,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
         about = home.add_child(instance=Page(title="About", slug="about"))
         NavigationMenuSetting.objects.create(
             site=site,
@@ -179,6 +184,7 @@ class LlmsTxtTest(TestCase):
                         "menu_items": [
                             ("page", {"title": "Current issue", "page": magazine}),
                             ("page", {"title": "Coming soon", "page": draft}),
+                            ("page", {"title": "Members only", "page": members}),
                             (
                                 "external_link",
                                 {"title": "Podcast", "url": "https://example.com/pod"},
@@ -212,6 +218,11 @@ class LlmsTxtTest(TestCase):
         content = self.client.get("/llms.txt").content.decode()
 
         self.assertNotIn("Coming soon", content)
+
+    def test_llms_txt_skips_restricted_pages(self):
+        content = self.client.get("/llms.txt").content.decode()
+
+        self.assertNotIn("Members only", content)
 
     def test_llms_txt_links_sitemap(self):
         content = self.client.get("/llms.txt").content.decode()
