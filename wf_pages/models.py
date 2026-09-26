@@ -74,11 +74,6 @@ class WfPage(DrupalFields, Page):
         COMMON_STREAMFIELD_BLOCKS,
         use_json_field=True,
     )
-    body_migrated = models.TextField(  # noqa: DJ001
-        help_text="Used only for content from old Drupal website.",
-        null=True,
-        blank=True,
-    )
     drupal_node_id = models.IntegerField(
         help_text="Used only for content from old Drupal website.",
         null=True,

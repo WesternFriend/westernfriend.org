@@ -241,20 +241,20 @@ class ContactBase(JSONLDMixin, Page):
     Abstract base class for all contact types (Person, Meeting, Organization)
     """
 
-    website = models.URLField(  # noqa: DJ001
-        null=True,
+    website = models.URLField(
         blank=True,
+        default="",
         help_text="Website URL for this contact",
     )
-    email = models.EmailField(  # noqa: DJ001
-        null=True,
+    email = models.EmailField(
         blank=True,
+        default="",
         help_text="Email address for this contact",
     )
-    phone = models.CharField(  # noqa: DJ001
+    phone = models.CharField(
         max_length=64,
-        null=True,
         blank=True,
+        default="",
         help_text="Phone number for this contact",
     )
 
@@ -341,7 +341,6 @@ class ContactBase(JSONLDMixin, Page):
                 )
                 .defer(
                     "article__body",
-                    "article__body_migrated",
                 )
             )
             prefetch_objects.append(
@@ -541,11 +540,10 @@ class ContactBase(JSONLDMixin, Page):
 
 
 class Person(ContactBase):
-    given_name = models.CharField(  # noqa: DJ001
+    given_name = models.CharField(
         max_length=255,
         default="",
         help_text="Enter the given name for a person.",
-        null=True,
         blank=True,
     )
 
@@ -647,11 +645,11 @@ class Meeting(ContactBase):
         WORSHIP_GROUP = "worship_group", "Worship Group"
         YEARLY_MEETING = "yearly_meeting", "Yearly Meeting"
 
-    meeting_type = models.CharField(  # noqa: DJ001
+    meeting_type = models.CharField(
         max_length=255,
         choices=MeetingTypeChoices.choices,
-        null=True,
         blank=True,
+        default="",
     )
     description = RichTextField(
         blank=True,
@@ -769,11 +767,11 @@ class MeetingWorshipTime(Orderable):
         on_delete=models.CASCADE,
         related_name="worship_times",
     )
-    worship_type = models.CharField(  # noqa: DJ001
+    worship_type = models.CharField(
         max_length=255,
         choices=WorshipTypeChoices,
-        null=True,
         blank=True,
+        default="",
     )
     worship_time = models.CharField(max_length=255)
 
@@ -793,10 +791,10 @@ class MeetingIndexPage(Page):
 
 
 class Organization(ContactBase):
-    description = models.CharField(  # noqa: DJ001
+    description = models.CharField(
         max_length=255,
         blank=True,
-        null=True,
+        default="",
     )
 
     content_panels = Page.content_panels + [

@@ -106,10 +106,10 @@ class NewsItemTag(TaggedItemBase):
 
 
 class NewsItem(DrupalFields, Page):
-    teaser = models.TextField(  # noqa: DJ001
+    teaser = models.TextField(
         max_length=100,
-        null=True,
         blank=True,
+        default="",
         help_text="Briefly summarize the news item for display in news lists",
     )
     publication_date = models.DateField(default=date.today)
@@ -119,11 +119,6 @@ class NewsItem(DrupalFields, Page):
     )
     tags = ClusterTaggableManager(
         through=NewsItemTag,
-        blank=True,
-    )
-    body_migrated = models.TextField(  # noqa: DJ001
-        help_text="Used only for content from old Drupal website.",
-        null=True,
         blank=True,
     )
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
