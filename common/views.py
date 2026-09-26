@@ -5,11 +5,11 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 from wagtail.admin.viewsets.base import ViewSetGroup
-from wagtail.models import Site
 
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
 from events.views import EventViewSet
+from navigation.models import NavigationMenuSetting
 from news.views import NewsItemViewSet
 from tags.views import TagViewSet
 from wf_pages.views import MollyWingateBlogPageViewSet
@@ -91,9 +91,20 @@ def robots_txt(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 
+def _llms_link(request, item):
+    """Format a navigation menu link as an llms.txt list item."""
+    page = item.get("page")
+    if page is not None and not page.live:
+        return None
+
+    line = f"- [{item['title']}]({request.build_absolute_uri(item.href())})"
+    description = page.specific.search_description if page is not None else ""
+    return f"{line}: {description}" if description else line
+
+
 @require_GET
 def llms_txt(request):
-    """Serve llms.txt (https://llmstxt.org/), a Markdown map of the site."""
+    """Serve llms.txt (https://llmstxt.org/), built from the navigation menu."""
     lines = [
         "# Western Friend",
         "",
@@ -103,19 +114,27 @@ def llms_txt(request):
             "(Quakers) in the western United States and beyond."
         ),
         "",
-        "## Sections",
-        "",
     ]
-    site = Site.find_for_request(request)
-    if site:
-        sections = site.root_page.get_children().live().public().in_menu().specific()
-        for page in sections:
-            description = (
-                f": {page.search_description}" if page.search_description else ""
-            )
-            lines.append(f"- [{page.title}]({page.get_full_url(request)}){description}")
+
+    top_level_links = []
+    sections = []
+    for block in NavigationMenuSetting.for_request(request).menu_items:
+        if block.block_type == "drop_down":
+            links = [
+                _llms_link(request, child.value) for child in block.value["menu_items"]
+            ]
+            sections.append((block.value["title"], links))
+        else:
+            top_level_links.append(_llms_link(request, block.value))
+    if top_level_links:
+        sections.insert(0, ("Pages", top_level_links))
+
+    for title, links in sections:
+        links = [link for link in links if link]
+        if links:
+            lines += [f"## {title}", "", *links, ""]
+
     lines += [
-        "",
         "## Optional",
         "",
         f"- [Sitemap]({_absolute_url(reverse('sitemap'))}): every public page",

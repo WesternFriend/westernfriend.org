@@ -4,6 +4,7 @@ from django.test import TestCase
 from wagtail.models import Locale, Page, Site
 
 from core.utils import get_default_site
+from navigation.models import NavigationMenuSetting
 
 
 class GetDefaultSiteTest(TestCase):
@@ -151,22 +152,43 @@ class LlmsTxtTest(TestCase):
         Site.objects.all().delete()
         root = Page.get_first_root_node() or Page.add_root(title="Root", slug="root")
         home = root.add_child(instance=Page(title="Home", slug="llms-home"))
-        Site.objects.create(
+        site = Site.objects.create(
             hostname="testserver",
             root_page=home,
             is_default_site=True,
         )
         Site.clear_site_root_paths_cache()
         self.addCleanup(Site.clear_site_root_paths_cache)
-        home.add_child(
+        magazine = home.add_child(
             instance=Page(
                 title="Magazine",
                 slug="magazine",
-                show_in_menus=True,
                 search_description="Quaker writing and art",
             ),
         )
-        home.add_child(instance=Page(title="Hidden", slug="hidden"))
+        draft = home.add_child(instance=Page(title="Draft", slug="draft"))
+        draft.unpublish()
+        about = home.add_child(instance=Page(title="About", slug="about"))
+        NavigationMenuSetting.objects.create(
+            site=site,
+            menu_items=[
+                (
+                    "drop_down",
+                    {
+                        "title": "Read",
+                        "menu_items": [
+                            ("page", {"title": "Current issue", "page": magazine}),
+                            ("page", {"title": "Coming soon", "page": draft}),
+                            (
+                                "external_link",
+                                {"title": "Podcast", "url": "https://example.com/pod"},
+                            ),
+                        ],
+                    },
+                ),
+                ("internal_page", {"title": "About us", "page": about}),
+            ],
+        )
 
     def test_llms_txt_is_markdown_with_title(self):
         response = self.client.get("/llms.txt")
@@ -175,14 +197,21 @@ class LlmsTxtTest(TestCase):
         self.assertEqual(response["Content-Type"], "text/plain; charset=utf-8")
         self.assertTrue(response.content.decode().startswith("# Western Friend\n"))
 
-    def test_llms_txt_lists_menu_sections(self):
+    def test_llms_txt_lists_navigation_menu(self):
         content = self.client.get("/llms.txt").content.decode()
 
+        self.assertIn("## Pages\n\n- [About us](http://testserver/about/)\n", content)
         self.assertIn(
-            "- [Magazine](http://testserver/magazine/): Quaker writing and art",
+            "## Read\n\n"
+            "- [Current issue](http://testserver/magazine/): Quaker writing and art\n"
+            "- [Podcast](https://example.com/pod)\n",
             content,
         )
-        self.assertNotIn("Hidden", content)
+
+    def test_llms_txt_skips_unpublished_pages(self):
+        content = self.client.get("/llms.txt").content.decode()
+
+        self.assertNotIn("Coming soon", content)
 
     def test_llms_txt_links_sitemap(self):
         content = self.client.get("/llms.txt").content.decode()
