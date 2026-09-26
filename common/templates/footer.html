@@ -1,3 +1,4 @@
+{% load static %}
 <footer class="bg-gradient-to-b from-gray-800 to-gray-900 text-white mt-auto pt-4">
     <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row justify-between items-start gap-4">
@@ -64,7 +65,7 @@
         "legalName": "Friends Bulletin Corporation",
         "description": "Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States, published by the Friends Bulletin Corporation.",
         "url": "https://westernfriend.org",
-        "logo": "https://westernfriend.org/static/img/WF-header.png",
+        "logo": "{% static 'img/WF-header.png' %}",
         "foundingDate": "1929",
         "email": "editor@westernfriend.org",
         "telephone": "+15039979711",
