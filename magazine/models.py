@@ -143,7 +143,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
     )
     publication_date = models.DateField(
         help_text="Please select the first day of the publication month",
-        default=datetime.date.today,
+        default=timezone.localdate,
     )
     issue_number = models.PositiveIntegerField(null=True, blank=True)
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
