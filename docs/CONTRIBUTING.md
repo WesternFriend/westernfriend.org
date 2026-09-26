@@ -45,7 +45,7 @@ Optionally, install [Claude context mode](https://github.com/mksglu/claude-conte
 4. **Activate the Virtual Environment**:
    - **Mac/Linux**: `source .venv/bin/activate`
    - **Windows PowerShell**: `.venv\Scripts\Activate.ps1`
-5. **Activate Pre-Commit**: `pre-commit install`
+5. **Activate Pre-Commit**: `pre-commit install`. CI runs the same hooks on every pull request and comments with anything that needs fixing, so installing them locally catches problems before you push. Run `pre-commit run --all-files` to check everything at once.
 
 ### Running Background Services
 
