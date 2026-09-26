@@ -385,3 +385,37 @@ class BreadcrumbsTemplateTest(TestCase):
         self.assertIn('"position": 1', output)
         self.assertIn('"position": 2', output)
         self.assertIn('"position": 3', output)
+
+
+class BreadcrumbsAbsoluteUrlTest(TestCase):
+    """Breadcrumb JSON-LD URLs come from the Wagtail site, not request.site."""
+
+    def setUp(self):
+        from wagtail.models import Page, Site
+
+        Site.objects.all().delete()
+        root = Page.get_first_root_node()
+        self.home = root.add_child(instance=Page(title="Home", slug="bc-abs-home"))
+        section = self.home.add_child(instance=Page(title="Section", slug="section"))
+        self.page = section.add_child(instance=Page(title="Article", slug="article"))
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def test_json_ld_items_are_absolute(self):
+        request = RequestFactory().get("/section/article/")
+
+        output = render_to_string(
+            "breadcrumbs.html",
+            {"page": self.page, "request": request},
+            request=request,
+        )
+
+        self.assertIn('"item": "http://testserver/"', output)
+        self.assertIn('"item": "http://testserver/section/"', output)
+        self.assertIn('"item": "http://testserver/section/article/"', output)
+        self.assertNotIn("http:///", output)

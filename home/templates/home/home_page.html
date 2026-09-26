@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static wagtailcore_tags wagtailimages_tags %}
+{% load common_tags static wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-homepage{% endblock %}
 
@@ -70,15 +70,15 @@
         {
             "@context": "https://schema.org",
             "@type": "Organization",
-            "@id": "{{ request.scheme }}://{{ request.site.hostname }}/#organization",
+            "@id": "{% fullpageurl page %}#organization",
             "name": "Western Friend",
             "alternateName": "Friends Bulletin Corporation",
             "legalName": "Friends Bulletin Corporation",
             "description": "Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States, published by the Friends Bulletin Corporation.",
-            "url": "{{ request.scheme }}://{{ request.site.hostname }}/",
+            "url": "{% fullpageurl page %}",
             "logo": {
                 "@type": "ImageObject",
-                "url": "{{ request.scheme }}://{{ request.site.hostname }}{% static 'img/WF-header.png' %}",
+                "url": "{% absolute_static 'img/WF-header.png' %}",
                 "width": "1200",
                 "height": "174"
             },
@@ -94,7 +94,7 @@
                 "postalCode": "97206",
                 "addressCountry": "US"
             },
-            "publishingPrinciples": "{{ request.scheme }}://{{ request.site.hostname }}/about",
+            "publishingPrinciples": "{% fullpageurl page %}about",
             "isAccessibleForFree": "False",
             "keywords": "Quaker, Friends, Western Friend, Quakerism, Religious Society of Friends, pacifism, social justice, spirituality",
             "sameAs": [

@@ -4,6 +4,7 @@ from django import template
 from django.core.serializers.json import DjangoJSONEncoder
 from django.templatetags.static import static
 from django.utils.safestring import SafeString, mark_safe
+from wagtail.models import Site
 
 register = template.Library()
 
@@ -32,6 +33,32 @@ def absolute_static(context, path):
     url = static(path)
     request = context.get("request")
     return request.build_absolute_uri(url) if request else url
+
+
+@register.simple_tag(takes_context=True)
+def site_root_url(context):
+    """Return the absolute URL of the current Wagtail site's home page."""
+    request = context.get("request")
+    if request is None:
+        return ""
+    site = Site.find_for_request(request)
+    return f"{site.root_url}/" if site else request.build_absolute_uri("/")
+
+
+@register.simple_tag(takes_context=True)
+def canonical_url(context):
+    """Return the absolute canonical URL for the current page or request.
+
+    Wagtail pages use their site's hostname, so www and bare-domain
+    requests share one canonical URL.
+    """
+    request = context.get("request")
+    page = context.get("page")
+    if page is not None and hasattr(page, "get_full_url"):
+        url = page.get_full_url(request)
+        if url:
+            return url
+    return request.build_absolute_uri(request.path) if request else ""
 
 
 @register.filter
