@@ -159,10 +159,19 @@ class SitemapTest(TestCase):
     def test_sitemap_is_cached(self):
         self.client.get("/sitemap.xml")
 
-        with self.assertNumQueries(0):
+        # Only the audit log lookup for the cache key
+        with self.assertNumQueries(1):
             response = self.client.get("/sitemap.xml")
 
         self.assertIn(b"<loc>http://testserver/about/</loc>", response.content)
+
+    def test_sitemap_refreshes_after_a_page_is_unpublished(self):
+        self.client.get("/sitemap.xml")
+        self.child.unpublish()
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertNotIn(b"/about/", response.content)
 
     def test_sitemap_excludes_unpublished_pages(self):
         self.child.unpublish()
