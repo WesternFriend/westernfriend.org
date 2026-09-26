@@ -88,24 +88,9 @@ Add a domain name [under the app settings](https://docs.digitalocean.com/product
 
 ## Cloudflare
 
-westernfriend.org is proxied through Cloudflare (Business plan). We want search engines and AI agents to read and use our content for any purpose, including AI training, so bot settings are allow-by-default for content pages. The app serves its own `robots.txt` (with a `Content-Signal` line) and `llms.txt`; Cloudflare must not override them.
+westernfriend.org is proxied through Cloudflare. We want search engines and AI agents to read and use our content for any purpose, including AI training, so keep bot settings allow-by-default for content pages.
 
-Security → Settings → Bot traffic / AI Crawl Control:
-
-- **Block AI training in robots.txt** (`ai_training`): off
-- **Bot Preference Sync** (`bot_preference_sync_enabled`): off. When on, Cloudflare injects its own robots.txt over ours.
-- **Managed robots.txt** (`is_robots_txt_managed`): off
-- **Block AI bots** (`ai_bots_protection`): disabled
-- **AI Labyrinth** (`crawler_protection`): disabled
-- **Super Bot Fight Mode**: likely and definite automated traffic are managed-challenged; verified bots are allowed. This stops a large volume of scrapers that spoof browser user agents. Revisit once crawlers can pay per crawl.
-
-Security → WAF → Rate limiting rules:
-
-- `/search`: 5 requests per 10 minutes per IP
-- `PHP`: blocks `.php` probes
-- Global limits (5 requests / 10 s and 15 requests / min) apply only to POST requests and the `/accounts/`, `/cart/`, `/orders/`, `/payment/` and `/paypal/` paths, so crawlers can read content pages freely.
-
-Custom WAF rules block SemrushBot, AhrefsBot, WordPress login probes and requests with an "attack" WAF score.
+The app serves its own `robots.txt` (with a `Content-Signal` line) and `llms.txt`. Keep Cloudflare features that inject a managed `robots.txt` turned off, so they don't override ours. Reserve blocking and rate limiting for abusive traffic and for private or transactional paths (accounts, cart, orders, payment).
 
 ## Initialize the App
 
