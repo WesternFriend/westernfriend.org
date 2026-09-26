@@ -143,7 +143,7 @@ class OrderCreateViewTest(TestCase):
 
     def test_order_create_view_post_request_form_valid(self) -> None:
         # Mock the OrderCreateForm
-        with patch("orders.views.OrderCreateForm") as MockOrderCreateForm:
+        with patch("orders.views.OrderCreateForm") as mock_order_create_form:
             # Instance of the form
             mock_form = MagicMock()
 
@@ -156,7 +156,7 @@ class OrderCreateViewTest(TestCase):
             mock_form.save.return_value = mock_order
 
             # Set our mock form as the return value of the form class
-            MockOrderCreateForm.return_value = mock_form
+            mock_order_create_form.return_value = mock_form
 
             # Send a POST request
             response = self.client.post(

@@ -1,18 +1,20 @@
 from random import randint
 from typing import Any
-from django.utils.text import slugify
+
 import factory
+from django.utils.text import slugify
 from factory.django import DjangoModelFactory
 from wagtail.models import Page
 
 from community.factories import CommunityPageFactory
 from community.models import CommunityPage
+
 from .models import (
+    Meeting,
     MeetingIndexPage,
+    Organization,
     OrganizationIndexPage,
     Person,
-    Meeting,
-    Organization,
     PersonIndexPage,
 )
 

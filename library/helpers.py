@@ -1,10 +1,12 @@
+import logging
 import typing
 
 from facets.models import Topic
 
-
 if typing.TYPE_CHECKING:
     from library.models import LibraryItem
+
+logger = logging.getLogger(__name__)
 
 
 QUERYSTRING_FACETS = [
@@ -25,11 +27,7 @@ def filter_querystring_facets(
     # remove empty items from query dict
     query = {k: v for k, v in query.items() if v}
 
-    facets = {}
-    for key, value in query.items():
-        if key in QUERYSTRING_FACETS:
-            facets[key] = value
-    return facets
+    return {key: value for key, value in query.items() if key in QUERYSTRING_FACETS}
 
 
 def create_querystring_from_facets(
@@ -60,7 +58,8 @@ def add_library_item_topics(
                 title=topic_title,
             )
         except Topic.DoesNotExist:
-            print(f"Topic '{topic_title}' does not exist")
+            logger.warning("Topic %r does not exist", topic_title)
+            continue
 
         library_item_topic = LibraryItemTopic(
             library_item=library_item,

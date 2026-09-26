@@ -1,12 +1,13 @@
 from django.test import TestCase
 
+from cart.forms import CartAddProductForm
 from home.models import HomePage
 from store.models import Product, ProductIndexPage, StoreIndexPage
-from cart.forms import CartAddProductForm
+
 from .factories import (
-    StoreIndexPageFactory,
-    ProductIndexPageFactory,
     ProductFactory,
+    ProductIndexPageFactory,
+    StoreIndexPageFactory,
 )
 
 

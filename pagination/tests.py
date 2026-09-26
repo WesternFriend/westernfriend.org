@@ -5,7 +5,7 @@ from django_stubs_ext import QuerySetAny
 
 from accounts.factories import UserFactory
 
-from .helpers import get_paginated_items, PaginatorPageWithElidedPageRange
+from .helpers import PaginatorPageWithElidedPageRange, get_paginated_items
 
 User = get_user_model()
 

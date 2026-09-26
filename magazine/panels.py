@@ -13,5 +13,4 @@ class NestedInlinePanel(InlinePanel):
         child_edit_handler = self.get_child_edit_handler()  # type: ignore
         for handler_class in child_edit_handler.children:
             widgets.update(handler_class.widget_overrides())
-        widget_overrides = {self.relation_name: widgets}
-        return widget_overrides
+        return {self.relation_name: widgets}

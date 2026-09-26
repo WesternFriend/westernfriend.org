@@ -67,7 +67,7 @@ class ContactPublicationStatistics(models.Model):
         return f"Publication stats for {self.contact}"
 
     @classmethod
-    def update_for_contact(cls, contact):
+    def update_for_contact(cls, contact):  # noqa: C901, PLR0912
         """Update publication statistics for a given contact."""
         from magazine.models import (
             ArchiveArticleAuthor,
@@ -172,7 +172,7 @@ class ContactPublicationStatistics(models.Model):
             contact_type = cls.ContactType.PERSON
 
         # Create or update the statistics
-        stats, created = cls.objects.update_or_create(
+        stats, _created = cls.objects.update_or_create(
             contact=contact,
             defaults={
                 "article_count": article_count,
@@ -185,7 +185,7 @@ class ContactPublicationStatistics(models.Model):
 
 
 class JSONLDMixin:
-    def get_json_ld(self):
+    def get_json_ld(self):  # noqa: C901, PLR0912
         data = {
             "@context": "https://schema.org",
             "name": force_str(self.title),
@@ -241,17 +241,17 @@ class ContactBase(JSONLDMixin, Page):
     Abstract base class for all contact types (Person, Meeting, Organization)
     """
 
-    website = models.URLField(
+    website = models.URLField(  # noqa: DJ001
         null=True,
         blank=True,
         help_text="Website URL for this contact",
     )
-    email = models.EmailField(
+    email = models.EmailField(  # noqa: DJ001
         null=True,
         blank=True,
         help_text="Email address for this contact",
     )
-    phone = models.CharField(
+    phone = models.CharField(  # noqa: DJ001
         max_length=64,
         null=True,
         blank=True,
@@ -529,8 +529,7 @@ class ContactBase(JSONLDMixin, Page):
         self._add_sentry_context(initial_queries)
 
         # Call parent get_context to get the base context
-        context = super().get_context(request, *args, **kwargs)
-        return context
+        return super().get_context(request, *args, **kwargs)
 
     class Meta:
         abstract = True
@@ -542,7 +541,7 @@ class ContactBase(JSONLDMixin, Page):
 
 
 class Person(ContactBase):
-    given_name = models.CharField(
+    given_name = models.CharField(  # noqa: DJ001
         max_length=255,
         default="",
         help_text="Enter the given name for a person.",
@@ -648,7 +647,7 @@ class Meeting(ContactBase):
         WORSHIP_GROUP = "worship_group", "Worship Group"
         YEARLY_MEETING = "yearly_meeting", "Yearly Meeting"
 
-    meeting_type = models.CharField(
+    meeting_type = models.CharField(  # noqa: DJ001
         max_length=255,
         choices=MeetingTypeChoices.choices,
         null=True,
@@ -770,7 +769,7 @@ class MeetingWorshipTime(Orderable):
         on_delete=models.CASCADE,
         related_name="worship_times",
     )
-    worship_type = models.CharField(
+    worship_type = models.CharField(  # noqa: DJ001
         max_length=255,
         choices=WorshipTypeChoices,
         null=True,
@@ -794,7 +793,7 @@ class MeetingIndexPage(Page):
 
 
 class Organization(ContactBase):
-    description = models.CharField(
+    description = models.CharField(  # noqa: DJ001
         max_length=255,
         blank=True,
         null=True,

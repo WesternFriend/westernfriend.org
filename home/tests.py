@@ -1,14 +1,14 @@
 from urllib.parse import urljoin
 
 from django.templatetags.static import static
-from django.utils import timezone
 from django.test import RequestFactory, TestCase
+from django.utils import timezone
 from wagtail.models import Page, Site
 
-from home.models import HomePage
 from contact.factories import PersonFactory
 from events.factories import EventFactory
 from events.models import Event
+from home.models import HomePage
 from magazine.factories import MagazineArticleFactory, MagazineIssueFactory
 from magazine.models import MagazineArticleAuthor, MagazineIssue
 

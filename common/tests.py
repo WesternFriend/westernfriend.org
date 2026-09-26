@@ -196,7 +196,7 @@ class SpecificPagesFilterTest(TestCase):
 class VisibleBreadcrumbAncestorsTest(TestCase):
     """Tests for the visible_breadcrumb_ancestors template filter."""
 
-    def _make_page(self, model_name, is_root=False):
+    def _make_page(self, model_name, *, is_root=False):
         page = MagicMock()
         page.is_root.return_value = is_root
         page._meta.model_name = model_name

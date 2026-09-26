@@ -7,7 +7,6 @@ from facets.factories import (
     TimePeriodFactory,
     TopicFactory,
 )
-
 from facets.models import (
     AudienceIndexPage,
     GenreIndexPage,

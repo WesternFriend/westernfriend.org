@@ -39,7 +39,7 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
     publication_date = models.DateField("Publication date", null=True, blank=True)
     publication_date_is_approximate = models.BooleanField(
         default=False,
-        help_text="This field indicates when a library item wasn't published on a specific publication date.",  # noqa: E501
+        help_text="This field indicates when a library item wasn't published on a specific publication date.",
     )
     body = StreamField(
         COMMON_STREAMFIELD_BLOCKS,

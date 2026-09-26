@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
-from wagtail.models import Page, Site
 from wagtail.blocks import StreamBlock, StreamValue
-from documents.models import MeetingDocumentIndexPage, PublicBoardDocumentIndexPage
+from wagtail.models import Page, Site
 
 from community.models import (
     CommunityDirectoryIndexPage,
@@ -9,6 +8,7 @@ from community.models import (
     OnlineWorshipIndexPage,
 )
 from contact.models import MeetingIndexPage, OrganizationIndexPage, PersonIndexPage
+from documents.models import MeetingDocumentIndexPage, PublicBoardDocumentIndexPage
 from events.models import EventsIndexPage
 from facets.models import (
     AudienceIndexPage,
@@ -27,11 +27,11 @@ from magazine.models import (
     MagazineTagIndexPage,
 )
 from memorials.models import MemorialIndexPage
-from navigation.models import NavigationMenuSetting
 from navigation.blocks import (
     NavigationExternalLinkBlock,
     NavigationPageChooserBlock,
 )
+from navigation.models import NavigationMenuSetting
 from news.models import NewsIndexPage
 from store.models import ProductIndexPage, StoreIndexPage
 from subscription.models import ManageSubscriptionPage, SubscriptionIndexPage
@@ -55,7 +55,7 @@ def get_or_create_site_root_page() -> Page:
 class Command(BaseCommand):
     help = "Create initial site structure"
 
-    def handle(self, *args: tuple, **options: dict[str, str]) -> None:
+    def handle(self, *args: tuple, **options: dict[str, str]) -> None:  # noqa: PLR0915
         root_page = get_or_create_site_root_page()
 
         home_page = HomePage(
@@ -76,7 +76,7 @@ class Command(BaseCommand):
         try:
             Page.objects.get(id=2).delete()
         except Page.DoesNotExist:
-            print("No need to delete welcome page")
+            self.stdout.write("No need to delete welcome page")
 
         # Create Home Page children
 
@@ -388,7 +388,7 @@ class Command(BaseCommand):
                         "external_link",
                         {
                             "title": "Other Events",
-                            "url": f"{events_page.relative_url(current_site=site)}?category=other",  # noqa: E501
+                            "url": f"{events_page.relative_url(current_site=site)}?category=other",
                         },
                     ),
                 ],

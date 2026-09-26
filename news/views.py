@@ -1,13 +1,14 @@
-from wagtail.admin.viewsets.pages import PageListingViewSet
+import django_filters
 from wagtail.admin.ui.tables import DateColumn
 from wagtail.admin.ui.tables.pages import (
     BulkActionsColumn,
-    PageTitleColumn,
     PageStatusColumn,
+    PageTitleColumn,
 )
-import django_filters
+from wagtail.admin.viewsets.pages import PageListingViewSet
 
 from facets.models import Topic
+
 from .models import NewsItem
 
 

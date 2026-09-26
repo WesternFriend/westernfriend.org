@@ -908,7 +908,7 @@ class StopwordSyncTestCase(TestCase):
         import warnings
 
         try:
-            with urllib.request.urlopen(self._PG_STOPWORDS_URL, timeout=5) as resp:
+            with urllib.request.urlopen(self._PG_STOPWORDS_URL, timeout=5) as resp:  # noqa: S310 - fixed https URL
                 canonical = frozenset(
                     line.strip()
                     for line in resp.read().decode().splitlines()

@@ -8,9 +8,9 @@ from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 from accounts.views import (
-    CustomRegistrationView,
-    CustomPasswordResetView,
     CustomLoginView,
+    CustomPasswordResetView,
+    CustomRegistrationView,
 )
 from common.views import favicon_ico, llms_txt, robots_txt, sitemap
 from search import views as search_views

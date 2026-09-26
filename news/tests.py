@@ -1,14 +1,17 @@
 import json
 import re
-from datetime import date, datetime
+from datetime import date
+
 from django.test import RequestFactory, TestCase
-from home.models import HomePage
+from django.utils import timezone
 from wagtail.models import Site
 
+from home.models import HomePage
 from news.models import (
     NewsIndexPage,
     NewsItem,
 )
+
 from .factories import (
     NewsIndexPageFactory,
     NewsItemFactory,
@@ -50,7 +53,7 @@ class TestNewsItem(TestCase):
 class TestNewsIndexPageGetContext(TestCase):
     def setUp(self) -> None:
         self.factory = RequestFactory()
-        self.current_year = datetime.now().year
+        self.current_year = timezone.localdate().year
         self.news_index_page = NewsIndexPageFactory.create()
 
         # Create NewsItem instances with associated NewsItemTopics
@@ -91,13 +94,14 @@ class TestNewsIndexPageGetContext(TestCase):
         self.assertIsInstance(context["grouped_news_items"], dict)
 
         # Extract topic titles from NewsItemTopic instances
-        expected_topics = []
-        for item in self.current_year_news_items:
-            for topic in item.topics.all():
-                expected_topics.append(topic.topic.title)
+        expected_topics = [
+            topic.topic.title
+            for item in self.current_year_news_items
+            for topic in item.topics.all()
+        ]
 
         # Extract topic titles from the context's grouped_news_items keys
-        actual_topics = sorted(list(context["grouped_news_items"].keys()))
+        actual_topics = sorted(context["grouped_news_items"].keys())
 
         # Test if grouped_news_items has the correct keys
         self.assertEqual(actual_topics, expected_topics)

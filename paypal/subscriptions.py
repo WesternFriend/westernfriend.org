@@ -1,11 +1,17 @@
 import logging
-from django.core.cache import cache
+
 import requests
-from requests.exceptions import HTTPError
+from django.core.cache import cache
+from requests.exceptions import RequestException
+
+from paypal.constants import (
+    ONE_DAY_S,
+    PAYPAL_SUBSCRIPTIONS_BASE_URL,
+    REQUEST_TIMEOUT_S,
+)
+from paypal.models import PayPalError
 
 from .auth import construct_paypal_auth_headers
-from paypal.constants import ONE_DAY_S, PAYPAL_SUBSCRIPTIONS_BASE_URL
-from paypal.models import PayPalError
 
 logger = logging.getLogger(__name__)
 
@@ -16,16 +22,17 @@ def get_subscription(
 ) -> dict:
     headers = construct_paypal_auth_headers()
 
-    response = requests.get(
-        url=f"{PAYPAL_SUBSCRIPTIONS_BASE_URL}/{paypal_subscription_id}",
-        headers=headers,
-    )
-
+    # RequestException covers timeouts and connection errors as well as HTTP errors.
     try:
+        response = requests.get(
+            url=f"{PAYPAL_SUBSCRIPTIONS_BASE_URL}/{paypal_subscription_id}",
+            headers=headers,
+            timeout=REQUEST_TIMEOUT_S,
+        )
         response.raise_for_status()
-    except HTTPError as error:
-        logger.exception(error)
-        raise PayPalError(error)
+    except RequestException as error:
+        logger.exception("Failed to fetch PayPal subscription")
+        raise PayPalError(error) from error
 
     return response.json()
 

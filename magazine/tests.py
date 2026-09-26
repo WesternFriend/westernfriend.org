@@ -478,7 +478,7 @@ class MagazineDepartmentTest(TestCase):
 
         magazine_issue = MagazineIssue(
             title="Test Issue",
-            publication_date=datetime.date.today(),
+            publication_date=timezone.localdate(),
         )
         magazine_index.add_child(instance=magazine_issue)
 
@@ -536,7 +536,7 @@ class MagazineArticleTest(TestCase):
         )
         self.subscription = Subscription.objects.create(
             user=self.subscriber_user,
-            expiration_date=datetime.date.today() + datetime.timedelta(days=365),
+            expiration_date=timezone.localdate() + datetime.timedelta(days=365),
         )
 
         site_root = Page.objects.get(id=2)

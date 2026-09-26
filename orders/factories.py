@@ -1,7 +1,9 @@
 from decimal import Decimal
+
 import factory
 from factory.django import DjangoModelFactory
 from faker import Faker
+
 from .models import (
     Order,
     OrderItem,
@@ -19,7 +21,7 @@ class OrderFactory(DjangoModelFactory):
     purchaser_meeting_or_organization: str = factory.Faker("company")  # type: ignore
     purchaser_email: str = factory.Faker("email")  # type: ignore
     recipient_name: str = factory.LazyAttribute(  # type: ignore
-        lambda x: f"{fake.first_name()} {fake.last_name()}",  # type: ignore
+        lambda _: f"{fake.first_name()} {fake.last_name()}",  # type: ignore
     )
     recipient_street_address: str = factory.Faker("street_address")  # type: ignore
     recipient_postal_code: str = factory.Faker("zipcode")  # type: ignore
