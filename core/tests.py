@@ -4,6 +4,7 @@ from django.test import TestCase
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from core.utils import get_default_site
+from home.models import HomePage
 from navigation.models import NavigationMenuSetting
 
 
@@ -238,8 +239,16 @@ class LlmsTxtTest(TestCase):
 class DiscoveryLinkHeaderTest(TestCase):
     """Test the Link header that points agents at llms.txt and the sitemap."""
 
-    def test_html_pages_link_llms_txt_and_sitemap(self):
-        response = self.client.get("/no-such-page/")
+    def test_homepage_links_llms_txt_and_sitemap(self):
+        Locale.objects.get_or_create(language_code="en")
+        Site.objects.all().delete()
+        root = Page.get_first_root_node() or Page.add_root(title="Root", slug="root")
+        home = root.add_child(instance=HomePage(title="Home", slug="link-home"))
+        Site.objects.create(hostname="testserver", root_page=home, is_default_site=True)
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+        response = self.client.get("/")
 
         self.assertTrue(response["Content-Type"].startswith("text/html"))
         self.assertEqual(

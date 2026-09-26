@@ -16,7 +16,7 @@ class DiscoveryLinkHeaderMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
 
-        if response.get("Content-Type", "").startswith("text/html"):
+        if response.get("Content-Type", "").lower().startswith("text/html"):
             links = [
                 f'<{reverse(name)}>; rel="{rel}"; type="{content_type}"'
                 for name, rel, content_type in DISCOVERY_LINKS
