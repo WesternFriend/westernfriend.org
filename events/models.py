@@ -39,7 +39,7 @@ class Event(DrupalFields, Page):  # type: ignore
         WESTERN = ("western", "Western")
         OTHER = ("other", "Other")
 
-    teaser = models.TextField(max_length=100, null=True, blank=True)  # noqa: DJ001
+    teaser = models.TextField(max_length=100, blank=True, default="")
     body = StreamField(
         COMMON_STREAMFIELD_BLOCKS,
         null=True,
@@ -54,7 +54,7 @@ class Event(DrupalFields, Page):  # type: ignore
         choices_display="WITH_GMT_OFFSET",
     )
 
-    website = models.URLField(blank=True, null=True, max_length=300)  # noqa: DJ001
+    website = models.URLField(blank=True, max_length=300, default="")
     is_featured = models.BooleanField(
         default=False,
         help_text="Whether this event should be featured on the home page.",

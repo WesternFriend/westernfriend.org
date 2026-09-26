@@ -31,11 +31,11 @@ class Address(models.Model):
         default="",
         help_text="P.O. Box, if relevant",
     )
-    locality = models.CharField(  # noqa: DJ001
+    locality = models.CharField(
         max_length=255,
         help_text="Locality or city",
-        null=True,
         blank=True,
+        default="",
     )
     region = models.CharField(
         max_length=255,
@@ -43,16 +43,16 @@ class Address(models.Model):
         blank=True,
         default="",
     )
-    postal_code = models.CharField(  # noqa: DJ001
+    postal_code = models.CharField(
         max_length=16,
         help_text="Postal code (or zipcode)",
-        null=True,
         blank=True,
+        default="",
     )
-    country = models.CharField(  # noqa: DJ001
+    country = models.CharField(
         max_length=255,
-        null=True,
         blank=True,
+        default="",
     )
     address_type = models.CharField(
         max_length=255,

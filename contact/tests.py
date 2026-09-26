@@ -4,9 +4,11 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from django.test import RequestFactory, TestCase
+from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
+from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.urls import reverse
-from wagtail.models import Page
+from wagtail.models import Locale, Page, Revision
 
 from community.factories import OnlineWorshipFactory
 from community.models import CommunityPage
@@ -869,3 +871,65 @@ class ContactAdminListingTest(TestCase):
                 [page.pk for page in response.context["object_list"]],
                 [person.pk for person in expected],
             )
+
+
+class ReplaceNullStringsMigrationTest(TransactionTestCase):
+    """NULLs saved before the NOT NULL change must not break publishing."""
+
+    before = [("contact", "0011_contactpublicationstatistics")]
+    after = [("contact", "0013_non_nullable_string_fields")]
+
+    def setUp(self):
+        MigrationExecutor(connection).migrate(self.before)
+
+    def tearDown(self):
+        executor = MigrationExecutor(connection)
+        executor.migrate(executor.loader.graph.leaf_nodes())
+
+    def test_nulls_in_rows_and_revisions_become_empty_strings(self):
+        Locale.objects.get_or_create(language_code="en")
+        try:
+            root = Page.objects.get(depth=1)
+        except Page.DoesNotExist:
+            root = Page.add_root(title="Root", slug="root")
+        meeting = root.add_child(instance=Meeting(title="Test meeting"))
+        MeetingAddress.objects.create(page=meeting, address_type="mailing")
+        MeetingWorshipTime.objects.create(meeting=meeting, worship_time="10am")
+        revision = Meeting.objects.get(pk=meeting.pk).save_revision()
+
+        # The current models write "", so force the NULLs that older data holds.
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE meeting SET website = NULL, email = NULL, phone = NULL, "
+                "meeting_type = NULL",
+            )
+            cursor.execute(
+                "UPDATE contact_meetingaddress SET locality = NULL, "
+                "postal_code = NULL, country = NULL",
+            )
+            cursor.execute("UPDATE contact_meetingworshiptime SET worship_type = NULL")
+        content = revision.content
+        content.update(website=None, email=None, phone=None, meeting_type=None)
+        content["addresses"][0].update(locality=None, postal_code=None, country=None)
+        content["worship_times"][0]["worship_type"] = None
+        Revision.objects.filter(pk=revision.pk).update(content=content)
+
+        MigrationExecutor(connection).migrate(self.after)
+
+        meeting = Meeting.objects.get(pk=meeting.pk)
+        self.assertEqual(
+            (meeting.website, meeting.email, meeting.phone, meeting.meeting_type),
+            ("", "", "", ""),
+        )
+        address = meeting.addresses.get()
+        self.assertEqual(
+            (address.locality, address.postal_code, address.country),
+            ("", "", ""),
+        )
+        self.assertEqual(meeting.worship_times.get().worship_type, "")
+
+        revision.refresh_from_db()
+        self.assertEqual(revision.content["website"], "")
+        self.assertEqual(revision.content["addresses"][0]["country"], "")
+        self.assertEqual(revision.content["worship_times"][0]["worship_type"], "")
+        revision.publish()
