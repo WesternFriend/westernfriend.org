@@ -1,5 +1,6 @@
 {
   "enabledPlugins": {
-    "context-mode@claude-context-mode": true
+    "context-mode@claude-context-mode": true,
+    "cloudflare@cloudflare": true
   }
 }

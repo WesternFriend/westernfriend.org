@@ -1,8 +1,9 @@
 from collections import defaultdict
-from datetime import date, datetime
+from datetime import date
 
 from django.db import models
 from django.http import HttpRequest
+from django.utils import timezone
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
@@ -41,7 +42,7 @@ class NewsIndexPage(Page):
     ) -> dict[str, list]:
         context = super().get_context(request)
 
-        current_year = datetime.now().year
+        current_year = timezone.localdate().year
         earliest = NewsItem.objects.order_by("publication_date").first()
 
         if earliest is None:
@@ -105,7 +106,7 @@ class NewsItemTag(TaggedItemBase):
 
 
 class NewsItem(DrupalFields, Page):
-    teaser = models.TextField(
+    teaser = models.TextField(  # noqa: DJ001
         max_length=100,
         null=True,
         blank=True,
@@ -120,7 +121,7 @@ class NewsItem(DrupalFields, Page):
         through=NewsItemTag,
         blank=True,
     )
-    body_migrated = models.TextField(
+    body_migrated = models.TextField(  # noqa: DJ001
         help_text="Used only for content from old Drupal website.",
         null=True,
         blank=True,

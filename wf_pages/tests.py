@@ -1,6 +1,7 @@
 import datetime
 
 from django.test import RequestFactory, TestCase
+from django.utils import timezone
 from wagtail.models import Page, Site
 
 from home.models import HomePage
@@ -25,19 +26,19 @@ class TestMollyWingateBlogIndexPage(TestCase):
         # Create blog posts with different dates and a duplicate date
         blog_post_1 = MollyWingateBlogPage(
             title="First Post",
-            publication_date=datetime.date.today() - datetime.timedelta(days=2),
+            publication_date=timezone.localdate() - datetime.timedelta(days=2),
         )
         blog_post_2 = MollyWingateBlogPage(
             title="Second Post",
-            publication_date=datetime.date.today() - datetime.timedelta(days=1),
+            publication_date=timezone.localdate() - datetime.timedelta(days=1),
         )
         blog_post_3 = MollyWingateBlogPage(
             title="Third Post",
-            publication_date=datetime.date.today(),
+            publication_date=timezone.localdate(),
         )
         blog_post_4 = MollyWingateBlogPage(
             title="Fourth Post",
-            publication_date=datetime.date.today(),
+            publication_date=timezone.localdate(),
         )
 
         self.blog_index.add_child(instance=blog_post_1)

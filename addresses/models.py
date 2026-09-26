@@ -31,7 +31,7 @@ class Address(models.Model):
         default="",
         help_text="P.O. Box, if relevant",
     )
-    locality = models.CharField(
+    locality = models.CharField(  # noqa: DJ001
         max_length=255,
         help_text="Locality or city",
         null=True,
@@ -43,13 +43,13 @@ class Address(models.Model):
         blank=True,
         default="",
     )
-    postal_code = models.CharField(
+    postal_code = models.CharField(  # noqa: DJ001
         max_length=16,
         help_text="Postal code (or zipcode)",
         null=True,
         blank=True,
     )
-    country = models.CharField(
+    country = models.CharField(  # noqa: DJ001
         max_length=255,
         null=True,
         blank=True,
@@ -80,6 +80,9 @@ class Address(models.Model):
         FieldPanel("longitude"),
     ]
 
+    class Meta:
+        abstract = True
+
     def __str__(self) -> str:
         """Return a string representation of the address."""
 
@@ -106,6 +109,3 @@ class Address(models.Model):
             address_string = ", ".join(filtered_address_components)  # type: ignore
 
         return address_string
-
-    class Meta:
-        abstract = True

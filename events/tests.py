@@ -1,9 +1,11 @@
 import datetime
+
 from django.http import Http404
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
-from events.factories import EventsIndexPageFactory, EventFactory
-from events.models import EventsIndexPage, Event
+
+from events.factories import EventFactory, EventsIndexPageFactory
+from events.models import Event, EventsIndexPage
 from home.models import HomePage
 
 
@@ -121,12 +123,12 @@ class TestEventPageGetContext(TestCase):
         total_unpublished_events = 3
 
         # published events
-        for i in range(total_published_events):
+        for _i in range(total_published_events):
             event = EventFactory.create()
             self.events.append(event)
 
         # unpublished events
-        for i in range(total_unpublished_events):
+        for _i in range(total_unpublished_events):
             event = EventFactory.create(live=False)
             self.events.append(event)
 

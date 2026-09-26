@@ -65,12 +65,10 @@ class PersonViewSet(PageListingViewSet):
             contact=OuterRef("pk"),
         ).values("last_published_at")[:1]
 
-        queryset = queryset.annotate(
+        return queryset.annotate(
             article_count=Subquery(article_count_subquery),
             last_published_at=Subquery(last_published_subquery),
         )
-
-        return queryset
 
     def article_count(self, obj):
         """Display the article count with a link to detailed publication stats."""
@@ -130,12 +128,10 @@ class MeetingViewSet(PageListingViewSet):
             contact=OuterRef("pk"),
         ).values("last_published_at")[:1]
 
-        queryset = queryset.annotate(
+        return queryset.annotate(
             article_count=Subquery(article_count_subquery),
             last_published_at=Subquery(last_published_subquery),
         )
-
-        return queryset
 
     def article_count(self, obj):
         """Display the article count with a link to detailed publication stats."""
@@ -185,12 +181,10 @@ class OrganizationViewSet(PageListingViewSet):
             contact=OuterRef("pk"),
         ).values("last_published_at")[:1]
 
-        queryset = queryset.annotate(
+        return queryset.annotate(
             article_count=Subquery(article_count_subquery),
             last_published_at=Subquery(last_published_subquery),
         )
-
-        return queryset
 
     def article_count(self, obj):
         """Display the article count with a link to detailed publication stats."""

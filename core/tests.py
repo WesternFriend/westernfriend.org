@@ -1,7 +1,7 @@
 """Tests for core utility functions."""
 
-from django.templatetags.static import static
 from django.core.cache import cache
+from django.templatetags.static import static
 from django.test import TestCase
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 

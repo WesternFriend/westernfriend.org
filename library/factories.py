@@ -1,9 +1,11 @@
 from typing import Any
-from django.utils.text import slugify
+
 import factory
+from django.utils.text import slugify
 
 from home.factories import HomePageFactory
 from home.models import HomePage
+
 from .models import (
     LibraryIndexPage,
     LibraryItem,
@@ -20,14 +22,10 @@ class LibraryItemFactory(factory.django.DjangoModelFactory):
     publication_date_is_approximate = factory.Faker("boolean")  # type: ignore
     # TODO: body should consist of a list of StreamField blocks
     # or just an empty list for now
-    # body = factory.Faker("pylist", nb_elements=0)  # type: ignore
 
-    # TODO: determine why the lazy facet attributes are not working
+    # TODO: determine why lazy facet attributes (factory.LazyAttribute picking a
+    # random Audience, Genre, Medium, and TimePeriod) are not working
     # goal: randomly assign a facet to each library item
-    # item_audience = factory.LazyAttribute(lambda _: Audience.objects.order_by("?").first())  # type: ignore # noqa: E501
-    # item_genre = factory.LazyAttribute(lambda _: Genre.objects.order_by("?").first())  # type: ignore # noqa: E501
-    # item_medium = factory.LazyAttribute(lambda _: Medium.objects.order_by("?").first())  # type: ignore # noqa: E501
-    # item_time_period = factory.LazyAttribute(lambda _: TimePeriod.objects.order_by("?").first())  # type: ignore # noqa: E501
 
     @classmethod
     def _create(

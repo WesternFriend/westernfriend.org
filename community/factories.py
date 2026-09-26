@@ -1,9 +1,10 @@
 from typing import Any
-from django.utils.text import slugify
+
 import factory
+from django.utils.text import slugify
 from factory.django import DjangoModelFactory
 
-from community.models import CommunityPage, OnlineWorshipIndexPage, OnlineWorship
+from community.models import CommunityPage, OnlineWorship, OnlineWorshipIndexPage
 from home.factories import HomePageFactory
 from home.models import HomePage
 

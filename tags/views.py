@@ -1,7 +1,7 @@
 from itertools import chain
 
-from django.views.generic import ListView
 from django.db.models import Q
+from django.views.generic import ListView
 from taggit.models import Tag
 from wagtail.admin.viewsets.model import ModelViewSet
 
@@ -75,12 +75,10 @@ class TaggedPageListView(ListView):
             ),
         )
 
-        sorted_queryset = sorted(
+        return sorted(
             combined_queryset_list,
             key=lambda instance: instance.title.lower(),
         )
-
-        return sorted_queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

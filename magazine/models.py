@@ -339,9 +339,9 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     )
     is_featured = models.BooleanField(
         default=False,
-        help_text="Feature this article in the related issue and allow full access without a subscription?",  # noqa: E501
+        help_text="Feature this article in the related issue and allow full access without a subscription?",
     )
-    body_migrated = models.TextField(
+    body_migrated = models.TextField(  # noqa: DJ001
         help_text="Used only for content from old Drupal website.",
         null=True,
         blank=True,
@@ -399,7 +399,8 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
             if article.depth > 1:
                 parent = issue_by_path.get(article.path[: -article.steplen])
                 if parent is not None:
-                    article._parent_page = parent  # type: ignore[attr-defined]
+                    # Treebeard's parent cache; setting it saves a query per article.
+                    article._parent_page = parent  # type: ignore[attr-defined]  # noqa: SLF001
 
     @classmethod
     def get_queryset(cls):
@@ -445,7 +446,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         InlinePanel(
             "authors",
             heading="Authors",
-            help_text="Select one or more authors, who contributed to this article. Note: you must first add contacts in order to select them as authors.",  # noqa: E501
+            help_text="Select one or more authors, who contributed to this article. Note: you must first add contacts in order to select them as authors.",
             min_num=1,
         ),
         MultiFieldPanel(
@@ -596,7 +597,7 @@ class ArchiveArticle(ClusterableModel):
             heading="Page numbers",
         ),
         HelpPanel(
-            content="Add article authors by clicking the '+ Add' button below, if known.",  # noqa: E501
+            content="Add article authors by clicking the '+ Add' button below, if known.",
         ),
         NestedInlinePanel(
             "archive_authors",
@@ -638,7 +639,7 @@ class ArchiveIssue(DrupalFields, Page):  # type: ignore
         help_text="Identifier for Internet Archive item.",
         unique=True,
     )
-    western_friend_volume = models.CharField(
+    western_friend_volume = models.CharField(  # noqa: DJ001
         max_length=255,
         help_text="Related Western Friend volume.",
         null=True,
@@ -652,7 +653,7 @@ class ArchiveIssue(DrupalFields, Page):  # type: ignore
         InlinePanel(
             "archive_articles",
             heading="Table of contents",
-            help_text="Add articles to the table of contents by clicking the '+ Add' button below",  # noqa: E501
+            help_text="Add articles to the table of contents by clicking the '+ Add' button below",
         ),
     ]
 

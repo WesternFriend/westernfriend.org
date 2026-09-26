@@ -1,5 +1,6 @@
 from wagtail import blocks as wagtail_blocks
 from wagtail.embeds.blocks import EmbedBlock
+
 from blocks.blocks import (
     FormattedImageChooserStructBlock,
     HeadingBlock,

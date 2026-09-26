@@ -160,7 +160,7 @@ STOPWORDS: frozenset[str] = frozenset(
 )
 
 
-def search(request: HttpRequest) -> HttpResponse:
+def search(request: HttpRequest) -> HttpResponse:  # noqa: C901, PLR0912, PLR0915
     search_query = request.GET.get("query", None)
     page = request.GET.get("page", "1")
     number_per_page = 25  # Increased from 10 to reduce pagination depth
