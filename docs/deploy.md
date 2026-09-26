@@ -86,12 +86,6 @@ After the initial app is deployed, configure a domain (or subdomain) on our regi
 
 Add a domain name [under the app settings](https://docs.digitalocean.com/products/app-platform/how-to/manage-domains). Be sure to add a corresponding CNAME record to the domain DNS configuration. DNS settings are managed wherever the domain is registered.
 
-## Cloudflare
-
-westernfriend.org is proxied through Cloudflare. We want search engines and AI agents to read and use our content for any purpose, including AI training, so keep bot settings allow-by-default for content pages.
-
-The app serves its own `robots.txt` (with a `Content-Signal` line) and `llms.txt`. Keep Cloudflare features that inject a managed `robots.txt` turned off, so they don't override ours. Reserve blocking and rate limiting for abusive traffic and for private or transactional paths (accounts, cart, orders, payment).
-
 ## Initialize the App
 
 Access the app console via DigitalOcean admin UI, and run the following commands to initialize the app.
