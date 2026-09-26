@@ -25,15 +25,46 @@ class TaggedPageListView(ListView):
         # Get all the pages tagged with the given tag
         filter_condition = Q(tags__slug__in=[tag])
 
-        library_items = LibraryItem.objects.filter(filter_condition).order_by("title")
-
-        magazine_articles = MagazineArticle.objects.filter(filter_condition).order_by(
-            "title",
+        library_items = (
+            LibraryItem.get_queryset()
+            .filter(filter_condition)
+            .live()
+            .public()
+            .select_related("content_type")
+            .prefetch_related("authors__author")
+            # DB-level ordering unnecessary; combined list is sorted below
         )
 
-        news_items = NewsItem.objects.filter(filter_condition).order_by("title")
+        magazine_articles = list(
+            MagazineArticle.get_queryset()
+            .filter(filter_condition)
+            .live()
+            .public()
+            .select_related("content_type")
+            .prefetch_related("authors__author"),
+            # DB-level ordering unnecessary; combined list is sorted below
+        )
 
-        pages = WfPage.objects.filter(filter_condition).order_by("title")
+        # Bulk-annotate parent MagazineIssues to avoid N+1 from
+        # article._parent_page in magazine_article_summary.html
+        MagazineArticle.prefetch_parent_issues(magazine_articles)
+
+        news_items = (
+            NewsItem.objects.filter(filter_condition)
+            .live()
+            .public()
+            .select_related("content_type")
+            # DB-level ordering unnecessary; combined list is sorted below
+        )
+
+        pages = (
+            WfPage.get_queryset()
+            .filter(filter_condition)
+            .live()
+            .public()
+            .select_related("content_type")
+            # DB-level ordering unnecessary; combined list is sorted below
+        )
 
         combined_queryset_list = list(
             chain(
@@ -59,7 +90,8 @@ class TaggedPageListView(ListView):
 
         context["tag_name"] = tag_name
 
-        page_number = self.request.GET.get("page", "1")
+        _page_raw = self.request.GET.get("page", "1")
+        page_number = int(_page_raw) if _page_raw.isdigit() else 1
 
         context["paginated_items"] = get_paginated_items(
             items=self.get_queryset(),

@@ -1,14 +1,17 @@
-from django.utils.text import slugify
 from typing import Any
-import factory
-from home.factories import HomePageFactory
 
+import factory
+from django.utils import timezone
+from django.utils.text import slugify
+
+from home.factories import HomePageFactory
 from home.models import HomePage
+
 from .models import (
     MagazineArticle,
     MagazineDepartment,
-    MagazineIssue,
     MagazineIndexPage,
+    MagazineIssue,
 )
 
 
@@ -42,7 +45,9 @@ class MagazineIssueFactory(factory.django.DjangoModelFactory):
         model = MagazineIssue
 
     title = factory.Sequence(lambda n: f"Issue {n}")
-    publication_date = factory.Faker("date_time_this_year", before_now=False)  # type: ignore # noqa: E501
+    publication_date = factory.LazyFunction(
+        lambda: timezone.now() + timezone.timedelta(days=30),
+    )
     issue_number = factory.Faker("pyint", min_value=1, max_value=100)  # type: ignore
     slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore
 
@@ -102,11 +107,19 @@ class MagazineArticleFactory(factory.django.DjangoModelFactory):
         *args: Any,
         **kwargs: Any,
     ) -> MagazineArticle:
+        # Extract parent argument if provided
+        parent = kwargs.pop("parent", None)
+
         instance = model_class(*args, **kwargs)  # type: ignore
-        parent = MagazineIssue.objects.first()
+
+        # Use provided parent or find/create a default one
         if parent:
             parent.add_child(instance=instance)
         else:
-            magazine_issue = MagazineIssueFactory.create()
-            magazine_issue.add_child(instance=instance)
+            default_parent = MagazineIssue.objects.order_by("id").first()
+            if default_parent:
+                default_parent.add_child(instance=instance)
+            else:
+                magazine_issue = MagazineIssueFactory.create()
+                magazine_issue.add_child(instance=instance)
         return instance

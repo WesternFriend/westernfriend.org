@@ -1,22 +1,55 @@
 import datetime
-from django.test import RequestFactory, TestCase
+from unittest.mock import patch
+
+from django.db import connection, reset_queries
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
+from django.utils import timezone
 from wagtail.models import Page, Site
+
 from accounts.models import User
+from contact.models import Person, PersonIndexPage
 from home.models import HomePage
-from magazine.factories import MagazineIndexPageFactory, MagazineIssueFactory
+from magazine.factories import (
+    MagazineArticleFactory,
+    MagazineIndexPageFactory,
+    MagazineIssueFactory,
+)
 from subscription.models import (
     Subscription,
 )
+
 from .models import (
+    ArchiveArticle,
+    ArchiveArticleAuthor,
     ArchiveIssue,
     DeepArchiveIndexPage,
-    MagazineDepartmentIndexPage,
-    MagazineDepartment,
-    MagazineIssue,
-    MagazineIndexPage,
     MagazineArticle,
+    MagazineDepartment,
+    MagazineDepartmentIndexPage,
+    MagazineIndexPage,
+    MagazineIssue,
     MagazineTagIndexPage,
+    get_archive_threshold_date,
 )
+
+
+class ArchiveThresholdDateTest(SimpleTestCase):
+    def test_threshold_advances_with_current_date(self) -> None:
+        """The threshold is recomputed on each call, not frozen at import."""
+        first_day = datetime.date(2026, 1, 1)
+        later_day = datetime.date(2026, 3, 1)
+
+        with patch("django.utils.timezone.localdate", return_value=first_day):
+            self.assertEqual(
+                get_archive_threshold_date(),
+                first_day - datetime.timedelta(days=180),
+            )
+
+        with patch("django.utils.timezone.localdate", return_value=later_day):
+            self.assertEqual(
+                get_archive_threshold_date(),
+                later_day - datetime.timedelta(days=180),
+            )
 
 
 class MagazineIndexPageTest(TestCase):
@@ -33,7 +66,7 @@ class MagazineIndexPageTest(TestCase):
         )
         self.home_page.add_child(instance=self.magazine_index)
 
-        today = datetime.date.today()
+        today = timezone.localdate()
 
         self.recent_magazine_issue = MagazineIssue(
             title="Issue 1",
@@ -82,6 +115,25 @@ class MagazineIndexPageTest(TestCase):
         self.assertEqual(
             list(context["recent_issues"]),
             [self.recent_magazine_issue],
+        )
+
+    def test_get_context_recent_issues_moves_to_archive_as_date_advances(
+        self,
+    ) -> None:
+        """A recent issue moves to the archive once the current date passes the
+        threshold, without a process restart."""
+        mock_request = RequestFactory().get("/magazine/")
+        later_day = self.recent_magazine_issue.publication_date + datetime.timedelta(
+            days=181,
+        )
+
+        with patch("django.utils.timezone.localdate", return_value=later_day):
+            context = self.magazine_index.get_context(mock_request)
+
+        self.assertEqual(list(context["recent_issues"]), [])
+        self.assertIn(
+            self.recent_magazine_issue,
+            list(context["archive_issues"].page),
         )
 
     def test_get_context_archive_issues_without_page_number(self) -> None:
@@ -181,11 +233,11 @@ class MagazineIssueTest(TestCase):
         # Magazine Issues
         self.recent_magazine_issue = MagazineIssue(
             title="Issue 1",
-            publication_date=datetime.date.today(),
+            publication_date=timezone.localdate(),
         )
         self.archive_magazine_issue = MagazineIssue(
             title="Issue 2",
-            publication_date=datetime.date.today() - datetime.timedelta(days=181),
+            publication_date=timezone.localdate() - datetime.timedelta(days=181),
         )
         self.magazine_index.add_child(instance=self.recent_magazine_issue)
         self.magazine_index.add_child(instance=self.archive_magazine_issue)
@@ -244,7 +296,7 @@ class MagazineIssueTest(TestCase):
         date."""
         self.assertEqual(
             self.recent_magazine_issue.publication_end_date,
-            datetime.date.today() + datetime.timedelta(days=31),
+            timezone.localdate() + datetime.timedelta(days=31),
         )
 
     def test_get_sitemap_urls(self) -> None:
@@ -270,6 +322,23 @@ class MagazineIssueTest(TestCase):
         boolean."""
         self.assertFalse(self.recent_magazine_issue.is_public_access)
         self.assertTrue(self.archive_magazine_issue.is_public_access)
+
+    def test_is_public_access_changes_as_date_advances(self) -> None:
+        """An issue becomes public once the current date passes the threshold,
+        without a process restart."""
+        publication_date = self.recent_magazine_issue.publication_date
+
+        with patch(
+            "django.utils.timezone.localdate",
+            return_value=publication_date + datetime.timedelta(days=180),
+        ):
+            self.assertFalse(self.recent_magazine_issue.is_public_access)
+
+        with patch(
+            "django.utils.timezone.localdate",
+            return_value=publication_date + datetime.timedelta(days=181),
+        ):
+            self.assertTrue(self.recent_magazine_issue.is_public_access)
 
 
 class MagazineTagIndexPageTest(TestCase):
@@ -396,6 +465,60 @@ class MagazineDepartmentTest(TestCase):
         department = MagazineDepartment(title="Department 1")
         self.assertEqual(department.autocomplete_label(), "Department 1")
 
+    def test_get_context(self) -> None:
+        """Test that get_context returns articles for the department."""
+        # Set up page hierarchy
+        site_root = Page.objects.get(id=2)
+        home_page = HomePage(title="Home")
+        site_root.add_child(instance=home_page)
+        Site.objects.all().update(root_page=home_page)
+
+        magazine_index = MagazineIndexPage(title="Magazine")
+        home_page.add_child(instance=magazine_index)
+
+        magazine_issue = MagazineIssue(
+            title="Test Issue",
+            publication_date=datetime.date.today(),
+        )
+        magazine_index.add_child(instance=magazine_issue)
+
+        department_index = MagazineDepartmentIndexPage(title="Departments")
+        magazine_index.add_child(instance=department_index)
+
+        department = MagazineDepartment(title="Test Department")
+        department_index.add_child(instance=department)
+        other_department = MagazineDepartment(title="Other Department")
+        department_index.add_child(instance=other_department)
+
+        # Create some articles
+        article1 = MagazineArticle(
+            title="Article 1",
+            department=department,
+        )
+        article2 = MagazineArticle(
+            title="Article 2",
+            department=department,
+        )
+        other_article = MagazineArticle(
+            title="Article 3",
+            department=other_department,
+        )
+        magazine_issue.add_child(instance=article1)
+        magazine_issue.add_child(instance=article2)
+        magazine_issue.add_child(instance=other_article)
+
+        factory = RequestFactory()
+        request = factory.get("/")
+        context = department.get_context(request)
+
+        self.assertIn("articles", context)
+        articles = list(context["articles"])
+        self.assertEqual(len(articles), 2)
+        self.assertCountEqual(
+            [article.pk for article in articles],
+            [article1.pk, article2.pk],
+        )
+
 
 class MagazineArticleTest(TestCase):
     def setUp(self) -> None:
@@ -428,7 +551,7 @@ class MagazineArticleTest(TestCase):
         )
         self.home_page.add_child(instance=self.magazine_index)
 
-        today = datetime.date.today()
+        today = timezone.localdate()
 
         # Magazine Issues
         self.recent_magazine_issue = MagazineIssue(
@@ -680,4 +803,172 @@ class TestMagazineIssueFactory(TestCase):
         self.assertIsInstance(
             magazine_issue.get_parent().specific,
             MagazineIndexPage,
+        )
+
+
+class MagazineArticleParentIssueTest(TestCase):
+    def setUp(self) -> None:
+        self.issue = MagazineIssueFactory.create()
+        self.article = MagazineArticleFactory.create(parent=self.issue)
+
+    def test_parent_issue_returns_magazine_issue(self) -> None:
+        """parent_issue returns the correct MagazineIssue via DB lookup."""
+        self.assertIsInstance(self.article.parent_issue, MagazineIssue)
+        self.assertEqual(self.article.parent_issue.pk, self.issue.pk)
+
+    def test_parent_issue_uses_annotated_value_when_set(self) -> None:
+        """parent_issue returns _parent_page directly when pre-populated
+        by annotate_parent_page(), without hitting the database."""
+        self.article._parent_page = self.issue
+        with self.assertNumQueries(0):
+            result = self.article.parent_issue
+        self.assertEqual(result.pk, self.issue.pk)
+
+    def test_parent_issue_falls_back_to_db_when_not_annotated(self) -> None:
+        """parent_issue queries the DB when _parent_page is not set."""
+        # Ensure _parent_page is absent (default state, no annotation)
+        self.assertFalse(hasattr(self.article, "_parent_page"))
+        result = self.article.parent_issue
+        self.assertIsInstance(result, MagazineIssue)
+        self.assertEqual(result.pk, self.issue.pk)
+
+
+class ArchiveIssueQueryOptimizationTestCase(TestCase):
+    """Test that ArchiveIssue.get_context() optimizes queries to avoid N+1.
+
+    Validates that accessing article.archive_authors.all and archive_author.author
+    does not trigger per-article or per-author queries when the queryset is
+    properly prefetched in get_context().
+    """
+
+    def setUp(self) -> None:
+        """Create test data: 1 archive issue with 3 articles, each with 2 authors."""
+        self.factory = RequestFactory()
+        self.root = Site.objects.get(is_default_site=True).root_page
+
+        # Create magazine index and deep archive index pages
+        self.magazine_index = MagazineIndexPage(title="Magazine")
+        self.root.add_child(instance=self.magazine_index)
+
+        self.deep_archive_index = DeepArchiveIndexPage(title="Deep Archive")
+        self.magazine_index.add_child(instance=self.deep_archive_index)
+
+        # Create a person index page for author pages
+        self.person_index = PersonIndexPage(title="People")
+        self.root.add_child(instance=self.person_index)
+
+        # Create an archive issue
+        self.archive_issue = ArchiveIssue(
+            title="Test Archive Issue",
+            internet_archive_identifier="test-issue-123",
+            publication_date=datetime.date(1950, 1, 1),
+        )
+        self.deep_archive_index.add_child(instance=self.archive_issue)
+
+        # Create 6 author pages (Person instances)
+        self.authors = []
+        for i in range(6):
+            author = Person(
+                title=f"Author {i}",
+                given_name=f"Given{i}",
+                family_name=f"Family{i}",
+            )
+            self.person_index.add_child(instance=author)
+            self.authors.append(author)
+
+        # Create 3 archive articles with 2 authors each
+        self.articles = []
+        for article_num in range(3):
+            article = ArchiveArticle(
+                title=f"Test Article {article_num}",
+                issue=self.archive_issue,
+                toc_page_number=article_num + 1,
+                pdf_page_number=article_num + 1,
+            )
+            article.save()
+            self.articles.append(article)
+
+            # Add 2 authors to each article
+            for author_offset in range(2):
+                author_index = article_num * 2 + author_offset
+                ArchiveArticleAuthor.objects.create(
+                    article=article,
+                    author=self.authors[author_index],
+                )
+
+    @override_settings(DEBUG=True)
+    def test_get_context_prefetches_authors(self) -> None:
+        """Verify that get_context() prefetches authors to prevent N+1 queries.
+
+        After calling get_context(), accessing article.archive_authors.all and
+        archive_author.author should not trigger additional queries.
+        """
+        request = self.factory.get("/")
+
+        # Reset queries to get a clean count
+        reset_queries()
+
+        # Get the context with prefetched data
+        context = self.archive_issue.get_context(request)
+        articles = context["archive_articles"]
+
+        # Record query count after get_context
+        queries_after_context = len(connection.queries)
+
+        # Now access archive_authors and author for all articles
+        # This should NOT trigger additional queries if prefetch worked
+        for article in articles:
+            for archive_author in article.archive_authors.all():
+                # Access author fields that would normally trigger queries
+                _ = archive_author.author.title
+                _ = archive_author.author.live
+
+        # Record final query count
+        queries_after_access = len(connection.queries)
+
+        # Assert NO additional queries were made when accessing authors
+        additional_queries = queries_after_access - queries_after_context
+
+        self.assertEqual(
+            additional_queries,
+            0,
+            f"Expected 0 additional queries, but got {additional_queries}. "
+            f"Prefetch did not prevent N+1 queries.",
+        )
+
+    @override_settings(DEBUG=True)
+    def test_total_query_count_is_reasonable(self) -> None:
+        """Verify total query count is independent of article/author count.
+
+        The total query count should be low (≤5) and not scale with the number
+        of articles or authors, confirming the optimization is effective.
+        """
+        request = self.factory.get("/")
+
+        # Reset queries
+        reset_queries()
+
+        # Get context and access all data
+        context = self.archive_issue.get_context(request)
+        articles = context["archive_articles"]
+
+        # Access all article and author data
+        for article in articles:
+            for archive_author in article.archive_authors.all():
+                _ = archive_author.author.title
+                _ = archive_author.author.live
+
+        total_queries = len(connection.queries)
+
+        # With proper prefetching, we should have:
+        # 1-2 queries for page/issue data
+        # 1 query for articles
+        # 1 query for archive_authors
+        # 1 query for author pages
+        # Total should be ≤ 5 regardless of data volume
+        self.assertLessEqual(
+            total_queries,
+            5,
+            f"Expected ≤5 queries with prefetch optimization, but got {total_queries}. "
+            f"Queries: {[q['sql'] for q in connection.queries]}",
         )

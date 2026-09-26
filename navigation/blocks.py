@@ -68,6 +68,21 @@ class NavigationPageChooserBlock(wagtail_blocks.StructBlock):
         value_class = NavigationPageChooserStructValue
 
 
+class NavigationDropdownMenuStructValue(StructValue):
+    def submenu_id(self):
+        """Generate a unique ID for the submenu based on the title.
+
+        This is used for accessibility purposes to link the summary and menu elements.
+        """
+        # Create a slug-like string from the title that can be used as an HTML id
+        title = self.get("title", "")
+        # Convert to lowercase and replace spaces with hyphens
+        base_id = title.lower().replace(" ", "-")
+        # Only keep alphanumeric characters and hyphens
+        clean_id = "".join(c for c in base_id if c.isalnum() or c == "-")
+        return f"dropdown-menu-{clean_id}"
+
+
 class NavigationDropdownMenuBlock(wagtail_blocks.StructBlock):
     title = wagtail_blocks.CharBlock()
     menu_items = wagtail_blocks.StreamBlock(
@@ -81,3 +96,4 @@ class NavigationDropdownMenuBlock(wagtail_blocks.StructBlock):
         template = "navigation/blocks/dropdown_menu.html"
         label = "Dropdown menu"
         icon = "arrow-down-big"
+        value_class = NavigationDropdownMenuStructValue

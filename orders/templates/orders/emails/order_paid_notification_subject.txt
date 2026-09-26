@@ -1,0 +1,1 @@
+New Bookstore Order #{{ order.id }} - {{ order.purchaser_full_name }}

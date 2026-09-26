@@ -3,7 +3,7 @@ name = "Western-Friend-website"
 version = "0.1.0"
 description = "A website for Western Friend (westernfriend.org), a Quaker publication that provides resources and support for Quaker communities and individuals seeking to live out their faith in the world."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = { text = "agpl-3.0-or-later" }
 authors = [
     { name = "Brylie Christopher Oxley", email = "brylie@amble.fi" },
@@ -54,8 +54,7 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python",
     "Topic :: Religion :: Quaker",
     "Topic :: Religion",
@@ -63,17 +62,13 @@ classifiers = [
 
 ]
 dependencies = [
-    # keep-sorted start
     "boto3",
-    "crispy-bootstrap5",
     "dj-database-url",
     "django",
-    "django-crispy-forms",
     "django-extensions",
-    "django-flatpickr",
-    "django-honeypot",
     "django-registration",
     "django-storages",
+    "django-tailwind[reload]>=4.0.1",
     "django-timezone-field",
     "django_coverage_plugin",
     "gunicorn",
@@ -85,32 +80,11 @@ dependencies = [
     "wagtail",
     "wagtail-color-panel",
     "wagtailmedia",
-    # keep-sorted end
-
 ]
 
 [project.urls]
 Homepage = "https://westernfriend.org"
 Repository = "https://github.com/WesternFriend/WF-website"
-
-[project.optional-dependencies]
-dev = [
-    # keep-sorted start
-    "coverage",
-    "django-browser-reload",
-    "django-stubs[compatible-mypy]",
-    "factory_boy",
-    "mypy",
-    "pip-tools",
-    "pre-commit",
-    "types-beautifulsoup4",
-    "types-factory-boy",
-    "types-requests",
-    "validate-pyproject",
-    "wagtail-factories",
-    # keep-sorted end
-
-]
 
 [tool.isort]
 profile = "black"
@@ -127,8 +101,8 @@ ignore_missing_imports = true
 django_settings_module = "core.settings"
 # Exclude a variety of commonly ignored directories.
 exclude = [".git", ".mypy_cache", ".ruff_cache", ".venv", "**/migrations"]
-# Assume Python 3.11
-target-version = "py311"
+# Assume Python 3.12
+target-version = "py312"
 
 [tool.setuptools]
 py-modules = []
@@ -138,3 +112,34 @@ plugins = ['django_coverage_plugin']
 
 [tool.coverage.django_coverage_plugin]
 template_extensions = 'html, txt, tex, email'
+
+# Configuration for uv's pip-compile tool used via pre-commit
+# This ensures that requirements.txt is automatically generated from pyproject.toml
+# to be compatible with Heroku buildpacks and other deployment platforms that require requirements.txt
+# The pre-commit hook will run whenever pyproject.toml changes, keeping requirements.txt in sync
+# with our actual dependencies while maintaining security and deterministic builds
+# - generate-hashes: true
+#   - This option generates hashes for all dependencies, ensuring that the exact versions are used.
+#   - This is important for security and reproducibility.
+# - upgrade: false
+#   - This option prevents automatic upgrades of dependencies when resolving.
+#   - This ensures consistency between environments and reproducible builds.
+
+[tool.uv.pip]
+generate-hashes = true
+upgrade = false
+
+[dependency-groups]
+dev = [
+    "cookiecutter>=2.6.0",
+    "coverage>=7.7.1",
+    "django-browser-reload>=1.18.0",
+    "django-stubs[compatible-mypy]>=5.1.3",
+    "factory-boy>=3.3.3",
+    "mypy>=1.15.0",
+    "pre-commit>=4.2.0",
+    "types-beautifulsoup4>=4.12.0.20250204",
+    "types-factory-boy>=0.4.1",
+    "types-requests>=2.32.0.20250306",
+    "wagtail-factories>=4.2.1",
+]

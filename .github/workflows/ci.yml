@@ -1,0 +1,88 @@
+name: Tests and Coverage
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+env:
+  DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  runner-job:
+    # You must use a Linux environment when using service containers or container jobs
+    runs-on: ubuntu-latest
+
+    # Service containers to run with `runner-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+
+    steps:
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@master
+        with:
+          python-version: 3.11
+      #----------------------------------------------
+      #       install uv
+      #----------------------------------------------
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      #----------------------------------------------
+      #       load cached venv if cache exists
+      #----------------------------------------------
+      - name: Load cached venv
+        id: cached-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('pyproject.toml') }}
+      #----------------------------------------------
+      # install dependencies if cache does not exist
+      #----------------------------------------------
+      - name: Install dependencies
+        if: steps.cached-dependencies.outputs.cache-hit != 'true'
+        run: |
+          uv venv
+          source .venv/bin/activate
+          uv sync --group dev
+      #----------------------------------------------
+      # Run tests, generate and upload code coverage report
+      #----------------------------------------------
+      - name: Run Tests
+        run: |
+          source .venv/bin/activate
+          coverage run manage.py test
+      - name: Generate Coverage Report
+        working-directory: ${{ github.workspace }}
+        run: |
+          source .venv/bin/activate
+          coverage xml
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{github.workspace}}/coverage.xml
