@@ -37,19 +37,19 @@
                         "@type": "ListItem",
                         "position": 1,
                         "name": "Home",
-                        "item": "{{ request.scheme }}://{{ request.site.hostname }}/"
+                        "item": "{% site_root_url %}"
                     }{% for ancestor in visible %},
                         {
                             "@type": "ListItem",
                             "position": {{ forloop.counter|add:1 }},
                             "name": "{{ ancestor.title }}",
-                            "item": "{{ request.scheme }}://{{ request.site.hostname }}{% pageurl ancestor %}"
+                            "item": "{% fullpageurl ancestor %}"
                         }{% endfor %},
                     {
                         "@type": "ListItem",
                         "position": {{ visible|length|add:2 }},
                         "name": "{{ page.title }}",
-                        "item": "{{ request.scheme }}://{{ request.site.hostname }}{% pageurl page %}"
+                        "item": "{% fullpageurl page %}"
                     }
                 ]
             }

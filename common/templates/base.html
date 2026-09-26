@@ -1,4 +1,4 @@
-{% load static tailwind_tags wagtailcore_tags wagtailuserbar %}
+{% load common_tags static tailwind_tags wagtailcore_tags wagtailuserbar %}
 
 <!DOCTYPE html>
 <html class="h-full" lang="en" data-theme="light">
@@ -26,14 +26,14 @@
         <meta name="author" content="Western Friend" />
         <meta name="publisher" content="Friends Bulletin Corporation" />
         <meta name="keywords" content="Quaker, Friends, Western Friend, Quakerism, Religious Society of Friends, pacifism, social justice, spirituality, magazine" />
-        <link rel="canonical" href="{{ request.scheme }}://{{ request.site.hostname }}{{ request.path }}" />
+        <link rel="canonical" href="{% canonical_url %}" />
 
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
-        <meta property="og:url" content="{{ request.scheme }}://{{ request.site.hostname }}{{ request.path }}" />
+        <meta property="og:url" content="{% canonical_url %}" />
         <meta property="og:title" content="{% if page.seo_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %} - Western Friend" />
-        <meta property="og:description" content="{% if page.search_description %}{{ page.search_description %}{% else %}Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States.{% endif %}" />
-        <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.site.hostname }}{% static 'img/og-default.jpg' %}{% endblock %}" />
+        <meta property="og:description" content="{% if page.search_description %}{{ page.search_description }}{% else %}Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States.{% endif %}" />
+        <meta property="og:image" content="{% block og_image %}{% absolute_static 'img/og-default.jpg' %}{% endblock %}" />
         <meta property="og:site_name" content="Western Friend" />
         <meta property="og:locale" content="en_US" />
 
@@ -41,8 +41,8 @@
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@westernfriend" />
         <meta name="twitter:title" content="{% if page.seo_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %} - Western Friend" />
-        <meta name="twitter:description" content="{% if page.search_description %}{{ page.search_description %}{% else %}Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States.{% endif %}" />
-        <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.site.hostname }}{% static 'img/og-default.jpg' %}{% endblock %}" />
+        <meta name="twitter:description" content="{% if page.search_description %}{{ page.search_description }}{% else %}Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States.{% endif %}" />
+        <meta name="twitter:image" content="{% block twitter_image %}{% absolute_static 'img/og-default.jpg' %}{% endblock %}" />
 
         <!-- Favicons -->
         <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32x32.png' %}">
