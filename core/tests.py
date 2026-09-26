@@ -74,3 +74,60 @@ class GetDefaultSiteTest(TestCase):
         result = get_default_site()
         self.assertIsNotNone(result)
         self.assertEqual(result, site1)
+
+
+class RobotsTxtTest(TestCase):
+    """Test the robots.txt view."""
+
+    def test_robots_txt_references_canonical_sitemap(self):
+        response = self.client.get("/robots.txt")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/plain")
+        self.assertIn(
+            "Sitemap: https://westernfriend.org/sitemap.xml",
+            response.content.decode(),
+        )
+
+    def test_robots_txt_disallows_admin(self):
+        response = self.client.get("/robots.txt")
+
+        self.assertIn("Disallow: /admin/", response.content.decode())
+
+
+class SitemapTest(TestCase):
+    """Test the sitemap.xml view."""
+
+    def setUp(self):
+        Locale.objects.get_or_create(language_code="en")
+        Site.objects.all().delete()
+        root = Page.get_first_root_node() or Page.add_root(title="Root", slug="root")
+        self.home = root.add_child(instance=Page(title="Home", slug="sitemap-home"))
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home,
+            is_default_site=True,
+        )
+        self.child = self.home.add_child(instance=Page(title="About", slug="about"))
+
+    def test_sitemap_is_xml(self):
+        response = self.client.get("/sitemap.xml")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/xml")
+        self.assertIn(
+            b'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
+            response.content,
+        )
+
+    def test_sitemap_lists_published_pages(self):
+        response = self.client.get("/sitemap.xml")
+
+        self.assertIn(b"<loc>http://testserver/about/</loc>", response.content)
+
+    def test_sitemap_excludes_unpublished_pages(self):
+        self.child.unpublish()
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertNotIn(b"/about/", response.content)

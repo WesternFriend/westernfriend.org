@@ -1,5 +1,9 @@
 from http import HTTPStatus
+from django.conf import settings
+from django.http import HttpResponse
 from django.shortcuts import render
+from django.urls import reverse
+from django.views.decorators.http import require_GET
 from wagtail.admin.viewsets.base import ViewSetGroup
 
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
@@ -54,3 +58,26 @@ def custom_404(request, exception=None):  # noqa: W0613 # skipcq: PYL-W0613
         context=context,
         status=HTTPStatus.NOT_FOUND,
     )
+
+
+# Private or transactional paths that crawlers should not index
+ROBOTS_DISALLOWED_PATHS = [
+    "/admin/",
+    "/accounts/",
+    "/cart/",
+    "/orders/",
+    "/payment/",
+    "/paypal/",
+]
+
+
+@require_GET
+def robots_txt(request):
+    """Serve robots.txt, pointing crawlers at the canonical sitemap."""
+    sitemap_url = f"{settings.BASE_URL.rstrip('/')}{reverse('sitemap')}"
+
+    lines = ["User-agent: *"]
+    lines += [f"Disallow: {path}" for path in ROBOTS_DISALLOWED_PATHS]
+    lines += ["", f"Sitemap: {sitemap_url}", ""]
+
+    return HttpResponse("\n".join(lines), content_type="text/plain")
