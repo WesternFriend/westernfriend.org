@@ -184,3 +184,31 @@ class CustomPasswordResetViewTests(TestCase):
         self.assertTrue(msg.subject.strip())
         html_body, _ = msg.alternatives[0]
         self.assertTrue(str(html_body).strip())
+
+import importlib
+from unittest import mock
+
+from django.test import SimpleTestCase
+
+import core.settings
+
+
+class SmtpSettingsEnvironmentTests(SimpleTestCase):
+    def test_smtp_mailers_configuration(self):
+        with mock.patch.dict(
+            "os.environ",
+            {
+                "EMAIL_HOST": "smtp.example.com",
+                "EMAIL_HOST_USER": "testuser",
+                "EMAIL_HOST_PASSWORD": "testpassword",
+            },
+        ):
+            importlib.reload(core.settings)
+            try:
+                self.assertIn("default", core.settings.MAILERS)
+                self.assertEqual(
+                    core.settings.MAILERS["default"]["BACKEND"],
+                    "django.core.mail.backends.smtp.EmailBackend",
+                )
+            finally:
+                importlib.reload(core.settings)
