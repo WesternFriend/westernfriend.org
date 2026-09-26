@@ -29,13 +29,17 @@ def create_index(apps, schema_editor):
         )
         row = cursor.fetchone()
         if row and row[0]:
-            cursor.execute(f"DROP INDEX CONCURRENTLY IF EXISTS {INDEX_NAME}")
+            cursor.execute(
+                "DROP INDEX CONCURRENTLY IF EXISTS "
+                "wagtailsearch_indexentry_title_body_gin_idx",
+            )
 
         # The expression must match what modelsearch generates exactly
         # ("title" || "body") for the planner to use this index.
         cursor.execute(
-            f"""
-            CREATE INDEX CONCURRENTLY IF NOT EXISTS {INDEX_NAME}
+            """
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS
+            wagtailsearch_indexentry_title_body_gin_idx
             ON wagtailsearch_indexentry
             USING GIN ((title || body))
             """,
@@ -44,7 +48,10 @@ def create_index(apps, schema_editor):
 
 def drop_index(apps, schema_editor):
     with schema_editor.connection.cursor() as cursor:
-        cursor.execute(f"DROP INDEX CONCURRENTLY IF EXISTS {INDEX_NAME}")
+        cursor.execute(
+            "DROP INDEX CONCURRENTLY IF EXISTS "
+            "wagtailsearch_indexentry_title_body_gin_idx",
+        )
 
 
 class Migration(migrations.Migration):
