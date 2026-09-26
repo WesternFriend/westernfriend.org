@@ -8,10 +8,23 @@
 # Separate GIN indexes on `title` and `body` are not added here: Wagtail's
 # 0006_customise_indexentry already creates them, and the planner can't use
 # them for the concatenated expression anyway.
+#
+# It also drops the indexes from the old search/migrations/0001_add_search_indexes,
+# if any database has them. That migration never ran from main (the package had
+# no __init__.py), and each of its indexes duplicated one that Django or
+# Wagtail already creates.
 
 from django.db import migrations
 
 INDEX_NAME = "wagtailsearch_indexentry_title_body_gin_idx"
+
+LEGACY_INDEX_NAMES = [
+    "wagtailsearch_indexentry_content_type_id_idx",
+    "wagtailsearch_indexentry_object_id_idx",
+    "wagtailsearch_indexentry_title_gin_idx",
+    "wagtailsearch_indexentry_body_gin_idx",
+    "wagtailsearch_indexentry_content_type_object_id_idx",
+]
 
 
 def create_index(apps, schema_editor):
@@ -63,4 +76,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(create_index, drop_index, atomic=False),
+        *(
+            migrations.RunSQL(
+                sql=f"DROP INDEX CONCURRENTLY IF EXISTS {name}",
+                # Not recreated on reverse: they duplicate existing indexes.
+                reverse_sql=migrations.RunSQL.noop,
+            )
+            for name in LEGACY_INDEX_NAMES
+        ),
     ]
