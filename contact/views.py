@@ -1,8 +1,11 @@
 import django_filters
-from django.db.models import OuterRef, Subquery
+from django.db.models import F
+from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.http import urlencode
 from wagtail.admin.filters import DateRangePickerWidget, WagtailFilterSet
-from wagtail.admin.ui.tables import Column
+from wagtail.admin.ui.tables import Column, DateColumn
+from wagtail.admin.views.pages.listing import IndexView
 from wagtail.admin.views.reports import ReportView
 from wagtail.admin.viewsets.base import ViewSetGroup
 from wagtail.admin.viewsets.pages import PageListingViewSet
@@ -17,24 +20,61 @@ from .models import (
 )
 
 
-class PublicationColumn(Column):
-    """Column for displaying publication information."""
+class ArticleCountColumn(Column):
+    """Article count linking to the publication stats report for the contact type."""
 
-    cell_template_name = "wagtailadmin/tables/publication_count_cell.html"
-
-    def get_cell_context_data(self, instance, parent_context):
-        context = super().get_cell_context_data(instance, parent_context)
-        context.update(
-            {
-                "article_count": getattr(instance, "article_count", 0),
-                "last_published_at": getattr(instance, "last_published_at", None),
-            },
+    def __init__(self, contact_type, **kwargs):
+        super().__init__(
+            "article_count",
+            label="Articles",
+            sort_key="article_count",
+            **kwargs,
         )
-        return context
+        self.contact_type = contact_type
+
+    def get_value(self, instance):
+        article_count = super().get_value(instance)
+        if not article_count:
+            return 0
+        url = reverse("contact_publication_stats")
+        return format_html(
+            '<a href="{}?{}">{}</a>',
+            url,
+            urlencode({"contact_type": self.contact_type}),
+            article_count,
+        )
+
+
+class ContactIndexView(IndexView):
+    """Page listing annotated with each contact's publication statistics."""
+
+    def get_base_queryset(self):
+        return (
+            super()
+            .get_base_queryset()
+            .annotate(
+                article_count=F("publication_statistics__article_count"),
+                last_article_published_at=F(
+                    "publication_statistics__last_published_at",
+                ),
+            )
+        )
+
+
+def publication_columns(contact_type):
+    return [
+        ArticleCountColumn(contact_type),
+        DateColumn(
+            "last_article_published_at",
+            label="Last Published",
+            sort_key="last_article_published_at",
+        ),
+    ]
 
 
 class PersonViewSet(PageListingViewSet):
     model = Person
+    index_view_class = ContactIndexView
     menu_label = "People"
     name = "people"
     icon = "user"
@@ -47,49 +87,8 @@ class PersonViewSet(PageListingViewSet):
         "title",
         "given_name",
         "family_name",
-        "article_count",
-        "last_published_at",
+        *publication_columns(ContactPublicationStatistics.ContactType.PERSON),
     ]
-
-    def get_queryset(self, request):
-        from contact.models import ContactPublicationStatistics
-
-        queryset = super().get_queryset(request)
-
-        # Add publication statistics via subquery
-        article_count_subquery = ContactPublicationStatistics.objects.filter(
-            contact=OuterRef("pk"),
-        ).values("article_count")[:1]
-
-        last_published_subquery = ContactPublicationStatistics.objects.filter(
-            contact=OuterRef("pk"),
-        ).values("last_published_at")[:1]
-
-        queryset = queryset.annotate(
-            article_count=Subquery(article_count_subquery),
-            last_published_at=Subquery(last_published_subquery),
-        )
-
-        return queryset
-
-    def article_count(self, obj):
-        """Display the article count with a link to detailed publication stats."""
-        if hasattr(obj, "article_count") and obj.article_count:
-            return format_html(
-                '<a href="/admin/reports/contact-publication-stats/?contact_type=person">{}</a>',
-                obj.article_count,
-            )
-        return 0
-
-    article_count.short_description = "Articles"
-    article_count.admin_order_field = "article_count"
-
-    def last_published_at(self, obj):
-        """Display the date when the contact last published an article."""
-        return obj.last_published_at
-
-    last_published_at.short_description = "Last Published"
-    last_published_at.admin_order_field = "last_published_at"
 
 
 class MeetingFilterSet(PageListingViewSet.filterset_class):
@@ -102,6 +101,7 @@ class MeetingFilterSet(PageListingViewSet.filterset_class):
 
 class MeetingViewSet(PageListingViewSet):
     model = Meeting
+    index_view_class = ContactIndexView
     menu_label = "Meetings"
     icon = "home"
     name = "meetings"
@@ -112,53 +112,13 @@ class MeetingViewSet(PageListingViewSet):
     list_display = [
         "title",
         "meeting_type",
-        "article_count",
-        "last_published_at",
+        *publication_columns(ContactPublicationStatistics.ContactType.MEETING),
     ]
-
-    def get_queryset(self, request):
-        from contact.models import ContactPublicationStatistics
-
-        queryset = super().get_queryset(request)
-
-        # Add publication statistics via subquery
-        article_count_subquery = ContactPublicationStatistics.objects.filter(
-            contact=OuterRef("pk"),
-        ).values("article_count")[:1]
-
-        last_published_subquery = ContactPublicationStatistics.objects.filter(
-            contact=OuterRef("pk"),
-        ).values("last_published_at")[:1]
-
-        queryset = queryset.annotate(
-            article_count=Subquery(article_count_subquery),
-            last_published_at=Subquery(last_published_subquery),
-        )
-
-        return queryset
-
-    def article_count(self, obj):
-        """Display the article count with a link to detailed publication stats."""
-        if hasattr(obj, "article_count") and obj.article_count:
-            return format_html(
-                '<a href="/admin/reports/contact-publication-stats/?contact_type=meeting">{}</a>',
-                obj.article_count,
-            )
-        return 0
-
-    article_count.short_description = "Articles"
-    article_count.admin_order_field = "article_count"
-
-    def last_published_at(self, obj):
-        """Display the date when the contact last published an article."""
-        return obj.last_published_at
-
-    last_published_at.short_description = "Last Published"
-    last_published_at.admin_order_field = "last_published_at"
 
 
 class OrganizationViewSet(PageListingViewSet):
     model = Organization
+    index_view_class = ContactIndexView
     menu_label = "Organizations"
     icon = "group"
     name = "organizations"
@@ -167,49 +127,8 @@ class OrganizationViewSet(PageListingViewSet):
 
     list_display = [
         "title",
-        "article_count",
-        "last_published_at",
+        *publication_columns(ContactPublicationStatistics.ContactType.ORGANIZATION),
     ]
-
-    def get_queryset(self, request):
-        from contact.models import ContactPublicationStatistics
-
-        queryset = super().get_queryset(request)
-
-        # Add publication statistics via subquery
-        article_count_subquery = ContactPublicationStatistics.objects.filter(
-            contact=OuterRef("pk"),
-        ).values("article_count")[:1]
-
-        last_published_subquery = ContactPublicationStatistics.objects.filter(
-            contact=OuterRef("pk"),
-        ).values("last_published_at")[:1]
-
-        queryset = queryset.annotate(
-            article_count=Subquery(article_count_subquery),
-            last_published_at=Subquery(last_published_subquery),
-        )
-
-        return queryset
-
-    def article_count(self, obj):
-        """Display the article count with a link to detailed publication stats."""
-        if hasattr(obj, "article_count") and obj.article_count:
-            return format_html(
-                '<a href="/admin/reports/contact-publication-stats/?contact_type=organization">{}</a>',
-                obj.article_count,
-            )
-        return 0
-
-    article_count.short_description = "Articles"
-    article_count.admin_order_field = "article_count"
-
-    def last_published_at(self, obj):
-        """Display the date when the contact last published an article."""
-        return obj.last_published_at
-
-    last_published_at.short_description = "Last Published"
-    last_published_at.admin_order_field = "last_published_at"
 
 
 class ContactViewSetGroup(ViewSetGroup):

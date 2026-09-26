@@ -2,8 +2,10 @@ import datetime
 import json
 import re
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase
+from django.urls import reverse
 from wagtail.models import Page
 
 from community.factories import OnlineWorshipFactory
@@ -17,6 +19,7 @@ from contact.factories import (
     PersonIndexPageFactory,
 )
 from contact.models import (
+    ContactPublicationStatistics,
     Meeting,
     MeetingAddress,
     MeetingIndexPage,
@@ -767,3 +770,89 @@ class ContactPageRenderingTest(TestCase):
         ]:
             with self.subTest(expected=expected):
                 self.assertIn(expected, content)
+
+
+class ContactAdminListingTest(TestCase):
+    def setUp(self) -> None:
+        superuser = get_user_model().objects.create_superuser(
+            email="admin@example.com",
+            password="password",
+        )
+        self.client.force_login(superuser)
+
+    def assert_listing_shows_article_count(
+        self,
+        url_name: str,
+        contact: Page,
+        contact_type: str,
+    ) -> None:
+        ContactPublicationStatistics.objects.create(
+            contact=contact,
+            contact_type=contact_type,
+            article_count=7,
+        )
+
+        response = self.client.get(reverse(url_name))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, contact.title)
+        stats_url = reverse("contact_publication_stats")
+        self.assertContains(
+            response,
+            f'<a href="{stats_url}?contact_type={contact_type}">7</a>',
+            html=True,
+        )
+
+    def test_people_listing(self) -> None:
+        self.assert_listing_shows_article_count(
+            "people:index",
+            PersonFactory(),
+            ContactPublicationStatistics.ContactType.PERSON,
+        )
+
+    def test_meetings_listing(self) -> None:
+        self.assert_listing_shows_article_count(
+            "meetings:index",
+            MeetingFactory(),
+            ContactPublicationStatistics.ContactType.MEETING,
+        )
+
+    def test_organizations_listing(self) -> None:
+        self.assert_listing_shows_article_count(
+            "organizations:index",
+            OrganizationFactory(),
+            ContactPublicationStatistics.ContactType.ORGANIZATION,
+        )
+
+    def test_listing_sorts_by_publication_columns(self) -> None:
+        prolific = PersonFactory()
+        occasional = PersonFactory()
+        for person, article_count, published_day in [
+            (prolific, 7, 1),
+            (occasional, 2, 15),
+        ]:
+            ContactPublicationStatistics.objects.create(
+                contact=person,
+                contact_type=ContactPublicationStatistics.ContactType.PERSON,
+                article_count=article_count,
+                last_published_at=datetime.datetime(
+                    2024,
+                    1,
+                    published_day,
+                    tzinfo=datetime.UTC,
+                ),
+            )
+
+        for ordering, expected in [
+            ("-article_count", [prolific, occasional]),
+            ("-last_article_published_at", [occasional, prolific]),
+        ]:
+            response = self.client.get(
+                reverse("people:index"),
+                {"ordering": ordering},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                [page.pk for page in response.context["object_list"]],
+                [person.pk for person in expected],
+            )
