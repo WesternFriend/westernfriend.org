@@ -1,4 +1,6 @@
-from django.test import TestCase
+from unittest.mock import Mock
+
+from django.test import SimpleTestCase, TestCase
 from wagtail.models import Site
 
 from home.models import HomePage
@@ -9,6 +11,7 @@ from .blocks import (
     NavigationExternalLinkBlock,
     NavigationExternalLinkStructValue,
     NavigationPageChooserBlock,
+    NavigationPageChooserStructValue,
 )
 
 
@@ -52,6 +55,17 @@ class TestNavigationExternalLinkStructValue(TestCase):
         )
 
         self.assertEqual(nav_struct_value.href(), "#myanchor")
+
+    def test_href_with_no_url_or_anchor(self) -> None:
+        nav_struct_value = NavigationExternalLinkStructValue(
+            NavigationExternalLinkBlock(),
+            {
+                "url": None,
+                "anchor": None,
+            },
+        )
+
+        self.assertEqual(nav_struct_value.href(), "")
 
 
 class TestNavigationPageChooserStructValue(TestCase):
@@ -100,6 +114,22 @@ class TestNavigationPageChooserStructValue(TestCase):
             block_value.href(),
             self.home_page.url,
         )
+
+
+class TestNavigationPageChooserStructValueWithoutPageUrl(SimpleTestCase):
+    """A page with no URL (e.g. not routable from any site) falls back to anchors."""
+
+    def make_value(self, anchor):
+        return NavigationPageChooserStructValue(
+            NavigationPageChooserBlock(),
+            {"title": "My page", "page": Mock(url=None), "anchor": anchor},
+        )
+
+    def test_href_with_anchor_only(self) -> None:
+        self.assertEqual(self.make_value("myanchor").href(), "#myanchor")
+
+    def test_href_with_neither(self) -> None:
+        self.assertEqual(self.make_value(None).href(), "#")
 
 
 class TestNavigationDropdownMenuStructValue(TestCase):

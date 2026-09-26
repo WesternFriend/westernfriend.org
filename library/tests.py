@@ -18,6 +18,7 @@ from facets.factories import (
 from home.models import HomePage
 from library.helpers import (
     QUERYSTRING_FACETS,
+    add_library_item_topics,
     create_querystring_from_facets,
     filter_querystring_facets,
 )
@@ -230,3 +231,19 @@ class TestLibraryItemStructuredData(TestCase):
         self.assertEqual(data["author"][0]["givenName"], author.given_name)
         self.assertEqual(data["about"], [topic.title])
         self.assertEqual(data["datePublished"], "2020-05-17")
+
+
+class TestAddLibraryItemTopics(TestCase):
+    def test_links_existing_topics_and_skips_missing_ones(self) -> None:
+        library_item = LibraryItemFactory.create()
+        topic = TopicFactory.create(title="Peace")
+
+        with patch("library.helpers.logger") as mock_logger:
+            add_library_item_topics(library_item, "Peace;;Nonexistent")
+
+        linked = LibraryItemTopic.objects.filter(library_item=library_item)
+        self.assertEqual([link.topic for link in linked], [topic])
+        mock_logger.warning.assert_called_once_with(
+            "Topic %r does not exist",
+            "Nonexistent",
+        )
