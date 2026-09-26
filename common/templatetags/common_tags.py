@@ -2,6 +2,7 @@ import json
 
 from django import template
 from django.core.serializers.json import DjangoJSONEncoder
+from django.templatetags.static import static
 from django.utils.safestring import SafeString, mark_safe
 
 register = template.Library()
@@ -19,6 +20,18 @@ def json_ld(value) -> SafeString:
     """Serialize a value as JSON safe for embedding in a <script> element."""
     json_str = json.dumps(value, cls=DjangoJSONEncoder)
     return mark_safe(json_str.translate(_JSON_SCRIPT_ESCAPES))
+
+
+@register.simple_tag(takes_context=True)
+def absolute_static(context, path):
+    """Return a fully qualified URL for a static file.
+
+    Structured data needs absolute URLs, and STATIC_URL is relative
+    unless static files are served from a CDN such as Spaces.
+    """
+    url = static(path)
+    request = context.get("request")
+    return request.build_absolute_uri(url) if request else url
 
 
 @register.filter

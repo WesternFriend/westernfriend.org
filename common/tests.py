@@ -5,11 +5,12 @@ from django.core.signals import request_finished, request_started
 from django.forms import CharField, TextInput
 from django.forms.forms import Form
 from django.template.loader import render_to_string
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 
 from common.apps import CommonConfig, _locale_cache_local
 from common.templatetags.common_form_tags import add_class
 from common.templatetags.common_tags import (
+    absolute_static,
     exclude_from_breadcrumbs,
     model_name,
     specific_pages,
@@ -129,6 +130,31 @@ class CommonTagsTests(TestCase):
                     model_name = excluded_model  # Using the string from the list
 
             self.assertTrue(exclude_from_breadcrumbs(ExcludedPage()))
+
+
+class AbsoluteStaticTagTest(TestCase):
+    """Tests for the absolute_static template tag."""
+
+    def test_relative_static_url_becomes_absolute(self):
+        request = RequestFactory().get("/")
+
+        url = absolute_static({"request": request}, "img/WF-header.png")
+
+        self.assertEqual(url, "http://testserver/static/img/WF-header.png")
+
+    @override_settings(STATIC_URL="https://cdn.example.com/static/")
+    def test_absolute_static_url_is_kept(self):
+        request = RequestFactory().get("/")
+
+        url = absolute_static({"request": request}, "img/WF-header.png")
+
+        self.assertEqual(url, "https://cdn.example.com/static/img/WF-header.png")
+
+    def test_without_request_returns_static_url(self):
+        self.assertEqual(
+            absolute_static({}, "img/WF-header.png"),
+            "/static/img/WF-header.png",
+        )
 
 
 class SpecificPagesFilterTest(TestCase):
