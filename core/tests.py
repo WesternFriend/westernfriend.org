@@ -1,6 +1,7 @@
 """Tests for core utility functions."""
 
 from django.templatetags.static import static
+from django.core.cache import cache
 from django.test import TestCase
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
@@ -136,6 +137,8 @@ class SitemapTest(TestCase):
         )
         Site.clear_site_root_paths_cache()
         self.addCleanup(Site.clear_site_root_paths_cache)
+        cache.clear()
+        self.addCleanup(cache.clear)
         self.child = self.home.add_child(instance=Page(title="About", slug="about"))
 
     def test_sitemap_is_xml(self):
@@ -152,6 +155,44 @@ class SitemapTest(TestCase):
         response = self.client.get("/sitemap.xml")
 
         self.assertIn(b"<loc>http://testserver/about/</loc>", response.content)
+
+    def test_sitemap_is_cached(self):
+        self.client.get("/sitemap.xml")
+
+        # Only the audit log lookup for the cache key
+        with self.assertNumQueries(1):
+            response = self.client.get("/sitemap.xml")
+
+        self.assertIn(b"<loc>http://testserver/about/</loc>", response.content)
+
+    def test_sitemap_refreshes_after_a_page_is_unpublished(self):
+        self.client.get("/sitemap.xml")
+        self.child.unpublish()
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertNotIn(b"/about/", response.content)
+
+    def test_sitemap_refreshes_after_a_page_is_published(self):
+        self.client.get("/sitemap.xml")
+        draft = self.home.add_child(
+            instance=Page(title="Contact", slug="contact", live=False),
+        )
+        draft.save_revision().publish()
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertIn(b"<loc>http://testserver/contact/</loc>", response.content)
+
+    def test_sitemap_refreshes_after_the_site_hostname_changes(self):
+        self.client.get("/sitemap.xml")
+        site = Site.objects.get(hostname="testserver")
+        site.hostname = "example.org"
+        site.save()
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertIn(b"<loc>http://example.org/about/</loc>", response.content)
 
     def test_sitemap_excludes_unpublished_pages(self):
         self.child.unpublish()

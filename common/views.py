@@ -1,11 +1,16 @@
+import hashlib
 from http import HTTPStatus
 from django.conf import settings
+from django.core.cache import cache
+from django.db.models import Max
 from django.http import HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 from wagtail.admin.viewsets.base import ViewSetGroup
+from wagtail.contrib.sitemaps.views import sitemap as wagtail_sitemap
+from wagtail.models import PageLogEntry, Site
 
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
@@ -150,3 +155,52 @@ def llms_txt(request):
     ]
 
     return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
+
+
+# Audit log actions that can add, remove, or move a page in the sitemap
+SITEMAP_CHANGE_ACTIONS = [
+    "wagtail.copy",
+    "wagtail.delete",
+    "wagtail.move",
+    "wagtail.publish",
+    "wagtail.publish.scheduled",
+    "wagtail.unpublish",
+    "wagtail.unpublish.scheduled",
+    "wagtail.view_restriction.create",
+    "wagtail.view_restriction.delete",
+    "wagtail.view_restriction.edit",
+]
+
+# A safety net; the cache key changes whenever a page is published or removed
+SITEMAP_CACHE_SECONDS = 60 * 60 * 24
+
+
+@require_GET
+def sitemap(request):
+    """Serve Wagtail's sitemap, cached until the next page change.
+
+    The sitemap lists every page and takes seconds to build, which is longer
+    than some crawlers wait. Keying the cache on the latest audit log entry
+    and the site settings keeps every worker's copy current without a shared
+    cache backend.
+    """
+    last_change = PageLogEntry.objects.filter(
+        action__in=SITEMAP_CHANGE_ACTIONS,
+    ).aggregate(Max("timestamp"))["timestamp__max"]
+    # Site hostnames and root pages decide every URL in the sitemap. Wagtail
+    # caches these, so including them costs no query.
+    sites = hashlib.sha256(repr(Site.get_site_root_paths()).encode()).hexdigest()
+    cache_key = "sitemap:{}:{}:{}".format(
+        request.get_host(),
+        sites[:16],
+        last_change.isoformat() if last_change else "never",
+    )
+
+    content = cache.get(cache_key)
+    if content is None:
+        response = wagtail_sitemap(request)
+        response.render()
+        content = response.content
+        cache.set(cache_key, content, SITEMAP_CACHE_SECONDS)
+
+    return HttpResponse(content, content_type="application/xml")

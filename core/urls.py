@@ -5,7 +5,6 @@ from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView
 from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
-from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
 
 from accounts.views import (
@@ -13,7 +12,7 @@ from accounts.views import (
     CustomPasswordResetView,
     CustomLoginView,
 )
-from common.views import favicon_ico, llms_txt, robots_txt
+from common.views import favicon_ico, llms_txt, robots_txt, sitemap
 from search import views as search_views
 
 handler404 = "common.views.custom_404"
