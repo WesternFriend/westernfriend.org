@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 from wagtail.admin.viewsets.base import ViewSetGroup
+from wagtail.models import Site
 
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
@@ -71,13 +72,54 @@ ROBOTS_DISALLOWED_PATHS = [
 ]
 
 
+# We want Quaker perspectives to be available to search engines, AI answers,
+# and AI training alike (https://contentsignals.org/)
+ROBOTS_CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes"
+
+
+def _absolute_url(path):
+    return f"{settings.BASE_URL.rstrip('/')}{path}"
+
+
 @require_GET
 def robots_txt(request):
     """Serve robots.txt, pointing crawlers at the canonical sitemap."""
-    sitemap_url = f"{settings.BASE_URL.rstrip('/')}{reverse('sitemap')}"
-
-    lines = ["User-agent: *"]
+    lines = ["User-agent: *", f"Content-Signal: {ROBOTS_CONTENT_SIGNAL}"]
     lines += [f"Disallow: {path}" for path in ROBOTS_DISALLOWED_PATHS]
-    lines += ["", f"Sitemap: {sitemap_url}", ""]
+    lines += ["", f"Sitemap: {_absolute_url(reverse('sitemap'))}", ""]
 
     return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+@require_GET
+def llms_txt(request):
+    """Serve llms.txt (https://llmstxt.org/), a Markdown map of the site."""
+    lines = [
+        "# Western Friend",
+        "",
+        (
+            "> Western Friend is a Quaker nonprofit that publishes a magazine, "
+            "books, and other resources exploring the spiritual lives of Friends "
+            "(Quakers) in the western United States and beyond."
+        ),
+        "",
+        "## Sections",
+        "",
+    ]
+    site = Site.find_for_request(request)
+    if site:
+        sections = site.root_page.get_children().live().public().in_menu().specific()
+        for page in sections:
+            description = (
+                f": {page.search_description}" if page.search_description else ""
+            )
+            lines.append(f"- [{page.title}]({page.get_full_url(request)}){description}")
+    lines += [
+        "",
+        "## Optional",
+        "",
+        f"- [Sitemap]({_absolute_url(reverse('sitemap'))}): every public page",
+        "",
+    ]
+
+    return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
