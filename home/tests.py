@@ -1,11 +1,11 @@
 from django.utils import timezone
 from django.test import RequestFactory, TestCase
-from wagtail.models import Page
+from wagtail.models import Page, Site
 
 from home.models import HomePage
 from events.factories import EventFactory
 from events.models import Event
-from magazine.factories import MagazineIssueFactory
+from magazine.factories import MagazineArticleFactory, MagazineIssueFactory
 from magazine.models import MagazineIssue
 
 from .factories import HomePageFactory
@@ -64,3 +64,31 @@ class TestHomePage(TestCase):
             context["featured_events"],
             expected_featured_events,
         )
+
+
+class HomePageRenderTest(TestCase):
+    def setUp(self) -> None:
+        self.home_page = HomePageFactory.create()
+        Site.objects.all().delete()
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home_page,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def test_renders_current_issue_and_featured_content(self) -> None:
+        issue = MagazineIssueFactory.create(
+            publication_date=timezone.now() - timezone.timedelta(days=1),
+        )
+        article = MagazineArticleFactory.create(parent=issue, is_featured=True)
+        event = EventFactory.create(is_featured=True)
+
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Current Issue")
+        self.assertContains(response, article.title)
+        self.assertContains(response, event.title)
+        self.assertContains(response, event.url)
