@@ -10,3 +10,8 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+  # Workflow actions are pinned to commit SHAs; this keeps those pins current.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: weekly

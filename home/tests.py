@@ -1,3 +1,6 @@
+from urllib.parse import urljoin
+
+from django.templatetags.static import static
 from django.utils import timezone
 from django.test import RequestFactory, TestCase
 from wagtail.models import Page, Site
@@ -100,3 +103,30 @@ class HomePageRenderTest(TestCase):
         self.assertContains(response, former_author.title)
         self.assertContains(response, event.title)
         self.assertContains(response, event.url)
+
+    def test_head_and_structured_data_use_absolute_urls(self) -> None:
+        response = self.client.get("/")
+
+        self.assertContains(
+            response,
+            '<link rel="canonical" href="http://testserver/" />',
+        )
+        self.assertContains(response, '"@id": "http://testserver/#organization"')
+        og_image = urljoin("http://testserver/", static("img/og-default.jpg"))
+        self.assertContains(
+            response,
+            f'<meta property="og:image" content="{og_image}" />',
+        )
+        self.assertNotContains(response, "http:///")
+
+    def test_social_description_uses_search_description(self) -> None:
+        self.home_page.search_description = "Quaker writing from the West"
+        self.home_page.save_revision().publish()
+
+        response = self.client.get("/")
+
+        self.assertContains(
+            response,
+            '<meta property="og:description" content="Quaker writing from the West" />',
+        )
+        self.assertNotContains(response, "{{")
