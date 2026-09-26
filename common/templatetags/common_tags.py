@@ -1,6 +1,24 @@
+import json
+
 from django import template
+from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.safestring import SafeString, mark_safe
 
 register = template.Library()
+
+# Matches Django's json_script escaping so values can't close the <script> element.
+_JSON_SCRIPT_ESCAPES = {
+    ord(">"): "\\u003E",
+    ord("<"): "\\u003C",
+    ord("&"): "\\u0026",
+}
+
+
+@register.filter
+def json_ld(value) -> SafeString:
+    """Serialize a value as JSON safe for embedding in a <script> element."""
+    json_str = json.dumps(value, cls=DjangoJSONEncoder)
+    return mark_safe(json_str.translate(_JSON_SCRIPT_ESCAPES))
 
 
 @register.filter

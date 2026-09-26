@@ -1,3 +1,7 @@
+import json
+import re
+
+from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase
 
 from community.models import CommunityPage
@@ -601,3 +605,29 @@ class ContactQueryOptimizationTestCase(TestCase):
                 0,
                 f"Expected 0 queries for Organization, got {query_count}",
             )
+
+
+class ContactJsonLdEscapingTest(TestCase):
+    def test_json_ld_escapes_script_breakout_and_is_valid_json(self) -> None:
+        payload = '</script><script>alert("xss")</script>'
+        organization = OrganizationFactory.create(title=payload)
+        request = RequestFactory().get("/")
+        request.user = AnonymousUser()
+
+        response = organization.serve(request)
+        response.render()
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertFalse(
+            '<script>alert("xss")</script>' in content,
+            "Contact title rendered as unescaped script",
+        )
+
+        blocks = re.findall(
+            r'<script type="application/ld\+json">(.*?)</script>',
+            content,
+            re.DOTALL,
+        )
+        parsed_blocks = [json.loads(block) for block in blocks]
+        self.assertIn(payload, [block.get("name") for block in parsed_blocks])
