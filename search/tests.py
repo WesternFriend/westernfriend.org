@@ -935,3 +935,41 @@ class StopwordSyncTestCase(TestCase):
                 f"PostgreSQL's FTS engine.",
                 stacklevel=2,
             )
+
+
+class SearchIndexEntryIndexTestCase(TestCase):
+    """The full-text match must be able to use the (title || body) GIN index."""
+
+    index_name = "wagtailsearch_indexentry_title_body_gin_idx"
+
+    def test_combined_title_body_index_exists(self) -> None:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT indexdef FROM pg_indexes WHERE indexname = %s",
+                [self.index_name],
+            )
+            row = cursor.fetchone()
+
+        self.assertIsNotNone(row)
+        self.assertIn("gin", row[0])
+        self.assertIn("(title || body)", row[0])
+
+    def test_search_query_uses_combined_index(self) -> None:
+        root_page = Page.objects.first()
+        page = Page(title="Peace testimony")
+        root_page.add_child(instance=page)
+        get_search_backend().add(page)
+
+        with CaptureQueriesContext(connection) as queries:
+            list(Page.objects.search("peace"))
+
+        match_sql = next(q["sql"] for q in queries if "@@" in q["sql"])
+
+        with connection.cursor() as cursor:
+            # The test table is tiny, so steer the planner away from a
+            # sequential scan; this only proves the index is usable.
+            cursor.execute("SET LOCAL enable_seqscan = off")
+            cursor.execute(f"EXPLAIN {match_sql}")
+            plan = "\n".join(row[0] for row in cursor.fetchall())
+
+        self.assertIn(self.index_name, plan)
