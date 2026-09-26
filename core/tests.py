@@ -173,6 +173,27 @@ class SitemapTest(TestCase):
 
         self.assertNotIn(b"/about/", response.content)
 
+    def test_sitemap_refreshes_after_a_page_is_published(self):
+        self.client.get("/sitemap.xml")
+        draft = self.home.add_child(
+            instance=Page(title="Contact", slug="contact", live=False),
+        )
+        draft.save_revision().publish()
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertIn(b"<loc>http://testserver/contact/</loc>", response.content)
+
+    def test_sitemap_refreshes_after_the_site_hostname_changes(self):
+        self.client.get("/sitemap.xml")
+        site = Site.objects.get(hostname="testserver")
+        site.hostname = "example.org"
+        site.save()
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertIn(b"<loc>http://example.org/about/</loc>", response.content)
+
     def test_sitemap_excludes_unpublished_pages(self):
         self.child.unpublish()
 
