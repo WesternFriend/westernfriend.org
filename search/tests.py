@@ -1,3 +1,4 @@
+import re
 from http import HTTPStatus
 
 from django.db import connection
@@ -963,13 +964,22 @@ class SearchIndexEntryIndexTestCase(TestCase):
         with CaptureQueriesContext(connection) as queries:
             list(Page.objects.search("peace"))
 
-        match_sql = next(q["sql"] for q in queries if "@@" in q["sql"])
+        search_sql = next(q["sql"] for q in queries if "@@" in q["sql"])
+        # Take Wagtail's exact match predicate and plan it against the index
+        # table alone. On the full join the planner may start from another
+        # index (e.g. content_type_id) and filter rows, which says nothing
+        # about whether the GIN index matches the expression.
+        match = re.search(r" WHERE (.+? @@ \(to_tsquery\(.+?\)\)) ", search_sql)
+        self.assertIsNotNone(match, search_sql)
+        predicate = match.group(1)
 
         with connection.cursor() as cursor:
             # The test table is tiny, so steer the planner away from a
             # sequential scan; this only proves the index is usable.
             cursor.execute("SET LOCAL enable_seqscan = off")
-            cursor.execute(f"EXPLAIN {match_sql}")
+            cursor.execute(
+                f"EXPLAIN SELECT 1 FROM wagtailsearch_indexentry WHERE {predicate}",  # noqa: S608
+            )
             plan = "\n".join(row[0] for row in cursor.fetchall())
 
         self.assertIn(self.index_name, plan)
