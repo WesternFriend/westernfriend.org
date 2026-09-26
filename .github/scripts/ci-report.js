@@ -52,8 +52,10 @@ function fenceFor(text) {
   return '`'.repeat(Math.max(3, ...runs));
 }
 
-// Reads every <dir>/*/result.json and returns the known checks found, in
-// CHECKS order, as { key, passed, output }.
+// Reads every <dir>/*/result.json and returns every check in CHECKS, in order,
+// as { key, passed, missing, output }. A check with no result (its job crashed,
+// or the artifact didn't download) counts as failed, so missing results can
+// never read as "All checks passed".
 function readResults(dir) {
   const found = new Map();
   if (fs.existsSync(dir)) {
@@ -71,25 +73,30 @@ function readResults(dir) {
         found.set(key, {
           key,
           passed: check?.outcome === 'success',
+          missing: false,
           output: typeof check?.output === 'string' ? check.output : '',
         });
       }
     }
   }
-  return Object.keys(CHECKS)
-    .filter((key) => found.has(key))
-    .map((key) => found.get(key));
+  return Object.keys(CHECKS).map(
+    (key) => found.get(key) ?? { key, passed: false, missing: true, output: '' },
+  );
 }
 
 // results: from readResults(). problems: short, trusted descriptions of
 // failures the checks don't explain (e.g. a job that failed while installing
 // dependencies). author: PR author to greet when something failed, or null.
 function render({ results, problems = [], runUrl, author = null }) {
-  const failures = results.filter((r) => !r.passed);
-  const anyFailed = failures.length > 0 || problems.length > 0;
+  const failures = results.filter((r) => !r.passed && !r.missing);
+  const anyFailed = results.some((r) => !r.passed) || problems.length > 0;
 
+  const status = (r) => {
+    if (r.missing) return `⚠️ No result reported ([see the workflow run](${runUrl}))`;
+    return r.passed ? '✅ Passed' : '❌ Failed';
+  };
   const rows = [
-    ...results.map((r) => `| ${CHECKS[r.key].label} | ${r.passed ? '✅ Passed' : '❌ Failed'} |`),
+    ...results.map((r) => `| ${CHECKS[r.key].label} | ${status(r)} |`),
     ...problems.map((problem) => `| ${problem} | ⚠️ [See the workflow run](${runUrl}) |`),
   ];
 
