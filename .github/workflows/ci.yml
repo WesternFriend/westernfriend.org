@@ -55,10 +55,9 @@ jobs:
           PRE_COMMIT_OUTCOME: ${{ steps.pre-commit.outcome }}
         run: |
           touch /tmp/pre-commit.txt
-          tail -c 6000 /tmp/pre-commit.txt > /tmp/pre-commit-tail.txt
           jq -n \
             --arg outcome "$PRE_COMMIT_OUTCOME" \
-            --rawfile output /tmp/pre-commit-tail.txt \
+            --rawfile output /tmp/pre-commit.txt \
             '{
               job: "lint",
               checks: {
@@ -131,12 +130,17 @@ jobs:
           set -o pipefail
           uv run --no-sync coverage run manage.py test 2>&1 | tee /tmp/tests.txt
 
+      # Coverage reporting is informational, so it never fails the job: a
+      # Codecov outage shouldn't block a PR, and a failure here isn't one of the
+      # checks the report job tells contributors about.
       - name: Generate coverage report
         if: always() && hashFiles('.coverage') != ''
+        continue-on-error: true
         run: uv run --no-sync coverage xml
 
       - name: Upload to Codecov
         if: always() && hashFiles('coverage.xml') != ''
+        continue-on-error: true
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -149,14 +153,11 @@ jobs:
           MIGRATIONS_OUTCOME: ${{ steps.migrations.outcome }}
           TESTS_OUTCOME: ${{ steps.tests.outcome }}
         run: |
-          for name in django-check migrations tests; do
-            touch "/tmp/$name.txt"
-            tail -c 4000 "/tmp/$name.txt" > "/tmp/$name-tail.txt"
-          done
+          touch /tmp/django-check.txt /tmp/migrations.txt /tmp/tests.txt
           jq -n \
-            --arg django_check_outcome "$DJANGO_CHECK_OUTCOME" --rawfile django_check_output /tmp/django-check-tail.txt \
-            --arg migrations_outcome "$MIGRATIONS_OUTCOME" --rawfile migrations_output /tmp/migrations-tail.txt \
-            --arg tests_outcome "$TESTS_OUTCOME" --rawfile tests_output /tmp/tests-tail.txt \
+            --arg django_check_outcome "$DJANGO_CHECK_OUTCOME" --rawfile django_check_output /tmp/django-check.txt \
+            --arg migrations_outcome "$MIGRATIONS_OUTCOME" --rawfile migrations_output /tmp/migrations.txt \
+            --arg tests_outcome "$TESTS_OUTCOME" --rawfile tests_output /tmp/tests.txt \
             '{
               job: "test",
               checks: {
@@ -207,13 +208,18 @@ jobs:
       # ${{ }}, so a crafted file name or error message can't run as a script.
       - name: Build summary and PR comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          LINT_RESULT: ${{ needs.lint.result }}
+          TEST_RESULT: ${{ needs.test.result }}
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
 
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const resultsDir = 'results';
             const jobOrder = ['lint', 'test'];
+            const jobResults = { lint: process.env.LINT_RESULT, test: process.env.TEST_RESULT };
             const results = fs.existsSync(resultsDir)
               ? fs.readdirSync(resultsDir)
                   .map((dir) => path.join(resultsDir, dir, 'result.json'))
@@ -228,24 +234,36 @@ jobs:
               for (const [checkName, check] of Object.entries(result.checks)) {
                 const passed = check.outcome === 'success';
                 rows.push(`| ${checkName} | ${passed ? '✅ Passed' : '❌ Failed'} |`);
-                if (!passed) failures.push({ checkName, ...check });
+                if (!passed) failures.push({ job: result.job, checkName, ...check });
               }
             }
-            // A job that crashed before writing result.json has no rows, so
-            // compare against the jobs we expected rather than trusting rows alone.
-            const missing = jobOrder.filter((job) => !results.some((r) => r.job === job));
-            for (const job of missing) {
-              rows.push(`| ${job} job | ⚠️ Did not report (see the workflow run) |`);
+            // A job can fail outside its recorded checks (e.g. dependency
+            // install, or crashing before it wrote result.json), so the job's own
+            // result is checked too; otherwise the comment could say everything
+            // passed while the required check is red.
+            const unexplained = jobOrder.filter(
+              (job) => jobResults[job] !== 'success' && !failures.some((f) => f.job === job),
+            );
+            for (const job of unexplained) {
+              rows.push(`| ${job} job | ⚠️ ${jobResults[job] || 'did not run'} ([see the workflow run](${runUrl})) |`);
             }
-            const anyFailed = failures.length > 0 || missing.length > 0;
+            const anyFailed = failures.length > 0 || unexplained.length > 0;
 
             const table = ['| Check | Result |', '|---|---|', ...rows, ''];
+            // Keep both ends of long output: the first error is usually near the
+            // start, and the summary (e.g. "FAILED (failures=2)") at the end.
+            const HEAD = 2000;
+            const TAIL = 3000;
+            const clip = (text) =>
+              text.length <= HEAD + TAIL
+                ? text
+                : `${text.slice(0, HEAD)}\n\n… ${text.length - HEAD - TAIL} characters omitted; see the full log in the workflow run …\n\n${text.slice(-TAIL)}`;
             // Output can itself contain ``` (e.g. a diff of a Markdown file), so
             // fence it with more backticks than its longest run.
             const fenceFor = (text) =>
               '`'.repeat(Math.max(3, ...(text.match(/`+/g) || []).map((run) => run.length + 1)));
             const details = failures.flatMap((f) => {
-              const output = f.output || '(no output captured)';
+              const output = clip(f.output || '(no output captured)');
               const fence = fenceFor(output);
               return [
                 `<details><summary>❌ ${f.checkName}</summary>`,
@@ -267,7 +285,6 @@ jobs:
 
             if (context.eventName !== 'pull_request') return;
 
-            const marker = '<!-- westernfriend-ci-report -->';
             const author = context.payload.pull_request.user.login;
             // The comment is updated in place on reruns, so the author is only
             // notified when it's first created.
@@ -279,15 +296,19 @@ jobs:
               : [];
 
             const body = [
-              marker,
               ...greeting,
               '## CI results',
               '',
               ...table,
-              ...(anyFailed ? ['## Failures', '', ...details, ...tip] : ['All checks passed. 🎉']),
+              ...(details.length ? ['## Failures', '', ...details, ...tip] : []),
+              ...(anyFailed ? [] : ['All checks passed. 🎉']),
+              '',
+              `[Full workflow run](${runUrl})`,
             ].join('\n');
 
-            fs.writeFileSync('pr-comment.json', JSON.stringify({ pr_number: context.issue.number, marker, body }));
+            // Only the body goes in the artifact. comment-on-pr.yml works out
+            // which PR to comment on from GitHub's event data, not from here.
+            fs.writeFileSync('pr-comment.json', JSON.stringify({ body }));
 
       - name: Upload PR comment artifact
         if: always() && github.event_name == 'pull_request'
