@@ -204,7 +204,12 @@ class TestLibraryItemStructuredData(TestCase):
         topic = TopicFactory.create()
         LibraryItemAuthor.objects.create(library_item=library_item, author=author)
         LibraryItemTopic.objects.create(library_item=library_item, topic=topic)
+        # Serve the factory-built page tree from the default site. Clear
+        # Wagtail's cached site root paths on cleanup, because the cache
+        # outlives this test's transaction rollback.
         Site.objects.update(root_page=HomePage.objects.get())
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
 
         response = self.client.get(library_item.url)
 
