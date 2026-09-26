@@ -1,5 +1,6 @@
 """Tests for core utility functions."""
 
+from django.templatetags.static import static
 from django.test import TestCase
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
@@ -108,6 +109,16 @@ class RobotsTxtTest(TestCase):
             "Content-Signal: search=yes, ai-input=yes, ai-train=yes",
             response.content.decode(),
         )
+
+
+class FaviconTest(TestCase):
+    """Test the /favicon.ico redirect."""
+
+    def test_favicon_redirects_to_static_icon(self):
+        response = self.client.get("/favicon.ico")
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], static("img/favicon.ico"))
 
 
 class SitemapTest(TestCase):

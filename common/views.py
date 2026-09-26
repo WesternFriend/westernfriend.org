@@ -1,7 +1,8 @@
 from http import HTTPStatus
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import render
+from django.templatetags.static import static
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 from wagtail.admin.viewsets.base import ViewSetGroup
@@ -80,6 +81,12 @@ ROBOTS_CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes"
 
 def _absolute_url(path):
     return f"{settings.BASE_URL.rstrip('/')}{path}"
+
+
+@require_GET
+def favicon_ico(request):
+    """Redirect browsers' automatic /favicon.ico requests to the static icon."""
+    return HttpResponsePermanentRedirect(static("img/favicon.ico"))
 
 
 @require_GET
