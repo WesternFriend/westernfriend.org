@@ -52,6 +52,8 @@ gh project item-list 2 --owner WesternFriend --format json --limit 500
 
 Join the two on issue number to get each issue's Priority, Size, and Status. Group by milestone (then "No milestone"), and within each group by area (label, or the Django app the title and body point at). List each issue as `#N — Title [labels] · Priority/Size/Status`.
 
+If either list comes back with exactly as many entries as its `--limit`, it was probably cut off. Re-run it with a higher limit before counting anything. If you can't, say that the review and hygiene count cover only part of the backlog.
+
 End with a short PM read: crowded or empty areas, likely duplicates or natural merges, and a **hygiene count** (open issues missing from the board, or with no Priority or Size). If the count is non-zero, offer `groom`.
 
 ### Search (keyword or phrase)

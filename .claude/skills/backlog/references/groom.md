@@ -16,6 +16,8 @@ All writes go through `scripts/set_fields.sh` (board fields and Milestone) or `g
      '.[] | {title, state, open_issues, closed_issues, due_on}'
    ```
 
+   If a list returns exactly as many entries as its `--limit`, raise the limit and re-run it, so the audit covers the whole backlog. If that isn't possible, say the audit is partial.
+
 2. Flag each of these:
    - Open issues **not on the board**, or on it with no **Priority** or **Size**
    - Issues with no labels at all, or an obvious defect missing `bug`
@@ -25,15 +27,16 @@ All writes go through `scripts/set_fields.sh` (board fields and Milestone) or `g
    - Issues untouched for more than 12 months, and issues naming files or functions that no longer exist (check with `rg`), which could be closed as stale
    - Likely duplicates, meaning titles or bodies that describe the same work
 3. Present a compact table: `#N | Title | Problem | Proposed fix`. For missing Priority or Size, give a proposed value and a one-line reason (see [conventions.md](conventions.md)).
-4. Get **one** go-ahead for the batch, letting the user strike rows. Then apply every field change in a single `set_fields.sh` call on stdin. Closing issues or milestones is a separate, explicitly confirmed step, and every close gets a comment explaining why.
+4. Get **one** go-ahead for the batch, letting the user strike rows. Then apply every field change in a single `set_fields.sh` call on stdin, and apply label changes with `gh issue edit N --repo WesternFriend/westernfriend.org --add-label "…"` (`set_fields.sh` doesn't handle labels). Closing issues or milestones is a separate, explicitly confirmed step, and every close gets a comment explaining why.
 
 ## `groom #N [#M...]` or `groom <keyword>`
 
 1. Resolve the issues. A keyword means search first and confirm which issues are meant.
 2. For each issue, read the body and comments, then propose **Priority**, **Size**, any missing labels, and, only when the fit is clear, **Milestone**. Tie the reasoning to something concrete, for example: "Critical — checkout 500s for every subscriber (see comment from the editor)", or "Large — touches `store`, `orders`, and `paypal` plus a migration; suggest splitting into…".
-3. Show the proposal, confirm, and apply:
+3. Show the proposal, confirm, and apply every confirmed change. `set_fields.sh` handles board fields and milestones, and `gh issue edit` handles labels:
 
    ```bash
+   gh issue edit 1234 --repo WesternFriend/westernfriend.org --add-label "bug,Magazine"
    .claude/skills/backlog/scripts/set_fields.sh 1234 Priority High
    printf '1234\tSize\tMedium\n1234\tMilestone\t3. Post-launch\n' | .claude/skills/backlog/scripts/set_fields.sh
    ```

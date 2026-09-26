@@ -36,7 +36,7 @@ else
   exit 2
 fi
 
-PROJECT_ID="" FIELDS_JSON="" ITEMS_JSON=""
+PROJECT_ID="" FIELDS_JSON="" ITEMS_JSON="" ITEM_ID=""
 FAILED=0
 
 skip() {
@@ -52,20 +52,25 @@ load_board() {
   ITEMS_JSON=$(gh project item-list "$PROJECT_NUMBER" --owner "$OWNER" --format json --limit 1000)
 }
 
+# Sets ITEM_ID to the issue's board item, adding the issue to the board if it's
+# missing. Runs in the current shell (not a $(...) subshell) so a newly added
+# item is recorded in ITEMS_JSON and later rows for the same issue reuse it.
 board_item_id() {
-  local num=$1 id
-  id=$(jq -r --arg repo "$REPO" --argjson num "$num" \
+  local num=$1
+  ITEM_ID=$(jq -r --arg repo "$REPO" --argjson num "$num" \
     '.items[] | select(.content.repository == $repo and .content.number == $num) | .id' <<<"$ITEMS_JSON")
-  if [[ -z "$id" ]]; then
-    id=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" \
-      --url "https://github.com/$REPO/issues/$num" --format json --jq '.id')
+  if [[ -z "$ITEM_ID" ]]; then
+    ITEM_ID=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" \
+      --url "https://github.com/$REPO/issues/$num" --format json --jq '.id') || return 1
+    [[ -n "$ITEM_ID" ]] || return 1
+    ITEMS_JSON=$(jq -c --arg repo "$REPO" --argjson num "$num" --arg id "$ITEM_ID" \
+      '.items += [{id: $id, content: {repository: $repo, number: $num}}]' <<<"$ITEMS_JSON")
     echo "Added issue #$num to the project board." >&2
   fi
-  echo "$id"
 }
 
 set_board_field() {
-  local num=$1 field=$2 value=$3 field_json field_id option_id item_id
+  local num=$1 field=$2 value=$3 field_json field_id option_id
   load_board
   field_json=$(jq -c --arg name "$field" '.fields[] | select(.name == $name)' <<<"$FIELDS_JSON")
   if [[ -z "$field_json" ]]; then
@@ -78,8 +83,8 @@ set_board_field() {
     return 1
   fi
   field_id=$(jq -r '.id' <<<"$field_json")
-  item_id=$(board_item_id "$num") || { skip "$num" "$field" "could not find or add the board item"; return 1; }
-  gh project item-edit --id "$item_id" --field-id "$field_id" --project-id "$PROJECT_ID" \
+  board_item_id "$num" || { skip "$num" "$field" "could not find or add the board item"; return 1; }
+  gh project item-edit --id "$ITEM_ID" --field-id "$field_id" --project-id "$PROJECT_ID" \
     --single-select-option-id "$option_id" >/dev/null
 }
 
