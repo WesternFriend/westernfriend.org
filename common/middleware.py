@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.conf import settings
 from django.urls import reverse
 from django.utils.cache import patch_cache_control
@@ -51,7 +53,7 @@ class PublicCacheControlMiddleware:
         return (
             settings.PUBLIC_CACHE_EDGE_TTL > 0
             and request.method in ("GET", "HEAD")
-            and response.status_code == 200
+            and response.status_code == HTTPStatus.OK
             and not response.cookies
             and settings.SESSION_COOKIE_NAME not in request.COOKIES
             and not request.path.startswith(PRIVATE_PATH_PREFIXES)

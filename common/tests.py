@@ -403,7 +403,7 @@ class PublicCacheControlMiddlewareTests(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.response = HttpResponse("page")
-        self.middleware = PublicCacheControlMiddleware(lambda request: self.response)
+        self.middleware = PublicCacheControlMiddleware(lambda _request: self.response)
 
     def _request(self, method="get", path="/magazine/", user=None, **kwargs):
         request = getattr(self.factory, method)(path, **kwargs)
@@ -601,9 +601,11 @@ class PurgeRestrictedPagesTest(TestCase):
         self.child = self.parent.add_child(instance=HomePage(title="Child", slug="c"))
 
     def _purged_pages(self, change):
-        with patch("common.signal_handlers.PurgeBatch") as purge_batch:
-            with self.captureOnCommitCallbacks(execute=True):
-                change()
+        with (
+            patch("common.signal_handlers.PurgeBatch") as purge_batch,
+            self.captureOnCommitCallbacks(execute=True),
+        ):
+            change()
         batch = purge_batch.return_value
         batch.purge.assert_called_once_with()
         return set(batch.add_pages.call_args.args[0])
