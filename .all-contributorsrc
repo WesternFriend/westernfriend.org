@@ -149,10 +149,19 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "ResendeTech",
+      "name": "ResendeTech",
+      "avatar_url": "https://avatars.githubusercontent.com/u/142721352?v=4",
+      "profile": "https://github.com/ResendeTech",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
-  "projectName": "WF-website",
+  "projectName": "westernfriend.org",
   "projectOwner": "WesternFriend",
   "repoType": "github",
   "repoHost": "https://github.com",
