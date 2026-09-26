@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpRequest
+from django.utils import timezone
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.models import ClusterableModel  # type: ignore
@@ -27,9 +28,15 @@ from pagination.helpers import get_paginated_items
 from .panels import NestedInlinePanel
 
 MAGAZINE_ARCHIVE_THRESHOLD_DAYS = 180
-ARCHIVE_THRESHOLD_DATE = datetime.date.today() - timedelta(
-    days=MAGAZINE_ARCHIVE_THRESHOLD_DAYS,
-)
+
+
+def get_archive_threshold_date() -> datetime.date:
+    """Return the date before which magazine issues are publicly accessible.
+
+    Computed on each call so the threshold advances with the current date,
+    rather than being frozen when the module is imported.
+    """
+    return timezone.localdate() - timedelta(days=MAGAZINE_ARCHIVE_THRESHOLD_DAYS)
 
 
 class MagazineIndexPage(Page):
@@ -81,14 +88,15 @@ class MagazineIndexPage(Page):
         context = super().get_context(request)
 
         published_issues = MagazineIssue.objects.live().order_by("-publication_date")
+        archive_threshold_date = get_archive_threshold_date()
 
         # recent issues are published after the archive threshold
         context["recent_issues"] = published_issues.filter(
-            publication_date__gte=ARCHIVE_THRESHOLD_DATE,
+            publication_date__gte=archive_threshold_date,
         )
 
         archive_issues = published_issues.filter(
-            publication_date__lt=ARCHIVE_THRESHOLD_DATE,
+            publication_date__lt=archive_threshold_date,
         )
 
         # Get the unique years of the archive issues as a list of integers (years)
@@ -188,7 +196,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         subscribers based on publication date and archive threshold."""
 
         # check whether publication date is before public access date
-        return self.publication_date < ARCHIVE_THRESHOLD_DATE
+        return self.publication_date < get_archive_threshold_date()
 
     search_template = "search/magazine_issue.html"
     search_fields = Page.search_fields + [
