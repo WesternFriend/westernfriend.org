@@ -257,6 +257,12 @@ class DiscoveryLinkHeaderTest(TestCase):
             '</sitemap.xml>; rel="sitemap"; type="application/xml"',
         )
 
+    def test_not_found_page_links_llms_txt_and_sitemap(self):
+        response = self.client.get("/no-such-page/")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('</llms.txt>; rel="describedby"', response["Link"])
+
     def test_non_html_responses_have_no_link_header(self):
         response = self.client.get("/robots.txt")
 
