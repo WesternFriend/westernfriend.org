@@ -8,10 +8,10 @@ from wagtail.admin.viewsets.pages import PageListingViewSet
 from .models import (
     Audience,
     Genre,
+    LibraryItem,
     Medium,
     TimePeriod,
     Topic,
-    LibraryItem,
 )
 
 

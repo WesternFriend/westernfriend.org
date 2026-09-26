@@ -1,8 +1,9 @@
-import factory
 from typing import Any
-from wagtail_factories import PageFactory
-from home.factories import HomePageFactory
 
+import factory
+from wagtail_factories import PageFactory
+
+from home.factories import HomePageFactory
 from home.models import HomePage
 
 from .models import (

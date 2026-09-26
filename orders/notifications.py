@@ -39,8 +39,9 @@ def send_order_paid_notification(order: Order) -> bool:
         # Skip if no emails configured
         if not notification_settings.notification_emails:
             logger.warning(
-                f"No notification emails configured for order #{order.id}. "  # type: ignore
+                "No notification emails configured for order #%s. "
                 "Skipping notification.",
+                order.id,  # type: ignore
             )
             return False
 
@@ -83,15 +84,18 @@ def send_order_paid_notification(order: Order) -> bool:
         )
 
         logger.info(
-            f"Order paid notification sent successfully for order #{order.id} "  # type: ignore
-            f"to {len(notification_settings.notification_emails)} recipient(s).",
+            "Order paid notification sent successfully for order #%s "
+            "to %d recipient(s).",
+            order.id,  # type: ignore
+            len(notification_settings.notification_emails),
         )
-
-        return True
 
     except Exception:
         # Log all exceptions to Sentry without re-raising
         logger.exception(
-            f"Failed to send order paid notification for order #{order.id}",  # type: ignore
+            "Failed to send order paid notification for order #%s",
+            order.id,  # type: ignore
         )
         return False
+    else:
+        return True

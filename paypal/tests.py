@@ -1,30 +1,31 @@
+import json
 from decimal import Decimal
 from http import HTTPStatus
-import json
 from unittest import mock
+
 from django.core.cache import cache
 from django.test import Client, TestCase
 from django.urls import reverse
-from requests.exceptions import HTTPError
-from accounts.models import User
+from requests.exceptions import HTTPError, Timeout
 
+from accounts.models import User
 from orders.factories import OrderFactory, OrderItemFactory
 from subscription.models import Subscription
 
 from .auth import (
-    get_auth_token,
     construct_paypal_auth_headers,
+    get_auth_token,
+)
+from .models import (
+    PayPalError,
 )
 from .orders import (
-    create_order,
     capture_order,
+    create_order,
 )
 from .subscriptions import (
     get_subscription,
     subscription_is_active,
-)
-from .models import (
-    PayPalError,
 )
 
 
@@ -50,6 +51,13 @@ class GetAuthTokenTest(TestCase):
         mock_post.return_value = mock_response
 
         # Test function should raise an error
+        with self.assertRaises(PayPalError):
+            get_auth_token()
+
+    @mock.patch("paypal.auth.requests.post")
+    def test_get_auth_token_timeout_raises_paypal_error(self, mock_post):
+        mock_post.side_effect = Timeout()
+
         with self.assertRaises(PayPalError):
             get_auth_token()
 
@@ -212,6 +220,23 @@ class GetSubscriptionTest(TestCase):
             get_subscription(paypal_subscription_id="sub12345")
 
         # Check if logger.exception has been called
+        mock_logger.exception.assert_called()
+
+    @mock.patch("paypal.subscriptions.logger")
+    @mock.patch("paypal.subscriptions.requests.get")
+    @mock.patch("paypal.subscriptions.construct_paypal_auth_headers")
+    def test_get_subscription_timeout_raises_paypal_error(
+        self,
+        mock_construct_headers,
+        mock_get,
+        mock_logger,
+    ):
+        mock_construct_headers.return_value = {}
+        mock_get.side_effect = Timeout()
+
+        with self.assertRaises(PayPalError):
+            get_subscription(paypal_subscription_id="sub12345")
+
         mock_logger.exception.assert_called()
 
 

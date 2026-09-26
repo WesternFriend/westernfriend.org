@@ -1,5 +1,6 @@
 import hashlib
 from http import HTTPStatus
+
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Max
@@ -37,7 +38,7 @@ class ContentViewSetGroup(ViewSetGroup):
     ]
 
 
-def custom_404(request, exception=None):  # noqa: W0613 # skipcq: PYL-W0613
+def custom_404(request, exception=None):  # skipcq: PYL-W0613
     """Return the 404 page with search form that will contain the URL path
     components that the user requested. The path will be split into the
     keywords and the keywords will be used to populate the search field.
@@ -142,8 +143,8 @@ def llms_txt(request):
     if top_level_links:
         sections.insert(0, ("Pages", top_level_links))
 
-    for title, links in sections:
-        links = [link for link in links if link]
+    for title, section_links in sections:
+        links = [link for link in section_links if link]
         if links:
             lines += [f"## {title}", "", *links, ""]
 

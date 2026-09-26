@@ -1,4 +1,5 @@
 from typing import Any
+
 import factory
 
 from home.models import HomePage

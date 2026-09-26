@@ -20,7 +20,7 @@ _JSON_SCRIPT_ESCAPES = {
 def json_ld(value) -> SafeString:
     """Serialize a value as JSON safe for embedding in a <script> element."""
     json_str = json.dumps(value, cls=DjangoJSONEncoder)
-    return mark_safe(json_str.translate(_JSON_SCRIPT_ESCAPES))
+    return mark_safe(json_str.translate(_JSON_SCRIPT_ESCAPES))  # noqa: S308 - <, >, & are escaped above
 
 
 @register.simple_tag(takes_context=True)

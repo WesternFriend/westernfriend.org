@@ -1,13 +1,15 @@
+from urllib.parse import urlparse
+
 from django.conf import settings
 from django.contrib import messages
-
-from django_registration.backends.activation.views import RegistrationView  # type: ignore
+from django.contrib.auth.views import LoginView, PasswordResetView
+from django.urls import NoReverseMatch, reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django_registration.backends.activation.views import (
+    RegistrationView,  # type: ignore
+)
 
 from accounts.forms import CustomUserForm
-from django.contrib.auth.views import PasswordResetView, LoginView
-from django.utils.http import url_has_allowed_host_and_scheme
-from django.urls import reverse, NoReverseMatch
-from urllib.parse import urlparse
 
 
 class CustomRegistrationView(RegistrationView):

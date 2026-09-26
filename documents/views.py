@@ -4,7 +4,7 @@ from wagtail.admin.ui.tables import Column
 from wagtail.admin.ui.tables.pages import BulkActionsColumn, PageTitleColumn
 from wagtail.admin.viewsets.pages import PageListingViewSet
 
-from .models import PublicBoardDocument, MeetingDocument
+from .models import MeetingDocument, PublicBoardDocument
 
 
 class PublicBoardDocumentFilterSet(PageListingViewSet.filterset_class):

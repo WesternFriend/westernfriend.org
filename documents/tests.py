@@ -1,6 +1,7 @@
 import datetime
 
 from django.test import RequestFactory, TestCase
+from django.utils import timezone
 from wagtail.models import Page, Site
 
 from contact.models import Meeting, MeetingIndexPage
@@ -35,13 +36,13 @@ class TestMeetingDocumentIndexPage(TestCase):
         document1 = MeetingDocument(
             title="Document 1",
             publishing_meeting=self.meeting,
-            publication_date=datetime.date.today(),
+            publication_date=timezone.localdate(),
             document_type="minute",
         )
         document2 = MeetingDocument(
             title="Document 2",
             publishing_meeting=self.meeting,
-            publication_date=datetime.date.today() - datetime.timedelta(days=1),
+            publication_date=timezone.localdate() - datetime.timedelta(days=1),
             document_type="epistle",
         )
 

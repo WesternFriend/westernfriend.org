@@ -54,7 +54,7 @@ class FormattedImageChooserStructBlock(wagtail_blocks.StructBlock):
         help_text="Enter the desired image width value in pixels up to 800 max.",
     )
     align = wagtail_blocks.ChoiceBlock(
-        help_test="Optionally align image left or right. Will default to block alignment.",  # noqa: E501
+        help_test="Optionally align image left or right. Will default to block alignment.",
         choices=(
             ("left", "Left"),
             ("right", "Right"),
@@ -82,13 +82,13 @@ class HeadingBlock(wagtail_blocks.StructBlock):
             ("h5", "Level 5 (child of level 4)"),
             ("h6", "Level 6 (child of level 5)"),
         ],
-        help_text="These different heading levels help to communicate the organization and hierarchy of the content on a page.",  # noqa: E501
+        help_text="These different heading levels help to communicate the organization and hierarchy of the content on a page.",
     )
     heading_text = wagtail_blocks.CharBlock(
         help_text="The text to appear in the heading.",
     )
     target_slug = wagtail_blocks.CharBlock(
-        help_text="Used to link to a specific location within this page. A slug should only contain letters, numbers, underscore (_), or hyphen (-).",  # noqa: E501
+        help_text="Used to link to a specific location within this page. A slug should only contain letters, numbers, underscore (_), or hyphen (-).",
         validators=(validate_slug,),
         required=False,
     )
@@ -158,7 +158,7 @@ class PullQuoteBlock(wagtail_blocks.TextBlock):
 
 class SpacerBlock(wagtail_blocks.StructBlock):
     height = wagtail_blocks.DecimalBlock(
-        help_text="The height of this spacer in 'em' values where 1 em is one uppercase M.",  # noqa: E501
+        help_text="The height of this spacer in 'em' values where 1 em is one uppercase M.",
         min_value=0,
         decimal_places=1,
     )
@@ -179,7 +179,7 @@ class PreformattedTextBlock(wagtail_blocks.FieldBlock):
     class Meta:
         template = "blocks/blocks/preformatted_text.html"
 
-    def __init__(self, required=True, help_text=None, **kwargs):
+    def __init__(self, *, required=True, help_text=None, **kwargs):
         self.field = forms.CharField(
             required=required,
             help_text=help_text,

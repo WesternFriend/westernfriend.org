@@ -5,9 +5,9 @@ import re
 from unittest.mock import Mock, patch
 
 from django.test import RequestFactory, SimpleTestCase, TestCase
-
 from wagtail.models import Site
 
+from contact.factories import PersonFactory
 from facets.factories import (
     AudienceFactory,
     GenreFactory,
@@ -15,10 +15,10 @@ from facets.factories import (
     TimePeriodFactory,
     TopicFactory,
 )
-from contact.factories import PersonFactory
 from home.models import HomePage
 from library.helpers import (
     QUERYSTRING_FACETS,
+    add_library_item_topics,
     create_querystring_from_facets,
     filter_querystring_facets,
 )
@@ -81,7 +81,7 @@ class TestFilterQuerystringFacets(SimpleTestCase):
     def test_query_with_all_valid_facets(self) -> None:
         """Test that a query with all valid facets returns the same
         dictionary."""
-        query = {key: "value" for key in QUERYSTRING_FACETS}
+        query = dict.fromkeys(QUERYSTRING_FACETS, "value")
         result = filter_querystring_facets(query)
         self.assertDictEqual(result, query)
 
@@ -231,3 +231,19 @@ class TestLibraryItemStructuredData(TestCase):
         self.assertEqual(data["author"][0]["givenName"], author.given_name)
         self.assertEqual(data["about"], [topic.title])
         self.assertEqual(data["datePublished"], "2020-05-17")
+
+
+class TestAddLibraryItemTopics(TestCase):
+    def test_links_existing_topics_and_skips_missing_ones(self) -> None:
+        library_item = LibraryItemFactory.create()
+        topic = TopicFactory.create(title="Peace")
+
+        with patch("library.helpers.logger") as mock_logger:
+            add_library_item_topics(library_item, "Peace;;Nonexistent")
+
+        linked = LibraryItemTopic.objects.filter(library_item=library_item)
+        self.assertEqual([link.topic for link in linked], [topic])
+        mock_logger.warning.assert_called_once_with(
+            "Topic %r does not exist",
+            "Nonexistent",
+        )

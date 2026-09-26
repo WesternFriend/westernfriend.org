@@ -10,12 +10,11 @@ class NavigationExternalLinkStructValue(StructValue):
 
         if url and anchor:
             return f"{url}#{anchor}"
-        elif url:
+        if url:
             return url
-        elif anchor:
+        if anchor:
             return f"#{anchor}"
-        else:
-            return ""
+        return ""
 
 
 class NavigationExternalLinkBlock(wagtail_blocks.StructBlock):
@@ -23,7 +22,7 @@ class NavigationExternalLinkBlock(wagtail_blocks.StructBlock):
     url = wagtail_blocks.URLBlock()
     anchor = wagtail_blocks.CharBlock(
         required=False,
-        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",  # noqa: E501
+        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",
     )
 
     class Meta:
@@ -37,20 +36,16 @@ class NavigationPageChooserStructValue(StructValue):
     def href(self):
         """Construct a URL with anchor if exists, otherwise use URL."""
         page = self.get("page")
-        if page is None:
-            url = "#"  # or some other default URL
-        else:
-            url = page.url
+        url = "#" if page is None else page.url
         anchor = self.get("anchor")
 
         if url and anchor:
             return f"{url}#{anchor}"
-        elif url:
+        if url:
             return url
-        elif anchor:
+        if anchor:
             return f"#{anchor}"
-        else:
-            return "#"
+        return "#"
 
 
 class NavigationPageChooserBlock(wagtail_blocks.StructBlock):
@@ -58,7 +53,7 @@ class NavigationPageChooserBlock(wagtail_blocks.StructBlock):
     page = wagtail_blocks.PageChooserBlock()
     anchor = wagtail_blocks.CharBlock(
         required=False,
-        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",  # noqa: E501
+        help_text="For linking to specific page elements. Enter the anchor text without the leading '#' symbol.",
     )
 
     class Meta:

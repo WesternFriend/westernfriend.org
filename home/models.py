@@ -1,6 +1,5 @@
 from django.http import HttpRequest
 from django.utils import timezone
-
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
