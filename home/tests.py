@@ -1,3 +1,6 @@
+from urllib.parse import urljoin
+
+from django.templatetags.static import static
 from django.utils import timezone
 from django.test import RequestFactory, TestCase
 from wagtail.models import Page, Site
@@ -109,9 +112,10 @@ class HomePageRenderTest(TestCase):
             '<link rel="canonical" href="http://testserver/" />',
         )
         self.assertContains(response, '"@id": "http://testserver/#organization"')
+        og_image = urljoin("http://testserver/", static("img/og-default.jpg"))
         self.assertContains(
             response,
-            '<meta property="og:image" content="http://testserver/static/img/og-default.jpg" />',
+            f'<meta property="og:image" content="{og_image}" />',
         )
         self.assertNotContains(response, "http:///")
 

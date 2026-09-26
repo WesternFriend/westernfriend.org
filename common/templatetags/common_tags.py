@@ -35,30 +35,33 @@ def absolute_static(context, path):
     return request.build_absolute_uri(url) if request else url
 
 
+def _site_root(request) -> str:
+    """Return the current Wagtail site's root URL, without a trailing slash.
+
+    Using the site's configured hostname means www and bare-domain requests
+    produce the same absolute URLs.
+    """
+    site = Site.find_for_request(request)
+    return site.root_url if site else request.build_absolute_uri("/").rstrip("/")
+
+
 @register.simple_tag(takes_context=True)
 def site_root_url(context):
     """Return the absolute URL of the current Wagtail site's home page."""
     request = context.get("request")
-    if request is None:
-        return ""
-    site = Site.find_for_request(request)
-    return f"{site.root_url}/" if site else request.build_absolute_uri("/")
+    return f"{_site_root(request)}/" if request else ""
 
 
 @register.simple_tag(takes_context=True)
 def canonical_url(context):
-    """Return the absolute canonical URL for the current page or request.
-
-    Wagtail pages use their site's hostname, so www and bare-domain
-    requests share one canonical URL.
-    """
+    """Return the absolute canonical URL for the current page or request."""
     request = context.get("request")
     page = context.get("page")
     if page is not None and hasattr(page, "get_full_url"):
         url = page.get_full_url(request)
         if url:
             return url
-    return request.build_absolute_uri(request.path) if request else ""
+    return f"{_site_root(request)}{request.path}" if request else ""
 
 
 @register.filter

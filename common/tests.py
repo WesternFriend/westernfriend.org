@@ -11,8 +11,10 @@ from common.apps import CommonConfig, _locale_cache_local
 from common.templatetags.common_form_tags import add_class
 from common.templatetags.common_tags import (
     absolute_static,
+    canonical_url,
     exclude_from_breadcrumbs,
     model_name,
+    site_root_url,
     specific_pages,
     visible_breadcrumb_ancestors,
 )
@@ -419,3 +421,51 @@ class BreadcrumbsAbsoluteUrlTest(TestCase):
         self.assertIn('"item": "http://testserver/section/"', output)
         self.assertIn('"item": "http://testserver/section/article/"', output)
         self.assertNotIn("http:///", output)
+
+
+@override_settings(ALLOWED_HOSTS=["*"])
+class CanonicalUrlTagTest(TestCase):
+    """canonical_url and site_root_url use the Wagtail site's hostname."""
+
+    def setUp(self):
+        from wagtail.models import Page, Site
+
+        Site.objects.all().delete()
+        home = Page.get_first_root_node().add_child(
+            instance=Page(title="Home", slug="canonical-home"),
+        )
+        Site.objects.create(
+            hostname="example.org",
+            port=443,
+            root_page=home,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def test_non_page_view_uses_site_hostname(self):
+        request = RequestFactory().get("/search/", HTTP_HOST="www.example.org")
+
+        self.assertEqual(
+            canonical_url({"request": request}),
+            "https://example.org/search/",
+        )
+
+    def test_site_root_url_uses_site_hostname(self):
+        request = RequestFactory().get("/", HTTP_HOST="www.example.org")
+
+        self.assertEqual(site_root_url({"request": request}), "https://example.org/")
+
+    def test_falls_back_to_request_host_without_a_site(self):
+        from wagtail.models import Site
+
+        Site.objects.all().delete()
+        Site.clear_site_root_paths_cache()
+        request = RequestFactory().get("/tags/")
+
+        self.assertEqual(canonical_url({"request": request}), "http://testserver/tags/")
+        self.assertEqual(site_root_url({"request": request}), "http://testserver/")
+
+    def test_without_request_returns_empty_string(self):
+        self.assertEqual(canonical_url({}), "")
+        self.assertEqual(site_root_url({}), "")
