@@ -3,10 +3,11 @@ from django.test import RequestFactory, TestCase
 from wagtail.models import Page, Site
 
 from home.models import HomePage
+from contact.factories import PersonFactory
 from events.factories import EventFactory
 from events.models import Event
 from magazine.factories import MagazineArticleFactory, MagazineIssueFactory
-from magazine.models import MagazineIssue
+from magazine.models import MagazineArticleAuthor, MagazineIssue
 
 from .factories import HomePageFactory
 
@@ -83,6 +84,11 @@ class HomePageRenderTest(TestCase):
             publication_date=timezone.now() - timezone.timedelta(days=1),
         )
         article = MagazineArticleFactory.create(parent=issue, is_featured=True)
+        author = PersonFactory.create()
+        former_author = PersonFactory.create()
+        former_author.unpublish()
+        for person in (author, former_author):
+            MagazineArticleAuthor.objects.create(article=article, author=person)
         event = EventFactory.create(is_featured=True)
 
         response = self.client.get("/")
@@ -90,5 +96,7 @@ class HomePageRenderTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Current Issue")
         self.assertContains(response, article.title)
+        self.assertContains(response, f'href="{author.url}"')
+        self.assertContains(response, former_author.title)
         self.assertContains(response, event.title)
         self.assertContains(response, event.url)
