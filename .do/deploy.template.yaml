@@ -76,13 +76,6 @@ spec:
         - key: DJANGO_PUBLIC_CACHE_EDGE_TTL
           scope: RUN_TIME
           value: "0"
-        - key: CLOUDFLARE_API_TOKEN
-          scope: RUN_TIME
-          type: SECRET
-          value: change-me
-        - key: CLOUDFLARE_ZONE_ID
-          scope: RUN_TIME
-          value: change-me
       github:
         branch: main
         deploy_on_push: true

@@ -43,7 +43,7 @@ rely on it.
 | Login / Register links or Log out form | `common/templates/navbar.html` | Login and Register links. `?next=` is the request path, so it matches the URL | Yes |
 | Log out form CSRF token | `navbar.html` | Rendered only for authenticated users | Yes (never anonymous) |
 | Magazine paywall | `MagazineArticle.get_context` | Full text only when public or featured; otherwise a teaser | Yes, for anonymous visitors |
-| Add-to-cart forms | `store/…/book.html`, `add_to_cart.html` | Currently a per-visitor CSRF token | Yes, after §2.4 removes the token |
+| Add-to-cart forms | `store/…/book.html`, `add_to_cart.html` | Per-visitor CSRF token | No. Stays uncached until §2.4 is done |
 | PayPal subscribe button | `paypal/…/paypal_subscription_plan_button.html` | Per-visitor CSRF token in inline JS | No. The subscription page stays uncached (§2.2 rule 5) |
 | Flash messages | `common/templates/base.html` | Only when a message is pending | Guarded by §2.2 rules 5–6 |
 | Cart contents | `cart/`, `orders/` | Session-backed | Excluded by path and by session cookie |
@@ -113,11 +113,13 @@ minute because we cannot purge them.
 `Vary: Cookie` stays as Django sets it. Cloudflare ignores it, and the rules
 above make that safe.
 
-### 2.4 Cacheable store pages
+### 2.4 Cacheable store pages (proposed, not yet implemented)
 
-Store pages carry add-to-cart forms, so they are among the pages to cache.
-Today each form renders `{% csrf_token %}`, which sets a cookie and keeps the
-page out of the cache (rule 5).
+Store pages carry add-to-cart forms, so they are among the pages worth
+caching. Today each form renders `{% csrf_token %}`, which sets a cookie and
+keeps the page out of the cache (rule 5). Store pages therefore stay private
+until the change below lands in a follow-up. It replaces a CSRF token with an
+origin check, so it needs its own security review.
 
 - Remove `{% csrf_token %}` from `store/templates/store/book.html` and
   `store/templates/store/add_to_cart.html`.
@@ -188,8 +190,9 @@ When a change must appear at once, use Cloudflare's *Purge Everything* or
    single source of truth.
 3. Optional: exclude tracking parameters (`utm_*`, `fbclid`, `gclid`) from the
    cache key so that one page does not produce many cache entries.
-4. Store two new App Platform secrets: `CLOUDFLARE_API_TOKEN` and
-   `CLOUDFLARE_ZONE_ID`.
+4. Add two App Platform variables when Cloudflare purging is set up:
+   `CLOUDFLARE_API_TOKEN` (encrypted) and `CLOUDFLARE_ZONE_ID`. Leave them
+   unset until then; purging stays off without them.
 
 ---
 
@@ -210,12 +213,13 @@ Unit tests for the middleware (`common/tests/test_middleware.py`):
 
 Integration tests with the Django test client:
 
-- Anonymous store product page and book page: `public`, no `Set-Cookie`
-- `POST /cart/add/<id>/` accepted with `Sec-Fetch-Site: same-origin`, or with a
-  matching `Origin`; rejected with 403 for `cross-site` or a foreign `Origin`
-- Anonymous paywalled magazine article: `public`, teaser only
-- Same article while logged in as a subscriber: `private`
-- `WAGTAILFRONTENDCACHE` is unset when the Cloudflare env vars are missing
+- Anonymous home page: `public`, no `Set-Cookie`
+- Same page while logged in: `private`
+- Anonymous store product page (CSRF form): `private`, sets `csrftoken`
+
+When §2.4 lands, also test that store pages become `public`, and that
+`POST /cart/add/<id>/` is accepted with `Sec-Fetch-Site: same-origin` or a
+matching `Origin`, and rejected with 403 for `cross-site` or a foreign `Origin`.
 
 ---
 
@@ -224,7 +228,7 @@ Integration tests with the Django test client:
 | Step | Change | Check |
 | --- | --- | --- |
 | 0 | Record a baseline from Cloudflare Analytics | Done: see [Cloudflare Analytics](../cloudflare-analytics.md#baseline-before-edge-caching) |
-| 1 | Deploy the middleware, store change and purge config with TTL `0` (off). In **Settings → Sites**, make sure the default site's hostname is `westernfriend.org` on port `443`: Wagtail builds purge URLs from it | Production returns `private`; publishing a page logs a successful purge |
+| 1 | Deploy the middleware and purge config with TTL `0` (off). In **Settings → Sites**, make sure the default site's hostname is `westernfriend.org` on port `443`: Wagtail builds purge URLs from it | Production returns `private`; publishing a page logs a successful purge |
 | 2 | Disable App Platform edge caching | Headers unchanged, site works |
 | 3 | Set `DJANGO_PUBLIC_CACHE_EDGE_TTL=900` | Anonymous `curl -I` returns `public …`, then `cf-cache-status: HIT`; a logged-in browser still gets `private` / `BYPASS`; publishing an edit shows it at once |
 | 4 | After a week, compare with the baseline | Success measures (§7) |

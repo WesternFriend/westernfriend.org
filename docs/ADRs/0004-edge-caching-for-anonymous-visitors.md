@@ -43,9 +43,6 @@ Alternatives considered:
   Every other response gets an explicit `private`. The TTL comes from
   `DJANGO_PUBLIC_CACHE_EDGE_TTL`: `900` in production, and the default of `0`
   turns this off.
-- Make store pages cacheable. Drop the CSRF token from add-to-cart forms and
-  protect `cart_add` with a same-origin check (`Sec-Fetch-Site` or `Origin`)
-  instead.
 - Purge Cloudflare with Wagtail's built-in `wagtail.contrib.frontend_cache`
   (`CloudflareBackend`, with an API token scoped to cache purge). No custom
   purge code.
@@ -55,13 +52,14 @@ Full rules: [Edge Caching Specification](../specifications/edge_caching.md).
 
 ## Consequences
 
-- **Positive:** Most anonymous and crawler traffic, store pages included, is
-  served from Cloudflare. One middleware holds the rules. An environment
-  variable turns caching on or off with no deploy.
+- **Positive:** Most anonymous and crawler traffic is served from Cloudflare.
+  One middleware holds the rules. An environment variable turns caching on or
+  off with no deploy.
 - **Negative:** New or edited pages can take up to 15 minutes to appear on
   listing pages, and the same goes for settings and snippet changes. Publishing
   waits for a Cloudflare API call, about 100–300 ms, until background tasks
-  exist (#1246). The subscription page stays uncached because of its PayPal
-  button.
+  exist (#1246). Store pages and the subscription page stay uncached, because
+  their forms carry per-visitor CSRF tokens.
 - **Future:** Revisit if editors need listing pages to update at once, when
-  adding `stale-while-revalidate`, or to cache the subscription page.
+  adding `stale-while-revalidate`, or to cache store pages (proposed in §2.4 of
+  the specification) and the subscription page.
