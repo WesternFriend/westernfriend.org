@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -9,7 +9,7 @@ from django.forms.forms import Form
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import RequestFactory, TestCase, override_settings
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from common.apps import CommonConfig, _locale_cache_local
 from common.middleware import PublicCacheControlMiddleware
@@ -580,3 +580,41 @@ class CanonicalUrlTagTest(TestCase):
     def test_without_request_returns_empty_string(self):
         self.assertEqual(canonical_url({}), "")
         self.assertEqual(site_root_url({}), "")
+
+
+class PurgeRestrictedPagesTest(TestCase):
+    """Changing who may view a page purges its subtree from Cloudflare."""
+
+    def setUp(self):
+        Locale.objects.get_or_create(language_code="en")
+        root = Page.get_first_root_node() or Page.add_root(title="Root", slug="root")
+        self.parent = root.add_child(instance=HomePage(title="Parent", slug="p"))
+        self.child = self.parent.add_child(instance=HomePage(title="Child", slug="c"))
+
+    def _purged_pages(self, change):
+        with patch("common.signal_handlers.PurgeBatch") as purge_batch:
+            with self.captureOnCommitCallbacks(execute=True):
+                change()
+        batch = purge_batch.return_value
+        batch.purge.assert_called_once_with()
+        return set(batch.add_pages.call_args.args[0])
+
+    def test_adding_a_restriction_purges_page_and_descendants(self):
+        pages = self._purged_pages(
+            lambda: PageViewRestriction.objects.create(
+                page=self.parent,
+                restriction_type=PageViewRestriction.LOGIN,
+            ),
+        )
+
+        self.assertEqual(pages, {self.parent.specific, self.child.specific})
+
+    def test_removing_a_restriction_purges_the_page(self):
+        restriction = PageViewRestriction.objects.create(
+            page=self.child,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        pages = self._purged_pages(restriction.delete)
+
+        self.assertEqual(pages, {self.child.specific})

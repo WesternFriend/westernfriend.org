@@ -105,7 +105,7 @@ it no longer depends on App Platform.
 
 **Why 15 minutes:** Wagtail purges an edited page as soon as it is published
 (§3), so the TTL only limits staleness for content that is *not* purged:
-listing pages, pagination, and site-wide settings (§3.2). Pages rarely change,
+listing pages, pagination, and site-wide settings (§3.3). Pages rarely change,
 so nearly every request inside the window is a cache hit. Fifteen minutes is
 also the upper end of the range in the issue. Browsers keep pages for only a
 minute because we cannot purge them.
@@ -114,6 +114,8 @@ minute because we cannot purge them.
 above make that safe.
 
 ### 2.4 Cacheable store pages (proposed, not yet implemented)
+
+Tracked in [#1252](https://github.com/WesternFriend/westernfriend.org/issues/1252).
 
 Store pages carry add-to-cart forms, so they are among the pages worth
 caching. Today each form renders `{% csrf_token %}`, which sets a cookie and
@@ -138,8 +140,8 @@ origin check, so it needs its own security review.
 
 ### 3.1 Wagtail front-end cache, as shipped
 
-- Add `wagtail.contrib.frontend_cache` to `INSTALLED_APPS`. No custom purge
-  code.
+- Add `wagtail.contrib.frontend_cache` to `INSTALLED_APPS`. Custom purge code
+  only covers view restrictions (§3.2).
 - Configure `WAGTAILFRONTENDCACHE` with `CloudflareBackend` **only when**
   `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ZONE_ID` are set, so local development
   and tests never call Cloudflare:
@@ -163,7 +165,18 @@ origin check, so it needs its own security review.
   adding about 100–300 ms to Publish. That delay is accepted.
 - Wagtail's backend sends up to 30 URLs per API call.
 
-### 3.2 What is not purged
+### 3.2 View restrictions
+
+Wagtail's purge covers publishing only. Adding a view restriction to a page
+does not publish it, so a public copy already in Cloudflare would stay visible
+to anonymous visitors until the TTL expires.
+`common.signal_handlers.purge_restricted_pages` fixes this: when a
+`PageViewRestriction` is saved or deleted, it purges the page and all its live
+descendants, because a restriction covers the whole subtree. The purge runs
+after the transaction commits, so no request can re-cache the old public copy
+in between.
+
+### 3.3 What is not purged
 
 The TTL alone limits how stale these can get (at most 15 minutes):
 

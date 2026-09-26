@@ -44,8 +44,9 @@ Alternatives considered:
   `DJANGO_PUBLIC_CACHE_EDGE_TTL`: `900` in production, and the default of `0`
   turns this off.
 - Purge Cloudflare with Wagtail's built-in `wagtail.contrib.frontend_cache`
-  (`CloudflareBackend`, with an API token scoped to cache purge). No custom
-  purge code.
+  (`CloudflareBackend`, with an API token scoped to cache purge). The only
+  custom purge code purges a page's subtree when its view restriction changes,
+  because Wagtail purges on publish and unpublish only.
 - Turn off App Platform edge caching, so that only our zone caches pages.
 
 Full rules: [Edge Caching Specification](../specifications/edge_caching.md).
