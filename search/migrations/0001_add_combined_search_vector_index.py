@@ -11,6 +11,41 @@
 
 from django.db import migrations
 
+INDEX_NAME = "wagtailsearch_indexentry_title_body_gin_idx"
+
+
+def create_index(apps, schema_editor):
+    with schema_editor.connection.cursor() as cursor:
+        # An interrupted CREATE INDEX CONCURRENTLY leaves an invalid index
+        # behind under the same name, which IF NOT EXISTS would then skip.
+        cursor.execute(
+            """
+            SELECT NOT i.indisvalid
+            FROM pg_index i
+            JOIN pg_class c ON c.oid = i.indexrelid
+            WHERE c.relname = %s
+            """,
+            [INDEX_NAME],
+        )
+        row = cursor.fetchone()
+        if row and row[0]:
+            cursor.execute(f"DROP INDEX CONCURRENTLY IF EXISTS {INDEX_NAME}")
+
+        # The expression must match what modelsearch generates exactly
+        # ("title" || "body") for the planner to use this index.
+        cursor.execute(
+            f"""
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS {INDEX_NAME}
+            ON wagtailsearch_indexentry
+            USING GIN ((title || body))
+            """,
+        )
+
+
+def drop_index(apps, schema_editor):
+    with schema_editor.connection.cursor() as cursor:
+        cursor.execute(f"DROP INDEX CONCURRENTLY IF EXISTS {INDEX_NAME}")
+
 
 class Migration(migrations.Migration):
     atomic = False  # Required for concurrent index creation
@@ -20,18 +55,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # The expression must match what modelsearch generates exactly
-        # ("title" || "body") for the planner to use this index.
-        migrations.RunSQL(
-            sql="""
-            CREATE INDEX CONCURRENTLY IF NOT EXISTS
-            wagtailsearch_indexentry_title_body_gin_idx
-            ON wagtailsearch_indexentry
-            USING GIN ((title || body));
-            """,
-            reverse_sql="""
-            DROP INDEX CONCURRENTLY IF EXISTS
-            wagtailsearch_indexentry_title_body_gin_idx;
-            """,
-        ),
+        migrations.RunPython(create_index, drop_index, atomic=False),
     ]
