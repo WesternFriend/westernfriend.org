@@ -1,11 +1,14 @@
+import importlib
+from unittest import mock
 from unittest.mock import PropertyMock, patch
 
 from django.conf import settings
 from django.core import mail
 from django.shortcuts import resolve_url
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import NoReverseMatch, reverse
 
+import core.settings
 from accounts.views import CustomLoginView
 from subscription.models import Subscription
 
@@ -184,13 +187,6 @@ class CustomPasswordResetViewTests(TestCase):
         self.assertTrue(msg.subject.strip())
         html_body, _ = msg.alternatives[0]
         self.assertTrue(str(html_body).strip())
-
-import importlib
-from unittest import mock
-
-from django.test import SimpleTestCase
-
-import core.settings
 
 
 class SmtpSettingsEnvironmentTests(SimpleTestCase):
