@@ -9,6 +9,7 @@ from wagtail.admin.viewsets.base import ViewSetGroup
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
 from events.views import EventViewSet
+from navigation.models import NavigationMenuSetting
 from news.views import NewsItemViewSet
 from tags.views import TagViewSet
 from wf_pages.views import MollyWingateBlogPageViewSet
@@ -71,13 +72,73 @@ ROBOTS_DISALLOWED_PATHS = [
 ]
 
 
+# We want Quaker perspectives to be available to search engines, AI answers,
+# and AI training alike (https://contentsignals.org/)
+ROBOTS_CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes"
+
+
+def _absolute_url(path):
+    return f"{settings.BASE_URL.rstrip('/')}{path}"
+
+
 @require_GET
 def robots_txt(request):
     """Serve robots.txt, pointing crawlers at the canonical sitemap."""
-    sitemap_url = f"{settings.BASE_URL.rstrip('/')}{reverse('sitemap')}"
-
-    lines = ["User-agent: *"]
+    lines = ["User-agent: *", f"Content-Signal: {ROBOTS_CONTENT_SIGNAL}"]
     lines += [f"Disallow: {path}" for path in ROBOTS_DISALLOWED_PATHS]
-    lines += ["", f"Sitemap: {sitemap_url}", ""]
+    lines += ["", f"Sitemap: {_absolute_url(reverse('sitemap'))}", ""]
 
     return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+def _llms_link(request, item):
+    """Format a navigation menu link as an llms.txt list item."""
+    page = item.get("page")
+    if page is not None and (not page.live or page.get_view_restrictions().exists()):
+        return None
+
+    line = f"- [{item['title']}]({request.build_absolute_uri(item.href())})"
+    description = page.specific.search_description if page is not None else ""
+    return f"{line}: {description}" if description else line
+
+
+@require_GET
+def llms_txt(request):
+    """Serve llms.txt (https://llmstxt.org/), built from the navigation menu."""
+    lines = [
+        "# Western Friend",
+        "",
+        (
+            "> Western Friend is a Quaker nonprofit that publishes a magazine, "
+            "books, and other resources exploring the spiritual lives of Friends "
+            "(Quakers) in the western United States and beyond."
+        ),
+        "",
+    ]
+
+    top_level_links = []
+    sections = []
+    for block in NavigationMenuSetting.for_request(request).menu_items:
+        if block.block_type == "drop_down":
+            links = [
+                _llms_link(request, child.value) for child in block.value["menu_items"]
+            ]
+            sections.append((block.value["title"], links))
+        else:
+            top_level_links.append(_llms_link(request, block.value))
+    if top_level_links:
+        sections.insert(0, ("Pages", top_level_links))
+
+    for title, links in sections:
+        links = [link for link in links if link]
+        if links:
+            lines += [f"## {title}", "", *links, ""]
+
+    lines += [
+        "## Optional",
+        "",
+        f"- [Sitemap]({_absolute_url(reverse('sitemap'))}): every public page",
+        "",
+    ]
+
+    return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")

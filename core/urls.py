@@ -13,7 +13,7 @@ from accounts.views import (
     CustomPasswordResetView,
     CustomLoginView,
 )
-from common.views import robots_txt
+from common.views import llms_txt, robots_txt
 from search import views as search_views
 
 handler404 = "common.views.custom_404"
@@ -51,6 +51,7 @@ urlpatterns = [
     path("search/", search_views.search, name="search"),
     path("tags/", include("tags.urls", namespace="tags")),
     path("robots.txt", robots_txt, name="robots_txt"),
+    path("llms.txt", llms_txt, name="llms_txt"),
     path("sitemap.xml", sitemap, name="sitemap"),
     path("__reload__/", include("django_browser_reload.urls")),
     # For anything not caught by a more specific rule above, hand over to
