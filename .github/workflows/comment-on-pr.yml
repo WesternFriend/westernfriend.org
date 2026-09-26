@@ -1,9 +1,9 @@
 name: Comment CI results on PR
 
-# Posting a PR comment needs write access, but CI's "report" job gets a
-# read-only token whenever the PR comes from a fork, and granting it more would
-# hand the fork's code an elevated token. So "report" builds the comment body
-# and uploads it as an artifact (see ci.yml), and this workflow posts it.
+# Posting a PR comment needs write access, but CI's jobs get a read-only token
+# whenever the PR comes from a fork, and granting them more would hand the
+# fork's code an elevated token. So CI only uploads each job's raw results as
+# artifacts (see ci.yml), and this workflow renders and posts the comment.
 # workflow_run always runs this file as committed on the default branch, with
 # the base repository's permissions, and nothing from the PR branch executes
 # here -- which is what makes it safe.
@@ -17,7 +17,7 @@ on:
 
 permissions:
   contents: read
-  actions: read # to download an artifact from another workflow run
+  actions: read # to download artifacts from another workflow run
   pull-requests: write
 
 # One comment job at a time per PR branch, so two runs finishing together can't
@@ -33,33 +33,35 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.event == 'pull_request'
     steps:
-      # No artifact means the CI run didn't get as far as building the comment
-      # (e.g. it was cancelled); skip the rest of the job rather than failing.
-      - name: Download PR comment artifact
-        id: download
+      # A workflow_run checkout is the default branch, never the PR's code, so
+      # the renderer used here is the reviewed one on main.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      - name: Download check results
         continue-on-error: true
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: pr-comment
+          pattern: check-result-*
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: .
+          path: results
 
       - name: Post or update PR comment
-        if: steps.download.outcome == 'success'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            const fs = require('fs');
+            const { readResults, render } = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/ci-report.js`);
             const run = context.payload.workflow_run;
             const { owner, repo } = context.repo;
 
-            // The artifact was built by the PR's own workflow run, so a PR that
-            // edits ci.yml controls its contents. Only the comment body is taken
-            // from it. Which PR to comment on comes from GitHub's event payload
-            // (head repository, branch, and commit), never from the artifact.
+            // Everything that decides where the comment goes and what it claims
+            // overall comes from GitHub's event payload and API, never from the
+            // artifacts, which a PR that edits ci.yml controls.
             // workflow_run.pull_requests isn't populated for forks, so look the
-            // PR up by its head instead.
+            // PR up by its head repository and branch instead.
             const { data: pulls } = await github.rest.pulls.list({
               owner,
               repo,
@@ -71,17 +73,25 @@ jobs:
               core.info('No open pull request for this run; nothing to comment on.');
               return;
             }
-            // If the PR has moved on to a newer commit, this result is stale and
-            // the newer run will post its own, so don't overwrite it.
+            // For pull_request runs, head_sha is the PR's head commit. If the PR
+            // has moved on since, a newer run will post its own results, so
+            // don't overwrite them with this older one.
             if (pr.head.sha !== run.head_sha) {
               core.info(`Run is for ${run.head_sha}, but PR #${pr.number} is now at ${pr.head.sha}; skipping.`);
               return;
             }
 
+            // The artifacts only supply which known checks passed and their
+            // output, which render() shows inside code blocks. If they claim
+            // success but GitHub says the run didn't succeed, say so.
+            const results = readResults('results');
+            const problems =
+              run.conclusion !== 'success' && results.every((r) => r.passed)
+                ? [`The CI run's conclusion was "${run.conclusion}"`]
+                : [];
+
             const marker = '<!-- westernfriend-ci-report -->';
-            const { body: reportBody } = JSON.parse(fs.readFileSync('pr-comment.json', 'utf8'));
-            // GitHub rejects comments over 65,536 characters.
-            const body = `${marker}\n${String(reportBody).slice(0, 60000)}`;
+            const body = `${marker}\n${render({ results, problems, runUrl: run.html_url, author: pr.user.login })}`;
 
             // Walk every page so an older sticky comment on a long PR is found,
             // and only match our own bot so a human quoting the marker isn't edited.
@@ -94,6 +104,8 @@ jobs:
               (comment) => comment.user.login === 'github-actions[bot]' && comment.body.includes(marker),
             );
 
+            // The comment is updated in place on reruns, so the author is only
+            // notified when it's first created.
             if (existing) {
               await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
             } else {
