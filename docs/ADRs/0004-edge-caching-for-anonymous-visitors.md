@@ -40,7 +40,8 @@ Alternatives considered:
   - the response has no `Cache-Control` header yet
   - the path is not excluded
 
-  Every other response gets an explicit `private`. The TTL comes from
+  Every other response without a `Cache-Control` header gets an explicit
+  `private`; headers already set by views or Wagtail are kept. The TTL comes from
   `DJANGO_PUBLIC_CACHE_EDGE_TTL`: `900` in production, and the default of `0`
   turns this off.
 - Purge Cloudflare with Wagtail's built-in `wagtail.contrib.frontend_cache`

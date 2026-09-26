@@ -43,7 +43,7 @@ curl -s https://api.cloudflare.com/client/v4/graphql \
 {"query": "query { viewer { zones(filter: {zoneTag: \"$ZONE_ID\"}) {
   byCache: httpRequestsAdaptiveGroups(limit: 20, orderBy: [count_DESC],
     filter: {datetime_geq: \"$SINCE\", datetime_lt: \"$UNTIL\", edgeResponseContentTypeName: \"html\"}) {
-    count dimensions { cacheStatus edgeResponseStatus } }
+    count dimensions { cacheStatus } }
   origin: httpRequestsAdaptiveGroups(limit: 1,
     filter: {datetime_geq: \"$SINCE\", datetime_lt: \"$UNTIL\", edgeResponseContentTypeName: \"html\", originResponseStatus_gt: 0}) {
     count avg { originResponseDurationMs } }
@@ -54,9 +54,18 @@ curl -s https://api.cloudflare.com/client/v4/graphql \
 EOF
 ```
 
-- **Origin HTML requests** = `origin.count`
-- **Edge hit ratio** = `hit` ÷ (`hit` + `miss` + `bypass` + `dynamic`) from
-  `byCache`
+- **Origin HTML requests** = `origin.count`. This is the server-load measure;
+  compare it with the baseline below.
+- **Edge hit ratio** = requests served from Cloudflare's cache ÷ requests that
+  could have been, both from `byCache`:
+  - Served from cache: `hit`, `stale` and `updating`
+  - Could have been: every status except `none`, which Cloudflare answers
+    itself (redirects, challenges, rate limits)
+  - `expired`, `revalidated`, `miss`, `bypass` and `dynamic` all reached
+    Django, so they count only in the denominator
+
+  The *Caching → Overview* dashboard shows a comparable ratio, but for all
+  content types, not only HTML.
 
 ## Baseline before edge caching
 

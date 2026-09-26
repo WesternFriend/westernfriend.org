@@ -499,6 +499,15 @@ class PublicCacheControlIntegrationTests(TestCase):
         self.assertIn("csrftoken", response.cookies)
         self.assertEqual(response["Cache-Control"], "private")
 
+    def test_page_with_csrf_token_is_private_for_returning_visitor(self):
+        product = ProductFactory()
+        self.client.get(product.url)  # issues the visitor a CSRF cookie
+        self.assertIn(settings.CSRF_COOKIE_NAME, self.client.cookies)
+
+        response = self.client.get(product.url)
+
+        self.assertEqual(response["Cache-Control"], "private")
+
 
 class BreadcrumbsAbsoluteUrlTest(TestCase):
     """Breadcrumb JSON-LD URLs come from the Wagtail site, not request.site."""
