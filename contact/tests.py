@@ -1,9 +1,12 @@
+import datetime
 import json
 import re
 
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase
+from wagtail.models import Page
 
+from community.factories import OnlineWorshipFactory
 from community.models import CommunityPage
 from contact.factories import (
     MeetingFactory,
@@ -15,12 +18,28 @@ from contact.factories import (
 )
 from contact.models import (
     Meeting,
+    MeetingAddress,
     MeetingIndexPage,
+    MeetingPresidingClerk,
+    MeetingWorshipTime,
     Organization,
     OrganizationIndexPage,
     Person,
     PersonIndexPage,
 )
+from library.factories import LibraryItemFactory
+from library.models import LibraryItemAuthor
+from magazine.factories import MagazineArticleFactory
+from magazine.models import (
+    ArchiveArticle,
+    ArchiveArticleAuthor,
+    ArchiveIssue,
+    DeepArchiveIndexPage,
+    MagazineArticleAuthor,
+)
+from memorials.factories import MemorialFactory
+from store.factories import ProductFactory
+from store.models import Book, BookAuthor
 
 
 class PersonIndexPageFactoryTest(TestCase):
@@ -631,3 +650,120 @@ class ContactJsonLdEscapingTest(TestCase):
         )
         parsed_blocks = [json.loads(block) for block in blocks]
         self.assertIn(payload, [block.get("name") for block in parsed_blocks])
+
+
+def render_page(page: Page) -> str:
+    request = RequestFactory().get("/")
+    request.user = AnonymousUser()
+    response = page.serve(request)
+    response.render()
+    return response.content.decode()
+
+
+class BookFactory(ProductFactory):
+    class Meta:
+        model = Book
+
+
+class ContactPageRenderingTest(TestCase):
+    def test_meeting_page_renders_contact_details_and_related_content(self) -> None:
+        meeting = MeetingFactory.create(
+            title="Rendering Test Meeting",
+            meeting_type="monthly_meeting",
+            phone="555-0100",
+            email="clerk@example.org",
+            website="https://example.org/meeting",
+            information_last_verified=datetime.date(2026, 1, 15),
+        )
+        MeetingAddress.objects.create(
+            page=meeting,
+            address_type="worship",
+            street_address="123 Friendly Lane",
+            locality="Portland",
+        )
+        MeetingWorshipTime.objects.create(
+            meeting=meeting,
+            worship_type="first_day_worship",
+            worship_time="Sundays at 10am",
+        )
+        clerk = PersonFactory.create(given_name="Clara", family_name="Clerk")
+        MeetingPresidingClerk.objects.create(meeting=meeting, person=clerk)
+        for title, meeting_type in [
+            ("Child Quarterly Meeting", "quarterly_meeting"),
+            ("Child Monthly Meeting", "monthly_meeting"),
+            ("Child Worship Group", "worship_group"),
+        ]:
+            meeting.add_child(
+                instance=Meeting(title=title, meeting_type=meeting_type),
+            )
+        OnlineWorshipFactory.create(title="Zoom Worship", hosted_by=meeting)
+        memorial = MemorialFactory.create(memorial_meeting=meeting)
+
+        content = render_page(meeting)
+
+        for expected in [
+            "Rendering Test Meeting",
+            'href="tel:555-0100"',
+            'href="mailto:clerk@example.org"',
+            'href="https://example.org/meeting"',
+            "123 Friendly Lane",
+            "Sundays at 10am",
+            "Clara Clerk",
+            'datetime="2026-01-15"',
+            "Child Quarterly Meeting",
+            "Child Monthly Meeting",
+            "Child Worship Group",
+            "Zoom Worship",
+            f"View memorial for {memorial.memorial_person}",
+        ]:
+            with self.subTest(expected=expected):
+                self.assertIn(expected, content)
+
+    def test_person_page_renders_authored_works(self) -> None:
+        person = PersonFactory.create(given_name="Ada", family_name="Author")
+        unpublished_coauthor = PersonFactory.create(
+            given_name="Una",
+            family_name="Published",
+        )
+        unpublished_coauthor.unpublish()
+
+        article = MagazineArticleFactory.create(title="Letters on Stillness")
+        MagazineArticleAuthor.objects.create(article=article, author=person)
+
+        deep_archive = Page.get_first_root_node().add_child(
+            instance=DeepArchiveIndexPage(title="Deep Archive"),
+        )
+        archive_issue = deep_archive.add_child(
+            instance=ArchiveIssue(
+                title="Friends Bulletin 1950",
+                publication_date=datetime.date(1950, 1, 1),
+                internet_archive_identifier="friendsbulletin1950",
+            ),
+        )
+        archive_article = ArchiveArticle.objects.create(
+            title="Archived Reflections",
+            issue=archive_issue,
+            toc_page_number=3,
+            pdf_page_number=5,
+        )
+        ArchiveArticleAuthor.objects.create(article=archive_article, author=person)
+
+        book = BookFactory.create(title="Quiet Paths")
+        BookAuthor.objects.create(book=book, author=person)
+        BookAuthor.objects.create(book=book, author=unpublished_coauthor)
+
+        library_item = LibraryItemFactory.create(title="Library Pamphlet")
+        LibraryItemAuthor.objects.create(library_item=library_item, author=person)
+
+        content = render_page(person)
+
+        for expected in [
+            "Letters on Stillness",
+            "Archived Reflections",
+            "?pdf_page_number=5",
+            "Quiet Paths",
+            f'content="{unpublished_coauthor}"',
+            "Library Pamphlet",
+        ]:
+            with self.subTest(expected=expected):
+                self.assertIn(expected, content)
