@@ -61,7 +61,7 @@ def custom_404(request, exception=None):  # noqa: W0613 # skipcq: PYL-W0613
     )
 
 
-# Private or transactional paths that crawlers should not index
+# Private, transactional, or costly paths that crawlers should not index
 ROBOTS_DISALLOWED_PATHS = [
     "/admin/",
     "/accounts/",
@@ -69,6 +69,7 @@ ROBOTS_DISALLOWED_PATHS = [
     "/orders/",
     "/payment/",
     "/paypal/",
+    "/search/",
 ]
 
 

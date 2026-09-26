@@ -4,6 +4,7 @@ from django.test import TestCase
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from core.utils import get_default_site
+from home.models import HomePage
 from navigation.models import NavigationMenuSetting
 
 
@@ -94,6 +95,11 @@ class RobotsTxtTest(TestCase):
         response = self.client.get("/robots.txt")
 
         self.assertIn("Disallow: /admin/", response.content.decode())
+
+    def test_robots_txt_disallows_search(self):
+        response = self.client.get("/robots.txt")
+
+        self.assertIn("Disallow: /search/", response.content.decode())
 
     def test_robots_txt_allows_search_and_ai_use(self):
         response = self.client.get("/robots.txt")
@@ -228,3 +234,36 @@ class LlmsTxtTest(TestCase):
         content = self.client.get("/llms.txt").content.decode()
 
         self.assertIn("(https://westernfriend.org/sitemap.xml)", content)
+
+
+class DiscoveryLinkHeaderTest(TestCase):
+    """Test the Link header that points agents at llms.txt and the sitemap."""
+
+    def test_homepage_links_llms_txt_and_sitemap(self):
+        Locale.objects.get_or_create(language_code="en")
+        Site.objects.all().delete()
+        root = Page.get_first_root_node() or Page.add_root(title="Root", slug="root")
+        home = root.add_child(instance=HomePage(title="Home", slug="link-home"))
+        Site.objects.create(hostname="testserver", root_page=home, is_default_site=True)
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+        response = self.client.get("/")
+
+        self.assertTrue(response["Content-Type"].startswith("text/html"))
+        self.assertEqual(
+            response["Link"],
+            '</llms.txt>; rel="describedby"; type="text/plain", '
+            '</sitemap.xml>; rel="sitemap"; type="application/xml"',
+        )
+
+    def test_not_found_page_links_llms_txt_and_sitemap(self):
+        response = self.client.get("/no-such-page/")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('</llms.txt>; rel="describedby"', response["Link"])
+
+    def test_non_html_responses_have_no_link_header(self):
+        response = self.client.get("/robots.txt")
+
+        self.assertNotIn("Link", response)
