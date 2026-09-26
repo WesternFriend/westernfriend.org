@@ -223,8 +223,8 @@ Integration tests with the Django test client:
 
 | Step | Change | Check |
 | --- | --- | --- |
-| 0 | Record a 7-day baseline in Cloudflare Analytics: requests, % cached, origin requests, HTML only | Numbers go in the PR |
-| 1 | Deploy the middleware, store change and purge config with TTL `0` (off) | Production returns `private`; publishing a page logs a successful purge |
+| 0 | Record a baseline from Cloudflare Analytics | Done: see [Cloudflare Analytics](../cloudflare-analytics.md#baseline-before-edge-caching) |
+| 1 | Deploy the middleware, store change and purge config with TTL `0` (off). In **Settings → Sites**, make sure the default site's hostname is `westernfriend.org` on port `443`: Wagtail builds purge URLs from it | Production returns `private`; publishing a page logs a successful purge |
 | 2 | Disable App Platform edge caching | Headers unchanged, site works |
 | 3 | Set `DJANGO_PUBLIC_CACHE_EDGE_TTL=900` | Anonymous `curl -I` returns `public …`, then `cf-cache-status: HIT`; a logged-in browser still gets `private` / `BYPASS`; publishing an edit shows it at once |
 | 4 | After a week, compare with the baseline | Success measures (§7) |
@@ -236,8 +236,15 @@ Cloudflare. No deploy is needed.
 
 ## 7. Success measures
 
-- Cloudflare edge hit ratio for HTML at or above 60% (today about 0%)
-- Origin HTML requests per day down at least 50% from about 110,000
+Measured as described in [Cloudflare Analytics](../cloudflare-analytics.md).
+
+- Cloudflare edge hit ratio for HTML at or above 60% (today 0%)
+- Origin HTML requests per day down at least 50% from about 23,500. The
+  issue's 110,000 counts every HTML response, but Cloudflare already answers
+  about 88,000 a day itself with HTTPS redirects, bot challenges and rate
+  limits.
+- Average origin response time for HTML 200s is 700 ms today, so each cache
+  hit saves roughly that much server time
 - No reports of personal content (logged-in navbar, subscriber articles, cart)
   shown to the wrong visitor. Spot-check with a logged-in browser and an
   anonymous `curl` after step 3.
