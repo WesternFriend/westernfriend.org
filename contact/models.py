@@ -1,8 +1,13 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import connection, models
 from django.db.models import TextChoices
+from django.http import HttpRequest
+
+if TYPE_CHECKING:
+    from django.db.models import Prefetch
+from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.html import strip_tags
 from modelcluster.fields import ParentalKey
@@ -17,6 +22,166 @@ from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from addresses.models import Address
+
+
+class ContactPublicationStatistics(models.Model):
+    """Tracks publication statistics for a contact."""
+
+    class ContactType(TextChoices):
+        PERSON = "person", "Person"
+        MEETING = "meeting", "Meeting"
+        ORGANIZATION = "organization", "Organization"
+
+    contact = models.OneToOneField(
+        "wagtailcore.Page",  # References the contact models
+        on_delete=models.CASCADE,
+        related_name="publication_statistics",
+        primary_key=True,
+    )
+
+    # Contact type for faster filtering
+    contact_type = models.CharField(
+        max_length=20,
+        choices=ContactType.choices,
+        db_index=True,
+    )
+
+    # Publication metrics
+    article_count = models.PositiveIntegerField(default=0)
+    last_published_at = models.DateTimeField(null=True, blank=True)
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Contact Publication Statistics"
+        verbose_name_plural = "Contact Publication Statistics"
+        indexes = [
+            models.Index(fields=["contact_type"]),
+            models.Index(fields=["article_count"]),
+            models.Index(fields=["last_published_at"]),
+        ]
+
+    def __str__(self):
+        return f"Publication stats for {self.contact}"
+
+    @classmethod
+    def update_for_contact(cls, contact):
+        """Update publication statistics for a given contact."""
+        from magazine.models import (
+            ArchiveArticleAuthor,
+            MagazineArticle,
+            MagazineArticleAuthor,
+            MagazineIssue,
+        )
+
+        # Get all magazine articles authored by this contact
+        articles_authored = MagazineArticleAuthor.objects.filter(
+            author=contact,
+        ).select_related(
+            "article",
+        )
+        archive_articles_authored = ArchiveArticleAuthor.objects.filter(
+            author=contact,
+        ).select_related("article__issue")
+
+        # Count the total number of articles
+        article_count = articles_authored.count() + archive_articles_authored.count()
+
+        # Find the most recent publication date
+        recent_article_date = None
+
+        # For magazine articles, get the publication date from the parent issue
+        if articles_authored.exists():
+            # We'll query all magazine articles by this author and find the latest one
+            magazine_article_ids = articles_authored.values_list(
+                "article_id",
+                flat=True,
+            )
+
+            # Find articles from their IDs
+            magazine_articles = MagazineArticle.objects.filter(
+                id__in=magazine_article_ids,
+            )
+
+            # Get parent issues
+            parent_issue_ids = []
+            for article in magazine_articles:
+                # Get parent page which should be a MagazineIssue
+                parent = article.get_parent()
+                if parent and isinstance(parent.specific, MagazineIssue):
+                    parent_issue_ids.append(parent.id)
+
+            # Now query all related magazine issues with their publication dates
+            if parent_issue_ids:
+                recent_issues = MagazineIssue.objects.filter(
+                    id__in=parent_issue_ids,
+                ).order_by(
+                    "-publication_date",
+                )
+
+                if recent_issues.exists():
+                    recent_issue = recent_issues.first()
+                    if hasattr(recent_issue, "publication_date"):
+                        pub_date = recent_issue.publication_date
+                        if isinstance(pub_date, timezone.datetime):
+                            recent_article_date = pub_date
+                        else:
+                            # Convert date to datetime if needed
+                            recent_article_date = timezone.datetime.combine(
+                                pub_date,
+                                timezone.datetime.min.time(),
+                                tzinfo=timezone.get_current_timezone(),
+                            )
+
+        # For archive articles, use the archive issue's publication date
+        if archive_articles_authored.exists():
+            recent_archive_articles = archive_articles_authored.order_by(
+                "-article__issue__publication_date",
+            )
+            if recent_archive_articles.exists():
+                recent_archive = recent_archive_articles.first()
+                if hasattr(recent_archive.article.issue, "publication_date"):
+                    pub_date = recent_archive.article.issue.publication_date
+                    if isinstance(pub_date, timezone.datetime):
+                        archive_date = pub_date
+                    else:
+                        # Convert date to datetime if needed
+                        archive_date = timezone.datetime.combine(
+                            pub_date,
+                            timezone.datetime.min.time(),
+                            tzinfo=timezone.get_current_timezone(),
+                        )
+
+                    if (
+                        recent_article_date is None
+                        or archive_date > recent_article_date
+                    ):
+                        recent_article_date = archive_date
+
+        # Determine contact type
+        if contact.specific_class.__name__ == "Person":
+            contact_type = cls.ContactType.PERSON
+        elif contact.specific_class.__name__ == "Meeting":
+            contact_type = cls.ContactType.MEETING
+        elif contact.specific_class.__name__ == "Organization":
+            contact_type = cls.ContactType.ORGANIZATION
+        else:
+            # Default fallback
+            contact_type = cls.ContactType.PERSON
+
+        # Create or update the statistics
+        stats, created = cls.objects.update_or_create(
+            contact=contact,
+            defaults={
+                "article_count": article_count,
+                "last_published_at": recent_article_date,
+                "contact_type": contact_type,
+            },
+        )
+
+        return stats
 
 
 class JSONLDMixin:
@@ -71,7 +236,312 @@ class JSONLDMixin:
         return data
 
 
-class Person(JSONLDMixin, Page):
+class ContactBase(JSONLDMixin, Page):
+    """
+    Abstract base class for all contact types (Person, Meeting, Organization)
+    """
+
+    website = models.URLField(
+        null=True,
+        blank=True,
+        help_text="Website URL for this contact",
+    )
+    email = models.EmailField(
+        null=True,
+        blank=True,
+        help_text="Email address for this contact",
+    )
+    phone = models.CharField(
+        max_length=64,
+        null=True,
+        blank=True,
+        help_text="Phone number for this contact",
+    )
+
+    # Fields for external system integration
+    civicrm_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="ID in the CiviCRM system",
+    )
+    drupal_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+        help_text="ID of the author in Drupal",
+    )
+    drupal_duplicate_author_ids = ArrayField(
+        models.IntegerField(),
+        blank=True,
+        default=list,
+        help_text="IDs of duplicate authors in Drupal",
+    )
+    drupal_library_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="ID of the library author in Drupal",
+    )
+
+    # Common panels for all contact types
+    import_metadata_panels = [
+        FieldPanel(
+            "civicrm_id",
+            permission="superuser",
+        ),
+        FieldPanel(
+            "drupal_author_id",
+            permission="superuser",
+        ),
+        FieldPanel(
+            "drupal_duplicate_author_ids",
+            permission="superuser",
+        ),
+    ]
+
+    base_content_panels = Page.content_panels + [
+        FieldPanel("website"),
+        FieldPanel("email"),
+        FieldPanel("phone"),
+        FieldRowPanel(
+            heading="Import metadata",
+            help_text="Temporary area for troubleshooting content importers.",
+            children=import_metadata_panels,
+        ),
+    ]
+
+    base_search_fields = Page.search_fields + [
+        index.SearchField("drupal_author_id"),
+    ]
+
+    template = "contact/contact.html"
+
+    def _build_prefetch_objects(self) -> "list[Prefetch]":
+        """Build list of Prefetch objects for all related content.
+
+        Returns:
+            List of Prefetch objects for optimized queryset loading.
+        """
+        from django.db.models import Prefetch
+
+        from magazine.models import MagazineArticleAuthor
+
+        prefetch_objects: list[Prefetch] = []
+
+        # Optimize magazine articles with deferred streamfields
+        if hasattr(self, "articles_authored"):
+            optimized_articles_qs = (
+                MagazineArticleAuthor.objects.select_related(
+                    "article__department",
+                )
+                .prefetch_related(
+                    "article__authors__author",
+                )
+                .defer(
+                    "article__body",
+                    "article__body_migrated",
+                )
+            )
+            prefetch_objects.append(
+                Prefetch("articles_authored", queryset=optimized_articles_qs),
+            )
+
+        # Optimize archive articles with issue relationship
+        if hasattr(self, "archive_articles_authored"):
+            archive_articles_qs = (
+                self.archive_articles_authored.model.objects.select_related(
+                    "article__issue",
+                )
+            )
+            prefetch_objects.append(
+                Prefetch(
+                    "archive_articles_authored",
+                    queryset=archive_articles_qs,
+                ),
+            )
+
+        # Optimize books with author relationships
+        if hasattr(self, "books_authored"):
+            books_qs = self.books_authored.model.objects.prefetch_related(
+                "book__authors__author",
+            )
+            prefetch_objects.append(
+                Prefetch("books_authored", queryset=books_qs),
+            )
+
+        # Optimize library items with author relationships
+        if hasattr(self, "library_items_authored"):
+            library_items_qs = (
+                self.library_items_authored.model.objects.prefetch_related(
+                    "library_item__authors__author",
+                )
+            )
+            prefetch_objects.append(
+                Prefetch("library_items_authored", queryset=library_items_qs),
+            )
+
+        # Optimize memorial minutes with person relationship (Person pages)
+        if hasattr(self, "memorial_minute"):
+            memorials_qs = self.memorial_minute.model.objects.select_related(
+                "memorial_person",
+            )
+            prefetch_objects.append(
+                Prefetch("memorial_minute", queryset=memorials_qs),
+            )
+
+        # Optimize memorial minutes with person relationship (Meeting pages)
+        if hasattr(self, "memorial_minutes"):
+            memorials_qs = self.memorial_minutes.model.objects.select_related(
+                "memorial_person",
+            )
+            prefetch_objects.append(
+                Prefetch("memorial_minutes", queryset=memorials_qs),
+            )
+
+        return prefetch_objects
+
+    def _cache_article_parents(self) -> None:
+        """Bulk-fetch and cache parent pages for articles.
+
+        This prevents N+1 queries when templates call {% pageurl issue %}.
+        """
+        if not hasattr(self, "articles_authored") or not hasattr(
+            self,
+            "_prefetched_objects_cache",
+        ):
+            return
+
+        article_author_links = self._prefetched_objects_cache.get(
+            "articles_authored",
+            [],
+        )
+        if not article_author_links:
+            return
+
+        # Collect unique parent paths for all articles
+        parent_paths = set()
+        for article_link in article_author_links:
+            article = article_link.article
+            if article.depth > 1:  # Skip root pages
+                parent_path = article.path[: -article.steplen]
+                parent_paths.add(parent_path)
+
+        if not parent_paths:
+            return
+
+        # Bulk fetch all parent pages and create lookup map
+        parent_pages = Page.objects.filter(path__in=parent_paths).specific()  # type: ignore[attr-defined]
+        parent_map = {page.path: page for page in parent_pages}
+
+        # Cache parent on each article by monkey-patching get_parent()
+        for article_link in article_author_links:
+            article = article_link.article
+            if article.depth > 1:
+                parent_path = article.path[: -article.steplen]
+                if parent_path in parent_map:
+                    cached_parent = parent_map[parent_path]
+                    # Override get_parent to return cached parent
+                    article.get_parent = lambda cached=cached_parent: cached
+
+    def _add_sentry_context(self, initial_queries: int) -> None:
+        """Add Sentry transaction context for debugging/monitoring.
+
+        Note: optimization_query_count is only meaningful in development/staging (DEBUG=True)
+        because connection.queries is empty in production. In production, we rely on
+        relationship counts and Sentry's automatic performance monitoring instead.
+
+        Args:
+            initial_queries: Query count before optimization.
+        """
+        try:
+            import sentry_sdk
+            from django.conf import settings
+
+            final_queries = len(connection.queries) if settings.DEBUG else 0
+            query_count = final_queries - initial_queries
+
+            sentry_sdk.set_tag("contact.queries_optimized", "true")
+
+            # Safely get prefetch cache
+            prefetch_cache = getattr(self, "_prefetched_objects_cache", {})
+
+            sentry_sdk.set_context(
+                "contact_optimization",
+                {
+                    "contact_type": self.__class__.__name__,
+                    "optimization_query_count": query_count,  # Only non-zero when DEBUG=True
+                    "articles_count": len(prefetch_cache.get("articles_authored", [])),
+                    "archive_articles_count": len(
+                        prefetch_cache.get("archive_articles_authored", []),
+                    ),
+                    "books_count": len(prefetch_cache.get("books_authored", [])),
+                    "library_items_count": len(
+                        prefetch_cache.get("library_items_authored", []),
+                    ),
+                    "memorials_count": len(prefetch_cache.get("memorial_minute", []))
+                    + len(prefetch_cache.get("memorial_minutes", [])),
+                },
+            )
+        except ImportError:
+            # Sentry not installed, skip tagging
+            pass
+
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: Any,
+        **kwargs: Any,
+    ) -> dict:
+        """Optimize queries for contact page to prevent N+1 queries.
+
+        This method prefetches all related content (articles, books, library items,
+        memorials) and their nested relationships to avoid N+1 query patterns that
+        would otherwise occur when the template iterates over these relationships.
+        """
+        from django.conf import settings
+
+        # Track initial query count for Sentry diagnostics
+        initial_queries = len(connection.queries) if settings.DEBUG else 0
+
+        # Build and apply prefetch objects
+        prefetch_objects = self._build_prefetch_objects()
+
+        if prefetch_objects:
+            # Reload the instance with prefetches
+            self_with_prefetch = (
+                self.__class__.objects.filter(pk=self.pk)
+                .prefetch_related(*prefetch_objects)
+                .first()
+            )
+
+            # Merge prefetched data to preserve any existing prefetches
+            if self_with_prefetch:
+                existing = getattr(self, "_prefetched_objects_cache", {})
+                new = getattr(self_with_prefetch, "_prefetched_objects_cache", {})
+                self._prefetched_objects_cache = {**existing, **new}
+
+        # Bulk prefetch parent MagazineIssue pages for articles
+        self._cache_article_parents()
+
+        # Add Sentry diagnostics
+        self._add_sentry_context(initial_queries)
+
+        # Call parent get_context to get the base context
+        context = super().get_context(request, *args, **kwargs)
+        return context
+
+    class Meta:
+        abstract = True
+        ordering = ["title"]
+        indexes = [
+            models.Index(fields=["civicrm_id"]),
+            models.Index(fields=["drupal_author_id"]),
+        ]
+
+
+class Person(ContactBase):
     given_name = models.CharField(
         max_length=255,
         default="",
@@ -85,82 +555,37 @@ class Person(JSONLDMixin, Page):
         blank=True,
         default="",
     )
-    drupal_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        unique=True,
-        db_index=True,
-    )
-    drupal_duplicate_author_ids = ArrayField(
-        models.IntegerField(),
-        blank=True,
-        default=list,
-    )
-    drupal_library_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-    civicrm_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
-    )
 
-    content_panels = [
+    content_panels = Page.content_panels + [
         FieldPanel("given_name"),
         FieldPanel("family_name"),
+        FieldPanel("website"),
+        FieldPanel("email"),
+        FieldPanel("phone"),
         FieldRowPanel(
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
-            children=[
-                FieldPanel(
-                    "civicrm_id",
-                    permission="superuser",
-                ),
-                FieldPanel(
-                    "drupal_author_id",
-                    permission="superuser",
-                ),
-                FieldPanel(
-                    "drupal_duplicate_author_ids",
-                    permission="superuser",
-                ),
-            ],
+            children=ContactBase.import_metadata_panels,
         ),
     ]
 
     template = "contact/contact.html"
-
-    class Meta:
-        db_table = "person"
-        ordering = ["title"]
-        verbose_name_plural = "people"
-        indexes = [
-            models.Index(fields=["civicrm_id"]),
-            models.Index(fields=["drupal_author_id"]),
-        ]
 
     def save(
         self,
         *args: Any,
         **kwargs: Any,
     ) -> None:
+        # Both given name and family name can technically be empty
         full_name = f"{self.given_name} {self.family_name}"
-        self.title = full_name.strip()
+        # So, we fall back to using "Unnamed Person" to make sure we have a title value
+        self.title = full_name.strip() or "Unnamed Person"
 
         super().save(*args, **kwargs)
 
-    search_fields = Page.search_fields + [
-        index.SearchField(
-            "given_name",
-        ),
-        index.SearchField(
-            "family_name",
-        ),
-        index.SearchField(
-            "drupal_author_id",
-        ),
+    search_fields = ContactBase.base_search_fields + [
+        index.SearchField("given_name"),
+        index.SearchField("family_name"),
     ]
 
     parent_page_types = ["contact.PersonIndexPage"]
@@ -176,6 +601,15 @@ class Person(JSONLDMixin, Page):
             },
         )
         return data
+
+    class Meta:
+        db_table = "person"
+        verbose_name_plural = "people"
+        ordering = ["title"]
+        indexes = [
+            models.Index(fields=["civicrm_id"]),
+            models.Index(fields=["drupal_author_id"]),
+        ]
 
 
 class PersonIndexPage(Page):
@@ -207,7 +641,7 @@ class MeetingPresidingClerk(Orderable):
     ]
 
 
-class Meeting(JSONLDMixin, Page):
+class Meeting(ContactBase):
     class MeetingTypeChoices(TextChoices):
         MONTHLY_MEETING = "monthly_meeting", "Monthly Meeting"
         QUARTERLY_MEETING = "quarterly_meeting", "Quarterly Meeting"
@@ -223,40 +657,6 @@ class Meeting(JSONLDMixin, Page):
     description = RichTextField(
         blank=True,
         null=True,
-    )
-    website = models.URLField(
-        null=True,
-        blank=True,
-    )
-    email = models.EmailField(
-        null=True,
-        blank=True,
-    )
-    phone = models.CharField(
-        max_length=64,
-        null=True,
-        blank=True,
-    )
-    civicrm_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-    drupal_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        unique=True,
-        db_index=True,
-    )
-    drupal_duplicate_author_ids = ArrayField(
-        models.IntegerField(),
-        blank=True,
-        default=list,
-    )
-    drupal_library_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
     )
     information_last_verified = models.DateField(
         null=True,
@@ -280,40 +680,17 @@ class Meeting(JSONLDMixin, Page):
         FieldRowPanel(
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
-            children=[
-                FieldPanel(
-                    "civicrm_id",
-                    permission="superuser",
-                    read_only=True,
-                ),
-                FieldPanel(
-                    "drupal_author_id",
-                    permission="superuser",
-                    read_only=True,
-                ),
-                FieldPanel(
-                    "drupal_duplicate_author_ids",
-                    permission="superuser",
-                    read_only=True,
-                ),
-            ],
+            children=ContactBase.import_metadata_panels,
         ),
     ]
 
     parent_page_types = ["contact.MeetingIndexPage", "Meeting"]
     subpage_types: list[str] = ["Meeting"]
 
-    template = "contact/contact.html"
-
     search_template = "search/meeting.html"
 
-    search_fields = Page.search_fields + [
-        index.SearchField(
-            "description",
-        ),
-        index.SearchField(
-            "drupal_author_id",
-        ),
+    search_fields = ContactBase.base_search_fields + [
+        index.SearchField("description"),
     ]
 
     class Meta:
@@ -324,8 +701,11 @@ class Meeting(JSONLDMixin, Page):
             models.Index(fields=["drupal_author_id"]),
         ]
 
+    template = "contact/contact.html"
+
     def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
+        # Call parent with all arguments to preserve ContactBase query optimizations
+        context = super().get_context(request, *args, **kwargs)
 
         context["quarterly_meetings"] = (
             Meeting.objects.child_of(self)
@@ -392,7 +772,7 @@ class MeetingWorshipTime(Orderable):
     )
     worship_type = models.CharField(
         max_length=255,
-        choices=WorshipTypeChoices.choices,
+        choices=WorshipTypeChoices,
         null=True,
         blank=True,
     )
@@ -407,60 +787,28 @@ class MeetingIndexPage(Page):
 
     template = "contact/meeting_index_page.html"
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["meetings"] = list(self.get_descendants().live().specific())
+        return context
 
-class Organization(JSONLDMixin, Page):
+
+class Organization(ContactBase):
     description = models.CharField(
         max_length=255,
         blank=True,
         null=True,
     )
 
-    website = models.URLField(
-        null=True,
-        blank=True,
-    )
-    civicrm_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-    drupal_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        unique=True,
-        db_index=True,
-    )
-    drupal_duplicate_author_ids = ArrayField(
-        models.IntegerField(),
-        blank=True,
-        default=list,
-    )
-    drupal_library_author_id = models.IntegerField(
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-
     content_panels = Page.content_panels + [
         FieldPanel("description"),
         FieldPanel("website"),
+        FieldPanel("email"),
+        FieldPanel("phone"),
         FieldRowPanel(
             heading="Import metadata",
             help_text="Temporary area for troubleshooting content importers.",
-            children=[
-                FieldPanel(
-                    "civicrm_id",
-                    permission="superuser",
-                ),
-                FieldPanel(
-                    "drupal_author_id",
-                    permission="superuser",
-                ),
-                FieldPanel(
-                    "drupal_duplicate_author_ids",
-                    permission="superuser",
-                ),
-            ],
+            children=ContactBase.import_metadata_panels,
         ),
     ]
 
@@ -468,16 +816,10 @@ class Organization(JSONLDMixin, Page):
     subpage_types: list[str] = []
 
     template = "contact/contact.html"
-
     search_template = "search/organization.html"
 
-    search_fields = Page.search_fields + [
-        index.SearchField(
-            "description",
-        ),
-        index.SearchField(
-            "drupal_author_id",
-        ),
+    search_fields = ContactBase.base_search_fields + [
+        index.SearchField("description"),
     ]
 
     class Meta:

@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from django_flatpickr.widgets import DatePickerInput
+from django.utils import timezone
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.models import ClusterableModel  # type: ignore
@@ -28,9 +28,15 @@ from pagination.helpers import get_paginated_items
 from .panels import NestedInlinePanel
 
 MAGAZINE_ARCHIVE_THRESHOLD_DAYS = 180
-ARCHIVE_THRESHOLD_DATE = datetime.date.today() - timedelta(
-    days=MAGAZINE_ARCHIVE_THRESHOLD_DAYS,
-)
+
+
+def get_archive_threshold_date() -> datetime.date:
+    """Return the date before which magazine issues are publicly accessible.
+
+    Computed on each call so the threshold advances with the current date,
+    rather than being frozen when the module is imported.
+    """
+    return timezone.localdate() - timedelta(days=MAGAZINE_ARCHIVE_THRESHOLD_DAYS)
 
 
 class MagazineIndexPage(Page):
@@ -82,14 +88,15 @@ class MagazineIndexPage(Page):
         context = super().get_context(request)
 
         published_issues = MagazineIssue.objects.live().order_by("-publication_date")
+        archive_threshold_date = get_archive_threshold_date()
 
         # recent issues are published after the archive threshold
         context["recent_issues"] = published_issues.filter(
-            publication_date__gte=ARCHIVE_THRESHOLD_DATE,
+            publication_date__gte=archive_threshold_date,
         )
 
         archive_issues = published_issues.filter(
-            publication_date__lt=ARCHIVE_THRESHOLD_DATE,
+            publication_date__lt=archive_threshold_date,
         )
 
         # Get the unique years of the archive issues as a list of integers (years)
@@ -109,7 +116,8 @@ class MagazineIndexPage(Page):
                 publication_date__year=archive_year,
             )
 
-        page_number = request.GET.get("page", "1")
+        _page_raw = request.GET.get("page", "1")
+        page_number = int(_page_raw) if _page_raw.isdigit() else 1
         items_per_page = 8
 
         context["archive_issues"] = get_paginated_items(
@@ -127,6 +135,7 @@ class MagazineIndexPage(Page):
 class MagazineIssue(DrupalFields, Page):  # type: ignore
     cover_image = models.ForeignKey(
         "wagtailimages.Image",
+        help_text="When uploading images,please choose the highest quality available that meets the upload requirements",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -134,7 +143,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
     )
     publication_date = models.DateField(
         help_text="Please select the first day of the publication month",
-        default=datetime.date.today,
+        default=timezone.localdate,
     )
     issue_number = models.PositiveIntegerField(null=True, blank=True)
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
@@ -187,7 +196,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         subscribers based on publication date and archive threshold."""
 
         # check whether publication date is before public access date
-        return self.publication_date < ARCHIVE_THRESHOLD_DATE
+        return self.publication_date < get_archive_threshold_date()
 
     search_template = "search/magazine_issue.html"
     search_fields = Page.search_fields + [
@@ -196,7 +205,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
     ]
 
     content_panels = Page.content_panels + [
-        FieldPanel("publication_date", widget=DatePickerInput()),
+        FieldPanel("publication_date"),
         FieldPanel("cover_image"),
     ]
 
@@ -299,27 +308,14 @@ class MagazineDepartment(Page):
     ) -> dict:
         context = super().get_context(request)
 
-        context["articles"] = (
-            MagazineArticle.objects.filter(
-                department__title=self.title,
-            )
-            .live()
-            .prefetch_related(
-                "authors__author",
-                "issue",
-            )
+        # Use optimized queryset with all prefetch optimizations
+        # Filter by FK directly (department=self) instead of department__title for better performance
+        articles = list(
+            MagazineArticle.get_queryset().filter(department=self).live(),
         )
 
-        articles = (
-            MagazineArticle.objects.filter(
-                department__title=self.title,
-            )
-            .live()
-            .prefetch_related(
-                "authors__author",
-                "issue",
-            )
-        )
+        # Bulk-fetch parent issues to avoid N+1 from parent_issue property
+        MagazineArticle.prefetch_parent_issues(articles)
 
         context["articles"] = articles
 
@@ -363,11 +359,61 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
 
     search_template = "search/magazine_article.html"
 
+    @property
+    def parent_issue(self):
+        """Return the parent MagazineIssue.
+
+        Uses the value pre-populated by prefetch_parent_issues()
+        when available (set as _parent_page), avoiding a DB query.
+        Falls back to get_parent().specific in contexts where annotation
+        was not performed.
+        """
+        if hasattr(self, "_parent_page") and self._parent_page is not None:
+            return self._parent_page
+        return self.get_parent().specific
+
+    @classmethod
+    def prefetch_parent_issues(cls, articles):
+        """Bulk-annotate a list of MagazineArticle instances with their parent
+        MagazineIssue, setting ``_parent_page`` on each.
+
+        Prefer this over ``Page.objects.annotate_parent_page()`` for
+        MagazineArticle lists: the generic helper fetches parents as deferred
+        specific instances, which trigger per-article queries when
+        MagazineIssue-specific fields (e.g. ``publication_date``) are accessed.
+        This method fetches MagazineIssue objects directly, avoiding that N+1.
+        """
+        articles = list(articles)
+        parent_paths = {
+            article.path[: -article.steplen]
+            for article in articles
+            if article.depth > 1
+        }
+        if not parent_paths:
+            return
+        issue_by_path = {
+            issue.path: issue
+            for issue in MagazineIssue.objects.filter(path__in=parent_paths)
+        }
+        for article in articles:
+            if article.depth > 1:
+                parent = issue_by_path.get(article.path[: -article.steplen])
+                if parent is not None:
+                    article._parent_page = parent  # type: ignore[attr-defined]
+
     @classmethod
     def get_queryset(cls):
-        """Prefetch authors and tags for performance."""
-        related_fields = ["authors__author", "tags__tag", "department"]
-        return super().get_queryset().prefetch_related(*related_fields)
+        """Optimize related fetches for listings.
+
+        Note: Use cls.objects rather than super().get_queryset() because the
+        base class does not provide a classmethod get_queryset.
+        """
+        return (
+            cls.objects.defer_streamfields()
+            .defer("body_migrated")
+            .select_related("department")
+            .prefetch_related("authors__author", "tags")
+        )
 
     class Meta:
         verbose_name = "Magazine Article"
@@ -600,7 +646,7 @@ class ArchiveIssue(DrupalFields, Page):  # type: ignore
     )
 
     content_panels = Page.content_panels + [
-        FieldPanel("publication_date", widget=DatePickerInput()),
+        FieldPanel("publication_date"),
         FieldPanel("internet_archive_identifier"),
         FieldPanel("western_friend_volume"),
         InlinePanel(
@@ -612,6 +658,32 @@ class ArchiveIssue(DrupalFields, Page):  # type: ignore
 
     parent_page_types = ["DeepArchiveIndexPage"]
     subpage_types: list[str] = []
+
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
+        """Override get_context to prefetch archive author relationships.
+
+        Prevents N+1 queries when template loops through article.archive_authors.all
+        by prefetching author pages in a single query.
+        """
+        context = super().get_context(request, *args, **kwargs)
+
+        # Prefetch archive_authors and their related author pages to avoid N+1 queries
+        # when the template accesses article.archive_authors.all and archive_author.author
+        # Force evaluation with list() to execute queries within get_context()
+        articles = list(
+            self.archive_articles.prefetch_related(
+                "archive_authors__author",
+            ).all(),
+        )
+
+        context["archive_articles"] = articles
+
+        return context
 
     class Meta:
         indexes = [
@@ -663,13 +735,14 @@ class DeepArchiveIndexPage(Page):
             query=query,  # type: ignore[arg-type]
         )
 
-        page = request.GET.get("page", "1")
+        _page_raw = request.GET.get("page", "1")
+        page_number = int(_page_raw) if _page_raw.isdigit() else 1
         items_per_page = 12
 
         context["archive_issues"] = get_paginated_items(
             items=archive_issues,
             items_per_page=items_per_page,
-            page_number=page,
+            page_number=page_number,
         )
 
         # Add publication years to context, for select menu

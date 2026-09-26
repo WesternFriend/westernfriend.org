@@ -1,31 +1,49 @@
-{% load wagtailcore_tags %}
-<div class="card mb-2">
+{% load i18n wagtailcore_tags %}
+
+<article class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow mb-4">
     <div class="card-body">
-        <a href="{% pageurl article %}" class="card-title fs-3 fw-bold magazine-article-summary-title-link">
-            {{ article.title }}
-        </a>
-
-        {% if article.authors.count %}
-            <ul class="list-inline mb-1">
-                <li class="list-inline-item">Author(s):</li>
-                {% for author in article.authors.all %}
-                    <li class="list-inline-item">
-                        {% if author.author.live %}
-                            <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                        {% else %}
-                            {{ author.author }}{% if not forloop.last %},{% endif %}
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-
-        {{ article.teaser | richtext }}
-
-        <p>
-            Issue: <a href="{% pageurl article.get_parent %}">
-                {{ article.get_parent }} ({{ article.get_parent.specific.publication_date| date:"F Y" }})
+        <h3 class="card-title">
+            <a href="{% pageurl article %}">
+                {{ article.title }}
             </a>
-        </p>
+        </h3>
+
+        {% with author_links=article.authors.all %}
+            {% if author_links %}
+                <div class="mb-2">
+                    <span id="authors-label-{{ article.pk }}" class="font-medium">{% translate "Authors" %}:</span>
+                    <ul class="inline list-none p-0 m-0" aria-labelledby="authors-label-{{ article.pk }}">
+                        {% for author in author_links %}
+                            <li class="inline">
+                                {% if author.author.live %}
+                                    <a href="{% pageurl author.author %}">{{ author.author }}</a>
+                                {% else %}
+                                    {{ author.author }}
+                                {% endif %}
+                                {% if not forloop.last %}, {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="prose">
+            {{ article.teaser|richtext }}
+        </div>
+
+        {% with issue=article.parent_issue %}
+            <div class="card-actions">
+                <span>
+                    <span class="font-medium">{% translate "Issue" %}:</span>
+                    <a href="{% pageurl issue %}" class="link">{{ issue }}</a>
+                    {% if issue.publication_date %}
+                        (<time datetime="{{ issue.publication_date|date:'Y-m-d' }}">
+                            {{ issue.publication_date|date:"F Y" }}
+                        </time>)
+                    {% endif %}
+                </span>
+            </div>
+        {% endwith %}
     </div>
-</div>
+</article>

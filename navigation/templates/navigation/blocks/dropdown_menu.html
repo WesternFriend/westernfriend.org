@@ -1,12 +1,14 @@
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        {{ value.title}}
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-        {% for item in value.menu_items %}
-            <li>
+<li role="none" class="dropdown">
+    <details>
+        <summary role="menuitem" id="summary-for-{{ value.submenu_id }}" aria-haspopup="true" aria-controls="{{ value.submenu_id }}" class="btn btn-ghost m-1">
+            {{ value.title }}
+        </summary>
+        <ul role="menu" id="{{ value.submenu_id }}" aria-labelledby="summary-for-{{ value.submenu_id }}" class="p-2 shadow menu dropdown-content z-[1] bg-white rounded-box w-52">
+            {% for item in value.menu_items %}
+                {# Ensure item rendering respects ARIA roles for menu items #}
+                {# This assumes 'item' will be rendered by nav_link.html or this template again if nested #}
                 {{ item }}
-            </li>
-        {% endfor %}
-    </ul>
+            {% endfor %}
+        </ul>
+    </details>
 </li>

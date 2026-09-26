@@ -1,29 +1,22 @@
-from django.views.generic import DetailView
 import django_filters
 from wagtail.admin.filters import DateRangePickerWidget
-from wagtail.admin.viewsets.base import ViewSetGroup
-from wagtail.admin.viewsets.pages import PageListingViewSet
 from wagtail.admin.ui.tables import DateColumn
 from wagtail.admin.ui.tables.pages import (
     BulkActionsColumn,
-    PageTitleColumn,
-    PageStatusColumn,
     NavigateToChildrenColumn,
+    PageStatusColumn,
+    PageTitleColumn,
 )
+from wagtail.admin.viewsets.base import ViewSetGroup
+from wagtail.admin.viewsets.pages import PageListingViewSet
 
 from subscription.views import SubscriptionViewSet
+
 from .models import (
     ArchiveIssue,
     MagazineDepartment,
     MagazineIssue,
 )
-
-
-class MagazineDepartmentDetail(DetailView):
-    model = MagazineDepartment
-    context_object_name = "department"
-
-    template_name = "magazine/magazine_department_detail.html"
 
 
 class MagazineIssueFilterSet(PageListingViewSet.filterset_class):

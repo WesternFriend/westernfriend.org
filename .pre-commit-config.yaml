@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
@@ -10,25 +10,33 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict
+  # - repo: local
+  #   hooks:
+  #     - id: build-tailwind
+  #       name: Build Tailwind CSS for production
+  #       entry: bash -c "cd theme/static_src && npm run build"
+  #       language: system
+  #       files: ^theme/static/
+  #       pass_filenames: false
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.17.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args: [--py311-plus]
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.20.0
+    rev: 1.25.0
     hooks:
       - id: django-upgrade
         args: [--target-version, "5.0"]
   - repo: https://github.com/asottile/add-trailing-comma
-    rev: v3.1.0
+    rev: v3.2.0
     hooks:
       - id: add-trailing-comma
         args: [--py36-plus]
         exclude: ".*migrations/.*"
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.5.6
+    rev: v0.12.7
     hooks:
       # Run the linter.
       - id: ruff
@@ -39,27 +47,17 @@ repos:
     rev: "v0.13.1"
     hooks:
       - id: curlylint
-  - repo: https://github.com/PyCQA/docformatter
-    rev: "v1.7.5"
-    hooks:
-      - id: docformatter
   - repo: https://github.com/rtts/djhtml
-    rev: 3.0.6
+    rev: 3.0.8
     hooks:
       - id: djhtml
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
+  - repo: https://github.com/adamchainz/djade-pre-commit
+    rev: "1.4.0"
     hooks:
-      - id: prettier
-        types_or:
-          - css
-          - javascript
-          - json
-          - markdown
-          - scss
-          - yaml
+      - id: djade
+        args: [--target-version, "5.1"]
   - repo: https://github.com/google/keep-sorted
-    rev: v0.4.0
+    rev: v0.6.1
     hooks:
       - id: keep-sorted
         exclude: ".*migrations/.*"

@@ -1,0 +1,207 @@
+{% load wagtailsettings_tags %}
+{% get_settings use_default_site=True %}
+
+<nav id="nav-vue-app" class="bg-black text-white shadow-md sticky top-0 z-50" aria-label="Main navigation">
+    <div class="container mx-auto px-2">
+        <div class="flex flex-wrap items-center justify-between">
+            <button class="xl:hidden p-1 my-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                    type="button"
+                    data-collapse-toggle="navbarCollapse"
+                    aria-controls="navbarCollapse"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <i class="bi bi-list text-2xl" aria-hidden="true"></i>
+            </button>
+
+            <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:space-x-1">
+                    <ul class="menu menu-horizontal menu-compact bg-black website-links" role="menubar" aria-label="Site navigation links">
+                        {{ settings.navigation.NavigationMenuSetting.menu_items }}
+                    </ul>
+
+                    <ul class="menu menu-horizontal menu-compact bg-black xl:ml-2" role="menubar" aria-label="Account navigation">
+                        <li class="nav-item" role="none">
+                            {% if user.is_authenticated %}
+                                <form id="logout-form" method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" role="menuitem">Log out</button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" rel="nofollow" role="menuitem">
+                                    Login
+                                </a>
+                            {% endif %}
+                        </li>
+                        {% if not user.is_authenticated %}
+                            <li class="nav-item" role="none">
+                                <a href="{% url 'django_registration_register' %}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" rel="nofollow" role="menuitem">
+                                    Register
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+
+                    <form action="{% url 'search' %}" method="get" class="relative mt-2 mb-3 xl:mb-0 xl:mt-0 xl:ml-2" role="search">
+                        <div class="flex">
+                            <label for="navbar-search-input" class="sr-only">Search</label>
+                            <input id="navbar-search-input" name="query" type="search"
+                                   class="bg-[#ffefed] border-0 rounded-l-lg py-1 px-1 text-sm text-gray-800 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#aa3f2e] w-full"
+                                   placeholder="Search" aria-label="Search" />
+                            <button class="bg-gray-700 hover:bg-gray-800 text-white px-2 rounded-r-lg focus:ring-2 focus:ring-gray-300 focus:outline-none"
+                                    type="submit" aria-label="Submit search">
+                                <i class="bi bi-search" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    openDetails: null,
+                    mobileMenuOpen: false,
+                };
+            },
+
+            mounted() {
+                const nav = this.$el;
+                const mobileMenu = document.getElementById('navbarCollapse');
+                const hamburger = nav.querySelector('[data-collapse-toggle="navbarCollapse"]');
+                const xlQuery = window.matchMedia('(min-width: 1280px)');
+
+                // Store refs needed for beforeUnmount cleanup
+                this._mobileMenu = mobileMenu;
+                this._hamburger = hamburger;
+                this._xlQuery = xlQuery;
+
+                // --- Dropdown state management ---
+                const allDropdowns = nav.querySelectorAll('.website-links details');
+                this._dropdownHandlers = [];
+                allDropdowns.forEach(details => {
+                    const handler = () => {
+                        if (details.open) {
+                            if (this.openDetails && this.openDetails !== details) {
+                                this.openDetails.open = false;
+                            }
+                            this.openDetails = details;
+                        } else {
+                            if (this.openDetails === details) {
+                                this.openDetails = null;
+                            }
+                        }
+                    };
+                    details.addEventListener('toggle', handler);
+                    this._dropdownHandlers.push({ el: details, handler });
+                });
+
+                // Close open dropdown and/or mobile menu when clicking outside the nav
+                this._clickHandler = (e) => {
+                    const clickedInsideNav = nav.contains(e.target);
+                    if (!clickedInsideNav) {
+                        if (this.openDetails) {
+                            this.openDetails.open = false;
+                            this.openDetails = null;
+                        }
+                        if (this.mobileMenuOpen) {
+                            this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
+                        }
+                    } else if (this.openDetails && !this.openDetails.closest('li').contains(e.target)) {
+                        // Clicked inside nav but outside the open dropdown
+                        this.openDetails.open = false;
+                        this.openDetails = null;
+                    }
+                };
+                document.addEventListener('click', this._clickHandler);
+
+                // Close open dropdown (and mobile menu) on Escape
+                this._keydownHandler = (e) => {
+                    if (e.key === 'Escape') {
+                        if (this.openDetails) {
+                            this.openDetails.open = false;
+                            this.openDetails = null;
+                        }
+                        if (this.mobileMenuOpen) {
+                            this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
+                        }
+                    }
+                };
+                document.addEventListener('keydown', this._keydownHandler);
+
+                // Sync aria-hidden with actual visibility (xl:block can override 'hidden')
+                this._xlChangeHandler = () => this.syncAriaHidden(mobileMenu, xlQuery);
+                this.syncAriaHidden(mobileMenu, xlQuery);
+                xlQuery.addEventListener('change', this._xlChangeHandler);
+
+                // --- Mobile hamburger toggle ---
+                this._hamburgerHandler = () => {
+                    if (this.mobileMenuOpen) {
+                        this.closeMobileMenu(mobileMenu, hamburger, xlQuery);
+                    } else {
+                        this.openMobileMenu(mobileMenu, hamburger, xlQuery);
+                    }
+                };
+                hamburger.addEventListener('click', this._hamburgerHandler);
+            },
+
+            beforeUnmount() {
+                document.removeEventListener('click', this._clickHandler);
+                document.removeEventListener('keydown', this._keydownHandler);
+                this._xlQuery.removeEventListener('change', this._xlChangeHandler);
+                this._hamburger.removeEventListener('click', this._hamburgerHandler);
+                this._dropdownHandlers.forEach(({ el, handler }) => {
+                    el.removeEventListener('toggle', handler);
+                });
+                if (this.mobileMenuOpen) {
+                    this.closeMobileMenu(this._mobileMenu, this._hamburger, this._xlQuery);
+                }
+                this.openDetails = null;
+            },
+
+            methods: {
+                syncAriaHidden(menu, xlQuery) {
+                    const isVisible = xlQuery.matches || !menu.classList.contains('hidden');
+                    menu.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+                },
+
+                openMobileMenu(menu, button, xlQuery) {
+                    menu.classList.remove('hidden');
+                    button.setAttribute('aria-expanded', 'true');
+                    this.syncAriaHidden(menu, xlQuery);
+                    this.mobileMenuOpen = true;
+
+                    const first = this.getFocusableElements(menu)[0];
+                    if (first) first.focus();
+                },
+
+                closeMobileMenu(menu, button, xlQuery) {
+                    menu.classList.add('hidden');
+                    button.setAttribute('aria-expanded', 'false');
+                    this.syncAriaHidden(menu, xlQuery);
+                    this.mobileMenuOpen = false;
+                    button.focus();
+
+                    if (this.openDetails) {
+                        this.openDetails.open = false;
+                        this.openDetails = null;
+                    }
+                },
+
+                getFocusableElements(element) {
+                    return Array.from(
+                        element.querySelectorAll(
+                            'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), details summary, [tabindex]:not([tabindex="-1"])'
+                        )
+                    ).filter(el => el.offsetParent !== null);
+                },
+            },
+        }).mount('#nav-vue-app');
+    });
+</script>

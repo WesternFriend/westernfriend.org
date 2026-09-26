@@ -1,6 +1,5 @@
 from django.db import models
 from django.http import HttpRequest
-from django_flatpickr.widgets import DatePickerInput
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
 from modelcluster.fields import ParentalKey  # type: ignore
 from taggit.models import TaggedItemBase  # type: ignore
@@ -30,6 +29,13 @@ class LibraryItemTag(TaggedItemBase):
 
 
 class LibraryItem(DrupalFields, Page):  # type: ignore
+    ITEM_SELECT_RELATED_FIELDS = (
+        "item_audience",
+        "item_genre",
+        "item_medium",
+        "item_time_period",
+    )
+
     publication_date = models.DateField("Publication date", null=True, blank=True)
     publication_date_is_approximate = models.BooleanField(
         default=False,
@@ -72,23 +78,52 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
 
     @classmethod
     def get_queryset(cls):
-        related_fields = [
+        related_prefetch = [
             "authors__author",
             "topics__topic",
-            "item_audience",
-            "item_genre",
-            "item_medium",
-            "item_time_period",
-            "tags__tag",
+            "tags",
         ]
         return (
-            super()
-            .get_queryset()
-            .filter(live=True)
-            .prefetch_related(
-                *related_fields,
-            )
+            cls.objects.live()
+            .defer_streamfields()
+            .select_related(*cls.ITEM_SELECT_RELATED_FIELDS)
+            .prefetch_related(*related_prefetch)
         )
+
+    def get_context(self, request, *args, **kwargs):
+        """Override get_context to prefetch author and topic relationships.
+
+        Prevents N+1 queries when template loops through authors and topics
+        by prefetching related pages in a single query.
+        """
+        from django.db.models import Prefetch
+
+        context = super().get_context(request, *args, **kwargs)
+
+        # Reload instance with prefetches to avoid N+1 queries in template
+        self_with_prefetch = (
+            self.__class__.objects.filter(pk=self.pk)
+            .select_related(*self.ITEM_SELECT_RELATED_FIELDS)
+            .prefetch_related(
+                Prefetch(
+                    "authors",
+                    queryset=LibraryItemAuthor.objects.select_related("author"),
+                ),
+                Prefetch(
+                    "topics",
+                    queryset=LibraryItemTopic.objects.select_related("topic"),
+                ),
+                "tags",
+            )
+            .first()
+        )
+
+        # Replace the page instance in context with the prefetched version
+        # This avoids touching Django's internal _prefetched_objects_cache
+        if self_with_prefetch:
+            context["page"] = self_with_prefetch
+
+        return context
 
     content_panels = Page.content_panels + [
         InlinePanel(
@@ -101,7 +136,6 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
             children=[
                 FieldPanel(
                     "publication_date",
-                    widget=DatePickerInput(),
                 ),
                 FieldPanel(
                     "publication_date_is_approximate",
@@ -265,7 +299,8 @@ class LibraryIndexPage(Page):
             .order_by("-publication_date")
             .prefetch_related("authors__author")
         )
-        page_number = request.GET.get("page", "1")
+        _page_raw = request.GET.get("page", "1")
+        page_number = int(_page_raw) if _page_raw.isdigit() else 1
         items_per_page = 10
 
         # Provide filtered, paginated library items

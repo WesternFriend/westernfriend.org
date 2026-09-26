@@ -1,0 +1,36 @@
+{% load i18n wagtailadmin_tags %}
+
+<table class="listing">
+    <thead>
+        <tr>
+            <th>{% translate "Contact" %}</th>
+            <th>{% translate "Type" %}</th>
+            <th>{% translate "Articles" %}</th>
+            <th>{% translate "Last Published" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stat in object_list %}
+            <tr>
+                <td class="title">
+                    {% if stat.contact %}
+                        <a href="{% url 'wagtailadmin_pages:edit' stat.contact.id %}">
+                            {{ stat.contact.title }}
+                        </a>
+                    {% else %}
+                        {% translate "Unknown Contact" %}
+                    {% endif %}
+                </td>
+                <td>{{ stat.get_contact_type_display }}</td>
+                <td>{{ stat.article_count }}</td>
+                <td>
+                    {% if stat.last_published_at %}
+                        {{ stat.last_published_at|date:"M d, Y" }}
+                    {% else %}
+                        {% translate "Never" %}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

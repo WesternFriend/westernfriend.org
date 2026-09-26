@@ -1,15 +1,22 @@
 from typing import Any
-import factory
-from library.factories import LibraryIndexPageFactory
 
+import factory
+
+from library.factories import LibraryIndexPageFactory
 from library.models import LibraryIndexPage
+
 from .models import (
     Audience,
+    AudienceIndexPage,
     FacetIndexPage,
     Genre,
+    GenreIndexPage,
     Medium,
+    MediumIndexPage,
     TimePeriod,
+    TimePeriodIndexPage,
     Topic,
+    TopicIndexPage,
 )
 
 
@@ -28,7 +35,6 @@ class FacetIndexPageFactory(factory.django.DjangoModelFactory):
     ) -> FacetIndexPage:
         instance = model_class(*args, **kwargs)  # type: ignore
 
-        # Get the LibraryIndexPage instance if it exists, otherwise create one.
         library_index_page = LibraryIndexPage.objects.first()
         if library_index_page is None:
             library_index_page = LibraryIndexPageFactory()
@@ -36,6 +42,65 @@ class FacetIndexPageFactory(factory.django.DjangoModelFactory):
         library_index_page.add_child(instance=instance)
 
         return instance
+
+
+class FacetSubIndexPageFactoryBase(factory.django.DjangoModelFactory):
+    """Base factory for index page models that are direct children of FacetIndexPage."""
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def _create(
+        cls,
+        model_class: type,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        instance = model_class(*args, **kwargs)  # type: ignore
+
+        facet_index_page = FacetIndexPage.objects.first()
+        if facet_index_page is None:
+            facet_index_page = FacetIndexPageFactory()
+
+        facet_index_page.add_child(instance=instance)
+
+        return instance
+
+
+class AudienceIndexPageFactory(FacetSubIndexPageFactoryBase):
+    class Meta:
+        model = AudienceIndexPage
+
+    title = factory.Sequence(lambda n: f"Audience Index Page {n}")
+
+
+class GenreIndexPageFactory(FacetSubIndexPageFactoryBase):
+    class Meta:
+        model = GenreIndexPage
+
+    title = factory.Sequence(lambda n: f"Genre Index Page {n}")
+
+
+class MediumIndexPageFactory(FacetSubIndexPageFactoryBase):
+    class Meta:
+        model = MediumIndexPage
+
+    title = factory.Sequence(lambda n: f"Medium Index Page {n}")
+
+
+class TimePeriodIndexPageFactory(FacetSubIndexPageFactoryBase):
+    class Meta:
+        model = TimePeriodIndexPage
+
+    title = factory.Sequence(lambda n: f"Time Period Index Page {n}")
+
+
+class TopicIndexPageFactory(FacetSubIndexPageFactoryBase):
+    class Meta:
+        model = TopicIndexPage
+
+    title = factory.Sequence(lambda n: f"Topic Index Page {n}")
 
 
 class AudienceFactory(factory.django.DjangoModelFactory):
@@ -53,12 +118,11 @@ class AudienceFactory(factory.django.DjangoModelFactory):
     ) -> Audience:
         instance = model_class(*args, **kwargs)  # type: ignore
 
-        # Get the FacetIndexPage instance if it exists, otherwise create one.
-        facet_index_page = FacetIndexPage.objects.first()
-        if facet_index_page is None:
-            facet_index_page = FacetIndexPageFactory()
+        audience_index_page = AudienceIndexPage.objects.first()
+        if audience_index_page is None:
+            audience_index_page = AudienceIndexPageFactory()
 
-        facet_index_page.add_child(instance=instance)
+        audience_index_page.add_child(instance=instance)
 
         return instance
 
@@ -78,12 +142,11 @@ class GenreFactory(factory.django.DjangoModelFactory):
     ) -> Genre:
         instance = model_class(*args, **kwargs)  # type: ignore
 
-        # Get the FacetIndexPage instance if it exists, otherwise create one.
-        facet_index_page = FacetIndexPage.objects.first()
-        if facet_index_page is None:
-            facet_index_page = FacetIndexPageFactory()
+        genre_index_page = GenreIndexPage.objects.first()
+        if genre_index_page is None:
+            genre_index_page = GenreIndexPageFactory()
 
-        facet_index_page.add_child(instance=instance)
+        genre_index_page.add_child(instance=instance)
 
         return instance
 
@@ -103,12 +166,11 @@ class MediumFactory(factory.django.DjangoModelFactory):
     ) -> Medium:
         instance = model_class(*args, **kwargs)  # type: ignore
 
-        # Get the FacetIndexPage instance if it exists, otherwise create one.
-        facet_index_page = FacetIndexPage.objects.first()
-        if facet_index_page is None:
-            facet_index_page = FacetIndexPageFactory()
+        medium_index_page = MediumIndexPage.objects.first()
+        if medium_index_page is None:
+            medium_index_page = MediumIndexPageFactory()
 
-        facet_index_page.add_child(instance=instance)
+        medium_index_page.add_child(instance=instance)
 
         return instance
 
@@ -128,12 +190,11 @@ class TimePeriodFactory(factory.django.DjangoModelFactory):
     ) -> TimePeriod:
         instance = model_class(*args, **kwargs)  # type: ignore
 
-        # Get the FacetIndexPage instance if it exists, otherwise create one.
-        facet_index_page = FacetIndexPage.objects.first()
-        if facet_index_page is None:
-            facet_index_page = FacetIndexPageFactory()
+        time_period_index_page = TimePeriodIndexPage.objects.first()
+        if time_period_index_page is None:
+            time_period_index_page = TimePeriodIndexPageFactory()
 
-        facet_index_page.add_child(instance=instance)
+        time_period_index_page.add_child(instance=instance)
 
         return instance
 
@@ -153,11 +214,10 @@ class TopicFactory(factory.django.DjangoModelFactory):
     ) -> Topic:
         instance = model_class(*args, **kwargs)  # type: ignore
 
-        # Get the FacetIndexPage instance if it exists, otherwise create one.
-        facet_index_page = FacetIndexPage.objects.first()
-        if facet_index_page is None:
-            facet_index_page = FacetIndexPageFactory()
+        topic_index_page = TopicIndexPage.objects.first()
+        if topic_index_page is None:
+            topic_index_page = TopicIndexPageFactory()
 
-        facet_index_page.add_child(instance=instance)
+        topic_index_page.add_child(instance=instance)
 
         return instance

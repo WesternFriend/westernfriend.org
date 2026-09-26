@@ -1,16 +1,18 @@
 from django.conf import settings
 from django.conf.urls.static import static
-
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.urls import include, path
-
+from django.urls import include, path, re_path
+from django.views.generic.base import RedirectView
 from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
 
-from accounts.views import CustomRegistrationView
-from magazine import urls as magazine_urls
+from accounts.views import (
+    CustomRegistrationView,
+    CustomPasswordResetView,
+    CustomLoginView,
+)
 from search import views as search_views
 
 handler404 = "common.views.custom_404"
@@ -21,11 +23,26 @@ urlpatterns = [
         CustomRegistrationView.as_view(),
         name="django_registration_register",
     ),
+    path(
+        "accounts/login/",
+        CustomLoginView.as_view(),
+        name="login",
+    ),
+    path(
+        "accounts/password_reset/",
+        CustomPasswordResetView.as_view(),
+        name="password_reset",
+    ),
+    # Redirect any Wagtail/Django admin password reset attempts to the public reset form
+    re_path(
+        r"^admin/password_reset/.*$",
+        RedirectView.as_view(pattern_name="password_reset", permanent=False),
+        name="admin_password_reset_redirect",
+    ),
     path("accounts/", include("django_registration.backends.activation.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("admin/", include(wagtailadmin_urls)),
     path("cart/", include("cart.urls", namespace="cart")),
-    path("magazine/", include(magazine_urls), name="magazine"),
     path("orders/", include("orders.urls", namespace="orders")),
     path("payment/", include("payment.urls", namespace="payment")),
     path("paypal/", include("paypal.urls", namespace="paypal")),
@@ -33,6 +50,7 @@ urlpatterns = [
     path("search/", search_views.search, name="search"),
     path("tags/", include("tags.urls", namespace="tags")),
     path("sitemap.xml", sitemap),
+    path("__reload__/", include("django_browser_reload.urls")),
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's page serving mechanism. This should be the last pattern in
     # the list:

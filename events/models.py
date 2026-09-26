@@ -162,7 +162,8 @@ class EventsIndexPage(Page):
             .order_by("start_date")
         )
 
-        page_number = request.GET.get("page", "1")
+        _page_raw = request.GET.get("page", "1")
+        page_number = int(_page_raw) if _page_raw.isdigit() else 1
         items_per_page = 10
 
         context["events"] = get_paginated_items(

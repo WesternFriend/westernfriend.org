@@ -23,8 +23,11 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv()
 
+# Determine whether we are executing the test suite with Django's test runner.
+RUNNING_TESTS = len(sys.argv) > 1 and sys.argv[1] == "test"
+
 # Disable logging while running tests
-if len(sys.argv) > 1 and sys.argv[1] == "test":
+if RUNNING_TESTS:
     logging.disable(logging.CRITICAL)
 
 default_allowed_hosts = "127.0.0.1,localhost,westernfriend.eu.ngrok.io"
@@ -88,6 +91,10 @@ LOGGING = {
 
 # if SENTRY_DSN is set, then we are running in production
 if os.getenv("SENTRY_DSN"):
+    # Note: Search view queries are optimized and tagged with "search.queries_optimized=true"
+    # If Sentry flags N+1 queries on /search/, check the tag before investigating.
+    # Expected query counts are defined in SearchOptimizationTestCase (search/tests.py).
+    # Parent pages are bulk-prefetched to avoid N+1 from pageurl tags.
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN"),
         integrations=[DjangoIntegration()],
@@ -161,14 +168,12 @@ INSTALLED_APPS = [
     # keep-sorted end
     # Third party (apps that have been installed)
     # keep-sorted start
-    "crispy_bootstrap5",
-    "crispy_forms",
+    "django_browser_reload",
     "django_extensions",
-    "django_flatpickr",
-    "honeypot",
     "modelcluster",
     "storages",
     "taggit",
+    "tailwind",
     "wagtail",
     "wagtail.admin",
     "wagtail.contrib.forms",
@@ -191,12 +196,17 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.messages",
+    "django.contrib.postgres",
     "django.contrib.sessions",
     "django.contrib.sitemaps",
     "django.contrib.staticfiles",
     # keep-sorted end
+    # The theme needs to be listed after tailwind
+    # because it uses tailwind's CSS
+    "theme",
 ]
 
+TAILWIND_APP_NAME = "theme"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
@@ -210,6 +220,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -229,7 +240,8 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
             ],
-            "debug": DEBUG,
+            # Enable template debugging for tests and when DEBUG is True
+            "debug": DEBUG or RUNNING_TESTS,
         },
     },
 ]
@@ -321,7 +333,7 @@ STATICFILES_DIRS = [
 ]
 
 if USE_SPACES:
-    STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/"
+    STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/"
 
     STORAGES = {
         "default": {
@@ -333,7 +345,7 @@ if USE_SPACES:
     }
 
     MEDIA_URL = (
-        f"{AWS_S3_ENDPOINT_URL}/{ AWS_STORAGE_BUCKET_NAME}/{PUBLIC_MEDIA_LOCATION}/"
+        f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/{PUBLIC_MEDIA_LOCATION}/"
     )
 
     # Prevent setting URL querystring parameters
@@ -388,9 +400,6 @@ WAGTAILADMIN_BASE_URL = "/admin"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
-
-# Honeypot settings
-HONEYPOT_FIELD_NAME = "email2"
 
 
 MESSAGE_TAGS = {

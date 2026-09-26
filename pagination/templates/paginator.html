@@ -1,55 +1,52 @@
 {% if paginated_items.page.has_other_pages %}
-
-    <nav aria-label="Paginated items navigation">
-        <ul class="pagination">
+    <nav aria-label="Paginated items navigation" class="flex justify-center my-6">
+        <div class="join">
             {% if paginated_items.page.has_previous %}
-                <li class="page-item">
-                    <a href="?page=1&{{ current_querystring }}{{ fragment_identifier }}" class="page-link">&laquo;&nbsp;first</a>
-                </li>
-                <li class="page-item">
-                    <a href="?page={{ paginated_items.page.previous_page_number }}&{{ current_querystring }}{{ fragment_identifier }}"
-                       class="page-link">
-                        previous
-                    </a>
-                </li>
-            {% endif %}
+                <a href="?page=1&{{ current_querystring }}{{ fragment_identifier }}"
+                   class="join-item btn btn-outline btn-sm"
+                   aria-label="First page">&laquo; first</a>
 
+                <a href="?page={{ paginated_items.page.previous_page_number }}&{{ current_querystring }}{{ fragment_identifier }}"
+                   class="join-item btn btn-outline btn-sm"
+                   aria-label="Previous page">
+                    previous
+                </a>
+            {% endif %}
 
             {% for page_number in paginated_items.elided_page_range %}
                 {% if paginated_items.page.number == page_number %}
-                    <li class="active page-item" aria-current="page">
-                        <a href="?page={{ page_number }}&{{ current_querystring }}{{ fragment_identifier }}" class="page-link">
-                            {{ page_number }}
-                        </a>
-                    </li>
+                    <a href="?page={{ page_number }}&{{ current_querystring }}{{ fragment_identifier }}"
+                       class="join-item btn btn-outline btn-sm btn-active"
+                       aria-label="Current page {{ page_number }}"
+                       aria-current="page">
+                        {{ page_number }}
+                    </a>
                 {% elif page_number == paginated_items.page.paginator.ELLIPSIS %}
-                    <span class="mx-2">
+                    <span class="join-item btn btn-disabled btn-sm">
                         {{ page_number }}
                     </span>
                 {% else %}
-                    <li class="page-item">
-                        <a href="?page={{ page_number }}&{{ current_querystring }}{{ fragment_identifier }}" class="page-link">
-                            {{ page_number }}
-                        </a>
-                    </li>
+                    <a href="?page={{ page_number }}&{{ current_querystring }}{{ fragment_identifier }}"
+                       class="join-item btn btn-outline btn-sm"
+                       aria-label="Go to page {{ page_number }}">
+                        {{ page_number }}
+                    </a>
                 {% endif %}
             {% endfor %}
 
             {% if paginated_items.page.has_next %}
-                <li class="page-item">
-                    <a href="?page={{ paginated_items.page.next_page_number }}&{{ current_querystring }}{{ fragment_identifier }}"
-                       class="page-link">
-                        next
-                    </a>
-                </li>
+                <a href="?page={{ paginated_items.page.next_page_number }}&{{ current_querystring }}{{ fragment_identifier }}"
+                   class="join-item btn btn-outline btn-sm"
+                   aria-label="Next page">
+                    next
+                </a>
 
-                <li class="page-item">
-                    <a href="?page={{ paginated_items.page.paginator.num_pages }}&{{ current_querystring }}{{ fragment_identifier }}"
-                       class="page-link">
-                        last&nbsp;&raquo;
-                    </a>
-                </li>
+                <a href="?page={{ paginated_items.page.paginator.num_pages }}&{{ current_querystring }}{{ fragment_identifier }}"
+                   class="join-item btn btn-outline btn-sm"
+                   aria-label="Last page">
+                    last &raquo;
+                </a>
             {% endif %}
-        </ul>
+        </div>
     </nav>
 {% endif %}

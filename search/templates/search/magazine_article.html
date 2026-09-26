@@ -1,29 +1,27 @@
 {% load wagtailcore_tags %}
-<div class="card my-2">
-    <div class="card-body">
-        <h2 class="card-title h5">
-            <a href="{% pageurl entity %}">
-                {{ entity.title }}
-            </a>
-        </h2>
+<div class="search-result-magazine-article">
+    <article class="card bg-base-100 shadow mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-lg">
+                <a href="{% pageurl entity %}">
+                    {{ entity.title }}
+                </a>
+            </h2>
 
-        {% if entity.specific.authors.count %}
-            <ul class="list-inline mb-1">
-                <li class="list-inline-item">Authored by:</li>
-                {% for author in entity.specific.authors.all %}
-                    <li class="list-inline-item">
-                        <a href="{% pageurl author.author %}">{{ author.author.title }}</a>{% if not forloop.last %},{% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+            {% if entity.specific.authors.count %}
+                <div class="mb-2">
+                    <span class="font-medium">Authored by:</span>
+                    {% for author in entity.specific.authors.all %}
+                        <a href="{% pageurl author.author %}" class="link-hover">
+                            {{ author.author.title }}
+                        </a>{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-        {{ entity.specific.teaser | richtext }}
-
-        <p>
-            <a href="{% pageurl entity.get_parent %}" class="card-link">
-                {{ entity.get_parent }} ({{ entity.get_parent.specific.publication_date| date:"F Y" }})
-            </a>
-        </p>
-    </div>
+            <div class="prose">
+                {{ entity.specific.teaser|richtext }}
+            </div>
+        </div>
+    </article>
 </div>

@@ -1,9 +1,7 @@
-version: "3.5"
-
 services:
   wf_postgres_service:
     container_name: wf_postgres_container
-    image: postgres
+    image: postgres:18
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}

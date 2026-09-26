@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <main class="container mx-auto px-4 py-6">
+        <header class="mb-8">
+            <h1>{{ page.title }}</h1>
+
+            {% if page.intro %}
+                <div class="prose dark:prose-invert my-4">
+                    {{ page.intro|richtext }}
+                </div>
+            {% endif %}
+        </header>
+
+        {% if blog_posts %}
+            <section aria-labelledby="blog-posts-heading">
+                <h2 id="blog-posts-heading" class="sr-only">Blog Posts</h2>
+                <ul class="space-y-4">
+                    {% for post in blog_posts %}
+                        <li class="border-b border-base-300 pb-4 last:border-b-0">
+                            <article>
+                                <h3 class="text-xl font-semibold mb-2">
+                                    <a href="{% pageurl post %}" class="link link-primary hover:underline">
+                                        {{ post.title }}
+                                    </a>
+                                </h3>
+                                <time datetime="{{ post.publication_date|date:'Y-m-d' }}"
+                                      class="text-sm text-base-content/70">
+                                    {{ post.publication_date|date:"F j, Y" }}
+                                </time>
+                            </article>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% else %}
+            <p class="text-base-content/70 italic">No blog posts have been published yet.</p>
+        {% endif %}
+    </main>
+{% endblock content %}

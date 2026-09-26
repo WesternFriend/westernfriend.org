@@ -1,11 +1,11 @@
 from django.db import models
 from wagtail.admin.panels import FieldPanel
+from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
-from wagtail.fields import StreamField, RichTextField
 from wagtail.search import index
-from core.constants import COMMON_STREAMFIELD_BLOCKS
 
 from common.models import DrupalFields
+from core.constants import COMMON_STREAMFIELD_BLOCKS
 
 
 class MeetingDocumentIndexPage(Page):
@@ -31,7 +31,10 @@ class MeetingDocumentIndexPage(Page):
 
     def get_context(self, request):
         context = super().get_context(request)
-        context["meeting_documents"] = MeetingDocument.objects.live().public()
+        # Use select_related to fetch publishing_meeting in a single query
+        context["meeting_documents"] = (
+            MeetingDocument.objects.live().public().select_related("publishing_meeting")
+        )
         return context
 
 

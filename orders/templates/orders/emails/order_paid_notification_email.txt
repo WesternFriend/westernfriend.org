@@ -1,0 +1,37 @@
+A new bookstore order has been successfully paid and is ready to ship.
+
+ORDER DETAILS
+=============
+Order ID: #{{ order.id }}
+Order Date: {{ order.created_at|date:"F j, Y, g:i a" }}
+Payment Status: Paid
+PayPal Transaction ID: {{ order.paypal_transaction_id }}
+
+PURCHASER INFORMATION
+=====================
+Name: {{ order.purchaser_full_name }}
+Email: {{ order.purchaser_email }}
+{% if order.purchaser_meeting_or_organization %}Organization/Meeting: {{ order.purchaser_meeting_or_organization }}{% endif %}
+
+SHIPPING ADDRESS
+================
+{{ order.recipient_name }}
+{{ order.recipient_street_address }}
+{{ order.recipient_address_locality }}, {{ order.recipient_address_region }} {{ order.recipient_postal_code }}
+{{ order.recipient_address_country }}
+
+ORDER ITEMS
+===========
+{% for item in order.items.all %}{{ item.quantity }}x {{ item.product_title }} - ${{ item.price }} each = ${{ item.get_cost }}
+{% endfor %}
+Items Subtotal: ${{ order.get_total_items_cost }}
+Shipping: ${{ order.shipping_cost }}
+---
+TOTAL: ${{ order.get_total_cost }}
+
+VIEW ORDER IN ADMIN
+===================
+{{ admin_url }}
+
+---
+This is an automated notification from Western Friend bookstore.
