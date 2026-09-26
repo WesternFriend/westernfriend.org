@@ -86,6 +86,27 @@ After the initial app is deployed, configure a domain (or subdomain) on our regi
 
 Add a domain name [under the app settings](https://docs.digitalocean.com/products/app-platform/how-to/manage-domains). Be sure to add a corresponding CNAME record to the domain DNS configuration. DNS settings are managed wherever the domain is registered.
 
+## Cloudflare
+
+westernfriend.org is proxied through Cloudflare (Business plan). We want search engines and AI agents to read and use our content for any purpose, including AI training, so bot settings are allow-by-default for content pages. The app serves its own `robots.txt` (with a `Content-Signal` line) and `llms.txt`; Cloudflare must not override them.
+
+Security → Settings → Bot traffic / AI Crawl Control:
+
+- **Block AI training in robots.txt** (`ai_training`): off
+- **Bot Preference Sync** (`bot_preference_sync_enabled`): off. When on, Cloudflare injects its own robots.txt over ours.
+- **Managed robots.txt** (`is_robots_txt_managed`): off
+- **Block AI bots** (`ai_bots_protection`): disabled
+- **AI Labyrinth** (`crawler_protection`): disabled
+- **Super Bot Fight Mode**: likely and definite automated traffic are managed-challenged; verified bots are allowed. This stops a large volume of scrapers that spoof browser user agents. Revisit once crawlers can pay per crawl.
+
+Security → WAF → Rate limiting rules:
+
+- `/search`: 5 requests per 10 minutes per IP
+- `PHP`: blocks `.php` probes
+- Global limits (5 requests / 10 s and 15 requests / min) apply only to POST requests and the `/accounts/`, `/cart/`, `/orders/`, `/payment/` and `/paypal/` paths, so crawlers can read content pages freely.
+
+Custom WAF rules block SemrushBot, AhrefsBot, WordPress login probes and requests with an "attack" WAF score.
+
 ## Initialize the App
 
 Access the app console via DigitalOcean admin UI, and run the following commands to initialize the app.
