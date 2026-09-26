@@ -1,6 +1,7 @@
 """Tests for core utility functions."""
 
 from django.templatetags.static import static
+from django.core.cache import cache
 from django.test import TestCase
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
@@ -136,6 +137,8 @@ class SitemapTest(TestCase):
         )
         Site.clear_site_root_paths_cache()
         self.addCleanup(Site.clear_site_root_paths_cache)
+        cache.clear()
+        self.addCleanup(cache.clear)
         self.child = self.home.add_child(instance=Page(title="About", slug="about"))
 
     def test_sitemap_is_xml(self):
@@ -150,6 +153,14 @@ class SitemapTest(TestCase):
 
     def test_sitemap_lists_published_pages(self):
         response = self.client.get("/sitemap.xml")
+
+        self.assertIn(b"<loc>http://testserver/about/</loc>", response.content)
+
+    def test_sitemap_is_cached(self):
+        self.client.get("/sitemap.xml")
+
+        with self.assertNumQueries(0):
+            response = self.client.get("/sitemap.xml")
 
         self.assertIn(b"<loc>http://testserver/about/</loc>", response.content)
 

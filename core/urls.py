@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path, re_path
+from django.views.decorators.cache import cache_page
 from django.views.generic.base import RedirectView
 from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
@@ -17,6 +18,8 @@ from common.views import favicon_ico, llms_txt, robots_txt
 from search import views as search_views
 
 handler404 = "common.views.custom_404"
+
+SITEMAP_CACHE_SECONDS = 60 * 60
 
 urlpatterns = [
     path(
@@ -53,7 +56,9 @@ urlpatterns = [
     path("favicon.ico", favicon_ico, name="favicon_ico"),
     path("robots.txt", robots_txt, name="robots_txt"),
     path("llms.txt", llms_txt, name="llms_txt"),
-    path("sitemap.xml", sitemap, name="sitemap"),
+    # The sitemap lists every page and takes seconds to build, which is longer
+    # than some crawlers wait
+    path("sitemap.xml", cache_page(SITEMAP_CACHE_SECONDS)(sitemap), name="sitemap"),
     path("__reload__/", include("django_browser_reload.urls")),
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's page serving mechanism. This should be the last pattern in
