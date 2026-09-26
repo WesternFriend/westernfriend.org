@@ -108,6 +108,8 @@ class SitemapTest(TestCase):
             root_page=self.home,
             is_default_site=True,
         )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
         self.child = self.home.add_child(instance=Page(title="About", slug="about"))
 
     def test_sitemap_is_xml(self):
