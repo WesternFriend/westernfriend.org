@@ -228,3 +228,22 @@ class LlmsTxtTest(TestCase):
         content = self.client.get("/llms.txt").content.decode()
 
         self.assertIn("(https://westernfriend.org/sitemap.xml)", content)
+
+
+class DiscoveryLinkHeaderTest(TestCase):
+    """Test the Link header that points agents at llms.txt and the sitemap."""
+
+    def test_html_pages_link_llms_txt_and_sitemap(self):
+        response = self.client.get("/no-such-page/")
+
+        self.assertTrue(response["Content-Type"].startswith("text/html"))
+        self.assertEqual(
+            response["Link"],
+            '</llms.txt>; rel="describedby"; type="text/plain", '
+            '</sitemap.xml>; rel="sitemap"; type="application/xml"',
+        )
+
+    def test_non_html_responses_have_no_link_header(self):
+        response = self.client.get("/robots.txt")
+
+        self.assertNotIn("Link", response)

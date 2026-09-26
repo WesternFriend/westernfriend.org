@@ -220,6 +220,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "common.middleware.DiscoveryLinkHeaderMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
