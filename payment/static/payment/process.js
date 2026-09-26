@@ -67,11 +67,10 @@ FUNDING_SOURCES.forEach((fundingSource) => {
 
         const payload = {
           paypal_order_id: data.orderID,
-          paypal_payment_id: data.paymentID,
         };
 
         // Capture the funds from the transaction
-        result = await fetch(orderCaptureUrl, {
+        const result = await fetch(orderCaptureUrl, {
           method: "post",
           headers: {
             "content-type": "application/json",
@@ -80,7 +79,7 @@ FUNDING_SOURCES.forEach((fundingSource) => {
           body: JSON.stringify(payload),
         });
 
-        if (result.status === 201) {
+        if (result.ok) {
           // Show a success page to the buyer
           window.location.href = paymentDoneUrl;
         } else {
