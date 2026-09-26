@@ -824,6 +824,19 @@ class ContactAdminListingTest(TestCase):
             ContactPublicationStatistics.ContactType.ORGANIZATION,
         )
 
+    def test_listing_shows_zero_for_contact_without_statistics(self) -> None:
+        person = PersonFactory()
+
+        response = self.client.get(reverse("people:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            [page.pk for page in response.context["object_list"]],
+            [person.pk],
+        )
+        self.assertContains(response, "<td>0</td>", html=True)
+        self.assertNotContains(response, "?contact_type=")
+
     def test_listing_sorts_by_publication_columns(self) -> None:
         prolific = PersonFactory()
         occasional = PersonFactory()
