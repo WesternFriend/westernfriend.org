@@ -42,20 +42,20 @@
                     <h2 id="featured-events-heading">Featured events</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {% for event in featured_events.all %}
-                            <article class="bg-base-100 rounded-lg shadow-sm h-full p-4" aria-labelledby="event-title-{{ event.event.id }}">
+                            <article class="bg-base-100 rounded-lg shadow-sm h-full p-4" aria-labelledby="event-title-{{ event.id }}">
                                 <header>
-                                    <h3 id="event-title-{{ event.event.id }}" class="text-xl font-bold">
-                                        <a href="{% pageurl event.event %}" class="hover:underline">
-                                            {{ event.event.title }}
+                                    <h3 id="event-title-{{ event.id }}" class="text-xl font-bold">
+                                        <a href="{% pageurl event %}" class="hover:underline">
+                                            {{ event.title }}
                                         </a>
                                     </h3>
-                                    <time datetime="{{ event.event.start_date|date:'Y-m-d\TH:i:sO' }}" class="mt-1 mb-2 block text-sm">
-                                        {{ event.event.start_date|date:"F d, Y, f A" }} ({{ event.event.timezone }})
+                                    <time datetime="{{ event.start_date|date:'Y-m-d\TH:i:sO' }}" class="mt-1 mb-2 block text-sm">
+                                        {{ event.start_date|date:"F d, Y, f A" }} ({{ event.timezone }})
                                     </time>
                                 </header>
 
                                 <div class="prose">
-                                    {{ event.event.teaser|truncatewords_html:10 }}
+                                    {{ event.teaser|truncatewords_html:10 }}
                                 </div>
                             </article>
                         {% endfor %}
