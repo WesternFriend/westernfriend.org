@@ -370,7 +370,6 @@ REGISTRATION_OPEN = True
 REGISTRATION_SALT = "registration"
 
 # Email settings
-# Email settings
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",
     "tech@westernfriend.org",
@@ -381,16 +380,18 @@ email_host_user = os.getenv("EMAIL_HOST_USER", None)
 email_host_password = os.getenv("EMAIL_HOST_PASSWORD", None)
 
 # If the EMAIL authentication environment variables are set, use SMTP backend
-if email_host and email_host_user and email_host_password:
+if email_host is not None and email_host_user is not None and email_host_password is not None:
     MAILERS = {
         "default": {
             "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
-            "HOST": email_host,
-            "PORT": int(os.getenv("EMAIL_PORT", "587")),
-            "USERNAME": email_host_user,
-            "PASSWORD": email_host_password,
-            "USE_TLS": os.getenv("EMAIL_USE_TLS", "True") == "True",
-            "USE_SSL": os.getenv("EMAIL_USE_SSL", "False") == "True",
+            "OPTIONS": {
+                "host": email_host,
+                "port": int(os.getenv("EMAIL_PORT", "587")),
+                "username": email_host_user,
+                "password": email_host_password,
+                "use_tls": os.getenv("EMAIL_USE_TLS", "True") == "True",
+                "use_ssl": os.getenv("EMAIL_USE_SSL", "False") == "True",
+            },
         }
     }
 else:
