@@ -5,9 +5,9 @@ import re
 from unittest.mock import Mock, patch
 
 from django.test import RequestFactory, SimpleTestCase, TestCase
-
 from wagtail.models import Site
 
+from contact.factories import PersonFactory
 from facets.factories import (
     AudienceFactory,
     GenreFactory,
@@ -15,7 +15,6 @@ from facets.factories import (
     TimePeriodFactory,
     TopicFactory,
 )
-from contact.factories import PersonFactory
 from home.models import HomePage
 from library.helpers import (
     QUERYSTRING_FACETS,
@@ -81,7 +80,7 @@ class TestFilterQuerystringFacets(SimpleTestCase):
     def test_query_with_all_valid_facets(self) -> None:
         """Test that a query with all valid facets returns the same
         dictionary."""
-        query = {key: "value" for key in QUERYSTRING_FACETS}
+        query = dict.fromkeys(QUERYSTRING_FACETS, "value")
         result = filter_querystring_facets(query)
         self.assertDictEqual(result, query)
 

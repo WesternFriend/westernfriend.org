@@ -6,6 +6,7 @@ from wagtail.admin.viewsets.model import ModelViewSet
 from wagtail.admin.viewsets.pages import PageListingViewSet
 
 from orders.models import Order
+
 from .models import Book
 
 

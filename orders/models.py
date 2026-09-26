@@ -62,10 +62,10 @@ class Order(ClusterableModel):
         max_length=255,
         blank=True,
         default="",
-        help_text="Enter the meeting or organization name, if this purchaser is a meeting or organization.",  # noqa: E501
+        help_text="Enter the meeting or organization name, if this purchaser is a meeting or organization.",
     )
     purchaser_email = models.EmailField(
-        help_text="Provide an email, so we can communicate any issues regarding this order.",  # noqa: E501
+        help_text="Provide an email, so we can communicate any issues regarding this order.",
     )
     recipient_name = models.CharField(
         max_length=255,
@@ -254,7 +254,7 @@ class OrderItem(Orderable):
     ]
 
     def __str__(self) -> str:
-        return f"{self.quantity}x {self.product_title} @ {round(self.price, 2)}/each"  # noqa: E501
+        return f"{self.quantity}x {self.product_title} @ {round(self.price, 2)}/each"
 
     def get_cost(self) -> Decimal:
         """Return the total cost for this order item."""

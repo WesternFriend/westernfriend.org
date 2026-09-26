@@ -1,11 +1,12 @@
 from typing import Any
-from django.utils.text import slugify
+
 import factory
+from django.utils.text import slugify
 from factory.django import DjangoModelFactory
+
 from community.factories import CommunityPageFactory
 from community.models import CommunityPage
 from contact.factories import MeetingFactory, PersonFactory
-
 from memorials.models import Memorial, MemorialIndexPage
 
 

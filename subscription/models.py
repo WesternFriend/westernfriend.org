@@ -81,8 +81,7 @@ class Subscription(models.Model):
             )
 
         if self.expiration_date is not None:
-            expires_in_future = self.expiration_date >= timezone.now().date()
-            return expires_in_future
+            return self.expiration_date >= timezone.now().date()
 
         # Default to inactive for safety
         return False

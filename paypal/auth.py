@@ -1,6 +1,7 @@
 import requests
 from django.conf import settings
 
+from paypal.constants import REQUEST_TIMEOUT_S
 from paypal.models import PayPalError
 
 
@@ -16,12 +17,13 @@ def get_auth_token() -> str:
         data={
             "grant_type": "client_credentials",
         },
+        timeout=REQUEST_TIMEOUT_S,
     )
 
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        raise PayPalError(e)
+        raise PayPalError(e) from e
 
     return response.json()["access_token"]
 

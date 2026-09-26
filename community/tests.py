@@ -2,10 +2,11 @@ from django.test import RequestFactory, TestCase
 
 from community.models import CommunityPage, OnlineWorship, OnlineWorshipIndexPage
 from home.models import HomePage
+
 from .factories import (
     CommunityPageFactory,
-    OnlineWorshipIndexPageFactory,
     OnlineWorshipFactory,
+    OnlineWorshipIndexPageFactory,
 )
 
 
@@ -75,7 +76,7 @@ class TestOnlineWorshipIndexPageGetContext(TestCase):
 
         total_online_worship_pages = 5
 
-        for i in range(total_online_worship_pages):
+        for _i in range(total_online_worship_pages):
             online_worship_page = OnlineWorshipFactory.create()
             self.online_worship_pages.append(online_worship_page)
 

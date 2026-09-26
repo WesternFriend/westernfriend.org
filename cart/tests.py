@@ -1,17 +1,18 @@
 from decimal import Decimal
 from unittest.mock import Mock, patch
-from django.test import RequestFactory, TestCase
-from django.template.response import TemplateResponse
+
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.template.response import TemplateResponse
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from wagtail.models import Page
+
 from cart.views import cart_detail
 from core.test_utils import get_or_create_site_root_page
-
 from store.factories import ProductFactory
+from store.models import Product, ProductIndexPage, StoreIndexPage
 
 from .cart import Cart
-from store.models import Product, ProductIndexPage, StoreIndexPage
 
 
 def scaffold_product_index_page() -> ProductIndexPage:
@@ -59,7 +60,7 @@ class CartTestCase(TestCase):
         cart = Cart(self.request)
 
         self.assertEqual(len(cart), 0)
-        self.assertEqual(cart.get_subtotal_cost(), Decimal("0"))
+        self.assertEqual(cart.get_subtotal_cost(), Decimal(0))
 
     def test_add_product(self) -> None:
         cart = Cart(self.request)

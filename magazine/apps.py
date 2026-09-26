@@ -6,7 +6,7 @@ class MagazineConfig(AppConfig):
 
     def ready(self):
         """Import signals when app is ready."""
-        from . import signals  # noqa
+        from . import signals
 
         # Prevent linter from complaining about unused import
         # since it is necessary for signal registration

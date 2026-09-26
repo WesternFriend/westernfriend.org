@@ -1,13 +1,10 @@
 import logging
 
 from django.conf import settings
-
-
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from orders.models import Order
-
 
 paypal_client_id = settings.PAYPAL_CLIENT_ID
 

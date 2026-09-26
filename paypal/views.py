@@ -1,7 +1,8 @@
-from decimal import Decimal, InvalidOperation
-from http import HTTPStatus
 import json
 import logging
+from decimal import Decimal, InvalidOperation
+from http import HTTPStatus
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -54,8 +55,8 @@ def create_paypal_order(
             "PayPal order created: %s",
             paypal_response,
         )
-    except Exception as exception:
-        logger.exception(exception)
+    except Exception:
+        logger.exception("Error creating PayPal order")
         return JsonResponse(
             {
                 "error": "Error creating PayPal order.",
@@ -148,8 +149,8 @@ def capture_paypal_order(
         paypal_response = capture_order(
             paypal_order_id=paypal_order_id,
         )
-    except Exception as exception:
-        logger.exception(exception)
+    except Exception:
+        logger.exception("Error capturing PayPal order")
         return JsonResponse(
             {
                 "error": "Error capturing PayPal order.",

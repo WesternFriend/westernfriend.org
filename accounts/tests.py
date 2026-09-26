@@ -1,12 +1,15 @@
 from unittest.mock import PropertyMock, patch
+
 from django.conf import settings
-from django.test import TestCase, RequestFactory, override_settings
-from django.shortcuts import resolve_url
-from django.urls import reverse, NoReverseMatch
 from django.core import mail
-from .models import User
-from subscription.models import Subscription
+from django.shortcuts import resolve_url
+from django.test import RequestFactory, TestCase, override_settings
+from django.urls import NoReverseMatch, reverse
+
 from accounts.views import CustomLoginView
+from subscription.models import Subscription
+
+from .models import User
 
 
 class UserManagerTest(TestCase):
@@ -161,7 +164,7 @@ class CustomLoginViewTests(TestCase):
 class CustomPasswordResetViewTests(TestCase):
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_password_reset_sends_text_and_html(self):
-        user = User.objects.create_user(email="pr@example.com", password="x")  # noqa: S106 (test-only)
+        user = User.objects.create_user(email="pr@example.com", password="x")
         resp = self.client.post(reverse("password_reset"), {"email": user.email})
         self.assertEqual(resp.status_code, 302)
         self.assertRedirects(resp, reverse("password_reset_done"))
@@ -173,5 +176,5 @@ class CustomPasswordResetViewTests(TestCase):
         self.assertGreaterEqual(len(msg.alternatives), 1)
         self.assertEqual(msg.alternatives[0][1], "text/html")
         self.assertTrue(msg.subject.strip())
-        html_body, html_mime = msg.alternatives[0]
+        html_body, _html_mime = msg.alternatives[0]
         self.assertTrue(str(html_body).strip())

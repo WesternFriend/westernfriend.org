@@ -1,8 +1,14 @@
 import logging
+
 import requests
 from requests import HTTPError
+
 from .auth import construct_paypal_auth_headers
-from .constants import PAYPAL_ORDER_BASE_URL, DEFAULT_CURRENCY_CODE
+from .constants import (
+    DEFAULT_CURRENCY_CODE,
+    PAYPAL_ORDER_BASE_URL,
+    REQUEST_TIMEOUT_S,
+)
 from .models import PayPalError
 
 logger = logging.getLogger(__name__)
@@ -30,12 +36,13 @@ def create_order(
                 },
             ],
         },
+        timeout=REQUEST_TIMEOUT_S,
     )
     try:
         response.raise_for_status()
     except HTTPError as error:
-        logger.exception(error)
-        raise PayPalError(error)
+        logger.exception("Failed to create PayPal order")
+        raise PayPalError(error) from error
 
     return response.json()
 
@@ -56,12 +63,13 @@ def capture_order(
         # "PayPal-Mock-Response": '{"mock_application_codes": "INSTRUMENT_DECLINED"}'
         # "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
         # "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+        timeout=REQUEST_TIMEOUT_S,
     )
 
     try:
         response.raise_for_status()
     except HTTPError as error:
-        logger.exception(error)
-        raise PayPalError(error)
+        logger.exception("Failed to capture PayPal order")
+        raise PayPalError(error) from error
 
     return response.json()

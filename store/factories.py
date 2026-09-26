@@ -1,11 +1,13 @@
 from typing import Any
+
 import factory
 from factory.django import DjangoModelFactory
 from wagtail.rich_text import RichText
 
 from home.factories import HomePageFactory
 from home.models import HomePage
-from .models import Product, StoreIndexPage, ProductIndexPage
+
+from .models import Product, ProductIndexPage, StoreIndexPage
 
 
 class StoreIndexPageFactory(DjangoModelFactory):
@@ -74,8 +76,7 @@ class ProductFactory(DjangoModelFactory):
     available = factory.Iterator([True, False])  # type: ignore
 
     # TODO: add a MockWagtailImage class
-    # and use it here
-    # image = factory.LazyAttribute(lambda _: get_test_image_file())
+    # and use it to populate the image field
 
     @classmethod
     def _create(

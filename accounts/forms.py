@@ -1,6 +1,7 @@
 from django import forms
 from django_registration.forms import RegistrationForm
-from wagtail.users.forms import UserEditForm, UserCreationForm
+from wagtail.users.forms import UserCreationForm, UserEditForm
+
 from accounts.models import User
 
 

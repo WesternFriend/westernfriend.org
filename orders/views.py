@@ -4,6 +4,7 @@ from django.urls import reverse
 
 from cart.cart import Cart
 from orders.forms import OrderCreateForm
+
 from .models import Order, OrderItem
 
 
@@ -51,19 +52,6 @@ def order_create(request: HttpRequest) -> HttpResponse:
                     },
                 ),
             )
-        else:
-            return render(
-                request,
-                template_name="orders/create.html",
-                context={
-                    "cart": cart,
-                    "form": form,
-                },
-            )
-
-    else:
-        form = OrderCreateForm()
-
         return render(
             request,
             template_name="orders/create.html",
@@ -72,3 +60,14 @@ def order_create(request: HttpRequest) -> HttpResponse:
                 "form": form,
             },
         )
+
+    form = OrderCreateForm()
+
+    return render(
+        request,
+        template_name="orders/create.html",
+        context={
+            "cart": cart,
+            "form": form,
+        },
+    )
