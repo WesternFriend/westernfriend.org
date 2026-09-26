@@ -150,6 +150,18 @@ class AbsoluteStaticTagTest(TestCase):
 
         self.assertEqual(url, "https://cdn.example.com/static/img/WF-header.png")
 
+    @override_settings(
+        STATIC_URL="https://sfo3.digitaloceanspaces.com/westernfriend-website/static/",
+    )
+    def test_footer_json_ld_logo_uses_static_url(self):
+        html = render_to_string("footer.html", request=RequestFactory().get("/"))
+
+        self.assertIn(
+            '"logo": "https://sfo3.digitaloceanspaces.com/westernfriend-website/'
+            'static/img/WF-header.png"',
+            html,
+        )
+
     def test_without_request_returns_static_url(self):
         self.assertEqual(
             absolute_static({}, "img/WF-header.png"),
