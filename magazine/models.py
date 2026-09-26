@@ -341,11 +341,6 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         default=False,
         help_text="Feature this article in the related issue and allow full access without a subscription?",
     )
-    body_migrated = models.TextField(  # noqa: DJ001
-        help_text="Used only for content from old Drupal website.",
-        null=True,
-        blank=True,
-    )
 
     department = models.ForeignKey(
         MagazineDepartment,
@@ -411,7 +406,6 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         """
         return (
             cls.objects.defer_streamfields()
-            .defer("body_migrated")
             .select_related("department")
             .prefetch_related("authors__author", "tags")
         )
@@ -639,11 +633,11 @@ class ArchiveIssue(DrupalFields, Page):  # type: ignore
         help_text="Identifier for Internet Archive item.",
         unique=True,
     )
-    western_friend_volume = models.CharField(  # noqa: DJ001
+    western_friend_volume = models.CharField(
         max_length=255,
         help_text="Related Western Friend volume.",
-        null=True,
         blank=True,
+        default="",
     )
 
     content_panels = Page.content_panels + [

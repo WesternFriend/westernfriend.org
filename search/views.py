@@ -273,7 +273,7 @@ def search(request: HttpRequest) -> HttpResponse:  # noqa: C901, PLR0912, PLR091
         # Fetch magazine articles with all optimizations (no double-fetch)
         if magazine_article_pages:
             # Use get_queryset() to inherit all optimizations:
-            # - defer_streamfields() to avoid loading large body/body_migrated fields
+            # - defer_streamfields() to avoid loading large body fields
             # - select_related("department") for efficient department access
             # - prefetch_related("authors__author", "tags") for related data
             magazine_articles = list(
