@@ -1,4 +1,5 @@
-name: Tests and Coverage
+name: CI
+
 on:
   push:
     branches:
@@ -6,83 +7,224 @@ on:
   pull_request:
     branches:
       - main
-env:
-  DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
-concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: true
-jobs:
-  runner-job:
-    # You must use a Linux environment when using service containers or container jobs
-    runs-on: ubuntu-latest
 
-    # Service containers to run with `runner-job`
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Every check step below is continue-on-error so that one failure doesn't hide
+  # another -- e.g. a formatting problem and a failing test show up in the same
+  # run. Each job records its checks' outcomes and output in result.json, and
+  # the job's last step still turns it red if any check failed.
+  lint:
+    name: Code quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      # Runs the same hooks contributors run locally, from the same
+      # .pre-commit-config.yaml, so CI and `pre-commit install` never disagree.
+      # --show-diff-on-failure prints what the auto-fixing hooks (ruff format,
+      # djhtml, etc.) would change, so the fix is visible in the PR comment.
+      - name: Run pre-commit hooks
+        id: pre-commit
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          uv run --locked --only-group dev pre-commit run --all-files --show-diff-on-failure --color never 2>&1 | tee /tmp/pre-commit.txt
+
+      - name: Write result for report job
+        if: always()
+        env:
+          PRE_COMMIT_OUTCOME: ${{ steps.pre-commit.outcome }}
+        run: |
+          touch /tmp/pre-commit.txt
+          jq -n \
+            --arg outcome "$PRE_COMMIT_OUTCOME" \
+            --rawfile output /tmp/pre-commit.txt \
+            '{checks: {"pre-commit": {outcome: $outcome, output: $output}}}' > result.json
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: check-result-lint
+          path: result.json
+          retention-days: 1
+
+      - name: Fail if any check failed
+        if: always()
+        run: |
+          if [ "${{ steps.pre-commit.outcome }}" != "success" ]; then
+            echo "pre-commit hooks failed. See the job summary for details."
+            exit 1
+          fi
+
+  test:
+    name: Django checks and tests
+    runs-on: ubuntu-latest
     services:
-      # Label used to access the service container
       postgres:
-        # Docker Hub image
         image: postgres
-        # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: postgres
-        # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          # Maps tcp port 5432 on service container to the host
           - 5432:5432
-
     steps:
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Set up Python
-        id: setup-python
-        uses: actions/setup-python@master
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          python-version: 3.11
-      #----------------------------------------------
-      #       install uv
-      #----------------------------------------------
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-      #----------------------------------------------
-      #       load cached venv if cache exists
-      #----------------------------------------------
-      - name: Load cached venv
-        id: cached-dependencies
-        uses: actions/cache@v3
+          persist-credentials: false
+
+      # uv installs the Python version pinned in .python-version.
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('pyproject.toml') }}
-      #----------------------------------------------
-      # install dependencies if cache does not exist
-      #----------------------------------------------
-      - name: Install dependencies
-        if: steps.cached-dependencies.outputs.cache-hit != 'true'
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install locked dependencies
+        run: uv sync --locked
+
+      - name: Django system checks
+        id: django-check
+        continue-on-error: true
         run: |
-          uv venv
-          source .venv/bin/activate
-          uv sync --group dev
-      #----------------------------------------------
-      # Run tests, generate and upload code coverage report
-      #----------------------------------------------
-      - name: Run Tests
+          set -o pipefail
+          uv run --no-sync python manage.py check --fail-level WARNING 2>&1 | tee /tmp/django-check.txt
+
+      - name: Check for missing migrations
+        id: migrations
+        continue-on-error: true
         run: |
-          source .venv/bin/activate
-          coverage run manage.py test
-      - name: Generate Coverage Report
-        working-directory: ${{ github.workspace }}
+          set -o pipefail
+          uv run --no-sync python manage.py makemigrations --check --dry-run 2>&1 | tee /tmp/migrations.txt
+
+      - name: Run tests with coverage
+        id: tests
+        continue-on-error: true
         run: |
-          source .venv/bin/activate
-          coverage xml
+          set -o pipefail
+          uv run --no-sync coverage run manage.py test 2>&1 | tee /tmp/tests.txt
+
+      # Coverage reporting is informational, so it never fails the job: a
+      # Codecov outage shouldn't block a PR, and a failure here isn't one of the
+      # checks the report job tells contributors about.
+      - name: Generate coverage report
+        if: always() && hashFiles('.coverage') != ''
+        continue-on-error: true
+        run: uv run --no-sync coverage xml
+
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v3
+        if: always() && hashFiles('coverage.xml') != ''
+        continue-on-error: true
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ${{github.workspace}}/coverage.xml
+          files: coverage.xml
+
+      - name: Write result for report job
+        if: always()
+        env:
+          DJANGO_CHECK_OUTCOME: ${{ steps.django-check.outcome }}
+          MIGRATIONS_OUTCOME: ${{ steps.migrations.outcome }}
+          TESTS_OUTCOME: ${{ steps.tests.outcome }}
+        run: |
+          touch /tmp/django-check.txt /tmp/migrations.txt /tmp/tests.txt
+          jq -n \
+            --arg django_check_outcome "$DJANGO_CHECK_OUTCOME" --rawfile django_check_output /tmp/django-check.txt \
+            --arg migrations_outcome "$MIGRATIONS_OUTCOME" --rawfile migrations_output /tmp/migrations.txt \
+            --arg tests_outcome "$TESTS_OUTCOME" --rawfile tests_output /tmp/tests.txt \
+            '{
+              checks: {
+                "django-check": {outcome: $django_check_outcome, output: $django_check_output},
+                "migrations": {outcome: $migrations_outcome, output: $migrations_output},
+                "tests": {outcome: $tests_outcome, output: $tests_output}
+              }
+            }' > result.json
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: check-result-test
+          path: result.json
+          retention-days: 1
+
+      - name: Fail if any check failed
+        if: always()
+        run: |
+          if [ "${{ steps.django-check.outcome }}" != "success" ] || \
+             [ "${{ steps.migrations.outcome }}" != "success" ] || \
+             [ "${{ steps.tests.outcome }}" != "success" ]; then
+            echo "One or more checks failed. See the job summary for details."
+            exit 1
+          fi
+
+  # Collects every job's result.json, even when a job failed, and shows all the
+  # outcomes at once on the run's Summary tab. comment-on-pr.yml posts the same
+  # report on the PR. This is the single check to mark as required in branch
+  # protection.
+  report:
+    name: CI result
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    if: always()
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: check-result-*
+          path: results
+
+      # Tool output is read from result.json as data, never interpolated with
+      # ${{ }}, so a crafted file name or error message can't run as a script.
+      - name: Write summary
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          LINT_RESULT: ${{ needs.lint.result }}
+          TEST_RESULT: ${{ needs.test.result }}
+        with:
+          script: |
+            const fs = require('fs');
+            const { CHECKS, readResults, render } = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/ci-report.js`);
+
+            const results = readResults('results');
+            // A job can fail outside its recorded checks (e.g. installing
+            // dependencies, or crashing before it wrote result.json), so the
+            // summary never says everything passed while this check is red.
+            const jobResults = { lint: process.env.LINT_RESULT, test: process.env.TEST_RESULT };
+            const problems = Object.entries(jobResults)
+              .filter(([job, result]) => result !== 'success' && !results.some((r) => !r.passed && CHECKS[r.key].job === job))
+              .map(([job, result]) => `The ${job} job's result was "${result}"`);
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, render({ results, problems, runUrl }) + '\n');
+
+      - name: Fail if any job failed
+        run: |
+          if [ "${{ needs.lint.result }}" != "success" ] || [ "${{ needs.test.result }}" != "success" ]; then
+            echo "One or more checks failed. See the summary above."
+            exit 1
+          fi
