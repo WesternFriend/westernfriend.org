@@ -370,29 +370,35 @@ REGISTRATION_OPEN = True
 REGISTRATION_SALT = "registration"
 
 # Email settings
-EMAIL_HOST = os.getenv("EMAIL_HOST", None)
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", None)
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", None)
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
-EMAIL_USE_SSL = (
-    os.getenv("EMAIL_USE_SSL", "False") == "True"
-)  # SSL is less secure than TLS
+# Email settings
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",
     "tech@westernfriend.org",
 )
 
-# if the EMAIL authentication environment variables are set,
-# then we can use the SMTP backend
-if (
-    EMAIL_HOST is not None
-    and EMAIL_HOST_USER is not None
-    and EMAIL_HOST_PASSWORD is not None
-):
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+email_host = os.getenv("EMAIL_HOST", None)
+email_host_user = os.getenv("EMAIL_HOST_USER", None)
+email_host_password = os.getenv("EMAIL_HOST_PASSWORD", None)
+
+# If the EMAIL authentication environment variables are set, use SMTP backend
+if email_host and email_host_user and email_host_password:
+    MAILERS = {
+        "default": {
+            "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+            "HOST": email_host,
+            "PORT": int(os.getenv("EMAIL_PORT", "587")),
+            "USERNAME": email_host_user,
+            "PASSWORD": email_host_password,
+            "USE_TLS": os.getenv("EMAIL_USE_TLS", "True") == "True",
+            "USE_SSL": os.getenv("EMAIL_USE_SSL", "False") == "True",
+        }
+    }
 else:
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    MAILERS = {
+        "default": {
+            "BACKEND": "django.core.mail.backends.console.EmailBackend",
+        }
+    }
 
 WAGTAILADMIN_BASE_URL = "/admin"
 
