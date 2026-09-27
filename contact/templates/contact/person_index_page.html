@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block body_class %}template-community-people{% endblock %}
+
+{% block content %}
+    <main id="main-content" tabindex="-1" itemscope itemtype="https://schema.org/CollectionPage">
+        <meta itemprop="name" content="{{ page.title }}">
+        <h1>{{ page.title }}</h1>
+
+        <section aria-label="People list" itemprop="mainEntity" itemscope itemtype="https://schema.org/ItemList">
+            <meta itemprop="numberOfItems" content="{{ people|length }}">
+            <ul class="list-none pl-0 sm:columns-2 lg:columns-3">
+                {% for person in people %}
+                    <li class="mb-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <meta itemprop="position" content="{{ forloop.counter }}">
+                        <a href="{% pageurl person %}" itemprop="item" itemscope itemtype="https://schema.org/Person">
+                            <span itemprop="name">{{ person.title }}</span>
+                        </a>
+                    </li>
+                {% empty %}
+                    <li>
+                        <p>No people found.</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
+{% endblock content %}
