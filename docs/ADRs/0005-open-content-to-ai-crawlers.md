@@ -5,27 +5,32 @@ Status: Accepted
 
 ## Context
 
+Western Friend follows an open publication model. New magazine content is
+available only to subscribers for 90 days and then becomes free to read, and
+the archive is public all the way back to 1929. Earlier decisions followed
+from that model, and this one extends it to a new kind of reader.
+
 AI models and agents increasingly shape how people find and understand
 religious and spiritual traditions. Quakers are a small community with a
 distinctive perspective (on peace, equality, simplicity and discernment) that
 can balance other voices in those models. If Western Friend content is missing
 from AI training data and agent answers, that perspective is missing too.
 
-Until September 2026 the site did the opposite. Cloudflare injected a managed
-`robots.txt` with `Content-Signal: ai-train=no` and `Disallow: /` for GPTBot,
-ClaudeBot, CCBot and other AI crawlers. Its "Block AI bots" rule returned 403
-to those crawlers. Super Bot Fight Mode and a site-wide rate limit (about five
-requests per ten seconds) challenged most other automated clients, including
-`/sitemap.xml` and `/robots.txt` themselves. The
+In September 2026 the site was not reachable for these readers in practice.
+Super Bot Fight Mode and a site-wide rate limit (about five requests per ten
+seconds) challenged most automated clients, including requests for
+`/sitemap.xml` and `/robots.txt`. The
 [isitagentready.com](https://isitagentready.com/westernfriend.org) scan scored
-the site 19 (Level 0).
+the site 19 (Level 0). While we investigated, Cloudflare's AI-training block
+(a managed `robots.txt` with `ai-train=no`) was switched on by accident for
+about 30 minutes. It never reflected policy.
 
 We considered three options:
 
-- **Keep blocking AI training, allow search and AI answers**
-  (`ai-train=no, ai-input=yes`). This protects the content from being used as
-  training data, but training is where lasting representation in models
-  comes from.
+- **Allow search and AI answers, but not training**
+  (`ai-train=no, ai-input=yes`). This would withhold content from training
+  data, which the open publication model doesn't call for. Training is also
+  where lasting representation in models comes from.
 - **Open everything, including turning off bot protection.** This is simplest
   for agents, but Super Bot Fight Mode challenges about 20,000 spoofed-browser
   scraper requests a day. Those requests are not AI crawlers, and serving them
@@ -54,7 +59,7 @@ In the application:
 
 At the Cloudflare edge (these settings live outside the repository):
 
-- Cloudflare no longer manages `robots.txt`; the application's file is the
+- Cloudflare's managed `robots.txt` is off; the application's file is the
   only source.
 - AI crawler blocking and AI Labyrinth are off.
 - Super Bot Fight Mode stays on. A narrow WAF Skip rule exempts the discovery
@@ -85,4 +90,5 @@ change over time. Check the Cloudflare dashboard for the current state.
   #1242). That could let us relax bot protection without subsidizing
   scrapers. Serving Markdown to agents (#1243) and caching public pages at the
   edge (#1239) should make it cheaper to let more automated traffic through.
-  Supersede this ADR if the organization changes its position on AI training.
+  Supersede this ADR if the organization changes its open publication model
+  or its position on AI training.

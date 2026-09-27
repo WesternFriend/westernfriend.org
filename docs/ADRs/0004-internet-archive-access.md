@@ -5,7 +5,9 @@ Status: Accepted
 
 ## Context
 
-Western Friend's magazine, library and memorials form a public record of
+Western Friend follows an open publication model: new magazine content is
+subscriber-only for 90 days and then free to read, and the archive is public
+back to 1929. The magazine, library and memorials form a public record of
 Quaker life in the western United States. Web pages move, change and
 disappear, especially across platform migrations like our move from Drupal to
 Wagtail. The Internet Archive's Wayback Machine keeps dated snapshots
