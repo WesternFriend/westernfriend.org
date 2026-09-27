@@ -39,18 +39,7 @@ def update_contact_stats_on_archive_article_delete(sender, instance, **kwargs):
         ContactPublicationStatistics.update_for_contact(instance.author)
 
 
-@receiver(page_published, sender=MagazineArticle)
-@receiver(page_unpublished, sender=MagazineArticle)
-@receiver(post_page_move, sender=MagazineArticle)
-@receiver(post_delete, sender=MagazineArticle)
-def purge_ai_policy_files_on_article_change(sender, instance, **kwargs):
-    """Purge robots.txt and llms.txt from Cloudflare when an article changes.
-
-    Both files list the paths of articles excluded from AI use. Publishing
-    can change the exclusion or the slug, and moving or removing an article
-    changes its path, so the cached files would otherwise go stale until
-    the edge TTL expires.
-    """
+def _purge_ai_policy_files():
     batch = PurgeBatch()
     for site in Site.objects.all():
         root_url = site.root_url.rstrip("/")
@@ -58,3 +47,30 @@ def purge_ai_policy_files_on_article_change(sender, instance, **kwargs):
             f"{root_url}{reverse(name)}" for name in ("robots_txt", "llms_txt")
         )
     transaction.on_commit(batch.purge)
+
+
+@receiver(page_published)
+@receiver(page_unpublished)
+@receiver(post_page_move)
+def purge_ai_policy_files_on_page_change(sender, instance, **kwargs):
+    """Purge robots.txt and llms.txt from Cloudflare when an article changes.
+
+    Both files list the paths of articles excluded from AI use. Publishing
+    an article can change the exclusion or the slug. Publishing, moving or
+    unpublishing an article or one of its ancestors, such as its issue,
+    changes or removes its path. The cached files would otherwise go stale
+    until the edge TTL expires.
+    """
+    if (
+        isinstance(instance, MagazineArticle)
+        or MagazineArticle.objects.descendant_of(instance)
+        .filter(exclude_from_ai=True)
+        .exists()
+    ):
+        _purge_ai_policy_files()
+
+
+@receiver(post_delete, sender=MagazineArticle)
+def purge_ai_policy_files_on_article_delete(sender, instance, **kwargs):
+    """Purge robots.txt and llms.txt when an article is deleted."""
+    _purge_ai_policy_files()

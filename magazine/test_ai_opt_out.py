@@ -145,7 +145,7 @@ class ArticleAIOptOutTest(TestCase):
         content = self.client.get("/llms.txt").content.decode()
 
         self.assertNotIn("Excluded essay", content)
-        self.assertIn(f"[Included essay](http://testserver{INCLUDED_PATH})", content)
+        self.assertIn(f"[Included essay](<http://testserver{INCLUDED_PATH}>)", content)
 
     def test_excluded_article_page_carries_content_usage_header(self):
         response = self.client.get(EXCLUDED_PATH)
@@ -184,3 +184,31 @@ class ArticleAIOptOutTest(TestCase):
             ["http://testserver/robots.txt", "http://testserver/llms.txt"],
         )
         purge_batch.return_value.purge.assert_called_once()
+
+    def test_robots_txt_percent_encodes_unicode_slugs_once(self):
+        self.excluded.slug = "café"
+        self.excluded.save_revision().publish()
+
+        content = self.client.get("/robots.txt").content.decode()
+
+        self.assertIn("Disallow: /magazine/issue/caf%C3%A9/", content)
+        self.assertNotIn("%25", content)
+
+    @patch("magazine.signals.PurgeBatch")
+    def test_publishing_issue_with_excluded_article_purges(self, purge_batch):
+        self.issue.slug = "renamed-issue"
+        with self.captureOnCommitCallbacks(execute=True):
+            self.issue.save_revision().publish()
+
+        purge_batch.return_value.purge.assert_called_once()
+
+    @patch("magazine.signals.PurgeBatch")
+    def test_publishing_unrelated_page_does_not_purge(self, purge_batch):
+        self.excluded.exclude_from_ai = False
+        self.excluded.save_revision().publish()
+        purge_batch.reset_mock()
+
+        with self.captureOnCommitCallbacks(execute=True):
+            self.issue.save_revision().publish()
+
+        purge_batch.return_value.purge.assert_not_called()

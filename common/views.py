@@ -1,11 +1,11 @@
 import hashlib
 from http import HTTPStatus
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Max
-from django.http import HttpResponse, HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import reverse
@@ -15,6 +15,7 @@ from wagtail.contrib.sitemaps.views import sitemap as wagtail_sitemap
 from wagtail.models import PageLogEntry, Site
 
 from common.ai_preferences import AI_CRAWLER_USER_AGENTS, AI_EXCLUDED_CONTENT_USAGE
+from common.models import CrawlerPolicySetting
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
 from events.views import EventViewSet
@@ -71,7 +72,8 @@ def custom_404(request, exception=None):  # skipcq: PYL-W0613
     )
 
 
-# Private, transactional, or costly paths that crawlers should not index
+# Private, transactional, or costly paths that crawlers should not index.
+# These stay in code, whatever the crawler policy setting says.
 ROBOTS_DISALLOWED_PATHS = [
     "/admin/",
     "/accounts/",
@@ -81,11 +83,6 @@ ROBOTS_DISALLOWED_PATHS = [
     "/paypal/",
     "/search/",
 ]
-
-
-# We want Quaker perspectives to be available to search engines, AI answers,
-# and AI training alike (https://contentsignals.org/)
-ROBOTS_CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes"
 
 
 def _absolute_url(path):
@@ -109,7 +106,9 @@ def _ai_excluded_paths(request):
     for article in MagazineArticle.objects.live().filter(exclude_from_ai=True):
         url_parts = article.get_url_parts(request)
         if url_parts is not None and url_parts[0] == getattr(site, "id", None):
-            paths.append(quote(url_parts[2], safe="/"))
+            # Normalise to one level of percent-encoding, whether or not
+            # Wagtail has already encoded a Unicode slug
+            paths.append(quote(unquote(url_parts[2]), safe="/"))
     return sorted(paths)
 
 
@@ -121,9 +120,10 @@ def robots_txt(request):
     every crawler, and are disallowed for known AI crawlers, which leaves
     them open to search engines. See docs/ai-opt-out.md.
     """
+    policy = CrawlerPolicySetting.for_request_or_default(request)
     excluded_paths = _ai_excluded_paths(request)
 
-    lines = ["User-agent: *", f"Content-Signal: {ROBOTS_CONTENT_SIGNAL}"]
+    lines = ["User-agent: *", f"Content-Signal: {policy.content_signal}"]
     lines += [
         f"Content-Usage: {path} {AI_EXCLUDED_CONTENT_USAGE}" for path in excluded_paths
     ]
@@ -134,7 +134,7 @@ def robots_txt(request):
         # this group repeats the rules for everyone before adding its own.
         lines += [""]
         lines += [f"User-agent: {agent}" for agent in AI_CRAWLER_USER_AGENTS]
-        lines += [f"Content-Signal: {ROBOTS_CONTENT_SIGNAL}"]
+        lines += [f"Content-Signal: {policy.content_signal}"]
         lines += [
             f"Disallow: {path}" for path in ROBOTS_DISALLOWED_PATHS + excluded_paths
         ]
@@ -145,7 +145,11 @@ def robots_txt(request):
 
 
 def _llms_link(request, item):
-    """Format a navigation menu link as an llms.txt list item."""
+    """Format a navigation menu link as an llms.txt list item.
+
+    The destination is wrapped in angle brackets (allowed by CommonMark) so
+    URLs containing an unmatched ")" or a space can't truncate the link.
+    """
     page = item.get("page")
     if page is not None and (
         not page.live
@@ -154,7 +158,7 @@ def _llms_link(request, item):
     ):
         return None
 
-    line = f"- [{item['title']}]({request.build_absolute_uri(item.href())})"
+    line = f"- [{item['title']}](<{request.build_absolute_uri(item.href())}>)"
     description = page.specific.search_description if page is not None else ""
     return f"{line}: {description}" if description else line
 
@@ -162,16 +166,14 @@ def _llms_link(request, item):
 @require_GET
 def llms_txt(request):
     """Serve llms.txt (https://llmstxt.org/), built from the navigation menu."""
-    lines = [
-        "# Western Friend",
-        "",
-        (
-            "> Western Friend is a Quaker nonprofit that publishes a magazine, "
-            "books, and other resources exploring the spiritual lives of Friends "
-            "(Quakers) in the western United States and beyond."
-        ),
-        "",
-    ]
+    policy = CrawlerPolicySetting.for_request_or_default(request)
+    if not policy.publish_llms_txt:
+        raise Http404
+
+    lines = ["# Western Friend", ""]
+    summary = " ".join(policy.llms_txt_summary.split())
+    if summary:
+        lines += [f"> {summary}", ""]
 
     top_level_links = []
     sections = []
@@ -194,7 +196,7 @@ def llms_txt(request):
     lines += [
         "## Optional",
         "",
-        f"- [Sitemap]({_absolute_url(reverse('sitemap'))}): every public page",
+        f"- [Sitemap](<{_absolute_url(reverse('sitemap'))}>): every public page",
         "",
     ]
 

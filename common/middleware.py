@@ -4,6 +4,8 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils.cache import patch_cache_control
 
+from common.models import CrawlerPolicySetting
+
 # Paths that serve per-visitor content, matching the Cloudflare cache rule
 PRIVATE_PATH_PREFIXES = (
     "/admin/",
@@ -82,9 +84,11 @@ class DiscoveryLinkHeaderMiddleware:
         response = self.get_response(request)
 
         if response.get("Content-Type", "").lower().startswith("text/html"):
+            policy = CrawlerPolicySetting.for_request_or_default(request)
             links = [
                 f'<{reverse(name)}>; rel="{rel}"; type="{content_type}"'
                 for name, rel, content_type in DISCOVERY_LINKS
+                if name != "llms_txt" or policy.publish_llms_txt
             ]
             response.headers.setdefault("Link", ", ".join(links))
 
