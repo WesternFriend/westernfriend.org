@@ -5,7 +5,7 @@
    aria-labelledby="issue-title-{{ issue.id }}">
     <figure class="flex flex-col">
         <div class="w-full flex justify-center">
-            {% srcset_image issue.specific.cover_image width-{300,500,800,1200} sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1280px) 30vw, 25vw" class="rounded-md mx-auto object-contain" alt="Cover of {{ issue.title }}" %}
+            {% srcset_image issue.specific.cover_image width-{300,500,800,1200} sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1280px) 30vw, 25vw" class="rounded-md mx-auto object-contain" alt="Cover of "|add:issue.title %}
         </div>
         <figcaption class="mt-2 text-center font-bold">
             <span id="issue-title-{{ issue.id }}">{{ issue.title }}</span>

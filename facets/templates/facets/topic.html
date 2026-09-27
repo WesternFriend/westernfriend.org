@@ -3,7 +3,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
         <header class="mb-6">
             <h1>{{ page.title }}</h1>
         </header>
@@ -21,5 +21,5 @@
                 <p>No media items found.</p>
             {% endif %}
         </section>
-    </main>
+    </div>
 {% endblock content %}

@@ -6,13 +6,15 @@
 {% endblock title %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
         <div class="flex justify-between items-center">
             <h1>Your Cart</h1>
         </div>
 
-        <div class="overflow-x-auto" role="table" aria-label="Shopping cart">
+        {# Focusable so keyboard users can scroll the table horizontally on narrow screens #}
+        <div class="overflow-x-auto" role="region" aria-label="Shopping cart" tabindex="0">
             <table class="table table-zebra w-full">
+                <caption class="sr-only">Items in your cart</caption>
                 <thead>
                     <tr>
                         <th scope="col">Image</th>
@@ -28,8 +30,9 @@
                         {% with product=item.product %}
                             <tr>
                                 <td class="align-middle">
-                                    <a href="{% pageurl product %}">
-                                        {% image product.image max-100x100 alt=product.title %}
+                                    {# Decorative duplicate of the product title link below #}
+                                    <a href="{% pageurl product %}" tabindex="-1" aria-hidden="true">
+                                        {% image product.image max-100x100 alt="" %}
                                     </a>
                                 </td>
                                 <td class="align-middle">
@@ -52,7 +55,7 @@
                                                 name="quantity"
                                                 min="1"
                                                 required=""
-                                                aria-label="quantity"
+                                                aria-label="Quantity of {{ product.title }}"
                                                 class="input input-bordered w-20 join-item"
                                                 value="{{ item.quantity }}"
                                             >
@@ -84,19 +87,19 @@
                         {% endwith %}
                     {% endfor %}
                     <tr>
-                        <td colspan="5" class="text-right font-medium">Subtotal</td>
+                        <th scope="row" colspan="5" class="text-right font-medium">Subtotal</th>
                         <td class="text-right font-medium">
                             ${{ cart.get_subtotal_cost }}
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="5" class="text-right font-medium">Shipping</td>
+                        <th scope="row" colspan="5" class="text-right font-medium">Shipping</th>
                         <td class="text-right font-medium">
                             ${{ cart.get_shipping_cost }}
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="5" class="text-right font-bold text-lg">Total</td>
+                        <th scope="row" colspan="5" class="text-right font-bold text-lg">Total</th>
                         <td class="text-right font-bold text-lg">
                             ${{ cart.get_total_cost }}
                         </td>
@@ -106,25 +109,22 @@
         </div>
 
         <div class="flex justify-end mt-8">
-            <div class="join" role="group" aria-label="Cart navigation">
+            <div class="join join-vertical sm:join-horizontal" role="group" aria-label="Cart navigation">
                 {% if store_index_page %}
                     <a
                         href="{% pageurl store_index_page %}"
-                        class="btn btn-outline join-item"
-                        aria-label="Back to bookstore">
+                        class="btn btn-outline join-item">
                         <i class="bi bi-arrow-left mr-2" aria-hidden="true"></i>
                         Back to bookstore
                     </a>
                 {% endif %}
                 <a
                     href="{% url "orders:order_create" %}"
-                    role="button"
-                    class="btn btn-primary join-item"
-                    aria-label="Proceed to checkout">
+                    class="btn btn-primary join-item">
                     Checkout
                     <i class="bi bi-arrow-right ml-2" aria-hidden="true"></i>
                 </a>
             </div>
         </div>
-    </main>
+    </div>
 {% endblock content %}

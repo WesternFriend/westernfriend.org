@@ -1,4 +1,4 @@
-{% load wagtailsettings_tags %}
+{% load wagtailcore_tags wagtailsettings_tags %}
 {% get_settings use_default_site=True %}
 
 <nav id="nav-vue-app" class="bg-black text-white shadow-md sticky top-0 z-50" aria-label="Main navigation">
@@ -15,26 +15,29 @@
 
             <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse">
                 <div class="flex flex-col xl:flex-row xl:items-center xl:space-x-1">
-                    <ul class="menu menu-horizontal menu-compact bg-black website-links" role="menubar" aria-label="Site navigation links">
-                        {{ settings.navigation.NavigationMenuSetting.menu_items }}
+                    <ul class="menu menu-horizontal menu-compact bg-black website-links" aria-label="Site navigation links">
+                        {# include_block renders each <li> without StreamField's wrapper <div>, keeping the list valid #}
+                        {% for menu_item in settings.navigation.NavigationMenuSetting.menu_items %}
+                            {% include_block menu_item %}
+                        {% endfor %}
                     </ul>
 
-                    <ul class="menu menu-horizontal menu-compact bg-black xl:ml-2" role="menubar" aria-label="Account navigation">
-                        <li class="nav-item" role="none">
+                    <ul class="menu menu-horizontal menu-compact bg-black xl:ml-2" aria-label="Account navigation">
+                        <li class="nav-item">
                             {% if user.is_authenticated %}
                                 <form id="logout-form" method="post" action="{% url 'logout' %}?next={{ request.path }}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" role="menuitem">Log out</button>
+                                    <button type="submit" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none">Log out</button>
                                 </form>
                             {% else %}
-                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" rel="nofollow" role="menuitem">
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" rel="nofollow">
                                     Login
                                 </a>
                             {% endif %}
                         </li>
                         {% if not user.is_authenticated %}
-                            <li class="nav-item" role="none">
-                                <a href="{% url 'django_registration_register' %}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" rel="nofollow" role="menuitem">
+                            <li class="nav-item">
+                                <a href="{% url 'django_registration_register' %}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" rel="nofollow">
                                     Register
                                 </a>
                             </li>
@@ -125,8 +128,12 @@
                 this._keydownHandler = (e) => {
                     if (e.key === 'Escape') {
                         if (this.openDetails) {
-                            this.openDetails.open = false;
+                            const details = this.openDetails;
+                            const focusWasInside = details.contains(document.activeElement);
+                            details.open = false;
                             this.openDetails = null;
+                            // Keep keyboard focus from being lost inside the now-hidden submenu
+                            if (focusWasInside) details.querySelector('summary').focus();
                         }
                         if (this.mobileMenuOpen) {
                             this.closeMobileMenu(mobileMenu, hamburger, xlQuery);

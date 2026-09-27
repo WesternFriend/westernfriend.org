@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "django",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "DJANGO_DEBUG=true uv run python manage.py runserver 8000"],
+      "port": 8000
+    }
+  ]
+}

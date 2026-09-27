@@ -3,7 +3,7 @@
 {% block title %}Payment canceled{% endblock %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
         <header>
             <h1>Payment canceled</h1>
         </header>
@@ -11,7 +11,7 @@
         <section class="my-6">
             <div class="bg-warning/10 border border-warning/20 rounded-lg p-6 mb-6">
                 <div class="flex items-center gap-3 mb-4">
-                    <i class="bi bi-exclamation-circle text-warning text-2xl"></i>
+                    <i class="bi bi-exclamation-circle text-warning text-2xl" aria-hidden="true"></i>
                     <p class="text-lg font-medium">Your payment was canceled.</p>
                 </div>
 
@@ -29,5 +29,5 @@
                 </a>
             </div>
         </section>
-    </main>
+    </div>
 {% endblock content %}

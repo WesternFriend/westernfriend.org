@@ -1,4 +1,6 @@
 from django.test import TestCase
+from wagtail.images.models import Image
+from wagtail.images.tests.utils import get_test_image_file
 from wagtail.models import Site
 
 from cart.forms import CartAddProductForm
@@ -152,3 +154,29 @@ class TestProductGetContext(TestCase):
             context["cart_add_product_form"],
             CartAddProductForm,
         )
+
+
+class TestBookPageRenders(TestCase):
+    def setUp(self) -> None:
+        self.home_page = HomePageFactory.create()
+        Site.objects.all().delete()
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home_page,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def test_book_cover_alt_text_includes_book_title(self) -> None:
+        """Template variables inside {% image %} arguments are not interpolated,
+        so the alt text must be built with a filter rather than {{ }}."""
+        ProductIndexPageFactory.create().save_revision().publish()
+        cover = Image.objects.create(title="cover", file=get_test_image_file())
+        book = BookFactory.create(title="Faith and Practice", image=cover)
+        book.save_revision().publish()
+
+        response = self.client.get(book.url)
+
+        self.assertContains(response, 'alt="Cover of Faith and Practice"')
+        self.assertNotContains(response, "{{ page.title }}")

@@ -19,7 +19,7 @@
     <img
         src="{{ block_image.url }}"
         width="{{ value.width }}"
-        alt="{% if value.caption %}{{ value.caption }}{% else %}{{ value.image.title }}{% endif %}"
+        alt="{{ value.image.default_alt_text }}"
         class="max-w-full rounded-md block"
         loading="lazy"
     />
