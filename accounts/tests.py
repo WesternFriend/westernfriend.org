@@ -1,12 +1,15 @@
+import importlib
 import re
+from unittest import mock
 from unittest.mock import PropertyMock, patch
 
 from django.conf import settings
 from django.core import mail
 from django.shortcuts import resolve_url
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import NoReverseMatch, reverse
 
+import core.settings
 from accounts.views import CustomLoginView
 from subscription.models import Subscription
 
@@ -163,7 +166,13 @@ class CustomLoginViewTests(TestCase):
 
 
 class CustomPasswordResetViewTests(TestCase):
-    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    @override_settings(
+        MAILERS={
+            "default": {
+                "BACKEND": "django.core.mail.backends.locmem.EmailBackend",
+            },
+        },
+    )
     def test_password_reset_sends_text_and_html(self):
         user = User.objects.create_user(email="pr@example.com", password="x")
         resp = self.client.post(reverse("password_reset"), {"email": user.email})
@@ -179,6 +188,41 @@ class CustomPasswordResetViewTests(TestCase):
         self.assertTrue(msg.subject.strip())
         html_body, _html_mime = msg.alternatives[0]
         self.assertTrue(str(html_body).strip())
+
+
+class SmtpSettingsEnvironmentTests(SimpleTestCase):
+    def test_smtp_mailers_configuration(self):
+        smtp_environment = {
+            "EMAIL_HOST": "smtp.example.com",
+            "EMAIL_PORT": "2525",
+            "EMAIL_HOST_USER": "testuser",
+            "EMAIL_HOST_PASSWORD": "testpassword",
+            "EMAIL_USE_TLS": "False",
+            "EMAIL_USE_SSL": "True",
+        }
+
+        try:
+            with mock.patch.dict("os.environ", smtp_environment):
+                importlib.reload(core.settings)
+                mailer = core.settings.MAILERS["default"]
+
+                self.assertEqual(
+                    mailer["BACKEND"],
+                    "django.core.mail.backends.smtp.EmailBackend",
+                )
+                self.assertEqual(
+                    mailer["OPTIONS"],
+                    {
+                        "host": "smtp.example.com",
+                        "port": 2525,
+                        "username": "testuser",
+                        "password": "testpassword",
+                        "use_tls": False,
+                        "use_ssl": True,
+                    },
+                )
+        finally:
+            importlib.reload(core.settings)
 
 
 class AccountPageAccessibilityTest(TestCase):
