@@ -391,3 +391,11 @@ class TestFacetIndexPagesRender(TestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertTemplateUsed(response, index_page_model.template)
                 self.assertContains(response, child.title)
+
+    def test_facet_index_page_renders_empty_state(self) -> None:
+        index_page = TopicIndexPageFactory.create()
+
+        response = self.client.get(index_page.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No items found.")
