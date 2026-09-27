@@ -88,17 +88,11 @@ article. `docs/ai-opt-out.md` describes the signals the site publishes.
 - **Positive:** governance and agency. The people responsible for the
   publication decide how it's used, can change that decision without a
   developer, and can make exceptions for individual contributors.
-- **Positive:** with the default policy, Quaker perspectives from Western
-  Friend can reach search engines, AI assistants and the models behind them,
-  consistent with how we already publish.
 - **Negative:** signals are requests, not enforcement. Crawlers that ignore
   them aren't stopped by the policy. Few crawlers read per-work preferences
   yet, so today an exclusion is mostly a stated wish.
 - **Negative:** any change applies only to future use. Content already
   collected for training can't be withdrawn.
-- **Negative:** with the default policy, pages that name real people, such
-  as memorials and directory contacts, are included. Anything that shouldn't
-  enter AI training shouldn't be public on the site.
 - **Negative:** the Editor takes on a new responsibility and needs clear,
   plain-language explanations of what each option means.
 - **Future:** revisit if agents gain reliable ways to prove who they are, or
