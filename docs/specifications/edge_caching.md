@@ -234,7 +234,10 @@ When a change must appear at once, use Cloudflare's *Purge Everything* or
 2. **Cloudflare cache rule:** keep the current rule, which skips excluded paths
    and requests with a `sessionid` cookie. Set it to *respect origin
    `Cache-Control`* rather than override the Edge TTL, so Django stays the
-   single source of truth.
+   single source of truth. Its **Browser TTL** is also set to *respect
+   origin*. Otherwise the zone's 1-day Browser Cache TTL would win over our
+   `max-age=60`, because Cloudflare uses the longer of the two, and browsers,
+   which Wagtail cannot purge, would keep pages for a day.
 3. Optional: exclude tracking parameters (`utm_*`, `fbclid`, `gclid`) from the
    cache key so that one page does not produce many cache entries.
 4. Add two App Platform variables when Cloudflare purging is set up:
