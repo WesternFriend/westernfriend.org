@@ -187,8 +187,8 @@ class AccountPageAccessibilityTest(TestCase):
         self.assertIn('role="alert"', html)
 
     def test_registration_password_errors_linked(self) -> None:
-        # Django points aria-describedby at these ids; they must exist
-        response = self.client.get(reverse("django_registration_register"))
+        # Submit invalid registration data to trigger error state and check accessibility attributes
+        response = self.client.post(reverse("django_registration_register"), data={})
         html = response.content.decode()
         self.assertIn('id="id_password2_error"', html)
         self.assertIn('id="id_password2_helptext"', html)
