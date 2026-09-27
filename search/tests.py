@@ -85,7 +85,9 @@ class SearchOptimizationTestCase(TestCase):
     # Expected query counts for search with 2 magazine articles
     # Query count varies (14-20) depending on cache state - this is normal.
     # Django caches content types and other metadata between tests.
-    MAX_SEARCH_QUERIES = 20  # Maximum acceptable queries including cache overhead
+    # Maximum acceptable queries including cache overhead, plus one for the
+    # crawler policy that decides whether the Link header advertises llms.txt
+    MAX_SEARCH_QUERIES = 21
 
     def setUp(self) -> None:
         self.client = Client()
@@ -173,13 +175,13 @@ class SearchOptimizationTestCase(TestCase):
         This is the most important test - it catches N+1 issues that only appear
         during template rendering (like parent page lookups from {% pageurl %} tags).
 
-        Query count varies (14-20) depending on Django's internal cache state:
-        - 14 queries: All caches warm (content types, navigation, sites)
-        - 17 queries: Content types cached, navigation exists, some site lookups
-        - 20 queries: Fresh database, navigation settings created on first request
+        Query count varies (15-21) depending on Django's internal cache state:
+        - 15 queries: All caches warm (content types, navigation, sites)
+        - 18 queries: Content types cached, navigation exists, some site lookups
+        - 21 queries: Fresh database, navigation settings created on first request
 
         This is normal TestCase behavior and doesn't indicate N+1 issues.
-        We verify the query count is reasonable (≤20) rather than exact.
+        We verify the query count is reasonable (≤21) rather than exact.
 
         KEY OPTIMIZATION: Parent pages are bulk-prefetched for ALL search results,
         then cached on each page instance. This prevents N+1 queries from {% pageurl %}

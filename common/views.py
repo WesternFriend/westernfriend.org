@@ -1,10 +1,11 @@
 import hashlib
 from http import HTTPStatus
+from urllib.parse import quote, unquote
 
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Max
-from django.http import HttpResponse, HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import reverse
@@ -13,9 +14,11 @@ from wagtail.admin.viewsets.base import ViewSetGroup
 from wagtail.contrib.sitemaps.views import sitemap as wagtail_sitemap
 from wagtail.models import PageLogEntry, Site
 
+from common.models import CrawlerPolicySetting
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
 from events.views import EventViewSet
+from magazine.models import MagazineArticle
 from navigation.models import NavigationMenuSetting
 from news.views import NewsItemViewSet
 from tags.views import TagViewSet
@@ -68,7 +71,8 @@ def custom_404(request, exception=None):  # skipcq: PYL-W0613
     )
 
 
-# Private, transactional, or costly paths that crawlers should not index
+# Private, transactional, or costly paths that crawlers should not index.
+# These stay in code, whatever the crawler policy setting says.
 ROBOTS_DISALLOWED_PATHS = [
     "/admin/",
     "/accounts/",
@@ -78,11 +82,6 @@ ROBOTS_DISALLOWED_PATHS = [
     "/paypal/",
     "/search/",
 ]
-
-
-# We want Quaker perspectives to be available to search engines, AI answers,
-# and AI training alike (https://contentsignals.org/)
-ROBOTS_CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes"
 
 
 def _absolute_url(path):
@@ -95,23 +94,60 @@ def favicon_ico(request):
     return HttpResponsePermanentRedirect(static("img/favicon.ico"))
 
 
+def _ai_excluded_paths(request):
+    """Return the URL paths of live articles excluded from AI use on this site.
+
+    Paths are looked up on every request, so an exclusion follows the
+    article when its slug or parent changes.
+    """
+    site = Site.find_for_request(request)
+    paths = []
+    for article in MagazineArticle.objects.live().filter(exclude_from_ai=True):
+        url_parts = article.get_url_parts(request)
+        if url_parts is not None and url_parts[0] == getattr(site, "id", None):
+            # Normalise to one level of percent-encoding, whether or not
+            # Wagtail has already encoded a Unicode slug
+            paths.append(quote(unquote(url_parts[2]), safe="/"))
+    return sorted(paths)
+
+
 @require_GET
 def robots_txt(request):
-    """Serve robots.txt, pointing crawlers at the canonical sitemap."""
-    lines = ["User-agent: *", f"Content-Signal: {ROBOTS_CONTENT_SIGNAL}"]
+    """Serve robots.txt, pointing crawlers at the canonical sitemap.
+
+    Articles excluded from AI use get a path-scoped Content-Usage rule.
+    See docs/ai-opt-out.md.
+    """
+    policy = CrawlerPolicySetting.for_request_or_default(request)
+    excluded_paths = _ai_excluded_paths(request)
+
+    lines = ["User-agent: *", f"Content-Signal: {policy.content_signal}"]
+    lines += [
+        f"Content-Usage: {path} {policy.excluded_content_usage}"
+        for path in excluded_paths
+    ]
     lines += [f"Disallow: {path}" for path in ROBOTS_DISALLOWED_PATHS]
+
     lines += ["", f"Sitemap: {_absolute_url(reverse('sitemap'))}", ""]
 
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 
 def _llms_link(request, item):
-    """Format a navigation menu link as an llms.txt list item."""
+    """Format a navigation menu link as an llms.txt list item.
+
+    The destination is wrapped in angle brackets (allowed by CommonMark) so
+    URLs containing an unmatched ")" or a space can't truncate the link.
+    """
     page = item.get("page")
-    if page is not None and (not page.live or page.get_view_restrictions().exists()):
+    if page is not None and (
+        not page.live
+        or page.get_view_restrictions().exists()
+        or getattr(page.specific, "exclude_from_ai", False)
+    ):
         return None
 
-    line = f"- [{item['title']}]({request.build_absolute_uri(item.href())})"
+    line = f"- [{item['title']}](<{request.build_absolute_uri(item.href())}>)"
     description = page.specific.search_description if page is not None else ""
     return f"{line}: {description}" if description else line
 
@@ -119,16 +155,14 @@ def _llms_link(request, item):
 @require_GET
 def llms_txt(request):
     """Serve llms.txt (https://llmstxt.org/), built from the navigation menu."""
-    lines = [
-        "# Western Friend",
-        "",
-        (
-            "> Western Friend is a Quaker nonprofit that publishes a magazine, "
-            "books, and other resources exploring the spiritual lives of Friends "
-            "(Quakers) in the western United States and beyond."
-        ),
-        "",
-    ]
+    policy = CrawlerPolicySetting.for_request_or_default(request)
+    if not policy.publish_llms_txt:
+        raise Http404
+
+    lines = ["# Western Friend", ""]
+    summary = " ".join(policy.llms_txt_summary.split())
+    if summary:
+        lines += [f"> {summary}", ""]
 
     top_level_links = []
     sections = []
@@ -151,7 +185,7 @@ def llms_txt(request):
     lines += [
         "## Optional",
         "",
-        f"- [Sitemap]({_absolute_url(reverse('sitemap'))}): every public page",
+        f"- [Sitemap](<{_absolute_url(reverse('sitemap'))}>): every public page",
         "",
     ]
 
