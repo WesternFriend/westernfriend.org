@@ -203,6 +203,23 @@ class CrawlerPolicySettingTest(TestCase):
         )
         batch.purge.assert_called_once()
 
+    def test_deleting_purges_robots_and_llms_txt(self):
+        site = Site.objects.get(is_default_site=True)
+        setting = CrawlerPolicySetting.objects.create(site=site)
+
+        with (
+            mock.patch("common.signal_handlers.PurgeBatch") as purge_batch,
+            self.captureOnCommitCallbacks(execute=True),
+        ):
+            setting.delete()
+
+        batch = purge_batch.return_value
+        self.assertEqual(
+            list(batch.add_urls.call_args.args[0]),
+            [f"{site.root_url}/robots.txt", f"{site.root_url}/llms.txt"],
+        )
+        batch.purge.assert_called_once()
+
 
 class FaviconTest(TestCase):
     """Test the /favicon.ico redirect."""

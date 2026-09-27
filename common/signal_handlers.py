@@ -37,12 +37,13 @@ def purge_crawler_policy_files(instance, **kwargs):
 
 
 def register_signal_handlers():
-    post_save.connect(
-        purge_crawler_policy_files,
-        sender=CrawlerPolicySetting,
-        dispatch_uid="purge_crawler_policy_files",
-    )
     for signal in (post_save, post_delete):
+        # Deleting a saved policy returns the site to the defaults
+        signal.connect(
+            purge_crawler_policy_files,
+            sender=CrawlerPolicySetting,
+            dispatch_uid=f"purge_crawler_policy_files_{signal is post_save}",
+        )
         signal.connect(
             purge_restricted_pages,
             sender=PageViewRestriction,
