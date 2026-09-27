@@ -6,9 +6,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
+from django.http import Http404
 from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.urls import reverse
-from wagtail.models import Locale, Page, Revision
+from wagtail.models import Locale, Page, Revision, Site
 
 from community.factories import OnlineWorshipFactory
 from community.models import CommunityPage
@@ -218,6 +219,87 @@ class TestMeetingGetContext(TestCase):
             list(context["worship_groups"]),
             [self.child_worship_group],
         )
+
+
+class TestMeetingRouting(TestCase):
+    """Nested meeting URLs resolve with one lookup rather than one per level."""
+
+    def setUp(self) -> None:
+        self.request = RequestFactory().get("/")
+        self.meeting_index = MeetingIndexPageFactory.create()
+
+        self.yearly = MeetingFactory.build(slug="yearly")
+        self.meeting_index.add_child(instance=self.yearly)
+        self.quarterly = MeetingFactory.build(slug="quarterly")
+        self.yearly.add_child(instance=self.quarterly)
+        self.monthly = MeetingFactory.build(slug="monthly")
+        self.quarterly.add_child(instance=self.monthly)
+
+    def test_routes_to_deeply_nested_meeting(self) -> None:
+        with self.assertNumQueries(1):
+            page, args, kwargs = self.meeting_index.route(
+                self.request,
+                ["yearly", "quarterly", "monthly"],
+            )
+
+        self.assertEqual(page, self.monthly)
+        self.assertIsInstance(page, Meeting)
+        self.assertEqual((args, kwargs), ([], {}))
+
+    def test_routes_from_intermediate_meeting(self) -> None:
+        with self.assertNumQueries(1):
+            page, _, _ = self.yearly.route(self.request, ["quarterly", "monthly"])
+
+        self.assertEqual(page, self.monthly)
+
+    def test_empty_path_routes_to_self(self) -> None:
+        page, _, _ = self.meeting_index.route(self.request, [])
+        self.assertEqual(page, self.meeting_index)
+
+        page, _, _ = self.yearly.route(self.request, [])
+        self.assertEqual(page, self.yearly)
+
+    def test_unknown_path_raises_404(self) -> None:
+        with self.assertRaises(Http404):
+            self.meeting_index.route(self.request, ["yearly", "nope"])
+
+        with self.assertRaises(Http404):
+            self.meeting_index.route(
+                self.request,
+                ["yearly", "quarterly", "monthly", "extra"],
+            )
+
+    def test_unpublished_target_raises_404(self) -> None:
+        self.monthly.unpublish()
+
+        with self.assertRaises(Http404):
+            self.meeting_index.route(
+                self.request,
+                ["yearly", "quarterly", "monthly"],
+            )
+
+    def test_unpublished_intermediate_does_not_block_live_target(self) -> None:
+        """Matches Wagtail's default router, which only checks the target."""
+        self.quarterly.unpublish()
+
+        page, _, _ = self.meeting_index.route(
+            self.request,
+            ["yearly", "quarterly", "monthly"],
+        )
+
+        self.assertEqual(page, self.monthly)
+
+    def test_serves_nested_meeting_over_http(self) -> None:
+        home = self.meeting_index.get_parent().get_parent()
+        Site.objects.all().delete()
+        Site.objects.create(hostname="testserver", root_page=home, is_default_site=True)
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+        response = self.client.get(self.monthly.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["page"], self.monthly)
 
 
 class ContactQueryOptimizationTestCase(TestCase):

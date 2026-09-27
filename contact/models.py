@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models
 from django.db.models import TextChoices
-from django.http import HttpRequest
+from django.http import Http404, HttpRequest
 
 if TYPE_CHECKING:
     from django.db.models import Prefetch
@@ -20,6 +20,7 @@ from wagtail.admin.panels import (
 from wagtail.fields import RichTextField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
+from wagtail.url_routing import RouteResult
 
 from addresses.models import Address
 
@@ -618,6 +619,36 @@ class PersonIndexPage(Page):
     template = "contact/person_index_page.html"
 
 
+class MeetingDescendantRoutingMixin:
+    """Route to a nested Meeting with one query instead of two per level.
+
+    Wagtail's default ``Page.route()`` walks the URL one slug at a time and
+    calls ``.specific`` on every intermediate page, so a URL like
+    ``/meetings/yearly/quarterly/monthly/`` costs a query pair per level.
+    Meeting subtrees only contain Meeting pages, so the target can be looked
+    up directly by its ``url_path``.
+    """
+
+    def route(
+        self,
+        request: HttpRequest,
+        path_components: list[str],
+    ) -> RouteResult:
+        if not path_components:
+            return super().route(request, path_components)  # type: ignore[misc]
+
+        target_url_path = self.url_path + "/".join(path_components) + "/"  # type: ignore[attr-defined]
+
+        try:
+            # Like the default router, only the target page must be live;
+            # draft intermediate pages don't block routing.
+            meeting = Meeting.objects.live().get(url_path=target_url_path)
+        except Meeting.DoesNotExist as e:
+            raise Http404 from e
+
+        return RouteResult(meeting)
+
+
 class MeetingPresidingClerk(Orderable):
     """Presiding clerk of Quaker meeting."""
 
@@ -638,7 +669,7 @@ class MeetingPresidingClerk(Orderable):
     ]
 
 
-class Meeting(ContactBase):
+class Meeting(MeetingDescendantRoutingMixin, ContactBase):
     class MeetingTypeChoices(TextChoices):
         MONTHLY_MEETING = "monthly_meeting", "Monthly Meeting"
         QUARTERLY_MEETING = "quarterly_meeting", "Quarterly Meeting"
@@ -776,7 +807,7 @@ class MeetingWorshipTime(Orderable):
     worship_time = models.CharField(max_length=255)
 
 
-class MeetingIndexPage(Page):
+class MeetingIndexPage(MeetingDescendantRoutingMixin, Page):
     max_count = 1
 
     parent_page_types = ["community.CommunityPage"]
