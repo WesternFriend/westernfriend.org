@@ -107,8 +107,9 @@ not.
 - **Mitigation:** the risks above are reduced by keeping choices open.
   Contributors can have individual works excluded, and the organization can
   narrow or withdraw the site-wide policy at any time, affecting all future
-  use. Both become editor tasks in the admin once #1288 and #1289 are done. Clear bylines and structured data help AI
-  systems credit Western Friend and its writers.
+  use. Both become editor tasks in the admin once #1288 and #1289 are done.
+  Clear bylines and structured data help AI systems credit Western Friend
+  and its writers.
 - **Future:** revisit if agents gain reliable ways to prove who they are,
   which would let us admit them without admitting scrapers, or if paid
   access becomes practical. Supersede this ADR if the organization changes
