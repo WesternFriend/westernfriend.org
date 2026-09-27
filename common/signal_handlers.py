@@ -1,7 +1,10 @@
 from django.db import transaction
 from django.db.models.signals import post_delete, post_save
+from django.urls import reverse
 from wagtail.contrib.frontend_cache.utils import PurgeBatch
 from wagtail.models import PageViewRestriction
+
+from common.models import CrawlerPolicySetting
 
 
 def purge_restricted_pages(instance, **kwargs):
@@ -21,7 +24,24 @@ def purge_restricted_pages(instance, **kwargs):
     transaction.on_commit(batch.purge)
 
 
+def purge_crawler_policy_files(instance, **kwargs):
+    """Purge robots.txt and llms.txt from Cloudflare when the policy changes.
+
+    Both files are cached at the edge like any public page, so without a
+    purge a changed crawler policy would wait for the edge TTL to expire.
+    """
+    root_url = instance.site.root_url.rstrip("/")
+    batch = PurgeBatch()
+    batch.add_urls(f"{root_url}{reverse(name)}" for name in ("robots_txt", "llms_txt"))
+    transaction.on_commit(batch.purge)
+
+
 def register_signal_handlers():
+    post_save.connect(
+        purge_crawler_policy_files,
+        sender=CrawlerPolicySetting,
+        dispatch_uid="purge_crawler_policy_files",
+    )
     for signal in (post_save, post_delete):
         signal.connect(
             purge_restricted_pages,

@@ -1,10 +1,13 @@
 """Tests for core utility functions."""
 
+from unittest import mock
+
 from django.core.cache import cache
 from django.templatetags.static import static
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
+from common.models import CrawlerPolicySetting
 from core.utils import get_default_site
 from home.models import HomePage
 from navigation.models import NavigationMenuSetting
@@ -111,6 +114,95 @@ class RobotsTxtTest(TestCase):
             response.content.decode(),
         )
 
+    def _set_policy(self, **choices):
+        site = Site.objects.get(is_default_site=True)
+        CrawlerPolicySetting.objects.update_or_create(site=site, defaults=choices)
+
+    def test_robots_txt_can_disallow_search(self):
+        self._set_policy(allow_search=False)
+
+        self.assertIn(
+            "Content-Signal: search=no, ai-input=yes, ai-train=yes",
+            self.client.get("/robots.txt").content.decode(),
+        )
+
+    def test_robots_txt_can_disallow_ai_answers(self):
+        self._set_policy(allow_ai_input=False)
+
+        self.assertIn(
+            "Content-Signal: search=yes, ai-input=no, ai-train=yes",
+            self.client.get("/robots.txt").content.decode(),
+        )
+
+    def test_robots_txt_can_disallow_ai_training(self):
+        self._set_policy(allow_ai_train=False)
+
+        self.assertIn(
+            "Content-Signal: search=yes, ai-input=yes, ai-train=no",
+            self.client.get("/robots.txt").content.decode(),
+        )
+
+    def test_robots_txt_keeps_private_paths_disallowed(self):
+        self._set_policy(allow_search=False, allow_ai_input=False)
+
+        content = self.client.get("/robots.txt").content.decode()
+
+        self.assertIn("Disallow: /admin/", content)
+        self.assertIn("Disallow: /cart/", content)
+
+    def test_robots_txt_uses_defaults_without_a_site(self):
+        Site.objects.all().delete()
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+        response = self.client.get("/robots.txt")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "Content-Signal: search=yes, ai-input=yes, ai-train=yes",
+            response.content.decode(),
+        )
+
+
+class CrawlerPolicySettingTest(TestCase):
+    """Test the Crawlers and AI site setting."""
+
+    def test_defaults_allow_everything(self):
+        policy = CrawlerPolicySetting()
+
+        self.assertEqual(
+            policy.content_signal,
+            "search=yes, ai-input=yes, ai-train=yes",
+        )
+        self.assertTrue(policy.publish_llms_txt)
+        self.assertTrue(policy.llms_txt_summary)
+
+    def test_for_request_or_default_returns_the_site_setting(self):
+        site = Site.objects.get(is_default_site=True)
+        setting = CrawlerPolicySetting.objects.create(site=site, allow_ai_train=False)
+        request = RequestFactory().get("/")
+
+        self.assertEqual(
+            CrawlerPolicySetting.for_request_or_default(request).pk,
+            setting.pk,
+        )
+
+    def test_saving_purges_robots_and_llms_txt(self):
+        site = Site.objects.get(is_default_site=True)
+
+        with (
+            mock.patch("common.signal_handlers.PurgeBatch") as purge_batch,
+            self.captureOnCommitCallbacks(execute=True),
+        ):
+            CrawlerPolicySetting.objects.create(site=site)
+
+        batch = purge_batch.return_value
+        self.assertEqual(
+            list(batch.add_urls.call_args.args[0]),
+            [f"{site.root_url}/robots.txt", f"{site.root_url}/llms.txt"],
+        )
+        batch.purge.assert_called_once()
+
 
 class FaviconTest(TestCase):
     """Test the /favicon.ico redirect."""
@@ -210,7 +302,7 @@ class LlmsTxtTest(TestCase):
         Site.objects.all().delete()
         root = Page.get_first_root_node() or Page.add_root(title="Root", slug="root")
         home = root.add_child(instance=Page(title="Home", slug="llms-home"))
-        site = Site.objects.create(
+        site = self.site = Site.objects.create(
             hostname="testserver",
             root_page=home,
             is_default_site=True,
@@ -287,6 +379,42 @@ class LlmsTxtTest(TestCase):
 
         self.assertIn("(https://westernfriend.org/sitemap.xml)", content)
 
+    def test_llms_txt_starts_with_default_summary(self):
+        content = self.client.get("/llms.txt").content.decode()
+
+        self.assertTrue(
+            content.startswith(
+                "# Western Friend\n\n> Western Friend is a Quaker nonprofit",
+            ),
+        )
+
+    def test_llms_txt_shows_custom_summary(self):
+        CrawlerPolicySetting.objects.create(
+            site=self.site,
+            llms_txt_summary="Quaker writing\nfrom the West.",
+        )
+
+        content = self.client.get("/llms.txt").content.decode()
+
+        self.assertTrue(
+            content.startswith("# Western Friend\n\n> Quaker writing from the West.\n"),
+        )
+
+    def test_llms_txt_summary_is_optional(self):
+        CrawlerPolicySetting.objects.create(site=self.site, llms_txt_summary="")
+
+        content = self.client.get("/llms.txt").content.decode()
+
+        self.assertNotIn(">", content.split("## ")[0])
+        self.assertIn("## Read", content)
+
+    def test_llms_txt_can_be_unpublished(self):
+        CrawlerPolicySetting.objects.create(site=self.site, publish_llms_txt=False)
+
+        response = self.client.get("/llms.txt")
+
+        self.assertEqual(response.status_code, 404)
+
 
 class DiscoveryLinkHeaderTest(TestCase):
     """Test the Link header that points agents at llms.txt and the sitemap."""
@@ -314,6 +442,17 @@ class DiscoveryLinkHeaderTest(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertIn('</llms.txt>; rel="describedby"', response["Link"])
+
+    def test_unpublished_llms_txt_is_not_linked(self):
+        site = Site.objects.get(is_default_site=True)
+        CrawlerPolicySetting.objects.create(site=site, publish_llms_txt=False)
+
+        response = self.client.get("/no-such-page/")
+
+        self.assertEqual(
+            response["Link"],
+            '</sitemap.xml>; rel="sitemap"; type="application/xml"',
+        )
 
     def test_non_html_responses_have_no_link_header(self):
         response = self.client.get("/robots.txt")
