@@ -68,7 +68,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `PAYPAL_CLIENT_ENVIRONMENT` - one of "PRODUCTION" or "SANDBOX"
    - `PAYPAL_CLIENT_ID` - ID obtained from PayPal developer dashboard
    - `PAYPAL_CLIENT_SECRET` - client secret obtained from PayPal developer dashboard
-   - `DJANGO_CACHE_TABLE` - name of the database cache table (e.g. `wf_cache`), shared by all workers; unset uses a per-process in-memory cache. The table is created by `python manage.py createcachetable` on deploy
+   - `DJANGO_CACHE_TABLE` - name of the database cache table (e.g. `wf_cache`), shared by all workers; unset uses a per-process in-memory cache. The table is created by `python manage.py createcachetable`: in the Procfile `release` phase, and in the DigitalOcean run command below because the app spec has no release phase (fine for a single instance; if you scale beyond one instance, run it once from a pre-deploy job instead, since concurrent starts can race on creating the table)
    - `SENTRY_DSN` - used for error logging and analysis
    - `EMAIL_HOST` - SMTP host
    - `EMAIL_PORT` - SMTP port (default: 587)
