@@ -1,6 +1,7 @@
 from unittest.mock import Mock
 
 from django.test import SimpleTestCase, TestCase
+from django.urls import reverse
 from wagtail.models import Site
 
 from home.models import HomePage
@@ -13,6 +14,7 @@ from .blocks import (
     NavigationPageChooserBlock,
     NavigationPageChooserStructValue,
 )
+from .models import NavigationMenuSetting
 
 
 class TestNavigationExternalLinkStructValue(TestCase):
@@ -177,3 +179,55 @@ class TestNavigationDropdownMenuStructValue(TestCase):
             nav_struct_value.submenu_id(),
             "dropdown-menu-",
         )
+
+
+class TestNavigationMenuRendering(TestCase):
+    """The navbar must render menu items as a valid list of links."""
+
+    def setUp(self) -> None:
+        self.site = Site.objects.get(is_default_site=True)
+        NavigationMenuSetting.objects.update_or_create(
+            site=self.site,
+            defaults={
+                "menu_items": [
+                    (
+                        "external_link",
+                        {
+                            "title": "Quaker Links",
+                            "url": "https://example.com",
+                            "anchor": "",
+                        },
+                    ),
+                    (
+                        "drop_down",
+                        {
+                            "title": "About Us",
+                            "menu_items": [
+                                (
+                                    "external_link",
+                                    {
+                                        "title": "History",
+                                        "url": "https://example.com/h",
+                                        "anchor": "",
+                                    },
+                                ),
+                            ],
+                        },
+                    ),
+                ],
+            },
+        )
+
+    def test_menu_items_render_as_list_items_without_menu_roles(self) -> None:
+        html = self.client.get(reverse("login")).content.decode()
+
+        links = html.split(
+            'class="menu menu-horizontal menu-compact bg-black website-links"',
+            1,
+        )[1]
+        links = links.split("</ul>\n", 1)[0]
+        # include_block renders each <li> directly, without StreamField wrapper divs
+        self.assertNotIn("<div", links.split("<details>", 1)[0])
+        self.assertIn("Quaker Links", links)
+        self.assertIn("<summary", links)
+        self.assertNotIn('role="menu', html)

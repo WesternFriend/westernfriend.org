@@ -5,77 +5,79 @@
 {% block body_class %}template-magazineissue{% endblock %}
 
 {% block content %}
-    <header>
-        <h1>
-            {{ page.title }}
-            {% if page.publication_date %}
-                <span class="font-normal">({{ page.publication_date|date:"M" }}/{{ page.publication_end_date|date:"M Y" }})</span>
-            {% endif %}
-        </h1>
-    </header>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <section class="col-span-1 md:col-span-2" aria-labelledby="articles-heading">
-            {% if page.featured_articles.count %}
-                <h2 id="featured-articles-heading" class="ml-4">Featured Articles</h2>
-
-                <ul class="ml-6 space-y-2">
-                    {% for featured_article in page.featured_articles.all %}
-                        <li>
-                            <a href="{% pageurl featured_article %}" class="font-bold">{{ featured_article.title }}</a>
-                            &nbsp;by
-                            {% for author in featured_article.authors.all %}
-                                {% if author.author.live %}
-                                    <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                                {% else %}
-                                    {{ author.author }}{% if not forloop.last %},{% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-
-            {% regroup page.specific.articles_by_department by specific.department as departments %}
-
-            {% for department in departments %}
-                <h2 id="department-{{ department.grouper|slugify }}" class="ml-4">
-                    {{ department.grouper }}
-                </h2>
-
-                <ul class="ml-6 space-y-2">
-                    {% for article in department.list %}
-                        <li>
-                            <a href="{% pageurl article %}" class="font-bold">
-                                {{ article }} {% if article.is_featured %}<span class="font-normal">(featured)</span>{% endif %}
-                            </a>
-                            &nbsp;by
-                            {% for author in article.authors.all %}
-                                {% if author.author.live %}
-                                    <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
-                                {% else %}
-                                    {{ author.author }}{% if not forloop.last %},{% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endfor %}
-        </section>
-
-        <aside class="col-span-1 pt-2">
-            <figure>
-                {% srcset_image page.cover_image width-{300,500,800,1200} sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1280px) 30vw, 25vw" class="rounded-md mx-auto object-contain" alt="Cover image of {{ page.title }} magazine issue" %}
-                {% if page.cover_image.caption %}
-                    <figcaption class="text-center mt-2">{{ page.cover_image.caption }}</figcaption>
+    <div>
+        <header>
+            <h1>
+                {{ page.title }}
+                {% if page.publication_date %}
+                    <span class="font-normal">({{ page.publication_date|date:"M" }}/{{ page.publication_end_date|date:"M Y" }})</span>
                 {% endif %}
-            </figure>
+            </h1>
+        </header>
 
-            <nav class="mt-4">
-                <a href="{{ page.get_parent.url }}" class="link link-primary">
-                    Return to {{ page.get_parent.title }} Collection
-                </a>
-            </nav>
-        </aside>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <section class="col-span-1 md:col-span-2" aria-label="Articles in this issue">
+                {% if page.featured_articles.count %}
+                    <h2 id="featured-articles-heading" class="ml-4">Featured Articles</h2>
+
+                    <ul class="ml-6 space-y-2">
+                        {% for featured_article in page.featured_articles.all %}
+                            <li>
+                                <a href="{% pageurl featured_article %}" class="font-bold">{{ featured_article.title }}</a>
+                                &nbsp;by
+                                {% for author in featured_article.authors.all %}
+                                    {% if author.author.live %}
+                                        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                                    {% else %}
+                                        {{ author.author }}{% if not forloop.last %},{% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% regroup page.specific.articles_by_department by specific.department as departments %}
+
+                {% for department in departments %}
+                    <h2 id="department-{{ department.grouper|slugify }}" class="ml-4">
+                        {{ department.grouper }}
+                    </h2>
+
+                    <ul class="ml-6 space-y-2">
+                        {% for article in department.list %}
+                            <li>
+                                <a href="{% pageurl article %}" class="font-bold">
+                                    {{ article }} {% if article.is_featured %}<span class="font-normal">(featured)</span>{% endif %}
+                                </a>
+                                &nbsp;by
+                                {% for author in article.authors.all %}
+                                    {% if author.author.live %}
+                                        <a href="{% pageurl author.author %}">{{ author.author }}</a>{% if not forloop.last %},{% endif %}
+                                    {% else %}
+                                        {{ author.author }}{% if not forloop.last %},{% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </section>
+
+            <aside class="col-span-1 pt-2">
+                <figure>
+                    {% srcset_image page.cover_image width-{300,500,800,1200} sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1280px) 30vw, 25vw" class="rounded-md mx-auto object-contain" alt="Cover of "|add:page.title %}
+                    {% if page.cover_image.caption %}
+                        <figcaption class="text-center mt-2">{{ page.cover_image.caption }}</figcaption>
+                    {% endif %}
+                </figure>
+
+                <nav class="mt-4">
+                    <a href="{{ page.get_parent.url }}" class="link link-primary">
+                        Return to {{ page.get_parent.title }} Collection
+                    </a>
+                </nav>
+            </aside>
+        </div>
     </div>
 {% endblock content %}

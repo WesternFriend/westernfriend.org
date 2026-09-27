@@ -6,54 +6,50 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
-    <nav class="breadcrumbs mb-4" aria-label="Breadcrumb">
-        <ul>
-            <li><a href="{% pageurl page.get_parent %}">Online Worship Directory</a></li>
-            <li>{{ page.title }}</li>
-        </ul>
-    </nav>
+    <div class="container mx-auto px-4 py-6">
 
-    <h1>{{ page.title }}</h1>
+        <h1>{{ page.title }}</h1>
 
-    <section class="mt-4">
-        {% if page.hosted_by %}
-            <div class="mb-4">
-                <h2 class="text-xl font-semibold mb-2">Hosted by</h2>
-                <a href="{% pageurl page.hosted_by %}" class="link link-primary">
-                    {{ page.hosted_by }}
-                </a>
-            </div>
-        {% endif %}
-
-        {% if page.specific.website %}
-            <div class="mb-4">
-                <h2 class="text-xl font-semibold mb-2">Website</h2>
-                <a
-                    href="{{ page.specific.website }}"
-                    class="link link-primary"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    {{ page.specific.website }}
-                </a>
-            </div>
-        {% endif %}
-
-        {% if page.specific.description %}
-            <div class="mb-4">
-                <div class="prose">
-                    {{ page.specific.description|richtext }}
+        <section class="mt-4">
+            {% if page.hosted_by %}
+                <div class="mb-4">
+                    <h2 class="text-xl font-semibold mb-2">Hosted by</h2>
+                    <a href="{% pageurl page.hosted_by %}" class="link link-primary">
+                        {{ page.hosted_by }}
+                    </a>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
 
-        {% if page.specific.times_of_worship %}
-            <div class="mb-4">
-                <h2 class="text-xl font-semibold mb-2">Times of worship</h2>
-                <div class="prose">
-                    {{ page.specific.times_of_worship|richtext }}
+            {% if page.specific.website %}
+                <div class="mb-4">
+                    <h2 class="text-xl font-semibold mb-2">Website</h2>
+                    <a
+                        href="{{ page.specific.website }}"
+                        class="link link-primary"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {{ page.specific.website }}
+                    </a>
                 </div>
-            </div>
-        {% endif %}
-    </section>
+            {% endif %}
+
+            {% if page.specific.description %}
+                <div class="mb-4">
+                    <div class="prose">
+                        {{ page.specific.description|richtext }}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if page.specific.times_of_worship %}
+                <div class="mb-4">
+                    <h2 class="text-xl font-semibold mb-2">Times of worship</h2>
+                    <div class="prose">
+                        {{ page.specific.times_of_worship|richtext }}
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+    </div>
 {% endblock content %}

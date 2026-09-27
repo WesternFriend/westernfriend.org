@@ -3,53 +3,55 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <header class="mb-6">
-        <h1>{{ page.title }}</h1>
-    </header>
+    <div class="container mx-auto px-4 py-6">
+        <header class="mb-6">
+            <h1>{{ page.title }}</h1>
+        </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <section class="card card-border bg-base-100 h-full" aria-labelledby="birth-heading">
-            <div class="card-body">
-                <h2 id="birth-heading" class="card-title">Date of birth</h2>
-                <time datetime="{{ page.date_of_birth|date:'Y-m-d' }}">
-                    {{ page.date_of_birth }}{% if page.dates_are_approximate %}*{% endif %}
-                </time>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <section class="card card-border bg-base-100 h-full" aria-labelledby="birth-heading">
+                <div class="card-body">
+                    <h2 id="birth-heading" class="card-title">Date of birth</h2>
+                    <time datetime="{{ page.date_of_birth|date:'Y-m-d' }}">
+                        {{ page.date_of_birth }}{% if page.dates_are_approximate %}*{% endif %}
+                    </time>
+                </div>
+            </section>
+
+            <section class="card card-border bg-base-100 h-full" aria-labelledby="death-heading">
+                <div class="card-body">
+                    <h2 id="death-heading" class="card-title">Date of death</h2>
+                    <time datetime="{{ page.date_of_death|date:'Y-m-d' }}">
+                        {{ page.date_of_death }}{% if page.dates_are_approximate %}*{% endif %}
+                    </time>
+                </div>
+            </section>
+
+            <section class="card card-border bg-base-100 h-full" aria-labelledby="meeting-heading">
+                <div class="card-body">
+                    <h2 id="meeting-heading" class="card-title">Meeting</h2>
+                    <div>{{ page.memorial_meeting }}</div>
+                </div>
+            </section>
+        </div>
+
+        {% if page.dates_are_approximate %}
+            <div class="mt-2 italic">
+                *Date(s) of birth and/or death approximate
             </div>
-        </section>
+        {% endif %}
 
-        <section class="card card-border bg-base-100 h-full" aria-labelledby="death-heading">
-            <div class="card-body">
-                <h2 id="death-heading" class="card-title">Date of death</h2>
-                <time datetime="{{ page.date_of_death|date:'Y-m-d' }}">
-                    {{ page.date_of_death }}{% if page.dates_are_approximate %}*{% endif %}
-                </time>
-            </div>
-        </section>
-
-        <section class="card card-border bg-base-100 h-full" aria-labelledby="meeting-heading">
-            <div class="card-body">
-                <h2 id="meeting-heading" class="card-title">Meeting</h2>
-                <div>{{ page.memorial_meeting }}</div>
+        <section class="mt-6" aria-labelledby="memorial-minute-heading">
+            <div class="card card-border bg-base-100">
+                <div class="card-body">
+                    <h2 id="memorial-minute-heading" class="card-title">Memorial minute</h2>
+                    <div class="prose max-w-none">
+                        {{ page.memorial_minute|richtext }}
+                    </div>
+                </div>
             </div>
         </section>
     </div>
-
-    {% if page.dates_are_approximate %}
-        <div class="mt-2 italic">
-            *Date(s) of birth and/or death approximate
-        </div>
-    {% endif %}
-
-    <section class="mt-6" aria-labelledby="memorial-minute-heading">
-        <div class="card card-border bg-base-100">
-            <div class="card-body">
-                <h2 id="memorial-minute-heading" class="card-title">Memorial minute</h2>
-                <div class="prose max-w-none">
-                    {{ page.memorial_minute|richtext }}
-                </div>
-            </div>
-        </div>
-    </section>
 {% endblock content %}
 
 {% block extra_js %}

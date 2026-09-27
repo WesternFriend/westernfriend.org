@@ -4,6 +4,17 @@
 
 @plugin "daisyui";
 
+/*
+  * Lighten the dark theme's primary color so primary-colored text and links
+  * (breadcrumbs, .link-primary, outline buttons) meet WCAG AA contrast (4.5:1)
+  * on the dark background. Filled primary buttons switch to dark text to match.
+  */
+@plugin "daisyui/theme" {
+  name: "dark";
+  --color-primary: oklch(72% 0.15 277);
+  --color-primary-content: oklch(20% 0.06 277);
+}
+
 /**
   * A catch-all path to Django template files, JavaScript, and Python files
   * that contain Tailwind CSS classes and will be scanned by Tailwind to generate the final CSS file.
@@ -13,8 +24,30 @@
   */
 @source "../../../**/*.{html,py,js}";
 
+/* Percentage (not px) so the user's browser font-size preference is respected */
 :root {
-  font-size: 16px;
+  font-size: 100%;
+  /* Error text/borders: daisyUI's error color is too light for text on white */
+  --wf-error-text: oklch(50% 0.19 27);
+}
+
+[data-theme="dark"] {
+  --wf-error-text: oklch(78% 0.13 20);
+}
+
+/* daisyUI renders prose captions at 50% opacity (~3.4:1); raise to meet 4.5:1 */
+.prose {
+  --tw-prose-captions: color-mix(in oklab, var(--color-base-content) 75%, transparent);
+}
+
+.form-field-error {
+  color: var(--wf-error-text);
+}
+
+.input[aria-invalid="true"],
+.select[aria-invalid="true"],
+.textarea[aria-invalid="true"] {
+  border-color: var(--wf-error-text);
 }
 
 /* Make sure embedded videos take up full with

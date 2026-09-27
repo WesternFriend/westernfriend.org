@@ -5,102 +5,104 @@
 {% block body_class %}template-libraryitem{% endblock %}
 
 {% block content %}
-    <article>
-        <header class="mb-6">
-            <h1>{{ page.title }}</h1>
+    <div class="container mx-auto px-4 py-6">
+        <article>
+            <header class="mb-6">
+                <h1>{{ page.title }}</h1>
 
-            <div class="mt-2">
-                <span class="font-semibold">Authored by:</span>
-                {% for author in page.authors.all %}
-                    {% if author.author.live %}
-                        <a href="{% pageurl author.author %}" class="link link-primary">{{ author.author }}</a>{% if not forloop.last %}, {% endif %}
-                    {% else %}
-                        <span>{{ author.author }}</span>{% if not forloop.last %}, {% endif %}
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </header>
-
-        <section class="prose max-w-none mb-6">
-            {% include_block page.body %}
-        </section>
-
-        <section class="mt-6">
-            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {% if page.item_audience %}
-                    <div class="mb-3">
-                        <dt class="font-semibold">Audience:</dt>
-                        <dd>
-                            <a href="{% pageurl page.item_audience %}" class="link link-primary">
-                                {{ page.item_audience }}
-                            </a>
-                        </dd>
-                    </div>
-                {% endif %}
-
-                {% if page.item_genre %}
-                    <div class="mb-3">
-                        <dt class="font-semibold">Genre:</dt>
-                        <dd>
-                            <a href="{% pageurl page.item_genre %}" class="link link-primary">
-                                {{ page.item_genre }}
-                            </a>
-                        </dd>
-                    </div>
-                {% endif %}
-
-                {% if page.item_medium %}
-                    <div class="mb-3">
-                        <dt class="font-semibold">Medium:</dt>
-                        <dd>
-                            <a href="{% pageurl page.item_medium %}" class="link link-primary">
-                                {{ page.item_medium }}
-                            </a>
-                        </dd>
-                    </div>
-                {% endif %}
-
-                {% if page.item_time_period %}
-                    <div class="mb-3">
-                        <dt class="font-semibold">Time period:</dt>
-                        <dd>
-                            <a href="{% pageurl page.item_time_period %}" class="link link-primary">
-                                {{ page.item_time_period }}
-                            </a>
-                        </dd>
-                    </div>
-                {% endif %}
-
-                {% if page.topics.count %}
-                    <div class="mb-3">
-                        <dt class="font-semibold">Topics:</dt>
-                        <dd>
-                            {% for topic in page.topics.all %}
-                                <a href="{% pageurl topic.topic %}" class="link link-primary">
-                                    {{ topic.topic }}
-                                </a>{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </dd>
-                    </div>
-                {% endif %}
-            </dl>
-        </section>
-
-        {% if page.tags.count %}
-            <section aria-label="Tags" class="mt-4">
-                <div class="flex flex-wrap gap-2">
-                    {% for tag in page.tags.all %}
-                        <a
-                            href="{% url 'tags:tagged_page_list' tag.slug %}"
-                            class="btn btn-outline btn-sm">
-                            <i class="bi bi-tag me-1" aria-hidden="true"></i>
-                            {{ tag }}
-                        </a>
+                <div class="mt-2">
+                    <span class="font-semibold">Authored by:</span>
+                    {% for author in page.authors.all %}
+                        {% if author.author.live %}
+                            <a href="{% pageurl author.author %}" class="link link-primary">{{ author.author }}</a>{% if not forloop.last %}, {% endif %}
+                        {% else %}
+                            <span>{{ author.author }}</span>{% if not forloop.last %}, {% endif %}
+                        {% endif %}
                     {% endfor %}
                 </div>
+            </header>
+
+            <section class="prose max-w-none mb-6">
+                {% include_block page.body %}
             </section>
-        {% endif %}
-    </article>
+
+            <section class="mt-6">
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% if page.item_audience %}
+                        <div class="mb-3">
+                            <dt class="font-semibold">Audience:</dt>
+                            <dd>
+                                <a href="{% pageurl page.item_audience %}" class="link link-primary">
+                                    {{ page.item_audience }}
+                                </a>
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if page.item_genre %}
+                        <div class="mb-3">
+                            <dt class="font-semibold">Genre:</dt>
+                            <dd>
+                                <a href="{% pageurl page.item_genre %}" class="link link-primary">
+                                    {{ page.item_genre }}
+                                </a>
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if page.item_medium %}
+                        <div class="mb-3">
+                            <dt class="font-semibold">Medium:</dt>
+                            <dd>
+                                <a href="{% pageurl page.item_medium %}" class="link link-primary">
+                                    {{ page.item_medium }}
+                                </a>
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if page.item_time_period %}
+                        <div class="mb-3">
+                            <dt class="font-semibold">Time period:</dt>
+                            <dd>
+                                <a href="{% pageurl page.item_time_period %}" class="link link-primary">
+                                    {{ page.item_time_period }}
+                                </a>
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if page.topics.count %}
+                        <div class="mb-3">
+                            <dt class="font-semibold">Topics:</dt>
+                            <dd>
+                                {% for topic in page.topics.all %}
+                                    <a href="{% pageurl topic.topic %}" class="link link-primary">
+                                        {{ topic.topic }}
+                                    </a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </dd>
+                        </div>
+                    {% endif %}
+                </dl>
+            </section>
+
+            {% if page.tags.count %}
+                <section aria-label="Tags" class="mt-4">
+                    <div class="flex flex-wrap gap-2">
+                        {% for tag in page.tags.all %}
+                            <a
+                                href="{% url 'tags:tagged_page_list' tag.slug %}"
+                                class="btn btn-outline btn-sm">
+                                <i class="bi bi-tag me-1" aria-hidden="true"></i>
+                                {{ tag }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        </article>
+    </div>
 {% endblock content %}
 
 {% block extra_js %}

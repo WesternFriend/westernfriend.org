@@ -6,33 +6,29 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
-    <nav class="breadcrumbs mb-4" aria-label="Breadcrumb">
-        <ul>
-            <li><a href="{% pageurl page.get_parent %}">Community Directories</a></li>
-            <li>{{ page.title }}</li>
-        </ul>
-    </nav>
+    <div class="container mx-auto px-4 py-6">
 
-    <h1>{{ page.title }}</h1>
+        <h1>{{ page.title }}</h1>
 
-    {% if page.specific.description %}
-        <div class="prose my-6">
-            {{ page.specific.description|richtext }}
-        </div>
-    {% endif %}
+        {% if page.specific.description %}
+            <div class="prose my-6">
+                {{ page.specific.description|richtext }}
+            </div>
+        {% endif %}
 
-    {% if page.specific.website %}
-        <div class="mt-4">
-            <a
-                href="{{ page.specific.website }}"
-                class="btn btn-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="More information about {{ page.title }}"
-            >
-                More information
-                <i class="bi bi-box-arrow-up-right ml-2" aria-hidden="true"></i>
-            </a>
-        </div>
-    {% endif %}
+        {% if page.specific.website %}
+            <div class="mt-4">
+                <a
+                    href="{{ page.specific.website }}"
+                    class="btn btn-primary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="More information about {{ page.title }}"
+                >
+                    More information
+                    <i class="bi bi-box-arrow-up-right ml-2" aria-hidden="true"></i>
+                </a>
+            </div>
+        {% endif %}
+    </div>
 {% endblock content %}

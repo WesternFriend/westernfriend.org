@@ -3,29 +3,31 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <article>
-        <header>
-            <h1>{{ page.title }}</h1>
+    <div class="container mx-auto px-4 py-6">
+        <article>
+            <header>
+                <h1>{{ page.title }}</h1>
 
-            {% if page.tags.all %}
-                <div class="mt-3" aria-label="Tags">
-                    {% for tag in page.tags.all %}
-                        <a href="{% url 'search' %}?query={{ tag|urlencode }}"
-                           class="badge badge-outline hover:bg-base-200 transition-colors mr-2"
-                           aria-label="Search for {{ tag }}">
-                            {{ tag }}{% if not forloop.last %}{% endif %}
-                        </a>
-                    {% endfor %}
-                </div>
-            {% endif %}
+                {% if page.tags.all %}
+                    <div class="mt-3" aria-label="Tags">
+                        {% for tag in page.tags.all %}
+                            <a href="{% url 'search' %}?query={{ tag|urlencode }}"
+                               class="badge badge-outline hover:bg-base-200 transition-colors mr-2"
+                               aria-label="Search for {{ tag }}">
+                                {{ tag }}{% if not forloop.last %}{% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-            <time datetime="{{ page.publication_date|date:'Y-m-d' }}" class="mt-2 block text-sm text-base-content/70">
-                Published on {{ page.publication_date }}
-            </time>
-        </header>
+                <time datetime="{{ page.publication_date|date:'Y-m-d' }}" class="mt-2 block text-sm text-base-content/70">
+                    Published on {{ page.publication_date }}
+                </time>
+            </header>
 
-        <div class="prose dark:prose-invert">
-            {% include_block page.body %}
-        </div>
-    </article>
+            <div class="prose dark:prose-invert">
+                {% include_block page.body %}
+            </div>
+        </article>
+    </div>
 {% endblock content %}
