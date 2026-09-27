@@ -41,6 +41,9 @@ We considered these options:
 How crawlers and AI systems may use Western Friend's public content is an
 editorial decision, owned by the Editor.
 
+Preservation by the Internet Archive isn't part of this policy. It stays
+broadly allowed, as ADR 0005 describes.
+
 - **Simple choices, not rules.** The Editor controls the site-wide policy
   with plain options in the Wagtail admin: whether content may be used for
   search, for AI answers, and for AI training, and whether the site publishes
@@ -99,5 +102,4 @@ in the admin.
 - **Future:** revisit if agents gain reliable ways to prove who they are, or
   if paid access for crawlers becomes practical, since either could add new
   options for the Editor. Supersede this ADR if responsibility for the policy
-  moves elsewhere, for example to the board. ADR 0005 covers preservation by
-  the Internet Archive.
+  moves elsewhere, for example to the board.
