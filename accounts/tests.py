@@ -181,7 +181,27 @@ class AccountPageAccessibilityTest(TestCase):
         self.assertNotIn('role="menuitem"', html)
 
     def test_login_error_announcements_and_autocomplete(self) -> None:
-        # Restored accessibility regression tests for login/registration errors and autocomplete
-        response = self.client.get(reverse("login"))
+        # WCAG accessibility: login errors should render with role="alert"
+        response = self.client.post(reverse("login"), {"username": "", "password": ""})
         html = response.content.decode()
-        self.assertIn("autocomplete", html)
+        self.assertIn('role="alert"', html)
+
+    def test_registration_password_errors_linked(self) -> None:
+        # Django points aria-describedby at these ids; they must exist
+        response = self.client.get(reverse("django_registration_register"))
+        html = response.content.decode()
+        self.assertIn('id="id_password2_error"', html)
+        self.assertIn('id="id_password2_helptext"', html)
+        self.assertRegex(html, r'<input[^>]*aria-invalid="true"[^>]*id="id_password2"')
+
+    def test_registration_name_fields_have_autocomplete(self) -> None:
+        # WCAG 1.3.5 Identify Input Purpose
+        html = self.client.get(reverse("django_registration_register")).content.decode()
+        self.assertRegex(
+            html,
+            r'<input[^>]*autocomplete="given-name"[^>]*id="id_first_name"',
+        )
+        self.assertRegex(
+            html,
+            r'<input[^>]*autocomplete="family-name"[^>]*id="id_last_name"',
+        )
