@@ -416,7 +416,7 @@ class PublicCacheControlMiddlewareTests(TestCase):
     def test_anonymous_page_is_public(self):
         self.assertEqual(
             self._cache_control(self._request()),
-            "public, max-age=60, s-maxage=900",
+            'public, max-age=60, s-maxage=900, private="Set-Cookie"',
         )
 
     def test_head_request_is_public(self):

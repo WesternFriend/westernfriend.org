@@ -36,11 +36,15 @@ class PublicCacheControlMiddleware:
             return response
 
         if self._is_public(request, response):
-            patch_cache_control(
-                response,
-                public=True,
-                max_age=settings.PUBLIC_CACHE_BROWSER_TTL,
-                s_maxage=settings.PUBLIC_CACHE_EDGE_TTL,
+            # private="Set-Cookie" lets Cloudflare cache the page without
+            # storing a Set-Cookie header. Django sets no cookie on public
+            # responses, but App Platform's Cloudflare layer adds a
+            # __cf_bm bot-management cookie, which would otherwise stop
+            # our zone caching anything.
+            response["Cache-Control"] = (
+                f"public, max-age={settings.PUBLIC_CACHE_BROWSER_TTL}, "
+                f"s-maxage={settings.PUBLIC_CACHE_EDGE_TTL}, "
+                'private="Set-Cookie"'
             )
         else:
             patch_cache_control(response, private=True)
