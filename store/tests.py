@@ -5,6 +5,7 @@ from home.models import HomePage
 from store.models import Product, ProductIndexPage, StoreIndexPage
 
 from .factories import (
+    BookFactory,
     ProductFactory,
     ProductIndexPageFactory,
     StoreIndexPageFactory,
@@ -68,6 +69,33 @@ class TestStoreIndexPageGetContext(TestCase):
         self.assertIn(
             "products",
             context,
+        )
+
+        self.assertIn(
+            "cart_add_product_form",
+            context,
+        )
+        self.assertIsInstance(
+            context["cart_add_product_form"],
+            CartAddProductForm,
+        )
+
+
+class TestProductIndexPageGetContext(TestCase):
+    def test_product_index_page_get_context(self) -> None:
+        """Test that ProductIndexPage.get_context includes live books."""
+        product_index_page = ProductIndexPageFactory.create()
+        book = BookFactory.create()
+        context = product_index_page.get_context(request=None)
+
+        self.assertIn(
+            "books",
+            context,
+        )
+
+        self.assertIn(
+            book,
+            context["books"],
         )
 
         self.assertIn(

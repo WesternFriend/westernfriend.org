@@ -7,7 +7,7 @@ from wagtail.rich_text import RichText
 from home.factories import HomePageFactory
 from home.models import HomePage
 
-from .models import Product, ProductIndexPage, StoreIndexPage
+from .models import Book, Product, ProductIndexPage, StoreIndexPage
 
 
 class StoreIndexPageFactory(DjangoModelFactory):
@@ -85,6 +85,39 @@ class ProductFactory(DjangoModelFactory):
         *args: Any,
         **kwargs: Any,
     ) -> Product:
+        instance = model_class(*args, **kwargs)
+
+        # Get the ProductIndexPage instance if it exists, otherwise create one.
+        product_index_page = ProductIndexPage.objects.first()
+        if product_index_page is None:
+            product_index_page = ProductIndexPageFactory()
+
+        product_index_page.add_child(instance=instance)
+
+        return instance
+
+
+class BookFactory(DjangoModelFactory):
+    class Meta:
+        model = Book
+
+    title = factory.Sequence(lambda n: f"Book {n}")
+    description = RichText("Book description")
+    price_usd = factory.Faker(  # type: ignore
+        "pydecimal",
+        left_digits=2,
+        right_digits=2,
+        positive=True,
+    )
+    available = factory.Iterator([True, False])  # type: ignore
+
+    @classmethod
+    def _create(
+        cls,
+        model_class: type[Book],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Book:
         instance = model_class(*args, **kwargs)
 
         # Get the ProductIndexPage instance if it exists, otherwise create one.
