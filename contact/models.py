@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models
 from django.db.models import TextChoices
-from django.http import Http404, HttpRequest
+from django.http import HttpRequest
 
 if TYPE_CHECKING:
     from django.db.models import Prefetch
@@ -625,8 +625,8 @@ class MeetingDescendantRoutingMixin:
     Wagtail's default ``Page.route()`` walks the URL one slug at a time and
     calls ``.specific`` on every intermediate page, so a URL like
     ``/meetings/yearly/quarterly/monthly/`` costs a query pair per level.
-    Meeting subtrees only contain Meeting pages, so the target can be looked
-    up directly by its ``url_path``.
+    Nearly every descendant is a Meeting, so the target is looked up directly
+    by its ``url_path``; anything else falls back to the default router.
     """
 
     def route(
@@ -634,19 +634,17 @@ class MeetingDescendantRoutingMixin:
         request: HttpRequest,
         path_components: list[str],
     ) -> RouteResult:
-        if not path_components:
-            return super().route(request, path_components)  # type: ignore[misc]
+        if path_components:
+            target_url_path = self.url_path + "/".join(path_components) + "/"  # type: ignore[attr-defined]
 
-        target_url_path = self.url_path + "/".join(path_components) + "/"  # type: ignore[attr-defined]
-
-        try:
             # Like the default router, only the target page must be live;
             # draft intermediate pages don't block routing.
-            meeting = Meeting.objects.live().get(url_path=target_url_path)
-        except Meeting.DoesNotExist as e:
-            raise Http404 from e
+            meeting = Meeting.objects.live().filter(url_path=target_url_path).first()
+            if meeting is not None:
+                return RouteResult(meeting)
 
-        return RouteResult(meeting)
+        # Serves this page itself, non-Meeting descendants, and 404s.
+        return super().route(request, path_components)  # type: ignore[misc]
 
 
 class MeetingPresidingClerk(Orderable):

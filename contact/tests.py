@@ -278,6 +278,18 @@ class TestMeetingRouting(TestCase):
                 ["yearly", "quarterly", "monthly"],
             )
 
+    def test_non_meeting_descendant_falls_back_to_default_routing(self) -> None:
+        other = self.quarterly.add_child(
+            instance=Page(title="Not a meeting", slug="not-a-meeting"),
+        )
+
+        page, _, _ = self.meeting_index.route(
+            self.request,
+            ["yearly", "quarterly", "not-a-meeting"],
+        )
+
+        self.assertEqual(page, other)
+
     def test_unpublished_intermediate_does_not_block_live_target(self) -> None:
         """Matches Wagtail's default router, which only checks the target."""
         self.quarterly.unpublish()
