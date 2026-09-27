@@ -7,7 +7,7 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
         <article>
             <header class="mb-4">
                 <h1>{{ event.title }}</h1>
@@ -72,7 +72,7 @@
                 </div>
             {% endif %}
         </article>
-    </main>
+    </div>
 {% endblock content %}
 
 {% block extra_js %}

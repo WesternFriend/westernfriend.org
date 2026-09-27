@@ -5,7 +5,7 @@
 {% block body_class %}template-community-quaker-organizations{% endblock %}
 
 {% block content %}
-    <main id="main-content" tabindex="-1" itemscope itemtype="https://schema.org/CollectionPage">
+    <div itemscope itemtype="https://schema.org/CollectionPage">
         <meta itemprop="name" content="{{ page.title }}">
         <h1>{{ page.title }}</h1>
 
@@ -23,7 +23,7 @@
                             {% endif %}
                             {% if organization.specific.website %}
                                 <a href="{{ organization.specific.website }}"
-                                   class="text-blue-600 hover:underline"
+                                   class="link link-primary"
                                    target="_blank"
                                    rel="noopener noreferrer"
                                    aria-label="Visit website for {{ organization }}: {{ organization.specific.website }}"
@@ -43,5 +43,5 @@
                 {% endfor %}
             </ul>
         </section>
-    </main>
+    </div>
 {% endblock content %}

@@ -629,3 +629,35 @@ class PurgeRestrictedPagesTest(TestCase):
         pages = self._purged_pages(restriction.delete)
 
         self.assertEqual(pages, {self.child.specific})
+
+
+class FakeMessage:
+    def __init__(self, tags: str, text: str) -> None:
+        self.tags = tags
+        self.text = text
+
+    def __str__(self) -> str:
+        return self.text
+
+
+class FlashMessageRolesTest(TestCase):
+    """Errors are announced assertively; other messages politely."""
+
+    def test_message_roles_match_severity(self) -> None:
+        request = RequestFactory().get("/")
+        request.user = AnonymousUser()
+        messages = [
+            FakeMessage("error", "Payment failed"),
+            FakeMessage("success", "Order placed"),
+        ]
+
+        html = render_to_string("base.html", {"messages": messages}, request=request)
+
+        self.assertRegex(
+            html,
+            r'role="alert"[^>]*>\s*<i[^>]*>\s*</i>\s*<span>Payment failed',
+        )
+        self.assertRegex(
+            html,
+            r'role="status"[^>]*>\s*<i[^>]*>\s*</i>\s*<span>Order placed',
+        )

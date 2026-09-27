@@ -3,14 +3,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <main>
-        <nav class="breadcrumbs mb-4" aria-label="Breadcrumb">
-            <ul>
-                <li><a href="{% pageurl page.get_parent %}">{{ page.get_parent.title }}</a></li>
-                <li>{{ page.title }}</li>
-            </ul>
-        </nav>
-
+    <div>
         <header>
             <h1>{{ page.title }}</h1>
 
@@ -22,6 +15,7 @@
         <section aria-labelledby="filter-heading" class="mb-6">
             <div class="card bg-base-100 shadow-sm">
                 <div class="card-body">
+                    <h2 id="filter-heading" class="sr-only">Filter archive issues</h2>
                     <form class="form">
                         <div class="flex flex-col sm:flex-row gap-3 items-end justify-center">
                             <div class="flex-grow">
@@ -50,14 +44,15 @@
             </div>
         </section>
 
-        <section aria-label="Magazine Archive Issues" class="mb-6">
+        <section aria-labelledby="archive-issues-heading" class="mb-6">
+            <h2 id="archive-issues-heading" class="sr-only">Archive issues</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {% for issue in archive_issues.page %}
                     <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
                         <a href="{% pageurl issue %}" class="h-full flex flex-col">
                             <figure>
                                 <img src="https://archive.org/services/img/{{ issue.specific.internet_archive_identifier }}"
-                                     alt="Cover of {{ issue }}"
+                                     alt=""
                                      class="w-full object-contain">
                             </figure>
                             <div class="card-body p-4">
@@ -69,10 +64,8 @@
             </div>
         </section>
 
-        <nav aria-label="Pagination" class="flex justify-center">
-            {% include "paginator.html" with paginated_items=archive_issues %}
-        </nav>
-    </main>
+        {% include "paginator.html" with paginated_items=archive_issues %}
+    </div>
 {% endblock content %}
 
 {% block extra_js %}
