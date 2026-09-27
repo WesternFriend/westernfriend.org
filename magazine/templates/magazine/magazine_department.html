@@ -3,21 +3,19 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <main>
-        <header>
-            <h1>{{ page.title }}</h1>
-        </header>
+    <header>
+        <h1>{{ page.title }}</h1>
+    </header>
 
-        {% if articles %}
-            <section aria-labelledby="articles-heading">
-                <h2 id="articles-heading">Articles</h2>
+    {% if articles %}
+        <section aria-labelledby="articles-heading">
+            <h2 id="articles-heading">Articles</h2>
 
-                <div class="space-y-4">
-                    {% for article in articles %}
-                        {% include "magazine/magazine_article_summary.html" with article=article %}
-                    {% endfor %}
-                </div>
-            </section>
-        {% endif %}
-    </main>
+            <div class="space-y-4">
+                {% for article in articles %}
+                    {% include "magazine/magazine_article_summary.html" with article=article %}
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
 {% endblock content %}

@@ -5,45 +5,43 @@
 {% block body_class %}template-community-resources{% endblock %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
-        <h1>{{ page.title }}</h1>
+    <h1>{{ page.title }}</h1>
 
-        {% if page.intro %}
-            <div class="prose my-4">
-                {{ page.intro|richtext }}
-            </div>
-        {% endif %}
+    {% if page.intro %}
+        <div class="prose my-4">
+            {{ page.intro|richtext }}
+        </div>
+    {% endif %}
 
-        <section class="mt-6">
-            <ul class="grid grid-cols-1 gap-4">
-                {% for resource in resources %}
-                    <li class="card card-border bg-base-100">
-                        <div class="card-body">
-                            <h2 class="card-title">{{ resource.title }}</h2>
+    <section class="mt-6">
+        <ul class="grid grid-cols-1 gap-4">
+            {% for resource in resources %}
+                <li class="card card-border bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ resource.title }}</h2>
 
-                            {% if resource.description %}
-                                <div class="prose">
-                                    {{ resource.description|richtext }}
-                                </div>
-                            {% endif %}
+                        {% if resource.description %}
+                            <div class="prose">
+                                {{ resource.description|richtext }}
+                            </div>
+                        {% endif %}
 
-                            {% if resource.website %}
-                                <div class="card-actions justify-end mt-4">
-                                    <a
-                                        href="{{ resource.website }}"
-                                        class="btn btn-primary"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        aria-label="Visit {{ resource.title }} website">
-                                        Visit Website
-                                        <i class="bi bi-box-arrow-up-right ml-2" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        </section>
-    </main>
+                        {% if resource.website %}
+                            <div class="card-actions justify-end mt-4">
+                                <a
+                                    href="{{ resource.website }}"
+                                    class="btn btn-primary"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="Visit {{ resource.title }} website">
+                                    Visit Website
+                                    <i class="bi bi-box-arrow-up-right ml-2" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
 {% endblock content %}

@@ -6,56 +6,54 @@
 {% block body_class %}template-newsitem{% endblock %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
-        <article>
-            <header class="mb-4">
-                <h1>{{ page.title }}</h1>
+    <article>
+        <header class="mb-4">
+            <h1>{{ page.title }}</h1>
 
-                <time datetime="{{ page.publication_date|date:'Y-m-d' }}">
-                    Published: {{ page.publication_date }}
-                </time>
-            </header>
+            <time datetime="{{ page.publication_date|date:'Y-m-d' }}">
+                Published: {{ page.publication_date }}
+            </time>
+        </header>
 
-            <div class="prose max-w-none my-6">
-                {{ page.body }}
-            </div>
+        <div class="prose max-w-none my-6">
+            {{ page.body }}
+        </div>
 
-            <footer class="mt-6">
-                {% with topics=page.topics.all %}
-                    {% if topics %}
-                        <div class="mb-3">
-                            <span class="font-semibold">Topics:</span>
-                            <div class="flex flex-wrap gap-2 mt-1">
-                                {% for topic in topics %}
-                                    <a href="{% pageurl topic.topic %}" class="link link-primary">
-                                        {{ topic.topic }}
-                                    </a>{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            </div>
+        <footer class="mt-6">
+            {% with topics=page.topics.all %}
+                {% if topics %}
+                    <div class="mb-3">
+                        <span class="font-semibold">Topics:</span>
+                        <div class="flex flex-wrap gap-2 mt-1">
+                            {% for topic in topics %}
+                                <a href="{% pageurl topic.topic %}" class="link link-primary">
+                                    {{ topic.topic }}
+                                </a>{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
                         </div>
-                    {% endif %}
-                {% endwith %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
-                {% with tags=page.tags.all %}
-                    {% if tags %}
-                        <div>
-                            <span class="font-semibold">Tags:</span>
-                            <div class="flex flex-wrap gap-2 mt-1">
-                                {% for tag in tags %}
-                                    <a
-                                        href="{% url 'tags:tagged_page_list' tag.slug %}"
-                                        class="btn btn-outline btn-sm">
-                                        <i class="bi bi-tag me-1" aria-hidden="true"></i>
-                                        {{ tag }}
-                                    </a>
-                                {% endfor %}
-                            </div>
+            {% with tags=page.tags.all %}
+                {% if tags %}
+                    <div>
+                        <span class="font-semibold">Tags:</span>
+                        <div class="flex flex-wrap gap-2 mt-1">
+                            {% for tag in tags %}
+                                <a
+                                    href="{% url 'tags:tagged_page_list' tag.slug %}"
+                                    class="btn btn-outline btn-sm">
+                                    <i class="bi bi-tag me-1" aria-hidden="true"></i>
+                                    {{ tag }}
+                                </a>
+                            {% endfor %}
                         </div>
-                    {% endif %}
-                {% endwith %}
-            </footer>
-        </article>
-    </main>
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </footer>
+    </article>
 {% endblock content %}
 
 {% block extra_js %}

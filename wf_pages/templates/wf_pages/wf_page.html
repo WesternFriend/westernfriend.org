@@ -3,41 +3,39 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
-        <article>
-            <header>
-                <h1>{{ page.title }}</h1>
-            </header>
+    <article>
+        <header>
+            <h1>{{ page.title }}</h1>
+        </header>
 
-            <div class="prose dark:prose-invert">
-                {% include_block page.body %}
-            </div>
+        <div class="prose dark:prose-invert">
+            {% include_block page.body %}
+        </div>
 
-            <footer class="mt-8 pt-4 border-t border-base-300">
-                {% if page.collection %}
-                    <div class="mb-4">
-                        <h2>Collection</h2>
-                        <a href="{% pageurl page.collection %}" class="link link-hover">
-                            {{ page.collection }}
-                        </a>
+        <footer class="mt-8 pt-4 border-t border-base-300">
+            {% if page.collection %}
+                <div class="mb-4">
+                    <h2>Collection</h2>
+                    <a href="{% pageurl page.collection %}" class="link link-hover">
+                        {{ page.collection }}
+                    </a>
+                </div>
+            {% endif %}
+
+            {% if page.tags.all %}
+                <div>
+                    <h2>Tags</h2>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        {% for tag in page.tags.all %}
+                            <a href="{% url 'search' %}?query={{ tag }}"
+                               class="badge badge-outline hover:bg-base-200 transition-colors"
+                               aria-label="Search for {{ tag }}">
+                                {{ tag }}
+                            </a>
+                        {% endfor %}
                     </div>
-                {% endif %}
-
-                {% if page.tags.all %}
-                    <div>
-                        <h2>Tags</h2>
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            {% for tag in page.tags.all %}
-                                <a href="{% url 'search' %}?query={{ tag }}"
-                                   class="badge badge-outline hover:bg-base-200 transition-colors"
-                                   aria-label="Search for {{ tag }}">
-                                    {{ tag }}
-                                </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
-            </footer>
-        </article>
-    </main>
+                </div>
+            {% endif %}
+        </footer>
+    </article>
 {% endblock content %}

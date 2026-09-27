@@ -5,46 +5,44 @@
 {% block body_class %}template-community-resources{% endblock %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
-        <h1>{{ page.title }}</h1>
+    <h1>{{ page.title }}</h1>
 
-        {% if page.intro %}
-            <div class="prose my-6">
-                {{ page.intro|richtext }}
-            </div>
-        {% endif %}
+    {% if page.intro %}
+        <div class="prose my-6">
+            {{ page.intro|richtext }}
+        </div>
+    {% endif %}
 
-        <section aria-label="Community Directories">
-            <ul class="grid grid-cols-1 gap-4">
-                {% for community_directory in self.get_children %}
-                    <li class="card card-border bg-base-100">
-                        <div class="card-body">
-                            <h2 class="card-title">{{ community_directory.title }}</h2>
+    <section aria-label="Community Directories">
+        <ul class="grid grid-cols-1 gap-4">
+            {% for community_directory in self.get_children %}
+                <li class="card card-border bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ community_directory.title }}</h2>
 
-                            {% if community_directory.specific.description %}
-                                <div class="prose">
-                                    {{ community_directory.specific.description|richtext }}
-                                </div>
-                            {% endif %}
+                        {% if community_directory.specific.description %}
+                            <div class="prose">
+                                {{ community_directory.specific.description|richtext }}
+                            </div>
+                        {% endif %}
 
-                            {% if community_directory.specific.website %}
-                                <div class="card-actions justify-end mt-3">
-                                    <a
-                                        href="{{ community_directory.specific.website }}"
-                                        class="btn btn-primary"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        aria-label="More information about {{ community_directory.title }}"
-                                    >
-                                        More Information
-                                        <i class="bi bi-box-arrow-up-right ml-2" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        </section>
-    </main>
+                        {% if community_directory.specific.website %}
+                            <div class="card-actions justify-end mt-3">
+                                <a
+                                    href="{{ community_directory.specific.website }}"
+                                    class="btn btn-primary"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="More information about {{ community_directory.title }}"
+                                >
+                                    More Information
+                                    <i class="bi bi-box-arrow-up-right ml-2" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
 {% endblock content %}

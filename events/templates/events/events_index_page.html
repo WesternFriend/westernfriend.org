@@ -5,84 +5,82 @@
 {% block body_class %}template-magazineindexpage{% endblock %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
-        <header>
-            <h1>
-                {{ event_category_title }}&nbsp;{{ page.title }}
-            </h1>
+    <header>
+        <h1>
+            {{ event_category_title }}&nbsp;{{ page.title }}
+        </h1>
 
-            {% if page.intro %}
-                <div class="prose my-6">
-                    {{ page.intro|richtext }}
-                </div>
-            {% endif %}
-        </header>
+        {% if page.intro %}
+            <div class="prose my-6">
+                {{ page.intro|richtext }}
+            </div>
+        {% endif %}
+    </header>
 
-        {% if events.page %}
-            <section aria-label="Events listing">
-                <div class="space-y-4">
-                    {% for event in events.page %}
-                        <article class="card card-border bg-base-100">
-                            <div class="card-body">
-                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                                    <div class="md:col-span-10">
-                                        <h2 class="card-title">
-                                            {{ event.title }}
-                                        </h2>
+    {% if events.page %}
+        <section aria-label="Events listing">
+            <div class="space-y-4">
+                {% for event in events.page %}
+                    <article class="card card-border bg-base-100">
+                        <div class="card-body">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                <div class="md:col-span-10">
+                                    <h2 class="card-title">
+                                        {{ event.title }}
+                                    </h2>
 
-                                        {% if event.teaser %}
-                                            <p>
-                                                {{ event.teaser }}
-                                            </p>
-                                        {% endif %}
+                                    {% if event.teaser %}
+                                        <p>
+                                            {{ event.teaser }}
+                                        </p>
+                                    {% endif %}
 
-                                        {% if event.sponsors %}
-                                            <p class="mt-2">
-                                                <span class="font-semibold">Hosted/sponsored by:</span>
-                                                {% for sponsor in event.sponsors.all %}
-                                                    {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
-                                                {% endfor %}
-                                            </p>
-                                        {% endif %}
+                                    {% if event.sponsors %}
+                                        <p class="mt-2">
+                                            <span class="font-semibold">Hosted/sponsored by:</span>
+                                            {% for sponsor in event.sponsors.all %}
+                                                {{ sponsor.sponsor }}{% if not forloop.last %},{% endif %}
+                                            {% endfor %}
+                                        </p>
+                                    {% endif %}
 
-                                        <div class="mt-2">
-                                            <p>
-                                                <span class="font-semibold">Start Date:</span>
-                                                <time datetime="{{ event.start_date|date:'c' }}">
-                                                    {{ event.start_date|timezone:"US/Pacific"|date:"F d, Y, f A" }}
+                                    <div class="mt-2">
+                                        <p>
+                                            <span class="font-semibold">Start Date:</span>
+                                            <time datetime="{{ event.start_date|date:'c' }}">
+                                                {{ event.start_date|timezone:"US/Pacific"|date:"F d, Y, f A" }}
+                                            </time>
+
+                                            {% if event.end_date %}
+                                                <span class="font-semibold ml-2">End Date:</span>
+                                                <time datetime="{{ event.end_date|date:'c' }}">
+                                                    {{ event.end_date|timezone:"US/Pacific"|date:"F d, Y, f A" }}
                                                 </time>
-
-                                                {% if event.end_date %}
-                                                    <span class="font-semibold ml-2">End Date:</span>
-                                                    <time datetime="{{ event.end_date|date:'c' }}">
-                                                        {{ event.end_date|timezone:"US/Pacific"|date:"F d, Y, f A" }}
-                                                    </time>
-                                                {% endif %}
-                                                <span>(US/Pacific)</span>
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div class="md:col-span-2 flex items-end justify-end">
-                                        <a href="{% pageurl event %}"
-                                           class="btn btn-outline btn-primary btn-sm"
-                                           aria-label="View details for {{ event.title }}">
-                                            <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
-                                            View details
-                                        </a>
+                                            {% endif %}
+                                            <span>(US/Pacific)</span>
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
-                        </article>
-                    {% endfor %}
-                </div>
 
-                <nav class="my-6 text-center" aria-label="Pagination">
-                    {% include "paginator.html" with paginated_items=events %}
-                </nav>
-            </section>
-        {% else %}
-            <p>There are no {{ event_category_title }} events</p>
-        {% endif %}
-    </main>
+                                <div class="md:col-span-2 flex items-end justify-end">
+                                    <a href="{% pageurl event %}"
+                                       class="btn btn-outline btn-primary btn-sm"
+                                       aria-label="View details for {{ event.title }}">
+                                        <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                                        View details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            <nav class="my-6 text-center" aria-label="Pagination">
+                {% include "paginator.html" with paginated_items=events %}
+            </nav>
+        </section>
+    {% else %}
+        <p>There are no {{ event_category_title }} events</p>
+    {% endif %}
 {% endblock content %}
