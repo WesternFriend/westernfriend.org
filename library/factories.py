@@ -3,6 +3,7 @@ from typing import Any
 import factory
 from django.utils.text import slugify
 
+from common.fake_content import headline, stream_body
 from home.factories import HomePageFactory
 from home.models import HomePage
 
@@ -17,11 +18,26 @@ class LibraryItemFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = LibraryItem
 
-    title = factory.Faker("text", max_nb_chars=10)  # type: ignore
-    publication_date = factory.Faker("date")  # type: ignore
-    publication_date_is_approximate = factory.Faker("boolean")  # type: ignore
-    # TODO: body should consist of a list of StreamField blocks
-    # or just an empty list for now
+    class Params:
+        # Pools the seeder passes in so bodies can show images and link
+        # to other pages; tests leave them empty.
+        body_images = None
+        body_links = None
+
+    title = factory.LazyFunction(headline)  # type: ignore
+    slug = factory.Sequence(lambda n: f"library-item-{n}")  # type: ignore
+    publication_date = factory.Faker("date_between", start_date="-40y")  # type: ignore
+    publication_date_is_approximate = factory.Faker(  # type: ignore
+        "boolean",
+        chance_of_getting_true=20,
+    )
+    body = factory.LazyAttribute(  # type: ignore
+        lambda obj: stream_body(
+            images=obj.body_images,
+            link_pages=obj.body_links,
+            sections=2,
+        ),
+    )
 
     # TODO: determine why lazy facet attributes (factory.LazyAttribute picking a
     # random Audience, Genre, Medium, and TimePeriod) are not working

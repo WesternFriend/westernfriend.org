@@ -123,7 +123,7 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          uv run --no-sync coverage run manage.py test 2>&1 | tee /tmp/tests.txt
+          uv run --no-sync coverage run manage.py test --exclude-tag seed 2>&1 | tee /tmp/tests.txt
 
       # Coverage reporting is informational, so it never fails the job: a
       # Codecov outage shouldn't block a PR, and a failure here isn't one of the
@@ -178,6 +178,85 @@ jobs:
             exit 1
           fi
 
+  # The seed_dev_content tests build a whole mock site, which takes about a
+  # minute, so they run here in parallel rather than lengthening the test job.
+  # They still run on every PR: a new required field or template change can
+  # break seeding without touching any seeding code.
+  seed:
+    name: Development content seeding
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install locked dependencies
+        run: uv sync --locked
+
+      - name: Run seeding tests with coverage
+        id: seed-tests
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          uv run --no-sync coverage run manage.py test --tag seed 2>&1 | tee /tmp/seed-tests.txt
+
+      # Codecov merges this upload with the test job's for the same commit.
+      - name: Generate coverage report
+        if: always() && hashFiles('.coverage') != ''
+        continue-on-error: true
+        run: uv run --no-sync coverage xml
+
+      - name: Upload to Codecov
+        if: always() && hashFiles('coverage.xml') != ''
+        continue-on-error: true
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+
+      - name: Write result for report job
+        if: always()
+        env:
+          SEED_TESTS_OUTCOME: ${{ steps.seed-tests.outcome }}
+        run: |
+          touch /tmp/seed-tests.txt
+          jq -n \
+            --arg outcome "$SEED_TESTS_OUTCOME" \
+            --rawfile output /tmp/seed-tests.txt \
+            '{checks: {"seed-tests": {outcome: $outcome, output: $output}}}' > result.json
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: check-result-seed
+          path: result.json
+          retention-days: 1
+
+      - name: Fail if any check failed
+        if: always()
+        run: |
+          if [ "${{ steps.seed-tests.outcome }}" != "success" ]; then
+            echo "Seeding tests failed. See the job summary for details."
+            exit 1
+          fi
+
   # Collects every job's result.json, even when a job failed, and shows all the
   # outcomes at once on the run's Summary tab. comment-on-pr.yml posts the same
   # report on the PR. This is the single check to mark as required in branch
@@ -185,7 +264,7 @@ jobs:
   report:
     name: CI result
     runs-on: ubuntu-latest
-    needs: [lint, test]
+    needs: [lint, test, seed]
     if: always()
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -205,6 +284,7 @@ jobs:
         env:
           LINT_RESULT: ${{ needs.lint.result }}
           TEST_RESULT: ${{ needs.test.result }}
+          SEED_RESULT: ${{ needs.seed.result }}
         with:
           script: |
             const fs = require('fs');
@@ -214,7 +294,11 @@ jobs:
             // A job can fail outside its recorded checks (e.g. installing
             // dependencies, or crashing before it wrote result.json), so the
             // summary never says everything passed while this check is red.
-            const jobResults = { lint: process.env.LINT_RESULT, test: process.env.TEST_RESULT };
+            const jobResults = {
+              lint: process.env.LINT_RESULT,
+              test: process.env.TEST_RESULT,
+              seed: process.env.SEED_RESULT,
+            };
             const problems = Object.entries(jobResults)
               .filter(([job, result]) => result !== 'success' && !results.some((r) => !r.passed && CHECKS[r.key].job === job))
               .map(([job, result]) => `The ${job} job's result was "${result}"`);
@@ -224,7 +308,9 @@ jobs:
 
       - name: Fail if any job failed
         run: |
-          if [ "${{ needs.lint.result }}" != "success" ] || [ "${{ needs.test.result }}" != "success" ]; then
+          if [ "${{ needs.lint.result }}" != "success" ] || \
+             [ "${{ needs.test.result }}" != "success" ] || \
+             [ "${{ needs.seed.result }}" != "success" ]; then
             echo "One or more checks failed. See the summary above."
             exit 1
           fi

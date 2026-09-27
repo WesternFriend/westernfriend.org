@@ -58,9 +58,33 @@ This project uses Docker to manage a Postgres database.
 
 1. **Create .env File** (with `DJANGO_DEBUG=true`)
 2. **Run Database Migrations**: `python manage.py migrate`
-3. **Create a Superuser**: `python manage.py createsuperuser`
+3. **Add Content**: `python manage.py seed_dev_content` (see [Development content](#development-content))
 4. **Run the Server**: `python manage.py runserver` (access from http://localhost:8000)
-5. **Scaffold Initial Content**: `python manage.py scaffold_initial_content`
+
+### Development content
+
+`python manage.py seed_dev_content` fills an empty database with a complete mock website, so you can try every page, run UX and accessibility audits, and test the admin without a copy of production data. It scaffolds the site structure, then adds:
+
+- people, organizations, and meetings nested yearly > quarterly > monthly > worship group, with addresses, worship times, and clerks
+- magazine issues with articles, departments, authors, and tags; the newest issues fall inside the subscriber-only window and the rest are public
+- deep archive issues, library items with facets and topics, events (upcoming, past, featured, and "other"), news, memorials, meeting and board documents, blog posts, and bookstore books and orders
+- placeholder cover, product, and illustration images with alt text
+- accounts for `admin@example.com` (superuser), `subscriber@example.com`, `expired-subscriber@example.com`, and `reader@example.com`, all with the password `westernfriend-dev`
+
+The data is deliberately varied: very long titles, non-ASCII names, drafts, a sold-out book, a login-only page, and items with no authors or facets all appear somewhere.
+
+| Option | Effect |
+| --- | --- |
+| `--scale small\|medium\|large` | How much content to create (default `medium`, about 1,000 pages). Use `large` to test pagination and performance. |
+| `--seed N` | Random seed. The same seed builds the same site on the same day. |
+| `--no-images` | Skip the generated images. |
+| `--reset` | Replace existing content. Without it the command refuses to run on a database that already has content. |
+
+The command only runs with `DJANGO_DEBUG=true` (or `--force`), and never when Cloudflare cache purging is configured, so it can't touch a live site.
+
+Its tests seed a small site, then use it as a smoke test: every live page and every page type's admin form must render. They take under a minute and are tagged `seed`. `python manage.py test` includes them; add `--exclude-tag seed` for a faster run, or `--tag seed` to run only them. CI runs them in their own job, alongside the main tests.
+
+The field values come from the factories in each app's `factories.py`, which tests use too; the seeder in `cli/dev_content/` decides how much content to create and how it connects. To seed a new model, give it a factory with Faker defaults (and traits for the variations worth showing), then add it to the seeder.
 
 To edit the Tailwind CSS, run the following command in a separate terminal:
 
