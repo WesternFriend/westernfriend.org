@@ -4,7 +4,7 @@ from http import HTTPStatus
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Max
-from django.http import HttpResponse, HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import reverse
@@ -13,6 +13,7 @@ from wagtail.admin.viewsets.base import ViewSetGroup
 from wagtail.contrib.sitemaps.views import sitemap as wagtail_sitemap
 from wagtail.models import PageLogEntry, Site
 
+from common.models import CrawlerPolicySetting
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
 from events.views import EventViewSet
@@ -68,7 +69,8 @@ def custom_404(request, exception=None):  # skipcq: PYL-W0613
     )
 
 
-# Private, transactional, or costly paths that crawlers should not index
+# Private, transactional, or costly paths that crawlers should not index.
+# These stay in code, whatever the crawler policy setting says.
 ROBOTS_DISALLOWED_PATHS = [
     "/admin/",
     "/accounts/",
@@ -78,11 +80,6 @@ ROBOTS_DISALLOWED_PATHS = [
     "/paypal/",
     "/search/",
 ]
-
-
-# We want Quaker perspectives to be available to search engines, AI answers,
-# and AI training alike (https://contentsignals.org/)
-ROBOTS_CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes"
 
 
 def _absolute_url(path):
@@ -98,7 +95,8 @@ def favicon_ico(request):
 @require_GET
 def robots_txt(request):
     """Serve robots.txt, pointing crawlers at the canonical sitemap."""
-    lines = ["User-agent: *", f"Content-Signal: {ROBOTS_CONTENT_SIGNAL}"]
+    policy = CrawlerPolicySetting.for_request_or_default(request)
+    lines = ["User-agent: *", f"Content-Signal: {policy.content_signal}"]
     lines += [f"Disallow: {path}" for path in ROBOTS_DISALLOWED_PATHS]
     lines += ["", f"Sitemap: {_absolute_url(reverse('sitemap'))}", ""]
 
@@ -123,16 +121,14 @@ def _llms_link(request, item):
 @require_GET
 def llms_txt(request):
     """Serve llms.txt (https://llmstxt.org/), built from the navigation menu."""
-    lines = [
-        "# Western Friend",
-        "",
-        (
-            "> Western Friend is a Quaker nonprofit that publishes a magazine, "
-            "books, and other resources exploring the spiritual lives of Friends "
-            "(Quakers) in the western United States and beyond."
-        ),
-        "",
-    ]
+    policy = CrawlerPolicySetting.for_request_or_default(request)
+    if not policy.publish_llms_txt:
+        raise Http404
+
+    lines = ["# Western Friend", ""]
+    summary = " ".join(policy.llms_txt_summary.split())
+    if summary:
+        lines += [f"> {summary}", ""]
 
     top_level_links = []
     sections = []
