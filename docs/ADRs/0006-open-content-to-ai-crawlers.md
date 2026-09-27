@@ -55,13 +55,17 @@ AI answers and AI training.
 - **We state the policy explicitly** to crawlers, in machine-readable form,
   instead of leaving it implicit. Because it's explicit, it can be changed
   explicitly too.
+- **The policy stays adjustable without code changes.** Editors should be
+  able to change each part of the site-wide policy (search, AI answers, AI
+  training) with simple choices in the Wagtail admin, not by writing rules
+  (#1288).
 - **This is Western Friend's stated preference, not a licence.** Much of our
   content is by outside writers, artists and photographers. Contributors who
   don't want their work offered for AI use can ask Western Friend to exclude
-  it. An excluded work must carry its own machine-readable exception, so
-  crawlers aren't told it's available. The site-wide signal can't express
-  that yet (#1289). Exclusion applies only to future use; copies already
-  collected can't be recalled.
+  it. Editors should be able to mark an individual work as excluded, and an
+  excluded work must carry its own machine-readable exception so crawlers
+  aren't told it's available (#1289). Exclusion applies only to future use;
+  copies already collected can't be recalled.
 - **We make the site easy for crawlers and agents to discover and read.**
   Machine-readable guides to the site are generated from its own navigation
   and content, so they don't drift from what people see. They list only
@@ -100,6 +104,11 @@ not.
   (ADR 0004) keeps that cost down.
 - **Negative:** agents that disguise themselves as browsers may still be
   challenged. We accept that to protect the site from scrapers.
+- **Mitigation:** the risks above are reduced by keeping choices open.
+  Contributors can have individual works excluded, and the organization can
+  narrow or withdraw the site-wide policy at any time, affecting all future
+  use. Both become editor tasks in the admin once #1288 and #1289 are done. Clear bylines and structured data help AI
+  systems credit Western Friend and its writers.
 - **Future:** revisit if agents gain reliable ways to prove who they are,
   which would let us admit them without admitting scrapers, or if paid
   access becomes practical. Supersede this ADR if the organization changes
