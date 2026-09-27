@@ -10,6 +10,7 @@ from accounts.models import User
 from contact.models import Person, PersonIndexPage
 from home.models import HomePage
 from magazine.factories import (
+    ArchiveIssueFactory,
     MagazineArticleFactory,
     MagazineIndexPageFactory,
     MagazineIssueFactory,
@@ -972,3 +973,19 @@ class ArchiveIssueQueryOptimizationTestCase(TestCase):
             f"Expected ≤5 queries with prefetch optimization, but got {total_queries}. "
             f"Queries: {[q['sql'] for q in connection.queries]}",
         )
+
+
+class ArchiveIssueFactoryTest(TestCase):
+    def test_creates_issue_with_saved_table_of_contents(self) -> None:
+        issue = ArchiveIssueFactory.create(archive_articles=3)
+
+        self.assertIsInstance(issue.get_parent().specific, DeepArchiveIndexPage)
+        self.assertEqual(issue.archive_articles.count(), 3)
+        self.assertIn(f"{issue.publication_date:%Y}", issue.title)
+
+    def test_second_issue_reuses_the_deep_archive(self) -> None:
+        first = ArchiveIssueFactory.create()
+        second = ArchiveIssueFactory.create()
+
+        self.assertEqual(first.get_parent(), second.get_parent())
+        self.assertGreaterEqual(second.archive_articles.count(), 2)

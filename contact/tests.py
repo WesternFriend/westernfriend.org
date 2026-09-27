@@ -9,7 +9,7 @@ from django.db.migrations.executor import MigrationExecutor
 from django.http import Http404
 from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.urls import reverse
-from wagtail.models import Locale, Page, Revision, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Revision, Site
 
 from community.factories import OnlineWorshipFactory
 from community.models import CommunityPage
@@ -33,6 +33,7 @@ from contact.models import (
     Person,
     PersonIndexPage,
 )
+from home.factories import HomePageFactory
 from library.factories import LibraryItemFactory
 from library.models import LibraryItemAuthor
 from magazine.factories import MagazineArticleFactory
@@ -1059,3 +1060,57 @@ class ReplaceNullStringsMigrationTest(TransactionTestCase):
         self.assertEqual(revision.content["addresses"][0]["country"], "")
         self.assertEqual(revision.content["worship_times"][0]["worship_type"], "")
         revision.publish()
+
+
+class MeetingFactoryCompleteTraitTest(TestCase):
+    def test_complete_meeting_has_saved_worship_times(self) -> None:
+        meeting = MeetingFactory.create(complete=True, monthly_meeting=True)
+
+        meeting.refresh_from_db()
+        self.assertEqual(meeting.meeting_type, "monthly_meeting")
+        self.assertGreaterEqual(meeting.worship_times.count(), 1)
+        self.assertTrue(meeting.description)
+
+    def test_organizations_share_an_index_page(self) -> None:
+        first = OrganizationFactory.create()
+        second = OrganizationFactory.create()
+
+        self.assertEqual(first.get_parent(), second.get_parent())
+
+
+class PersonIndexPageRenderTest(TestCase):
+    def setUp(self) -> None:
+        home_page = HomePageFactory.create()
+        Site.objects.all().delete()
+        Site.objects.create(
+            hostname="testserver",
+            root_page=home_page,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+        self.person_index_page = PersonIndexPageFactory.create()
+
+    def test_lists_live_people(self) -> None:
+        person = PersonFactory.create(given_name="Lucretia", family_name="Mott")
+
+        response = self.client.get(self.person_index_page.url)
+
+        self.assertContains(response, "Lucretia Mott")
+        self.assertContains(response, person.url)
+
+    def test_hides_restricted_people(self) -> None:
+        person = PersonFactory.create(given_name="Private", family_name="Friend")
+        PageViewRestriction.objects.create(
+            page=person,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        response = self.client.get(self.person_index_page.url)
+
+        self.assertNotContains(response, "Private Friend")
+
+    def test_shows_empty_state(self) -> None:
+        response = self.client.get(self.person_index_page.url)
+
+        self.assertContains(response, "No people found.")

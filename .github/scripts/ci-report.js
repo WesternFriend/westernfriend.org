@@ -30,7 +30,12 @@ const CHECKS = {
   tests: {
     job: 'test',
     label: 'Tests',
-    fix: 'uv run python manage.py test',
+    fix: 'uv run python manage.py test --exclude-tag seed',
+  },
+  'seed-tests': {
+    job: 'seed',
+    label: 'Development content seeding tests',
+    fix: 'uv run python manage.py test --tag seed',
   },
 };
 

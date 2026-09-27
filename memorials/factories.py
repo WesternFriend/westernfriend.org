@@ -4,6 +4,7 @@ import factory
 from django.utils.text import slugify
 from factory.django import DjangoModelFactory
 
+from common.fake_content import paragraphs
 from community.factories import CommunityPageFactory
 from community.models import CommunityPage
 from contact.factories import MeetingFactory, PersonFactory
@@ -39,10 +40,10 @@ class MemorialFactory(DjangoModelFactory):
         model = Memorial
 
     memorial_person = factory.SubFactory(PersonFactory)  # type: ignore
-    date_of_birth = "1950-01-01"
-    date_of_death = "2000-01-01"
-    dates_are_approximate = False
-    memorial_minute = "Test Minute"
+    date_of_birth = factory.Faker("date_between", start_date="-100y", end_date="-60y")  # type: ignore
+    date_of_death = factory.Faker("date_between", start_date="-10y", end_date="-30d")  # type: ignore
+    dates_are_approximate = factory.Faker("boolean", chance_of_getting_true=15)  # type: ignore
+    memorial_minute = factory.LazyFunction(lambda: paragraphs(3))  # type: ignore
     memorial_meeting = factory.SubFactory(MeetingFactory)  # type: ignore
 
     slug = factory.LazyAttribute(lambda obj: slugify(obj.title))  # type: ignore

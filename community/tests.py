@@ -1,9 +1,15 @@
 from django.test import RequestFactory, TestCase
 
-from community.models import CommunityPage, OnlineWorship, OnlineWorshipIndexPage
+from community.models import (
+    CommunityDirectoryIndexPage,
+    CommunityPage,
+    OnlineWorship,
+    OnlineWorshipIndexPage,
+)
 from home.models import HomePage
 
 from .factories import (
+    CommunityDirectoryFactory,
     CommunityPageFactory,
     OnlineWorshipFactory,
     OnlineWorshipIndexPageFactory,
@@ -90,3 +96,16 @@ class TestOnlineWorshipIndexPageGetContext(TestCase):
             list(context["online_worship_meetings"]),
             list(OnlineWorship.objects.live().order_by("title")),
         )
+
+
+class CommunityDirectoryFactoryTest(TestCase):
+    def test_creates_directory_under_its_index_page(self) -> None:
+        directory = CommunityDirectoryFactory.create()
+
+        index_page = directory.get_parent().specific
+        self.assertIsInstance(index_page, CommunityDirectoryIndexPage)
+        self.assertIsInstance(index_page.get_parent().specific, CommunityPage)
+        self.assertTrue(directory.website)
+
+        second = CommunityDirectoryFactory.create()
+        self.assertEqual(second.get_parent(), directory.get_parent())

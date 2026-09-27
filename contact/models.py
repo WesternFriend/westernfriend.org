@@ -618,6 +618,16 @@ class PersonIndexPage(Page):
 
     template = "contact/person_index_page.html"
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["people"] = (
+            Person.objects.child_of(self)
+            .live()
+            .public()
+            .order_by("family_name", "given_name")
+        )
+        return context
+
 
 class MeetingDescendantRoutingMixin:
     """Route to a nested Meeting with one query instead of two per level.
