@@ -1,4 +1,4 @@
-# ADR 0004: Open Site Content to AI Crawlers and Agents
+# ADR 0005: Open Site Content to AI Crawlers and Agents
 
 Date: 2026-09-26
 Status: Accepted
@@ -57,12 +57,15 @@ At the Cloudflare edge (these settings live outside the repository):
 - Cloudflare no longer manages `robots.txt`; the application's file is the
   only source.
 - AI crawler blocking and AI Labyrinth are off.
-- Super Bot Fight Mode stays on. Narrow WAF Skip rules exempt the discovery
-  files (`/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/.well-known/`) and the
-  Internet Archive (verified archivers and its network), so they are reachable
-  by any client.
+- Super Bot Fight Mode stays on. A narrow WAF Skip rule exempts the discovery
+  files (`/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/.well-known/`), so any
+  client can reach them. The Internet Archive has its own exemption
+  (ADR 0004).
 - Rate limits apply to transactional paths and POST requests, not to reading
   content pages.
+- A few commercial SEO crawlers (such as SemrushBot and AhrefsBot) are blocked
+  by user agent. They are neither AI nor archival crawlers, so this decision
+  doesn't cover them.
 
 We record the reasons here rather than the live Cloudflare settings, which
 change over time. Check the Cloudflare dashboard for the current state.
@@ -71,8 +74,7 @@ change over time. Check the Cloudflare dashboard for the current state.
 
 - **Positive:** declared crawlers and AI agents can discover and read the
   whole public site, and the signals tell them it may be used for any
-  purpose. The agent-readiness score rose to 33 (Level 2). The Wayback
-  Machine can archive every page.
+  purpose. The agent-readiness score rose to 33 (Level 2).
 - **Negative:** content used for training can't be withdrawn later. Changing
   the signal only affects future crawls, so reversing this decision is
   expensive. We also get nothing in return from AI companies for this use.
