@@ -620,7 +620,10 @@ class PersonIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         context["people"] = (
-            Person.objects.child_of(self).live().order_by("family_name", "given_name")
+            Person.objects.child_of(self)
+            .live()
+            .public()
+            .order_by("family_name", "given_name")
         )
         return context
 

@@ -13,32 +13,26 @@ from wagtail.models import Page, PageViewRestriction, Site
 
 from cli.dev_content.images import get_seed_collection
 from cli.dev_content.seeder import DEV_USERS, SCALES, DevContentSeeder
-from cli.management.commands.seed_dev_content import delete_content
+from cli.management.commands.seed_dev_content import delete_content, has_content
 from contact.models import Meeting, Person
+from events.factories import EventFactory
 from home.models import HomePage
 from magazine.models import ArchiveIssue, MagazineArticle, MagazineIssue
 from orders.models import Order
 from store.models import Book
 
-MEDIA_ROOT = tempfile.mkdtemp(prefix="seed-dev-content-")
-
 
 def seed(**options) -> str:
+    # Django runs tests with DEBUG off, which the command refuses.
     stdout = StringIO()
-    call_command(
-        "seed_dev_content",
-        scale="small",
-        force=True,
-        stdout=stdout,
-        **options,
-    )
+    with override_settings(DEBUG=True):
+        call_command("seed_dev_content", scale="small", stdout=stdout, **options)
     return stdout.getvalue()
 
 
 # Seeding takes several seconds, so these are tagged; CI runs them in their
 # own job. Run them locally with `python manage.py test --tag seed`.
 @tag("seed")
-@override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class SeedDevContentTest(TestCase):
     """Keep seed_dev_content working, then use its site as a smoke test.
 
@@ -49,13 +43,17 @@ class SeedDevContentTest(TestCase):
     """
 
     @classmethod
-    def setUpTestData(cls) -> None:
-        cls.output = seed()
+    def setUpClass(cls) -> None:
+        # Keep generated images out of the real media folder. This runs
+        # before super().setUpClass(), which seeds the site.
+        media_root = tempfile.mkdtemp(prefix="seed-dev-content-")
+        cls.addClassCleanup(shutil.rmtree, media_root, ignore_errors=True)
+        cls.enterClassContext(override_settings(MEDIA_ROOT=media_root))
+        super().setUpClass()
 
     @classmethod
-    def tearDownClass(cls) -> None:
-        super().tearDownClass()
-        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+    def setUpTestData(cls) -> None:
+        cls.output = seed()
 
     def test_creates_every_section(self) -> None:
         scale = SCALES["small"]
@@ -185,6 +183,30 @@ class SeedDevContentTest(TestCase):
 
 
 class SeedDevContentGuardTest(TestCase):
+    def setUp(self) -> None:
+        call_command("scaffold_initial_content", stdout=StringIO())
+
+    def test_scaffolded_site_has_no_content(self) -> None:
+        self.assertFalse(has_content())
+
+    def test_edited_pages_count_as_content(self) -> None:
+        HomePage.objects.get().save_revision()
+
+        self.assertTrue(has_content())
+
+    def test_imported_pages_count_as_content(self) -> None:
+        # Pages added without revisions, as the content importers do.
+        EventFactory.create()
+
+        self.assertTrue(has_content())
+
+    @override_settings(DEBUG=True)
+    def test_refuses_to_seed_a_site_with_content(self) -> None:
+        EventFactory.create()
+
+        with self.assertRaisesMessage(CommandError, "--reset"):
+            call_command("seed_dev_content", scale="small", stdout=StringIO())
+
     def test_refuses_without_debug(self) -> None:
         with self.assertRaisesMessage(CommandError, "DEBUG is off"):
             call_command("seed_dev_content", scale="small", stdout=StringIO())

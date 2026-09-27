@@ -1,9 +1,10 @@
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from django.db import transaction
 from wagtail.images import get_image_model
-from wagtail.models import Page, Site
+from wagtail.models import Page, Revision, Site
 
 from cli.dev_content.images import COLLECTION_NAME
 from cli.dev_content.seeder import (
@@ -46,20 +47,15 @@ class Command(BaseCommand):
             action="store_true",
             help="Delete the existing page tree and seeded accounts first.",
         )
-        parser.add_argument(
-            "--force",
-            action="store_true",
-            help="Run even though DEBUG is off. Never use this in production.",
-        )
 
     def handle(self, *args: tuple, **options: dict) -> None:
-        self._check_environment(force=bool(options["force"]))
+        self._check_environment()
 
         with transaction.atomic():
             if options["reset"]:
                 self.stdout.write("Deleting existing content...")
                 delete_content()
-            elif _has_seeded_content():
+            elif has_content():
                 message = (
                     "The database already has content. Run with --reset to "
                     "replace it with freshly seeded content."
@@ -80,7 +76,7 @@ class Command(BaseCommand):
 
         self._report(counts)
 
-    def _check_environment(self, *, force: bool) -> None:
+    def _check_environment(self) -> None:
         # Seeding publishes pages, and publishing purges the frontend cache.
         if getattr(settings, "WAGTAILFRONTENDCACHE", None):
             message = (
@@ -88,10 +84,12 @@ class Command(BaseCommand):
                 "like a live site. Unset CLOUDFLARE_API_TOKEN to seed content."
             )
             raise CommandError(message)
-        if not settings.DEBUG and not force:
+        # There's deliberately no override: seeding creates a superuser with
+        # a password published in this repository.
+        if not settings.DEBUG:
             message = (
-                "DEBUG is off. Set DJANGO_DEBUG=true for local development, "
-                "or pass --force if you're sure this isn't a live site."
+                "DEBUG is off, so this may be a live site. Set "
+                "DJANGO_DEBUG=true for local development."
             )
             raise CommandError(message)
 
@@ -107,10 +105,29 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Development content is ready."))
 
 
-def _has_seeded_content() -> bool:
-    from contact.models import Person
+def has_content() -> bool:
+    """Whether the database holds anything beyond the scaffolded structure.
 
-    return Person.objects.exists()
+    The scaffold never creates revisions, so any revision means someone
+    edited or seeded content. The scaffold's pages are one-per-site index
+    pages plus the types below, so any other page means content was added
+    some other way, such as an import.
+    """
+    from documents.models import MeetingDocumentIndexPage, PublicBoardDocumentIndexPage
+    from wf_pages.models import WfPage
+
+    scaffolded_types = {WfPage, MeetingDocumentIndexPage, PublicBoardDocumentIndexPage}
+
+    if Revision.page_revisions.exists():
+        return True
+
+    content_types = ContentType.objects.filter(
+        pk__in=Page.objects.filter(depth__gt=2).values("content_type"),
+    )
+    return any(
+        page_class.max_count != 1 and page_class not in scaffolded_types
+        for page_class in (content_type.model_class() for content_type in content_types)
+    )
 
 
 def delete_content() -> None:

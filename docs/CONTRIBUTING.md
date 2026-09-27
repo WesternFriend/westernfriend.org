@@ -78,9 +78,9 @@ The data is deliberately varied: very long titles, non-ASCII names, drafts, a so
 | `--scale small\|medium\|large` | How much content to create (default `medium`, about 1,000 pages). Use `large` to test pagination and performance. |
 | `--seed N` | Random seed. The same seed builds the same site on the same day. |
 | `--no-images` | Skip the generated images. |
-| `--reset` | Replace existing content. Without it the command refuses to run on a database that already has content. |
+| `--reset` | Delete the existing page tree, seed images, and dev accounts first. |
 
-The command only runs with `DJANGO_DEBUG=true` (or `--force`), and never when Cloudflare cache purging is configured, so it can't touch a live site.
+The command only runs with `DJANGO_DEBUG=true`, and never when Cloudflare cache purging is configured, so it can't touch a live site. It also refuses to run on a database that has any content beyond the scaffolded structure, unless you pass `--reset`.
 
 Its tests seed a small site, then use it as a smoke test: every live page and every page type's admin form must render. They take under a minute and are tagged `seed`. `python manage.py test` includes them; add `--exclude-tag seed` for a faster run, or `--tag seed` to run only them. CI runs them in their own job, alongside the main tests.
 

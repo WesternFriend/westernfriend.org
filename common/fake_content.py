@@ -225,7 +225,11 @@ def paragraphs(count: int = 1) -> str:
 
 
 def rich_text(link_pages: "list[Page] | None" = None) -> str:
-    """Rich text HTML that uses each editor feature the site enables."""
+    """Rich text HTML using the editor features that need no uploads or network.
+
+    That's every feature COMMON_STREAMFIELD_BLOCKS enables except document
+    links and embeds.
+    """
     html = [paragraphs(2)]
 
     items = "".join(f"<li>{escape(fake.sentence())}</li>" for _ in range(3))
@@ -244,6 +248,12 @@ def rich_text(link_pages: "list[Page] | None" = None) -> str:
             f'<p>See also <a linktype="page" id="{page.pk}">{escape(page.title)}</a>.</p>',
         )
 
+    html.append("<hr/>")
+    html.append(
+        f"<p>{escape(fake.sentence(nb_words=6))} "
+        f"<s>{escape(fake.word())}</s> {escape(fake.word())}"
+        f"<sup>{fake.random_int(1, 9)}</sup></p>",
+    )
     html.append(f"<blockquote>{escape(fake.paragraph(nb_sentences=2))}</blockquote>")
     return "".join(html)
 

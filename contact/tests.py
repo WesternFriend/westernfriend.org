@@ -8,7 +8,7 @@ from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.urls import reverse
-from wagtail.models import Locale, Page, Revision, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Revision, Site
 
 from community.factories import OnlineWorshipFactory
 from community.models import CommunityPage
@@ -972,6 +972,17 @@ class PersonIndexPageRenderTest(TestCase):
 
         self.assertContains(response, "Lucretia Mott")
         self.assertContains(response, person.url)
+
+    def test_hides_restricted_people(self) -> None:
+        person = PersonFactory.create(given_name="Private", family_name="Friend")
+        PageViewRestriction.objects.create(
+            page=person,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        response = self.client.get(self.person_index_page.url)
+
+        self.assertNotContains(response, "Private Friend")
 
     def test_shows_empty_state(self) -> None:
         response = self.client.get(self.person_index_page.url)
