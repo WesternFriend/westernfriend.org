@@ -58,7 +58,10 @@ AI answers and AI training.
 - **This is Western Friend's stated preference, not a licence.** Much of our
   content is by outside writers, artists and photographers. Contributors who
   don't want their work offered for AI use can ask Western Friend to exclude
-  it.
+  it. An excluded work must carry its own machine-readable exception, so
+  crawlers aren't told it's available. The site-wide signal can't express
+  that yet (#1289). Exclusion applies only to future use; copies already
+  collected can't be recalled.
 - **We make the site easy for crawlers and agents to discover and read.**
   Machine-readable guides to the site are generated from its own navigation
   and content, so they don't drift from what people see. They list only
