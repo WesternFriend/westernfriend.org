@@ -1,5 +1,6 @@
 import hashlib
 from http import HTTPStatus
+from urllib.parse import quote, unquote
 
 from django.conf import settings
 from django.core.cache import cache
@@ -17,6 +18,7 @@ from common.models import CrawlerPolicySetting
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
 from events.views import EventViewSet
+from magazine.models import MagazineArticle
 from navigation.models import NavigationMenuSetting
 from news.views import NewsItemViewSet
 from tags.views import TagViewSet
@@ -92,12 +94,40 @@ def favicon_ico(request):
     return HttpResponsePermanentRedirect(static("img/favicon.ico"))
 
 
+def _ai_excluded_paths(request):
+    """Return the URL paths of live articles excluded from AI use on this site.
+
+    Paths are looked up on every request, so an exclusion follows the
+    article when its slug or parent changes.
+    """
+    site = Site.find_for_request(request)
+    paths = []
+    for article in MagazineArticle.objects.live().filter(exclude_from_ai=True):
+        url_parts = article.get_url_parts(request)
+        if url_parts is not None and url_parts[0] == getattr(site, "id", None):
+            # Normalise to one level of percent-encoding, whether or not
+            # Wagtail has already encoded a Unicode slug
+            paths.append(quote(unquote(url_parts[2]), safe="/"))
+    return sorted(paths)
+
+
 @require_GET
 def robots_txt(request):
-    """Serve robots.txt, pointing crawlers at the canonical sitemap."""
+    """Serve robots.txt, pointing crawlers at the canonical sitemap.
+
+    Articles excluded from AI use get a path-scoped Content-Usage rule.
+    See docs/ai-opt-out.md.
+    """
     policy = CrawlerPolicySetting.for_request_or_default(request)
+    excluded_paths = _ai_excluded_paths(request)
+
     lines = ["User-agent: *", f"Content-Signal: {policy.content_signal}"]
+    lines += [
+        f"Content-Usage: {path} {policy.excluded_content_usage}"
+        for path in excluded_paths
+    ]
     lines += [f"Disallow: {path}" for path in ROBOTS_DISALLOWED_PATHS]
+
     lines += ["", f"Sitemap: {_absolute_url(reverse('sitemap'))}", ""]
 
     return HttpResponse("\n".join(lines), content_type="text/plain")
@@ -110,7 +140,11 @@ def _llms_link(request, item):
     URLs containing an unmatched ")" or a space can't truncate the link.
     """
     page = item.get("page")
-    if page is not None and (not page.live or page.get_view_restrictions().exists()):
+    if page is not None and (
+        not page.live
+        or page.get_view_restrictions().exists()
+        or getattr(page.specific, "exclude_from_ai", False)
+    ):
         return None
 
     line = f"- [{item['title']}](<{request.build_absolute_uri(item.href())}>)"

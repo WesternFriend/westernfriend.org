@@ -27,19 +27,27 @@ def purge_restricted_pages(instance, **kwargs):
     transaction.on_commit(batch.purge)
 
 
+def purge_crawler_files(sites):
+    """Purge robots.txt and llms.txt for the given sites, after commit."""
+    # Site.root_url says http:// for a port 80 site, but crawlers fetch these
+    # files over HTTPS, so use the public scheme to purge the cached copies.
+    scheme = urlsplit(settings.BASE_URL).scheme
+    batch = PurgeBatch()
+    for site in sites:
+        root_url = f"{scheme}://{urlsplit(site.root_url).netloc}"
+        batch.add_urls(
+            f"{root_url}{reverse(name)}" for name in ("robots_txt", "llms_txt")
+        )
+    transaction.on_commit(batch.purge)
+
+
 def purge_crawler_policy_files(instance, **kwargs):
     """Purge robots.txt and llms.txt from Cloudflare when the policy changes.
 
     Both files are cached at the edge like any public page, so without a
     purge a changed crawler policy would wait for the edge TTL to expire.
     """
-    # Site.root_url says http:// for a port 80 site, but crawlers fetch these
-    # files over HTTPS, so use the public scheme to purge the cached copies.
-    scheme = urlsplit(settings.BASE_URL).scheme
-    root_url = f"{scheme}://{urlsplit(instance.site.root_url).netloc}"
-    batch = PurgeBatch()
-    batch.add_urls(f"{root_url}{reverse(name)}" for name in ("robots_txt", "llms_txt"))
-    transaction.on_commit(batch.purge)
+    purge_crawler_files([instance.site])
 
 
 def register_signal_handlers():
