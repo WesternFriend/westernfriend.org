@@ -57,6 +57,7 @@ class ProductIndexPage(Page):
         context["books"] = (
             Book.objects.child_of(self)
             .live()
+            .public()
             .order_by(
                 "-is_featured",
                 "title",

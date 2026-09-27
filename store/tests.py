@@ -1,6 +1,8 @@
 from django.test import TestCase
+from wagtail.models import Site
 
 from cart.forms import CartAddProductForm
+from home.factories import HomePageFactory
 from home.models import HomePage
 from store.models import Product, ProductIndexPage, StoreIndexPage
 
@@ -106,6 +108,34 @@ class TestProductIndexPageGetContext(TestCase):
             context["cart_add_product_form"],
             CartAddProductForm,
         )
+
+
+class TestProductIndexPageRenders(TestCase):
+    def setUp(self) -> None:
+        self.home_page = HomePageFactory.create()
+        Site.objects.all().delete()
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home_page,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def test_product_index_page_renders(self) -> None:
+        """Test that the product index page renders without a template error."""
+        product_index_page = ProductIndexPageFactory.create()
+        product_index_page.save_revision().publish()
+
+        # BookFactory does not set an image, so this also exercises the
+        # template's handling of a book with no image.
+        book = BookFactory.create()
+        book.save_revision().publish()
+
+        response = self.client.get(product_index_page.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, book.title)
 
 
 class TestProductGetContext(TestCase):
