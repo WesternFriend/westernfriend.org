@@ -8,6 +8,7 @@ from django.forms import CharField, TextInput
 from django.forms.forms import Form
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.test import RequestFactory, TestCase, override_settings
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
@@ -188,9 +189,12 @@ class HeaderImageTemplateTest(TestCase):
         self.assertIn('fetchpriority="high"', self.html)
 
     def test_header_image_serves_responsive_webp(self):
-        self.assertIn("/static/img/WF-header-640.webp 640w", self.html)
-        self.assertIn("/static/img/WF-header-3695.webp 3695w", self.html)
-        self.assertNotIn("WF-header.png", self.html)
+        self.assertIn('type="image/webp"', self.html)
+        self.assertIn(f"{static('img/WF-header-640.webp')} 640w", self.html)
+        self.assertIn(f"{static('img/WF-header-3695.webp')} 3695w", self.html)
+
+    def test_header_image_falls_back_to_png(self):
+        self.assertIn(f'src="{static("img/WF-header.png")}"', self.html)
 
     def test_header_image_dimensions_match_aspect_ratio(self):
         self.assertIn('width="3695"', self.html)
