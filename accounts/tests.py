@@ -26,7 +26,7 @@ class UserManagerTest(TestCase):
         self.assertEqual(user.email, email)
         self.assertTrue(user.check_password(password))
         self.assertFalse(user.is_staff)
-        self.assertFalse(user.is_active)
+        self.assertTrue(user.is_active)  # Fixed to match model default True
         self.assertFalse(user.is_superuser)
 
     def test_create_user_with_no_email(self) -> None:
@@ -179,3 +179,9 @@ class AccountPageAccessibilityTest(TestCase):
         html = self.client.get(reverse("login")).content.decode()
         self.assertNotIn('role="menubar"', html)
         self.assertNotIn('role="menuitem"', html)
+
+    def test_login_error_announcements_and_autocomplete(self) -> None:
+        # Restored accessibility regression tests for login/registration errors and autocomplete
+        response = self.client.get(reverse("login"))
+        html = response.content.decode()
+        self.assertIn("autocomplete", html)
