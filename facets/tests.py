@@ -353,3 +353,21 @@ class TestTopicIndexPageGetContext(TestCase):
         child_pages = list(context["child_pages"])
         self.assertEqual(len(child_pages), 1)
         self.assertEqual(child_pages[0].specific_class, Topic)
+
+
+class FacetIndexPageTemplateTest(TestCase):
+    """Wagtail's page metaclass must not override the mixin's shared template."""
+
+    def test_every_facet_index_page_uses_the_shared_template(self) -> None:
+        for page_class in (
+            AudienceIndexPage,
+            GenreIndexPage,
+            MediumIndexPage,
+            TimePeriodIndexPage,
+            TopicIndexPage,
+        ):
+            with self.subTest(page_class=page_class.__name__):
+                self.assertEqual(
+                    page_class().get_template(request=None),
+                    "facets/facet_index_page.html",
+                )

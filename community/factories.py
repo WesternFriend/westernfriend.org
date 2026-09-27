@@ -127,12 +127,8 @@ class CommunityDirectoryIndexPageFactory(DjangoModelFactory):
         **kwargs: Any,
     ) -> Any:
         instance = model_class(*args, **kwargs)  # type: ignore
-        parent = CommunityPage.objects.first()
-        if parent:
-            parent.add_child(instance=instance)
-        else:
-            community_page = CommunityPageFactory.create()
-            community_page.add_child(instance=instance)
+        parent = CommunityPage.objects.first() or CommunityPageFactory.create()
+        parent.add_child(instance=instance)
         return instance
 
 

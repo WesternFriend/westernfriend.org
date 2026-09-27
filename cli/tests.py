@@ -1,6 +1,7 @@
 import shutil
 import tempfile
 from io import StringIO
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
@@ -10,7 +11,8 @@ from django.urls import reverse
 from wagtail.images import get_image_model
 from wagtail.models import Page, PageViewRestriction, Site
 
-from cli.dev_content.seeder import DEV_USERS, SCALES
+from cli.dev_content.images import get_seed_collection
+from cli.dev_content.seeder import DEV_USERS, SCALES, DevContentSeeder
 from cli.management.commands.seed_dev_content import delete_content
 from contact.models import Meeting, Person
 from home.models import HomePage
@@ -108,6 +110,46 @@ class SeedDevContentTest(TestCase):
         )
         self.assertFalse(get_image_model().objects.exists())
         self.assertFalse(Order.objects.exists())
+
+    def test_reset_option_deletes_and_rescaffolds(self) -> None:
+        # Stub out the seeder, so this checks the command's wiring without
+        # seeding a second site.
+        with patch(
+            "cli.management.commands.seed_dev_content.DevContentSeeder",
+        ) as seeder_class:
+            seeder_class.return_value.run.return_value = {}
+            output = seed(reset=True)
+
+        self.assertIn("Deleting existing content", output)
+        self.assertTrue(HomePage.objects.exists())
+        self.assertFalse(Person.objects.exists())
+
+    def test_seeding_again_skips_existing_accounts(self) -> None:
+        user_count = get_user_model().objects.count()
+        seeder = DevContentSeeder(scale=SCALES["small"], seed=1, with_images=False)
+
+        seeder.seed_users()
+
+        self.assertEqual(get_user_model().objects.count(), user_count)
+        self.assertNotIn("users", seeder.counts)
+
+    def test_no_images_option_skips_images(self) -> None:
+        seeder = DevContentSeeder(scale=SCALES["small"], seed=1, with_images=False)
+
+        seeder.seed_images()
+
+        self.assertEqual(seeder.illustrations, [])
+        self.assertIsNone(seeder._image("Cover", "Alt text", (10, 10)))
+
+    def test_seed_collection_is_reused(self) -> None:
+        self.assertEqual(get_seed_collection(), get_seed_collection())
+
+    def test_slugs_are_unique_among_siblings(self) -> None:
+        seeder = DevContentSeeder(scale=SCALES["small"], seed=1, with_images=False)
+        home_page = HomePage.objects.get()
+
+        self.assertEqual(seeder._unique_slug(home_page, "Magazine"), "magazine-2")
+        self.assertEqual(seeder._unique_slug(home_page, "Magazine"), "magazine-3")
 
     # Site smoke tests
 

@@ -5,7 +5,12 @@ from django.utils import timezone
 from wagtail.models import Page, Site
 
 from contact.models import Meeting, MeetingIndexPage
-from documents.models import MeetingDocument, MeetingDocumentIndexPage
+from documents.factories import MeetingDocumentFactory, PublicBoardDocumentFactory
+from documents.models import (
+    MeetingDocument,
+    MeetingDocumentIndexPage,
+    PublicBoardDocumentIndexPage,
+)
 from home.models import HomePage
 
 
@@ -68,3 +73,25 @@ class TestMeetingDocumentIndexPage(TestCase):
             publishing_meeting_pks,
             [self.meeting.pk, self.meeting.pk],
         )
+
+
+class DocumentFactoryTest(TestCase):
+    def test_meeting_document_factory_creates_its_index_page(self) -> None:
+        document = MeetingDocumentFactory.create()
+
+        self.assertIsInstance(document.get_parent().specific, MeetingDocumentIndexPage)
+        self.assertIn(document.publishing_meeting.title, document.title)
+        self.assertTrue(document.body)
+
+        # A second document reuses the existing index page.
+        second = MeetingDocumentFactory.create()
+        self.assertEqual(second.get_parent(), document.get_parent())
+
+    def test_public_board_document_factory_creates_its_index_page(self) -> None:
+        document = PublicBoardDocumentFactory.create()
+
+        self.assertIsInstance(
+            document.get_parent().specific,
+            PublicBoardDocumentIndexPage,
+        )
+        self.assertTrue(document.body)

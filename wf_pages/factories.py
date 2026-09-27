@@ -3,6 +3,7 @@ from typing import Any
 import factory
 
 from common.fake_content import TOPICS, fake, headline, stream_body
+from home.factories import HomePageFactory
 from home.models import HomePage
 
 from .models import (
@@ -12,6 +13,10 @@ from .models import (
     WfPageCollection,
     WfPageCollectionIndexPage,
 )
+
+
+def _home_page() -> HomePage:
+    return HomePage.objects.first() or HomePageFactory.create()
 
 
 class WfPageFactory(
@@ -43,12 +48,7 @@ class WfPageFactory(
         **kwargs: Any,
     ) -> WfPage:
         instance = model_class(*args, **kwargs)  # type: ignore
-        parent = HomePage.objects.first()
-        if parent:
-            parent.add_child(instance=instance)
-        else:
-            home_page = WfPageFactory.create()
-            home_page.add_child(instance=instance)
+        _home_page().add_child(instance=instance)
         return instance
 
 
@@ -66,7 +66,7 @@ class MollyWingateBlogIndexPageFactory(factory.django.DjangoModelFactory):
         **kwargs: Any,
     ) -> MollyWingateBlogIndexPage:
         instance = model_class(*args, **kwargs)  # type: ignore
-        HomePage.objects.get().add_child(instance=instance)
+        _home_page().add_child(instance=instance)
         return instance
 
 
@@ -107,7 +107,7 @@ class WfPageCollectionIndexPageFactory(factory.django.DjangoModelFactory):
         **kwargs: Any,
     ) -> WfPageCollectionIndexPage:
         instance = model_class(*args, **kwargs)  # type: ignore
-        HomePage.objects.get().add_child(instance=instance)
+        _home_page().add_child(instance=instance)
         return instance
 
 
