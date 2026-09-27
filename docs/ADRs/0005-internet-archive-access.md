@@ -1,4 +1,4 @@
-# ADR 0004: Let the Internet Archive Preserve Every Public Page
+# ADR 0005: Let the Internet Archive Preserve Every Public Page
 
 Date: 2026-09-27
 Status: Accepted
@@ -6,8 +6,8 @@ Status: Accepted
 ## Context
 
 Western Friend follows an open publication model: new magazine content is
-subscriber-only for 90 days and then free to read, and the archive is public
-back to 1929. The magazine, library and memorials form a public record of
+subscriber-only for a limited time and then free to read, and the archive is
+public back to 1929. The magazine, library and memorials form a public record of
 Quaker life in the western United States.
 
 Web pages move, change and disappear, especially across platform migrations.

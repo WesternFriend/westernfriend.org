@@ -1,4 +1,4 @@
-# ADR 0005: Open Site Content to AI Crawlers and Agents
+# ADR 0006: Open Site Content to AI Crawlers and Agents
 
 Date: 2026-09-26
 Status: Accepted
@@ -6,7 +6,7 @@ Status: Accepted
 ## Context
 
 Western Friend follows an open publication model. New magazine content is
-available only to subscribers for 90 days and then becomes free to read, and
+available only to subscribers for a limited time and then becomes free to read, and
 the archive is public all the way back to 1929. Earlier decisions followed
 from that model, and this one extends it to a new kind of reader.
 
@@ -61,4 +61,4 @@ not.
 - **Future:** revisit if crawlers can pay for access, which could let us
   relax bot protection without subsidizing scrapers (#1242). Supersede this
   ADR if the organization changes its open publication model or its position
-  on AI training. ADR 0004 covers preservation by the Internet Archive.
+  on AI training. ADR 0005 covers preservation by the Internet Archive.
