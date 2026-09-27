@@ -1,4 +1,4 @@
-# ADR 0005: Let the Internet Archive Preserve Every Public Page
+# ADR 0005: Let the Editor Decide Whether the Internet Archive Preserves the Site
 
 Date: 2026-09-27
 Status: Accepted
@@ -16,46 +16,57 @@ The Internet Archive's Wayback Machine keeps dated copies independently of
 us, so readers, researchers and anyone citing Western Friend can still reach a
 page as it was, even if our site changes or goes away.
 
-In September 2026 we found that the Archive couldn't reliably capture our
-pages, because our bot protection was challenging its crawlers.
+Whether the Archive could preserve the site had never been decided by anyone
+at Western Friend. It depended on technical settings. The site's
+`robots.txt` has always allowed the Archive, but in September 2026 we found
+that our bot protection was challenging its crawlers, so captures were
+failing without anyone having chosen that.
 
 We considered these options:
 
-- **Do nothing, and rely on the Archive being recognized as a verified
-  crawler.** We rejected this because the Archive's fetchers, including
-  "Save Page Now", aren't always recognized, so captures kept failing.
-- **Recognize the Archive by its user agent.** We rejected this because any
-  scraper can copy a user agent.
-- **Exempt the Archive, identified by means that are hard to fake.** We
-  chose this option.
+- **Leave it to technical settings.** This is how we got here: an
+  unintended side effect decided the outcome.
+- **Make archiving a fixed technical rule.** This is reliable, but the
+  choice would sit with whoever maintains the site rather than with the
+  people responsible for what Western Friend publishes.
+- **Make archiving an editorial choice, defaulting to what was already
+  intended.** We chose this option.
 
 ## Decision
 
-Every public page should be archivable by the Internet Archive. Bot
-protection and rate limits must not stop the Archive's crawlers or people
-using the Wayback Machine's "Save Page Now".
+Whether the Internet Archive may preserve Western Friend's public pages is an
+editorial decision, owned by the Editor.
 
-Public means what an anonymous visitor can read. Subscriber-only content is
-archived only once it becomes free.
+- **The default is on.** Our `robots.txt` has always allowed the Archive, so
+  allowing it matches existing practice. Changing it is a deliberate
+  editorial act.
+- **Public means what an anonymous visitor can read.** Subscriber-only
+  content is archived only once it becomes free.
+- **When archiving is on, it must actually work.** Bot protection and rate
+  limits must not stop the Archive's crawlers or people using the Wayback
+  Machine's "Save Page Now". Making that happen is the maintainer's job, not
+  the Editor's.
+- **The Archive is identified by means that are hard to fake,** such as its
+  verified crawler status and the network it operates, never by a user agent
+  string alone, since any scraper can copy one.
 
-We identify the Archive by means that are hard to fake, such as its verified
-crawler status and the network it operates. We don't trust a user agent
-string alone, since any scraper can copy one.
-
-At the time of writing this is a Cloudflare WAF skip rule named
-**Allow Internet Archive**.
+At the time of writing, archiving is on through `robots.txt` and a
+Cloudflare skip rule named **Allow Internet Archive**. The Editor's choice is
+applied by the maintainer until it's available in the Wagtail admin.
 
 ## Consequences
 
 - **Positive:** there is a durable, independent copy of our publishing
-  history that doesn't depend on this site or its hosting.
-- **Negative:** we extend more trust to the Internet Archive than to other
-  automated traffic. If abusive traffic ever came from its network, the
+  history that doesn't depend on this site or its hosting, and whether it
+  exists is Western Friend's decision rather than an accident of
+  configuration.
+- **Negative:** when archiving is on, we trust the Internet Archive more than
+  other automated traffic. If abusive traffic ever came from its network, the
   exemption would let it through.
-- **Negative:** archived copies outlive our own edits. A page we later
-  correct, unpublish or remove stays visible in the Archive. The likeliest
-  case is a memorial or directory entry about a real person, changed at a
-  family's or member's request. Removing an archived copy depends on the
-  Internet Archive's own removal process.
+- **Negative:** archived copies outlive our own edits, and turning archiving
+  off doesn't remove them. A page we later correct, unpublish or remove stays
+  visible in the Archive. The likeliest case is a memorial or directory entry
+  about a real person, changed at a family's or member's request. Removing an
+  archived copy depends on the Internet Archive's own removal process.
 - **Future:** revisit if the Archive changes how it identifies itself, or if
   captures start failing again.
