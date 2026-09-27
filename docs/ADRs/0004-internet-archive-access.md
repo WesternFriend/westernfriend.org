@@ -42,5 +42,4 @@ At the time of writing this is a Cloudflare WAF skip rule named
   correct, unpublish or remove stays visible in the Archive, and removing it
   depends on the Internet Archive's own process.
 - **Future:** revisit if the Archive changes how it identifies itself, or if
-  captures start failing again. ADR 0005 covers the broader decision to open
-  content to AI crawlers and agents.
+  captures start failing again.
