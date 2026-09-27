@@ -180,3 +180,13 @@ class TestBookPageRenders(TestCase):
 
         self.assertContains(response, 'alt="Cover of Faith and Practice"')
         self.assertNotContains(response, "{{ page.title }}")
+
+    def test_product_image_alt_text_includes_product_title(self) -> None:
+        ProductIndexPageFactory.create().save_revision().publish()
+        image = Image.objects.create(title="product", file=get_test_image_file())
+        product = ProductFactory.create(title="Quaker Mug", image=image)
+        product.save_revision().publish()
+
+        response = self.client.get(product.url)
+
+        self.assertContains(response, 'alt="Product image of Quaker Mug"')
