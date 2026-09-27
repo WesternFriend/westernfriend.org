@@ -89,8 +89,18 @@ A response is **public** when *all* of these hold:
 Public responses get:
 
 ```http
-Cache-Control: public, max-age=<PUBLIC_CACHE_BROWSER_TTL>, s-maxage=<PUBLIC_CACHE_EDGE_TTL>
+Cache-Control: public, max-age=<PUBLIC_CACHE_BROWSER_TTL>, s-maxage=<PUBLIC_CACHE_EDGE_TTL>, private="Set-Cookie"
 ```
+
+`private="Set-Cookie"` tells shared caches not to store the `Set-Cookie`
+header; the rest of the response stays cacheable. It is needed because our zone
+reaches Django through App Platform's own Cloudflare layer (an
+"orange-to-orange" setup). That layer adds a `__cf_bm` bot-management cookie
+to every response, and Cloudflare [won't cache a response that sets a
+cookie](https://developers.cloudflare.com/cache/troubleshooting/bot-management-o2o-cache-bypass/).
+With the directive, Cloudflare drops only that header and caches the page.
+This is safe because of rule 5: a response that Django itself sets a cookie on
+is never public.
 
 Every other response that has no `Cache-Control` header gets
 `Cache-Control: private`. This keeps today's behaviour, but set explicitly, so
@@ -239,7 +249,7 @@ Unit tests for the middleware (`common/tests/test_middleware.py`):
 
 | Case | Expected |
 | --- | --- |
-| Anonymous `GET` 200, TTL > 0 | `public, max-age=60, s-maxage=900` |
+| Anonymous `GET` 200, TTL > 0 | `public, max-age=60, s-maxage=900, private="Set-Cookie"` |
 | TTL = 0 | `private` |
 | Authenticated user | `private` |
 | Request has session cookie | `private` |
