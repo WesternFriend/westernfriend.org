@@ -247,6 +247,13 @@ class LlmsTxtTest(TestCase):
                                 "external_link",
                                 {"title": "Podcast", "url": "https://example.com/pod"},
                             ),
+                            (
+                                "external_link",
+                                {
+                                    "title": "Podcast archive",
+                                    "url": "https://example.com/podcast)",
+                                },
+                            ),
                         ],
                     },
                 ),
@@ -264,13 +271,19 @@ class LlmsTxtTest(TestCase):
     def test_llms_txt_lists_navigation_menu(self):
         content = self.client.get("/llms.txt").content.decode()
 
-        self.assertIn("## Pages\n\n- [About us](http://testserver/about/)\n", content)
+        self.assertIn("## Pages\n\n- [About us](<http://testserver/about/>)\n", content)
         self.assertIn(
             "## Read\n\n"
-            "- [Current issue](http://testserver/magazine/): Quaker writing and art\n"
-            "- [Podcast](https://example.com/pod)\n",
+            "- [Current issue](<http://testserver/magazine/>): Quaker writing and art\n"
+            "- [Podcast](<https://example.com/pod>)\n",
             content,
         )
+
+    def test_llms_txt_wraps_urls_with_parentheses(self):
+        """A ")" in the URL must not truncate the Markdown link destination."""
+        content = self.client.get("/llms.txt").content.decode()
+
+        self.assertIn("- [Podcast archive](<https://example.com/podcast)>)\n", content)
 
     def test_llms_txt_skips_unpublished_pages(self):
         content = self.client.get("/llms.txt").content.decode()
@@ -285,7 +298,7 @@ class LlmsTxtTest(TestCase):
     def test_llms_txt_links_sitemap(self):
         content = self.client.get("/llms.txt").content.decode()
 
-        self.assertIn("(https://westernfriend.org/sitemap.xml)", content)
+        self.assertIn("(<https://westernfriend.org/sitemap.xml>)", content)
 
 
 class DiscoveryLinkHeaderTest(TestCase):

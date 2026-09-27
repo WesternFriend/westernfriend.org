@@ -106,12 +106,16 @@ def robots_txt(request):
 
 
 def _llms_link(request, item):
-    """Format a navigation menu link as an llms.txt list item."""
+    """Format a navigation menu link as an llms.txt list item.
+
+    The destination is wrapped in angle brackets (allowed by CommonMark) so
+    URLs containing an unmatched ")" or a space can't truncate the link.
+    """
     page = item.get("page")
     if page is not None and (not page.live or page.get_view_restrictions().exists()):
         return None
 
-    line = f"- [{item['title']}]({request.build_absolute_uri(item.href())})"
+    line = f"- [{item['title']}](<{request.build_absolute_uri(item.href())}>)"
     description = page.specific.search_description if page is not None else ""
     return f"{line}: {description}" if description else line
 
@@ -151,7 +155,7 @@ def llms_txt(request):
     lines += [
         "## Optional",
         "",
-        f"- [Sitemap]({_absolute_url(reverse('sitemap'))}): every public page",
+        f"- [Sitemap](<{_absolute_url(reverse('sitemap'))}>): every public page",
         "",
     ]
 
