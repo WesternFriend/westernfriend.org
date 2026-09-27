@@ -76,7 +76,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `EMAIL_HOST_USER` - username for SMTP host
    - `EMAIL_HOST_PASSWORD` - password for SMTP user
    - `EMAIL_USE_TLS` - use Transport Layer Security (default: True)
-   - `EMAIL_USE_SSL` - use implicit SSL instead of TLS (default: False; don't enable both)
+   - `EMAIL_USE_SSL` - use implicit SSL instead of TLS (default: False). When set to True, also set `EMAIL_USE_TLS=False`: Django refuses to send email with both enabled, and TLS is on by default
    - `DEFAULT_FROM_EMAIL` - from address when sending mail (default: tech@westernfriend.org)
 
 6. Edit the App Info with the following settings
@@ -149,7 +149,7 @@ Changing `.do/deploy.template.yaml` does not update a running app, because App P
 3. After the deploy finishes, confirm in the app console:
 
    ```sh
-   python manage.py shell -c "from django.core.cache import cache; cache.set('cache-check', 'ok', 60); print(type(cache).__name__, cache.get('cache-check'))"
+   python manage.py shell -c "from django.core.cache import caches; c = caches['default']; c.set('cache-check', 'ok', 60); print(type(c).__name__, c.get('cache-check'))"
    ```
 
    It should print `DatabaseCache ok`. Then load a few pages (home, a magazine article, and the login page) and check Sentry for new errors.
