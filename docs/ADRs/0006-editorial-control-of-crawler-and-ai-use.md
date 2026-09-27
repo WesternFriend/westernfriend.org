@@ -69,8 +69,8 @@ broadly allowed, as ADR 0005 describes.
   content isn't offered to crawlers until it becomes free.
 - **The signals state Western Friend's preference, not a licence.** Much of
   our content is by outside writers, artists and photographers. They can ask
-  the Editor to exclude their work, and Western Friend tells them how where
-  they submit work.
+  the Editor to exclude their work. The guidance Western Friend gives
+  contributors about submitting work explains how to ask.
 - **Safeguards stay separate from policy.** Protecting the site from
   disguised or overloading traffic, and keeping private and transactional
   areas such as accounts and checkout out of reach, remains the maintainer's
