@@ -48,10 +48,18 @@ broadly allowed, as ADR 0005 describes.
   with plain options in the Wagtail admin: whether content may be used for
   search, for AI answers, and for AI training, and whether the site publishes
   guides that help agents find their way around. The Editor doesn't write
-  patterns, rules or configuration files (#1288).
+  patterns, rules or configuration files (#1288, #1291).
 - **Per-work exceptions.** The Editor can exclude an individual work, for
   example when a contributor asks. An excluded work carries its own
-  machine-readable exception, so crawlers aren't told it's available (#1289).
+  machine-readable preference against AI use, and stays available to readers
+  and, if the site allows, to search engines (#1289, #1293).
+- **Exceptions only restrict.** A per-work exception can narrow the site-wide
+  policy but never widen it. For example, an excluded work's search
+  preference follows the site's search choice.
+- **Exceptions are signals, not blocking.** We don't keep lists of named AI
+  crawlers to shut out of excluded works. Blocking is enforcement, which
+  belongs with the safeguards below, and such lists go stale as crawlers are
+  added and renamed.
 - **Defaults match the status quo.** Everything was already being read and
   used, so every option defaults to open. Stating that default makes current
   practice visible. Any change from it is a deliberate editorial act.
@@ -60,18 +68,18 @@ broadly allowed, as ADR 0005 describes.
 - **Public means what an anonymous visitor can read.** Subscriber-only
   content isn't offered to crawlers until it becomes free.
 - **The signals state Western Friend's preference, not a licence.** Much of
-  our content is by outside writers, artists and photographers, and they can
-  ask the Editor to exclude their work.
+  our content is by outside writers, artists and photographers. They can ask
+  the Editor to exclude their work, and Western Friend tells them how where
+  they submit work.
 - **Safeguards stay separate from policy.** Protecting the site from
   disguised or overloading traffic, and keeping private and transactional
   areas such as accounts and checkout out of reach, remains the maintainer's
   job. Crawlers and agents that identify themselves and crawl at a reasonable
   rate are served according to the Editor's policy.
 
-At the time of writing, the default policy is published through
-`robots.txt` content signals, `/llms.txt` and discovery links on each page.
-The maintainer applies the Editor's choices in code until they're available
-in the admin.
+At the time of writing, the Editor sets the policy in the "Crawlers and AI"
+site setting, and can exclude a magazine article with a checkbox on the
+article. `docs/ai-opt-out.md` describes the signals the site publishes.
 
 ## Consequences
 
@@ -84,7 +92,8 @@ in the admin.
   Friend can reach search engines, AI assistants and the models behind them,
   consistent with how we already publish.
 - **Negative:** signals are requests, not enforcement. Crawlers that ignore
-  them aren't stopped by the policy.
+  them aren't stopped by the policy. Few crawlers read per-work preferences
+  yet, so today an exclusion is mostly a stated wish.
 - **Negative:** any change applies only to future use. Content already
   collected for training can't be withdrawn.
 - **Negative:** with the default policy, pages that name real people, such
