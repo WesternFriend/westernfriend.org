@@ -260,19 +260,23 @@ class TestMeetingRouting(TestCase):
         self.assertEqual(page, self.yearly)
 
     def test_unknown_path_raises_404(self) -> None:
-        with self.assertRaises(Http404):
+        with self.assertNumQueries(2), self.assertRaises(Http404):
+            self.meeting_index.route(self.request, ["nope"])
+
+        with self.assertNumQueries(2), self.assertRaises(Http404):
             self.meeting_index.route(self.request, ["yearly", "nope"])
 
-        with self.assertRaises(Http404):
+        # A miss deep in the tree must not repeat the lookup per level.
+        with self.assertNumQueries(2), self.assertRaises(Http404):
             self.meeting_index.route(
                 self.request,
-                ["yearly", "quarterly", "monthly", "extra"],
+                ["yearly", "quarterly", "monthly", "extra", "more"],
             )
 
     def test_unpublished_target_raises_404(self) -> None:
         self.monthly.unpublish()
 
-        with self.assertRaises(Http404):
+        with self.assertNumQueries(2), self.assertRaises(Http404):
             self.meeting_index.route(
                 self.request,
                 ["yearly", "quarterly", "monthly"],
@@ -283,12 +287,40 @@ class TestMeetingRouting(TestCase):
             instance=Page(title="Not a meeting", slug="not-a-meeting"),
         )
 
-        page, _, _ = self.meeting_index.route(
-            self.request,
-            ["yearly", "quarterly", "not-a-meeting"],
-        )
+        # Meeting miss, then deepest-page lookup (.specific is free for a
+        # plain Page; a Page subclass would add one query).
+        with self.assertNumQueries(2):
+            page, _, _ = self.meeting_index.route(
+                self.request,
+                ["yearly", "quarterly", "not-a-meeting"],
+            )
 
         self.assertEqual(page, other)
+
+    def test_non_meeting_descendant_routes_its_own_children(self) -> None:
+        other = self.quarterly.add_child(
+            instance=Page(title="Not a meeting", slug="not-a-meeting"),
+        )
+        grandchild = other.add_child(instance=Page(title="Child", slug="child"))
+
+        page, _, _ = self.meeting_index.route(
+            self.request,
+            ["yearly", "quarterly", "not-a-meeting", "child"],
+        )
+
+        self.assertEqual(page, grandchild)
+
+    def test_unpublished_non_meeting_descendant_raises_404(self) -> None:
+        other = self.quarterly.add_child(
+            instance=Page(title="Not a meeting", slug="not-a-meeting"),
+        )
+        other.unpublish()
+
+        with self.assertRaises(Http404):
+            self.meeting_index.route(
+                self.request,
+                ["yearly", "quarterly", "not-a-meeting"],
+            )
 
     def test_unpublished_intermediate_does_not_block_live_target(self) -> None:
         """Matches Wagtail's default router, which only checks the target."""

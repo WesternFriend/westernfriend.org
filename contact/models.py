@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models
 from django.db.models import TextChoices
-from django.http import HttpRequest
+from django.http import Http404, HttpRequest
 
 if TYPE_CHECKING:
     from django.db.models import Prefetch
@@ -626,7 +626,9 @@ class MeetingDescendantRoutingMixin:
     calls ``.specific`` on every intermediate page, so a URL like
     ``/meetings/yearly/quarterly/monthly/`` costs a query pair per level.
     Nearly every descendant is a Meeting, so the target is looked up directly
-    by its ``url_path``; anything else falls back to the default router.
+    by its ``url_path``. On a miss, the deepest existing page on the path is
+    found in one more query and routing continues from there, so 404s and
+    non-Meeting descendants also cost a constant number of queries.
     """
 
     def route(
@@ -634,17 +636,46 @@ class MeetingDescendantRoutingMixin:
         request: HttpRequest,
         path_components: list[str],
     ) -> RouteResult:
-        if path_components:
-            target_url_path = self.url_path + "/".join(path_components) + "/"  # type: ignore[attr-defined]
+        if not path_components:
+            return super().route(request, path_components)  # type: ignore[misc]
 
-            # Like the default router, only the target page must be live;
-            # draft intermediate pages don't block routing.
-            meeting = Meeting.objects.live().filter(url_path=target_url_path).first()
-            if meeting is not None:
-                return RouteResult(meeting)
+        target_url_path = self.url_path + "/".join(path_components) + "/"  # type: ignore[attr-defined]
 
-        # Serves this page itself, non-Meeting descendants, and 404s.
-        return super().route(request, path_components)  # type: ignore[misc]
+        # Like the default router, only the target page must be live;
+        # draft intermediate pages don't block routing.
+        meeting = Meeting.objects.live().filter(url_path=target_url_path).first()
+        if meeting is not None:
+            return RouteResult(meeting)
+
+        return self._route_from_deepest_existing_page(request, path_components)
+
+    def _route_from_deepest_existing_page(
+        self,
+        request: HttpRequest,
+        path_components: list[str],
+    ) -> RouteResult:
+        # Maps each descendant url_path along the request path to the number
+        # of path components it consumes.
+        consumed_by_url_path = {
+            self.url_path + "/".join(path_components[:depth]) + "/": depth  # type: ignore[attr-defined]
+            for depth in range(1, len(path_components) + 1)
+        }
+        deepest = (
+            Page.objects.filter(url_path__in=consumed_by_url_path)
+            .order_by("-depth")
+            .first()
+        )
+        # A Meeting here is either the unpublished target or a page with no
+        # child matching the next slug; both are 404s. Stopping here also
+        # keeps its route() from repeating the failed fast-path lookup.
+        if deepest is None or issubclass(
+            deepest.specific_class or Page,
+            MeetingDescendantRoutingMixin,
+        ):
+            raise Http404
+
+        remaining = path_components[consumed_by_url_path[deepest.url_path] :]
+        return deepest.specific.route(request, remaining)
 
 
 class MeetingPresidingClerk(Orderable):
