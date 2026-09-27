@@ -8,61 +8,39 @@ Status: Accepted
 Western Friend follows an open publication model: new magazine content is
 subscriber-only for 90 days and then free to read, and the archive is public
 back to 1929. The magazine, library and memorials form a public record of
-Quaker life in the western United States. Web pages move, change and
-disappear, especially across platform migrations like our move from Drupal to
-Wagtail. The Internet Archive's Wayback Machine keeps dated snapshots
-independently of us, so readers, researchers and anyone citing Western Friend
-can still reach a page as it was, even if our site changes or goes away.
+Quaker life in the western United States.
 
-`robots.txt` already allowed the Internet Archive, and Super Bot Fight Mode
-lets verified bots through. Even so, three days of Cloudflare logs showed no
-traffic from verified archivers or from the Internet Archive's network
-(AS7941). The Archive's other fetchers, such as Save Page Now (used when a
-person asks the Wayback Machine to capture a page) and its Heritrix crawler,
-don't always present as verified bots. Super Bot Fight Mode served them
-managed challenges, which automated fetchers can't solve, so their captures
-could fail.
+Web pages move, change and disappear, especially across platform migrations.
+The Internet Archive's Wayback Machine keeps dated copies independently of
+us, so readers, researchers and anyone citing Western Friend can still reach a
+page as it was, even if our site changes or goes away.
 
-We considered:
-
-- **Rely on robots.txt and verified-bot status alone.** This is what we had,
-  and the logs showed it wasn't working.
-- **Match the Archive's user agents.** User agents are easy to spoof, so
-  this would open a hole in bot protection for any scraper that copies one.
-- **Exempt verified archivers and the Archive's own network.** We chose this.
-  Requests from AS7941 come from infrastructure the Internet Archive runs, so
-  they can't be spoofed the way a user agent can.
+In September 2026 we found that the Archive couldn't reliably capture our
+pages, because our bot protection was challenging its crawlers.
 
 ## Decision
 
-Every public page should be archivable by the Internet Archive.
+Every public page should be archivable by the Internet Archive. Bot
+protection and rate limits must not stop the Archive's crawlers or people
+using the Wayback Machine's "Save Page Now".
 
-- `robots.txt` (`common.views.robots_txt`) has no rules against archive
-  crawlers. It disallows only private and transactional paths, which aren't
-  worth archiving.
-- A Cloudflare WAF custom rule, **Allow Internet Archive**, skips Super Bot
-  Fight Mode and rate limiting for
-  `(cf.verified_bot_category eq "Archiver") or (ip.src.asnum eq 7941)`.
-  Other WAF custom rules and managed rules still apply.
+We identify the Archive by means that are hard to fake, such as its verified
+crawler status and the network it operates. We don't trust a user agent
+string alone, since any scraper can copy one.
 
-If a future rule needs to match the Archive by user agent, use `contains`,
-not `eq`. `archive.org_bot` appears inside a longer user-agent string.
+At the time of writing this is a Cloudflare WAF skip rule named
+**Allow Internet Archive**.
 
 ## Consequences
 
-- **Positive:** anyone can save a Western Friend page to the Wayback Machine,
-  and the Archive's crawlers can capture the whole public site. That keeps a
-  durable, independent copy of our publishing history.
-- **Negative:** every request from AS7941 bypasses bot protection and rate
-  limits. That is acceptable because the Internet Archive runs that network
-  itself, but if abusive traffic ever came from it, this rule would let it
-  through.
-- **Negative:** snapshots outlive our own edits. A page we later correct,
-  unpublish or remove stays visible in the Archive. Removing it means asking
-  the Internet Archive, which we don't control.
-- **Future:** check Cloudflare's security events for Archiver traffic
-  now and then to confirm captures still succeed. Revisit if the Internet
-  Archive changes its networks or starts signing requests (for example with
-  Web Bot Auth), which would let us match it more precisely.
-  ADR 0005 covers the broader decision to open content to AI crawlers
-  and agents.
+- **Positive:** there is a durable, independent copy of our publishing
+  history that doesn't depend on this site or its hosting.
+- **Negative:** we extend more trust to the Internet Archive than to other
+  automated traffic. If abusive traffic ever came from its network, the
+  exemption would let it through.
+- **Negative:** archived copies outlive our own edits. A page we later
+  correct, unpublish or remove stays visible in the Archive, and removing it
+  depends on the Internet Archive's own process.
+- **Future:** revisit if the Archive changes how it identifies itself, or if
+  captures start failing again. ADR 0005 covers the broader decision to open
+  content to AI crawlers and agents.
