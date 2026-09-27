@@ -1,13 +1,18 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from django.core.signals import request_finished, request_started
 from django.forms import CharField, TextInput
 from django.forms.forms import Form
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import RequestFactory, TestCase, override_settings
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from common.apps import CommonConfig, _locale_cache_local
+from common.middleware import PublicCacheControlMiddleware
 from common.templatetags.common_form_tags import add_class
 from common.templatetags.common_tags import (
     absolute_static,
@@ -18,6 +23,8 @@ from common.templatetags.common_tags import (
     specific_pages,
     visible_breadcrumb_ancestors,
 )
+from home.models import HomePage
+from store.factories import ProductFactory
 
 
 class MockModel:
@@ -389,6 +396,119 @@ class BreadcrumbsTemplateTest(TestCase):
         self.assertIn('"position": 3', output)
 
 
+@override_settings(PUBLIC_CACHE_EDGE_TTL=900, PUBLIC_CACHE_BROWSER_TTL=60)
+class PublicCacheControlMiddlewareTests(TestCase):
+    """Only anonymous responses with no visitor state may be cached publicly."""
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.response = HttpResponse("page")
+        self.middleware = PublicCacheControlMiddleware(lambda _request: self.response)
+
+    def _request(self, method="get", path="/magazine/", user=None, **kwargs):
+        request = getattr(self.factory, method)(path, **kwargs)
+        request.user = user or AnonymousUser()
+        return request
+
+    def _cache_control(self, request):
+        return self.middleware(request)["Cache-Control"]
+
+    def test_anonymous_page_is_public(self):
+        self.assertEqual(
+            self._cache_control(self._request()),
+            "public, max-age=60, s-maxage=900",
+        )
+
+    def test_head_request_is_public(self):
+        self.assertIn("public", self._cache_control(self._request(method="head")))
+
+    @override_settings(PUBLIC_CACHE_EDGE_TTL=0)
+    def test_disabled_when_edge_ttl_is_zero(self):
+        self.assertEqual(self._cache_control(self._request()), "private")
+
+    def test_authenticated_user_is_private(self):
+        user = MagicMock(is_authenticated=True)
+        self.assertEqual(self._cache_control(self._request(user=user)), "private")
+
+    def test_request_with_session_cookie_is_private(self):
+        request = self._request()
+        request.COOKIES[settings.SESSION_COOKIE_NAME] = "abc"
+        self.assertEqual(self._cache_control(request), "private")
+
+    def test_response_setting_a_cookie_is_private(self):
+        self.response.set_cookie("csrftoken", "abc")
+        self.assertEqual(self._cache_control(self._request()), "private")
+
+    def test_post_is_private(self):
+        self.assertEqual(self._cache_control(self._request(method="post")), "private")
+
+    def test_non_200_status_is_private(self):
+        for status in (301, 302, 404, 500):
+            with self.subTest(status=status):
+                self.response.status_code = status
+                self.assertEqual(self._cache_control(self._request()), "private")
+
+    def test_private_paths_are_private(self):
+        for path in ("/admin/", "/accounts/login/", "/cart/", "/paypal/x/"):
+            with self.subTest(path=path):
+                request = self._request(path=path)
+                self.assertEqual(self._cache_control(request), "private")
+
+    def test_existing_cache_control_is_kept(self):
+        self.response["Cache-Control"] = "no-cache"
+        self.assertEqual(self._cache_control(self._request()), "no-cache")
+
+
+@override_settings(PUBLIC_CACHE_EDGE_TTL=900)
+class PublicCacheControlIntegrationTests(TestCase):
+    """The middleware sees the cookies the rest of the stack adds."""
+
+    def setUp(self):
+        Locale.objects.get_or_create(language_code="en")
+        Site.objects.all().delete()
+        root = Page.get_first_root_node() or Page.add_root(title="Root", slug="root")
+        home = root.add_child(instance=HomePage(title="Home", slug="cache-home"))
+        Site.objects.create(hostname="testserver", root_page=home, is_default_site=True)
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def test_anonymous_home_page_is_public(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.cookies)
+        self.assertIn("public", response["Cache-Control"])
+
+    def test_logged_in_home_page_is_private(self):
+        user = get_user_model().objects.create_user(
+            email="reader@example.com",
+            password="unused-test-password",
+        )
+        self.client.force_login(user)
+
+        response = self.client.get("/")
+
+        self.assertEqual(response["Cache-Control"], "private")
+
+    def test_page_with_csrf_token_is_private(self):
+        product = ProductFactory()
+
+        response = self.client.get(product.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("csrftoken", response.cookies)
+        self.assertEqual(response["Cache-Control"], "private")
+
+    def test_page_with_csrf_token_is_private_for_returning_visitor(self):
+        product = ProductFactory()
+        self.client.get(product.url)  # issues the visitor a CSRF cookie
+        self.assertIn(settings.CSRF_COOKIE_NAME, self.client.cookies)
+
+        response = self.client.get(product.url)
+
+        self.assertEqual(response["Cache-Control"], "private")
+
+
 class BreadcrumbsAbsoluteUrlTest(TestCase):
     """Breadcrumb JSON-LD URLs come from the Wagtail site, not request.site."""
 
@@ -469,3 +589,43 @@ class CanonicalUrlTagTest(TestCase):
     def test_without_request_returns_empty_string(self):
         self.assertEqual(canonical_url({}), "")
         self.assertEqual(site_root_url({}), "")
+
+
+class PurgeRestrictedPagesTest(TestCase):
+    """Changing who may view a page purges its subtree from Cloudflare."""
+
+    def setUp(self):
+        Locale.objects.get_or_create(language_code="en")
+        root = Page.get_first_root_node() or Page.add_root(title="Root", slug="root")
+        self.parent = root.add_child(instance=HomePage(title="Parent", slug="p"))
+        self.child = self.parent.add_child(instance=HomePage(title="Child", slug="c"))
+
+    def _purged_pages(self, change):
+        with (
+            patch("common.signal_handlers.PurgeBatch") as purge_batch,
+            self.captureOnCommitCallbacks(execute=True),
+        ):
+            change()
+        batch = purge_batch.return_value
+        batch.purge.assert_called_once_with()
+        return set(batch.add_pages.call_args.args[0])
+
+    def test_adding_a_restriction_purges_page_and_descendants(self):
+        pages = self._purged_pages(
+            lambda: PageViewRestriction.objects.create(
+                page=self.parent,
+                restriction_type=PageViewRestriction.LOGIN,
+            ),
+        )
+
+        self.assertEqual(pages, {self.parent.specific, self.child.specific})
+
+    def test_removing_a_restriction_purges_the_page(self):
+        restriction = PageViewRestriction.objects.create(
+            page=self.child,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        pages = self._purged_pages(restriction.delete)
+
+        self.assertEqual(pages, {self.child.specific})

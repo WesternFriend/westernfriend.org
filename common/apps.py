@@ -16,7 +16,10 @@ class CommonConfig(AppConfig):
     name = "common"
 
     def ready(self):
+        from common.signal_handlers import register_signal_handlers
+
         self._patch_locale_manager()
+        register_signal_handlers()
 
     @staticmethod
     def _patch_locale_manager():

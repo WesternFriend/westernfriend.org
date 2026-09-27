@@ -2,6 +2,8 @@ spec:
   alerts:
     - rule: DEPLOYMENT_FAILED
     - rule: DOMAIN_FAILED
+  # Cloudflare caches public pages; App Platform's edge must not cache too
+  disable_edge_cache: true
   databases:
     - engine: PG
       name: wf-website-db
@@ -71,6 +73,9 @@ spec:
         - key: SENTRY_DSN
           scope: RUN_TIME
           value: change-me
+        - key: DJANGO_PUBLIC_CACHE_EDGE_TTL
+          scope: RUN_TIME
+          value: "0"
       github:
         branch: main
         deploy_on_push: true

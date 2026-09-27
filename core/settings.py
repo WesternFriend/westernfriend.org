@@ -178,6 +178,7 @@ INSTALLED_APPS = [
     "wagtail",
     "wagtail.admin",
     "wagtail.contrib.forms",
+    "wagtail.contrib.frontend_cache",
     "wagtail.contrib.redirects",
     "wagtail.contrib.routable_page",
     "wagtail.contrib.settings",
@@ -213,6 +214,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Must run after the session, CSRF, and message middleware add cookies
+    "common.middleware.PublicCacheControlMiddleware",
     "django.middleware.gzip.GZipMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -396,6 +399,26 @@ else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 WAGTAILADMIN_BASE_URL = "/admin"
+
+# Edge caching of public pages at Cloudflare.
+# See docs/specifications/edge_caching.md.
+# Seconds Cloudflare keeps a public page; 0 marks every response private.
+PUBLIC_CACHE_EDGE_TTL = int(os.getenv("DJANGO_PUBLIC_CACHE_EDGE_TTL", "0"))
+# Seconds browsers keep a public page; short because browsers can't be purged.
+PUBLIC_CACHE_BROWSER_TTL = int(os.getenv("DJANGO_PUBLIC_CACHE_BROWSER_TTL", "60"))
+
+# Wagtail purges published and unpublished pages from Cloudflare.
+CLOUDFLARE_API_TOKEN = os.getenv("CLOUDFLARE_API_TOKEN")
+CLOUDFLARE_ZONE_ID = os.getenv("CLOUDFLARE_ZONE_ID")
+
+if CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID:
+    WAGTAILFRONTENDCACHE = {
+        "cloudflare": {
+            "BACKEND": "wagtail.contrib.frontend_cache.backends.CloudflareBackend",
+            "BEARER_TOKEN": CLOUDFLARE_API_TOKEN,
+            "ZONEID": CLOUDFLARE_ZONE_ID,
+        },
+    }
 
 
 INTERNAL_IPS = [
