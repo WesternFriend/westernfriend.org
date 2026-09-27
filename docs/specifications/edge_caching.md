@@ -165,17 +165,24 @@ origin check, so it needs its own security review.
 - Before deploying, check the token is active, then that it can purge one URL:
 
   ```bash
+  # Account API token (prefix cfat_)
   curl "https://api.cloudflare.com/client/v4/accounts/78e20e36a31af4c118ea41a51efe6f81/tokens/verify" \
     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"
 
+  # User API token
+  curl "https://api.cloudflare.com/client/v4/user/tokens/verify" \
+    -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+
+  # Either token type: purge one URL
   curl -X POST "https://api.cloudflare.com/client/v4/zones/3f1f299fe6c461d6e331665f9e758cc7/purge_cache" \
     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
     -H "Content-Type: application/json" \
     --data '{"files": ["https://westernfriend.org/"]}'
   ```
 
-  Both should return `"success": true`. Account tokens are verified under
-  `/accounts/<account>/tokens/verify`; user tokens use `/user/tokens/verify`.
+  Run the verify command for your token type, then the purge. Each should
+  return `"success": true`. A verify command for the wrong token type fails
+  even when the token is valid.
 - Wagtail purges a page's URL whenever it is published, including a page's
   first publish, when the purge is harmless, and when it is unpublished. It
   sends the purge as a Django task. Until #1246 lands, the task runs inline,
