@@ -19,17 +19,10 @@ that AI systems have already gathered can't be recalled.
 
 ### Telling contributors
 
-Contributors need to know they can ask. Add a short note to the FAQ or the
-Contact Us page (both are edited in the Wagtail admin). For example:
-
-> **Can I keep my writing out of AI systems?**
-> Western Friend lets search engines and AI systems use our published work,
-> so that Quaker voices are represented in the tools people use to find
-> answers. If you would rather your article or artwork were not used for AI
-> answers or AI training, write to us and we will mark it as excluded. Your
-> piece will still be available to readers and search engines. We can't
-> recall content that AI systems have already gathered, and not every AI
-> company honours these requests.
+Contributors learn they can ask on the
+[Future Issues](https://westernfriend.org/future-issues/) page, under "Can I
+keep my writing out of AI systems?". That page is edited in the Wagtail admin.
+If the process changes, update that section too.
 
 ## What the site publishes
 
