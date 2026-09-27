@@ -1,3 +1,4 @@
+import re
 from unittest.mock import PropertyMock, patch
 
 from django.conf import settings
@@ -178,3 +179,73 @@ class CustomPasswordResetViewTests(TestCase):
         self.assertTrue(msg.subject.strip())
         html_body, _html_mime = msg.alternatives[0]
         self.assertTrue(str(html_body).strip())
+
+
+class AccountPageAccessibilityTest(TestCase):
+    """Regression tests for WCAG issues found in the accessibility audit."""
+
+    def test_account_pages_have_descriptive_titles(self) -> None:
+        # WCAG 2.4.2 Page Titled: non-Wagtail views have no `page` to title them
+        expected_titles = {
+            "login": "Login",
+            "django_registration_register": "Register",
+            "password_reset": "Password reset",
+        }
+        for url_name, expected in expected_titles.items():
+            with self.subTest(url_name=url_name):
+                response = self.client.get(reverse(url_name))
+                title = re.search(
+                    r"<title>(.*?)</title>",
+                    response.content.decode(),
+                    re.DOTALL,
+                )
+                self.assertIsNotNone(title)
+                self.assertIn(expected, title.group(1))  # type: ignore[union-attr]
+
+    def test_account_pages_have_single_main_landmark(self) -> None:
+        response = self.client.get(reverse("login"))
+        self.assertEqual(response.content.decode().count("<main"), 1)
+
+    def test_navigation_does_not_use_aria_menu_roles(self) -> None:
+        # Site navigation is a list of links, not an application menu
+        html = self.client.get(reverse("login")).content.decode()
+        self.assertNotIn('role="menubar"', html)
+        self.assertNotIn('role="menuitem"', html)
+
+    def test_login_failure_shows_non_field_error(self) -> None:
+        # WCAG 3.3.1 Error Identification: form-level errors must be rendered
+        response = self.client.post(
+            reverse("login"),
+            {"username": "nobody@example.com", "password": "wrong"},
+        )
+        self.assertContains(response, 'role="alert"')
+        self.assertContains(response, "Please enter a correct")
+
+    def test_registration_field_errors_are_linked_to_inputs(self) -> None:
+        response = self.client.post(
+            reverse("django_registration_register"),
+            {
+                "email": "new@example.com",
+                "first_name": "Test",
+                "last_name": "User",
+                "password1": "Mismatch-One-7731",
+                "password2": "Mismatch-Two-8842",
+            },
+        )
+        html = response.content.decode()
+        # Django points aria-describedby at these ids; they must exist
+        self.assertIn('id="id_password2_error"', html)
+        self.assertIn('id="id_password2_helptext"', html)
+        self.assertRegex(html, r'<input[^>]*aria-invalid="true"[^>]*id="id_password2"')
+
+    def test_registration_name_fields_have_autocomplete(self) -> None:
+        # WCAG 1.3.5 Identify Input Purpose
+        html = self.client.get(reverse("django_registration_register")).content.decode()
+        self.assertRegex(
+            html,
+            r'<input[^>]*autocomplete="given-name"[^>]*id="id_first_name"',
+        )
+        self.assertRegex(
+            html,
+            r'<input[^>]*autocomplete="family-name"[^>]*id="id_last_name"',
+        )

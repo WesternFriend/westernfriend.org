@@ -26,10 +26,7 @@ def get_library_items_for_facet(facet_instance, filter_field):
 class ChildPagesMixin:
     """Mixin that provides a child_pages context variable for index pages."""
 
-    def get_template(self, request, *args, **kwargs):
-        # Wagtail's page metaclass gives every page class its own default
-        # ``template`` attribute, which would shadow one set on this mixin.
-        return "facets/facet_index_page.html"
+    template = "facets/facet_index_page.html"
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)

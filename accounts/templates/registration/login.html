@@ -1,29 +1,21 @@
 {% extends "base.html" %}
 {% load common_form_tags %}
 
+{% block title %}Login{% endblock %}
+
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
         <h1>Login</h1>
 
         <section class="max-w-md">
             <form method="post" action="" class="mb-4">
                 {% csrf_token %}
+                {% include "form_errors.html" %}
 
                 <fieldset class="space-y-4">
                     <legend class="sr-only">Login Information</legend>
                     {% for field in form %}
-                        <div class="form-control">
-                            <label for="{{ field.id_for_label }}" class="label">
-                                <span class="label-text font-medium">{{ field.label }}</span>
-                            </label>
-                            {{ field|add_class:"input input-bordered w-full bg-white text-gray-800" }}
-                            {% if field.help_text %}
-                                <span class="label-text-alt text-sm mt-1">{{ field.help_text }}</span>
-                            {% endif %}
-                            {% for error in field.errors %}
-                                <span class="text-error text-sm mt-1" role="alert">{{ error }}</span>
-                            {% endfor %}
-                        </div>
+                        {% include "form_field.html" with field=field %}
                     {% endfor %}
                 </fieldset>
 
@@ -42,5 +34,5 @@
                 </a>
             </div>
         </section>
-    </main>
+    </div>
 {% endblock content %}

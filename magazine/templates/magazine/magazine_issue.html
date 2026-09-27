@@ -5,7 +5,7 @@
 {% block body_class %}template-magazineissue{% endblock %}
 
 {% block content %}
-    <main>
+    <div>
         <header>
             <h1>
                 {{ page.title }}
@@ -16,7 +16,7 @@
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <section class="col-span-1 md:col-span-2" aria-labelledby="articles-heading">
+            <section class="col-span-1 md:col-span-2" aria-label="Articles in this issue">
                 {% if page.featured_articles.count %}
                     <h2 id="featured-articles-heading" class="ml-4">Featured Articles</h2>
 
@@ -66,7 +66,7 @@
 
             <aside class="col-span-1 pt-2">
                 <figure>
-                    {% srcset_image page.cover_image width-{300,500,800,1200} sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1280px) 30vw, 25vw" class="rounded-md mx-auto object-contain" alt="Cover image of {{ page.title }} magazine issue" %}
+                    {% srcset_image page.cover_image width-{300,500,800,1200} sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1280px) 30vw, 25vw" class="rounded-md mx-auto object-contain" alt="Cover of "|add:page.title %}
                     {% if page.cover_image.caption %}
                         <figcaption class="text-center mt-2">{{ page.cover_image.caption }}</figcaption>
                     {% endif %}
@@ -79,5 +79,5 @@
                 </nav>
             </aside>
         </div>
-    </main>
+    </div>
 {% endblock content %}

@@ -3,7 +3,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <main>
+    <div>
         <header>
             <h1>Pages tagged "{{ tag_name }}"</h1>
         </header>
@@ -39,5 +39,5 @@
                 There are no pages tagged {{ tag }}.
             </p>
         {% endif %}
-    </main>
+    </div>
 {% endblock content %}

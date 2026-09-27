@@ -5,7 +5,7 @@
 {% block body_class %}template-community-resources{% endblock %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
         <h1>{{ page.title }}</h1>
 
         {% if page.intro %}
@@ -45,5 +45,5 @@
                 {% endfor %}
             </ul>
         </section>
-    </main>
+    </div>
 {% endblock content %}

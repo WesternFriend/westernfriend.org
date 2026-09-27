@@ -1,0 +1,21 @@
+{% comment %}
+    Error summary for a server-rendered form.
+
+    Announced on page load (role="alert") so screen reader users learn that the
+    submission failed, and shows errors that do not belong to a single field,
+    such as "incorrect username or password".
+{% endcomment %}
+{% if form.errors %}
+    <div role="alert" class="alert alert-error mb-4">
+        <i class="bi bi-exclamation-circle-fill h-6 w-6 shrink-0" aria-hidden="true"></i>
+        <div>
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <p class="mb-0">{{ error }}</p>
+                {% endfor %}
+            {% else %}
+                <p class="mb-0">Please correct the errors below.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

@@ -3,7 +3,7 @@
 {% load common_tags wagtailcore_tags %}
 
 {% block content %}
-    <main id="main-content" tabindex="-1">
+    <div>
         <h1>{{ page.title }}</h1>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
@@ -288,7 +288,7 @@
                 </div>
             </section>
         {% endif %}
-    </main>
+    </div>
 {% endblock content %}
 
 {% block extra_js %}

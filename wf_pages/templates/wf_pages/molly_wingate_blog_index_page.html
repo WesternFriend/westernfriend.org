@@ -2,7 +2,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
         <header class="mb-8">
             <h1>{{ page.title }}</h1>
 
@@ -37,5 +37,5 @@
         {% else %}
             <p class="text-base-content/70 italic">No blog posts have been published yet.</p>
         {% endif %}
-    </main>
+    </div>
 {% endblock content %}

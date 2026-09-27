@@ -1,4 +1,5 @@
 from django.test import RequestFactory, TestCase
+from wagtail.models import Site
 
 from facets.models import (
     Audience,
@@ -13,6 +14,7 @@ from facets.models import (
     Topic,
     TopicIndexPage,
 )
+from home.factories import HomePageFactory
 from library.factories import LibraryItemFactory
 from library.models import LibraryIndexPage, LibraryItemTopic
 
@@ -355,19 +357,45 @@ class TestTopicIndexPageGetContext(TestCase):
         self.assertEqual(child_pages[0].specific_class, Topic)
 
 
-class FacetIndexPageTemplateTest(TestCase):
-    """Wagtail's page metaclass must not override the mixin's shared template."""
+class TestFacetIndexPagesRender(TestCase):
+    """Each facet index page should render its own template without error."""
 
-    def test_every_facet_index_page_uses_the_shared_template(self) -> None:
-        for page_class in (
-            AudienceIndexPage,
-            GenreIndexPage,
-            MediumIndexPage,
-            TimePeriodIndexPage,
-            TopicIndexPage,
-        ):
-            with self.subTest(page_class=page_class.__name__):
-                self.assertEqual(
-                    page_class().get_template(request=None),
-                    "facets/facet_index_page.html",
-                )
+    def setUp(self) -> None:
+        home_page = HomePageFactory.create()
+        Site.objects.all().delete()
+        Site.objects.create(
+            hostname="testserver",
+            root_page=home_page,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def test_facet_index_pages_render(self) -> None:
+        cases = [
+            (AudienceIndexPageFactory, AudienceFactory),
+            (GenreIndexPageFactory, GenreFactory),
+            (MediumIndexPageFactory, MediumFactory),
+            (TimePeriodIndexPageFactory, TimePeriodFactory),
+            (TopicIndexPageFactory, TopicFactory),
+        ]
+
+        for index_page_factory, child_factory in cases:
+            index_page_model = index_page_factory._meta.model
+            with self.subTest(index_page=index_page_model.__name__):
+                index_page = index_page_factory.create()
+                child = child_factory.create()
+
+                response = self.client.get(index_page.url)
+
+                self.assertEqual(response.status_code, 200)
+                self.assertTemplateUsed(response, index_page_model.template)
+                self.assertContains(response, child.title)
+
+    def test_facet_index_page_renders_empty_state(self) -> None:
+        index_page = TopicIndexPageFactory.create()
+
+        response = self.client.get(index_page.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No items found.")

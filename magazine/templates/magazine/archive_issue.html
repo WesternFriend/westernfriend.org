@@ -3,14 +3,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <main>
-        <nav class="breadcrumbs mb-4" aria-label="Breadcrumb">
-            <ul>
-                <li><a href="{% pageurl page.get_parent %}">Archive</a></li>
-                <li>{{ page.title }}</li>
-            </ul>
-        </nav>
-
+    <div>
         <header>
             <h1>
                 {{ page.title }}
@@ -27,10 +20,10 @@
                     <table class="table table-zebra w-full">
                         <thead>
                             <tr>
-                                <th class="text-left">View page</th>
-                                <th class="text-left">Article</th>
-                                <th class="text-left">Author(s)</th>
-                                <th class="text-left">Page</th>
+                                <th scope="col" class="text-left">View page</th>
+                                <th scope="col" class="text-left">Article</th>
+                                <th scope="col" class="text-left">Author(s)</th>
+                                <th scope="col" class="text-left">Page</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -42,8 +35,8 @@
                                     onclick="turnPage(this)"
                                 >
                                     <td>
-                                        <button class="btn btn-sm btn-outline" aria-label="View page {{ article.pdf_page_number }}">
-                                            <i class="bi bi-eye-fill w-4 h-4 mr-1"></i>
+                                        <button type="button" class="btn btn-sm btn-outline" aria-label="View page {{ article.pdf_page_number }}: {{ article.title }}">
+                                            <i class="bi bi-eye-fill w-4 h-4 mr-1" aria-hidden="true"></i>
                                             {{ article.pdf_page_number }}
                                         </button>
                                     </td>
@@ -81,7 +74,7 @@
                 allowfullscreen>
             </iframe>
         </section>
-    </main>
+    </div>
 {% endblock content %}
 
 {% block extra_js %}
