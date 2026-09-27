@@ -2,7 +2,19 @@
 
 <header class="bg-white w-full">
     <a href="/" class="block" aria-label="Western Friend - return to home page">
-        <img src="{% static 'img/WF-header.png' %}" alt="Western Friend logo and header image" class="w-full" width="1200" height="174">
+        {# Often the LCP element, so fetch it early at the size the screen needs #}
+        <img src="{% static 'img/WF-header-1280.webp' %}"
+             srcset="{% static 'img/WF-header-640.webp' %} 640w,
+                     {% static 'img/WF-header-1280.webp' %} 1280w,
+                     {% static 'img/WF-header-1920.webp' %} 1920w,
+                     {% static 'img/WF-header-2560.webp' %} 2560w,
+                     {% static 'img/WF-header-3695.webp' %} 3695w"
+             sizes="100vw"
+             alt="Western Friend logo and header image"
+             class="w-full h-auto"
+             width="3695"
+             height="260"
+             fetchpriority="high">
     </a>
 </header>
 

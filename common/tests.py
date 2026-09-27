@@ -178,6 +178,25 @@ class AbsoluteStaticTagTest(TestCase):
         )
 
 
+class HeaderImageTemplateTest(TestCase):
+    """The site header image is often the LCP element on a page."""
+
+    def setUp(self):
+        self.html = render_to_string("heading.html", request=RequestFactory().get("/"))
+
+    def test_header_image_is_fetched_with_high_priority(self):
+        self.assertIn('fetchpriority="high"', self.html)
+
+    def test_header_image_serves_responsive_webp(self):
+        self.assertIn("/static/img/WF-header-640.webp 640w", self.html)
+        self.assertIn("/static/img/WF-header-3695.webp 3695w", self.html)
+        self.assertNotIn("WF-header.png", self.html)
+
+    def test_header_image_dimensions_match_aspect_ratio(self):
+        self.assertIn('width="3695"', self.html)
+        self.assertIn('height="260"', self.html)
+
+
 class SpecificPagesFilterTest(TestCase):
     """Tests for the specific_pages template filter."""
 
