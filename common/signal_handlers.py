@@ -1,3 +1,6 @@
+from urllib.parse import urlsplit
+
+from django.conf import settings
 from django.db import transaction
 from django.db.models.signals import post_delete, post_save
 from django.urls import reverse
@@ -30,7 +33,10 @@ def purge_crawler_policy_files(instance, **kwargs):
     Both files are cached at the edge like any public page, so without a
     purge a changed crawler policy would wait for the edge TTL to expire.
     """
-    root_url = instance.site.root_url.rstrip("/")
+    # Site.root_url says http:// for a port 80 site, but crawlers fetch these
+    # files over HTTPS, so use the public scheme to purge the cached copies.
+    scheme = urlsplit(settings.BASE_URL).scheme
+    root_url = f"{scheme}://{urlsplit(instance.site.root_url).netloc}"
     batch = PurgeBatch()
     batch.add_urls(f"{root_url}{reverse(name)}" for name in ("robots_txt", "llms_txt"))
     transaction.on_commit(batch.purge)

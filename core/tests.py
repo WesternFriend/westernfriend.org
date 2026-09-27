@@ -4,7 +4,7 @@ from unittest import mock
 
 from django.core.cache import cache
 from django.templatetags.static import static
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from common.models import CrawlerPolicySetting
@@ -187,8 +187,17 @@ class CrawlerPolicySettingTest(TestCase):
             setting.pk,
         )
 
-    def test_saving_purges_robots_and_llms_txt(self):
+    def _default_port_site(self):
+        """A port 80 site, whose root_url is http:// behind an HTTPS proxy."""
         site = Site.objects.get(is_default_site=True)
+        site.hostname = "purge.example.org"
+        site.port = 80
+        site.save()
+        return site
+
+    @override_settings(BASE_URL="https://westernfriend.org")
+    def test_saving_purges_robots_and_llms_txt(self):
+        site = self._default_port_site()
 
         with (
             mock.patch("common.signal_handlers.PurgeBatch") as purge_batch,
@@ -199,12 +208,16 @@ class CrawlerPolicySettingTest(TestCase):
         batch = purge_batch.return_value
         self.assertEqual(
             list(batch.add_urls.call_args.args[0]),
-            [f"{site.root_url}/robots.txt", f"{site.root_url}/llms.txt"],
+            [
+                "https://purge.example.org/robots.txt",
+                "https://purge.example.org/llms.txt",
+            ],
         )
         batch.purge.assert_called_once()
 
+    @override_settings(BASE_URL="https://westernfriend.org")
     def test_deleting_purges_robots_and_llms_txt(self):
-        site = Site.objects.get(is_default_site=True)
+        site = self._default_port_site()
         setting = CrawlerPolicySetting.objects.create(site=site)
 
         with (
@@ -216,7 +229,10 @@ class CrawlerPolicySettingTest(TestCase):
         batch = purge_batch.return_value
         self.assertEqual(
             list(batch.add_urls.call_args.args[0]),
-            [f"{site.root_url}/robots.txt", f"{site.root_url}/llms.txt"],
+            [
+                "https://purge.example.org/robots.txt",
+                "https://purge.example.org/llms.txt",
+            ],
         )
         batch.purge.assert_called_once()
 
