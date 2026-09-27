@@ -1,13 +1,16 @@
 import datetime
+from unittest.mock import patch
 
 from django.db import connection, reset_queries
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
+from django.utils import timezone
 from wagtail.models import Page, Site
 
 from accounts.models import User
 from contact.models import Person, PersonIndexPage
 from home.models import HomePage
 from magazine.factories import (
+    ArchiveIssueFactory,
     MagazineArticleFactory,
     MagazineIndexPageFactory,
     MagazineIssueFactory,
@@ -27,7 +30,27 @@ from .models import (
     MagazineIndexPage,
     MagazineIssue,
     MagazineTagIndexPage,
+    get_archive_threshold_date,
 )
+
+
+class ArchiveThresholdDateTest(SimpleTestCase):
+    def test_threshold_advances_with_current_date(self) -> None:
+        """The threshold is recomputed on each call, not frozen at import."""
+        first_day = datetime.date(2026, 1, 1)
+        later_day = datetime.date(2026, 3, 1)
+
+        with patch("django.utils.timezone.localdate", return_value=first_day):
+            self.assertEqual(
+                get_archive_threshold_date(),
+                first_day - datetime.timedelta(days=180),
+            )
+
+        with patch("django.utils.timezone.localdate", return_value=later_day):
+            self.assertEqual(
+                get_archive_threshold_date(),
+                later_day - datetime.timedelta(days=180),
+            )
 
 
 class MagazineIndexPageTest(TestCase):
@@ -44,7 +67,7 @@ class MagazineIndexPageTest(TestCase):
         )
         self.home_page.add_child(instance=self.magazine_index)
 
-        today = datetime.date.today()
+        today = timezone.localdate()
 
         self.recent_magazine_issue = MagazineIssue(
             title="Issue 1",
@@ -93,6 +116,25 @@ class MagazineIndexPageTest(TestCase):
         self.assertEqual(
             list(context["recent_issues"]),
             [self.recent_magazine_issue],
+        )
+
+    def test_get_context_recent_issues_moves_to_archive_as_date_advances(
+        self,
+    ) -> None:
+        """A recent issue moves to the archive once the current date passes the
+        threshold, without a process restart."""
+        mock_request = RequestFactory().get("/magazine/")
+        later_day = self.recent_magazine_issue.publication_date + datetime.timedelta(
+            days=181,
+        )
+
+        with patch("django.utils.timezone.localdate", return_value=later_day):
+            context = self.magazine_index.get_context(mock_request)
+
+        self.assertEqual(list(context["recent_issues"]), [])
+        self.assertIn(
+            self.recent_magazine_issue,
+            list(context["archive_issues"].page),
         )
 
     def test_get_context_archive_issues_without_page_number(self) -> None:
@@ -192,11 +234,11 @@ class MagazineIssueTest(TestCase):
         # Magazine Issues
         self.recent_magazine_issue = MagazineIssue(
             title="Issue 1",
-            publication_date=datetime.date.today(),
+            publication_date=timezone.localdate(),
         )
         self.archive_magazine_issue = MagazineIssue(
             title="Issue 2",
-            publication_date=datetime.date.today() - datetime.timedelta(days=181),
+            publication_date=timezone.localdate() - datetime.timedelta(days=181),
         )
         self.magazine_index.add_child(instance=self.recent_magazine_issue)
         self.magazine_index.add_child(instance=self.archive_magazine_issue)
@@ -255,7 +297,7 @@ class MagazineIssueTest(TestCase):
         date."""
         self.assertEqual(
             self.recent_magazine_issue.publication_end_date,
-            datetime.date.today() + datetime.timedelta(days=31),
+            timezone.localdate() + datetime.timedelta(days=31),
         )
 
     def test_get_sitemap_urls(self) -> None:
@@ -281,6 +323,23 @@ class MagazineIssueTest(TestCase):
         boolean."""
         self.assertFalse(self.recent_magazine_issue.is_public_access)
         self.assertTrue(self.archive_magazine_issue.is_public_access)
+
+    def test_is_public_access_changes_as_date_advances(self) -> None:
+        """An issue becomes public once the current date passes the threshold,
+        without a process restart."""
+        publication_date = self.recent_magazine_issue.publication_date
+
+        with patch(
+            "django.utils.timezone.localdate",
+            return_value=publication_date + datetime.timedelta(days=180),
+        ):
+            self.assertFalse(self.recent_magazine_issue.is_public_access)
+
+        with patch(
+            "django.utils.timezone.localdate",
+            return_value=publication_date + datetime.timedelta(days=181),
+        ):
+            self.assertTrue(self.recent_magazine_issue.is_public_access)
 
 
 class MagazineTagIndexPageTest(TestCase):
@@ -420,7 +479,7 @@ class MagazineDepartmentTest(TestCase):
 
         magazine_issue = MagazineIssue(
             title="Test Issue",
-            publication_date=datetime.date.today(),
+            publication_date=timezone.localdate(),
         )
         magazine_index.add_child(instance=magazine_issue)
 
@@ -478,7 +537,7 @@ class MagazineArticleTest(TestCase):
         )
         self.subscription = Subscription.objects.create(
             user=self.subscriber_user,
-            expiration_date=datetime.date.today() + datetime.timedelta(days=365),
+            expiration_date=timezone.localdate() + datetime.timedelta(days=365),
         )
 
         site_root = Page.objects.get(id=2)
@@ -493,7 +552,7 @@ class MagazineArticleTest(TestCase):
         )
         self.home_page.add_child(instance=self.magazine_index)
 
-        today = datetime.date.today()
+        today = timezone.localdate()
 
         # Magazine Issues
         self.recent_magazine_issue = MagazineIssue(
@@ -914,3 +973,19 @@ class ArchiveIssueQueryOptimizationTestCase(TestCase):
             f"Expected ≤5 queries with prefetch optimization, but got {total_queries}. "
             f"Queries: {[q['sql'] for q in connection.queries]}",
         )
+
+
+class ArchiveIssueFactoryTest(TestCase):
+    def test_creates_issue_with_saved_table_of_contents(self) -> None:
+        issue = ArchiveIssueFactory.create(archive_articles=3)
+
+        self.assertIsInstance(issue.get_parent().specific, DeepArchiveIndexPage)
+        self.assertEqual(issue.archive_articles.count(), 3)
+        self.assertIn(f"{issue.publication_date:%Y}", issue.title)
+
+    def test_second_issue_reuses_the_deep_archive(self) -> None:
+        first = ArchiveIssueFactory.create()
+        second = ArchiveIssueFactory.create()
+
+        self.assertEqual(first.get_parent(), second.get_parent())
+        self.assertGreaterEqual(second.archive_articles.count(), 2)

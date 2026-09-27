@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static wagtailcore_tags wagtailimages_tags %}
+{% load common_tags static wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-homepage{% endblock %}
 
@@ -17,51 +17,51 @@
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6 mt-4 max-w-screen-xl mx-auto">
         <!-- Current Issue - appears first on mobile, moves to right column on md+ screens -->
-        <section aria-labelledby="current-issue-heading" class="md:col-start-8 md:col-span-5 lg:col-start-9 lg:col-span-4 flex flex-col md:items-center order-first md:order-last">
-            {% if current_issue %}
+        {% if current_issue %}
+            <section aria-labelledby="current-issue-heading" class="md:col-start-8 md:col-span-5 lg:col-start-9 lg:col-span-4 flex flex-col md:items-center order-first md:order-last">
                 <h2 id="current-issue-heading" class="md:text-center w-full">Current Issue</h2>
                 {% include "magazine/magazine_issue_cover.html" with issue=current_issue %}
-            {% endif %}
-        </section>
+            </section>
+        {% endif %}
 
         <!-- Left column container for Featured Articles and Events -->
         <div class="md:col-span-7 lg:col-span-8 flex flex-col space-y-8">
             <!-- Featured Articles -->
-            <section aria-labelledby="featured-articles-heading">
-                {% if current_issue.featured_articles.count %}
+            {% if current_issue.featured_articles.count %}
+                <section aria-labelledby="featured-articles-heading">
                     <h2 id="featured-articles-heading">Featured articles</h2>
                     {% for article in current_issue.featured_articles.all %}
                         {% include "home/home_magazine_article_summary.html" with article=article %}
                     {% endfor %}
-                {% endif %}
-            </section>
+                </section>
+            {% endif %}
 
             <!-- Featured Events -->
-            <section aria-labelledby="featured-events-heading">
-                {% if featured_events.count %}
+            {% if featured_events.count %}
+                <section aria-labelledby="featured-events-heading">
                     <h2 id="featured-events-heading">Featured events</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {% for event in featured_events.all %}
-                            <article class="bg-base-100 rounded-lg shadow-sm h-full p-4" aria-labelledby="event-title-{{ event.event.id }}">
+                            <article class="bg-base-100 rounded-lg shadow-sm h-full p-4" aria-labelledby="event-title-{{ event.id }}">
                                 <header>
-                                    <h3 id="event-title-{{ event.event.id }}" class="text-xl font-bold">
-                                        <a href="{% pageurl event.event %}" class="hover:underline">
-                                            {{ event.event.title }}
+                                    <h3 id="event-title-{{ event.id }}" class="text-xl font-bold">
+                                        <a href="{% pageurl event %}" class="hover:underline">
+                                            {{ event.title }}
                                         </a>
                                     </h3>
-                                    <time datetime="{{ event.event.start_date|date:'Y-m-d\TH:i:sO' }}" class="mt-1 mb-2 block text-sm">
-                                        {{ event.event.start_date|date:"F d, Y, f A" }} ({{ event.event.timezone }})
+                                    <time datetime="{{ event.start_date|date:'Y-m-d\TH:i:sO' }}" class="mt-1 mb-2 block text-sm">
+                                        {{ event.start_date|date:"F d, Y, f A" }} ({{ event.timezone }})
                                     </time>
                                 </header>
 
                                 <div class="prose">
-                                    {{ event.event.teaser|truncatewords_html:10 }}
+                                    {{ event.teaser|truncatewords_html:10 }}
                                 </div>
                             </article>
                         {% endfor %}
                     </div>
-                {% endif %}
-            </section>
+                </section>
+            {% endif %}
         </div>
     </div>
 
@@ -70,15 +70,15 @@
         {
             "@context": "https://schema.org",
             "@type": "Organization",
-            "@id": "{{ request.scheme }}://{{ request.site.hostname }}/#organization",
+            "@id": "{% fullpageurl page %}#organization",
             "name": "Western Friend",
             "alternateName": "Friends Bulletin Corporation",
             "legalName": "Friends Bulletin Corporation",
             "description": "Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States, published by the Friends Bulletin Corporation.",
-            "url": "{{ request.scheme }}://{{ request.site.hostname }}/",
+            "url": "{% fullpageurl page %}",
             "logo": {
                 "@type": "ImageObject",
-                "url": "{{ request.scheme }}://{{ request.site.hostname }}{% static 'img/WF-header.png' %}",
+                "url": "{% absolute_static 'img/WF-header.png' %}",
                 "width": "1200",
                 "height": "174"
             },
@@ -94,7 +94,7 @@
                 "postalCode": "97206",
                 "addressCountry": "US"
             },
-            "publishingPrinciples": "{{ request.scheme }}://{{ request.site.hostname }}/about",
+            "publishingPrinciples": "{% fullpageurl page %}about",
             "isAccessibleForFree": "False",
             "keywords": "Quaker, Friends, Western Friend, Quakerism, Religious Society of Friends, pacifism, social justice, spirituality",
             "sameAs": [

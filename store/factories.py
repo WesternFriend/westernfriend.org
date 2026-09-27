@@ -1,11 +1,15 @@
+from decimal import Decimal
 from typing import Any
+
 import factory
 from factory.django import DjangoModelFactory
 from wagtail.rich_text import RichText
 
+from common.fake_content import book_title, fake, paragraphs
 from home.factories import HomePageFactory
 from home.models import HomePage
-from .models import Product, StoreIndexPage, ProductIndexPage
+
+from .models import Book, BookAuthor, Product, ProductIndexPage, StoreIndexPage
 
 
 class StoreIndexPageFactory(DjangoModelFactory):
@@ -74,8 +78,7 @@ class ProductFactory(DjangoModelFactory):
     available = factory.Iterator([True, False])  # type: ignore
 
     # TODO: add a MockWagtailImage class
-    # and use it here
-    # image = factory.LazyAttribute(lambda _: get_test_image_file())
+    # and use it to populate the image field
 
     @classmethod
     def _create(
@@ -84,6 +87,48 @@ class ProductFactory(DjangoModelFactory):
         *args: Any,
         **kwargs: Any,
     ) -> Product:
+        instance = model_class(*args, **kwargs)
+
+        # Get the ProductIndexPage instance if it exists, otherwise create one.
+        product_index_page = ProductIndexPage.objects.first()
+        if product_index_page is None:
+            product_index_page = ProductIndexPageFactory()
+
+        product_index_page.add_child(instance=instance)
+
+        return instance
+
+
+class BookAuthorFactory(DjangoModelFactory):
+    """Author link; pass ``author=`` and attach via the book's cluster."""
+
+    class Meta:
+        model = BookAuthor
+
+
+class BookFactory(DjangoModelFactory):
+    class Meta:
+        model = Book
+
+    class Params:
+        sold_out = factory.Trait(available=False)
+
+    title = factory.LazyFunction(book_title)  # type: ignore
+    slug = factory.Sequence(lambda n: f"book-{n}")  # type: ignore
+    description = factory.LazyFunction(lambda: paragraphs(2))  # type: ignore
+    # Bookstore prices end in .95.
+    price_usd = factory.LazyFunction(  # type: ignore
+        lambda: Decimal(fake.random_int(8, 45)) + Decimal("0.95"),
+    )
+    available = True
+
+    @classmethod
+    def _create(
+        cls,
+        model_class: type[Book],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Book:
         instance = model_class(*args, **kwargs)
 
         # Get the ProductIndexPage instance if it exists, otherwise create one.

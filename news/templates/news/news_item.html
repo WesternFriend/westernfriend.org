@@ -6,7 +6,7 @@
 {% block body_class %}template-newsitem{% endblock %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
         <article>
             <header class="mb-4">
                 <h1>{{ page.title }}</h1>
@@ -55,5 +55,41 @@
                 {% endwith %}
             </footer>
         </article>
-    </main>
+    </div>
 {% endblock content %}
+
+{% block extra_js %}
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            "headline": "{{ page.title }}",
+            "datePublished": "{{ page.publication_date|date:'Y-m-d' }}",
+            "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": "{{ page.full_url }}"
+            },
+            {% if page.teaser %}
+                "description": "{{ page.teaser|escapejs }}",
+            {% endif %}
+            {% if page.topics.count %}
+                "about": [
+                    {% for news_topic in page.topics.all %}
+                        "{{ news_topic.topic.title }}"{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ],
+            {% endif %}
+            {% if page.tags.count %}
+                "keywords": [
+                    {% for tag in page.tags.all %}
+                        "{{ tag }}"{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ],
+            {% endif %}
+            "publisher": {
+                "@type": "Organization",
+                "name": "Western Friend"
+            }
+        }
+    </script>
+{% endblock extra_js %}

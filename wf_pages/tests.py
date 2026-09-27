@@ -1,10 +1,20 @@
 import datetime
 
 from django.test import RequestFactory, TestCase
+from django.utils import timezone
 from wagtail.models import Page, Site
 
 from home.models import HomePage
-from wf_pages.models import MollyWingateBlogIndexPage, MollyWingateBlogPage
+from wf_pages.factories import (
+    MollyWingateBlogPageFactory,
+    WfPageCollectionFactory,
+    WfPageFactory,
+)
+from wf_pages.models import (
+    MollyWingateBlogIndexPage,
+    MollyWingateBlogPage,
+    WfPageCollectionIndexPage,
+)
 
 
 class TestMollyWingateBlogIndexPage(TestCase):
@@ -25,19 +35,19 @@ class TestMollyWingateBlogIndexPage(TestCase):
         # Create blog posts with different dates and a duplicate date
         blog_post_1 = MollyWingateBlogPage(
             title="First Post",
-            publication_date=datetime.date.today() - datetime.timedelta(days=2),
+            publication_date=timezone.localdate() - datetime.timedelta(days=2),
         )
         blog_post_2 = MollyWingateBlogPage(
             title="Second Post",
-            publication_date=datetime.date.today() - datetime.timedelta(days=1),
+            publication_date=timezone.localdate() - datetime.timedelta(days=1),
         )
         blog_post_3 = MollyWingateBlogPage(
             title="Third Post",
-            publication_date=datetime.date.today(),
+            publication_date=timezone.localdate(),
         )
         blog_post_4 = MollyWingateBlogPage(
             title="Fourth Post",
-            publication_date=datetime.date.today(),
+            publication_date=timezone.localdate(),
         )
 
         self.blog_index.add_child(instance=blog_post_1)
@@ -56,3 +66,34 @@ class TestMollyWingateBlogIndexPage(TestCase):
         self.assertEqual(blog_posts[1].title, "Third Post")
         self.assertEqual(blog_posts[2].title, "Second Post")
         self.assertEqual(blog_posts[3].title, "First Post")
+
+
+class WfPageFactoryTest(TestCase):
+    """The factories create a home page when there isn't one yet."""
+
+    def test_wf_page_factory(self) -> None:
+        page = WfPageFactory.create()
+
+        self.assertIsInstance(page.get_parent().specific, HomePage)
+        self.assertTrue(page.body)
+
+    def test_blog_page_factory(self) -> None:
+        post = MollyWingateBlogPageFactory.create()
+
+        index_page = post.get_parent().specific
+        self.assertIsInstance(index_page, MollyWingateBlogIndexPage)
+        self.assertIsInstance(index_page.get_parent().specific, HomePage)
+        self.assertIsNotNone(post.publication_date)
+
+        second = MollyWingateBlogPageFactory.create()
+        self.assertEqual(second.get_parent(), post.get_parent())
+
+    def test_collection_factory(self) -> None:
+        collection = WfPageCollectionFactory.create()
+
+        self.assertIsInstance(
+            collection.get_parent().specific,
+            WfPageCollectionIndexPage,
+        )
+        second = WfPageCollectionFactory.create()
+        self.assertEqual(second.get_parent(), collection.get_parent())

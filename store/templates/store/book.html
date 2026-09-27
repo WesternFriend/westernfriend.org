@@ -21,7 +21,7 @@
             <div class="md:w-1/3">
                 {% if page.image %}
                     <figure class="mb-4">
-                        {% image page.image max-320x400 class="rounded-lg shadow-md w-full h-auto" alt="Cover of '{{ page.title }}'" %}
+                        {% image page.image max-320x400 class="rounded-lg shadow-md w-full h-auto" alt="Cover of "|add:page.title %}
                     </figure>
                 {% endif %}
             </div>
@@ -50,7 +50,6 @@
                                 id="quantity"
                                 value="1"
                                 min="1"
-                                aria-describedby="quantityLabel"
                                 required
                                 class="input input-bordered w-full"
                             >

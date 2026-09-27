@@ -1,14 +1,24 @@
 from django import forms
 from django_registration.forms import RegistrationForm
-from wagtail.users.forms import UserEditForm, UserCreationForm
+from wagtail.users.forms import UserCreationForm, UserEditForm
+
 from accounts.models import User
 
 
 class CustomUserForm(RegistrationForm):
     """Custom user registration form with captcha."""
 
-    first_name = forms.CharField(max_length=30, required=True)
-    last_name = forms.CharField(max_length=30, required=True)
+    # Autocomplete tokens satisfy WCAG 2.1 SC 1.3.5 (Identify Input Purpose)
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={"autocomplete": "given-name"}),
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={"autocomplete": "family-name"}),
+    )
 
     class Meta(RegistrationForm.Meta):
         model = User

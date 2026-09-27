@@ -9,10 +9,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import logging
 import os
 import sys
+from pathlib import Path
 
 import dj_database_url
 import sentry_sdk
@@ -41,8 +41,9 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     default_csrf_trusted_origins,
 ).split(",")
 
-CORE_DIR = os.path.dirname(__file__)
-BASE_DIR = os.path.dirname(CORE_DIR)
+# Build paths inside the project like this: BASE_DIR / "subdir"
+CORE_DIR = Path(__file__).resolve().parent
+BASE_DIR = CORE_DIR.parent
 
 
 SECURE_REFERRER_POLICY = "strict-origin"
@@ -52,7 +53,7 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 
 if DEBUG:
-    SECRET_KEY = "not-so-secret-key"
+    SECRET_KEY = "not-so-secret-key"  # noqa: S105 - local development only
 else:
     SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
@@ -66,7 +67,7 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(BASE_DIR, "debug.log"),
+            "filename": BASE_DIR / "debug.log",
             "maxBytes": 1024 * 1024 * 5,  # 5 MB
             "backupCount": 5,
         },
@@ -114,7 +115,7 @@ PUBLIC_MEDIA_LOCATION = os.getenv("PUBLIC_MEDIA_LOCATION", "media")
 AWS_DEFAULT_ACL = "public-read"
 AWS_S3_ENDPOINT_URL = f"https://{AWS_S3_REGION_NAME}.digitaloceanspaces.com"
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
-STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
+STATIC_ROOT = BASE_DIR / "static_root"
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -177,6 +178,7 @@ INSTALLED_APPS = [
     "wagtail",
     "wagtail.admin",
     "wagtail.contrib.forms",
+    "wagtail.contrib.frontend_cache",
     "wagtail.contrib.redirects",
     "wagtail.contrib.routable_page",
     "wagtail.contrib.settings",
@@ -212,6 +214,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Must run after the session, CSRF, and message middleware add cookies
+    "common.middleware.PublicCacheControlMiddleware",
     "django.middleware.gzip.GZipMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -220,6 +224,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "common.middleware.DiscoveryLinkHeaderMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
@@ -230,7 +235,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(CORE_DIR, "templates")],
+        "DIRS": [CORE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -257,19 +262,18 @@ NOT_COLLECTING_STATICFILES = len(sys.argv) > 1 and sys.argv[1] != "collectstatic
 
 if DATABASE_URL:
     DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
-else:
-    # Default to using local development environment
-    if NOT_COLLECTING_STATICFILES:
-        DATABASES = {
-            "default": {
-                "ENGINE": "django.db.backends.postgresql",
-                "NAME": "wf_website",
-                "USER": "postgres",
-                "PASSWORD": "postgres",
-                "HOST": "localhost",
-                "PORT": "5432",
-            },
-        }
+# Default to using local development environment
+elif NOT_COLLECTING_STATICFILES:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "wf_website",
+            "USER": "postgres",
+            "PASSWORD": "postgres",
+            "HOST": "localhost",
+            "PORT": "5432",
+        },
+    }
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -291,7 +295,7 @@ WAGTAILEMBEDS_FINDERS = [
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa: E501
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -329,7 +333,7 @@ STATICFILES_FINDERS = [
 ]
 
 STATICFILES_DIRS = [
-    os.path.join(CORE_DIR, "static"),
+    CORE_DIR / "static",
 ]
 
 if USE_SPACES:
@@ -353,7 +357,7 @@ if USE_SPACES:
     AWS_QUERYSTRING_AUTH = False
 else:
     STATIC_URL = "/static/"
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    MEDIA_ROOT = BASE_DIR / "media"
     MEDIA_URL = "/media/"
 
 
@@ -406,6 +410,26 @@ else:
     }
 
 WAGTAILADMIN_BASE_URL = "/admin"
+
+# Edge caching of public pages at Cloudflare.
+# See docs/specifications/edge_caching.md.
+# Seconds Cloudflare keeps a public page; 0 marks every response private.
+PUBLIC_CACHE_EDGE_TTL = int(os.getenv("DJANGO_PUBLIC_CACHE_EDGE_TTL", "0"))
+# Seconds browsers keep a public page; short because browsers can't be purged.
+PUBLIC_CACHE_BROWSER_TTL = int(os.getenv("DJANGO_PUBLIC_CACHE_BROWSER_TTL", "60"))
+
+# Wagtail purges published and unpublished pages from Cloudflare.
+CLOUDFLARE_API_TOKEN = os.getenv("CLOUDFLARE_API_TOKEN")
+CLOUDFLARE_ZONE_ID = os.getenv("CLOUDFLARE_ZONE_ID")
+
+if CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID:
+    WAGTAILFRONTENDCACHE = {
+        "cloudflare": {
+            "BACKEND": "wagtail.contrib.frontend_cache.backends.CloudflareBackend",
+            "BEARER_TOKEN": CLOUDFLARE_API_TOKEN,
+            "ZONEID": CLOUDFLARE_ZONE_ID,
+        },
+    }
 
 
 INTERNAL_IPS = [

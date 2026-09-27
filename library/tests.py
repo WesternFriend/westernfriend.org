@@ -1,8 +1,13 @@
+import datetime
+import json
 import random
+import re
 from unittest.mock import Mock, patch
 
 from django.test import RequestFactory, SimpleTestCase, TestCase
+from wagtail.models import Site
 
+from contact.factories import PersonFactory
 from facets.factories import (
     AudienceFactory,
     GenreFactory,
@@ -10,10 +15,10 @@ from facets.factories import (
     TimePeriodFactory,
     TopicFactory,
 )
-from contact.factories import PersonFactory
 from home.models import HomePage
 from library.helpers import (
     QUERYSTRING_FACETS,
+    add_library_item_topics,
     create_querystring_from_facets,
     filter_querystring_facets,
 )
@@ -76,7 +81,7 @@ class TestFilterQuerystringFacets(SimpleTestCase):
     def test_query_with_all_valid_facets(self) -> None:
         """Test that a query with all valid facets returns the same
         dictionary."""
-        query = {key: "value" for key in QUERYSTRING_FACETS}
+        query = dict.fromkeys(QUERYSTRING_FACETS, "value")
         result = filter_querystring_facets(query)
         self.assertDictEqual(result, query)
 
@@ -185,4 +190,60 @@ class TestLibraryItemGetContext(TestCase):
         self.assertCountEqual(
             [topic.pk for topic in context_topics],
             [topic.pk for topic in topics],
+        )
+
+
+class TestLibraryItemStructuredData(TestCase):
+    def test_renders_valid_json_ld(self) -> None:
+        """Test that the library item page embeds valid schema.org JSON-LD."""
+        library_item = LibraryItemFactory.create(
+            title="Faith and Practice",
+            publication_date=datetime.date(2020, 5, 17),
+        )
+        author = PersonFactory.create()
+        topic = TopicFactory.create()
+        LibraryItemAuthor.objects.create(library_item=library_item, author=author)
+        LibraryItemTopic.objects.create(library_item=library_item, topic=topic)
+        # Serve the factory-built page tree from the default site. Clear
+        # Wagtail's cached site root paths on cleanup, because the cache
+        # outlives this test's transaction rollback.
+        Site.objects.update(root_page=HomePage.objects.get())
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+        response = self.client.get(library_item.url)
+
+        self.assertEqual(response.status_code, 200)
+        json_ld_blocks = [
+            json.loads(block)
+            for block in re.findall(
+                r'<script type="application/ld\+json">(.*?)</script>',
+                response.content.decode(),
+                re.DOTALL,
+            )
+        ]
+        data = next(
+            block for block in json_ld_blocks if block["@type"] == "CreativeWork"
+        )
+
+        self.assertEqual(data["name"], "Faith and Practice")
+        self.assertEqual(data["author"][0]["@type"], "Person")
+        self.assertEqual(data["author"][0]["givenName"], author.given_name)
+        self.assertEqual(data["about"], [topic.title])
+        self.assertEqual(data["datePublished"], "2020-05-17")
+
+
+class TestAddLibraryItemTopics(TestCase):
+    def test_links_existing_topics_and_skips_missing_ones(self) -> None:
+        library_item = LibraryItemFactory.create()
+        topic = TopicFactory.create(title="Peace")
+
+        with patch("library.helpers.logger") as mock_logger:
+            add_library_item_topics(library_item, "Peace;;Nonexistent")
+
+        linked = LibraryItemTopic.objects.filter(library_item=library_item)
+        self.assertEqual([link.topic for link in linked], [topic])
+        mock_logger.warning.assert_called_once_with(
+            "Topic %r does not exist",
+            "Nonexistent",
         )

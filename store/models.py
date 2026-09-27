@@ -46,6 +46,27 @@ class ProductIndexPage(Page):
         "store.Book",
     ]
 
+    def get_context(
+        self,
+        request: HttpRequest,
+        *args: tuple,
+        **kwargs: dict,
+    ) -> dict:
+        context = super().get_context(request)
+
+        context["books"] = (
+            Book.objects.child_of(self)
+            .live()
+            .public()
+            .order_by(
+                "-is_featured",
+                "title",
+            )
+        )
+        context["cart_add_product_form"] = CartAddProductForm()
+
+        return context
+
 
 class Product(DrupalFields, Page):  # type: ignore
     image = models.ForeignKey(

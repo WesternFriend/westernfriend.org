@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpRequest
+from django.utils import timezone
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
 from modelcluster.fields import ParentalKey  # type: ignore
 from modelcluster.models import ClusterableModel  # type: ignore
@@ -27,9 +28,15 @@ from pagination.helpers import get_paginated_items
 from .panels import NestedInlinePanel
 
 MAGAZINE_ARCHIVE_THRESHOLD_DAYS = 180
-ARCHIVE_THRESHOLD_DATE = datetime.date.today() - timedelta(
-    days=MAGAZINE_ARCHIVE_THRESHOLD_DAYS,
-)
+
+
+def get_archive_threshold_date() -> datetime.date:
+    """Return the date before which magazine issues are publicly accessible.
+
+    Computed on each call so the threshold advances with the current date,
+    rather than being frozen when the module is imported.
+    """
+    return timezone.localdate() - timedelta(days=MAGAZINE_ARCHIVE_THRESHOLD_DAYS)
 
 
 class MagazineIndexPage(Page):
@@ -81,14 +88,15 @@ class MagazineIndexPage(Page):
         context = super().get_context(request)
 
         published_issues = MagazineIssue.objects.live().order_by("-publication_date")
+        archive_threshold_date = get_archive_threshold_date()
 
         # recent issues are published after the archive threshold
         context["recent_issues"] = published_issues.filter(
-            publication_date__gte=ARCHIVE_THRESHOLD_DATE,
+            publication_date__gte=archive_threshold_date,
         )
 
         archive_issues = published_issues.filter(
-            publication_date__lt=ARCHIVE_THRESHOLD_DATE,
+            publication_date__lt=archive_threshold_date,
         )
 
         # Get the unique years of the archive issues as a list of integers (years)
@@ -135,7 +143,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
     )
     publication_date = models.DateField(
         help_text="Please select the first day of the publication month",
-        default=datetime.date.today,
+        default=timezone.localdate,
     )
     issue_number = models.PositiveIntegerField(null=True, blank=True)
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
@@ -188,7 +196,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         subscribers based on publication date and archive threshold."""
 
         # check whether publication date is before public access date
-        return self.publication_date < ARCHIVE_THRESHOLD_DATE
+        return self.publication_date < get_archive_threshold_date()
 
     search_template = "search/magazine_issue.html"
     search_fields = Page.search_fields + [
@@ -331,12 +339,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
     )
     is_featured = models.BooleanField(
         default=False,
-        help_text="Feature this article in the related issue and allow full access without a subscription?",  # noqa: E501
-    )
-    body_migrated = models.TextField(
-        help_text="Used only for content from old Drupal website.",
-        null=True,
-        blank=True,
+        help_text="Feature this article in the related issue and allow full access without a subscription?",
     )
 
     department = models.ForeignKey(
@@ -391,7 +394,8 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
             if article.depth > 1:
                 parent = issue_by_path.get(article.path[: -article.steplen])
                 if parent is not None:
-                    article._parent_page = parent  # type: ignore[attr-defined]
+                    # Treebeard's parent cache; setting it saves a query per article.
+                    article._parent_page = parent  # type: ignore[attr-defined]  # noqa: SLF001
 
     @classmethod
     def get_queryset(cls):
@@ -402,7 +406,6 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         """
         return (
             cls.objects.defer_streamfields()
-            .defer("body_migrated")
             .select_related("department")
             .prefetch_related("authors__author", "tags")
         )
@@ -437,7 +440,7 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         InlinePanel(
             "authors",
             heading="Authors",
-            help_text="Select one or more authors, who contributed to this article. Note: you must first add contacts in order to select them as authors.",  # noqa: E501
+            help_text="Select one or more authors, who contributed to this article. Note: you must first add contacts in order to select them as authors.",
             min_num=1,
         ),
         MultiFieldPanel(
@@ -588,7 +591,7 @@ class ArchiveArticle(ClusterableModel):
             heading="Page numbers",
         ),
         HelpPanel(
-            content="Add article authors by clicking the '+ Add' button below, if known.",  # noqa: E501
+            content="Add article authors by clicking the '+ Add' button below, if known.",
         ),
         NestedInlinePanel(
             "archive_authors",
@@ -633,8 +636,8 @@ class ArchiveIssue(DrupalFields, Page):  # type: ignore
     western_friend_volume = models.CharField(
         max_length=255,
         help_text="Related Western Friend volume.",
-        null=True,
         blank=True,
+        default="",
     )
 
     content_panels = Page.content_panels + [
@@ -644,7 +647,7 @@ class ArchiveIssue(DrupalFields, Page):  # type: ignore
         InlinePanel(
             "archive_articles",
             heading="Table of contents",
-            help_text="Add articles to the table of contents by clicking the '+ Add' button below",  # noqa: E501
+            help_text="Add articles to the table of contents by clicking the '+ Add' button below",
         ),
     ]
 

@@ -3,7 +3,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
         <article>
             <header>
                 <h1>{{ page.title }}</h1>
@@ -29,5 +29,5 @@
                 {% include_block page.body %}
             </div>
         </article>
-    </main>
+    </div>
 {% endblock content %}

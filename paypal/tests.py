@@ -1,30 +1,31 @@
-from http import HTTPStatus
 import json
+from decimal import Decimal
+from http import HTTPStatus
 from unittest import mock
+
 from django.core.cache import cache
 from django.test import Client, TestCase
 from django.urls import reverse
-from requests.exceptions import HTTPError
-from accounts.models import User
+from requests.exceptions import HTTPError, Timeout
 
-from orders.factories import OrderFactory
-from orders.models import Order
+from accounts.models import User
+from orders.factories import OrderFactory, OrderItemFactory
 from subscription.models import Subscription
 
 from .auth import (
-    get_auth_token,
     construct_paypal_auth_headers,
+    get_auth_token,
+)
+from .models import (
+    PayPalError,
 )
 from .orders import (
-    create_order,
     capture_order,
+    create_order,
 )
 from .subscriptions import (
     get_subscription,
     subscription_is_active,
-)
-from .models import (
-    PayPalError,
 )
 
 
@@ -50,6 +51,13 @@ class GetAuthTokenTest(TestCase):
         mock_post.return_value = mock_response
 
         # Test function should raise an error
+        with self.assertRaises(PayPalError):
+            get_auth_token()
+
+    @mock.patch("paypal.auth.requests.post")
+    def test_get_auth_token_timeout_raises_paypal_error(self, mock_post):
+        mock_post.side_effect = Timeout()
+
         with self.assertRaises(PayPalError):
             get_auth_token()
 
@@ -214,6 +222,23 @@ class GetSubscriptionTest(TestCase):
         # Check if logger.exception has been called
         mock_logger.exception.assert_called()
 
+    @mock.patch("paypal.subscriptions.logger")
+    @mock.patch("paypal.subscriptions.requests.get")
+    @mock.patch("paypal.subscriptions.construct_paypal_auth_headers")
+    def test_get_subscription_timeout_raises_paypal_error(
+        self,
+        mock_construct_headers,
+        mock_get,
+        mock_logger,
+    ):
+        mock_construct_headers.return_value = {}
+        mock_get.side_effect = Timeout()
+
+        with self.assertRaises(PayPalError):
+            get_subscription(paypal_subscription_id="sub12345")
+
+        mock_logger.exception.assert_called()
+
 
 class SubscriptionIsActiveTest(TestCase):
     @mock.patch("paypal.subscriptions.get_subscription")
@@ -349,71 +374,167 @@ class CreatePayPalOrderTest(TestCase):
         )
 
 
+def build_capture_response(
+    *,
+    order_status: str = "COMPLETED",
+    capture_status: str = "COMPLETED",
+    value: str = "25.00",
+    currency_code: str = "USD",
+) -> dict:
+    return {
+        "id": "sample_order_id",
+        "status": order_status,
+        "purchase_units": [
+            {
+                "payments": {
+                    "captures": [
+                        {
+                            "id": "sample_capture_id",
+                            "status": capture_status,
+                            "amount": {
+                                "currency_code": currency_code,
+                                "value": value,
+                            },
+                        },
+                    ],
+                },
+            },
+        ],
+    }
+
+
 class CapturePayPalOrderTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.url = reverse("paypal:capture_paypal_order")
         self.paypal_order_id = "sample_order_id"
-        self.paypal_payment_id = "sample_payment_id"
         self.order = OrderFactory(
             paypal_order_id=self.paypal_order_id,
+            shipping_cost=Decimal("5.00"),
+            paid=False,
         )
-        self.order.save()
+        OrderItemFactory(
+            order=self.order,
+            price=Decimal("10.00"),
+            quantity=2,
+        )
 
-    @mock.patch("paypal.views.capture_order")
-    def test_successful_order_capture(self, mock_capture_order):
-        assert Order.objects.filter(paypal_order_id=self.paypal_order_id).exists()
-        mock_capture_order.return_value = {
-            "status": "success",
-            "id": self.paypal_payment_id,
-        }
-        payload = json.dumps(
-            {
-                "paypal_order_id": self.paypal_order_id,
-                "paypal_payment_id": self.paypal_payment_id,
-            },
-        )
-        response = self.client.post(
+    def post_capture(self, **extra_payload):
+        return self.client.post(
             self.url,
-            data=payload,
+            data=json.dumps(
+                {
+                    "paypal_order_id": self.paypal_order_id,
+                    **extra_payload,
+                },
+            ),
             content_type="application/json",
         )
-        mock_capture_order.assert_called()
 
-        self.assertEqual(
-            response.status_code,
-            HTTPStatus.CREATED,
-        )
-        self.assertEqual(
-            response.json(),
-            {
-                "id": self.paypal_payment_id,
-                "status": "success",
-            },
-        )
+    @mock.patch("paypal.views.capture_order")
+    def test_completed_capture_for_order_total_marks_order_paid(
+        self,
+        mock_capture_order,
+    ):
+        mock_capture_order.return_value = build_capture_response()
+
+        response = self.post_capture(paypal_payment_id="client_supplied_id")
+
+        self.assertEqual(response.status_code, HTTPStatus.CREATED)
+        self.order.refresh_from_db()
+        self.assertTrue(self.order.paid)
+        self.assertEqual(self.order.paypal_transaction_id, "sample_capture_id")
+        self.assertEqual(self.order.paypal_payment_id, "")
+
+    @mock.patch("paypal.views.capture_order")
+    def test_incomplete_capture_does_not_mark_order_paid(self, mock_capture_order):
+        cases = {
+            "pending order": {"order_status": "PENDING"},
+            "pending capture": {"capture_status": "PENDING"},
+            "declined capture": {"capture_status": "DECLINED"},
+        }
+        for label, kwargs in cases.items():
+            with self.subTest(label):
+                mock_capture_order.return_value = build_capture_response(**kwargs)
+
+                response = self.post_capture()
+
+                self.assertEqual(
+                    response.status_code,
+                    HTTPStatus.UNPROCESSABLE_ENTITY,
+                )
+                self.order.refresh_from_db()
+                self.assertFalse(self.order.paid)
+
+    @mock.patch("paypal.views.capture_order")
+    def test_capture_missing_details_does_not_mark_order_paid(
+        self,
+        mock_capture_order,
+    ):
+        mock_capture_order.return_value = {"status": "COMPLETED"}
+
+        response = self.post_capture()
+
+        self.assertEqual(response.status_code, HTTPStatus.UNPROCESSABLE_ENTITY)
+        self.order.refresh_from_db()
+        self.assertFalse(self.order.paid)
+
+    @mock.patch("paypal.views.capture_order")
+    def test_capture_amount_mismatch_does_not_mark_order_paid(
+        self,
+        mock_capture_order,
+    ):
+        cases = {
+            "lower amount": {"value": "1.00"},
+            "higher amount": {"value": "250.00"},
+            "other currency": {"currency_code": "EUR"},
+            "invalid amount": {"value": "not-a-number"},
+        }
+        for label, kwargs in cases.items():
+            with self.subTest(label):
+                mock_capture_order.return_value = build_capture_response(**kwargs)
+
+                response = self.post_capture()
+
+                self.assertEqual(
+                    response.status_code,
+                    HTTPStatus.UNPROCESSABLE_ENTITY,
+                )
+                self.order.refresh_from_db()
+                self.assertFalse(self.order.paid)
+
+    @mock.patch("paypal.views.capture_order")
+    def test_already_paid_order_is_not_captured_again(self, mock_capture_order):
+        self.order.paid = True
+        self.order.save()
+
+        response = self.post_capture()
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_capture_order.assert_not_called()
+
+    def test_unknown_paypal_order_id_returns_not_found(self):
+        self.paypal_order_id = "unknown_order_id"
+
+        response = self.post_capture()
+
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     @mock.patch("paypal.views.capture_order")
     def test_failed_order_capture(self, mock_capture_order):
         mock_capture_order.side_effect = Exception("Some error")
-        payload = json.dumps(
-            {
-                "paypal_order_id": self.paypal_order_id,
-                "paypal_payment_id": self.paypal_payment_id,
-            },
-        )
-        response = self.client.post(
-            self.url,
-            data=payload,
-            content_type="application/json",
-        )
 
-        self.assertEqual(response.status_code, 500)
+        response = self.post_capture()
+
+        self.assertEqual(response.status_code, HTTPStatus.INTERNAL_SERVER_ERROR)
         self.assertEqual(
             response.json(),
             {
                 "error": "Error capturing PayPal order.",
             },
         )
+        self.order.refresh_from_db()
+        self.assertFalse(self.order.paid)
 
 
 class LinkPayPalSubscriptionTest(TestCase):

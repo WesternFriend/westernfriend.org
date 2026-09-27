@@ -1,0 +1,51 @@
+# WesternFriend/westernfriend.org — issue planning schema
+#
+# Draft a batch of issues here, then create them with:
+#   /backlog new path/to/planned-issues.yaml
+# GitHub is the source of truth once the issues exist; this file is a scratchpad.
+#
+# Fields
+# ------
+# title       (required) Imperative, sentence case, no trailing period. Prefix
+#                         with the Django app name when no area label covers it.
+# labels      (optional) Existing repo labels only (see references/conventions.md):
+#                         bug or enhancement for the kind of work, plus areas such as
+#                         Magazine, Accounts, security, documentation, UX Review.
+# description (required) 2–4 sentences: what, why, and who is affected.
+# checklist   (optional) Concrete steps; rendered as "- [ ] …" items.
+# priority    (optional) Critical | High | Medium | Low   (project board field)
+# size        (optional) Small | Medium | Large           (project board field)
+# milestone   (optional) Exact title of an existing repo milestone.
+# help_wanted      (optional) true if outside contributions are welcome.
+# good_first_issue (optional) true only if it meets the criteria in conventions.md.
+# blocked_by  (optional) Issue numbers this depends on, e.g. [1201]; recorded in the
+#                         body's **Related:** line and set via GitHub's blocked-by UI.
+
+issues:
+  - title: "Events: show the event's timezone on the event detail page"
+    labels: [enhancement]
+    description: >
+      Event times are displayed without a timezone, so readers outside the
+      organizer's region can't tell when an online event starts. Showing the
+      timezone (and optionally the reader's local time) avoids missed events.
+    checklist:
+      - Render the event's timezone next to start and end times in the detail template
+      - Add a Django test asserting the timezone appears in the rendered page
+    priority: Medium
+    size: Small
+    help_wanted: true
+    good_first_issue: true
+    blocked_by: []
+
+  - title: "Replace remaining Bootstrap classes in magazine templates with Tailwind/daisyUI"
+    labels: [Magazine]
+    description: >
+      Magazine templates still use Bootstrap utility classes, which keeps the
+      Bootstrap bundle on those pages and makes styling inconsistent with the
+      rest of the site as it moves to Tailwind CSS and daisyUI.
+    checklist:
+      - Inventory Bootstrap classes under magazine/templates
+      - Replace them with Tailwind/daisyUI equivalents or global styles
+      - Verify pages visually at phone and desktop widths
+    priority: Low
+    size: Medium

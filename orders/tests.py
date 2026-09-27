@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core import mail
+from django.template.loader import render_to_string
 from django.test import (
     Client,
     RequestFactory,
@@ -17,6 +18,7 @@ from django.utils import timezone
 
 from cart.cart import Cart
 from cart.tests import scaffold_product_index_page
+from orders.forms import OrderCreateForm
 from orders.views import create_cart_order_items
 from store.factories import ProductFactory
 
@@ -143,7 +145,7 @@ class OrderCreateViewTest(TestCase):
 
     def test_order_create_view_post_request_form_valid(self) -> None:
         # Mock the OrderCreateForm
-        with patch("orders.views.OrderCreateForm") as MockOrderCreateForm:
+        with patch("orders.views.OrderCreateForm") as mock_order_create_form:
             # Instance of the form
             mock_form = MagicMock()
 
@@ -156,7 +158,7 @@ class OrderCreateViewTest(TestCase):
             mock_form.save.return_value = mock_order
 
             # Set our mock form as the return value of the form class
-            MockOrderCreateForm.return_value = mock_form
+            mock_order_create_form.return_value = mock_form
 
             # Send a POST request
             response = self.client.post(
@@ -600,3 +602,33 @@ class SendOrderPaidNotificationTest(WagtailSiteSetupMixin, TransactionTestCase):
         # Calling the notification function should work even though timestamp is set
         result = send_order_paid_notification(self.order)
         self.assertTrue(result)
+
+
+class OrderCreateFormAccessibilityTest(TestCase):
+    """Regression tests for WCAG issues found in the accessibility audit."""
+
+    def render_field(self, field_name: str) -> str:
+        form = OrderCreateForm()
+        return render_to_string(
+            "form_field.html",
+            {"field": form[field_name], "input_class": "input"},
+        )
+
+    def test_personal_data_fields_have_autocomplete_tokens(self) -> None:
+        # WCAG 1.3.5 Identify Input Purpose
+        form = OrderCreateForm()
+        for field_name, token in OrderCreateForm.AUTOCOMPLETE_TOKENS.items():
+            with self.subTest(field_name=field_name):
+                self.assertIn(f'autocomplete="{token}"', str(form[field_name]))
+
+    def test_optional_fields_are_not_marked_required(self) -> None:
+        # The template previously rendered required="false", which browsers
+        # treat as required because `required` is a boolean attribute.
+        html = self.render_field("purchaser_given_name")
+        self.assertNotIn("required", html.split("<input", 1)[1].split(">", 1)[0])
+        self.assertIn("(optional)", html)
+
+    def test_required_fields_are_marked_required(self) -> None:
+        html = self.render_field("purchaser_email")
+        self.assertIn("required", html.split("<input", 1)[1].split(">", 1)[0])
+        self.assertNotIn("(optional)", html)

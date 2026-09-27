@@ -73,8 +73,8 @@ class OnlineWorship(DrupalFields, Page):
     times_of_worship = RichTextField(blank=True)
     online_worship_day = models.CharField(
         max_length=255,
-        null=True,
         blank=True,
+        default="",
         choices=OnlineWorshipDayChoices.choices,
     )
     online_worship_time = models.TimeField(null=True, blank=True)
@@ -83,11 +83,9 @@ class OnlineWorship(DrupalFields, Page):
         blank=True,
     )
 
-    website = models.URLField(null=True, blank=True)
+    website = models.URLField(blank=True, default="")
 
     drupal_node_id = models.IntegerField(null=True, blank=True)
-    drupal_body_migrated = models.TextField(null=True, blank=True)
-    drupal_url_path = models.CharField(max_length=255, null=True, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
@@ -150,7 +148,7 @@ class OnlineWorshipIndexPage(Page):
 class CommunityDirectory(Page):
     description = RichTextField(blank=True)
 
-    website = models.URLField(null=True, blank=True)
+    website = models.URLField(blank=True, default="")
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),

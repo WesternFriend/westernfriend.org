@@ -3,7 +3,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <main>
+    <div>
         {% if request.GET.tag|length %}
             <header>
                 <h1>Articles tagged "{{ request.GET.tag }}"</h1>
@@ -24,5 +24,5 @@
                 <p>No tag provided.</p>
             </header>
         {% endif %}
-    </main>
+    </div>
 {% endblock content %}

@@ -1,5 +1,17 @@
-from django.test import RequestFactory, TestCase
+import datetime
+import json
+import re
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
+from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
+from django.http import Http404
+from django.test import RequestFactory, TestCase, TransactionTestCase
+from django.urls import reverse
+from wagtail.models import Locale, Page, PageViewRestriction, Revision, Site
+
+from community.factories import OnlineWorshipFactory
 from community.models import CommunityPage
 from contact.factories import (
     MeetingFactory,
@@ -10,13 +22,31 @@ from contact.factories import (
     PersonIndexPageFactory,
 )
 from contact.models import (
+    ContactPublicationStatistics,
     Meeting,
+    MeetingAddress,
     MeetingIndexPage,
+    MeetingPresidingClerk,
+    MeetingWorshipTime,
     Organization,
     OrganizationIndexPage,
     Person,
     PersonIndexPage,
 )
+from home.factories import HomePageFactory
+from library.factories import LibraryItemFactory
+from library.models import LibraryItemAuthor
+from magazine.factories import MagazineArticleFactory
+from magazine.models import (
+    ArchiveArticle,
+    ArchiveArticleAuthor,
+    ArchiveIssue,
+    DeepArchiveIndexPage,
+    MagazineArticleAuthor,
+)
+from memorials.factories import MemorialFactory
+from store.factories import ProductFactory
+from store.models import Book, BookAuthor
 
 
 class PersonIndexPageFactoryTest(TestCase):
@@ -190,6 +220,131 @@ class TestMeetingGetContext(TestCase):
             list(context["worship_groups"]),
             [self.child_worship_group],
         )
+
+
+class TestMeetingRouting(TestCase):
+    """Nested meeting URLs resolve with one lookup rather than one per level."""
+
+    def setUp(self) -> None:
+        self.request = RequestFactory().get("/")
+        self.meeting_index = MeetingIndexPageFactory.create()
+
+        self.yearly = MeetingFactory.build(slug="yearly")
+        self.meeting_index.add_child(instance=self.yearly)
+        self.quarterly = MeetingFactory.build(slug="quarterly")
+        self.yearly.add_child(instance=self.quarterly)
+        self.monthly = MeetingFactory.build(slug="monthly")
+        self.quarterly.add_child(instance=self.monthly)
+
+    def test_routes_to_deeply_nested_meeting(self) -> None:
+        with self.assertNumQueries(1):
+            page, args, kwargs = self.meeting_index.route(
+                self.request,
+                ["yearly", "quarterly", "monthly"],
+            )
+
+        self.assertEqual(page, self.monthly)
+        self.assertIsInstance(page, Meeting)
+        self.assertEqual((args, kwargs), ([], {}))
+
+    def test_routes_from_intermediate_meeting(self) -> None:
+        with self.assertNumQueries(1):
+            page, _, _ = self.yearly.route(self.request, ["quarterly", "monthly"])
+
+        self.assertEqual(page, self.monthly)
+
+    def test_empty_path_routes_to_self(self) -> None:
+        page, _, _ = self.meeting_index.route(self.request, [])
+        self.assertEqual(page, self.meeting_index)
+
+        page, _, _ = self.yearly.route(self.request, [])
+        self.assertEqual(page, self.yearly)
+
+    def test_unknown_path_raises_404(self) -> None:
+        with self.assertNumQueries(2), self.assertRaises(Http404):
+            self.meeting_index.route(self.request, ["nope"])
+
+        with self.assertNumQueries(2), self.assertRaises(Http404):
+            self.meeting_index.route(self.request, ["yearly", "nope"])
+
+        # A miss deep in the tree must not repeat the lookup per level.
+        with self.assertNumQueries(2), self.assertRaises(Http404):
+            self.meeting_index.route(
+                self.request,
+                ["yearly", "quarterly", "monthly", "extra", "more"],
+            )
+
+    def test_unpublished_target_raises_404(self) -> None:
+        self.monthly.unpublish()
+
+        with self.assertNumQueries(2), self.assertRaises(Http404):
+            self.meeting_index.route(
+                self.request,
+                ["yearly", "quarterly", "monthly"],
+            )
+
+    def test_non_meeting_descendant_falls_back_to_default_routing(self) -> None:
+        other = self.quarterly.add_child(
+            instance=Page(title="Not a meeting", slug="not-a-meeting"),
+        )
+
+        # Meeting miss, then deepest-page lookup (.specific is free for a
+        # plain Page; a Page subclass would add one query).
+        with self.assertNumQueries(2):
+            page, _, _ = self.meeting_index.route(
+                self.request,
+                ["yearly", "quarterly", "not-a-meeting"],
+            )
+
+        self.assertEqual(page, other)
+
+    def test_non_meeting_descendant_routes_its_own_children(self) -> None:
+        other = self.quarterly.add_child(
+            instance=Page(title="Not a meeting", slug="not-a-meeting"),
+        )
+        grandchild = other.add_child(instance=Page(title="Child", slug="child"))
+
+        page, _, _ = self.meeting_index.route(
+            self.request,
+            ["yearly", "quarterly", "not-a-meeting", "child"],
+        )
+
+        self.assertEqual(page, grandchild)
+
+    def test_unpublished_non_meeting_descendant_raises_404(self) -> None:
+        other = self.quarterly.add_child(
+            instance=Page(title="Not a meeting", slug="not-a-meeting"),
+        )
+        other.unpublish()
+
+        with self.assertRaises(Http404):
+            self.meeting_index.route(
+                self.request,
+                ["yearly", "quarterly", "not-a-meeting"],
+            )
+
+    def test_unpublished_intermediate_does_not_block_live_target(self) -> None:
+        """Matches Wagtail's default router, which only checks the target."""
+        self.quarterly.unpublish()
+
+        page, _, _ = self.meeting_index.route(
+            self.request,
+            ["yearly", "quarterly", "monthly"],
+        )
+
+        self.assertEqual(page, self.monthly)
+
+    def test_serves_nested_meeting_over_http(self) -> None:
+        home = self.meeting_index.get_parent().get_parent()
+        Site.objects.all().delete()
+        Site.objects.create(hostname="testserver", root_page=home, is_default_site=True)
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+        response = self.client.get(self.monthly.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["page"], self.monthly)
 
 
 class ContactQueryOptimizationTestCase(TestCase):
@@ -601,3 +756,361 @@ class ContactQueryOptimizationTestCase(TestCase):
                 0,
                 f"Expected 0 queries for Organization, got {query_count}",
             )
+
+
+class ContactJsonLdEscapingTest(TestCase):
+    def test_json_ld_escapes_script_breakout_and_is_valid_json(self) -> None:
+        payload = '</script><script>alert("xss")</script>'
+        organization = OrganizationFactory.create(title=payload)
+        request = RequestFactory().get("/")
+        request.user = AnonymousUser()
+
+        response = organization.serve(request)
+        response.render()
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertFalse(
+            '<script>alert("xss")</script>' in content,
+            "Contact title rendered as unescaped script",
+        )
+
+        blocks = re.findall(
+            r'<script type="application/ld\+json">(.*?)</script>',
+            content,
+            re.DOTALL,
+        )
+        parsed_blocks = [json.loads(block) for block in blocks]
+        self.assertIn(payload, [block.get("name") for block in parsed_blocks])
+
+
+def render_page(page: Page) -> str:
+    request = RequestFactory().get("/")
+    request.user = AnonymousUser()
+    response = page.serve(request)
+    response.render()
+    return response.content.decode()
+
+
+class BookFactory(ProductFactory):
+    class Meta:
+        model = Book
+
+
+class ContactPageRenderingTest(TestCase):
+    def test_meeting_page_renders_contact_details_and_related_content(self) -> None:
+        meeting = MeetingFactory.create(
+            title="Rendering Test Meeting",
+            meeting_type="monthly_meeting",
+            phone="555-0100",
+            email="clerk@example.org",
+            website="https://example.org/meeting",
+            information_last_verified=datetime.date(2026, 1, 15),
+        )
+        MeetingAddress.objects.create(
+            page=meeting,
+            address_type="worship",
+            street_address="123 Friendly Lane",
+            locality="Portland",
+        )
+        MeetingWorshipTime.objects.create(
+            meeting=meeting,
+            worship_type="first_day_worship",
+            worship_time="Sundays at 10am",
+        )
+        clerk = PersonFactory.create(given_name="Clara", family_name="Clerk")
+        MeetingPresidingClerk.objects.create(meeting=meeting, person=clerk)
+        for title, meeting_type in [
+            ("Child Quarterly Meeting", "quarterly_meeting"),
+            ("Child Monthly Meeting", "monthly_meeting"),
+            ("Child Worship Group", "worship_group"),
+        ]:
+            meeting.add_child(
+                instance=Meeting(title=title, meeting_type=meeting_type),
+            )
+        OnlineWorshipFactory.create(title="Zoom Worship", hosted_by=meeting)
+        memorial = MemorialFactory.create(memorial_meeting=meeting)
+
+        content = render_page(meeting)
+
+        for expected in [
+            "Rendering Test Meeting",
+            'href="tel:555-0100"',
+            'href="mailto:clerk@example.org"',
+            'href="https://example.org/meeting"',
+            "123 Friendly Lane",
+            "Sundays at 10am",
+            "Clara Clerk",
+            'datetime="2026-01-15"',
+            "Child Quarterly Meeting",
+            "Child Monthly Meeting",
+            "Child Worship Group",
+            "Zoom Worship",
+            f"View memorial for {memorial.memorial_person}",
+        ]:
+            with self.subTest(expected=expected):
+                self.assertIn(expected, content)
+
+    def test_person_page_renders_authored_works(self) -> None:
+        person = PersonFactory.create(given_name="Ada", family_name="Author")
+        unpublished_coauthor = PersonFactory.create(
+            given_name="Una",
+            family_name="Published",
+        )
+        unpublished_coauthor.unpublish()
+
+        article = MagazineArticleFactory.create(title="Letters on Stillness")
+        MagazineArticleAuthor.objects.create(article=article, author=person)
+
+        deep_archive = Page.get_first_root_node().add_child(
+            instance=DeepArchiveIndexPage(title="Deep Archive"),
+        )
+        archive_issue = deep_archive.add_child(
+            instance=ArchiveIssue(
+                title="Friends Bulletin 1950",
+                publication_date=datetime.date(1950, 1, 1),
+                internet_archive_identifier="friendsbulletin1950",
+            ),
+        )
+        archive_article = ArchiveArticle.objects.create(
+            title="Archived Reflections",
+            issue=archive_issue,
+            toc_page_number=3,
+            pdf_page_number=5,
+        )
+        ArchiveArticleAuthor.objects.create(article=archive_article, author=person)
+
+        book = BookFactory.create(title="Quiet Paths")
+        BookAuthor.objects.create(book=book, author=person)
+        BookAuthor.objects.create(book=book, author=unpublished_coauthor)
+
+        library_item = LibraryItemFactory.create(title="Library Pamphlet")
+        LibraryItemAuthor.objects.create(library_item=library_item, author=person)
+
+        content = render_page(person)
+
+        for expected in [
+            "Letters on Stillness",
+            "Archived Reflections",
+            "?pdf_page_number=5",
+            "Quiet Paths",
+            f'content="{unpublished_coauthor}"',
+            "Library Pamphlet",
+        ]:
+            with self.subTest(expected=expected):
+                self.assertIn(expected, content)
+
+
+class ContactAdminListingTest(TestCase):
+    def setUp(self) -> None:
+        superuser = get_user_model().objects.create_superuser(
+            email="admin@example.com",
+            password="password",
+        )
+        self.client.force_login(superuser)
+
+    def assert_listing_shows_article_count(
+        self,
+        url_name: str,
+        contact: Page,
+        contact_type: str,
+    ) -> None:
+        ContactPublicationStatistics.objects.create(
+            contact=contact,
+            contact_type=contact_type,
+            article_count=7,
+        )
+
+        response = self.client.get(reverse(url_name))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, contact.title)
+        stats_url = reverse("contact_publication_stats")
+        self.assertContains(
+            response,
+            f'<a href="{stats_url}?contact_type={contact_type}">7</a>',
+            html=True,
+        )
+
+    def test_people_listing(self) -> None:
+        self.assert_listing_shows_article_count(
+            "people:index",
+            PersonFactory(),
+            ContactPublicationStatistics.ContactType.PERSON,
+        )
+
+    def test_meetings_listing(self) -> None:
+        self.assert_listing_shows_article_count(
+            "meetings:index",
+            MeetingFactory(),
+            ContactPublicationStatistics.ContactType.MEETING,
+        )
+
+    def test_organizations_listing(self) -> None:
+        self.assert_listing_shows_article_count(
+            "organizations:index",
+            OrganizationFactory(),
+            ContactPublicationStatistics.ContactType.ORGANIZATION,
+        )
+
+    def test_listing_shows_zero_for_contact_without_statistics(self) -> None:
+        person = PersonFactory()
+
+        response = self.client.get(reverse("people:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            [page.pk for page in response.context["object_list"]],
+            [person.pk],
+        )
+        self.assertContains(response, "<td>0</td>", html=True)
+        self.assertNotContains(response, "?contact_type=")
+
+    def test_listing_sorts_by_publication_columns(self) -> None:
+        prolific = PersonFactory()
+        occasional = PersonFactory()
+        for person, article_count, published_day in [
+            (prolific, 7, 1),
+            (occasional, 2, 15),
+        ]:
+            ContactPublicationStatistics.objects.create(
+                contact=person,
+                contact_type=ContactPublicationStatistics.ContactType.PERSON,
+                article_count=article_count,
+                last_published_at=datetime.datetime(
+                    2024,
+                    1,
+                    published_day,
+                    tzinfo=datetime.UTC,
+                ),
+            )
+
+        for ordering, expected in [
+            ("-article_count", [prolific, occasional]),
+            ("-last_article_published_at", [occasional, prolific]),
+        ]:
+            response = self.client.get(
+                reverse("people:index"),
+                {"ordering": ordering},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                [page.pk for page in response.context["object_list"]],
+                [person.pk for person in expected],
+            )
+
+
+class ReplaceNullStringsMigrationTest(TransactionTestCase):
+    """NULLs saved before the NOT NULL change must not break publishing."""
+
+    before = [("contact", "0011_contactpublicationstatistics")]
+    after = [("contact", "0013_non_nullable_string_fields")]
+
+    def setUp(self):
+        MigrationExecutor(connection).migrate(self.before)
+
+    def tearDown(self):
+        executor = MigrationExecutor(connection)
+        executor.migrate(executor.loader.graph.leaf_nodes())
+
+    def test_nulls_in_rows_and_revisions_become_empty_strings(self):
+        Locale.objects.get_or_create(language_code="en")
+        try:
+            root = Page.objects.get(depth=1)
+        except Page.DoesNotExist:
+            root = Page.add_root(title="Root", slug="root")
+        meeting = root.add_child(instance=Meeting(title="Test meeting"))
+        MeetingAddress.objects.create(page=meeting, address_type="mailing")
+        MeetingWorshipTime.objects.create(meeting=meeting, worship_time="10am")
+        revision = Meeting.objects.get(pk=meeting.pk).save_revision()
+
+        # The current models write "", so force the NULLs that older data holds.
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE meeting SET website = NULL, email = NULL, phone = NULL, "
+                "meeting_type = NULL",
+            )
+            cursor.execute(
+                "UPDATE contact_meetingaddress SET locality = NULL, "
+                "postal_code = NULL, country = NULL",
+            )
+            cursor.execute("UPDATE contact_meetingworshiptime SET worship_type = NULL")
+        content = revision.content
+        content.update(website=None, email=None, phone=None, meeting_type=None)
+        content["addresses"][0].update(locality=None, postal_code=None, country=None)
+        content["worship_times"][0]["worship_type"] = None
+        Revision.objects.filter(pk=revision.pk).update(content=content)
+
+        MigrationExecutor(connection).migrate(self.after)
+
+        meeting = Meeting.objects.get(pk=meeting.pk)
+        self.assertEqual(
+            (meeting.website, meeting.email, meeting.phone, meeting.meeting_type),
+            ("", "", "", ""),
+        )
+        address = meeting.addresses.get()
+        self.assertEqual(
+            (address.locality, address.postal_code, address.country),
+            ("", "", ""),
+        )
+        self.assertEqual(meeting.worship_times.get().worship_type, "")
+
+        revision.refresh_from_db()
+        self.assertEqual(revision.content["website"], "")
+        self.assertEqual(revision.content["addresses"][0]["country"], "")
+        self.assertEqual(revision.content["worship_times"][0]["worship_type"], "")
+        revision.publish()
+
+
+class MeetingFactoryCompleteTraitTest(TestCase):
+    def test_complete_meeting_has_saved_worship_times(self) -> None:
+        meeting = MeetingFactory.create(complete=True, monthly_meeting=True)
+
+        meeting.refresh_from_db()
+        self.assertEqual(meeting.meeting_type, "monthly_meeting")
+        self.assertGreaterEqual(meeting.worship_times.count(), 1)
+        self.assertTrue(meeting.description)
+
+    def test_organizations_share_an_index_page(self) -> None:
+        first = OrganizationFactory.create()
+        second = OrganizationFactory.create()
+
+        self.assertEqual(first.get_parent(), second.get_parent())
+
+
+class PersonIndexPageRenderTest(TestCase):
+    def setUp(self) -> None:
+        home_page = HomePageFactory.create()
+        Site.objects.all().delete()
+        Site.objects.create(
+            hostname="testserver",
+            root_page=home_page,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+        self.person_index_page = PersonIndexPageFactory.create()
+
+    def test_lists_live_people(self) -> None:
+        person = PersonFactory.create(given_name="Lucretia", family_name="Mott")
+
+        response = self.client.get(self.person_index_page.url)
+
+        self.assertContains(response, "Lucretia Mott")
+        self.assertContains(response, person.url)
+
+    def test_hides_restricted_people(self) -> None:
+        person = PersonFactory.create(given_name="Private", family_name="Friend")
+        PageViewRestriction.objects.create(
+            page=person,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        response = self.client.get(self.person_index_page.url)
+
+        self.assertNotContains(response, "Private Friend")
+
+    def test_shows_empty_state(self) -> None:
+        response = self.client.get(self.person_index_page.url)
+
+        self.assertContains(response, "No people found.")

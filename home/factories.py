@@ -1,9 +1,9 @@
 from typing import Any
-import factory
-from factory.django import DjangoModelFactory
-from django.utils.text import slugify
-from wagtail.models import Page
 
+import factory
+from django.utils.text import slugify
+from factory.django import DjangoModelFactory
+from wagtail.models import Page
 
 from home.models import HomePage
 

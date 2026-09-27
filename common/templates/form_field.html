@@ -1,0 +1,28 @@
+{% load common_form_tags %}
+{% comment %}
+    Accessible form field.
+
+    Django sets aria-invalid on fields with errors and points aria-describedby at
+    "AUTO_ID_helptext" and "AUTO_ID_error", so screen readers announce the help
+    text and errors when the field receives focus. The ids below must match.
+
+    Optional: input_class (widget CSS classes), wrapper_class (extra wrapper classes).
+{% endcomment %}
+<div class="form-control{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+    <label for="{{ field.id_for_label }}" class="label whitespace-normal">
+        <span class="label-text font-medium">{{ field.label }}{% if not field.field.required %} <span class="font-normal">(optional)</span>{% endif %}</span>
+    </label>
+    {% with css=input_class|default:"input input-bordered w-full bg-white text-gray-800" %}
+        {{ field|add_class:css }}
+    {% endwith %}
+    {% if field.help_text %}
+        <div id="{{ field.auto_id }}_helptext" class="label-text-alt text-sm mt-1">{{ field.help_text }}</div>
+    {% endif %}
+    {% if field.errors %}
+        <div id="{{ field.auto_id }}_error" class="form-field-error text-sm mt-1">
+            {% for error in field.errors %}
+                <p class="mb-0">{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

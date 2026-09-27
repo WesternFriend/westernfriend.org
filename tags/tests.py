@@ -1,16 +1,18 @@
 import re
+
 from django.test import TestCase
 from django.urls import reverse
 from taggit.models import Tag
-from library.models import LibraryItem
+
+from contact.factories import PersonFactory
 from library.factories import LibraryItemFactory
+from library.models import LibraryItem
 from magazine.factories import MagazineArticleFactory
 from magazine.models import MagazineArticle, MagazineArticleAuthor, MagazineIssue
 from news.factories import NewsItemFactory
 from news.models import NewsItem
 from wf_pages.factories import WfPageFactory
 from wf_pages.models import WfPage
-from contact.factories import PersonFactory
 
 
 class TaggedPageListViewQuerysetAndContentOrderTest(TestCase):
@@ -34,7 +36,7 @@ class TaggedPageListViewQuerysetAndContentOrderTest(TestCase):
         self.wf_page.tags.add(self.tag)
         self.wf_page.save()
 
-    def test_setUp_data(self):
+    def test_setup_data(self):
         self.assertEqual(self.tag.name, "Common Tag")
         self.assertEqual(self.tag.slug, "common-tag")
         self.assertEqual(self.library_item.title, "A Library Item")
@@ -94,11 +96,11 @@ class TaggedPageListViewPaginationTest(TestCase):
         self.url = reverse("tags:tagged_page_list", kwargs={"tag": self.tag.slug})
 
         # pagination requires at least ten items
-        # create N items for each model
-        # where N * 4 >= 10
-        N = 3
+        # create items_per_model items for each model
+        # where items_per_model * 4 >= 10
+        items_per_model = 3
 
-        for i in range(N):
+        for i in range(items_per_model):
             library_item = LibraryItemFactory(title=f"Library Item {i}")
             library_item.tags.add(self.tag)
             library_item.save()

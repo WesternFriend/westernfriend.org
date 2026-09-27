@@ -1,4 +1,5 @@
 from wagtail import hooks
+
 from .views import MagazineViewSetGroup
 
 

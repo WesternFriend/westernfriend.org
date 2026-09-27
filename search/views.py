@@ -160,7 +160,7 @@ STOPWORDS: frozenset[str] = frozenset(
 )
 
 
-def search(request: HttpRequest) -> HttpResponse:
+def search(request: HttpRequest) -> HttpResponse:  # noqa: C901, PLR0912, PLR0915
     search_query = request.GET.get("query", None)
     page = request.GET.get("page", "1")
     number_per_page = 25  # Increased from 10 to reduce pagination depth
@@ -273,7 +273,7 @@ def search(request: HttpRequest) -> HttpResponse:
         # Fetch magazine articles with all optimizations (no double-fetch)
         if magazine_article_pages:
             # Use get_queryset() to inherit all optimizations:
-            # - defer_streamfields() to avoid loading large body/body_migrated fields
+            # - defer_streamfields() to avoid loading large body fields
             # - select_related("department") for efficient department access
             # - prefetch_related("authors__author", "tags") for related data
             magazine_articles = list(

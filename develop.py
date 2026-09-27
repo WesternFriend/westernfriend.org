@@ -1,4 +1,5 @@
 import argparse
+import shlex
 import subprocess
 from dataclasses import dataclass
 
@@ -51,8 +52,7 @@ COMMANDS = [
 
 
 def run_command(command: str) -> None:
-    process = subprocess.run(command, shell=True, check=True)
-    process.check_returncode()
+    subprocess.run(shlex.split(command), check=True)  # noqa: S603 - commands are the fixed COMMANDS above
 
 
 def run_commands(commands: list[str]) -> None:

@@ -1,4 +1,5 @@
 from django.test import RequestFactory, TestCase
+
 from community.models import CommunityPage
 from contact.factories import MeetingFactory, PersonFactory
 from memorials.factories import MemorialFactory, MemorialIndexPageFactory

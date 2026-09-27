@@ -3,7 +3,7 @@
 {% load wagtailcore_tags %}
 
 {% block content %}
-    <main class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
         <header class="mb-6">
             <h1>{{ page.title }}</h1>
 
@@ -126,9 +126,9 @@
                         </article>
                     {% endfor %}
 
-                    <nav class="mt-6 flex justify-center" aria-label="Memorial pagination">
+                    <div class="mt-6 flex justify-center">
                         {% include "paginator.html" with paginated_items=memorials %}
-                    </nav>
+                    </div>
                 </div>
             {% else %}
                 <div class="card card-border bg-base-100">
@@ -138,7 +138,7 @@
                 </div>
             {% endif %}
         </section>
-    </main>
+    </div>
 {% endblock content %}
 
 {% block extra_js %}

@@ -1,8 +1,10 @@
-import factory
 from typing import Any
-from wagtail_factories import PageFactory
-from home.factories import HomePageFactory
 
+import factory
+from wagtail_factories import PageFactory
+
+from common.fake_content import fake, headline, stream_body
+from home.factories import HomePageFactory
 from home.models import HomePage
 
 from .models import (
@@ -49,7 +51,23 @@ class NewsItemFactory(PageFactory):
     class Meta:
         model = NewsItem
 
-    title = factory.Sequence(lambda n: f"News item {n}")
+    class Params:
+        # Pools the seeder passes in so bodies can show images and link
+        # to other pages; tests leave them empty.
+        body_images = None
+        body_links = None
+
+    title = factory.LazyFunction(headline)  # type: ignore
+    slug = factory.Sequence(lambda n: f"news-item-{n}")  # type: ignore
+    teaser = factory.LazyFunction(lambda: fake.sentence(nb_words=12)[:100])  # type: ignore
+    publication_date = factory.Faker("date_between", start_date="-2y")  # type: ignore
+    body = factory.LazyAttribute(  # type: ignore
+        lambda obj: stream_body(
+            images=obj.body_images,
+            link_pages=obj.body_links,
+            sections=2,
+        ),
+    )
     live = True
 
     @classmethod

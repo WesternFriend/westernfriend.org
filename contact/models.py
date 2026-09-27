@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models
 from django.db.models import TextChoices
-from django.http import HttpRequest
+from django.http import Http404, HttpRequest
 
 if TYPE_CHECKING:
     from django.db.models import Prefetch
@@ -20,6 +20,7 @@ from wagtail.admin.panels import (
 from wagtail.fields import RichTextField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
+from wagtail.url_routing import RouteResult
 
 from addresses.models import Address
 
@@ -67,7 +68,7 @@ class ContactPublicationStatistics(models.Model):
         return f"Publication stats for {self.contact}"
 
     @classmethod
-    def update_for_contact(cls, contact):
+    def update_for_contact(cls, contact):  # noqa: C901, PLR0912
         """Update publication statistics for a given contact."""
         from magazine.models import (
             ArchiveArticleAuthor,
@@ -172,7 +173,7 @@ class ContactPublicationStatistics(models.Model):
             contact_type = cls.ContactType.PERSON
 
         # Create or update the statistics
-        stats, created = cls.objects.update_or_create(
+        stats, _created = cls.objects.update_or_create(
             contact=contact,
             defaults={
                 "article_count": article_count,
@@ -185,7 +186,7 @@ class ContactPublicationStatistics(models.Model):
 
 
 class JSONLDMixin:
-    def get_json_ld(self):
+    def get_json_ld(self):  # noqa: C901, PLR0912
         data = {
             "@context": "https://schema.org",
             "name": force_str(self.title),
@@ -242,19 +243,19 @@ class ContactBase(JSONLDMixin, Page):
     """
 
     website = models.URLField(
-        null=True,
         blank=True,
+        default="",
         help_text="Website URL for this contact",
     )
     email = models.EmailField(
-        null=True,
         blank=True,
+        default="",
         help_text="Email address for this contact",
     )
     phone = models.CharField(
         max_length=64,
-        null=True,
         blank=True,
+        default="",
         help_text="Phone number for this contact",
     )
 
@@ -341,7 +342,6 @@ class ContactBase(JSONLDMixin, Page):
                 )
                 .defer(
                     "article__body",
-                    "article__body_migrated",
                 )
             )
             prefetch_objects.append(
@@ -529,8 +529,7 @@ class ContactBase(JSONLDMixin, Page):
         self._add_sentry_context(initial_queries)
 
         # Call parent get_context to get the base context
-        context = super().get_context(request, *args, **kwargs)
-        return context
+        return super().get_context(request, *args, **kwargs)
 
     class Meta:
         abstract = True
@@ -546,7 +545,6 @@ class Person(ContactBase):
         max_length=255,
         default="",
         help_text="Enter the given name for a person.",
-        null=True,
         blank=True,
     )
 
@@ -620,6 +618,75 @@ class PersonIndexPage(Page):
 
     template = "contact/person_index_page.html"
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["people"] = (
+            Person.objects.child_of(self)
+            .live()
+            .public()
+            .order_by("family_name", "given_name")
+        )
+        return context
+
+
+class MeetingDescendantRoutingMixin:
+    """Route to a nested Meeting with one query instead of two per level.
+
+    Wagtail's default ``Page.route()`` walks the URL one slug at a time and
+    calls ``.specific`` on every intermediate page, so a URL like
+    ``/meetings/yearly/quarterly/monthly/`` costs a query pair per level.
+    Nearly every descendant is a Meeting, so the target is looked up directly
+    by its ``url_path``. On a miss, the deepest existing page on the path is
+    found in one more query and routing continues from there, so 404s and
+    non-Meeting descendants also cost a constant number of queries.
+    """
+
+    def route(
+        self,
+        request: HttpRequest,
+        path_components: list[str],
+    ) -> RouteResult:
+        if not path_components:
+            return super().route(request, path_components)  # type: ignore[misc]
+
+        target_url_path = self.url_path + "/".join(path_components) + "/"  # type: ignore[attr-defined]
+
+        # Like the default router, only the target page must be live;
+        # draft intermediate pages don't block routing.
+        meeting = Meeting.objects.live().filter(url_path=target_url_path).first()
+        if meeting is not None:
+            return RouteResult(meeting)
+
+        return self._route_from_deepest_existing_page(request, path_components)
+
+    def _route_from_deepest_existing_page(
+        self,
+        request: HttpRequest,
+        path_components: list[str],
+    ) -> RouteResult:
+        # Maps each descendant url_path along the request path to the number
+        # of path components it consumes.
+        consumed_by_url_path = {
+            self.url_path + "/".join(path_components[:depth]) + "/": depth  # type: ignore[attr-defined]
+            for depth in range(1, len(path_components) + 1)
+        }
+        deepest = (
+            Page.objects.filter(url_path__in=consumed_by_url_path)
+            .order_by("-depth")
+            .first()
+        )
+        # A Meeting here is either the unpublished target or a page with no
+        # child matching the next slug; both are 404s. Stopping here also
+        # keeps its route() from repeating the failed fast-path lookup.
+        if deepest is None or issubclass(
+            deepest.specific_class or Page,
+            MeetingDescendantRoutingMixin,
+        ):
+            raise Http404
+
+        remaining = path_components[consumed_by_url_path[deepest.url_path] :]
+        return deepest.specific.route(request, remaining)
+
 
 class MeetingPresidingClerk(Orderable):
     """Presiding clerk of Quaker meeting."""
@@ -641,7 +708,7 @@ class MeetingPresidingClerk(Orderable):
     ]
 
 
-class Meeting(ContactBase):
+class Meeting(MeetingDescendantRoutingMixin, ContactBase):
     class MeetingTypeChoices(TextChoices):
         MONTHLY_MEETING = "monthly_meeting", "Monthly Meeting"
         QUARTERLY_MEETING = "quarterly_meeting", "Quarterly Meeting"
@@ -651,8 +718,8 @@ class Meeting(ContactBase):
     meeting_type = models.CharField(
         max_length=255,
         choices=MeetingTypeChoices.choices,
-        null=True,
         blank=True,
+        default="",
     )
     description = RichTextField(
         blank=True,
@@ -773,13 +840,13 @@ class MeetingWorshipTime(Orderable):
     worship_type = models.CharField(
         max_length=255,
         choices=WorshipTypeChoices,
-        null=True,
         blank=True,
+        default="",
     )
     worship_time = models.CharField(max_length=255)
 
 
-class MeetingIndexPage(Page):
+class MeetingIndexPage(MeetingDescendantRoutingMixin, Page):
     max_count = 1
 
     parent_page_types = ["community.CommunityPage"]
@@ -797,7 +864,7 @@ class Organization(ContactBase):
     description = models.CharField(
         max_length=255,
         blank=True,
-        null=True,
+        default="",
     )
 
     content_panels = Page.content_panels + [

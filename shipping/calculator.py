@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+FREE_SHIPPING_BOOK_QUANTITY = 16
+
 
 def get_book_shipping_cost(book_quantity: int = 1) -> Decimal:
     """Calculate shipping costs for books in a cart/order.
@@ -17,9 +19,9 @@ def get_book_shipping_cost(book_quantity: int = 1) -> Decimal:
     # five to ten books are four dollars each
     # eleven to fifteen books are three dollars each
     # sixteen or more books have free shipping
-    if book_quantity >= 16:
+    if book_quantity >= FREE_SHIPPING_BOOK_QUANTITY:
         shipping_rate = 0
-    elif book_quantity in range(11, 16):
+    elif book_quantity in range(11, FREE_SHIPPING_BOOK_QUANTITY):
         shipping_rate = 3
     elif book_quantity in range(5, 11):
         shipping_rate = 4

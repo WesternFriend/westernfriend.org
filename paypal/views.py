@@ -1,6 +1,8 @@
-from http import HTTPStatus
 import json
 import logging
+from decimal import Decimal, InvalidOperation
+from http import HTTPStatus
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -8,6 +10,7 @@ from django.views.decorators.http import require_POST
 from orders.models import Order
 from subscription.models import Subscription
 
+from .constants import DEFAULT_CURRENCY_CODE
 from .orders import capture_order, create_order
 
 logger = logging.getLogger(__name__)
@@ -52,8 +55,8 @@ def create_paypal_order(
             "PayPal order created: %s",
             paypal_response,
         )
-    except Exception as exception:
-        logger.exception(exception)
+    except Exception:
+        logger.exception("Error creating PayPal order")
         return JsonResponse(
             {
                 "error": "Error creating PayPal order.",
@@ -74,21 +77,50 @@ def create_paypal_order(
     )
 
 
+def get_completed_capture(paypal_response: dict) -> dict | None:
+    """Return the capture from a PayPal capture response if it completed."""
+    if paypal_response.get("status") != "COMPLETED":
+        return None
+
+    try:
+        capture = paypal_response["purchase_units"][0]["payments"]["captures"][0]
+    except (IndexError, KeyError, TypeError):
+        return None
+
+    if capture.get("status") != "COMPLETED":
+        return None
+
+    return capture
+
+
+def capture_matches_order_total(capture: dict, order: Order) -> bool:
+    amount = capture.get("amount") or {}
+
+    if amount.get("currency_code") != DEFAULT_CURRENCY_CODE.value:
+        return False
+
+    try:
+        captured_value = Decimal(str(amount.get("value")))
+    except InvalidOperation:
+        return False
+
+    return captured_value == order.get_total_cost()
+
+
 @require_POST
 def capture_paypal_order(
     request,
 ) -> JsonResponse:
-    """Capture a PayPal order.
+    """Capture a PayPal order and mark the matching order as paid.
 
-    Return the PayPal response.
+    The order is only marked paid when PayPal reports a completed capture
+    for the full order total.
     """
 
     body_json = json.loads(request.body.decode("utf-8"))
 
     paypal_order_id = body_json["paypal_order_id"]
-    paypal_payment_id = body_json["paypal_payment_id"]
 
-    # First, verify the order exists in our database
     try:
         order = Order.objects.get(
             paypal_order_id=paypal_order_id,  # type: ignore
@@ -102,40 +134,62 @@ def capture_paypal_order(
             {
                 "error": "Order does not exist.",
             },
-            status=404,
+            status=HTTPStatus.NOT_FOUND,
         )
 
-    # Then, capture the order payment in PayPal
+    if order.paid:
+        return JsonResponse(
+            {
+                "status": "COMPLETED",
+            },
+            status=HTTPStatus.OK,
+        )
+
     try:
         paypal_response = capture_order(
             paypal_order_id=paypal_order_id,
         )
-    except Exception as exception:
-        logger.exception(exception)
+    except Exception:
+        logger.exception("Error capturing PayPal order")
         return JsonResponse(
             {
                 "error": "Error capturing PayPal order.",
             },
-            status=500,
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
         )
-    # Get transaction ID from PayPal response
-    # paypal_response.purchase_units[0].payments.captures[0].id
-    # but make sure to get it safely since there may be null or undefined values
 
-    try:
-        transaction_id = (
-            paypal_response.get("purchase_units", [{}])[0]
-            .get("payments", {})
-            .get("captures", [{}])[0]
-            .get("id", "")
+    capture = get_completed_capture(paypal_response)
+
+    if capture is None:
+        logger.error(
+            "PayPal capture for order %s did not complete (status %s).",
+            order.id,  # type: ignore
+            paypal_response.get("status"),
         )
-    except (IndexError, KeyError, TypeError):
-        transaction_id = ""
+        return JsonResponse(
+            {
+                "error": "Payment was not completed.",
+            },
+            status=HTTPStatus.UNPROCESSABLE_ENTITY,
+        )
 
-    # Finally, update the order in our database
-    # with the PayPal payment ID and mark it as paid
-    order.paypal_payment_id = paypal_payment_id
-    order.paypal_transaction_id = transaction_id
+    if not capture_matches_order_total(capture, order):
+        logger.error(
+            "PayPal capture %s for order %s has amount %s, expected %s %s.",
+            capture.get("id"),
+            order.id,  # type: ignore
+            capture.get("amount"),
+            order.get_total_cost(),
+            DEFAULT_CURRENCY_CODE.value,
+        )
+        return JsonResponse(
+            {
+                "error": "Payment amount does not match order total.",
+            },
+            status=HTTPStatus.UNPROCESSABLE_ENTITY,
+        )
+
+    order.paypal_transaction_id = capture.get("id", "")
     order.paid = True
     order.save()
 

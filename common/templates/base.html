@@ -1,4 +1,4 @@
-{% load static tailwind_tags wagtailcore_tags wagtailuserbar %}
+{% load common_tags static tailwind_tags wagtailcore_tags wagtailuserbar %}
 
 <!DOCTYPE html>
 <html class="h-full" lang="en" data-theme="light">
@@ -26,14 +26,14 @@
         <meta name="author" content="Western Friend" />
         <meta name="publisher" content="Friends Bulletin Corporation" />
         <meta name="keywords" content="Quaker, Friends, Western Friend, Quakerism, Religious Society of Friends, pacifism, social justice, spirituality, magazine" />
-        <link rel="canonical" href="{{ request.scheme }}://{{ request.site.hostname }}{{ request.path }}" />
+        <link rel="canonical" href="{% canonical_url %}" />
 
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
-        <meta property="og:url" content="{{ request.scheme }}://{{ request.site.hostname }}{{ request.path }}" />
+        <meta property="og:url" content="{% canonical_url %}" />
         <meta property="og:title" content="{% if page.seo_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %} - Western Friend" />
-        <meta property="og:description" content="{% if page.search_description %}{{ page.search_description %}{% else %}Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States.{% endif %}" />
-        <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.site.hostname }}{% static 'img/og-default.jpg' %}{% endblock %}" />
+        <meta property="og:description" content="{% if page.search_description %}{{ page.search_description }}{% else %}Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States.{% endif %}" />
+        <meta property="og:image" content="{% block og_image %}{% absolute_static 'img/og-default.jpg' %}{% endblock %}" />
         <meta property="og:site_name" content="Western Friend" />
         <meta property="og:locale" content="en_US" />
 
@@ -41,8 +41,8 @@
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@westernfriend" />
         <meta name="twitter:title" content="{% if page.seo_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %} - Western Friend" />
-        <meta name="twitter:description" content="{% if page.search_description %}{{ page.search_description %}{% else %}Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States.{% endif %}" />
-        <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.site.hostname }}{% static 'img/og-default.jpg' %}{% endblock %}" />
+        <meta name="twitter:description" content="{% if page.search_description %}{{ page.search_description }}{% else %}Western Friend is a Quaker publication serving the Religious Society of Friends in the Western United States.{% endif %}" />
+        <meta name="twitter:image" content="{% block twitter_image %}{% absolute_static 'img/og-default.jpg' %}{% endblock %}" />
 
         <!-- Favicons -->
         <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32x32.png' %}">
@@ -88,6 +88,10 @@
                 outline: 2px solid #aa3f2e;
                 outline-offset: 2px;
             }
+            /* Lighter focus ring keeps 3:1 contrast against the dark theme background */
+            [data-theme="dark"] :focus-visible {
+                outline-color: #f4a79b;
+            }
 
             /* Insert other critical CSS here */
         </style>
@@ -114,34 +118,20 @@
 
         {% include "heading.html" %}
 
-        <!-- Theme toggle button with explicit labels -->
-        <div class="theme-toggle fixed top-2 right-2 md:top-4 md:right-4 z-60 bg-base-100 p-2 rounded-lg shadow-md">
+        <!-- Theme toggle: announced as a "Dark mode" switch with on/off state -->
+        <aside class="theme-toggle fixed top-2 right-2 md:top-4 md:right-4 z-60 bg-base-100 p-2 rounded-lg shadow-md" aria-label="Display settings">
             <label class="flex items-center gap-2 cursor-pointer">
-                <!-- Light mode label with sun icon -->
-                <div class="flex items-center">
-                    <i class="bi bi-sun-fill" aria-hidden="true"></i>
-                    <span class="sr-only">Light mode</span>
-                </div>
-
-                <!-- The toggle switch -->
-                <input type="checkbox" id="theme-toggle" class="toggle toggle-sm theme-controller" aria-label="Toggle between light and dark modes" />
-
-                <!-- Dark mode label with moon icon -->
-                <div class="flex items-center">
-                    <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
-                    <span class="sr-only">Dark mode</span>
-                </div>
-
-                <!-- Visually hidden label text for screen readers -->
-                <span class="sr-only" id="theme-status" aria-live="polite">Current theme: light</span>
+                <i class="bi bi-sun-fill" aria-hidden="true"></i>
+                <input type="checkbox" id="theme-toggle" class="toggle toggle-sm theme-controller" role="switch" aria-label="Dark mode" />
+                <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
             </label>
-        </div>
+        </aside>
 
         <main id="main-content" class="container mx-auto px-4 mt-4 mb-4 flex-shrink-0">
             {% if messages %}
-                <div class="notifications" role="status" aria-live="polite">
+                <div class="notifications">
                     {% for message in messages %}
-                        <div role="alert" class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} mb-4">
+                        <div role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}" class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} mb-4">
                             {% if message.tags == 'error' %}
                                 <i class="bi bi-exclamation-circle-fill h-6 w-6 shrink-0" aria-hidden="true"></i>
                             {% elif message.tags == 'warning' %}
@@ -176,9 +166,8 @@
         <!-- Theme toggle script -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Get theme toggle checkbox and status elements
+                // Get theme toggle checkbox
                 const themeToggle = document.getElementById('theme-toggle');
-                const themeStatus = document.getElementById('theme-status');
                 const htmlElement = document.documentElement;
 
                 // Set default theme to light if no preference in localStorage
@@ -190,17 +179,11 @@
                 // Set toggle state based on current theme
                 themeToggle.checked = savedTheme === 'dark';
 
-                // Update theme status text for screen readers
-                themeStatus.textContent = `Current theme: ${savedTheme}`;
-
                 // Listen for toggle changes
                 themeToggle.addEventListener('change', function() {
                     const newTheme = this.checked ? 'dark' : 'light';
                     htmlElement.setAttribute('data-theme', newTheme);
                     localStorage.setItem('theme', newTheme);
-
-                    // Update theme status text for screen readers
-                    themeStatus.textContent = `Current theme: ${newTheme}`;
                 });
             });
         </script>
