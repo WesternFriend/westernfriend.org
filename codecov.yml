@@ -1,0 +1,9 @@
+# CI uploads coverage from two jobs: "Django checks and tests" and
+# "Development content seeding". Wait for both before reporting, so a
+# status isn't computed from whichever upload lands first.
+codecov:
+  notify:
+    after_n_builds: 2
+
+comment:
+  after_n_builds: 2
