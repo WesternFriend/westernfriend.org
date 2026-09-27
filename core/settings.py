@@ -400,13 +400,13 @@ if (
                 "use_tls": os.getenv("EMAIL_USE_TLS", "True") == "True",
                 "use_ssl": os.getenv("EMAIL_USE_SSL", "False") == "True",
             },
-        }
+        },
     }
 else:
     MAILERS = {
         "default": {
             "BACKEND": "django.core.mail.backends.console.EmailBackend",
-        }
+        },
     }
 
 WAGTAILADMIN_BASE_URL = "/admin"
