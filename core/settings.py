@@ -384,7 +384,12 @@ email_host_user = os.getenv("EMAIL_HOST_USER", None)
 email_host_password = os.getenv("EMAIL_HOST_PASSWORD", None)
 
 # If the EMAIL authentication environment variables are set, use SMTP backend
-if email_host is not None and email_host_user is not None and email_host_password is not None:
+# If the EMAIL authentication environment variables are set, use SMTP backend
+if (
+    email_host is not None
+    and email_host_user is not None
+    and email_host_password is not None
+):
     MAILERS = {
         "default": {
             "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
