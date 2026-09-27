@@ -7,7 +7,7 @@ from django.urls import reverse
 from wagtail.models import Locale, Page, Site
 
 from accounts.models import User
-from common.ai_preferences import AI_CRAWLER_USER_AGENTS
+from common.models import CrawlerPolicySetting
 from home.models import HomePage
 from navigation.models import NavigationMenuSetting
 
@@ -20,17 +20,8 @@ from .models import (
 )
 
 EXCLUDED_PATH = "/magazine/issue/excluded/"
+EXCLUDED_USAGE = "train-ai=n, ai-use=n, search=y"
 INCLUDED_PATH = "/magazine/issue/included/"
-
-
-def robots_groups(content):
-    """Split robots.txt into groups of lines, keyed by their first user agent."""
-    groups = {}
-    for block in content.strip().split("\n\n"):
-        lines = block.splitlines()
-        if lines[0].startswith("User-agent: "):
-            groups[lines[0].removeprefix("User-agent: ")] = lines
-    return groups
 
 
 class ArticleAIOptOutTest(TestCase):
@@ -75,63 +66,50 @@ class ArticleAIOptOutTest(TestCase):
             ),
         )
 
-    def get_robots_groups(self):
-        return robots_groups(self.client.get("/robots.txt").content.decode())
+    def get_robots_txt(self):
+        return self.client.get("/robots.txt").content.decode()
 
-    def test_robots_txt_asks_all_crawlers_not_to_use_excluded_article_for_ai(self):
-        everyone = self.get_robots_groups()["*"]
+    def test_robots_txt_asks_crawlers_not_to_use_excluded_article_for_ai(self):
+        content = self.get_robots_txt()
+
+        self.assertIn(f"Content-Usage: {EXCLUDED_PATH} {EXCLUDED_USAGE}\n", content)
+        self.assertNotIn(f"Disallow: {EXCLUDED_PATH}", content)
+        self.assertNotIn(INCLUDED_PATH, content)
+
+    def test_robots_txt_has_one_group(self):
+        self.assertEqual(self.get_robots_txt().count("User-agent:"), 1)
+
+    def test_excluded_article_follows_site_search_setting(self):
+        CrawlerPolicySetting.objects.create(site=self.site, allow_search=False)
+        usage = "train-ai=n, ai-use=n, search=n"
 
         self.assertIn(
-            f"Content-Usage: {EXCLUDED_PATH} train-ai=n, ai-use=n, search=y",
-            everyone,
+            f"Content-Usage: {EXCLUDED_PATH} {usage}\n",
+            self.get_robots_txt(),
         )
-        self.assertNotIn(f"Disallow: {EXCLUDED_PATH}", everyone)
-        self.assertNotIn(INCLUDED_PATH, "\n".join(everyone))
+        self.assertEqual(self.client.get(EXCLUDED_PATH)["Content-Usage"], usage)
 
-    def test_robots_txt_disallows_excluded_article_for_ai_crawlers(self):
-        groups = self.get_robots_groups()
-        ai_crawlers = groups[AI_CRAWLER_USER_AGENTS[0]]
-
-        for agent in AI_CRAWLER_USER_AGENTS:
-            self.assertIn(f"User-agent: {agent}", ai_crawlers)
-        self.assertNotIn("User-agent: Googlebot", ai_crawlers)
-        self.assertIn(f"Disallow: {EXCLUDED_PATH}", ai_crawlers)
-        self.assertNotIn(f"Disallow: {INCLUDED_PATH}", ai_crawlers)
-
-    def test_robots_txt_ai_crawler_group_keeps_site_wide_rules(self):
-        groups = self.get_robots_groups()
-        ai_crawlers = groups[AI_CRAWLER_USER_AGENTS[0]]
-
-        self.assertIn(groups["*"][1], ai_crawlers)  # Content-Signal
-        self.assertIn("Disallow: /admin/", ai_crawlers)
-
-    def test_robots_txt_has_no_ai_crawler_group_without_exclusions(self):
+    def test_robots_txt_has_no_content_usage_without_exclusions(self):
         self.excluded.exclude_from_ai = False
         self.excluded.save_revision().publish()
 
-        content = self.client.get("/robots.txt").content.decode()
-
-        self.assertEqual(list(robots_groups(content)), ["*"])
-        self.assertNotIn("Content-Usage", content)
+        self.assertNotIn("Content-Usage", self.get_robots_txt())
 
     def test_robots_txt_skips_unpublished_articles(self):
         self.excluded.unpublish()
 
-        self.assertNotIn(EXCLUDED_PATH, self.client.get("/robots.txt").content.decode())
+        self.assertNotIn(EXCLUDED_PATH, self.get_robots_txt())
 
     def test_exclusion_follows_article_when_slug_changes(self):
         self.excluded.slug = "renamed"
         self.excluded.save_revision().publish()
 
-        content = self.client.get("/robots.txt").content.decode()
+        content = self.get_robots_txt()
 
         self.assertNotIn(EXCLUDED_PATH, content)
-        self.assertIn("Disallow: /magazine/issue/renamed/", content)
+        self.assertIn("Content-Usage: /magazine/issue/renamed/ ", content)
         response = self.client.get("/magazine/issue/renamed/")
-        self.assertEqual(
-            response["Content-Usage"],
-            "train-ai=n, ai-use=n, search=y",
-        )
+        self.assertEqual(response["Content-Usage"], EXCLUDED_USAGE)
 
     def test_llms_txt_skips_excluded_articles(self):
         NavigationMenuSetting.objects.create(
@@ -151,10 +129,7 @@ class ArticleAIOptOutTest(TestCase):
         response = self.client.get(EXCLUDED_PATH)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response["Content-Usage"],
-            "train-ai=n, ai-use=n, search=y",
-        )
+        self.assertEqual(response["Content-Usage"], EXCLUDED_USAGE)
 
     def test_included_article_page_has_no_content_usage_header(self):
         response = self.client.get(INCLUDED_PATH)
@@ -189,9 +164,9 @@ class ArticleAIOptOutTest(TestCase):
         self.excluded.slug = "café"
         self.excluded.save_revision().publish()
 
-        content = self.client.get("/robots.txt").content.decode()
+        content = self.get_robots_txt()
 
-        self.assertIn("Disallow: /magazine/issue/caf%C3%A9/", content)
+        self.assertIn("Content-Usage: /magazine/issue/caf%C3%A9/ ", content)
         self.assertNotIn("%25", content)
 
     @patch("magazine.signals.PurgeBatch")

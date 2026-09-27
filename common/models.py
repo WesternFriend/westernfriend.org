@@ -112,3 +112,15 @@ class CrawlerPolicySetting(BaseSiteSetting):
         return ", ".join(
             f"{name}={'yes' if allowed else 'no'}" for name, allowed in signals
         )
+
+    @property
+    def excluded_content_usage(self):
+        """Format the preference for pages excluded from AI use.
+
+        Excluded pages opt out of AI training and AI use but follow the
+        site's search choice. The value uses the IETF AI preferences
+        vocabulary (draft-ietf-aipref-vocab), which, unlike Content Signals,
+        can be scoped to a path in robots.txt and sent as a Content-Usage
+        header (draft-ietf-aipref-attach).
+        """
+        return f"train-ai=n, ai-use=n, search={'y' if self.allow_search else 'n'}"

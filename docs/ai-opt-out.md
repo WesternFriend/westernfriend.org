@@ -29,10 +29,8 @@ If the process changes, update that section too.
 When an article is excluded:
 
 - **robots.txt** adds a path-scoped `Content-Usage` rule for all crawlers,
-  saying no AI training and no AI use, but yes to search. It also adds a group
-  for known AI crawlers (`AI_CRAWLER_USER_AGENTS` in
-  `common/ai_preferences.py`) that disallows the article's path. That group
-  leaves out search crawlers such as Googlebot and Bingbot.
+  saying no AI training and no AI use. Search follows the site's "Search
+  engines" choice in the "Crawlers and AI" setting.
 - **llms.txt** leaves the article out.
 - **The article page** is served with the same preference in a `Content-Usage`
   HTTP header.
@@ -49,7 +47,9 @@ Preferences drafts instead
 Those drafts define path-scoped rules for robots.txt and a matching HTTP
 header.
 
-Few crawlers read `Content-Usage` yet, while the major AI crawlers do honour
-`Disallow`. The extra group makes the request effective today, without
-affecting search. The crawler list needs occasional review as AI companies add
-or rename crawlers.
+We don't disallow excluded articles for a list of AI crawlers. Such a list
+goes stale as AI companies add and rename crawlers. Few crawlers read
+`Content-Usage` yet, so today the exclusion is mostly a statement of the
+contributor's wishes. Blocking AI crawlers from an article would be
+enforcement, which ADR 0006 keeps separate from policy. If it's ever needed,
+Cloudflare's own bot categories are the place to do it.

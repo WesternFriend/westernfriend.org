@@ -21,8 +21,7 @@ from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
 
-from common.ai_preferences import AI_EXCLUDED_CONTENT_USAGE
-from common.models import DrupalFields
+from common.models import CrawlerPolicySetting, DrupalFields
 from core.constants import COMMON_STREAMFIELD_BLOCKS
 from pagination.helpers import get_paginated_items
 
@@ -489,7 +488,8 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         response = super().serve(request, *args, **kwargs)
         if self.exclude_from_ai:
             # Matches the Content-Usage rule robots.txt gives this path
-            response["Content-Usage"] = AI_EXCLUDED_CONTENT_USAGE
+            policy = CrawlerPolicySetting.for_request_or_default(request)
+            response["Content-Usage"] = policy.excluded_content_usage
         return response
 
     def get_context(

@@ -14,7 +14,6 @@ from wagtail.admin.viewsets.base import ViewSetGroup
 from wagtail.contrib.sitemaps.views import sitemap as wagtail_sitemap
 from wagtail.models import PageLogEntry, Site
 
-from common.ai_preferences import AI_CRAWLER_USER_AGENTS, AI_EXCLUDED_CONTENT_USAGE
 from common.models import CrawlerPolicySetting
 from community.views import CommunityDirectoryViewSet, OnlineWorshipViewSet
 from documents.views import MeetingDocumentViewSet, PublicBoardDocumentViewSet
@@ -116,28 +115,18 @@ def _ai_excluded_paths(request):
 def robots_txt(request):
     """Serve robots.txt, pointing crawlers at the canonical sitemap.
 
-    Articles excluded from AI use get a path-scoped Content-Usage rule for
-    every crawler, and are disallowed for known AI crawlers, which leaves
-    them open to search engines. See docs/ai-opt-out.md.
+    Articles excluded from AI use get a path-scoped Content-Usage rule.
+    See docs/ai-opt-out.md.
     """
     policy = CrawlerPolicySetting.for_request_or_default(request)
     excluded_paths = _ai_excluded_paths(request)
 
     lines = ["User-agent: *", f"Content-Signal: {policy.content_signal}"]
     lines += [
-        f"Content-Usage: {path} {AI_EXCLUDED_CONTENT_USAGE}" for path in excluded_paths
+        f"Content-Usage: {path} {policy.excluded_content_usage}"
+        for path in excluded_paths
     ]
     lines += [f"Disallow: {path}" for path in ROBOTS_DISALLOWED_PATHS]
-
-    if excluded_paths:
-        # A crawler follows only the most specific group that names it, so
-        # this group repeats the rules for everyone before adding its own.
-        lines += [""]
-        lines += [f"User-agent: {agent}" for agent in AI_CRAWLER_USER_AGENTS]
-        lines += [f"Content-Signal: {policy.content_signal}"]
-        lines += [
-            f"Disallow: {path}" for path in ROBOTS_DISALLOWED_PATHS + excluded_paths
-        ]
 
     lines += ["", f"Sitemap: {_absolute_url(reverse('sitemap'))}", ""]
 
