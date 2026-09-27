@@ -1,11 +1,9 @@
-from django.db import transaction
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-from django.urls import reverse
-from wagtail.contrib.frontend_cache.utils import PurgeBatch
 from wagtail.models import Site
 from wagtail.signals import page_published, page_unpublished, post_page_move
 
+from common.signal_handlers import purge_crawler_files
 from contact.models import ContactPublicationStatistics
 
 from .models import ArchiveArticleAuthor, MagazineArticle, MagazineArticleAuthor
@@ -39,16 +37,6 @@ def update_contact_stats_on_archive_article_delete(sender, instance, **kwargs):
         ContactPublicationStatistics.update_for_contact(instance.author)
 
 
-def _purge_ai_policy_files():
-    batch = PurgeBatch()
-    for site in Site.objects.all():
-        root_url = site.root_url.rstrip("/")
-        batch.add_urls(
-            f"{root_url}{reverse(name)}" for name in ("robots_txt", "llms_txt")
-        )
-    transaction.on_commit(batch.purge)
-
-
 @receiver(page_published)
 @receiver(page_unpublished)
 @receiver(post_page_move)
@@ -67,10 +55,10 @@ def purge_ai_policy_files_on_page_change(sender, instance, **kwargs):
         .filter(exclude_from_ai=True)
         .exists()
     ):
-        _purge_ai_policy_files()
+        purge_crawler_files(Site.objects.all())
 
 
 @receiver(post_delete, sender=MagazineArticle)
 def purge_ai_policy_files_on_article_delete(sender, instance, **kwargs):
     """Purge robots.txt and llms.txt when an article is deleted."""
-    _purge_ai_policy_files()
+    purge_crawler_files(Site.objects.all())

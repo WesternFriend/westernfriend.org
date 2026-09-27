@@ -148,7 +148,7 @@ class ArticleAIOptOutTest(TestCase):
         self.assertContains(response, 'name="exclude_from_ai"')
         self.assertContains(response, "Exclude from AI use")
 
-    @patch("magazine.signals.PurgeBatch")
+    @patch("common.signal_handlers.PurgeBatch")
     def test_publishing_article_purges_robots_and_llms_txt(self, purge_batch):
         with self.captureOnCommitCallbacks(execute=True):
             self.included.save_revision().publish()
@@ -156,7 +156,7 @@ class ArticleAIOptOutTest(TestCase):
         purged = list(purge_batch.return_value.add_urls.call_args.args[0])
         self.assertEqual(
             purged,
-            ["http://testserver/robots.txt", "http://testserver/llms.txt"],
+            ["https://testserver/robots.txt", "https://testserver/llms.txt"],
         )
         purge_batch.return_value.purge.assert_called_once()
 
@@ -169,7 +169,7 @@ class ArticleAIOptOutTest(TestCase):
         self.assertIn("Content-Usage: /magazine/issue/caf%C3%A9/ ", content)
         self.assertNotIn("%25", content)
 
-    @patch("magazine.signals.PurgeBatch")
+    @patch("common.signal_handlers.PurgeBatch")
     def test_publishing_issue_with_excluded_article_purges(self, purge_batch):
         self.issue.slug = "renamed-issue"
         with self.captureOnCommitCallbacks(execute=True):
@@ -177,7 +177,7 @@ class ArticleAIOptOutTest(TestCase):
 
         purge_batch.return_value.purge.assert_called_once()
 
-    @patch("magazine.signals.PurgeBatch")
+    @patch("common.signal_handlers.PurgeBatch")
     def test_publishing_unrelated_page_does_not_purge(self, purge_batch):
         self.excluded.exclude_from_ai = False
         self.excluded.save_revision().publish()
