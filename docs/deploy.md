@@ -10,6 +10,7 @@ This work-in-progress document outlines the steps necessary to deploy the site.
   - [Initialize the App](#initialize-the-app)
   - [Scaffold Initial Content](#scaffold-initial-content)
   - [Data prep/import](#data-prepimport)
+  - [Enable the shared cache on an existing app](#enable-the-shared-cache-on-an-existing-app)
 
 ## Static Files
 
@@ -75,6 +76,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `EMAIL_HOST_USER` - username for SMTP host
    - `EMAIL_HOST_PASSWORD` - password for SMTP user
    - `EMAIL_USE_TLS` - use Transport Layer Security (default: True)
+   - `EMAIL_USE_SSL` - use implicit SSL instead of TLS (default: False). When set to True, also set `EMAIL_USE_TLS=False`: Django refuses to send email with both enabled, and TLS is on by default
    - `DEFAULT_FROM_EMAIL` - from address when sending mail (default: tech@westernfriend.org)
 
 6. Edit the App Info with the following settings
@@ -127,3 +129,31 @@ Then, run all importers with a single command. Note: this may take 30-60 minutes
 ```sh
 python manage.py import_all_content
 ```
+
+## Enable the shared cache on an existing app
+
+By default each gunicorn worker keeps its own in-memory cache, which is lost on every restart. Setting `DJANGO_CACHE_TABLE` switches the site to Django's `DatabaseCache`, which all workers share and which survives deploys. Features that must agree across workers, such as rate limiting and cached PayPal subscription status, need it.
+
+Changing `.do/deploy.template.yaml` does not update a running app, because App Platform keeps its own copy of the app spec. Make these changes on the `wf-website` component in the DigitalOcean dashboard.
+
+**The cache table must exist before `DJANGO_CACHE_TABLE` is set.** If the variable is set and the table is missing, every cache read raises a database error and pages can fail with a 500.
+
+1. Note the component's current run command (in the `wf-website` component settings), so you can roll back.
+2. In a **single** edit of the component, before saving:
+   - set the run command to `python manage.py migrate && python manage.py createcachetable && gunicorn core.wsgi --log-file -`
+   - add the environment variable `DJANGO_CACHE_TABLE` with the value `wf_cache` (scope: run time)
+
+   Saving triggers one deploy, which creates the table before gunicorn starts. `createcachetable` does nothing if the table already exists, so it is safe on every deploy.
+
+   If you would rather not change the run command, first run `python manage.py createcachetable` in the app console **with `DJANGO_CACHE_TABLE=wf_cache` set for that command** (for example `DJANGO_CACHE_TABLE=wf_cache python manage.py createcachetable`), then add the environment variable. Without the variable, the command sees the in-memory cache and creates nothing.
+3. After the deploy finishes, confirm in the app console:
+
+   ```sh
+   python manage.py shell -c "from django.core.cache import caches; c = caches['default']; c.set('cache-check', 'ok', 60); print(type(c).__name__, c.get('cache-check'))"
+   ```
+
+   It should print `DatabaseCache ok`. Then load a few pages (home, a magazine article, and the login page) and check Sentry for new errors.
+
+**Rolling back:** remove `DJANGO_CACHE_TABLE`. The site goes back to the per-process in-memory cache. The `wf_cache` table can stay; nothing reads it.
+
+**Scaling beyond one instance:** creating the table in the run command is fine with a single instance. With more than one instance, concurrent starts can race to create the table, so move `createcachetable` to a pre-deploy job.
