@@ -99,11 +99,6 @@ article. `docs/ai-opt-out.md` describes the signals the site publishes.
 - **Negative:** with the default policy, pages that name real people, such
   as memorials and directory contacts, are included. Anything that shouldn't
   enter AI training shouldn't be public on the site.
-- **Negative:** AI models may paraphrase Friends inaccurately, merge distinct
-  Quaker traditions, or not credit Western Friend. AI answers may also mean
-  fewer visits, and visits are how readers find subscriptions and donations.
-  Some Friends object to AI itself. The Editor weighs these when setting the
-  policy.
 - **Negative:** the Editor takes on a new responsibility and needs clear,
   plain-language explanations of what each option means.
 - **Negative:** serving crawlers costs server capacity. Edge caching
