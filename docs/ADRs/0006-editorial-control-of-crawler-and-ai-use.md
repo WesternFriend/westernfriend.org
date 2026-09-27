@@ -101,8 +101,6 @@ article. `docs/ai-opt-out.md` describes the signals the site publishes.
   enter AI training shouldn't be public on the site.
 - **Negative:** the Editor takes on a new responsibility and needs clear,
   plain-language explanations of what each option means.
-- **Negative:** serving crawlers costs server capacity. Edge caching
-  (ADR 0004) keeps that cost down.
 - **Future:** revisit if agents gain reliable ways to prove who they are, or
   if paid access for crawlers becomes practical, since either could add new
   options for the Editor. Supersede this ADR if responsibility for the policy
