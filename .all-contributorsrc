@@ -160,6 +160,17 @@
       ]
     },
     {
+      "login": "claude",
+      "name": "Claude",
+      "avatar_url": "https://avatars.githubusercontent.com/u/81847?v=4",
+      "profile": "https://anthropic.com/claude-code",
+      "contributions": [
+        "code",
+        "test",
+        "bug"
+      ]
+    },
+    {
       "login": "Abdel7aemd-A7med",
       "name": "Abdelhamed Ahmed",
       "avatar_url": "https://avatars.githubusercontent.com/u/220232457?v=4",
