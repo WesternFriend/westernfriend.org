@@ -230,6 +230,9 @@ class CacheSettingsEnvironmentTests(SimpleTestCase):
         cache_environment = {
             "DJANGO_CACHE_TABLE": "wf_cache",
         }
+        had_caches = "CACHES" in core.settings.__dict__
+        original_caches = core.settings.__dict__.get("CACHES")
+
         try:
             with mock.patch.dict("os.environ", cache_environment):
                 importlib.reload(core.settings)
@@ -244,11 +247,17 @@ class CacheSettingsEnvironmentTests(SimpleTestCase):
                     "wf_cache",
                 )
         finally:
-            core.settings.__dict__.pop("CACHES", None)
             importlib.reload(core.settings)
+            if had_caches:
+                core.settings.CACHES = original_caches
+            else:
+                core.settings.__dict__.pop("CACHES", None)
 
     def test_default_cache_when_cache_table_unset(self):
         """DJANGO_CACHE_TABLE unset → Django's default LocMemCache applies."""
+        had_caches = "CACHES" in core.settings.__dict__
+        original_caches = core.settings.__dict__.get("CACHES")
+
         try:
             with (
                 mock.patch("dotenv.load_dotenv"),
@@ -266,8 +275,11 @@ class CacheSettingsEnvironmentTests(SimpleTestCase):
                     "django.core.cache.backends.locmem.LocMemCache",
                 )
         finally:
-            core.settings.__dict__.pop("CACHES", None)
             importlib.reload(core.settings)
+            if had_caches:
+                core.settings.CACHES = original_caches
+            else:
+                core.settings.__dict__.pop("CACHES", None)
 
 class AccountPageAccessibilityTest(TestCase):
     """Regression tests for WCAG issues found in the accessibility audit."""
