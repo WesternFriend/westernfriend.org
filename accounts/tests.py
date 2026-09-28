@@ -224,6 +224,39 @@ class SmtpSettingsEnvironmentTests(SimpleTestCase):
         finally:
             importlib.reload(core.settings)
 
+class CacheSettingsEnvironmentTests(SimpleTestCase):
+    def test_database_cache_when_cache_table_set(self):
+        """DJANGO_CACHE_TABLE set → DatabaseCache with correct LOCATION."""
+        cache_environment = {
+            "DJANGO_CACHE_TABLE": "wf_cache",
+        }
+        try:
+            with mock.patch.dict("os.environ", cache_environment):
+                importlib.reload(core.settings)
+                cache = core.settings.CACHES["default"]
+
+                self.assertEqual(
+                    cache["BACKEND"],
+                    "django.core.cache.backends.db.DatabaseCache",
+                )
+                self.assertEqual(
+                    cache["LOCATION"],
+                    "wf_cache",
+                )
+        finally:
+            importlib.reload(core.settings)
+
+    def test_default_cache_when_cache_table_unset(self):
+        """DJANGO_CACHE_TABLE unset → Django's default LocMemCache applies."""
+        try:
+            with mock.patch.dict("os.environ", {}, clear=True):
+                core.settings.__dict__.pop("CACHES", None)
+                importlib.reload(core.settings)
+
+                self.assertIsNone(core.settings.CACHE_TABLE)
+                self.assertNotIn("CACHES", core.settings.__dict__)
+        finally:
+            importlib.reload(core.settings)
 
 class AccountPageAccessibilityTest(TestCase):
     """Regression tests for WCAG issues found in the accessibility audit."""
