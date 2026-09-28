@@ -3,7 +3,7 @@ import re
 from unittest import mock
 from unittest.mock import PropertyMock, patch
 
-from django.conf import settings
+from django.conf import settings, Settings
 from django.core import mail
 from django.shortcuts import resolve_url
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
@@ -244,18 +244,29 @@ class CacheSettingsEnvironmentTests(SimpleTestCase):
                     "wf_cache",
                 )
         finally:
+            core.settings.__dict__.pop("CACHES", None)
             importlib.reload(core.settings)
 
     def test_default_cache_when_cache_table_unset(self):
         """DJANGO_CACHE_TABLE unset → Django's default LocMemCache applies."""
         try:
-            with mock.patch.dict("os.environ", {}, clear=True):
+            with (
+                mock.patch("dotenv.load_dotenv"),
+                mock.patch.dict("os.environ", {}, clear=True),
+            ):
                 core.settings.__dict__.pop("CACHES", None)
                 importlib.reload(core.settings)
 
                 self.assertIsNone(core.settings.CACHE_TABLE)
                 self.assertNotIn("CACHES", core.settings.__dict__)
+
+                django_settings = Settings("core.settings")
+                self.assertEqual(
+                    django_settings.CACHES["default"]["BACKEND"],
+                    "django.core.cache.backends.locmem.LocMemCache",
+                )
         finally:
+            core.settings.__dict__.pop("CACHES", None)
             importlib.reload(core.settings)
 
 class AccountPageAccessibilityTest(TestCase):
