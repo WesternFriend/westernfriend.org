@@ -3,7 +3,7 @@ import re
 from unittest import mock
 from unittest.mock import PropertyMock, patch
 
-from django.conf import settings, Settings
+from django.conf import Settings, settings
 from django.core import mail
 from django.shortcuts import resolve_url
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
@@ -224,6 +224,7 @@ class SmtpSettingsEnvironmentTests(SimpleTestCase):
         finally:
             importlib.reload(core.settings)
 
+
 class CacheSettingsEnvironmentTests(SimpleTestCase):
     def test_database_cache_when_cache_table_set(self):
         """DJANGO_CACHE_TABLE set → DatabaseCache with correct LOCATION."""
@@ -280,6 +281,7 @@ class CacheSettingsEnvironmentTests(SimpleTestCase):
                 core.settings.CACHES = original_caches
             else:
                 core.settings.__dict__.pop("CACHES", None)
+
 
 class AccountPageAccessibilityTest(TestCase):
     """Regression tests for WCAG issues found in the accessibility audit."""
