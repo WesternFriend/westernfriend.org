@@ -1,3 +1,5 @@
+import re
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from django.conf import settings
@@ -684,3 +686,58 @@ class FlashMessageRolesTest(TestCase):
             html,
             r'role="status"[^>]*>\s*<i[^>]*>\s*</i>\s*<span>Order placed',
         )
+
+
+NEW_WINDOW_NOTE = "(opens in new window)"
+NEW_WINDOW_INCLUDE = 'include "opens_in_new_window.html"'
+
+
+class NewWindowLinkPatternTests(TestCase):
+    """Links that open a new window announce it the same way everywhere."""
+
+    @staticmethod
+    def _template_files() -> list[Path]:
+        repo_root = Path(__file__).resolve().parent.parent
+        return [
+            path
+            for path in repo_root.glob("*/templates/**/*.html")
+            if ".venv" not in path.parts and "node_modules" not in path.parts
+        ]
+
+    def _links_opening_a_new_window(self):
+        for path in self._template_files():
+            markup = path.read_text(encoding="utf-8")
+            for match in re.finditer(
+                r"<a\b[^>]*?target=\"_blank\".*?</a>",
+                markup,
+                re.DOTALL,
+            ):
+                yield path, match.group(0)
+
+    def test_every_new_window_link_announces_itself(self) -> None:
+        # An aria-label replaces the link's content for screen readers, so a
+        # link that sets one has to carry the note in the label instead of the
+        # included span.
+        missing = [
+            str(path)
+            for path, link in self._links_opening_a_new_window()
+            if NEW_WINDOW_INCLUDE not in link and NEW_WINDOW_NOTE not in link
+        ]
+
+        self.assertEqual(missing, [], f"Links missing '{NEW_WINDOW_NOTE}': {missing}")
+
+    def test_every_new_window_link_sets_rel_noopener(self) -> None:
+        missing = [
+            str(path)
+            for path, link in self._links_opening_a_new_window()
+            if "noopener" not in link
+        ]
+
+        self.assertEqual(missing, [], f"Links missing rel=noopener: {missing}")
+
+    def test_the_check_finds_the_links(self) -> None:
+        # Guards against the pattern above silently matching nothing, which
+        # would make both checks pass for the wrong reason.
+        found = list(self._links_opening_a_new_window())
+
+        self.assertGreaterEqual(len(found), 10)
