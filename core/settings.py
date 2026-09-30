@@ -306,6 +306,10 @@ WAGTAILEMBEDS_FINDERS = [
     },
 ]
 
+# Require a description on images, so templates never fall back to a
+# filename-like title for alt text (WCAG 1.1.1).
+WAGTAILIMAGES_IMAGE_FORM_BASE = "common.forms.RequiredDescriptionImageForm"
+
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
