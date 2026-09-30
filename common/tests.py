@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from django.conf import settings
@@ -684,3 +685,38 @@ class FlashMessageRolesTest(TestCase):
             html,
             r'role="status"[^>]*>\s*<i[^>]*>\s*</i>\s*<span>Order placed',
         )
+
+
+class ThemeTogglePlacementTests(TestCase):
+    """The theme toggle lives in the navigation bar, not floating over it."""
+
+    @staticmethod
+    def _template(name: str) -> str:
+        repo_root = Path(__file__).resolve().parent.parent
+        return (repo_root / "common" / "templates" / name).read_text(encoding="utf-8")
+
+    def test_toggle_is_in_the_navigation_bar(self) -> None:
+        self.assertIn('id="theme-toggle"', self._template("navbar.html"))
+
+    def test_toggle_does_not_float_over_the_page(self) -> None:
+        # It used to be a fixed-position aside pinned to the top right, which
+        # could cover content and focused elements on small screens.
+        base = self._template("base.html")
+
+        self.assertNotIn('id="theme-toggle"', base)
+        self.assertNotIn("theme-toggle fixed", base)
+
+    def test_toggle_keeps_its_switch_semantics(self) -> None:
+        navbar = self._template("navbar.html")
+
+        self.assertIn('role="switch"', navbar)
+        self.assertIn('aria-label="Dark mode"', navbar)
+
+    def test_toggle_sits_outside_the_collapsible_menu(self) -> None:
+        # Inside navbarCollapse it would be hidden at mobile widths until the
+        # menu was opened.
+        navbar = self._template("navbar.html")
+        toggle_at = navbar.index('id="theme-toggle"')
+        collapse_at = navbar.index('id="navbarCollapse"')
+
+        self.assertLess(toggle_at, collapse_at)
