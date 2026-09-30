@@ -1,8 +1,12 @@
+from io import BytesIO, StringIO
 from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.core.files.images import ImageFile
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from django.core.signals import request_finished, request_started
 from django.forms import CharField, TextInput
 from django.forms.forms import Form
@@ -10,9 +14,14 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.templatetags.static import static
 from django.test import RequestFactory, TestCase, override_settings
+from django.utils.text import slugify
+from PIL import Image as PILImage
+from wagtail.images import get_image_model
+from wagtail.images.forms import get_image_form, get_image_multi_form
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from common.apps import CommonConfig, _locale_cache_local
+from common.forms import DESCRIPTION_HELP_TEXT, RequiredDescriptionImageForm
 from common.middleware import PublicCacheControlMiddleware
 from common.templatetags.common_form_tags import add_class
 from common.templatetags.common_tags import (
@@ -684,3 +693,98 @@ class FlashMessageRolesTest(TestCase):
             html,
             r'role="status"[^>]*>\s*<i[^>]*>\s*</i>\s*<span>Order placed',
         )
+
+
+class RequiredDescriptionImageFormTests(TestCase):
+    """Tests for requiring a description on images, used as alt text."""
+
+    @staticmethod
+    def _upload() -> SimpleUploadedFile:
+        buffer = BytesIO()
+        PILImage.new("RGB", (10, 10), "#33658a").save(buffer, format="PNG")
+        return SimpleUploadedFile(
+            "example.png",
+            buffer.getvalue(),
+            content_type="image/png",
+        )
+
+    def test_setting_wires_up_the_project_form(self) -> None:
+        form_class = get_image_form(get_image_model())
+
+        self.assertTrue(issubclass(form_class, RequiredDescriptionImageForm))
+
+    def test_multiple_upload_form_also_requires_a_description(self) -> None:
+        # The admin's "Add images" screen uses this form, so checking the single
+        # form alone would miss the route editors use most. When the description
+        # is missing, Wagtail holds the file as an UploadedFile and asks for it
+        # rather than saving an image without one.
+        form = get_image_multi_form(get_image_model())()
+
+        self.assertTrue(form.fields["description"].required)
+
+    def test_description_is_required(self) -> None:
+        form_class = get_image_form(get_image_model())
+
+        form = form_class(
+            data={"title": "Friends gathering", "description": ""},
+            files={"file": self._upload()},
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("description", form.errors)
+
+    def test_image_with_a_description_is_accepted(self) -> None:
+        form_class = get_image_form(get_image_model())
+
+        form = form_class(
+            data={
+                "title": "Friends gathering",
+                "description": "Friends talking together after meeting for worship.",
+            },
+            files={"file": self._upload()},
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_help_text_tells_editors_what_to_write(self) -> None:
+        # Asserted on an instance, not on base_fields: the form sets `required`
+        # and `help_text` in __init__, so the class-level fields are untouched.
+        form = get_image_form(get_image_model())()
+
+        description = form.fields["description"]
+
+        self.assertTrue(description.required)
+        self.assertEqual(description.help_text, DESCRIPTION_HELP_TEXT)
+
+
+class ImagesWithoutDescriptionCommandTests(TestCase):
+    """Tests for the command that lists images missing a description."""
+
+    def _create_image(self, title: str, description: str):
+        buffer = BytesIO()
+        PILImage.new("RGB", (10, 10), "#55624c").save(buffer, format="PNG")
+        return get_image_model().objects.create(
+            title=title,
+            description=description,
+            file=ImageFile(buffer, name=f"{slugify(title)}.png"),
+        )
+
+    def test_lists_images_missing_a_description(self) -> None:
+        described = self._create_image("Described", "Friends after worship.")
+        bare = self._create_image("Bare", "")
+        output = StringIO()
+
+        call_command("images_without_description", stdout=output)
+
+        printed = output.getvalue()
+        self.assertIn(f"{bare.pk}\t{bare.title}", printed)
+        self.assertNotIn(described.title, printed)
+        self.assertIn("1 image(s) have no description", printed)
+
+    def test_reports_when_every_image_has_a_description(self) -> None:
+        self._create_image("Described", "Friends after worship.")
+        output = StringIO()
+
+        call_command("images_without_description", stdout=output)
+
+        self.assertIn("Every image has a description.", output.getvalue())
