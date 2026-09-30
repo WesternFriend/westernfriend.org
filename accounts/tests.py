@@ -3,7 +3,7 @@ import re
 from unittest import mock
 from unittest.mock import PropertyMock, patch
 
-from django.conf import settings
+from django.conf import Settings, settings
 from django.core import mail
 from django.shortcuts import resolve_url
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
@@ -223,6 +223,64 @@ class SmtpSettingsEnvironmentTests(SimpleTestCase):
                 )
         finally:
             importlib.reload(core.settings)
+
+
+class CacheSettingsEnvironmentTests(SimpleTestCase):
+    def test_database_cache_when_cache_table_set(self):
+        """DJANGO_CACHE_TABLE set → DatabaseCache with correct LOCATION."""
+        cache_environment = {
+            "DJANGO_CACHE_TABLE": "wf_cache",
+        }
+        had_caches = "CACHES" in core.settings.__dict__
+        original_caches = core.settings.__dict__.get("CACHES")
+
+        try:
+            with mock.patch.dict("os.environ", cache_environment):
+                importlib.reload(core.settings)
+                cache = core.settings.CACHES["default"]
+
+                self.assertEqual(
+                    cache["BACKEND"],
+                    "django.core.cache.backends.db.DatabaseCache",
+                )
+                self.assertEqual(
+                    cache["LOCATION"],
+                    "wf_cache",
+                )
+        finally:
+            importlib.reload(core.settings)
+            if had_caches:
+                core.settings.CACHES = original_caches
+            else:
+                core.settings.__dict__.pop("CACHES", None)
+
+    def test_default_cache_when_cache_table_unset(self):
+        """DJANGO_CACHE_TABLE unset → Django's default LocMemCache applies."""
+        had_caches = "CACHES" in core.settings.__dict__
+        original_caches = core.settings.__dict__.get("CACHES")
+
+        try:
+            with (
+                mock.patch("dotenv.load_dotenv"),
+                mock.patch.dict("os.environ", {}, clear=True),
+            ):
+                core.settings.__dict__.pop("CACHES", None)
+                importlib.reload(core.settings)
+
+                self.assertIsNone(core.settings.CACHE_TABLE)
+                self.assertNotIn("CACHES", core.settings.__dict__)
+
+                django_settings = Settings("core.settings")
+                self.assertEqual(
+                    django_settings.CACHES["default"]["BACKEND"],
+                    "django.core.cache.backends.locmem.LocMemCache",
+                )
+        finally:
+            importlib.reload(core.settings)
+            if had_caches:
+                core.settings.CACHES = original_caches
+            else:
+                core.settings.__dict__.pop("CACHES", None)
 
 
 class AccountPageAccessibilityTest(TestCase):
