@@ -7,7 +7,7 @@
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue-ghost.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/WesternFriend/westernfriend.org/tree/main)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-20-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-21-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 A website for [Western Friend](https://westernfriend.org), a Quaker publication that provides resources and support for Quaker communities and individuals seeking to live out their faith in the world. Western Friend is part of the Religious Society of Friends.
@@ -48,6 +48,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/software-developer-engineer/"><img src="https://avatars.githubusercontent.com/u/94129321?v=4?s=100" width="100px;" alt="Pawel Poleszczuk"/><br /><sub><b>Pawel Poleszczuk</b></sub></a><br /><a href="https://github.com/WesternFriend/westernfriend.org/commits?author=P-Pole" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ResendeTech"><img src="https://avatars.githubusercontent.com/u/142721352?v=4?s=100" width="100px;" alt="ResendeTech"/><br /><sub><b>ResendeTech</b></sub></a><br /><a href="https://github.com/WesternFriend/westernfriend.org/commits?author=ResendeTech" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/RugvedBane"><img src="https://avatars.githubusercontent.com/u/215723681?v=4?s=100" width="100px;" alt="Rugved Bane"/><br /><sub><b>Rugved Bane</b></sub></a><br /><a href="https://github.com/WesternFriend/westernfriend.org/commits?author=RugvedBane" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/viktoriussuwandi"><img src="https://avatars.githubusercontent.com/u/68414300?v=4?s=100" width="100px;" alt="Viktorius Suwandi"/><br /><sub><b>Viktorius Suwandi</b></sub></a><br /><a href="https://github.com/WesternFriend/westernfriend.org/commits?author=viktoriussuwandi" title="Code">💻</a> <a href="https://github.com/WesternFriend/westernfriend.org/commits?author=viktoriussuwandi" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://www.glassbound.net/"><img src="https://avatars.githubusercontent.com/u/251044106?v=4?s=100" width="100px;" alt="Xavier Salaices"/><br /><sub><b>Xavier Salaices</b></sub></a><br /><a href="https://github.com/WesternFriend/westernfriend.org/commits?author=xsalaices" title="Code">💻</a> <a href="https://github.com/WesternFriend/westernfriend.org/commits?author=xsalaices" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lokeshkadem"><img src="https://avatars.githubusercontent.com/u/130270325?v=4?s=100" width="100px;" alt="kadem lokesh"/><br /><sub><b>kadem lokesh</b></sub></a><br /><a href="https://github.com/WesternFriend/westernfriend.org/commits?author=lokeshkadem" title="Code">💻</a></td>
