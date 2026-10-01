@@ -1,11 +1,13 @@
 from urllib.parse import urlsplit
 
 from django.conf import settings
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models.signals import post_delete, post_save
 from django.urls import reverse
 from wagtail.contrib.frontend_cache.utils import PurgeBatch
-from wagtail.models import PageViewRestriction
+from wagtail.models import PageViewRestriction, Site
+from wagtail.signals import page_published, page_unpublished, post_page_move
 
 from common.models import CrawlerPolicySetting
 
@@ -50,6 +52,42 @@ def purge_crawler_policy_files(instance, **kwargs):
     purge_crawler_files([instance.site])
 
 
+def purge_live_page_url_cache(page):
+    """Drop the cached footer URL for this page's slug, on every site.
+
+    ``live_page_url_by_slug`` caches the URL per (site, slug) so the footer
+    costs no query once warm. Without this, unpublishing, moving, or restricting
+    the linked page would leave its old URL in the footer — and so a dead or
+    404 link — until the cache's TTL expired. Clearing every site's key for the
+    slug is cheap (sites are few and Wagtail caches them) and covers whichever
+    site the page belongs to.
+
+    Honest limit: this keys off the page's *current* slug, so renaming a
+    live page's slug is only reflected within LIVE_PAGE_URL_CACHE_SECONDS;
+    publish, unpublish, move, and privacy changes are reflected at once.
+    """
+    # Imported lazily so this module (loaded in AppConfig.ready) does not import
+    # the template tag library at app-registry setup time.
+    from common.templatetags.common_tags import live_page_url_cache_key
+
+    keys = [live_page_url_cache_key(None, page.slug)]
+    keys += [
+        live_page_url_cache_key(site_id, page.slug)
+        for site_id in Site.objects.values_list("id", flat=True)
+    ]
+    cache.delete_many(keys)
+
+
+def purge_live_page_url_for_page(instance, **kwargs):
+    """page_published / page_unpublished / post_page_move handler."""
+    purge_live_page_url_cache(instance)
+
+
+def purge_live_page_url_for_restriction(instance, **kwargs):
+    """PageViewRestriction handler — privacy changes alter .public() results."""
+    purge_live_page_url_cache(instance.page)
+
+
 def register_signal_handlers():
     for signal in (post_save, post_delete):
         # Deleting a saved policy returns the site to the defaults
@@ -63,3 +101,15 @@ def register_signal_handlers():
             sender=PageViewRestriction,
             dispatch_uid=f"purge_restricted_pages_{signal is post_save}",
         )
+        signal.connect(
+            purge_live_page_url_for_restriction,
+            sender=PageViewRestriction,
+            dispatch_uid=f"purge_live_page_url_restriction_{signal is post_save}",
+        )
+
+    for wagtail_signal, uid in (
+        (page_published, "purge_live_page_url_on_publish"),
+        (page_unpublished, "purge_live_page_url_on_unpublish"),
+        (post_page_move, "purge_live_page_url_on_move"),
+    ):
+        wagtail_signal.connect(purge_live_page_url_for_page, dispatch_uid=uid)

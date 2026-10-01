@@ -6,10 +6,18 @@ so it is never a dead link while the page is being drafted.
 
 ## Publishing it
 
-1. In the Wagtail admin, add a page under the site root.
+1. In the Wagtail admin, add a child page under the home page, choosing the
+   **Page** content type (the `WfPage` model). The home page offers several
+   child types; the generic Wagtail *Page* used in the tests cannot be added
+   through the editor and has no body to hold the wording.
 2. Title it **Accessibility**, and set the slug to `accessibility`.
-3. Paste the wording below, edit it to suit, and publish.
+3. Paste the wording below into the page body, edit it to suit, and publish.
 4. The footer link appears on every page.
+
+Or run `./manage.py create_accessibility_statement` to create the page as an
+unpublished **draft**, pre-filled with the wording below, for an editor to
+review and publish. The command does not publish it — the text makes a public
+claim on Western Friend's behalf and a person has to stand behind it.
 
 The editor owns this text. The draft below is a starting point, not something
 to publish unread: it makes a public claim about the site on Western Friend's

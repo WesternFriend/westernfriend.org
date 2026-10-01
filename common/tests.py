@@ -703,14 +703,18 @@ class AccessibilityStatementFooterLinkTest(TestCase):
             root_page=self.home,
             is_default_site=True,
         )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
 
     def _footer(self) -> str:
         return render_to_string("footer.html", request=RequestFactory().get("/"))
 
     def _publish(self, slug: str = "accessibility", title: str = "Accessibility"):
+        # No manual cache clear: publishing must invalidate the footer cache on
+        # its own (via common.signal_handlers), which is what a live edit relies
+        # on. The reviewer flagged that a manual clear hid this gap.
         page = self.home.add_child(instance=Page(title=title, slug=slug))
         page.save_revision().publish()
-        cache.clear()
         return page
 
     def test_no_link_before_the_page_exists(self) -> None:
@@ -726,10 +730,22 @@ class AccessibilityStatementFooterLinkTest(TestCase):
         self.assertIn("Accessibility", footer)
         self.assertIn("/accessibility/", footer)
 
-    def test_unpublished_page_does_not_produce_a_link(self) -> None:
+    def test_publishing_updates_an_already_warm_footer(self) -> None:
+        # Warm the cache with "no such page", then publish. Without signal-based
+        # invalidation the footer would keep hiding the link until the TTL.
+        self.assertNotIn("Accessibility", self._footer())
+
+        self._publish()
+
+        self.assertIn("Accessibility", self._footer())
+
+    def test_unpublishing_updates_an_already_warm_footer(self) -> None:
+        # The reviewer's case: a warm footer must drop the link the moment the
+        # page is unpublished, not after the cache TTL.
         page = self._publish()
+        self.assertIn("Accessibility", self._footer())
+
         page.unpublish()
-        cache.clear()
 
         self.assertNotIn("Accessibility", self._footer())
 
@@ -737,33 +753,138 @@ class AccessibilityStatementFooterLinkTest(TestCase):
 class LivePageUrlBySlugTest(TestCase):
     """The tag behind the footer link."""
 
-    def test_returns_none_when_no_page_matches(self) -> None:
-        self.assertIsNone(live_page_url_by_slug("nothing-is-here"))
-
     def setUp(self) -> None:
         cache.clear()
+        Site.objects.all().delete()
         root = Page.objects.get(depth=1)
         self.home = root.add_child(
             instance=HomePage(title="Home", slug="a11y-tag-home"),
         )
+        self.site = Site.objects.create(
+            hostname="testserver",
+            root_page=self.home,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
 
-    def test_returns_the_live_page(self) -> None:
-        page = self.home.add_child(
+    def _context(self, host: str = "testserver") -> dict:
+        return {"request": RequestFactory().get("/", HTTP_HOST=host)}
+
+    def _publish_accessibility(self, parent=None):
+        page = (parent or self.home).add_child(
             instance=Page(title="Accessibility", slug="accessibility"),
         )
         page.save_revision().publish()
+        cache.clear()
+        return page
 
-        self.assertEqual(live_page_url_by_slug("accessibility"), page.url)
+    def test_returns_none_when_no_page_matches(self) -> None:
+        self.assertIsNone(
+            live_page_url_by_slug(self._context(), "nothing-is-here"),
+        )
+
+    def test_returns_none_without_a_request(self) -> None:
+        self.assertIsNone(live_page_url_by_slug({}, "nothing-is-here"))
+
+    def test_returns_the_live_page(self) -> None:
+        page = self._publish_accessibility()
+
+        self.assertEqual(
+            live_page_url_by_slug(self._context(), "accessibility"),
+            page.url,
+        )
 
     def test_ignores_a_private_page(self) -> None:
         # A restricted page would render a link the reader cannot follow.
-        page = self.home.add_child(
-            instance=Page(title="Accessibility", slug="accessibility"),
-        )
-        page.save_revision().publish()
+        page = self._publish_accessibility()
         PageViewRestriction.objects.create(
             page=page,
             restriction_type=PageViewRestriction.LOGIN,
         )
+        cache.clear()
 
-        self.assertIsNone(live_page_url_by_slug("accessibility"))
+        self.assertIsNone(
+            live_page_url_by_slug(self._context(), "accessibility"),
+        )
+
+    def test_scoped_to_the_current_site(self) -> None:
+        # The same slug on another site must not leak across.
+        root = Page.objects.get(depth=1)
+        other_home = root.add_child(
+            instance=HomePage(title="Other", slug="a11y-other-home"),
+        )
+        Site.objects.create(hostname="other.example", root_page=other_home)
+        other_page = other_home.add_child(
+            instance=Page(title="Accessibility", slug="accessibility"),
+        )
+        other_page.save_revision().publish()
+        Site.clear_site_root_paths_cache()
+        cache.clear()
+
+        # This site has no such page, even though another site does.
+        self.assertIsNone(
+            live_page_url_by_slug(self._context("testserver"), "accessibility"),
+        )
+        # The other site resolves its own.
+        self.assertEqual(
+            live_page_url_by_slug(self._context("other.example"), "accessibility"),
+            other_page.url,
+        )
+
+
+class CreateAccessibilityStatementCommandTest(TestCase):
+    """The management command seeds the statement as an unpublished draft."""
+
+    def setUp(self) -> None:
+        cache.clear()
+        Site.objects.all().delete()
+        root = Page.objects.get(depth=1)
+        self.home = root.add_child(
+            instance=HomePage(title="Home", slug="a11y-cmd-home"),
+        )
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def _run(self) -> str:
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        out = StringIO()
+        call_command("create_accessibility_statement", stdout=out)
+        return out.getvalue()
+
+    def test_creates_an_unpublished_draft_under_home(self) -> None:
+        from wf_pages.models import WfPage
+
+        self._run()
+
+        page = WfPage.objects.get(slug="accessibility")
+        self.assertFalse(page.live)
+        self.assertEqual(page.get_parent().id, self.home.id)
+        self.assertIsNotNone(page.get_latest_revision())
+        body = str(page.body)
+        self.assertIn("WCAG", body)
+        self.assertIn("editor@westernfriend.org", body)
+
+    def test_no_footer_link_until_the_draft_is_published(self) -> None:
+        self._run()
+
+        footer = render_to_string("footer.html", request=RequestFactory().get("/"))
+
+        self.assertNotIn("/accessibility/", footer)
+
+    def test_is_idempotent(self) -> None:
+        from wf_pages.models import WfPage
+
+        self._run()
+        second = self._run()
+
+        self.assertEqual(WfPage.objects.filter(slug="accessibility").count(), 1)
+        self.assertIn("already exists", second)

@@ -130,22 +130,44 @@ def exclude_from_breadcrumbs(page):
 LIVE_PAGE_URL_CACHE_SECONDS = 300
 
 
-@register.simple_tag
-def live_page_url_by_slug(slug: str):
+def live_page_url_cache_key(site_id, slug: str) -> str:
+    """Cache key for :func:`live_page_url_by_slug`, scoped to one site.
+
+    ``common.signal_handlers`` builds the same key to invalidate the entry, so
+    the format lives here as the single source of truth.
+    """
+    return f"live_page_url:{site_id if site_id is not None else 'none'}:{slug}"
+
+
+@register.simple_tag(takes_context=True)
+def live_page_url_by_slug(context, slug: str):
     """Return the URL of the live, public page with this slug, or None.
 
     Lets a template link to an editor-created page without the link turning
     into a 404 before that page exists.
 
-    The URL is cached rather than the page, because the caller is the footer
-    on every page: once warm this costs no query at all. A page published or
-    unpublished since then is reflected within LIVE_PAGE_URL_CACHE_SECONDS.
+    The lookup is scoped to the current Wagtail site, so a multi-site install
+    never links one site's footer to another site's page, nor to an unrelated
+    page elsewhere in the tree that happens to share the slug.
+
+    The URL is cached per site rather than the page, because the caller is the
+    footer on every page: once warm this costs no query at all. The entry is
+    invalidated by ``common.signal_handlers`` when a page is published,
+    unpublished, moved, or has its view restrictions changed, so an edit shows
+    at once; LIVE_PAGE_URL_CACHE_SECONDS is only a backstop.
     """
-    cache_key = f"live_page_url:{slug}"
+    request = context.get("request")
+    site = Site.find_for_request(request) if request else None
+    cache_key = live_page_url_cache_key(site.id if site else None, slug)
     cached = cache.get(cache_key)
 
     if cached is None:
-        page = Page.objects.live().public().filter(slug=slug).first()
+        pages = Page.objects.live().public()
+        if site is not None:
+            # Only pages under this site's root, so a shared slug on another
+            # site (or an unrelated subtree) can't be picked up.
+            pages = pages.descendant_of(site.root_page, inclusive=True)
+        page = pages.filter(slug=slug).first()
         # "" records "no such page", which None could not do: a cached None
         # is indistinguishable from a cache miss.
         cached = page.url if page else ""
