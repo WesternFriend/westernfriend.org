@@ -1,0 +1,9 @@
+{
+    "name": "westernfriend-dev-tooling",
+    "private": true,
+    "description": "Developer tooling only - the site is Python/Django. These packages run the automated accessibility checks; see docs/accessibility-checks.md.",
+    "devDependencies": {
+        "axe-core": "4.10.2",
+        "puppeteer-core": "24.9.0"
+    }
+}
