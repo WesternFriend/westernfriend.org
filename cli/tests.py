@@ -181,6 +181,24 @@ class SeedDevContentTest(TestCase):
                 )
                 self.assertEqual(response.status_code, 200)
 
+    def test_a11y_urls_covers_every_page_type(self) -> None:
+        """The accessibility check's URL list resolves on a seeded site.
+
+        CI scans exactly these URLs (docs/accessibility-checks.md), so each
+        must come back and each must serve a page.
+        """
+        stdout = StringIO()
+        call_command("a11y_urls", base="", stdout=stdout)
+        urls = stdout.getvalue().split()
+
+        self.assertEqual(len(urls), 9)
+        self.assertIn("/", urls)
+        self.assertIn("/search/?query=the", urls)
+        self.assertIn("/accounts/login/", urls)
+        for url in urls:
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, 200)
+
 
 class SeedDevContentGuardTest(TestCase):
     def setUp(self) -> None:
@@ -215,3 +233,13 @@ class SeedDevContentGuardTest(TestCase):
     def test_refuses_when_frontend_cache_is_configured(self) -> None:
         with self.assertRaisesMessage(CommandError, "frontend cache"):
             call_command("seed_dev_content", scale="small", stdout=StringIO())
+
+
+class A11yUrlsGuardTest(TestCase):
+    """The URL command fails loudly rather than scanning fewer templates."""
+
+    def test_refuses_when_a_page_type_is_missing(self) -> None:
+        # An unseeded database has no magazine issue (nor anything else);
+        # naming the missing type makes the CI failure self-explanatory.
+        with self.assertRaisesMessage(CommandError, "magazine issue"):
+            call_command("a11y_urls", stdout=StringIO())

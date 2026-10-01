@@ -178,6 +178,93 @@ jobs:
             exit 1
           fi
 
+  # Automated accessibility checks (#1282): axe-core scans a seeded site, so a
+  # template change that regresses WCAG 2.2 AA fails CI instead of waiting for
+  # a reader to write in. See docs/accessibility-checks.md.
+  a11y:
+    name: Accessibility checks
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+          # The settings' default development database, created at startup so
+          # migrate and seed_dev_content have a real database to fill.
+          POSTGRES_DB: wf_website
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install locked dependencies
+        run: uv sync --locked
+
+      # axe-core and puppeteer-core only; the browser is the runner's own
+      # Chrome, so nothing downloads a second one.
+      - name: Install the accessibility checker
+        run: npm ci
+
+      - name: Seed a development site
+        run: |
+          uv run --no-sync python manage.py migrate --no-input
+          uv run --no-sync python manage.py seed_dev_content --scale small --seed 1234
+
+      # DJANGO_DEBUG so runserver serves the committed Tailwind CSS: axe's
+      # color-contrast checks are meaningless against unstyled pages.
+      - name: Run accessibility checks
+        id: a11y-checks
+        continue-on-error: true
+        env:
+          DJANGO_DEBUG: "true"
+        run: |
+          set -o pipefail
+          uv run --no-sync python manage.py runserver 127.0.0.1:8000 --noreload &
+          for _ in $(seq 1 30); do
+            curl --silent --fail --output /dev/null http://127.0.0.1:8000/ && break
+            sleep 1
+          done
+          curl --silent --fail --output /dev/null http://127.0.0.1:8000/
+          node scripts/a11y-check.mjs $(uv run --no-sync python manage.py a11y_urls) 2>&1 | tee /tmp/a11y.txt
+
+      - name: Write result for report job
+        if: always()
+        env:
+          A11Y_OUTCOME: ${{ steps.a11y-checks.outcome }}
+        run: |
+          touch /tmp/a11y.txt
+          jq -n \
+            --arg outcome "$A11Y_OUTCOME" \
+            --rawfile output /tmp/a11y.txt \
+            '{checks: {"a11y-checks": {outcome: $outcome, output: $output}}}' > result.json
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: check-result-a11y
+          path: result.json
+          retention-days: 1
+
+      - name: Fail if any check failed
+        if: always()
+        run: |
+          if [ "${{ steps.a11y-checks.outcome }}" != "success" ]; then
+            echo "Accessibility checks failed. See the job summary for details."
+            exit 1
+          fi
+
   # The seed_dev_content tests build a whole mock site, which takes about a
   # minute, so they run here in parallel rather than lengthening the test job.
   # They still run on every PR: a new required field or template change can
@@ -264,7 +351,7 @@ jobs:
   report:
     name: CI result
     runs-on: ubuntu-latest
-    needs: [lint, test, seed]
+    needs: [lint, test, seed, a11y]
     if: always()
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -285,6 +372,7 @@ jobs:
           LINT_RESULT: ${{ needs.lint.result }}
           TEST_RESULT: ${{ needs.test.result }}
           SEED_RESULT: ${{ needs.seed.result }}
+          A11Y_RESULT: ${{ needs.a11y.result }}
         with:
           script: |
             const fs = require('fs');
@@ -298,6 +386,7 @@ jobs:
               lint: process.env.LINT_RESULT,
               test: process.env.TEST_RESULT,
               seed: process.env.SEED_RESULT,
+              a11y: process.env.A11Y_RESULT,
             };
             const problems = Object.entries(jobResults)
               .filter(([job, result]) => result !== 'success' && !results.some((r) => !r.passed && CHECKS[r.key].job === job))
@@ -310,7 +399,8 @@ jobs:
         run: |
           if [ "${{ needs.lint.result }}" != "success" ] || \
              [ "${{ needs.test.result }}" != "success" ] || \
-             [ "${{ needs.seed.result }}" != "success" ]; then
+             [ "${{ needs.seed.result }}" != "success" ] || \
+             [ "${{ needs.a11y.result }}" != "success" ]; then
             echo "One or more checks failed. See the summary above."
             exit 1
           fi

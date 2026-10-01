@@ -37,6 +37,11 @@ const CHECKS = {
     label: 'Development content seeding tests',
     fix: 'uv run python manage.py test --tag seed',
   },
+  'a11y-checks': {
+    job: 'a11y',
+    label: 'Accessibility checks (axe-core, WCAG 2.2 AA)',
+    fix: 'see docs/accessibility-checks.md',
+  },
 };
 
 // Keep both ends of long output: the first error is usually near the start,
