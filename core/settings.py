@@ -17,7 +17,7 @@ from pathlib import Path
 import dj_database_url
 import sentry_sdk
 from django.contrib.messages import constants as messages_constants
-from django.core.management.utils import get_random_secret_key
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -55,7 +55,23 @@ DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 if DEBUG:
     SECRET_KEY = "not-so-secret-key"  # noqa: S105 - local development only
 else:
-    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
+    # Fail fast rather than quietly generating one. With a random fallback here,
+    # every gunicorn worker started with a DIFFERENT key and nothing reported it:
+    # sessions signed by one worker were rejected by the others, so visitors were
+    # logged out at random and CSRF checks failed, and password-reset and account
+    # activation tokens stopped working on restart. A missing required secret has
+    # to stop the process, not degrade the site invisibly.
+    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+    if not SECRET_KEY:
+        # `not` rather than a KeyError on os.environ: an empty or whitespace-only
+        # value is just as broken as an absent one, and is a likely way to get
+        # here (an unset variable in a .env file or compose file still defines it).
+        message = (
+            "DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is off. "
+            "Generate one with: python -c 'from django.core.management.utils "
+            "import get_random_secret_key; print(get_random_secret_key())'"
+        )
+        raise ImproperlyConfigured(message)
 
 LOGGING = {
     "version": 1,

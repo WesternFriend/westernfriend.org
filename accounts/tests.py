@@ -5,6 +5,7 @@ from unittest.mock import PropertyMock, patch
 
 from django.conf import Settings, settings
 from django.core import mail
+from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import resolve_url
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import NoReverseMatch, reverse
@@ -225,6 +226,52 @@ class SmtpSettingsEnvironmentTests(SimpleTestCase):
             importlib.reload(core.settings)
 
 
+class SecretKeySettingsTests(SimpleTestCase):
+    """A missing SECRET_KEY must stop the process, not be invented per worker.
+
+    The old fallback generated a random key, so each gunicorn worker ran with a
+    different one: sessions and CSRF tokens signed by one were rejected by the
+    others, and the real problem never surfaced.
+    """
+
+    def _reload_with(self, environment):
+        with (
+            mock.patch("dotenv.load_dotenv"),
+            mock.patch.dict("os.environ", environment, clear=True),
+        ):
+            importlib.reload(core.settings)
+
+    def tearDown(self):
+        importlib.reload(core.settings)
+
+    def test_refuses_to_start_without_a_key_in_production(self):
+        with self.assertRaises(ImproperlyConfigured) as caught:
+            self._reload_with({"DJANGO_DEBUG": "false"})
+
+        # The message has to say which variable and how to make one, or the
+        # person hitting it at 3am learns nothing from the crash.
+        self.assertIn("DJANGO_SECRET_KEY", str(caught.exception))
+        self.assertIn("get_random_secret_key", str(caught.exception))
+
+    def test_refuses_an_empty_key_in_production(self):
+        """An unset variable in a .env or compose file still defines it as ""."""
+        with self.assertRaises(ImproperlyConfigured):
+            self._reload_with({"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": ""})
+
+    def test_uses_the_key_from_the_environment_in_production(self):
+        self._reload_with(
+            {"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "a-real-secret"},
+        )
+
+        self.assertEqual(core.settings.SECRET_KEY, "a-real-secret")
+
+    def test_debug_still_runs_without_a_key(self):
+        """Local development must not need a secret configured."""
+        self._reload_with({"DJANGO_DEBUG": "true"})
+
+        self.assertTrue(core.settings.SECRET_KEY)
+
+
 class CacheSettingsEnvironmentTests(SimpleTestCase):
     def test_database_cache_when_cache_table_set(self):
         """DJANGO_CACHE_TABLE set → DatabaseCache with correct LOCATION."""
@@ -262,7 +309,14 @@ class CacheSettingsEnvironmentTests(SimpleTestCase):
         try:
             with (
                 mock.patch("dotenv.load_dotenv"),
-                mock.patch.dict("os.environ", {}, clear=True),
+                # A cleared environment now means "production with no secret",
+                # which settings refuses to start with, so supply the one
+                # required variable. This test is about CACHES, not secrets.
+                mock.patch.dict(
+                    "os.environ",
+                    {"DJANGO_SECRET_KEY": "test-key-for-settings-reload"},
+                    clear=True,
+                ),
             ):
                 core.settings.__dict__.pop("CACHES", None)
                 importlib.reload(core.settings)
