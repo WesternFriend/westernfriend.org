@@ -1,4 +1,4 @@
-from pathlib import Path
+from html.parser import HTMLParser
 from unittest.mock import MagicMock, patch
 
 from django.conf import settings
@@ -687,36 +687,106 @@ class FlashMessageRolesTest(TestCase):
         )
 
 
+class ElementAncestry(HTMLParser):
+    """Locates an element by id and records the elements enclosing it."""
+
+    VOID_ELEMENTS = frozenset(
+        {
+            "area",
+            "base",
+            "br",
+            "col",
+            "embed",
+            "hr",
+            "img",
+            "input",
+            "link",
+            "meta",
+            "source",
+            "track",
+            "wbr",
+        },
+    )
+
+    def __init__(self, element_id: str) -> None:
+        super().__init__(convert_charrefs=True)
+        self.element_id = element_id
+        self.tag: str | None = None
+        self.attrs: dict[str, str] = {}
+        self.ancestors: list[dict[str, str]] = []
+        self._open: list[dict[str, str]] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = {name: value or "" for name, value in attrs}
+
+        if self.tag is None and attributes.get("id") == self.element_id:
+            self.tag = tag
+            self.attrs = attributes
+            self.ancestors = list(self._open)
+
+        if tag not in self.VOID_ELEMENTS:
+            self._open.append({"tag": tag, **attributes})
+
+    def handle_endtag(self, tag: str) -> None:
+        for index in range(len(self._open) - 1, -1, -1):
+            if self._open[index]["tag"] == tag:
+                del self._open[index:]
+                return
+
+    @property
+    def found(self) -> bool:
+        return self.tag is not None
+
+    @property
+    def ancestor_tags(self) -> list[str]:
+        return [ancestor["tag"] for ancestor in self.ancestors]
+
+    @property
+    def ancestor_ids(self) -> list[str]:
+        return [ancestor["id"] for ancestor in self.ancestors if ancestor.get("id")]
+
+    @property
+    def ancestor_classes(self) -> list[str]:
+        return [
+            css_class
+            for ancestor in self.ancestors
+            for css_class in ancestor.get("class", "").split()
+        ]
+
+
 class ThemeTogglePlacementTests(TestCase):
     """The theme toggle lives in the navigation bar, not floating over it."""
 
-    @staticmethod
-    def _template(name: str) -> str:
-        repo_root = Path(__file__).resolve().parent.parent
-        return (repo_root / "common" / "templates" / name).read_text(encoding="utf-8")
+    def setUp(self) -> None:
+        # heading.html includes navbar.html, so this renders the toggle in the
+        # markup that actually ships, rather than inspecting template source.
+        html = render_to_string("heading.html", request=RequestFactory().get("/"))
+        self.toggle = ElementAncestry("theme-toggle")
+        self.toggle.feed(html)
 
-    def test_toggle_is_in_the_navigation_bar(self) -> None:
-        self.assertIn('id="theme-toggle"', self._template("navbar.html"))
+    def test_toggle_is_rendered_as_a_switch(self) -> None:
+        self.assertTrue(self.toggle.found, "no element with id 'theme-toggle'")
+        self.assertEqual(self.toggle.tag, "input")
+        self.assertEqual(self.toggle.attrs.get("type"), "checkbox")
+        self.assertEqual(self.toggle.attrs.get("role"), "switch")
+        self.assertEqual(self.toggle.attrs.get("aria-label"), "Dark mode")
 
-    def test_toggle_does_not_float_over_the_page(self) -> None:
-        # It used to be a fixed-position aside pinned to the top right, which
-        # could cover content and focused elements on small screens.
-        base = self._template("base.html")
-
-        self.assertNotIn('id="theme-toggle"', base)
-        self.assertNotIn("theme-toggle fixed", base)
-
-    def test_toggle_keeps_its_switch_semantics(self) -> None:
-        navbar = self._template("navbar.html")
-
-        self.assertIn('role="switch"', navbar)
-        self.assertIn('aria-label="Dark mode"', navbar)
+    def test_toggle_is_inside_the_navigation_bar(self) -> None:
+        self.assertIn("nav", self.toggle.ancestor_tags)
 
     def test_toggle_sits_outside_the_collapsible_menu(self) -> None:
         # Inside navbarCollapse it would be hidden at mobile widths until the
         # menu was opened.
-        navbar = self._template("navbar.html")
-        toggle_at = navbar.index('id="theme-toggle"')
-        collapse_at = navbar.index('id="navbarCollapse"')
+        self.assertNotIn("navbarCollapse", self.toggle.ancestor_ids)
 
-        self.assertLess(toggle_at, collapse_at)
+    def test_toggle_does_not_float_over_the_page(self) -> None:
+        # It used to be a fixed-position aside pinned to the top right, which
+        # could cover content and focused elements on small screens.
+        self.assertNotIn("fixed", self.toggle.ancestor_classes)
+
+    def test_only_one_toggle_is_rendered(self) -> None:
+        # Guards against the old floating one being left behind alongside the
+        # new one, which would duplicate the id and break the theme script.
+        html = render_to_string("heading.html", request=RequestFactory().get("/"))
+
+        self.assertEqual(html.count('id="theme-toggle"'), 1)
