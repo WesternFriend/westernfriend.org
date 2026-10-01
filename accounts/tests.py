@@ -1,5 +1,6 @@
 import importlib
 import re
+import sys
 from unittest import mock
 from unittest.mock import PropertyMock, patch
 
@@ -258,6 +259,22 @@ class SecretKeySettingsTests(SimpleTestCase):
         with self.assertRaises(ImproperlyConfigured):
             self._reload_with({"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": ""})
 
+    def test_refuses_a_whitespace_only_key_in_production(self):
+        """Whitespace is truthy, so a bare falsiness check would let it through.
+
+        A key of spaces signs just as badly as no key at all.
+        """
+        with self.assertRaises(ImproperlyConfigured):
+            self._reload_with({"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "   "})
+
+    def test_surrounding_whitespace_is_stripped(self):
+        """A trailing newline from a secrets file must not change the key."""
+        self._reload_with(
+            {"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "  a-real-secret\n"},
+        )
+
+        self.assertEqual(core.settings.SECRET_KEY, "a-real-secret")
+
     def test_uses_the_key_from_the_environment_in_production(self):
         self._reload_with(
             {"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "a-real-secret"},
@@ -270,6 +287,43 @@ class SecretKeySettingsTests(SimpleTestCase):
         self._reload_with({"DJANGO_DEBUG": "true"})
 
         self.assertTrue(core.settings.SECRET_KEY)
+
+    def test_collectstatic_runs_without_a_key(self):
+        """The build runs collectstatic before the runtime secret exists.
+
+        It signs nothing, so it gets a placeholder rather than a hard stop —
+        the same exemption DATABASES already makes for this command.
+        """
+        with mock.patch.object(sys, "argv", ["manage.py", "collectstatic"]):
+            self._reload_with({"DJANGO_DEBUG": "false"})
+
+        self.assertTrue(core.settings.SECRET_KEY)
+
+    def test_other_commands_still_fail_without_a_key(self):
+        """The collectstatic exemption must not leak to anything that serves."""
+        with mock.patch.object(sys, "argv", ["manage.py", "migrate"]):
+            with self.assertRaises(ImproperlyConfigured):
+                self._reload_with({"DJANGO_DEBUG": "false"})
+
+    def test_fallback_keys_are_parsed_for_rotation(self):
+        """Old keys keep existing sessions valid while a new key rolls out."""
+        self._reload_with(
+            {
+                "DJANGO_DEBUG": "false",
+                "DJANGO_SECRET_KEY": "new-key",
+                "DJANGO_SECRET_KEY_FALLBACKS": " old-key , older-key ,",
+            },
+        )
+
+        self.assertEqual(
+            core.settings.SECRET_KEY_FALLBACKS,
+            ["old-key", "older-key"],
+        )
+
+    def test_no_fallback_keys_by_default(self):
+        self._reload_with({"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "k"})
+
+        self.assertEqual(core.settings.SECRET_KEY_FALLBACKS, [])
 
 
 class CacheSettingsEnvironmentTests(SimpleTestCase):

@@ -15,6 +15,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Settings refuse to load without a secret key when DEBUG is off (#1226), and a
+# CI checkout has no .env. This is a throwaway fixture, not a secret: it signs
+# nothing that outlives the job. Set at workflow level so any job that loads
+# Django settings gets it, including ones added later.
+env:
+  DJANGO_SECRET_KEY: ci-only-not-a-real-secret-key-for-github-actions
+
 jobs:
   # Every check step below is continue-on-error so that one failure doesn't hide
   # another -- e.g. a formatting problem and a failing test show up in the same
