@@ -1,5 +1,6 @@
 import importlib
 import re
+from pathlib import Path
 from unittest import mock
 from unittest.mock import PropertyMock, patch
 
@@ -351,3 +352,38 @@ class AccountPageAccessibilityTest(TestCase):
             html,
             r'<input[^>]*autocomplete="family-name"[^>]*id="id_last_name"',
         )
+
+
+class AccountPagesAreNoindexTest(TestCase):
+    """Account workflow pages are not content, and crawlers loop through them."""
+
+    TEMPLATE_DIRS = (
+        "accounts/templates/django_registration",
+        "accounts/templates/registration",
+    )
+
+    def _page_templates(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        for directory in self.TEMPLATE_DIRS:
+            for path in sorted((repo_root / directory).glob("*.html")):
+                markup = path.read_text(encoding="utf-8")
+                # Email bodies are not pages and have no base template.
+                if "{% extends" in markup:
+                    yield path, markup
+
+    def test_every_account_page_is_noindex(self) -> None:
+        missing = [
+            path.name
+            for path, markup in self._page_templates()
+            if "meta_robots" not in markup
+        ]
+
+        self.assertEqual(
+            missing,
+            [],
+            f"account pages missing a noindex block: {missing}",
+        )
+
+    def test_the_check_finds_the_templates(self) -> None:
+        # Without this the assertion above would pass by matching nothing.
+        self.assertGreaterEqual(len(list(self._page_templates())), 10)
