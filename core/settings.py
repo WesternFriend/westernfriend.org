@@ -17,7 +17,7 @@ from pathlib import Path
 import dj_database_url
 import sentry_sdk
 from django.contrib.messages import constants as messages_constants
-from django.core.management.utils import get_random_secret_key
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -52,10 +52,54 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 
+# True only while running `manage.py collectstatic`, which happens at build time
+# before runtime secrets exist. See NOT_COLLECTING_STATICFILES further down for
+# the long-standing database equivalent — the two are deliberately separate
+# expressions, because that one is also False for a bare `manage.py`.
+COLLECTING_STATICFILES = len(sys.argv) > 1 and sys.argv[1] == "collectstatic"
+
 if DEBUG:
     SECRET_KEY = "not-so-secret-key"  # noqa: S105 - local development only
 else:
-    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
+    # Fail fast rather than quietly generating one. With a random fallback here,
+    # every gunicorn worker started with a DIFFERENT key and nothing reported it:
+    # sessions signed by one worker were rejected by the others, so visitors were
+    # logged out at random and CSRF checks failed, and password-reset and account
+    # activation tokens stopped working on restart. A missing required secret has
+    # to stop the process, not degrade the site invisibly.
+    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "").strip()
+    if not SECRET_KEY:
+        # Stripped, rather than a KeyError on os.environ: an empty or
+        # whitespace-only value is just as broken as an absent one, and both are
+        # likely ways to get here (an unset variable in a .env or compose file
+        # still defines it as ""). A bare KeyError would also accept "   ".
+        if COLLECTING_STATICFILES:
+            # collectstatic runs during the build, before the runtime secret is
+            # injected, and signs nothing — it only walks the static tree. The
+            # DATABASES block below already skips its own config for exactly
+            # this command; this is the same exemption for the same reason.
+            # Deliberately NOT reusing NOT_COLLECTING_STATICFILES: that flag is
+            # also False for a bare `manage.py` with no subcommand, which is not
+            # the same question being asked here.
+            SECRET_KEY = "build-time-placeholder-not-used-to-sign-anything"  # noqa: S105
+        else:
+            message = (
+                "DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is off. "
+                "Generate one with: python -c 'from django.core.management.utils "
+                "import get_random_secret_key; print(get_random_secret_key())'"
+            )
+            raise ImproperlyConfigured(message)
+
+# Rotation support: Django checks these when a signature fails to verify against
+# SECRET_KEY, so the current key can be replaced without logging everyone out or
+# invalidating in-flight password-reset tokens. Set the old key here for one
+# deploy cycle, then drop it. Same failure this issue is about — sessions dying
+# from a key mismatch — just the intentional version.
+SECRET_KEY_FALLBACKS = [
+    key.strip()
+    for key in os.getenv("DJANGO_SECRET_KEY_FALLBACKS", "").split(",")
+    if key.strip()
+]
 
 LOGGING = {
     "version": 1,
