@@ -184,6 +184,11 @@ jobs:
   a11y:
     name: Accessibility checks
     runs-on: ubuntu-latest
+    env:
+      # Job-wide: seed_dev_content refuses to run with DEBUG off, and the
+      # scan needs runserver to serve the committed Tailwind CSS - axe's
+      # color-contrast checks are meaningless against unstyled pages.
+      DJANGO_DEBUG: "true"
     services:
       postgres:
         image: postgres
@@ -217,18 +222,22 @@ jobs:
       - name: Install the accessibility checker
         run: npm ci
 
+      # Seeding is its own recorded check, so when it fails the CI report
+      # shows the seeding error itself instead of an empty accessibility log.
       - name: Seed a development site
+        id: seed-site
+        continue-on-error: true
         run: |
-          uv run --no-sync python manage.py migrate --no-input
-          uv run --no-sync python manage.py seed_dev_content --scale small --seed 1234
+          set -o pipefail
+          {
+            uv run --no-sync python manage.py migrate --no-input
+            uv run --no-sync python manage.py seed_dev_content --scale small --seed 1234
+          } 2>&1 | tee /tmp/a11y-seed.txt
 
-      # DJANGO_DEBUG so runserver serves the committed Tailwind CSS: axe's
-      # color-contrast checks are meaningless against unstyled pages.
       - name: Run accessibility checks
         id: a11y-checks
+        if: steps.seed-site.outcome == 'success'
         continue-on-error: true
-        env:
-          DJANGO_DEBUG: "true"
         run: |
           set -o pipefail
           uv run --no-sync python manage.py runserver 127.0.0.1:8000 --noreload &
@@ -246,13 +255,22 @@ jobs:
       - name: Write result for report job
         if: always()
         env:
+          SEED_OUTCOME: ${{ steps.seed-site.outcome }}
           A11Y_OUTCOME: ${{ steps.a11y-checks.outcome }}
         run: |
-          touch /tmp/a11y.txt
+          touch /tmp/a11y-seed.txt /tmp/a11y.txt
+          if [ "$A11Y_OUTCOME" = "skipped" ]; then
+            echo "Skipped: the site could not be seeded - see the seeding check above." > /tmp/a11y.txt
+          fi
           jq -n \
-            --arg outcome "$A11Y_OUTCOME" \
-            --rawfile output /tmp/a11y.txt \
-            '{checks: {"a11y-checks": {outcome: $outcome, output: $output}}}' > result.json
+            --arg seed_outcome "$SEED_OUTCOME" \
+            --arg a11y_outcome "$A11Y_OUTCOME" \
+            --rawfile seed_output /tmp/a11y-seed.txt \
+            --rawfile a11y_output /tmp/a11y.txt \
+            '{checks: {
+               "a11y-seed": {outcome: $seed_outcome, output: $seed_output},
+               "a11y-checks": {outcome: $a11y_outcome, output: $a11y_output}
+             }}' > result.json
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
@@ -264,7 +282,8 @@ jobs:
       - name: Fail if any check failed
         if: always()
         run: |
-          if [ "${{ steps.a11y-checks.outcome }}" != "success" ]; then
+          if [ "${{ steps.seed-site.outcome }}" != "success" ] || \
+             [ "${{ steps.a11y-checks.outcome }}" != "success" ]; then
             echo "Accessibility checks failed. See the job summary for details."
             exit 1
           fi

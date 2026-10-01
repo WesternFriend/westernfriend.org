@@ -193,11 +193,27 @@ class SeedDevContentTest(TestCase):
 
         self.assertEqual(len(urls), 9)
         self.assertIn("/", urls)
-        self.assertIn("/search/?query=the", urls)
         self.assertIn("/accounts/login/", urls)
         for url in urls:
             with self.subTest(url=url):
                 self.assertEqual(self.client.get(url).status_code, 200)
+
+    def test_a11y_search_url_returns_results(self) -> None:
+        """The search scan must see result rows, not the empty state.
+
+        The query is a word from a seeded article's title, because a fixed
+        word can be a stopword the search view strips (as "the" was).
+        """
+        stdout = StringIO()
+        call_command("a11y_urls", base="", stdout=stdout)
+        search_url = next(
+            url for url in stdout.getvalue().split() if url.startswith("/search/")
+        )
+
+        response = self.client.get(search_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["paginated_search_results"].page.object_list)
 
 
 class SeedDevContentGuardTest(TestCase):

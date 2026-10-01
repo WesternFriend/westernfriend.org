@@ -36,9 +36,10 @@ well, which is more than this check should gate PRs on.
 # One-time: install the two checker packages
 npm ci
 
-# Seed a development database, if you haven't (see getting-started docs)
+# Seed a development database, if you haven't (see getting-started docs).
+# DJANGO_DEBUG because the seeder refuses to run against a production setup.
 ./manage.py migrate
-./manage.py seed_dev_content --scale small --seed 1234
+DJANGO_DEBUG=true ./manage.py seed_dev_content --scale small --seed 1234
 
 # Serve it (DEBUG so the committed Tailwind CSS is served; axe's
 # color-contrast rules are meaningless against unstyled pages)
