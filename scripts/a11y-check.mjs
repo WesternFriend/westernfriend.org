@@ -28,9 +28,19 @@ import puppeteer from "puppeteer-core";
 const require = createRequire(import.meta.url);
 const AXE_SOURCE = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 
-// WCAG 2.2 AA and everything it inherits; no best-practice rules, so every
+// WCAG 2.2 AA and everything it inherits. No best-practice rules, so every
 // failure maps to a WCAG success criterion the project has committed to.
-const AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
+// axe-core 4.10 tags no rule wcag22a (the 2.2 A criteria have no automated
+// rules yet), but the tag is listed so such rules are picked up the release
+// they appear instead of being silently skipped.
+const AXE_TAGS = [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22a",
+    "wcag22aa",
+];
 
 const FAIL_IMPACTS = new Set(["serious", "critical"]);
 

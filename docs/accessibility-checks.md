@@ -44,8 +44,10 @@ npm ci
 # color-contrast rules are meaningless against unstyled pages)
 DJANGO_DEBUG=true ./manage.py runserver 8000
 
-# In another shell: scan the representative pages
-node scripts/a11y-check.mjs $(./manage.py a11y_urls)
+# In another shell: scan the representative pages. Two steps, so a failure
+# from a11y_urls is seen rather than swallowed by the $() substitution.
+./manage.py a11y_urls > /tmp/a11y-urls.txt
+node scripts/a11y-check.mjs $(cat /tmp/a11y-urls.txt)
 ```
 
 If Chrome is somewhere unusual, point the script at it with
