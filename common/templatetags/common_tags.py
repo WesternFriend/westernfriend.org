@@ -4,7 +4,7 @@ from django import template
 from django.core.serializers.json import DjangoJSONEncoder
 from django.templatetags.static import static
 from django.utils.safestring import SafeString, mark_safe
-from wagtail.models import Site
+from wagtail.models import Page, Site
 
 register = template.Library()
 
@@ -124,3 +124,13 @@ def exclude_from_breadcrumbs(page):
         return False
 
     return page._meta.model_name.lower() in EXCLUDED_BREADCRUMB_MODELS
+
+
+@register.simple_tag
+def live_page_by_slug(slug: str):
+    """Return the live, public page with this slug, or None.
+
+    Lets a template link to an editor-created page without the link turning
+    into a 404 before that page exists.
+    """
+    return Page.objects.live().public().filter(slug=slug).first()
