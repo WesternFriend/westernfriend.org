@@ -985,3 +985,70 @@ class SearchIndexEntryIndexTestCase(TestCase):
             plan = "\n".join(row[0] for row in cursor.fetchall())
 
         self.assertIn(self.index_name, plan)
+
+
+class SearchCrawlerDirectivesTest(TestCase):
+    """Search is the heaviest page to render, and crawlers loop through it."""
+
+    def test_search_page_is_noindex(self) -> None:
+        response = self.client.get(reverse("search"))
+
+        self.assertContains(response, '<meta name="robots" content="noindex" />')
+
+    def test_search_pagination_links_are_nofollow(self) -> None:
+        # Each query makes its own set of paged URLs, so following them is
+        # unbounded work for no indexable result.
+        # The search view shows 25 per page, so this needs to clear that.
+        issue = MagazineIssueFactory.create()
+        for index in range(30):
+            MagazineArticleFactory.create(
+                title=f"Findable article {index}",
+                parent=issue,
+            )
+
+        search_backend = get_search_backend()
+        for page in Page.objects.all():
+            search_backend.add(page)
+
+        response = self.client.get(reverse("search"), {"query": "Findable"})
+        html = response.content.decode()
+
+        page_links = re.findall(r"<a\b[^>]*\?page=[^>]*>", html)
+        self.assertTrue(page_links, "expected paginated search links")
+        for link in page_links:
+            self.assertIn('rel="nofollow"', link)
+
+
+class ContentListingsStayCrawlableTest(TestCase):
+    """The paginator is shared, so nofollow must not leak to content listings."""
+
+    def test_paginator_has_no_rel_by_default(self) -> None:
+        from django.template.loader import render_to_string
+
+        html = render_to_string(
+            "paginator.html",
+            {
+                "paginated_items": _StubPage(),
+                "current_querystring": "",
+            },
+        )
+
+        self.assertIn("?page=", html)
+        self.assertNotIn("nofollow", html)
+
+
+class _StubPage:
+    """Minimum shape paginator.html reads, with more than one page."""
+
+    class page:
+        number = 1
+        has_other_pages = True
+        has_previous = False
+        has_next = True
+        next_page_number = 2
+
+        class paginator:
+            num_pages = 3
+            ELLIPSIS = "…"
+
+    elided_page_range = [1, 2, 3]

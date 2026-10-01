@@ -4,11 +4,11 @@
             {% if paginated_items.page.has_previous %}
                 <a href="?page=1&{{ current_querystring }}{{ fragment_identifier }}"
                    class="join-item btn btn-outline btn-sm"
-                   aria-label="First page">&laquo; first</a>
+                   aria-label="First page"{% if nofollow %} rel="nofollow"{% endif %}>&laquo; first</a>
 
                 <a href="?page={{ paginated_items.page.previous_page_number }}&{{ current_querystring }}{{ fragment_identifier }}"
                    class="join-item btn btn-outline btn-sm"
-                   aria-label="Previous page">
+                   aria-label="Previous page"{% if nofollow %} rel="nofollow"{% endif %}>
                     previous
                 </a>
             {% endif %}
@@ -18,7 +18,7 @@
                     <a href="?page={{ page_number }}&{{ current_querystring }}{{ fragment_identifier }}"
                        class="join-item btn btn-outline btn-sm btn-active"
                        aria-label="Current page {{ page_number }}"
-                       aria-current="page">
+                       aria-current="page"{% if nofollow %} rel="nofollow"{% endif %}>
                         {{ page_number }}
                     </a>
                 {% elif page_number == paginated_items.page.paginator.ELLIPSIS %}
@@ -28,7 +28,7 @@
                 {% else %}
                     <a href="?page={{ page_number }}&{{ current_querystring }}{{ fragment_identifier }}"
                        class="join-item btn btn-outline btn-sm"
-                       aria-label="Go to page {{ page_number }}">
+                       aria-label="Go to page {{ page_number }}"{% if nofollow %} rel="nofollow"{% endif %}>
                         {{ page_number }}
                     </a>
                 {% endif %}
@@ -37,13 +37,13 @@
             {% if paginated_items.page.has_next %}
                 <a href="?page={{ paginated_items.page.next_page_number }}&{{ current_querystring }}{{ fragment_identifier }}"
                    class="join-item btn btn-outline btn-sm"
-                   aria-label="Next page">
+                   aria-label="Next page"{% if nofollow %} rel="nofollow"{% endif %}>
                     next
                 </a>
 
                 <a href="?page={{ paginated_items.page.paginator.num_pages }}&{{ current_querystring }}{{ fragment_identifier }}"
                    class="join-item btn btn-outline btn-sm"
-                   aria-label="Last page">
+                   aria-label="Last page"{% if nofollow %} rel="nofollow"{% endif %}>
                     last &raquo;
                 </a>
             {% endif %}
