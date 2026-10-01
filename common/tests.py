@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.core.cache import cache
 from django.core.signals import request_finished, request_started
 from django.forms import CharField, TextInput
 from django.forms.forms import Form
@@ -19,6 +20,7 @@ from common.templatetags.common_tags import (
     absolute_static,
     canonical_url,
     exclude_from_breadcrumbs,
+    live_page_url_by_slug,
     model_name,
     site_root_url,
     specific_pages,
@@ -684,3 +686,84 @@ class FlashMessageRolesTest(TestCase):
             html,
             r'role="status"[^>]*>\s*<i[^>]*>\s*</i>\s*<span>Order placed',
         )
+
+
+class AccessibilityStatementFooterLinkTest(TestCase):
+    """The footer links to the statement, but only once it exists."""
+
+    def setUp(self) -> None:
+        cache.clear()
+        Site.objects.all().delete()
+        root = Page.objects.get(depth=1)
+        self.home = root.add_child(
+            instance=HomePage(title="Home", slug="a11y-home"),
+        )
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home,
+            is_default_site=True,
+        )
+
+    def _footer(self) -> str:
+        return render_to_string("footer.html", request=RequestFactory().get("/"))
+
+    def _publish(self, slug: str = "accessibility", title: str = "Accessibility"):
+        page = self.home.add_child(instance=Page(title=title, slug=slug))
+        page.save_revision().publish()
+        cache.clear()
+        return page
+
+    def test_no_link_before_the_page_exists(self) -> None:
+        # A footer link to a page nobody has written yet would be a 404 on
+        # every page of the site, which is a poor look in an accessibility fix.
+        self.assertNotIn("Accessibility", self._footer())
+
+    def test_link_appears_once_the_page_is_published(self) -> None:
+        self._publish()
+
+        footer = self._footer()
+
+        self.assertIn("Accessibility", footer)
+        self.assertIn("/accessibility/", footer)
+
+    def test_unpublished_page_does_not_produce_a_link(self) -> None:
+        page = self._publish()
+        page.unpublish()
+        cache.clear()
+
+        self.assertNotIn("Accessibility", self._footer())
+
+
+class LivePageUrlBySlugTest(TestCase):
+    """The tag behind the footer link."""
+
+    def test_returns_none_when_no_page_matches(self) -> None:
+        self.assertIsNone(live_page_url_by_slug("nothing-is-here"))
+
+    def setUp(self) -> None:
+        cache.clear()
+        root = Page.objects.get(depth=1)
+        self.home = root.add_child(
+            instance=HomePage(title="Home", slug="a11y-tag-home"),
+        )
+
+    def test_returns_the_live_page(self) -> None:
+        page = self.home.add_child(
+            instance=Page(title="Accessibility", slug="accessibility"),
+        )
+        page.save_revision().publish()
+
+        self.assertEqual(live_page_url_by_slug("accessibility"), page.url)
+
+    def test_ignores_a_private_page(self) -> None:
+        # A restricted page would render a link the reader cannot follow.
+        page = self.home.add_child(
+            instance=Page(title="Accessibility", slug="accessibility"),
+        )
+        page.save_revision().publish()
+        PageViewRestriction.objects.create(
+            page=page,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        self.assertIsNone(live_page_url_by_slug("accessibility"))

@@ -1,6 +1,7 @@
 import json
 
 from django import template
+from django.core.cache import cache
 from django.core.serializers.json import DjangoJSONEncoder
 from django.templatetags.static import static
 from django.utils.safestring import SafeString, mark_safe
@@ -126,11 +127,28 @@ def exclude_from_breadcrumbs(page):
     return page._meta.model_name.lower() in EXCLUDED_BREADCRUMB_MODELS
 
 
+LIVE_PAGE_URL_CACHE_SECONDS = 300
+
+
 @register.simple_tag
-def live_page_by_slug(slug: str):
-    """Return the live, public page with this slug, or None.
+def live_page_url_by_slug(slug: str):
+    """Return the URL of the live, public page with this slug, or None.
 
     Lets a template link to an editor-created page without the link turning
     into a 404 before that page exists.
+
+    The URL is cached rather than the page, because the caller is the footer
+    on every page: once warm this costs no query at all. A page published or
+    unpublished since then is reflected within LIVE_PAGE_URL_CACHE_SECONDS.
     """
-    return Page.objects.live().public().filter(slug=slug).first()
+    cache_key = f"live_page_url:{slug}"
+    cached = cache.get(cache_key)
+
+    if cached is None:
+        page = Page.objects.live().public().filter(slug=slug).first()
+        # "" records "no such page", which None could not do: a cached None
+        # is indistinguishable from a cache miss.
+        cached = page.url if page else ""
+        cache.set(cache_key, cached, LIVE_PAGE_URL_CACHE_SECONDS)
+
+    return cached or None

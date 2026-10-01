@@ -31,9 +31,9 @@
                 </a>
 
                 {# Shown once an editor publishes the page, so the link is never a 404 #}
-                {% live_page_by_slug "accessibility" as accessibility_page %}
-                {% if accessibility_page %}
-                    <a href="{% pageurl accessibility_page %}" class="text-gray-100 hover:text-white focus:underline focus:ring-2 focus:ring-gray-300 focus:outline-none underline">
+                {% live_page_url_by_slug "accessibility" as accessibility_url %}
+                {% if accessibility_url %}
+                    <a href="{{ accessibility_url }}" class="text-gray-100 hover:text-white focus:underline focus:ring-2 focus:ring-gray-300 focus:outline-none underline">
                         Accessibility
                     </a>
                 {% endif %}
