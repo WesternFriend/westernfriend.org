@@ -13,6 +13,16 @@
                 <i class="bi bi-list text-2xl" aria-hidden="true"></i>
             </button>
 
+            {# Sits in the top row rather than inside navbarCollapse, so it stays #}
+            {# visible at mobile widths without opening the menu. #}
+            <div class="shrink-0">
+                <label class="flex items-center gap-2 cursor-pointer p-2">
+                    <i class="bi bi-sun-fill" aria-hidden="true"></i>
+                    <input type="checkbox" id="theme-toggle" class="toggle toggle-sm theme-controller" role="switch" aria-label="Dark mode" />
+                    <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+                </label>
+            </div>
+
             <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse">
                 <div class="flex flex-col xl:flex-row xl:items-center xl:space-x-1">
                     <ul class="menu menu-horizontal menu-compact bg-black website-links" aria-label="Site navigation links">

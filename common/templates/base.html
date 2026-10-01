@@ -118,15 +118,6 @@
 
         {% include "heading.html" %}
 
-        <!-- Theme toggle: announced as a "Dark mode" switch with on/off state -->
-        <aside class="theme-toggle fixed top-2 right-2 md:top-4 md:right-4 z-60 bg-base-100 p-2 rounded-lg shadow-md" aria-label="Display settings">
-            <label class="flex items-center gap-2 cursor-pointer">
-                <i class="bi bi-sun-fill" aria-hidden="true"></i>
-                <input type="checkbox" id="theme-toggle" class="toggle toggle-sm theme-controller" role="switch" aria-label="Dark mode" />
-                <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
-            </label>
-        </aside>
-
         <main id="main-content" class="container mx-auto px-4 mt-4 mb-4 flex-shrink-0">
             {% if messages %}
                 <div class="notifications">
