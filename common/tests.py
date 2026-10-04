@@ -692,7 +692,11 @@ class FlashMessageRolesTest(TestCase):
 # include and every aria-label suffix render it, and this constant reads it,
 # so a wording change happens in exactly one place.
 NEW_WINDOW_NOTE = render_to_string("new_window_note.txt").strip()
+# Templates are scanned as SOURCE, not rendered, so a link can announce itself
+# by including either template rather than by carrying the wording literally:
+# the bare note (inside an aria-label) or the sr-only span (everywhere else).
 NEW_WINDOW_INCLUDE = "new_window_note.txt"
+NEW_WINDOW_WRAPPER = "opens_in_new_window.html"
 
 
 class NewWindowLinkPatternTests(TestCase):
@@ -724,12 +728,23 @@ class NewWindowLinkPatternTests(TestCase):
         # included span would not be read.
         label = re.search(r"\baria-label\s*=\s*([\"'])(.*?)\1", link, re.DOTALL)
         if label:
-            return NEW_WINDOW_NOTE in label.group(2)
-        return NEW_WINDOW_INCLUDE in link or NEW_WINDOW_NOTE in link
+            text = label.group(2)
+            return NEW_WINDOW_NOTE in text or NEW_WINDOW_INCLUDE in text
+        return (
+            NEW_WINDOW_WRAPPER in link
+            or NEW_WINDOW_INCLUDE in link
+            or NEW_WINDOW_NOTE in link
+        )
 
     @staticmethod
     def _rel_tokens(link: str) -> list[str]:
-        match = re.search(r"\brel\s*=\s*([\"'])(.*?)\1", link, re.DOTALL)
+        # The boundary has to be a real attribute break: \b alone would let
+        # data-rel="noopener" satisfy the check, since the hyphen counts as one.
+        match = re.search(
+            r"(?:^|[\s\"'/])rel\s*=\s*([\"'])(.*?)\1",
+            link,
+            re.DOTALL,
+        )
         return match.group(2).split() if match else []
 
     def test_every_new_window_link_announces_itself(self) -> None:
