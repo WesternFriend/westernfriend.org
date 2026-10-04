@@ -781,6 +781,19 @@ class ImagesWithoutDescriptionCommandTests(TestCase):
         self.assertNotIn(described.title, printed)
         self.assertIn("1 image(s) have no description", printed)
 
+    def test_lists_images_with_whitespace_only_descriptions(self) -> None:
+        # The admin form strips whitespace before validating, but images that
+        # predate the form (or were imported) can hold a description of only
+        # spaces, which renders as empty alt text just the same.
+        padded = self._create_image("Padded", "   ")
+        output = StringIO()
+
+        call_command("images_without_description", stdout=output)
+
+        printed = output.getvalue()
+        self.assertIn(f"{padded.pk}\t{padded.title}", printed)
+        self.assertIn("1 image(s) have no description", printed)
+
     def test_reports_when_every_image_has_a_description(self) -> None:
         self._create_image("Described", "Friends after worship.")
         output = StringIO()
