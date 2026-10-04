@@ -12,7 +12,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         images = list(
             get_image_model()
-            .objects.filter(description="")
+            # Whitespace-only descriptions render as empty alt text too, so
+            # match them along with the truly empty ones. The admin form now
+            # prevents both, but images that predate it can hold either.
+            .objects.filter(description__regex=r"^\s*$")
             .order_by("title")
             .only("title"),
         )
