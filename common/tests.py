@@ -688,8 +688,11 @@ class FlashMessageRolesTest(TestCase):
         )
 
 
-NEW_WINDOW_NOTE = "(opens in new window)"
-NEW_WINDOW_INCLUDE = 'include "opens_in_new_window.html"'
+# The wording's single shared source is new_window_note.txt: the sr-only
+# include and every aria-label suffix render it, and this constant reads it,
+# so a wording change happens in exactly one place.
+NEW_WINDOW_NOTE = render_to_string("new_window_note.txt").strip()
+NEW_WINDOW_INCLUDE = "new_window_note.txt"
 
 
 class NewWindowLinkPatternTests(TestCase):
