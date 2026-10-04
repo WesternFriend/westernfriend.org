@@ -21,22 +21,29 @@ from wf_pages.models import WfPage
 STATEMENT_SLUG = "accessibility"
 STATEMENT_TITLE = "Accessibility"
 
-# Each entry becomes a "rich_text" block in the page body. Kept in sync with the
-# draft in docs/accessibility-statement.md; the editor refines it before
-# publishing.
-BODY_RICH_TEXT = [
+# Each ("heading", text) entry becomes a level-2 "heading" block and each
+# ("rich_text", html) entry a "rich_text" block in the page body. The section
+# titles are heading blocks, not bold paragraphs: a bold paragraph reads as
+# plain text to a screen reader, so the statement could not be navigated by
+# heading — and the body's rich text has no heading feature, so real headings
+# have to be their own blocks. Kept in sync with the draft in
+# docs/accessibility-statement.md; the editor refines it before publishing.
+BODY_BLOCKS = [
     (
+        "rich_text",
         "<p>Western Friend wants everyone to be able to read what we publish, "
         "including people who use screen readers, keyboards, magnification, or "
-        "speech input.</p>"
+        "speech input.</p>",
     ),
+    ("heading", "What we aim for"),
     (
-        "<p><b>What we aim for</b></p>"
+        "rich_text",
         "<p>We aim to meet the Web Content Accessibility Guidelines (WCAG) 2.2 "
-        "at level AA across westernfriend.org.</p>"
+        "at level AA across westernfriend.org.</p>",
     ),
+    ("heading", "Where we currently fall short"),
     (
-        "<p><b>Where we currently fall short</b></p>"
+        "rich_text",
         "<p>We had the site reviewed in September 2026. These are the problems "
         "we know about and have not yet fixed:</p>"
         "<ul>"
@@ -52,23 +59,36 @@ BODY_RICH_TEXT = [
         "keyboard testing. We have not yet done a full pass with a screen "
         "reader, so there will be problems we have not found. Please tell us "
         "about them.</li>"
-        "</ul>"
+        "</ul>",
     ),
+    ("heading", "Telling us about a problem"),
     (
-        "<p><b>Telling us about a problem</b></p>"
+        "rich_text",
         "<p>If something on this site stops you reading it, please write to "
         '<a href="mailto:editor@westernfriend.org">editor@westernfriend.org</a> '
         "or call (503) 487-2945. Tell us the page and what happened, and we will "
         "reply and say what we can do.</p>"
         "<p>If you need an article in another form, ask, and we will send it to "
-        "you.</p>"
+        "you.</p>",
     ),
+    ("heading", "This statement"),
     (
-        "<p><b>This statement</b></p>"
+        "rich_text",
         "<p>This is a draft awaiting editorial review. Confirm the wording is "
-        "true, then set the date you publish it.</p>"
+        "true, then set the date you publish it.</p>",
     ),
 ]
+
+
+def _block_value(block_type: str, value: str) -> dict | RichText:
+    """Turn a BODY_BLOCKS entry into its StreamField block value.
+
+    The page title is the page's single h1, so every section heading sits one
+    level below it at h2.
+    """
+    if block_type == "heading":
+        return {"heading_level": "h2", "heading_text": value, "target_slug": ""}
+    return RichText(value)
 
 
 class Command(BaseCommand):
@@ -96,7 +116,10 @@ class Command(BaseCommand):
         page = WfPage(
             title=STATEMENT_TITLE,
             slug=STATEMENT_SLUG,
-            body=[("rich_text", RichText(html)) for html in BODY_RICH_TEXT],
+            body=[
+                (block_type, _block_value(block_type, value))
+                for block_type, value in BODY_BLOCKS
+            ],
             # A draft: it must be reviewed and published by a person.
             live=False,
             has_unpublished_changes=True,
