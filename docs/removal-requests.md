@@ -55,11 +55,21 @@ and leaves nothing to point to if the request is later withdrawn or disputed.
 
 There is no per-page `noindex` or de-indexing control. The **Crawlers and AI**
 setting applies to the whole site, so it isn't the tool for a single request.
-Unpublishing or making the page private prevents future access and crawling,
-but it does not remove results a search engine has already stored, and no
-setting here can promise that cached copies and snippets disappear. Those fall
-away as the engine re-crawls and finds nothing, which is not immediate. Say so
-rather than telling a requester the page will be gone from search.
+Neither action removes a result a search engine has already stored, and the
+two differ in what they can be expected to do about it:
+
+- **Unpublishing** leaves nothing at the address. A search engine that comes
+  back finds the page gone, and the result falls away in its own time. That is
+  not immediate and a cached copy or a snippet may show in the meantime.
+- **Making a page private** does not do that. The page keeps its address and
+  still answers there, behind the password or login, so a crawler returning to
+  it is not told the page has gone. The entry can stay in search results, with
+  whatever snippet was taken before. Privacy stops a reader opening the page;
+  it is not a way of getting it out of search.
+
+So if the point of the request is that the page should stop turning up in
+search, unpublish it rather than making it private — and still say that
+existing results may take time to clear, instead of promising they will go.
 
 ### Check the listings too
 
