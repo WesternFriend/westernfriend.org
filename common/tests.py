@@ -733,9 +733,13 @@ class AccessibilityStatementFooterLinkTest(TestCase):
     def test_publishing_updates_an_already_warm_footer(self) -> None:
         # Warm the cache with "no such page", then publish. Without signal-based
         # invalidation the footer would keep hiding the link until the TTL.
+        # The purge is deferred to transaction.on_commit (so a concurrent
+        # request cannot re-cache pre-commit state), and TestCase wraps each
+        # test in a transaction that never commits — so execute the callbacks.
         self.assertNotIn("Accessibility", self._footer())
 
-        self._publish()
+        with self.captureOnCommitCallbacks(execute=True):
+            self._publish()
 
         self.assertIn("Accessibility", self._footer())
 
@@ -745,7 +749,8 @@ class AccessibilityStatementFooterLinkTest(TestCase):
         page = self._publish()
         self.assertIn("Accessibility", self._footer())
 
-        page.unpublish()
+        with self.captureOnCommitCallbacks(execute=True):
+            page.unpublish()
 
         self.assertNotIn("Accessibility", self._footer())
 
