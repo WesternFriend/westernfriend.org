@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.validators import validate_slug
 from django.utils.html import format_html
 from wagtail import blocks as wagtail_blocks
@@ -101,16 +102,44 @@ class HeadingBlock(wagtail_blocks.StructBlock):
         template = "blocks/blocks/heading.html"
 
 
+CAPTIONS_NOT_VTT_ERROR = (
+    "Captions must be a WebVTT (.vtt) file. '%(filename)s' is not a .vtt file."
+)
+
+
+def validate_webvtt_document(document) -> None:
+    """Reject a captions document that is not a WebVTT (.vtt) file.
+
+    Without this, any document the editor picks is rendered as a caption
+    ``<track>``: a PDF or an image produces a track the browser cannot parse,
+    so the captions silently never appear.
+    """
+    if document.file_extension.lower() != "vtt":
+        raise ValidationError(
+            CAPTIONS_NOT_VTT_ERROR,
+            code="invalid_caption_format",
+            params={"filename": document.filename},
+        )
+
+
 class MediaChooserBlock(AbstractMediaChooserBlock):
     """Concrete media chooser used inside :class:`MediaBlock`.
 
     The player markup is rendered by ``MediaBlock``'s template, not here, so
     that an optional caption ``<track>`` can sit *inside* the ``<video>`` /
     ``<audio>`` element where the browser expects it.
+
+    It still returns the media title rather than nothing, because
+    ``MediaChooserBlockComparison`` feeds ``render_basic`` into the revision
+    comparison view: returning an empty string leaves the Media row blank
+    there even when the media has been swapped, while its sibling captions and
+    transcript rows show their change.
     """
 
-    def render_basic(self, value, context=None):
-        return ""
+    def render_basic(self, value, context=None) -> str:
+        if not value:
+            return ""
+        return format_html("{}", value.title)
 
 
 class MediaBlock(wagtail_blocks.StructBlock):
@@ -123,6 +152,7 @@ class MediaBlock(wagtail_blocks.StructBlock):
     media = MediaChooserBlock()
     captions = DocumentChooserBlock(
         required=False,
+        validators=(validate_webvtt_document,),
         help_text=(
             "Optional WebVTT (.vtt) caption file, shown on the player. "
             "Captions for embedded YouTube or Vimeo videos are set with the "

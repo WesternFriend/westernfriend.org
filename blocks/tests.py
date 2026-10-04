@@ -1,8 +1,14 @@
 from unittest.mock import Mock
 
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from .blocks import MediaBlock, PullQuoteBlock
+from .blocks import (
+    MediaBlock,
+    MediaChooserBlock,
+    PullQuoteBlock,
+    validate_webvtt_document,
+)
 
 
 def _mock_media(media_type: str = "video") -> Mock:
@@ -77,6 +83,50 @@ class MediaBlockTest(TestCase):
             {"media": _mock_media("video"), "captions": None, "transcript": ""},
         )
         self.assertNotIn('class="transcript"', html)
+
+
+class ValidateWebVttDocumentTest(TestCase):
+    @staticmethod
+    def _document(extension: str) -> Mock:
+        document = Mock()
+        document.file_extension = extension
+        document.filename = f"captions.{extension}"
+        return document
+
+    def test_accepts_a_vtt_document(self) -> None:
+        validate_webvtt_document(self._document("vtt"))
+
+    def test_accepts_an_uppercase_extension(self) -> None:
+        # Document.file_extension is not lower-cased, so a .VTT upload is valid.
+        validate_webvtt_document(self._document("VTT"))
+
+    def test_rejects_a_document_that_is_not_vtt(self) -> None:
+        with self.assertRaises(ValidationError):
+            validate_webvtt_document(self._document("pdf"))
+
+    def test_rejects_a_document_with_no_extension(self) -> None:
+        with self.assertRaises(ValidationError):
+            validate_webvtt_document(self._document(""))
+
+
+class MediaChooserBlockTest(TestCase):
+    def setUp(self) -> None:
+        self.block = MediaChooserBlock()
+
+    def test_render_basic_names_the_media(self) -> None:
+        # The comparison view renders this, so an empty string would leave the
+        # Media row blank when the media is swapped.
+        media = Mock()
+        media.title = "An interview"
+        self.assertEqual(self.block.render_basic(media), "An interview")
+
+    def test_render_basic_escapes_the_title(self) -> None:
+        media = Mock()
+        media.title = "<script>alert(1)</script>"
+        self.assertNotIn("<script>", self.block.render_basic(media))
+
+    def test_render_basic_without_value(self) -> None:
+        self.assertEqual(self.block.render_basic(None), "")
 
 
 class TestPullQuoteBlock(TestCase):
