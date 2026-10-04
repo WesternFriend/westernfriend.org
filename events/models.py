@@ -55,6 +55,15 @@ class Event(DrupalFields, Page):  # type: ignore
     )
 
     website = models.URLField(blank=True, max_length=300, default="")
+    open_in_new_tab = models.BooleanField(
+        "Open website link in a new tab",
+        default=True,
+        help_text=(
+            "Open the event website link in a new browser tab. "
+            "Turn this off for links that should stay in the same tab, "
+            "such as links to pages on this site."
+        ),
+    )
     is_featured = models.BooleanField(
         default=False,
         help_text="Whether this event should be featured on the home page.",
@@ -80,6 +89,7 @@ class Event(DrupalFields, Page):  # type: ignore
         FieldPanel("end_date"),
         FieldPanel("timezone"),
         FieldPanel("website"),
+        FieldPanel("open_in_new_tab"),
     ]
 
     context_object_name = "event"
