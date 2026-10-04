@@ -1,3 +1,3 @@
-<a href="{{ value }}" rel="noopener noreferrer" {% if '://' in value %}target="_blank" aria-label="{{ value }} (opens in new window)"{% endif %}>
+<a href="{{ value }}" rel="noopener noreferrer" {% if '://' in value %}target="_blank" aria-label="{{ value }} {% include 'new_window_note.txt' %}"{% endif %}>
     {{ value }}
 </a>
