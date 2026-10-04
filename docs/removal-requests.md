@@ -92,9 +92,11 @@ the author list on the library index.
 **If details are still showing, the editor cannot finish the request alone.**
 There is no setting in the admin that hides a listing entry, so report it to
 whoever maintains the site and ask for the entry to be removed. Tell the
-requester where it stands rather than leaving them to find it: that the page
-itself is down, that one listing still carries the name, and that the listing
-needs a developer. A request is only complete once that entry is gone too.
+requester where it stands rather than leaving them to find it: say which was
+done — the page is unpublished and its address now shows "page not found", or
+the page is private and no longer opens for readers — that one listing still
+carries the name, and that removing the listing entry needs a developer. A
+request is only complete once that entry is gone too.
 
 ## Asking the Internet Archive
 
