@@ -708,32 +708,52 @@ class NewWindowLinkPatternTests(TestCase):
         for path in self._template_files():
             markup = path.read_text(encoding="utf-8")
             for match in re.finditer(
-                r"<a\b[^>]*?target=\"_blank\".*?</a>",
+                r"<a\b[^>]*?\btarget\s*=\s*([\"'])_blank\1.*?</a>",
                 markup,
                 re.DOTALL,
             ):
                 yield path, match.group(0)
 
-    def test_every_new_window_link_announces_itself(self) -> None:
+    @staticmethod
+    def _announces_new_window(link: str) -> bool:
         # An aria-label replaces the link's content for screen readers, so a
-        # link that sets one has to carry the note in the label instead of the
-        # included span.
+        # link that sets one has to carry the note in the label itself; the
+        # included span would not be read.
+        label = re.search(r"\baria-label\s*=\s*([\"'])(.*?)\1", link, re.DOTALL)
+        if label:
+            return NEW_WINDOW_NOTE in label.group(2)
+        return NEW_WINDOW_INCLUDE in link or NEW_WINDOW_NOTE in link
+
+    @staticmethod
+    def _rel_tokens(link: str) -> list[str]:
+        match = re.search(r"\brel\s*=\s*([\"'])(.*?)\1", link, re.DOTALL)
+        return match.group(2).split() if match else []
+
+    def test_every_new_window_link_announces_itself(self) -> None:
         missing = [
             str(path)
             for path, link in self._links_opening_a_new_window()
-            if NEW_WINDOW_INCLUDE not in link and NEW_WINDOW_NOTE not in link
+            if not self._announces_new_window(link)
         ]
 
         self.assertEqual(missing, [], f"Links missing '{NEW_WINDOW_NOTE}': {missing}")
 
     def test_every_new_window_link_sets_rel_noopener(self) -> None:
+        # rel is a space-separated token list, so "noopener" has to be one of
+        # its tokens; the word merely appearing in the href or link text is
+        # not enough.
         missing = [
             str(path)
             for path, link in self._links_opening_a_new_window()
-            if "noopener" not in link
+            if "noopener" not in self._rel_tokens(link)
         ]
 
         self.assertEqual(missing, [], f"Links missing rel=noopener: {missing}")
+
+    def test_the_included_note_matches_the_constant(self) -> None:
+        # The announcement check accepts the include directive without
+        # rendering it, so this pins the include's wording to the constant.
+        self.assertIn(NEW_WINDOW_NOTE, render_to_string("opens_in_new_window.html"))
 
     def test_the_check_finds_the_links(self) -> None:
         # Guards against the pattern above silently matching nothing, which
