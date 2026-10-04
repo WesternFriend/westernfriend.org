@@ -14,10 +14,10 @@
             </audio>
         {% endif %}
         {% if value.transcript %}
-            <div class="transcript">
+            <section class="transcript">
                 <h3>Transcript</h3>
                 {{ value.transcript|richtext }}
-            </div>
+            </section>
         {% endif %}
     </div>
 {% endif %}{% endwith %}

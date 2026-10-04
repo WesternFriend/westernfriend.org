@@ -1,7 +1,9 @@
 from unittest.mock import Mock
 
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from wagtail.documents.models import Document
 
 from .blocks import (
     MediaBlock,
@@ -127,6 +129,37 @@ class MediaChooserBlockTest(TestCase):
 
     def test_render_basic_without_value(self) -> None:
         self.assertEqual(self.block.render_basic(None), "")
+
+
+class MediaBlockCaptionsValidationTest(TestCase):
+    """The captions chooser must reject a non-WebVTT document *through the block*,
+    not only via the standalone validator. Otherwise the validator could exist
+    but never run when an editor selects a file, and the direct-call test above
+    would still pass.
+    """
+
+    @staticmethod
+    def _captions_block():
+        return MediaBlock().child_blocks["captions"]
+
+    def test_block_rejects_a_non_vtt_caption_document(self) -> None:
+        pdf = Document.objects.create(
+            title="not captions",
+            file=SimpleUploadedFile("notes.pdf", b"%PDF-1.4"),
+        )
+        with self.assertRaises(ValidationError):
+            self._captions_block().clean(pdf)
+
+    def test_block_accepts_a_vtt_caption_document(self) -> None:
+        vtt = Document.objects.create(
+            title="captions",
+            file=SimpleUploadedFile("captions.vtt", b"WEBVTT\n"),
+        )
+        self.assertEqual(self._captions_block().clean(vtt), vtt)
+
+    def test_optional_empty_caption_is_valid(self) -> None:
+        # required=False, so no selection must stay valid.
+        self.assertIsNone(self._captions_block().clean(None))
 
 
 class TestPullQuoteBlock(TestCase):
