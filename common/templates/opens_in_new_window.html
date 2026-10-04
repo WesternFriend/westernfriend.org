@@ -1,3 +1,4 @@
 {# Screen-reader note for links that open a new window. #}
-{# Keep the wording in step with NEW_WINDOW_NOTE in common/tests.py. #}
-<span class="sr-only">(opens in new window)</span>
+{# The wording lives in new_window_note.txt - the single shared source; #}
+{# aria-label suffixes and NEW_WINDOW_NOTE in common/tests.py read it too. #}
+<span class="sr-only">{% include "new_window_note.txt" %}</span>
