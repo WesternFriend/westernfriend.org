@@ -75,7 +75,11 @@ def purge_live_page_url_cache(page):
         live_page_url_cache_key(site_id, page.slug)
         for site_id in Site.objects.values_list("id", flat=True)
     ]
-    cache.delete_many(keys)
+    # Delete after commit, so a concurrent footer request cannot re-read the
+    # pre-commit page state and re-cache it between this purge and the change
+    # becoming visible (which would hide the link after a publish, or keep a
+    # dead link after an unpublish, for the cache's TTL).
+    transaction.on_commit(lambda: cache.delete_many(keys))
 
 
 def purge_live_page_url_for_page(instance, **kwargs):
