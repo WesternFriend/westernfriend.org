@@ -53,10 +53,13 @@ In the Wagtail admin, open the page and choose one of:
 Deleting the page outright is rarely the right answer: it is hard to reverse
 and leaves nothing to point to if the request is later withdrawn or disputed.
 
-There is no per-page setting to hide a page from search engines. The
-**Crawlers and AI** setting applies to the whole site, so it isn't the tool
-for a single request. Unpublishing or making the page private is what stops a
-page being reached and re-indexed.
+There is no per-page `noindex` or de-indexing control. The **Crawlers and AI**
+setting applies to the whole site, so it isn't the tool for a single request.
+Unpublishing or making the page private prevents future access and crawling,
+but it does not remove results a search engine has already stored, and no
+setting here can promise that cached copies and snippets disappear. Those fall
+away as the engine re-crawls and finds nothing, which is not immediate. Say so
+rather than telling a requester the page will be gone from search.
 
 ### Check the listings too
 
@@ -75,6 +78,13 @@ they don't. Until that is fixed the check has to be made by hand. Search the
 site for the person's name as well, since there may be listings beyond the
 ones named here — someone who wrote for the library, for instance, stays in
 the author list on the library index.
+
+**If details are still showing, the editor cannot finish the request alone.**
+There is no setting in the admin that hides a listing entry, so report it to
+whoever maintains the site and ask for the entry to be removed. Tell the
+requester where it stands rather than leaving them to find it: that the page
+itself is down, that one listing still carries the name, and that the listing
+needs a developer. A request is only complete once that entry is gone too.
 
 ## Asking the Internet Archive
 
