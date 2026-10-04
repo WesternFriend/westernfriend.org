@@ -43,12 +43,12 @@ In the Wagtail admin, open the page and choose one of:
 
 - **Edit and publish.** The page stays public with the change made. Right for
   corrections, and for removing a single detail.
-- **Unpublish.** Under **More**, choose **Unpublish**. The page stops being
-  public and visitors get "page not found". The content stays in the admin, so
-  it can be restored.
+- **Unpublish.** Under **More**, choose **Unpublish**. The page itself stops
+  being public and visitors get "page not found". The content stays in the
+  admin, so it can be restored.
 - **Make it private.** Under **More**, choose **Privacy**, and restrict to a
   password, to logged-in users, or to a group. The page keeps its address but
-  readers can't see it.
+  readers can't open it.
 
 Deleting the page outright is rarely the right answer: it is hard to reverse
 and leaves nothing to point to if the request is later withdrawn or disputed.
@@ -57,6 +57,24 @@ There is no per-page setting to hide a page from search engines. The
 **Crawlers and AI** setting applies to the whole site, so it isn't the tool
 for a single request. Unpublishing or making the page private is what stops a
 page being reached and re-indexed.
+
+### Check the listings too
+
+Unpublishing a page or making it private only affects that page. Details can
+remain on the listings that link to it, so look at those as well as the page
+address before telling anyone the entry is no longer visible. For a memorial,
+the person's name and their dates of birth and death stay on the memorials
+index, and their name stays under "Memorials" on the memorial meeting's page,
+whether the memorial has been unpublished or made private. Site search still
+finds a page that has been made private, though not one that has been
+unpublished.
+
+This is a fault in the site rather than something the editor has done wrong:
+those listings should leave out unpublished and private pages, and at present
+they don't. Until that is fixed the check has to be made by hand. Search the
+site for the person's name as well, since there may be listings beyond the
+ones named here — someone who wrote for the library, for instance, stays in
+the author list on the library index.
 
 ## Asking the Internet Archive
 
