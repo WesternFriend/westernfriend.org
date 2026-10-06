@@ -53,13 +53,14 @@ urlpatterns = [
     path("robots.txt", robots_txt, name="robots_txt"),
     path("llms.txt", llms_txt, name="llms_txt"),
     path("sitemap.xml", sitemap, name="sitemap"),
-    path("__reload__/", include("django_browser_reload.urls")),
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's page serving mechanism. This should be the last pattern in
     # the list:
     path("", include(wagtail_urls)),
 ]
 
+if settings.DEBUG:
+    urlpatterns.insert(-1, path("__reload__/", include("django_browser_reload.urls")))
 
 if settings.DEBUG:
     # Serve static and media files from development server

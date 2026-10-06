@@ -169,12 +169,9 @@ INSTALLED_APPS = [
     # keep-sorted end
     # Third party (apps that have been installed)
     # keep-sorted start
-    "django_browser_reload",
-    "django_extensions",
     "modelcluster",
     "storages",
     "taggit",
-    "tailwind",
     "wagtail",
     "wagtail.admin",
     "wagtail.contrib.forms",
@@ -208,6 +205,13 @@ INSTALLED_APPS = [
     "theme",
 ]
 
+if DEBUG:
+    INSTALLED_APPS += [
+        "django_browser_reload",
+        "django_extensions",
+        "tailwind",
+    ]
+
 TAILWIND_APP_NAME = "theme"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
@@ -225,8 +229,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
     "common.middleware.DiscoveryLinkHeaderMiddleware",
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE += ["django_browser_reload.middleware.BrowserReloadMiddleware"]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
