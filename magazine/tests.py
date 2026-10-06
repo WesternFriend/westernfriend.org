@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from django.db import connection, reset_queries
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from wagtail.models import Page, Site
 
@@ -117,6 +118,21 @@ class MagazineIndexPageTest(TestCase):
             list(context["recent_issues"]),
             [self.recent_magazine_issue],
         )
+
+    def test_issue_index_does_not_query_child_articles(self) -> None:
+        """The issue index displays issue covers, not their child articles."""
+        mock_request = RequestFactory().get("/magazine/")
+
+        with CaptureQueriesContext(connection) as queries:
+            context = self.magazine_index.get_context(mock_request)
+            list(context["recent_issues"])
+            list(context["archive_issues"].page)
+
+        article_table = MagazineArticle._meta.db_table.lower()
+        article_queries = [
+            query["sql"] for query in queries if article_table in query["sql"].lower()
+        ]
+        self.assertEqual(article_queries, [])
 
     def test_get_context_recent_issues_moves_to_archive_as_date_advances(
         self,
@@ -459,12 +475,6 @@ class MagazineDepartmentTest(TestCase):
         string."""
         department = MagazineDepartment(title="Department 1")
         self.assertEqual(str(department), "Department 1")
-
-    def test_magazine_department_autocomplete_label(self) -> None:
-        """Test that the MagazineDepartment autocomplete_label property returns
-        the correct string."""
-        department = MagazineDepartment(title="Department 1")
-        self.assertEqual(department.autocomplete_label(), "Department 1")
 
     def test_get_context(self) -> None:
         """Test that get_context returns articles for the department."""

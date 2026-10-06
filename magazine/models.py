@@ -148,14 +148,6 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
     issue_number = models.PositiveIntegerField(null=True, blank=True)
     drupal_node_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
-    @classmethod
-    def get_queryset(cls):
-        """TODO: Prefetch related articles for performance."""
-        # TODO: Determine if it is possible or necessary to prefech the Articles for performance
-        # the main difficulty being the implicit relationship between the Issue and the Articles
-        # since the Articles are children of the Issue
-        return super().get_queryset()
-
     @property
     def featured_articles(self) -> QuerySet["MagazineArticle"]:
         # Return a cursor of related articles that are featured
@@ -288,15 +280,6 @@ class MagazineDepartment(Page):
     parent_page_types = ["MagazineDepartmentIndexPage"]
     subpage_types: list[str] = []
 
-    # TODO: Determine whether we still use the autocomplete widget
-    # Remove the following code if not using autocomplete
-    autocomplete_search_field = "title"
-
-    # TODO: remove if not using autocomplete
-    def autocomplete_label(self) -> str:
-        return self.title
-
-    # TODO: remove if not using autocomplete
     def __str__(self) -> str:
         return self.title
 
