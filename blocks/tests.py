@@ -1,8 +1,24 @@
 from unittest.mock import Mock
 
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 
-from .blocks import MediaBlock, PullQuoteBlock
+from .blocks import HeadingBlock, MediaBlock, PullQuoteBlock
+
+
+class HeadingBlockTest(SimpleTestCase):
+    def test_render_ignores_legacy_color(self) -> None:
+        html = HeadingBlock().render(
+            {
+                "heading_level": "h2",
+                "heading_text": "Accessible heading",
+                "target_slug": "",
+                "color": "#ff0000",
+            },
+        )
+
+        self.assertIn("<h2", html)
+        self.assertIn("Accessible heading", html)
+        self.assertNotIn("style=", html)
 
 
 class MediaBlockTest(TestCase):
