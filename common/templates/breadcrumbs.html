@@ -28,31 +28,9 @@
         </nav>
 
         <!-- Structured breadcrumb data -->
+        {% breadcrumb_json_ld page visible as json_ld_data %}
         <script type="application/ld+json">
-            {
-                "@context": "https://schema.org",
-                "@type": "BreadcrumbList",
-                "itemListElement": [
-                    {
-                        "@type": "ListItem",
-                        "position": 1,
-                        "name": "Home",
-                        "item": "{% site_root_url %}"
-                    }{% for ancestor in visible %},
-                        {
-                            "@type": "ListItem",
-                            "position": {{ forloop.counter|add:1 }},
-                            "name": "{{ ancestor.title }}",
-                            "item": "{% fullpageurl ancestor %}"
-                        }{% endfor %},
-                    {
-                        "@type": "ListItem",
-                        "position": {{ visible|length|add:2 }},
-                        "name": "{{ page.title }}",
-                        "item": "{% fullpageurl page %}"
-                    }
-                ]
-            }
+            {{ json_ld_data|json_ld }}
         </script>
     {% endwith %}
 {% endif %}
