@@ -78,6 +78,9 @@ jobs:
   test:
     name: Django checks and tests
     runs-on: ubuntu-latest
+    env:
+      # CI only needs a placeholder to initialize Django; this is not a secret.
+      DJANGO_SECRET_KEY: test-only-not-a-secret
     services:
       postgres:
         image: postgres

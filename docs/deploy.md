@@ -59,7 +59,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `DJANGO_CORS_ALLOWED_ORIGINS` - each origin should begin with a protocol, e.g., `https://...`
    - `DJANGO_ALLOWED_HOSTS` - each allowed host needs only the domain (and subdomain if relevant), no protocol
    - `DJANGO_CSRF_TRUSTED_ORIGINS`- each origin should begin with a protocol, e.g., `https://...`
-   - `DJANGO_SECRET_KEY` - [random generated key](https://stackoverflow.com/a/67423892)
+   - `DJANGO_SECRET_KEY` - [random generated key](https://stackoverflow.com/a/67423892); required when `DJANGO_DEBUG` is `"False"`, or the app will fail at startup
    - `DJANGO_DEBUG` - "True" or "False", should be "False" for production
    - `DJANGO_USE_SPACES` - "True" or "False", whether to use DO Spaces for static files. In this case, use "True".
    - `AWS_ACCESS_KEY_ID` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key)

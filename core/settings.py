@@ -17,7 +17,7 @@ from pathlib import Path
 import dj_database_url
 import sentry_sdk
 from django.contrib.messages import constants as messages_constants
-from django.core.management.utils import get_random_secret_key
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -53,9 +53,12 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 
 if DEBUG:
-    SECRET_KEY = "not-so-secret-key"  # noqa: S105 - local development only
+    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY") or "not-so-secret-key"
 else:
-    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
+    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+    if not SECRET_KEY:
+        message = "DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is not enabled."
+        raise ImproperlyConfigured(message)
 
 LOGGING = {
     "version": 1,
