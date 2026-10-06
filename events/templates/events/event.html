@@ -64,10 +64,10 @@
                     <a href="{{ event.specific.website }}"
                        class="btn btn-primary"
                        target="_blank"
-                       rel="noopener noreferrer"
-                       aria-label="Visit external event website">
+                       rel="noopener noreferrer">
                         <i class="bi bi-link me-2" aria-hidden="true"></i>
                         Visit event website
+                        {% include "common/includes/new_window_notice.html" %}
                     </a>
                 </div>
             {% endif %}
