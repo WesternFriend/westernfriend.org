@@ -2,6 +2,7 @@ import json
 
 from django import template
 from django.core.serializers.json import DjangoJSONEncoder
+from django.template.defaultfilters import striptags
 from django.templatetags.static import static
 from django.utils.safestring import SafeString, mark_safe
 from wagtail.models import Site
@@ -21,6 +22,118 @@ def json_ld(value) -> SafeString:
     """Serialize a value as JSON safe for embedding in a <script> element."""
     json_str = json.dumps(value, cls=DjangoJSONEncoder)
     return mark_safe(json_str.translate(_JSON_SCRIPT_ESCAPES))  # noqa: S308 - <, >, & are escaped above
+
+
+@register.simple_tag
+def magazine_article_json_ld(page):
+    """Build schema.org data for a magazine article."""
+    issue = page.get_parent().specific
+    authors = []
+    for article_author in page.authors.all():
+        author_page = article_author.author
+        author = {
+            "@type": (
+                "Person"
+                if author_page.specific_class_name == "Person"
+                else "Organization"
+            ),
+            "name": author_page.title,
+        }
+        if author["@type"] == "Person":
+            person = author_page.specific
+            author["givenName"] = person.given_name
+            author["familyName"] = person.family_name
+        authors.append(author)
+
+    result = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": page.title,
+        "author": authors,
+        "datePublished": issue.publication_date,
+        "publisher": {"@type": "Organization", "name": "Western Friend"},
+        "isAccessibleForFree": page.is_public_access,
+        "articleSection": page.department.title,
+        "isPartOf": {
+            "@type": "PublicationIssue",
+            "issueNumber": issue.issue_number,
+            "datePublished": issue.publication_date,
+            "name": issue.title,
+        },
+        "mainEntityOfPage": {"@type": "WebPage", "@id": page.full_url},
+    }
+    if page.teaser:
+        result["description"] = striptags(page.teaser)
+    if page.tags.exists():
+        result["keywords"] = [str(tag) for tag in page.tags.all()]
+    return result
+
+
+@register.simple_tag
+def memorial_json_ld(page):
+    """Build schema.org data for a memorial."""
+    person = page.memorial_person
+    about = {
+        "@type": "Person",
+        "name": person.title,
+        "givenName": person.given_name,
+        "familyName": person.family_name,
+    }
+    if page.date_of_birth:
+        about["birthDate"] = page.date_of_birth
+    if page.date_of_death:
+        about["deathDate"] = page.date_of_death
+
+    result = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "articleSection": "Memorial",
+        "headline": page.title,
+        "about": about,
+        "mainEntityOfPage": {"@type": "WebPage", "@id": page.full_url},
+    }
+    if page.memorial_meeting:
+        result["publisher"] = {
+            "@type": "Organization",
+            "name": page.memorial_meeting.title,
+        }
+    return result
+
+
+@register.simple_tag(takes_context=True)
+def breadcrumb_json_ld(context, page, visible_ancestors):
+    """Build schema.org breadcrumb data from the pages shown in the breadcrumb."""
+    request = context.get("request")
+    items = [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": _site_root(request) + "/" if request else "",
+        }
+    ]
+    for position, ancestor in enumerate(visible_ancestors, start=2):
+        items.append(
+            {
+                "@type": "ListItem",
+                "position": position,
+                "name": ancestor.title,
+                "item": ancestor.get_full_url(request) if request else ancestor.url,
+            }
+        )
+    items.append(
+        {
+            "@type": "ListItem",
+            "position": len(visible_ancestors) + 2,
+            "name": page.title,
+            "item": page.get_full_url(request) if request else page.url,
+        }
+    )
+    return {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": items,
+    }
 
 
 @register.simple_tag(takes_context=True)
