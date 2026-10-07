@@ -57,21 +57,25 @@ if DEBUG:
 else:
     SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
+LOGGING_HANDLERS = {
+    "console": {
+        "class": "logging.StreamHandler",
+    },
+}
+if DEBUG:
+    LOGGING_HANDLERS["file"] = {
+        "level": "DEBUG",
+        "class": "logging.handlers.RotatingFileHandler",
+        "filename": BASE_DIR / "debug.log",
+        "maxBytes": 1024 * 1024 * 5,  # 5 MB
+        "backupCount": 5,
+    }
+LOGGING_OUTPUT_HANDLERS = ["console", "file"] if DEBUG else ["console"]
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": BASE_DIR / "debug.log",
-            "maxBytes": 1024 * 1024 * 5,  # 5 MB
-            "backupCount": 5,
-        },
-    },
+    "handlers": LOGGING_HANDLERS,
     "formatters": {
         "verbose": {
             "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
@@ -79,12 +83,12 @@ LOGGING = {
         },
     },
     "root": {
-        "handlers": ["console", "file"],
+        "handlers": LOGGING_OUTPUT_HANDLERS,
         "level": "WARNING",
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "file"],
+            "handlers": LOGGING_OUTPUT_HANDLERS,
             "level": os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
         },
     },
@@ -99,8 +103,8 @@ if os.getenv("SENTRY_DSN"):
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN"),
         integrations=[DjangoIntegration()],
-        traces_sample_rate=1.0,
-        profiles_sample_rate=0.3,
+        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+        profiles_sample_rate=float(os.getenv("SENTRY_PROFILES_SAMPLE_RATE", "0.1")),
     )
 
 # Settings related to DigitalOcean Spaces

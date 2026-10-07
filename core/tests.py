@@ -1,16 +1,107 @@
 """Tests for core utility functions."""
 
+import importlib
+import os
+from pathlib import Path
 from unittest import mock
 
 from django.core.cache import cache
 from django.templatetags.static import static
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
+import core.settings
 from common.models import CrawlerPolicySetting
 from core.utils import get_default_site
 from home.models import HomePage
 from navigation.models import NavigationMenuSetting
+
+
+class ProductionConfigurationTests(SimpleTestCase):
+    def load_settings_with_environment(self, environment):
+        with (
+            mock.patch("dotenv.load_dotenv"),
+            mock.patch("sentry_sdk.init") as sentry_init,
+            mock.patch.dict(os.environ, environment, clear=True),
+        ):
+            importlib.reload(core.settings)
+            return core.settings, sentry_init.call_args
+
+    def tearDown(self):
+        with mock.patch("dotenv.load_dotenv"), mock.patch("sentry_sdk.init"):
+            importlib.reload(core.settings)
+        super().tearDown()
+
+    def test_web_startup_leaves_migrations_to_release_phase(self):
+        procfile = Path(core.settings.BASE_DIR, "Procfile").read_text(encoding="utf-8")
+        release_command = next(
+            line for line in procfile.splitlines() if line.startswith("release:")
+        )
+        web_command = next(
+            line for line in procfile.splitlines() if line.startswith("web:")
+        )
+
+        self.assertIn("manage.py migrate", release_command)
+        self.assertNotIn("migrate", web_command)
+
+        deploy_spec = Path(
+            core.settings.BASE_DIR,
+            ".do",
+            "deploy.template.yaml",
+        ).read_text(
+            encoding="utf-8",
+        )
+        self.assertIn("kind: PRE_DEPLOY", deploy_spec)
+        self.assertIn(
+            "run_command: python manage.py migrate && python manage.py createcachetable",
+            deploy_spec,
+        )
+        self.assertIn("run_command: gunicorn core.wsgi --log-file -", deploy_spec)
+        self.assertNotIn(
+            "run_command: python manage.py migrate && python manage.py createcachetable && gunicorn",
+            deploy_spec,
+        )
+
+    def test_sentry_sample_rates_have_conservative_defaults(self):
+        _settings, sentry_init_call = self.load_settings_with_environment(
+            {"SENTRY_DSN": "https://example.invalid/1"},
+        )
+
+        self.assertEqual(sentry_init_call.kwargs["traces_sample_rate"], 0.1)
+        self.assertEqual(sentry_init_call.kwargs["profiles_sample_rate"], 0.1)
+
+    def test_sentry_sample_rates_are_configurable(self):
+        _settings, sentry_init_call = self.load_settings_with_environment(
+            {
+                "SENTRY_DSN": "https://example.invalid/1",
+                "SENTRY_TRACES_SAMPLE_RATE": "0.25",
+                "SENTRY_PROFILES_SAMPLE_RATE": "0.05",
+            },
+        )
+
+        self.assertEqual(sentry_init_call.kwargs["traces_sample_rate"], 0.25)
+        self.assertEqual(sentry_init_call.kwargs["profiles_sample_rate"], 0.05)
+
+    def test_logging_uses_console_in_production_and_file_only_in_development(self):
+        production, _sentry_init_call = self.load_settings_with_environment(
+            {"DJANGO_DEBUG": "false"},
+        )
+        self.assertEqual(set(production.LOGGING["handlers"]), {"console"})
+        self.assertEqual(production.LOGGING["root"]["handlers"], ["console"])
+        self.assertEqual(
+            production.LOGGING["loggers"]["django"]["handlers"],
+            ["console"],
+        )
+
+        development, _sentry_init_call = self.load_settings_with_environment(
+            {"DJANGO_DEBUG": "true"},
+        )
+        self.assertIn("file", development.LOGGING["handlers"])
+        self.assertEqual(development.LOGGING["root"]["handlers"], ["console", "file"])
+        self.assertEqual(
+            development.LOGGING["loggers"]["django"]["handlers"],
+            ["console", "file"],
+        )
 
 
 class GetDefaultSiteTest(TestCase):
