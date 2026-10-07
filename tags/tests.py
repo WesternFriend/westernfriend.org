@@ -104,6 +104,7 @@ class TaggedPageListViewQuerysetAndContentOrderTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["tag_name"], self.tag.name)
+        self.assertContains(response, self.tag.name)
 
 
 class TaggedPageListViewPaginationTest(TestCase):
