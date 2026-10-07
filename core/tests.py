@@ -44,6 +44,24 @@ class ProductionConfigurationTests(SimpleTestCase):
         self.assertIn("manage.py migrate", release_command)
         self.assertNotIn("migrate", web_command)
 
+        deploy_spec = Path(
+            core.settings.BASE_DIR,
+            ".do",
+            "deploy.template.yaml",
+        ).read_text(
+            encoding="utf-8",
+        )
+        self.assertIn("kind: PRE_DEPLOY", deploy_spec)
+        self.assertIn(
+            "run_command: python manage.py migrate && python manage.py createcachetable",
+            deploy_spec,
+        )
+        self.assertIn("run_command: gunicorn core.wsgi --log-file -", deploy_spec)
+        self.assertNotIn(
+            "run_command: python manage.py migrate && python manage.py createcachetable && gunicorn",
+            deploy_spec,
+        )
+
     def test_sentry_sample_rates_have_conservative_defaults(self):
         _settings, sentry_init_call = self.load_settings_with_environment(
             {"SENTRY_DSN": "https://example.invalid/1"},

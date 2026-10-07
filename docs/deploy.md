@@ -46,8 +46,8 @@ Set up the site by following the steps below. The order of steps matters. So, be
      1. Python Buildpack,
      2. Procfile Buildpack,
      3. Custom Build Command
-   - run command should be auto-configured as follows
-     - `python manage.py migrate && python manage.py createcachetable && gunicorn core.wsgi --log-file -`
+   - set the Web Service run command to `gunicorn core.wsgi --log-file -`
+   - add a Job triggered **Before every deploy** with the run command `python manage.py migrate && python manage.py createcachetable`; App Platform's run-command override does not execute the Procfile `release` command
 3. Edit the plan
    - select Basic during staging
    - select Pro (1 container) when deploying the preview/production site
@@ -69,8 +69,10 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `PAYPAL_CLIENT_ENVIRONMENT` - one of "PRODUCTION" or "SANDBOX"
    - `PAYPAL_CLIENT_ID` - ID obtained from PayPal developer dashboard
    - `PAYPAL_CLIENT_SECRET` - client secret obtained from PayPal developer dashboard
-   - `DJANGO_CACHE_TABLE` - name of the database cache table (e.g. `wf_cache`), shared by all workers; unset uses a per-process in-memory cache. The table is created by `python manage.py createcachetable`: in the Procfile `release` phase, and in the DigitalOcean run command below because the app spec has no release phase (fine for a single instance; if you scale beyond one instance, run it once from a pre-deploy job instead, since concurrent starts can race on creating the table)
+   - `DJANGO_CACHE_TABLE` - name of the database cache table (e.g. `wf_cache`), shared by all workers; unset uses a per-process in-memory cache. The table is created by `python manage.py createcachetable` in the Procfile `release` phase or DigitalOcean's pre-deploy job
    - `SENTRY_DSN` - used for error logging and analysis
+   - `SENTRY_TRACES_SAMPLE_RATE` - Sentry transaction sampling rate (default: `0.1`)
+   - `SENTRY_PROFILES_SAMPLE_RATE` - Sentry profiling sampling rate (default: `0.1`)
    - `EMAIL_HOST` - SMTP host
    - `EMAIL_PORT` - SMTP port (default: 587)
    - `EMAIL_HOST_USER` - username for SMTP host
@@ -138,15 +140,15 @@ Changing `.do/deploy.template.yaml` does not update a running app, because App P
 
 **The cache table must exist before `DJANGO_CACHE_TABLE` is set.** If the variable is set and the table is missing, every cache read raises a database error and pages can fail with a 500.
 
-1. Note the component's current run command (in the `wf-website` component settings), so you can roll back.
-2. In a **single** edit of the component, before saving:
-   - set the run command to `python manage.py migrate && python manage.py createcachetable && gunicorn core.wsgi --log-file -`
-   - add the environment variable `DJANGO_CACHE_TABLE` with the value `wf_cache` (scope: run time)
+1. Note the `wf-website` Web Service run command and any existing pre-deploy jobs, so you can roll back.
+2. In the `wf-website` Web Service settings, set the run command to `gunicorn core.wsgi --log-file -`.
+3. Add a Job triggered **Before every deploy** with the command `python manage.py migrate && python manage.py createcachetable`. Give it the same repository, branch, and database URL as the web service.
+4. Add the environment variable `DJANGO_CACHE_TABLE` with the value `wf_cache` (scope: run time) to the Web Service.
 
-   Saving triggers one deploy, which creates the table before gunicorn starts. `createcachetable` does nothing if the table already exists, so it is safe on every deploy.
+   Saving triggers a deploy; the job applies migrations and creates the cache table before the web service starts. `createcachetable` does nothing if the table already exists, so it is safe on every deploy.
 
-   If you would rather not change the run command, first run `python manage.py createcachetable` in the app console **with `DJANGO_CACHE_TABLE=wf_cache` set for that command** (for example `DJANGO_CACHE_TABLE=wf_cache python manage.py createcachetable`), then add the environment variable. Without the variable, the command sees the in-memory cache and creates nothing.
-3. After the deploy finishes, confirm in the app console:
+   If you cannot add the pre-deploy job in the same deploy that enables the shared cache, first run `DJANGO_CACHE_TABLE=wf_cache python manage.py createcachetable` in the app console, then add the environment variable. Without the variable, the command sees the in-memory cache and creates nothing.
+5. After the deploy finishes, confirm in the app console:
 
    ```sh
    python manage.py shell -c "from django.core.cache import caches; c = caches['default']; c.set('cache-check', 'ok', 60); print(type(c).__name__, c.get('cache-check'))"
@@ -156,4 +158,4 @@ Changing `.do/deploy.template.yaml` does not update a running app, because App P
 
 **Rolling back:** remove `DJANGO_CACHE_TABLE`. The site goes back to the per-process in-memory cache. The `wf_cache` table can stay; nothing reads it.
 
-**Scaling beyond one instance:** creating the table in the run command is fine with a single instance. With more than one instance, concurrent starts can race to create the table, so move `createcachetable` to a pre-deploy job.
+**Scaling beyond one instance:** keep schema migrations and cache-table creation in the pre-deploy job so web instances never run these commands concurrently during startup.

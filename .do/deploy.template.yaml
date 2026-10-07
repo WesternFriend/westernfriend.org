@@ -22,6 +22,21 @@ spec:
             prefix: /
   name:
   region: sfo3
+  jobs:
+    - environment_slug: python
+      envs:
+        - key: DATABASE_URL
+          scope: RUN_TIME
+          value: ${wf-website-db.DATABASE_URL}
+      github:
+        branch: main
+        deploy_on_push: true
+        repo: WesternFriend/WF-website
+      instance_size_slug: basic-xxs
+      kind: PRE_DEPLOY
+      name: migrate
+      run_command: python manage.py migrate && python manage.py createcachetable
+      source_dir: /
   services:
     - environment_slug: python
       envs:
@@ -84,5 +99,5 @@ spec:
       instance_count: 1
       instance_size_slug: professional-xs
       name: wf-website
-      run_command: python manage.py migrate && python manage.py createcachetable && gunicorn core.wsgi --log-file -
+      run_command: gunicorn core.wsgi --log-file -
       source_dir: /
