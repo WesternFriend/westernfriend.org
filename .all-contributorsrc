@@ -207,6 +207,15 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "Sinxn-coder",
+      "name": "Muhammed Sinan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/182362146?v=4",
+      "profile": "https://github.com/Sinxn-coder",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
