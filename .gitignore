@@ -114,3 +114,6 @@ media/
 
 # Data migration
 migration_data/
+
+# Node tooling for the accessibility checks (scripts/a11y-check.mjs)
+node_modules/
