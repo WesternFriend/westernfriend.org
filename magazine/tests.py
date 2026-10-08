@@ -975,6 +975,37 @@ class ArchiveIssueQueryOptimizationTestCase(TestCase):
         )
 
 
+class ArchiveIssueAccessibilityTest(TestCase):
+    def test_archive_viewer_has_specific_title_and_direct_pdf_link(self) -> None:
+        root = Site.objects.get(is_default_site=True).root_page
+        magazine_index = MagazineIndexPage(title="Magazine")
+        root.add_child(instance=magazine_index)
+        deep_archive_index = DeepArchiveIndexPage(title="Deep Archive")
+        magazine_index.add_child(instance=deep_archive_index)
+        issue = ArchiveIssue(
+            title="Accessibility Test Issue",
+            internet_archive_identifier="accessibility-test-issue",
+            publication_date=datetime.date(1950, 1, 1),
+        )
+        deep_archive_index.add_child(instance=issue)
+
+        for page in (magazine_index, deep_archive_index, issue):
+            page.save_revision().publish()
+
+        response = self.client.get(issue.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'title="Internet Archive viewer for Accessibility Test Issue"',
+        )
+        self.assertContains(
+            response,
+            'href="https://archive.org/download/accessibility-test-issue/'
+            'accessibility-test-issue.pdf"',
+        )
+
+
 class ArchiveIssueFactoryTest(TestCase):
     def test_creates_issue_with_saved_table_of_contents(self) -> None:
         issue = ArchiveIssueFactory.create(archive_articles=3)
