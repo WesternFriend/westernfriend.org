@@ -1,7 +1,10 @@
 """Tests for core utility functions."""
 
+import json
+from pathlib import Path
 from unittest import mock
 
+from django.contrib.staticfiles import finders
 from django.core.cache import cache
 from django.templatetags.static import static
 from django.test import RequestFactory, TestCase, override_settings
@@ -245,6 +248,41 @@ class FaviconTest(TestCase):
 
         self.assertEqual(response.status_code, 301)
         self.assertEqual(response["Location"], static("img/favicon.ico"))
+
+
+class AppIconsTest(TestCase):
+    """Test the static assets referenced by the base template and manifest."""
+
+    def test_base_template_icons_and_manifest_assets_exist(self):
+        static_root = Path(__file__).resolve().parent / "static"
+        template_assets = [
+            "img/favicon-32x32.png",
+            "img/favicon-16x16.png",
+            "img/favicon.ico",
+            "manifest.json",
+            "img/apple-touch-icon.png",
+        ]
+        for asset in template_assets:
+            with self.subTest(asset=asset):
+                found_path = finders.find(asset)
+                self.assertIsNotNone(found_path)
+                if found_path is not None:
+                    self.assertEqual(Path(found_path).resolve(), static_root / asset)
+
+        manifest_path = finders.find("manifest.json")
+        if manifest_path is None:
+            self.fail("Could not find manifest.json")
+        manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+        manifest_assets = [icon["src"] for icon in manifest["icons"]]
+        manifest_assets.extend(image["src"] for image in manifest["screenshots"])
+        for asset_url in manifest_assets:
+            with self.subTest(asset_url=asset_url):
+                self.assertTrue(asset_url.startswith("/static/"))
+                asset = asset_url[len("/static/") :]
+                found_path = finders.find(asset)
+                self.assertIsNotNone(found_path)
+                if found_path is not None:
+                    self.assertEqual(Path(found_path).resolve(), static_root / asset)
 
 
 class SitemapTest(TestCase):
