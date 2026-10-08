@@ -8,11 +8,8 @@ class TopicChooserViewSet(ChooserViewSet):
     model = Topic
     choose_one_text = "Choose a topic"
     choose_another_text = "Choose another topic"
-    # TODO: determine how to enable editing/creation of topics
-    # which is made difficult since they are pages,
-    # so need to be placed into the Wagtail page tree
-    # https://stackoverflow.com/questions/78513604/automatically-specify-parent-page-when-creating-new-page-instances-via-chooservi
-    # Once solved, set edit_item_text and form_fields on this viewset.
+    # Creating topics from this chooser needs an agreed parent in the Wagtail
+    # page tree; issue #88 tracks a separate topic-selection change.
 
 
 topic_chooser_viewset = TopicChooserViewSet("topic_chooser")

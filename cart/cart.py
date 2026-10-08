@@ -105,10 +105,7 @@ class Cart:
             yield item
 
     def __len__(self) -> int:
-        """Count all items in the cart."""
-
-        # TODO: determine whether this should count the number of products
-        # or the total quantity of products
+        """Count individual units in the cart."""
         item_quantities = [item["quantity"] for item in self.cart.values()]
 
         return sum(item_quantities)

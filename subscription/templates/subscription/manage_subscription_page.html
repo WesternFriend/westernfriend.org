@@ -14,12 +14,6 @@
         <section aria-labelledby="subscription-details">
             {% if request.user.subscription %}
                 <h2 id="subscription-details" class="mb-4">Active subscription details</h2>
-                <!--
-                    TODO: allow multiple active subscriptions
-                    e.g. user.get_active_subscriptions
-                    since we can't currently limit to only one
-                    and we may have use cases where users manage multiple subscriptions
-                -->
                 {% with subscription=request.user.subscription %}
                     <div class="card bg-base-100 shadow">
                         <div class="card-body">
