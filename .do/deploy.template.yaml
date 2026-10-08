@@ -84,5 +84,5 @@ spec:
       instance_count: 1
       instance_size_slug: professional-xs
       name: wf-website
-      run_command: python manage.py migrate && python manage.py createcachetable && gunicorn core.wsgi --log-file -
+      run_command: python manage.py migrate && python manage.py createcachetable django_cache && gunicorn core.wsgi --log-file -
       source_dir: /

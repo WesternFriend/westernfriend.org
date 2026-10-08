@@ -277,17 +277,23 @@ elif NOT_COLLECTING_STATICFILES:
 
 
 # Cache
-# Set DJANGO_CACHE_TABLE in production to share the cache between workers and
-# survive restarts. Unset (local development, tests), Django's per-process
-# LocMemCache is used. Ceiling: every cache hit is a database query; move to
-# django.core.cache.backends.redis.RedisCache if traffic outgrows that.
-CACHE_TABLE = os.getenv("DJANGO_CACHE_TABLE")
+# Set DJANGO_DATABASE_CACHE=True in production to share the cache between
+# workers and survive restarts. Off by default (local development, tests):
+# Django's per-process LocMemCache is used. The table name is fixed, and deploy
+# commands always run `createcachetable django_cache`, so the table exists
+# before the switch is turned on. Ceiling: every cache hit is a database query;
+# move to django.core.cache.backends.redis.RedisCache if traffic outgrows that.
+DATABASE_CACHE_TABLE = "django_cache"
+USE_DATABASE_CACHE = os.getenv("DJANGO_DATABASE_CACHE", "false").lower() in (
+    "true",
+    "1",
+)
 
-if CACHE_TABLE:
+if USE_DATABASE_CACHE:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-            "LOCATION": CACHE_TABLE,
+            "LOCATION": DATABASE_CACHE_TABLE,
         },
     }
 
