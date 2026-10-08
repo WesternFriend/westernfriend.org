@@ -89,6 +89,23 @@ class TaggedPageListViewQuerysetAndContentOrderTest(TestCase):
         # Verify the sorting order by title
         self.assertEqual(expected_titles, actual_titles)
 
+    def test_missing_tag_returns_not_found(self):
+        response = self.client.get(
+            reverse(
+                "tags:tagged_page_list",
+                kwargs={"tag": "stale-tag"},
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_valid_tag_name_is_rendered(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["tag_name"], self.tag.name)
+        self.assertContains(response, self.tag.name)
+
 
 class TaggedPageListViewPaginationTest(TestCase):
     def setUp(self):
