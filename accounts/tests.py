@@ -226,27 +226,25 @@ class SmtpSettingsEnvironmentTests(SimpleTestCase):
 
 
 class CacheSettingsEnvironmentTests(SimpleTestCase):
-    def test_database_cache_when_cache_table_set(self):
-        """DJANGO_CACHE_TABLE set → DatabaseCache with correct LOCATION."""
-        cache_environment = {
-            "DJANGO_CACHE_TABLE": "wf_cache",
-        }
+    def test_database_cache_when_enabled(self):
+        """DJANGO_DATABASE_CACHE=True → DatabaseCache on the django_cache table."""
         had_caches = "CACHES" in core.settings.__dict__
         original_caches = core.settings.__dict__.get("CACHES")
 
         try:
-            with mock.patch.dict("os.environ", cache_environment):
-                importlib.reload(core.settings)
-                cache = core.settings.CACHES["default"]
+            for value in ("True", "true", "1"):
+                with (
+                    self.subTest(value=value),
+                    mock.patch.dict("os.environ", {"DJANGO_DATABASE_CACHE": value}),
+                ):
+                    importlib.reload(core.settings)
+                    cache = core.settings.CACHES["default"]
 
-                self.assertEqual(
-                    cache["BACKEND"],
-                    "django.core.cache.backends.db.DatabaseCache",
-                )
-                self.assertEqual(
-                    cache["LOCATION"],
-                    "wf_cache",
-                )
+                    self.assertEqual(
+                        cache["BACKEND"],
+                        "django.core.cache.backends.db.DatabaseCache",
+                    )
+                    self.assertEqual(cache["LOCATION"], "django_cache")
         finally:
             importlib.reload(core.settings)
             if had_caches:
@@ -254,33 +252,46 @@ class CacheSettingsEnvironmentTests(SimpleTestCase):
             else:
                 core.settings.__dict__.pop("CACHES", None)
 
-    def test_default_cache_when_cache_table_unset(self):
-        """DJANGO_CACHE_TABLE unset → Django's default LocMemCache applies."""
+    def test_default_cache_when_database_cache_not_enabled(self):
+        """DJANGO_DATABASE_CACHE unset or false → LocMemCache applies."""
         had_caches = "CACHES" in core.settings.__dict__
         original_caches = core.settings.__dict__.get("CACHES")
 
         try:
-            with (
-                mock.patch("dotenv.load_dotenv"),
-                mock.patch.dict("os.environ", {}, clear=True),
-            ):
-                core.settings.__dict__.pop("CACHES", None)
-                importlib.reload(core.settings)
+            for environment in ({}, {"DJANGO_DATABASE_CACHE": "False"}):
+                with (
+                    self.subTest(environment=environment),
+                    mock.patch("dotenv.load_dotenv"),
+                    mock.patch.dict("os.environ", environment, clear=True),
+                ):
+                    core.settings.__dict__.pop("CACHES", None)
+                    importlib.reload(core.settings)
 
-                self.assertIsNone(core.settings.CACHE_TABLE)
-                self.assertNotIn("CACHES", core.settings.__dict__)
+                    self.assertFalse(core.settings.USE_DATABASE_CACHE)
+                    self.assertNotIn("CACHES", core.settings.__dict__)
 
-                django_settings = Settings("core.settings")
-                self.assertEqual(
-                    django_settings.CACHES["default"]["BACKEND"],
-                    "django.core.cache.backends.locmem.LocMemCache",
-                )
+                    django_settings = Settings("core.settings")
+                    self.assertEqual(
+                        django_settings.CACHES["default"]["BACKEND"],
+                        "django.core.cache.backends.locmem.LocMemCache",
+                    )
         finally:
             importlib.reload(core.settings)
             if had_caches:
                 core.settings.CACHES = original_caches
             else:
                 core.settings.__dict__.pop("CACHES", None)
+
+    def test_deploy_commands_create_the_configured_cache_table(self):
+        """Deploy commands name the table explicitly, so it is created even
+        while the database cache is switched off."""
+        expected = (
+            f"python manage.py createcachetable {core.settings.DATABASE_CACHE_TABLE}"
+        )
+        for path in ("Procfile", ".do/deploy.template.yaml"):
+            with self.subTest(path=path):
+                deploy_config = (core.settings.BASE_DIR / path).read_text()
+                self.assertIn(expected, deploy_config)
 
 
 class AccountPageAccessibilityTest(TestCase):

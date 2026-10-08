@@ -1,2 +1,2 @@
-release: python manage.py migrate && python manage.py createcachetable
-web: python manage.py migrate && gunicorn core.wsgi --log-file -
+release: python manage.py migrate && python manage.py createcachetable django_cache
+web: gunicorn core.wsgi --log-file -
