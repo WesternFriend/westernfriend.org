@@ -1,3 +1,5 @@
+import re
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from django.conf import settings
@@ -9,7 +11,7 @@ from django.forms.forms import Form
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.templatetags.static import static
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from common.apps import CommonConfig, _locale_cache_local
@@ -26,6 +28,46 @@ from common.templatetags.common_tags import (
 )
 from home.models import HomePage
 from store.factories import ProductFactory
+
+
+class NewWindowLinkTemplateTest(SimpleTestCase):
+    """Keep new-window links announced and protected across all templates."""
+
+    anchor_pattern = re.compile(
+        r'(<a\b[^>]*\btarget\s*=\s*(["\'])_blank\2[^>]*>)(.*?)</a\s*>',
+        re.IGNORECASE | re.DOTALL,
+    )
+    noopener_pattern = re.compile(
+        r'\brel\s*=\s*(["\'])[^"\']*\bnoopener\b[^"\']*\1',
+        re.IGNORECASE,
+    )
+    notice_include_pattern = re.compile(
+        r"\{%\s*include\s+([\"'])common/includes/new_window_notice\.html\1\s*%}"
+    )
+
+    def test_new_window_anchors_use_notice_and_noopener(self):
+        template_paths = (
+            path
+            for path in Path(settings.BASE_DIR).rglob("*.html")
+            if "templates" in path.parts and ".venv" not in path.parts
+        )
+        violations = []
+
+        for template_path in template_paths:
+            template = template_path.read_text(encoding="utf-8")
+            for anchor_match in self.anchor_pattern.finditer(template):
+                opening_tag, _, body = anchor_match.groups()
+                if not self.noopener_pattern.search(opening_tag):
+                    violations.append(f"{template_path}: missing rel='noopener'")
+                if not self.notice_include_pattern.search(body):
+                    violations.append(f"{template_path}: missing new-window announcement")
+
+        self.assertFalse(violations, "\n".join(violations))
+
+    def test_new_window_notice_is_screen_reader_only(self):
+        notice = render_to_string("common/includes/new_window_notice.html").strip()
+
+        self.assertEqual(notice, '<span class="sr-only">(opens in new window)</span>')
 
 
 class MockModel:
