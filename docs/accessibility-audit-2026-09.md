@@ -62,24 +62,22 @@ These need a content-model decision, editorial process, or design input.
    uploaded media need transcripts. Consider adding a transcript rich-text field and a
    WebVTT `<track>` upload. For oEmbed videos, captions depend on the provider (enable them on
    YouTube and Vimeo).
-2. **Editor-chosen heading colors (1.4.3).** `HeadingBlock.color` accepts any color, so editors
-   can pick low-contrast text. Restrict it to a vetted palette or remove it.
-3. **Alt text workflow (1.1.1).** Templates now use Wagtail's image **Description** field as alt
+2. **Alt text workflow (1.1.1).** Templates now use Wagtail's image **Description** field as alt
    text, falling back to the title. Editors should fill in Description for every meaningful
    image. Consider making it required in the image form.
-4. **Fixed theme toggle (WCAG 2.2 2.4.11, 2.5.8).** The toggle floats over the top-right of the
+3. **Fixed theme toggle (WCAG 2.2 2.4.11, 2.5.8).** The toggle floats over the top-right of the
    header and sticky navigation, and on small screens it can cover content or focused elements.
    Consider moving it into the navigation bar.
-5. **External links.** Links that open a new window announce it inconsistently. Some use
+4. **External links.** Links that open a new window announce it inconsistently. Some use
    `aria-label`, others say nothing. Pick one pattern, such as a visible or screen-reader-only
    "(opens in new window)".
-6. **Third-party embeds.** The Internet Archive viewer iframe and the PayPal buttons are outside
+5. **Third-party embeds.** The Internet Archive viewer iframe and the PayPal buttons are outside
    our control. Test them with a screen reader and provide alternatives, such as a direct PDF
    link.
-7. **Assistive-technology testing.** This audit used automated tools and keyboard testing. Do
+6. **Assistive-technology testing.** This audit used automated tools and keyboard testing. Do
    a manual pass with NVDA + Firefox and VoiceOver + Safari (desktop and iOS) before claiming
    conformance, especially on checkout and the magazine reader.
-8. **Accessibility statement.** Publish an accessibility statement page with a contact method
+7. **Accessibility statement.** Publish an accessibility statement page with a contact method
    for reporting barriers.
 
 ## Preventing regressions
