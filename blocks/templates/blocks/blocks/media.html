@@ -1,0 +1,23 @@
+{% load wagtailcore_tags %}{% with media=value.media %}{% if media %}
+    <div>
+        {% if media.type == "video" %}
+            <video width="{{ media.width }}" height="{{ media.height }}" controls>
+                {% for source in media.sources %}<source src="{{ source.src }}" type="{{ source.type }}">{% endfor %}
+                {% if value.captions %}<track kind="captions" src="{{ value.captions.url }}" srclang="en" label="Captions" default>{% endif %}
+                Your browser does not support the video tag.
+            </video>
+        {% else %}
+            <audio controls>
+                {% for source in media.sources %}<source src="{{ source.src }}" type="{{ source.type }}">{% endfor %}
+                {% if value.captions %}<track kind="captions" src="{{ value.captions.url }}" srclang="en" label="Captions" default>{% endif %}
+                Your browser does not support the audio element.
+            </audio>
+        {% endif %}
+        {% if value.transcript %}
+            <section class="transcript">
+                <h3>Transcript</h3>
+                {{ value.transcript|richtext }}
+            </section>
+        {% endif %}
+    </div>
+{% endif %}{% endwith %}
