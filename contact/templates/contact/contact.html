@@ -38,7 +38,7 @@
                     {% if page.specific.website %}
                         <dt class="font-semibold">Website</dt>
                         <dd class="mb-2">
-                            <a href="{{ page.specific.website }}" aria-label="Visit website: {{ page.specific.website }}" target="_blank" rel="noopener noreferrer" itemprop="url">
+                            <a href="{{ page.specific.website }}" aria-label="Visit website: {{ page.specific.website }} {% include 'new_window_note.txt' %}" target="_blank" rel="noopener noreferrer" itemprop="url">
                                 {{ page.specific.website }}
                             </a>
                         </dd>

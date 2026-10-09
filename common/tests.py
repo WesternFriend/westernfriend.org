@@ -1,3 +1,5 @@
+import re
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from django.conf import settings
@@ -684,3 +686,96 @@ class FlashMessageRolesTest(TestCase):
             html,
             r'role="status"[^>]*>\s*<i[^>]*>\s*</i>\s*<span>Order placed',
         )
+
+
+# The wording's single shared source is new_window_note.txt: the sr-only
+# include and every aria-label suffix render it, and this constant reads it,
+# so a wording change happens in exactly one place.
+NEW_WINDOW_NOTE = render_to_string("new_window_note.txt").strip()
+# Templates are scanned as SOURCE, not rendered, so a link can announce itself
+# by including either template rather than by carrying the wording literally:
+# the bare note (inside an aria-label) or the sr-only span (everywhere else).
+NEW_WINDOW_INCLUDE = "new_window_note.txt"
+NEW_WINDOW_WRAPPER = "opens_in_new_window.html"
+
+
+class NewWindowLinkPatternTests(TestCase):
+    """Links that open a new window announce it the same way everywhere."""
+
+    @staticmethod
+    def _template_files() -> list[Path]:
+        repo_root = Path(__file__).resolve().parent.parent
+        return [
+            path
+            for path in repo_root.glob("*/templates/**/*.html")
+            if ".venv" not in path.parts and "node_modules" not in path.parts
+        ]
+
+    def _links_opening_a_new_window(self):
+        for path in self._template_files():
+            markup = path.read_text(encoding="utf-8")
+            for match in re.finditer(
+                r"<a\b[^>]*?\btarget\s*=\s*([\"'])_blank\1.*?</a>",
+                markup,
+                re.DOTALL,
+            ):
+                yield path, match.group(0)
+
+    @staticmethod
+    def _announces_new_window(link: str) -> bool:
+        # An aria-label replaces the link's content for screen readers, so a
+        # link that sets one has to carry the note in the label itself; the
+        # included span would not be read.
+        label = re.search(r"\baria-label\s*=\s*([\"'])(.*?)\1", link, re.DOTALL)
+        if label:
+            text = label.group(2)
+            return NEW_WINDOW_NOTE in text or NEW_WINDOW_INCLUDE in text
+        return (
+            NEW_WINDOW_WRAPPER in link
+            or NEW_WINDOW_INCLUDE in link
+            or NEW_WINDOW_NOTE in link
+        )
+
+    @staticmethod
+    def _rel_tokens(link: str) -> list[str]:
+        # The boundary has to be a real attribute break: \b alone would let
+        # data-rel="noopener" satisfy the check, since the hyphen counts as one.
+        match = re.search(
+            r"(?:^|[\s\"'/])rel\s*=\s*([\"'])(.*?)\1",
+            link,
+            re.DOTALL,
+        )
+        return match.group(2).split() if match else []
+
+    def test_every_new_window_link_announces_itself(self) -> None:
+        missing = [
+            str(path)
+            for path, link in self._links_opening_a_new_window()
+            if not self._announces_new_window(link)
+        ]
+
+        self.assertEqual(missing, [], f"Links missing '{NEW_WINDOW_NOTE}': {missing}")
+
+    def test_every_new_window_link_sets_rel_noopener(self) -> None:
+        # rel is a space-separated token list, so "noopener" has to be one of
+        # its tokens; the word merely appearing in the href or link text is
+        # not enough.
+        missing = [
+            str(path)
+            for path, link in self._links_opening_a_new_window()
+            if "noopener" not in self._rel_tokens(link)
+        ]
+
+        self.assertEqual(missing, [], f"Links missing rel=noopener: {missing}")
+
+    def test_the_included_note_matches_the_constant(self) -> None:
+        # The announcement check accepts the include directive without
+        # rendering it, so this pins the include's wording to the constant.
+        self.assertIn(NEW_WINDOW_NOTE, render_to_string("opens_in_new_window.html"))
+
+    def test_the_check_finds_the_links(self) -> None:
+        # Guards against the pattern above silently matching nothing, which
+        # would make both checks pass for the wrong reason.
+        found = list(self._links_opening_a_new_window())
+
+        self.assertGreaterEqual(len(found), 10)
