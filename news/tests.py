@@ -2,7 +2,7 @@ import json
 import re
 from datetime import date
 
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, SimpleTestCase, TestCase
 from django.utils import timezone
 from wagtail.models import Site
 
@@ -10,6 +10,7 @@ from home.models import HomePage
 from news.models import (
     NewsIndexPage,
     NewsItem,
+    NewsItemTopic,
 )
 
 from .factories import (
@@ -48,6 +49,12 @@ class TestNewsItem(TestCase):
             news_item.get_parent().specific,
             NewsIndexPage,
         )
+
+
+class TestNewsItemTopic(SimpleTestCase):
+    def test_str_without_topic(self) -> None:
+        """A missing optional topic should have a safe string representation."""
+        self.assertEqual(str(NewsItemTopic(topic=None)), "")
 
 
 class TestNewsIndexPageGetContext(TestCase):

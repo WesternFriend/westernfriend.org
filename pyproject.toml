@@ -47,7 +47,7 @@ classifiers = [
     # keep-sorted start
     "Development Status :: 4 - Beta",
     "Environment :: Web Environment",
-    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 6.1",
     "Framework :: Django",
     "Framework :: Wagtail",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
@@ -64,7 +64,7 @@ classifiers = [
 dependencies = [
     "boto3",
     "dj-database-url",
-    "django",
+    "django>=6.1",
     "django-extensions",
     "django-registration",
     "django-storages",
@@ -84,7 +84,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://westernfriend.org"
-Repository = "https://github.com/WesternFriend/WF-website"
+Repository = "https://github.com/WesternFriend/westernfriend.org"
 
 [tool.ruff]
 target-version = "py312"

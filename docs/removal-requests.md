@@ -100,6 +100,11 @@ request is only complete once that entry is gone too.
 
 ## Asking the Internet Archive
 
+Whether Western Friend should ask at all is an editorial decision — see
+[Requests to remove a page from the Internet Archive](internet-archive-removal-requests.md)
+for who decides and what to weigh. The practical steps, once decided, are
+below.
+
 The Archive has no removal form for this. Send a request to
 **info@archive.org** and include
 ([Internet Archive help](https://help.archive.org/help/how-do-i-request-to-remove-something-from-archive-org/)):
