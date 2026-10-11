@@ -1836,7 +1836,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "boto3" },
     { name = "dj-database-url" },
-    { name = "django" },
+    { name = "django", specifier = ">=6.1" },
     { name = "django-coverage-plugin" },
     { name = "django-extensions" },
     { name = "django-registration" },
@@ -1873,7 +1873,7 @@ dev = [
 requires-dist = [
     { name = "boto3" },
     { name = "dj-database-url" },
-    { name = "django" },
+    { name = "django", specifier = ">=6.1" },
     { name = "django-coverage-plugin" },
     { name = "django-extensions" },
     { name = "django-registration" },

@@ -56,6 +56,7 @@ At the time of writing this is a Cloudflare WAF skip rule named
   correct, unpublish or remove stays visible in the Archive. The likeliest
   case is a memorial or directory entry about a real person, changed at a
   family's or member's request. Removing an archived copy depends on the
-  Internet Archive's own removal process.
+  Internet Archive's own removal process. See
+  [editor guidance for removal requests](../internet-archive-removal-requests.md).
 - **Future:** revisit if the Archive changes how it identifies itself, or if
   captures start failing again.
