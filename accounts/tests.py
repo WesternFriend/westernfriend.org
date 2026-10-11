@@ -267,13 +267,21 @@ class SecretKeySettingsTests(SimpleTestCase):
         with self.assertRaises(ImproperlyConfigured):
             self._reload_with({"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "   "})
 
-    def test_surrounding_whitespace_is_stripped(self):
-        """A trailing newline from a secrets file must not change the key."""
+    def test_surrounding_whitespace_is_preserved(self):
+        """A padded key keeps signing exactly as it always has.
+
+        Django has always used the env value verbatim, so a deployment whose
+        key carries surrounding whitespace has been signing with it all along.
+        Normalising here would silently rotate their key and invalidate every
+        live session and reset token — the invisible breakage this change
+        exists to prevent. Whitespace is validated (see the tests above) but
+        never altered.
+        """
         self._reload_with(
             {"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "  a-real-secret\n"},
         )
 
-        self.assertEqual(core.settings.SECRET_KEY, "a-real-secret")
+        self.assertEqual(core.settings.SECRET_KEY, "  a-real-secret\n")
 
     def test_uses_the_key_from_the_environment_in_production(self):
         self._reload_with(
@@ -311,7 +319,7 @@ class SecretKeySettingsTests(SimpleTestCase):
             {
                 "DJANGO_DEBUG": "false",
                 "DJANGO_SECRET_KEY": "new-key",
-                "DJANGO_SECRET_KEY_FALLBACKS": " old-key , older-key ,",
+                "DJANGO_SECRET_KEY_FALLBACKS": "old-key,older-key,",
             },
         )
 
@@ -319,6 +327,24 @@ class SecretKeySettingsTests(SimpleTestCase):
             core.settings.SECRET_KEY_FALLBACKS,
             ["old-key", "older-key"],
         )
+
+    def test_fallback_keys_are_kept_verbatim(self):
+        """A fallback must equal the previous key byte for byte.
+
+        If the key being rotated out carried whitespace, only a verbatim
+        fallback can still match the signatures it minted — stripping here
+        would make rotation silently fail for exactly the deployments the
+        fallback mechanism exists to protect.
+        """
+        self._reload_with(
+            {
+                "DJANGO_DEBUG": "false",
+                "DJANGO_SECRET_KEY": "new-key",
+                "DJANGO_SECRET_KEY_FALLBACKS": "  padded-old-key\n",
+            },
+        )
+
+        self.assertEqual(core.settings.SECRET_KEY_FALLBACKS, ["  padded-old-key\n"])
 
     def test_no_fallback_keys_by_default(self):
         self._reload_with({"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "k"})

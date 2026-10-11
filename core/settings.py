@@ -67,12 +67,19 @@ else:
     # logged out at random and CSRF checks failed, and password-reset and account
     # activation tokens stopped working on restart. A missing required secret has
     # to stop the process, not degrade the site invisibly.
-    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "").strip()
-    if not SECRET_KEY:
-        # Stripped, rather than a KeyError on os.environ: an empty or
-        # whitespace-only value is just as broken as an absent one, and both are
-        # likely ways to get here (an unset variable in a .env or compose file
-        # still defines it as ""). A bare KeyError would also accept "   ".
+    # Validate the stripped form, but store the value VERBATIM. Django has
+    # always signed with the env value exactly as given, so a deployment whose
+    # key happens to carry surrounding whitespace has been signing with that
+    # whitespace all along — normalising it here would silently rotate their
+    # key and invalidate every live session and reset token, the exact
+    # invisible breakage this block exists to prevent.
+    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "")
+    if not SECRET_KEY.strip():
+        # Stripped for the CHECK, rather than a KeyError on os.environ: an
+        # empty or whitespace-only value is just as broken as an absent one,
+        # and both are likely ways to get here (an unset variable in a .env or
+        # compose file still defines it as ""). A bare KeyError would also
+        # accept "   ".
         if COLLECTING_STATICFILES:
             # collectstatic runs during the build, before the runtime secret is
             # injected, and signs nothing — it only walks the static tree. The
@@ -95,8 +102,12 @@ else:
 # invalidating in-flight password-reset tokens. Set the old key here for one
 # deploy cycle, then drop it. Same failure this issue is about — sessions dying
 # from a key mismatch — just the intentional version.
+# Segments are kept VERBATIM (only blank entries are dropped) for the same
+# reason SECRET_KEY is: a fallback exists to equal some PREVIOUS key byte for
+# byte, and a previous key may carry whitespace. The cost is that "a, b" keeps
+# the space in " b" — paste keys without padding between commas.
 SECRET_KEY_FALLBACKS = [
-    key.strip()
+    key
     for key in os.getenv("DJANGO_SECRET_KEY_FALLBACKS", "").split(",")
     if key.strip()
 ]
