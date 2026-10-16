@@ -373,6 +373,26 @@ class CreatePayPalOrderTest(TestCase):
             HTTPStatus.NOT_FOUND,
         )
 
+    def test_invalid_request_body_returns_bad_request(self):
+        invalid_payloads = {
+            "malformed JSON": "{",
+            "missing order ID": json.dumps({}),
+            "invalid order ID": json.dumps({"wf_order_id": "not-an-id"}),
+        }
+        for label, payload in invalid_payloads.items():
+            with self.subTest(label):
+                response = self.client.post(
+                    self.url,
+                    data=payload,
+                    content_type="application/json",
+                )
+
+                self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+                self.assertEqual(
+                    response.json(),
+                    {"error": "Invalid request body."},
+                )
+
 
 def build_capture_response(
     *,
@@ -536,6 +556,26 @@ class CapturePayPalOrderTest(TestCase):
         self.order.refresh_from_db()
         self.assertFalse(self.order.paid)
 
+    def test_invalid_request_body_returns_bad_request(self):
+        invalid_payloads = {
+            "malformed JSON": "{",
+            "missing PayPal order ID": json.dumps({}),
+            "invalid PayPal order ID": json.dumps({"paypal_order_id": 123}),
+        }
+        for label, payload in invalid_payloads.items():
+            with self.subTest(label):
+                response = self.client.post(
+                    self.url,
+                    data=payload,
+                    content_type="application/json",
+                )
+
+                self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+                self.assertEqual(
+                    response.json(),
+                    {"error": "Invalid request body."},
+                )
+
 
 class LinkPayPalSubscriptionTest(TestCase):
     def setUp(self):
@@ -615,3 +655,24 @@ class LinkPayPalSubscriptionTest(TestCase):
             response.status_code,
             HTTPStatus.METHOD_NOT_ALLOWED,
         )
+
+    def test_invalid_request_body_returns_bad_request(self):
+        self.client.force_login(self.user)
+        invalid_payloads = {
+            "malformed JSON": "{",
+            "missing subscription ID": json.dumps({}),
+            "invalid subscription ID": json.dumps({"subscription_id": ""}),
+        }
+        for label, payload in invalid_payloads.items():
+            with self.subTest(label):
+                response = self.client.post(
+                    self.url,
+                    data=payload,
+                    content_type="application/json",
+                )
+
+                self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+                self.assertEqual(
+                    response.json(),
+                    {"error": "Invalid request body."},
+                )
