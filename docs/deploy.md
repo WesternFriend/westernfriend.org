@@ -66,15 +66,21 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `DATABASE_URL` - `${<database-name>.DATABASE_URL}` (scope: run time), the reference rather than the expanded connection string
    - `DJANGO_SECRET_KEY` - [random generated key](https://stackoverflow.com/a/67423892)
    - `DJANGO_DEBUG` - "True" or "False", should be "False" for production
-   - `DJANGO_USE_SPACES` - "True" or "False", whether to use DO Spaces for static and media files. In this case, use "True". Scope: run and build time, because the build's `collectstatic` uploads to Spaces only when this is "True" during the build
-   - `AWS_ACCESS_KEY_ID` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key) (scope: run and build time)
-   - `AWS_SECRET_ACCESS_KEY` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key) (scope: run and build time)
-   - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket (scope: run and build time)
-   - `AWS_STORAGE_BUCKET_NAME` - the name of the DO Storage Bucket for static files (scope: run and build time)
+   - `DJANGO_USE_SPACES` - "True" or "False", whether to use DO Spaces for static and media files. In this case, use "True"
+   - `AWS_ACCESS_KEY_ID` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key)
+   - `AWS_SECRET_ACCESS_KEY` - See:[Creating an Access Key](https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key)
+   - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
+   - `AWS_STORAGE_BUCKET_NAME` - the name of the DO Storage Bucket for static files
    - `DJANGO_DATABASE_CACHE` - "True" or "False" (default: False), whether to use the database cache shared by all workers instead of a per-process in-memory cache. See [Enable the shared cache on an existing app](#enable-the-shared-cache-on-an-existing-app)
    - `SENTRY_DSN` - used for error logging and analysis
 
-   On the `wf-website` component (scope: run time):
+   Every app-level variable except `DISABLE_COLLECTSTATIC` has the scope run time.
+
+   On the `wf-website` component, scope run and build time:
+
+   - `DJANGO_USE_SPACES` and the four `AWS_*` variables again, with the same values as at the app level. The build command's `collectstatic` uploads to Spaces only when `DJANGO_USE_SPACES` is "True" during the build, so `wf-website` needs them at build time. Giving them build-time scope here, rather than at the app level, keeps the Spaces credentials out of the `migrate` job's build, which installs dependencies and has no use for them. Use run and build time, not build time alone: a component-level variable replaces the app-level one with the same key. When you rotate the Spaces keys, update them in both places.
+
+   On the `wf-website` component, scope run time:
 
    - `DJANGO_ALLOWED_HOSTS` - each allowed host needs only the domain (and subdomain if relevant), no protocol
    - `DJANGO_CSRF_TRUSTED_ORIGINS`- each origin should begin with a protocol, e.g., `https://...`
@@ -152,7 +158,7 @@ Changing `.do/deploy.template.yaml` does not update a running app, because App P
 2. Give the job its environment by moving the variables it shares with `wf-website` to the app level, rather than copying them onto the job: `DATABASE_URL`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_USE_SPACES`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_REGION_NAME`, `AWS_STORAGE_BUCKET_NAME`, `DJANGO_DATABASE_CACHE`, `SENTRY_DSN`, and `DISABLE_COLLECTSTATIC`. See step 5 of [App](#app) for each one's scope.
    1. Go to the [Apps page](https://cloud.digitalocean.com/apps), select the app, open **Settings**, and add each variable under **App-Level Environment Variables** with the same value as on `wf-website`. For `DATABASE_URL`, use the same `${<database-name>.DATABASE_URL}` reference as `wf-website`, not the expanded connection string. Mark the keys and secrets **Encrypt**.
    2. Save and let the deploy finish. The running site doesn't change yet, because `wf-website`'s own copies override the app-level ones.
-   3. Delete those variables from the `wf-website` component and save. After that deploy finishes, load the home page and check Sentry for new errors.
+   3. Delete those variables from the `wf-website` component, except `DJANGO_USE_SPACES` and the four `AWS_*` variables. Keep those on `wf-website` and set their scope to **Run and build time**, so its build can upload static files to Spaces while the `migrate` job's build never sees the credentials. Save. After that deploy finishes, load the home page and check Sentry for new errors.
 3. Add the `migrate` job, either by editing the app spec or through the **Add components** form. Editing the spec is more reliable; the form has failed to create the job.
    - **Edit the app spec:** in the app's **Settings**, find **App Spec** and click **Edit**. Add this under `spec:` (or add the entry to an existing `jobs:` list), then save. Leave the rest of the spec as it is, including any encrypted values shown as `EV[...]`.
 
@@ -212,7 +218,7 @@ Changing `.do/deploy.template.yaml` does not update a running app, because App P
 1. Note the `wf-website` component's current build command (in its component settings), so you can roll back.
 2. In the `wf-website` component settings, set the build command to `python manage.py tailwind build && python manage.py collectstatic --noinput`.
 3. Add the app-level environment variable `DISABLE_COLLECTSTATIC` with the value `1` (scope: build time) and save. At the app level it also covers the `migrate` job, which serves no static files, so its build doesn't need `collectstatic`.
-4. Make sure `DJANGO_USE_SPACES` and the four `AWS_*` variables have the scope **Run and build time**, not just run time. `collectstatic` now runs during the build, and it uploads to Spaces only if `DJANGO_USE_SPACES` is "True" then. Otherwise it writes the files to the build's local disk, which the running site never serves.
+4. Make sure the `wf-website` component has its own `DJANGO_USE_SPACES` and four `AWS_*` variables with the scope **Run and build time**, not just run time. `collectstatic` now runs during the build, and it uploads to Spaces only if `DJANGO_USE_SPACES` is "True" then. Otherwise it writes the files to the build's local disk, which the running site never serves. Keep the app-level copies at run time only, so the `migrate` job's build doesn't get the credentials.
 5. Saving these settings starts a rebuild of the code that is currently deployed. **That build is expected to fail** until the commit that switches to the standalone binary is deployed: older code still runs `tailwind build` through npm, so it stops with django-tailwind's "node.js and/or npm is not installed" error. App Platform keeps the last good deploy live when a build fails, so the site is unaffected.
 6. Merge (or deploy) the commit that switches to the standalone binary. Its build runs the new build command and succeeds.
 7. When that deploy finishes, open the `wf-website` build logs and confirm `tailwind build` printed `Done`. Then check where `collectstatic` put the files, from the line it prints last:
