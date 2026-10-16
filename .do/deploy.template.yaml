@@ -26,6 +26,10 @@ spec:
   jobs:
     - environment_slug: python
       envs:
+        # The job serves no static files, so skip the buildpack's collectstatic
+        - key: DISABLE_COLLECTSTATIC
+          scope: BUILD_TIME
+          value: "1"
         - key: DATABASE_URL
           scope: RUN_TIME
           value: ${wf-website-db.DATABASE_URL}
@@ -67,7 +71,15 @@ spec:
   region: sfo3
   services:
     - environment_slug: python
+      # The compiled CSS is not committed, so build it before collecting static
+      # files. The Python buildpack would otherwise run collectstatic itself,
+      # before this command and so before the CSS exists; DISABLE_COLLECTSTATIC
+      # turns that off and collectstatic runs here instead.
+      build_command: python manage.py tailwind build && python manage.py collectstatic --noinput
       envs:
+        - key: DISABLE_COLLECTSTATIC
+          scope: BUILD_TIME
+          value: "1"
         - key: DATABASE_URL
           scope: RUN_TIME
           value: ${wf-website-db.DATABASE_URL}

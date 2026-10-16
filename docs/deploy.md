@@ -12,6 +12,7 @@ This work-in-progress document outlines the steps necessary to deploy the site.
   - [Data prep/import](#data-prepimport)
   - [Set up the pre-deploy job on an existing app](#set-up-the-pre-deploy-job-on-an-existing-app)
   - [Enable the shared cache on an existing app](#enable-the-shared-cache-on-an-existing-app)
+  - [Build the CSS during the deploy on an existing app](#build-the-css-during-the-deploy-on-an-existing-app)
 
 ## Static Files
 
@@ -47,6 +48,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
      1. Python Buildpack,
      2. Procfile Buildpack,
      3. Custom Build Command
+   - set the build command to `python manage.py tailwind build && python manage.py collectstatic --noinput`, and add the environment variable `DISABLE_COLLECTSTATIC` with the value `1` (scope: build time). See [Build the CSS during the deploy on an existing app](#build-the-css-during-the-deploy-on-an-existing-app)
    - run command should be auto-configured as follows
      - `gunicorn core.wsgi --log-file -`
    - make sure there is a `migrate` Job that runs before every deploy, with the run command `python manage.py migrate && python manage.py createcachetable django_cache`. It runs once per deploy, before the web service starts, so web instances never race each other to migrate. See [Set up the pre-deploy job on an existing app](#set-up-the-pre-deploy-job-on-an-existing-app)
@@ -177,3 +179,17 @@ The cache table must exist before the switch is turned on; otherwise every cache
 **Rolling back:** remove `DJANGO_DATABASE_CACHE` or set it to `False`. The site goes back to the per-process in-memory cache. The `django_cache` table can stay; nothing reads it.
 
 **Scaling beyond one instance:** the table is created once per deploy by the `migrate` pre-deploy job, not as each web instance starts, so `wf-website` can run more than one instance without instances racing to create it.
+
+## Build the CSS during the deploy on an existing app
+
+The compiled Tailwind CSS (`theme/static/css/dist/styles.css`) is not committed. The `wf-website` build compiles it with `python manage.py tailwind build`, which downloads Tailwind's standalone binary, so the build needs no Node. The Python buildpack runs `collectstatic` on its own, but that happens before the custom build command, so before the CSS exists. Turning it off with `DISABLE_COLLECTSTATIC` and running `collectstatic` at the end of the build command puts the CSS in the static files.
+
+Changing `.do/deploy.template.yaml` does not update a running app, because App Platform keeps its own copy of the app spec. Make these changes in the DigitalOcean dashboard before deploying the commit that stops committing the CSS, or the deploy serves the site without its stylesheet.
+
+1. Note the `wf-website` component's current build command (in its component settings), so you can roll back.
+2. In the `wf-website` component settings, set the build command to `python manage.py tailwind build && python manage.py collectstatic --noinput`.
+3. On the `wf-website` component, add the environment variable `DISABLE_COLLECTSTATIC` with the value `1` (scope: build time) and save.
+4. Optionally, add the same variable to the `migrate` job. It serves no static files, so its build doesn't need `collectstatic`.
+5. When the deploy finishes, open the build logs and confirm `tailwind build` printed `Done` and `collectstatic` reported the files it copied. Then load the home page and check that it is styled.
+
+**Rolling back:** set the build command back to the one you noted in step 1 and remove `DISABLE_COLLECTSTATIC`. Without a committed CSS file, the site then has no stylesheet, so also revert the commit that stopped committing it.
