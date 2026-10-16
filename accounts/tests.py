@@ -323,7 +323,7 @@ class SecretKeySettingsTests(SimpleTestCase):
             self._reload_with({"DJANGO_DEBUG": "false"})
 
     def test_other_commands_still_fail_without_a_key(self):
-        """The build-step exemption must not leak to anything that serves."""
+        """The collectstatic exemption must not leak to anything that serves."""
         with (
             mock.patch.object(sys, "argv", ["manage.py", "migrate"]),
             self.assertRaises(ImproperlyConfigured),

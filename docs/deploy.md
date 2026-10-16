@@ -184,12 +184,14 @@ The cache table must exist before the switch is turned on; otherwise every cache
 
 The compiled Tailwind CSS (`theme/static/css/dist/styles.css`) is not committed. The `wf-website` build compiles it with `python manage.py tailwind build`, which downloads Tailwind's standalone binary, so the build needs no Node. The Python buildpack runs `collectstatic` on its own, but that happens before the custom build command, so before the CSS exists. Turning it off with `DISABLE_COLLECTSTATIC` and running `collectstatic` at the end of the build command puts the CSS in the static files.
 
-Changing `.do/deploy.template.yaml` does not update a running app, because App Platform keeps its own copy of the app spec. Make these changes in the DigitalOcean dashboard before deploying the commit that stops committing the CSS, or the deploy serves the site without its stylesheet.
+Changing `.do/deploy.template.yaml` does not update a running app, because App Platform keeps its own copy of the app spec. Make these changes in the DigitalOcean dashboard, then deploy the commit that switches to the standalone binary (the one that stops committing the CSS). Do it in that order: a deploy of that commit without the new build command serves the site without its stylesheet.
 
 1. Note the `wf-website` component's current build command (in its component settings), so you can roll back.
 2. In the `wf-website` component settings, set the build command to `python manage.py tailwind build && python manage.py collectstatic --noinput`.
 3. On the `wf-website` component, add the environment variable `DISABLE_COLLECTSTATIC` with the value `1` (scope: build time) and save.
 4. Optionally, add the same variable to the `migrate` job. It serves no static files, so its build doesn't need `collectstatic`.
-5. When the deploy finishes, open the build logs and confirm `tailwind build` printed `Done` and `collectstatic` reported the files it copied. Then load the home page and check that it is styled.
+5. Saving these settings starts a rebuild of the code that is currently deployed. **That build is expected to fail** until the commit that switches to the standalone binary is deployed: older code still runs `tailwind build` through npm, so it stops with django-tailwind's "node.js and/or npm is not installed" error. App Platform keeps the last good deploy live when a build fails, so the site is unaffected.
+6. Merge (or deploy) the commit that switches to the standalone binary. Its build runs the new build command and succeeds.
+7. When that deploy finishes, open the build logs and confirm `tailwind build` printed `Done` and `collectstatic` reported the files it copied. Then load the home page and check that it is styled.
 
 **Rolling back:** set the build command back to the one you noted in step 1 and remove `DISABLE_COLLECTSTATIC`. Without a committed CSS file, the site then has no stylesheet, so also revert the commit that stopped committing it.
