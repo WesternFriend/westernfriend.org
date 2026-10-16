@@ -4,6 +4,7 @@ import sys
 from unittest import mock
 from unittest.mock import PropertyMock, patch
 
+import yaml
 from django.conf import Settings, settings
 from django.core import mail
 from django.core.exceptions import ImproperlyConfigured
@@ -437,16 +438,22 @@ class CacheSettingsEnvironmentTests(SimpleTestCase):
             else:
                 core.settings.__dict__.pop("CACHES", None)
 
-    def test_deploy_commands_create_the_configured_cache_table(self):
-        """Deploy commands name the table explicitly, so it is created even
-        while the database cache is switched off."""
-        expected = (
-            f"python manage.py createcachetable {core.settings.DATABASE_CACHE_TABLE}"
+    def test_pre_deploy_job_creates_the_configured_cache_table(self):
+        """The pre-deploy job names the table explicitly, so it is created
+        even while the database cache is switched off."""
+        app_spec = yaml.safe_load(
+            (core.settings.BASE_DIR / ".do/deploy.template.yaml").read_text(),
         )
-        for path in ("Procfile", ".do/deploy.template.yaml"):
-            with self.subTest(path=path):
-                deploy_config = (core.settings.BASE_DIR / path).read_text()
-                self.assertIn(expected, deploy_config)
+        pre_deploy_jobs = [
+            job for job in app_spec["spec"]["jobs"] if job["kind"] == "PRE_DEPLOY"
+        ]
+        self.assertEqual(len(pre_deploy_jobs), 1)
+        run_command = pre_deploy_jobs[0]["run_command"]
+        self.assertIn("python manage.py migrate", run_command)
+        self.assertIn(
+            f"python manage.py createcachetable {core.settings.DATABASE_CACHE_TABLE}",
+            run_command,
+        )
 
 
 class AccountPageAccessibilityTest(TestCase):
