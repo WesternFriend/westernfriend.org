@@ -309,9 +309,11 @@ class SecretKeySettingsTests(SimpleTestCase):
 
     def test_other_commands_still_fail_without_a_key(self):
         """The collectstatic exemption must not leak to anything that serves."""
-        with mock.patch.object(sys, "argv", ["manage.py", "migrate"]):
-            with self.assertRaises(ImproperlyConfigured):
-                self._reload_with({"DJANGO_DEBUG": "false"})
+        with (
+            mock.patch.object(sys, "argv", ["manage.py", "migrate"]),
+            self.assertRaises(ImproperlyConfigured),
+        ):
+            self._reload_with({"DJANGO_DEBUG": "false"})
 
     def test_fallback_keys_are_parsed_for_rotation(self):
         """Old keys keep existing sessions valid while a new key rolls out."""
