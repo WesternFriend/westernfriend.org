@@ -53,6 +53,10 @@ Result after fixes: **0 axe violations on all 45 pages** in light, dark, and 320
 Already in good shape: skip link, `lang` attribute, `:focus-visible` styling, labeled search
 forms, the footer's `<address>` markup, and paginator `aria-current`.
 
+Links with `target="_blank"` use `common/includes/new_window_notice.html` for a consistent
+screen-reader-only `"(opens in new window)"` announcement and must include `rel="noopener"`. A
+Django regression test checks every template anchor with this target for both requirements.
+
 ## Remaining recommendations (not fixed in code)
 
 These need a content-model decision, editorial process, or design input.
@@ -70,16 +74,13 @@ These need a content-model decision, editorial process, or design input.
 4. **Fixed theme toggle (WCAG 2.2 2.4.11, 2.5.8).** The toggle floats over the top-right of the
    header and sticky navigation, and on small screens it can cover content or focused elements.
    Consider moving it into the navigation bar.
-5. **External links.** Links that open a new window announce it inconsistently. Some use
-   `aria-label`, others say nothing. Pick one pattern, such as a visible or screen-reader-only
-   "(opens in new window)".
-6. **Third-party embeds.** The Internet Archive viewer iframe and the PayPal buttons are outside
+5. **Third-party embeds.** The Internet Archive viewer iframe and the PayPal buttons are outside
    our control. Test them with a screen reader and provide alternatives, such as a direct PDF
    link.
-7. **Assistive-technology testing.** This audit used automated tools and keyboard testing. Do
+6. **Assistive-technology testing.** This audit used automated tools and keyboard testing. Do
    a manual pass with NVDA + Firefox and VoiceOver + Safari (desktop and iOS) before claiming
    conformance, especially on checkout and the magazine reader.
-8. **Accessibility statement.** Publish an accessibility statement page with a contact method
+7. **Accessibility statement.** Publish an accessibility statement page with a contact method
    for reporting barriers.
 
 ## Preventing regressions

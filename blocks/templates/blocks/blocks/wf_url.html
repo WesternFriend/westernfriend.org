@@ -1,3 +1,4 @@
-<a href="{{ value }}" rel="noopener noreferrer" {% if '://' in value %}target="_blank" aria-label="Opens in a new window: {{ value }}"{% endif %}>
+<a href="{{ value }}" rel="noopener noreferrer" {% if '://' in value %}target="_blank"{% endif %}>
     {{ value }}
+    {% if '://' in value %}{% include "common/includes/new_window_notice.html" %}{% endif %}
 </a>
