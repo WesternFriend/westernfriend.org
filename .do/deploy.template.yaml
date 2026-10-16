@@ -15,6 +15,10 @@ spec:
       type: PRIMARY
   # App-level variables apply to every component: the wf-website service and
   # the migrate pre-deploy job both read them, so they are set once here.
+  # Optional features (Sentry, SMTP email, Cloudflare cache purging) turn on
+  # as soon as their variables are set, so a placeholder would break them;
+  # they are left out here. Add them in the dashboard once you have real
+  # values. See docs/deploy.md.
   envs:
     # The buildpack would run collectstatic before the service's build command,
     # and so before the CSS exists; the service runs it itself instead. The job
@@ -56,10 +60,6 @@ spec:
     - key: DJANGO_DATABASE_CACHE
       scope: RUN_TIME
       value: "True"
-    - key: SENTRY_DSN
-      scope: RUN_TIME
-      type: SECRET
-      value: change-me
   ingress:
     rules:
       - component:
@@ -130,29 +130,6 @@ spec:
         - key: PAYPAL_CLIENT_SECRET
           scope: RUN_TIME
           type: SECRET
-          value: change-me
-        - key: EMAIL_HOST
-          scope: RUN_TIME
-          value: change-me
-        - key: EMAIL_PORT
-          scope: RUN_TIME
-          value: "587"
-        - key: EMAIL_HOST_USER
-          scope: RUN_TIME
-          value: change-me
-        - key: EMAIL_HOST_PASSWORD
-          scope: RUN_TIME
-          type: SECRET
-          value: change-me
-        - key: EMAIL_USE_TLS
-          scope: RUN_TIME
-          value: "True"
-        - key: CLOUDFLARE_API_TOKEN
-          scope: RUN_TIME
-          type: SECRET
-          value: change-me
-        - key: CLOUDFLARE_ZONE_ID
-          scope: RUN_TIME
           value: change-me
         - key: DJANGO_PUBLIC_CACHE_EDGE_TTL
           scope: RUN_TIME

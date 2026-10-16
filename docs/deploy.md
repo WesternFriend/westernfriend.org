@@ -58,7 +58,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
 4. Click Add Resource
    - add a dev database during staging (named `wf-staging-db`)
    - add a prod database when deploying the production site (named `wf-prod-db`)
-5. Configure the environment variables. `.do/deploy.template.yaml` is the reference for every key, its scope, and placeholder value. Variables that both `wf-website` and the `migrate` job read are set once at the app level (**Settings** → **App-Level Environment Variables**), so the two can't drift apart. Variables only the web service reads are set on the `wf-website` component. A component-level variable overrides an app-level one with the same key. Mark keys, secrets, and passwords **Encrypt**.
+5. Configure the environment variables. `.do/deploy.template.yaml` is the reference for every required key, its scope, and placeholder value. Variables that both `wf-website` and the `migrate` job read are set once at the app level (**Settings** → **App-Level Environment Variables**), so the two can't drift apart. Variables only the web service reads are set on the `wf-website` component. A component-level variable overrides an app-level one with the same key. Mark keys, secrets, and passwords **Encrypt**.
 
    App level:
 
@@ -72,7 +72,6 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `AWS_S3_REGION_NAME` - use the region name selected when setting up the DO Spaces Storage Bucket
    - `AWS_STORAGE_BUCKET_NAME` - the name of the DO Storage Bucket for static files
    - `DJANGO_DATABASE_CACHE` - "True" or "False" (default: False), whether to use the database cache shared by all workers instead of a per-process in-memory cache. See [Enable the shared cache on an existing app](#enable-the-shared-cache-on-an-existing-app)
-   - `SENTRY_DSN` - used for error logging and analysis
 
    Every app-level variable except `DISABLE_COLLECTSTATIC` has the scope run time.
 
@@ -87,15 +86,17 @@ Set up the site by following the steps below. The order of steps matters. So, be
    - `PAYPAL_CLIENT_ENVIRONMENT` - one of "PRODUCTION" or "SANDBOX"
    - `PAYPAL_CLIENT_ID` - ID obtained from PayPal developer dashboard
    - `PAYPAL_CLIENT_SECRET` - client secret obtained from PayPal developer dashboard
-   - `EMAIL_HOST` - SMTP host
-   - `EMAIL_PORT` - SMTP port (default: 587)
-   - `EMAIL_HOST_USER` - username for SMTP host
-   - `EMAIL_HOST_PASSWORD` - password for SMTP user
-   - `EMAIL_USE_TLS` - use Transport Layer Security (default: True)
-   - `EMAIL_USE_SSL` - use implicit SSL instead of TLS (default: False). When set to True, also set `EMAIL_USE_TLS=False`: Django refuses to send email with both enabled, and TLS is on by default
-   - `DEFAULT_FROM_EMAIL` - from address when sending mail (default: tech@westernfriend.org)
-   - `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ZONE_ID` - let Wagtail purge published and unpublished pages from Cloudflare's cache. See [edge caching](specifications/edge_caching.md)
    - `DJANGO_PUBLIC_CACHE_EDGE_TTL` - seconds Cloudflare keeps a public page (default: 0, which marks every response private). See [edge caching](specifications/edge_caching.md)
+
+   Optional features. These are not in the template, because each feature turns on as soon as its variables are set, and a placeholder value breaks it. Add them in the dashboard only once you have real values.
+
+   - `SENTRY_DSN` - app level, scope run time. Turns on error reporting to Sentry, for both `wf-website` and the `migrate` job. A value that isn't a valid DSN stops the app from starting
+   - `EMAIL_HOST`, `EMAIL_HOST_USER`, and `EMAIL_HOST_PASSWORD` - `wf-website`, scope run time. When all three are set, the site sends email over SMTP with them; until then it only prints email to the log. Placeholder values make every email (account activation, password reset) fail
+     - `EMAIL_PORT` - SMTP port (default: 587)
+     - `EMAIL_USE_TLS` - use Transport Layer Security (default: True)
+     - `EMAIL_USE_SSL` - use implicit SSL instead of TLS (default: False). When set to True, also set `EMAIL_USE_TLS=False`: Django refuses to send email with both enabled, and TLS is on by default
+     - `DEFAULT_FROM_EMAIL` - from address when sending mail (default: tech@westernfriend.org)
+   - `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ZONE_ID` - `wf-website`, scope run time. When both are set, Wagtail purges published and unpublished pages from Cloudflare's cache. Placeholder values make every purge fail, so Cloudflare keeps serving stale pages. See [edge caching](specifications/edge_caching.md)
 
 6. Edit the App Info with the following settings
    1. Give the app a meaningful name
@@ -155,7 +156,7 @@ Migrations and the cache table are created by a `migrate` job that App Platform 
 Changing `.do/deploy.template.yaml` does not update a running app, because App Platform keeps its own copy of the app spec. Make these changes in the DigitalOcean dashboard. Move the shared variables to the app level first, add the job second, and shorten the web run command last, so every deploy along the way still runs migrations.
 
 1. Note the `wf-website` component's current run command (in its component settings), so you can roll back.
-2. Give the job its environment by moving the variables it shares with `wf-website` to the app level, rather than copying them onto the job: `DATABASE_URL`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_USE_SPACES`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_REGION_NAME`, `AWS_STORAGE_BUCKET_NAME`, `DJANGO_DATABASE_CACHE`, `SENTRY_DSN`, and `DISABLE_COLLECTSTATIC`. See step 5 of [App](#app) for each one's scope.
+2. Give the job its environment by moving the variables it shares with `wf-website` to the app level, rather than copying them onto the job: `DATABASE_URL`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_USE_SPACES`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_REGION_NAME`, `AWS_STORAGE_BUCKET_NAME`, `DJANGO_DATABASE_CACHE`, `DISABLE_COLLECTSTATIC`, and `SENTRY_DSN` if the app uses Sentry. See step 5 of [App](#app) for each one's scope.
    1. Go to the [Apps page](https://cloud.digitalocean.com/apps), select the app, open **Settings**, and add each variable under **App-Level Environment Variables** with the same value as on `wf-website`. For `DATABASE_URL`, use the same `${<database-name>.DATABASE_URL}` reference as `wf-website`, not the expanded connection string. Mark the keys and secrets **Encrypt**.
    2. Save and let the deploy finish. The running site doesn't change yet, because `wf-website`'s own copies override the app-level ones.
    3. Delete those variables from the `wf-website` component, except `DJANGO_USE_SPACES` and the four `AWS_*` variables. Keep those on `wf-website` and set their scope to **Run and build time**, so its build can upload static files to Spaces while the `migrate` job's build never sees the credentials. Save. After that deploy finishes, load the home page and check Sentry for new errors.
