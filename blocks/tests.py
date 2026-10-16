@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 from django.test import TestCase
 
-from .blocks import MediaBlock, PullQuoteBlock
+from .blocks import HeadingBlock, MediaBlock, PullQuoteBlock
 
 
 class MediaBlockTest(TestCase):
@@ -61,3 +61,31 @@ class TestPullQuoteBlock(TestCase):
 
         # Assert that an empty string is returned
         self.assertEqual(html, "")
+
+
+class HeadingBlockTest(TestCase):
+    def setUp(self) -> None:
+        self.block = HeadingBlock()
+
+    def test_render_ignores_legacy_color_and_emits_no_inline_style(self) -> None:
+        # A heading saved before the color field was removed still carries a
+        # stored "color" key in its StreamField data. It must be ignored, and
+        # the rendered heading must not emit any inline color styling
+        # (WCAG 1.4.3 - see #1299).
+        value = self.block.to_python(
+            {
+                "heading_level": "h2",
+                "heading_text": "Accessible Heading",
+                "target_slug": "accessible-heading",
+                "color": "#ff0000",  # legacy value, no longer a field
+            },
+        )
+
+        html = self.block.render(value)
+
+        self.assertIn("Accessible Heading", html)
+        self.assertIn('id="accessible-heading"', html)
+        self.assertIn("<h2", html)
+        self.assertIn("</h2>", html)
+        self.assertNotIn("style=", html)
+        self.assertNotIn("#ff0000", html)
