@@ -13,6 +13,52 @@ spec:
   domains:
     - domain: preview.westernfriend.org
       type: PRIMARY
+  # App-level variables apply to every component: the wf-website service and
+  # the migrate pre-deploy job both read them, so they are set once here.
+  envs:
+    # The buildpack would run collectstatic before the service's build command,
+    # and so before the CSS exists; the service runs it itself instead. The job
+    # serves no static files and needs no collectstatic at all.
+    - key: DISABLE_COLLECTSTATIC
+      scope: BUILD_TIME
+      value: "1"
+    - key: DATABASE_URL
+      scope: RUN_TIME
+      value: ${wf-website-db.DATABASE_URL}
+    - key: DJANGO_SECRET_KEY
+      scope: RUN_TIME
+      type: SECRET
+      value: change-me
+    - key: DJANGO_DEBUG
+      scope: RUN_TIME
+      value: "False"
+    # The Spaces settings are needed at build time too: the service's build
+    # command runs collectstatic, which uploads to Spaces only when
+    # DJANGO_USE_SPACES is "True" during the build.
+    - key: DJANGO_USE_SPACES
+      scope: RUN_AND_BUILD_TIME
+      value: "True"
+    - key: AWS_ACCESS_KEY_ID
+      scope: RUN_AND_BUILD_TIME
+      type: SECRET
+      value: change-me
+    - key: AWS_SECRET_ACCESS_KEY
+      scope: RUN_AND_BUILD_TIME
+      type: SECRET
+      value: change-me
+    - key: AWS_S3_REGION_NAME
+      scope: RUN_AND_BUILD_TIME
+      value: sfo3
+    - key: AWS_STORAGE_BUCKET_NAME
+      scope: RUN_AND_BUILD_TIME
+      value: change-me
+    - key: DJANGO_DATABASE_CACHE
+      scope: RUN_TIME
+      value: "True"
+    - key: SENTRY_DSN
+      scope: RUN_TIME
+      type: SECRET
+      value: change-me
   ingress:
     rules:
       - component:
@@ -25,42 +71,10 @@ spec:
   # version stays live.
   jobs:
     - environment_slug: python
-      envs:
-        # The job serves no static files, so skip the buildpack's collectstatic
-        - key: DISABLE_COLLECTSTATIC
-          scope: BUILD_TIME
-          value: "1"
-        - key: DATABASE_URL
-          scope: RUN_TIME
-          value: ${wf-website-db.DATABASE_URL}
-        - key: DJANGO_SECRET_KEY
-          scope: RUN_TIME
-          value: change-me
-        - key: DJANGO_DEBUG
-          scope: RUN_TIME
-          value: "False"
-        - key: DJANGO_USE_SPACES
-          scope: RUN_TIME
-          value: "True"
-        - key: AWS_ACCESS_KEY_ID
-          scope: RUN_TIME
-          value: change-me
-        - key: AWS_SECRET_ACCESS_KEY
-          scope: RUN_TIME
-          value: change-me
-        - key: AWS_S3_REGION_NAME
-          scope: RUN_TIME
-          value: sfo3
-        - key: AWS_STORAGE_BUCKET_NAME
-          scope: RUN_TIME
-          value: change-me
-        - key: SENTRY_DSN
-          scope: RUN_TIME
-          value: change-me
       github:
         branch: main
         deploy_on_push: true
-        repo: WesternFriend/WF-website
+        repo: WesternFriend/westernfriend.org
       instance_count: 1
       instance_size_slug: professional-xs
       kind: PRE_DEPLOY
@@ -73,59 +87,47 @@ spec:
     - environment_slug: python
       # The compiled CSS is not committed, so build it before collecting static
       # files. The Python buildpack would otherwise run collectstatic itself,
-      # before this command and so before the CSS exists; DISABLE_COLLECTSTATIC
-      # turns that off and collectstatic runs here instead.
+      # before this command and so before the CSS exists; the app-level
+      # DISABLE_COLLECTSTATIC turns that off and collectstatic runs here instead.
       build_command: python manage.py tailwind build && python manage.py collectstatic --noinput
       envs:
-        - key: DISABLE_COLLECTSTATIC
-          scope: BUILD_TIME
-          value: "1"
-        - key: DATABASE_URL
-          scope: RUN_TIME
-          value: ${wf-website-db.DATABASE_URL}
-        - key: DJANGO_CORS_ALLOWED_ORIGINS
-          scope: RUN_TIME
-          value: https://change.me
         - key: DJANGO_ALLOWED_HOSTS
           scope: RUN_TIME
           value: change.me
         - key: DJANGO_CSRF_TRUSTED_ORIGINS
           scope: RUN_TIME
           value: https://change.me
-        - key: DJANGO_SECRET_KEY
-          scope: RUN_TIME
-          value: change-me
-        - key: DJANGO_DEBUG
-          scope: RUN_TIME
-          value: "False"
-        - key: DJANGO_USE_SPACES
-          scope: RUN_TIME
-          value: "True"
-        - key: AWS_ACCESS_KEY_ID
-          scope: RUN_TIME
-          value: change-me
-        - key: AWS_SECRET_ACCESS_KEY
-          scope: RUN_TIME
-          value: change-me
-        - key: AWS_S3_REGION_NAME
-          scope: RUN_TIME
-          value: sfo3
-        - key: AWS_STORAGE_BUCKET_NAME
-          scope: RUN_TIME
-          value: change-me
-        - key: BRAINTREE_ENVIRONMENT
+        - key: PAYPAL_CLIENT_ENVIRONMENT
           scope: RUN_TIME
           value: sandbox
-        - key: BRAINTREE_MERCHANT_ID
+        - key: PAYPAL_CLIENT_ID
           scope: RUN_TIME
           value: change-me
-        - key: BRAINTREE_PUBLIC_KEY
+        - key: PAYPAL_CLIENT_SECRET
+          scope: RUN_TIME
+          type: SECRET
+          value: change-me
+        - key: EMAIL_HOST
           scope: RUN_TIME
           value: change-me
-        - key: BRAINTREE_PRIVATE_KEY
+        - key: EMAIL_PORT
+          scope: RUN_TIME
+          value: "587"
+        - key: EMAIL_HOST_USER
           scope: RUN_TIME
           value: change-me
-        - key: SENTRY_DSN
+        - key: EMAIL_HOST_PASSWORD
+          scope: RUN_TIME
+          type: SECRET
+          value: change-me
+        - key: EMAIL_USE_TLS
+          scope: RUN_TIME
+          value: "True"
+        - key: CLOUDFLARE_API_TOKEN
+          scope: RUN_TIME
+          type: SECRET
+          value: change-me
+        - key: CLOUDFLARE_ZONE_ID
           scope: RUN_TIME
           value: change-me
         - key: DJANGO_PUBLIC_CACHE_EDGE_TTL
@@ -134,7 +136,7 @@ spec:
       github:
         branch: main
         deploy_on_push: true
-        repo: WesternFriend/WF-website
+        repo: WesternFriend/westernfriend.org
       http_port: 8080
       instance_count: 1
       instance_size_slug: professional-xs
