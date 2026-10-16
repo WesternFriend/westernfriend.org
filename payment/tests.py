@@ -27,6 +27,9 @@ class TestProcessBookstoreOrderPayment(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "payment/process.html")
+        self.assertContains(response, 'id="paypal-button-container"')
+        self.assertContains(response, 'role="group"')
+        self.assertContains(response, 'aria-label="PayPal payment buttons"')
         self.assertEqual(
             response.context["order"],
             self.order,
