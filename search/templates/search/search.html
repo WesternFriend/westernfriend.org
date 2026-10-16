@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load static wagtailcore_tags %}
 
+{% block meta_robots %}<meta name="robots" content="noindex" />{% endblock meta_robots %}
+
 {% block body_class %}template-searchresults{% endblock %}
 
 {% block title %}Search{% endblock %}
@@ -79,7 +81,8 @@
                 {% endfor %}
             </ul>
 
-            {% include "paginator.html" with paginated_items=paginated_search_results current_querystring=search_querystring %}
+            {# nofollow: each query makes its own set of paged URLs, and crawlers were looping through them #}
+            {% include "paginator.html" with paginated_items=paginated_search_results current_querystring=search_querystring nofollow=True %}
         {% elif search_query and not page_limit_exceeded %}
             <div class="alert">
                 <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
