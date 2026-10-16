@@ -223,7 +223,7 @@ Changing `.do/deploy.template.yaml` does not update a running app, because App P
 5. Saving these settings starts a rebuild of the code that is currently deployed. **That build is expected to fail** until the commit that switches to the standalone binary is deployed: older code still runs `tailwind build` through npm, so it stops with django-tailwind's "node.js and/or npm is not installed" error. App Platform keeps the last good deploy live when a build fails, so the site is unaffected.
 6. Merge (or deploy) the commit that switches to the standalone binary. Its build runs the new build command and succeeds.
 7. When that deploy finishes, open the `wf-website` build logs and confirm `tailwind build` printed `Done`. Then check where `collectstatic` put the files, from the line it prints last:
-   - Uploaded to Spaces: no destination path, for example `3 static files copied, 1203 unmodified.` Files that haven't changed since the last upload are counted as unmodified.
+   - Uploaded to Spaces: no destination path, for example `251 static files copied.` (sometimes followed by a count of unmodified files). To double-check, look in the Spaces bucket: `static/css/dist/styles.css` should have a last-modified time matching the build.
    - Written to local disk instead: the line ends with a path, `... static files copied to '/workspace/static_root'.` The Spaces variables were not available at build time; recheck their scope (step 4) and redeploy.
 
    Then load the home page and check that it is styled, and that the stylesheet's URL points at the Spaces bucket.
