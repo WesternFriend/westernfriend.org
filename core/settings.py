@@ -52,11 +52,15 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 
-# True only while running `manage.py collectstatic`, which happens at build time
-# before runtime secrets exist. See NOT_COLLECTING_STATICFILES further down for
-# the long-standing database equivalent — the two are deliberately separate
-# expressions, because that one is also False for a bare `manage.py`.
-COLLECTING_STATICFILES = len(sys.argv) > 1 and sys.argv[1] == "collectstatic"
+# True only while running `manage.py tailwind build` or `manage.py collectstatic`,
+# which happen at build time before runtime secrets exist. See
+# NOT_COLLECTING_STATICFILES further down for the long-standing database
+# equivalent — the two are deliberately separate expressions, because that one
+# is also False for a bare `manage.py`.
+BUILDING_STATIC_ASSETS = sys.argv[1:2] == ["collectstatic"] or sys.argv[1:3] == [
+    "tailwind",
+    "build",
+]
 
 if DEBUG:
     SECRET_KEY = "not-so-secret-key"  # noqa: S105 - local development only
@@ -80,11 +84,12 @@ else:
         # and both are likely ways to get here (an unset variable in a .env or
         # compose file still defines it as ""). A bare KeyError would also
         # accept "   ".
-        if COLLECTING_STATICFILES:
-            # collectstatic runs during the build, before the runtime secret is
-            # injected, and signs nothing — it only walks the static tree. The
-            # DATABASES block below already skips its own config for exactly
-            # this command; this is the same exemption for the same reason.
+        if BUILDING_STATIC_ASSETS:
+            # The build compiles the CSS and runs collectstatic before the
+            # runtime secret is injected, and neither signs anything — they only
+            # write and walk the static tree. The DATABASES block below already
+            # skips its own config for collectstatic; this is the same exemption
+            # for the same reason.
             # Deliberately NOT reusing NOT_COLLECTING_STATICFILES: that flag is
             # also False for a bare `manage.py` with no subcommand, which is not
             # the same question being asked here.
@@ -264,6 +269,11 @@ INSTALLED_APPS = [
 ]
 
 TAILWIND_APP_NAME = "theme"
+# Build the CSS with Tailwind's standalone binary (downloaded by pytailwindcss),
+# so neither development nor the deploy needs Node. Pinned so every build, local
+# or production, produces the same CSS; bump it deliberately.
+TAILWIND_USE_STANDALONE_BINARY = True
+TAILWIND_STANDALONE_BINARY_VERSION = "v4.1.5"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

@@ -1,3 +1,5 @@
+# The daisyUI bundles are vendored verbatim from its releases; leave them as is
+exclude: ^theme/static_src/src/daisyui(-theme)?\.mjs$
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -13,10 +15,10 @@ repos:
   # - repo: local
   #   hooks:
   #     - id: build-tailwind
-  #       name: Build Tailwind CSS for production
-  #       entry: bash -c "cd theme/static_src && npm run build"
+  #       name: Check that the Tailwind CSS builds
+  #       entry: python manage.py tailwind build
   #       language: system
-  #       files: ^theme/static/
+  #       files: ^theme/static_src/
   #       pass_filenames: false
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.21.2
