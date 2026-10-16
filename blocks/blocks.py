@@ -1,5 +1,6 @@
 from django import forms
 from django.core.validators import validate_slug
+from django.db import models
 from django.forms.utils import flatatt
 from django.utils.html import format_html, format_html_join
 from wagtail import blocks as wagtail_blocks
@@ -7,11 +8,10 @@ from wagtail.images.blocks import ImageChooserBlock
 from wagtail_color_panel.blocks import NativeColorBlock
 from wagtailmedia.blocks import AbstractMediaChooserBlock
 
-# TODO: convert to a models.TextChoices class
-IMAGE_ALIGN_CHOICES = [
-    ("left", "Left"),
-    ("right", "Right"),
-]
+
+class ImageAlignment(models.TextChoices):
+    LEFT = "left", "Left"
+    RIGHT = "right", "Right"
 
 
 class ButtonBlock(wagtail_blocks.StructBlock):
@@ -31,7 +31,7 @@ class CardBlock(wagtail_blocks.StructBlock):
     image = ImageChooserBlock(required=False)
     image_align = wagtail_blocks.ChoiceBlock(
         required=False,
-        choices=IMAGE_ALIGN_CHOICES,
+        choices=ImageAlignment.choices,
         default="left",
         help_text="Whether to align the image left or right on the block.",
     )

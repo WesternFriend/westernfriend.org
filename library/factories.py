@@ -39,10 +39,6 @@ class LibraryItemFactory(factory.django.DjangoModelFactory):
         ),
     )
 
-    # TODO: determine why lazy facet attributes (factory.LazyAttribute picking a
-    # random Audience, Genre, Medium, and TimePeriod) are not working
-    # goal: randomly assign a facet to each library item
-
     @classmethod
     def _create(
         cls,

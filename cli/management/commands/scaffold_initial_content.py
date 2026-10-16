@@ -314,7 +314,6 @@ class Command(BaseCommand):
                             "page": news_index_page,
                         },
                     ),
-                    # TODO: create PodcastIndexPage / feature
                     (
                         "page",
                         {

@@ -77,9 +77,6 @@ class ProductFactory(DjangoModelFactory):
     )
     available = factory.Iterator([True, False])  # type: ignore
 
-    # TODO: add a MockWagtailImage class
-    # and use it to populate the image field
-
     @classmethod
     def _create(
         cls,
