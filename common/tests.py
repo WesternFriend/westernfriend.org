@@ -1,3 +1,5 @@
+import json
+import re
 from unittest.mock import MagicMock, patch
 
 from django.conf import settings
@@ -7,7 +9,9 @@ from django.core.signals import request_finished, request_started
 from django.forms import CharField, TextInput
 from django.forms.forms import Form
 from django.http import HttpResponse
-from django.template.loader import render_to_string
+from django.template import Context
+from django.template.loader import get_template, render_to_string
+from django.template.loader_tags import BlockNode
 from django.templatetags.static import static
 from django.test import RequestFactory, TestCase, override_settings
 from wagtail.models import Locale, Page, PageViewRestriction, Site
@@ -19,6 +23,9 @@ from common.templatetags.common_tags import (
     absolute_static,
     canonical_url,
     exclude_from_breadcrumbs,
+    json_ld,
+    magazine_article_json_ld,
+    memorial_json_ld,
     model_name,
     site_root_url,
     specific_pages,
@@ -73,6 +80,136 @@ class CommonFormTagsTests(TestCase):
 
 class CommonTagsTests(TestCase):
     """Tests for common tags template filters."""
+
+    def _render_json_ld_block(self, template_name, page):
+        template = get_template(template_name).template
+        block = next(
+            node
+            for node in template.nodelist.get_nodes_by_type(BlockNode)
+            if node.name == "extra_js"
+        )
+        return block.nodelist.render(Context({"page": page}))
+
+    def test_json_ld_round_trips_special_characters_and_escapes_script_tags(self):
+        value = {
+            "text": 'Friends "Speaking" & Listening\\line\nnext',
+            "hazard": "</script><script>alert('x')</script>",
+        }
+
+        serialized = json_ld(value)
+
+        self.assertEqual(json.loads(serialized), value)
+        self.assertNotIn("<", serialized)
+        self.assertNotIn(">", serialized)
+        self.assertNotIn("&", serialized)
+
+    def test_magazine_article_json_ld_builds_special_character_values(self):
+        author_page = MagicMock(
+            title='A "Friend" & Co.',
+            specific_class_name="Person",
+        )
+        author_page.specific.given_name = "A\\n"
+        author_page.specific.family_name = "Friend"
+        article_author = MagicMock(author=author_page)
+        article = MagicMock(
+            title='Friends "Speaking" & Listening',
+            authors=MagicMock(),
+            is_public_access=True,
+            department=MagicMock(title="News & Views"),
+            full_url="https://example.com/article",
+            teaser="<p>Quote \" & slash \\<br>next</p>",
+            tags=MagicMock(),
+        )
+        article.authors.all.return_value = [article_author]
+        article.get_parent.return_value.specific.publication_date = "2026-01-01"
+        article.get_parent.return_value.specific.issue_number = 4
+        article.get_parent.return_value.specific.title = "Issue"
+        article.tags.exists.return_value = False
+
+        payload = magazine_article_json_ld(article)
+        data = json.loads(json_ld(payload))
+
+        self.assertEqual(data["headline"], article.title)
+        self.assertEqual(data["author"][0]["name"], author_page.title)
+        self.assertEqual(data["articleSection"], "News & Views")
+
+    def test_memorial_json_ld_builds_special_character_values(self):
+        memorial = MagicMock(
+            title='Memorial " &',
+            full_url="https://example.com/memorial",
+            date_of_birth=None,
+            date_of_death=None,
+            memorial_meeting=None,
+        )
+        memorial.memorial_person.title = 'Friend " & One'
+        memorial.memorial_person.given_name = "Friend"
+        memorial.memorial_person.family_name = "One"
+
+        payload = memorial_json_ld(memorial)
+        data = json.loads(json_ld(payload))
+
+        self.assertEqual(data["headline"], memorial.title)
+        self.assertEqual(data["about"]["name"], memorial.memorial_person.title)
+
+    def test_magazine_article_template_emits_parseable_json_ld(self):
+        title = 'Friends "Speaking" & Listening\\\n</script>'
+        article = MagicMock(
+            title=title,
+            authors=MagicMock(),
+            is_public_access=True,
+            department=MagicMock(title='News " & Views'),
+            full_url="https://example.com/article",
+            teaser=None,
+            tags=MagicMock(),
+        )
+        article.authors.all.return_value = []
+        article.get_parent.return_value.specific.publication_date = "2026-01-01"
+        article.get_parent.return_value.specific.issue_number = 4
+        article.get_parent.return_value.specific.title = "Issue"
+        article.tags.exists.return_value = False
+
+        output = self._render_json_ld_block(
+            "magazine/magazine_article.html",
+            article,
+        )
+        script = re.search(
+            r'<script type="application/ld\+json">\s*(.*?)\s*</script>',
+            output,
+            re.DOTALL,
+        )
+
+        self.assertIsNotNone(script)
+        self.assertEqual(json.loads(script.group(1))["headline"], title)
+        self.assertNotIn("</script>", script.group(1))
+
+    def test_memorial_template_emits_parseable_json_ld(self):
+        title = 'Friends " & Listening\\\n</script>'
+        memorial = MagicMock(
+            title=title,
+            full_url="https://example.com/memorial",
+            date_of_birth=None,
+            date_of_death=None,
+            memorial_meeting=None,
+        )
+        memorial.memorial_person.title = 'Person " & Name'
+        memorial.memorial_person.given_name = "Person"
+        memorial.memorial_person.family_name = "Name"
+
+        output = self._render_json_ld_block(
+            "memorials/memorial.html",
+            memorial,
+        )
+        script = re.search(
+            r'<script type="application/ld\+json">\s*(.*?)\s*</script>',
+            output,
+            re.DOTALL,
+        )
+
+        self.assertIsNotNone(script)
+        data = json.loads(script.group(1))
+        self.assertEqual(data["headline"], title)
+        self.assertEqual(data["about"]["name"], memorial.memorial_person.title)
+        self.assertNotIn("</script>", script.group(1))
 
     def test_model_name(self):
         """Test the model_name filter returns the correct model name."""
@@ -410,6 +547,20 @@ class BreadcrumbsTemplateTest(TestCase):
         output = self._render(self.child)
         self.assertIn("application/ld+json", output)
         self.assertIn("BreadcrumbList", output)
+
+    def test_json_ld_is_valid_for_special_character_titles(self):
+        self.child.title = 'Friends "Speaking" & Listening\\\n</script>'
+        output = self._render(self.child)
+        script = re.search(
+            r'<script type="application/ld\+json">\s*(.*?)\s*</script>',
+            output,
+            re.DOTALL,
+        )
+
+        self.assertIsNotNone(script)
+        data = json.loads(script.group(1))
+        self.assertEqual(data["itemListElement"][-1]["name"], self.child.title)
+        self.assertNotIn("</script>", script.group(1))
 
     def test_json_ld_positions_are_sequential(self):
         """JSON-LD positions: Home=1, visible ancestor=2, current page=3."""
