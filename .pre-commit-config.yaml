@@ -31,6 +31,7 @@ repos:
   - repo: https://github.com/asottile/add-trailing-comma
     rev: v4.0.0
     hooks:
+      # v4.0.0 removed --py36-plus; the behaviour it enabled is now the default.
       - id: add-trailing-comma
         exclude: ".*migrations/.*"
   - repo: https://github.com/astral-sh/ruff-pre-commit
