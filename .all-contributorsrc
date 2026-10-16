@@ -219,6 +219,16 @@
         "code",
         "maintenance"
       ]
+    },
+    {
+      "login": "chanellebingham",
+      "name": "Chanelle",
+      "avatar_url": "https://avatars.githubusercontent.com/u/308286909?v=4",
+      "profile": "https://everember.ai/",
+      "contributions": [
+        "code",
+        "a11y"
+      ]
     }
   ],
   "contributorsPerLine": 7,
