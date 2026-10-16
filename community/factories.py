@@ -91,7 +91,10 @@ class OnlineWorshipFactory(DjangoModelFactory):
     times_of_worship = factory.LazyAttribute(  # type: ignore
         lambda obj: (
             f"<p>{obj.online_worship_day}s at "
-            f"{obj.online_worship_time:%-I:%M %p} ({obj.online_worship_timezone})</p>"
+            # %-I drops the leading zero on glibc but raises ValueError on
+            # Windows, so work the 12-hour clock out in Python instead.
+            f"{obj.online_worship_time.hour % 12 or 12}:"
+            f"{obj.online_worship_time:%M %p} ({obj.online_worship_timezone})</p>"
         ),
     )
     website = factory.Faker("url")  # type: ignore
