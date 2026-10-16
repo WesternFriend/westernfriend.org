@@ -3,9 +3,11 @@ import datetime
 from django.http import Http404
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
+from wagtail.models import Site
 
 from events.factories import EventFactory, EventsIndexPageFactory
 from events.models import Event, EventsIndexPage
+from home.factories import HomePageFactory
 from home.models import HomePage
 
 
@@ -187,3 +189,49 @@ class TestEventPageGetContextUpcomingEventsStartAndEndDate(TestCase):
             list(context["events"].page.object_list),
             [self.ongoing_event, self.upcoming_event],
         )
+
+
+class EventWebsiteLinkRenderTest(TestCase):
+    website = "https://example.com/event"
+
+    def setUp(self) -> None:
+        self.home_page = HomePageFactory.create()
+        Site.objects.all().delete()
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home_page,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def test_website_link_opens_in_new_tab_by_default(self) -> None:
+        event = EventFactory.create(website=self.website)
+
+        response = self.client.get(event.url)
+
+        self.assertContains(
+            response,
+            f'<a href="{self.website}" class="btn btn-primary" target="_blank"'
+            ' rel="noopener noreferrer">'
+            '<i class="bi bi-link me-2" aria-hidden="true"></i>'
+            ' Visit event website <span class="sr-only">(opens in new tab)</span></a>',
+            html=True,
+        )
+
+    def test_website_link_can_open_in_the_same_tab(self) -> None:
+        event = EventFactory.create(website=self.website, open_in_new_tab=False)
+
+        response = self.client.get(event.url)
+
+        self.assertContains(
+            response,
+            f'<a href="{self.website}" class="btn btn-primary"'
+            ' rel="noopener noreferrer">'
+            '<i class="bi bi-link me-2" aria-hidden="true"></i>'
+            " Visit event website</a>",
+            html=True,
+        )
+        # A link that stays in this tab must not claim otherwise to a screen
+        # reader — the announcement is conditional, not decorative.
+        self.assertNotContains(response, "(opens in new tab)")

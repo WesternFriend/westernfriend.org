@@ -63,11 +63,11 @@
                 <div class="mt-6">
                     <a href="{{ event.specific.website }}"
                        class="btn btn-primary"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       aria-label="Visit external event website">
+                       {% if event.open_in_new_tab %}target="_blank"{% endif %}
+                       rel="noopener noreferrer">
                         <i class="bi bi-link me-2" aria-hidden="true"></i>
-                        Visit event website
+                        Visit event website{% if event.open_in_new_tab %}
+                        <span class="sr-only">(opens in new tab)</span>{% endif %}
                     </a>
                 </div>
             {% endif %}
