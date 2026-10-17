@@ -908,3 +908,8 @@ class OrganizationIndexPage(Page):
 
     parent_page_types = ["community.CommunityPage"]
     subpage_types: list[str] = ["contact.Organization"]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["organizations"] = list(self.get_descendants().live().specific())
+        return context

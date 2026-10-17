@@ -1,14 +1,22 @@
 import datetime
 
+from django.core.cache import cache
+from django.db import connection
 from django.test import RequestFactory, TestCase
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
+from wagtail.images import get_image_model
+from wagtail.images.tests.utils import get_test_image_file
 from wagtail.models import Page, Site
 
+from common.fake_content import image_block
 from contact.models import Meeting, MeetingIndexPage
 from documents.factories import MeetingDocumentFactory, PublicBoardDocumentFactory
 from documents.models import (
+    BODY_IMAGE_RENDITION_SPEC,
     MeetingDocument,
     MeetingDocumentIndexPage,
+    PublicBoardDocument,
     PublicBoardDocumentIndexPage,
 )
 from home.models import HomePage
@@ -95,3 +103,108 @@ class DocumentFactoryTest(TestCase):
             PublicBoardDocumentIndexPage,
         )
         self.assertTrue(document.body)
+
+
+def _queries_matching(captured, fragment: str) -> int:
+    return sum(fragment in query["sql"] for query in captured)
+
+
+class TestPublicBoardDocumentQueryCounts(TestCase):
+    def setUp(self) -> None:
+        site_root = Page.objects.get(id=2)
+        self.home_page = HomePage(title="Home", slug="home")
+        site_root.add_child(instance=self.home_page)
+        Site.objects.all().update(root_page=self.home_page, hostname="testserver")
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+        self.index = PublicBoardDocumentIndexPage(
+            title="Board Documents",
+            slug="board",
+        )
+        self.home_page.add_child(instance=self.index)
+        self.image_model = get_image_model()
+
+    def _image(self, title: str):
+        return self.image_model.objects.create(
+            title=title,
+            file=get_test_image_file(filename=f"{title}.gif"),
+        )
+
+    def _document(
+        self,
+        title: str,
+        *,
+        images=None,
+        category: str = PublicBoardDocument.PublicBoardDocmentCategoryChoices.BOARD_PHOTOS,
+        live: bool = True,
+    ) -> PublicBoardDocument:
+        images = images or []
+        for image in images:
+            image.get_rendition(BODY_IMAGE_RENDITION_SPEC)
+        document = PublicBoardDocument(
+            title=title,
+            slug=title.lower().replace(" ", "-"),
+            publication_date=timezone.localdate(),
+            category=category,
+            body=[image_block(image) for image in images]
+            or [("rich_text", "<p>Note</p>")],
+        )
+        self.index.add_child(instance=document)
+        if not live:
+            document.unpublish()
+        return document
+
+    def _get(self, url: str):
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+        with CaptureQueriesContext(connection) as captured:
+            response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        return response, captured
+
+    def test_rendition_queries_do_not_grow_with_images(self) -> None:
+        one = self._document("One photo", images=[self._image("one")])
+        _, one_queries = self._get(one.url)
+        several = self._document(
+            "Several photos",
+            images=[self._image(f"photo-{index}") for index in range(4)],
+        )
+        _, several_queries = self._get(several.url)
+
+        one_renditions = _queries_matching(one_queries, "wagtailimages_rendition")
+        several_renditions = _queries_matching(
+            several_queries,
+            "wagtailimages_rendition",
+        )
+        self.assertEqual(several_renditions, one_renditions)
+        self.assertLessEqual(several_renditions, 1)
+
+    def test_index_queries_do_not_grow_with_documents(self) -> None:
+        self._document("Alpha")
+        self.client.get(self.index.url)
+        _, one_queries = self._get(self.index.url)
+        for index in range(4):
+            self._document(f"More {index}")
+        _, several_queries = self._get(self.index.url)
+
+        self.assertEqual(len(several_queries), len(one_queries))
+
+    def test_index_lists_live_documents_grouped_by_category(self) -> None:
+        photos = self._document("Board day")
+        reports = self._document(
+            "Annual report",
+            category=PublicBoardDocument.PublicBoardDocmentCategoryChoices.ANNUAL_REPORTS,
+        )
+        draft = self._document("Hidden draft", live=False)
+
+        response, _captured = self._get(self.index.url)
+        content = response.content.decode()
+
+        self.assertIn(photos.title, content)
+        self.assertIn(reports.title, content)
+        self.assertNotIn(draft.title, content)
+        self.assertLess(
+            content.index("Annual Reports"),
+            content.index("Board Photos"),
+        )

@@ -1124,3 +1124,69 @@ class TestMagazinePageCacheQueries(TestCase):
         article = self._article_with_links(3)
 
         self.assertLessEqual(self._reads(article.url), 1)
+
+
+def _image_table_queries(captured, table: str) -> int:
+    return sum(table in query["sql"] for query in captured)
+
+
+class TestMagazineIndexCoverQueries(TestCase):
+    def setUp(self) -> None:
+        self.addCleanup(Site.clear_site_root_paths_cache)
+        self.index = MagazineIndexPageFactory.create(title="Magazine", slug="magazine")
+        _point_site_at_home()
+        self.image_model = get_image_model()
+
+    def _cover(self, title: str):
+        image = self.image_model.objects.create(
+            title=title,
+            file=get_test_image_file(filename=f"{title}.gif"),
+        )
+        for spec in ("width-300", "width-500", "width-800", "width-1200"):
+            image.get_rendition(spec)
+        return image
+
+    def _issue(self, title: str, days_ago: int) -> MagazineIssue:
+        issue = MagazineIssue(
+            title=title,
+            slug=title.lower().replace(" ", "-"),
+            publication_date=timezone.localdate() - datetime.timedelta(days=days_ago),
+            cover_image=self._cover(title),
+        )
+        self.index.add_child(instance=issue)
+        return issue
+
+    def _image_queries(self, url: str) -> tuple[int, int]:
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+        with CaptureQueriesContext(connection) as captured:
+            response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        return (
+            _image_table_queries(captured, "wagtailimages_image"),
+            _image_table_queries(captured, "wagtailimages_rendition"),
+        )
+
+    def test_recent_cover_queries_do_not_grow_with_issues(self) -> None:
+        self._issue("Recent one", 1)
+        one_images, one_renditions = self._image_queries(self.index.url)
+        self._issue("Recent two", 10)
+        self._issue("Recent three", 20)
+        several_images, several_renditions = self._image_queries(self.index.url)
+
+        self.assertEqual(several_images, one_images)
+        self.assertEqual(several_renditions, one_renditions)
+        self.assertLessEqual(several_renditions, 1)
+
+    def test_archive_year_cover_queries_do_not_grow_with_issues(self) -> None:
+        self._issue("Archive one", 400)
+        year = (timezone.localdate() - datetime.timedelta(days=400)).year
+        url = f"{self.index.url}?year={year}"
+        one_images, one_renditions = self._image_queries(url)
+        self._issue("Archive two", 410)
+        self._issue("Archive three", 420)
+        several_images, several_renditions = self._image_queries(url)
+
+        self.assertEqual(several_images, one_images)
+        self.assertEqual(several_renditions, one_renditions)
+        self.assertLessEqual(several_renditions, 1)
