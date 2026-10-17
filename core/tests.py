@@ -11,11 +11,13 @@ from django.db import connection
 from django.templatetags.static import static
 from django.test import RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
+from django.utils import timezone
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from common.cache_queries import DATABASE_CACHES, django_cache_reads
 from common.models import CrawlerPolicySetting
 from core.utils import get_default_site
+from home.factories import HomePageFactory
 from home.models import HomePage
 from magazine.factories import MagazineIssueFactory
 from navigation.models import NavigationMenuSetting
@@ -555,24 +557,38 @@ class SitemapCacheQueryTest(TestCase):
 
     def setUp(self):
         call_command("createcachetable", verbosity=0)
+        home = HomePageFactory.create()
+        Site.objects.all().delete()
+        Site.objects.create(
+            hostname="testserver",
+            root_page=home,
+            is_default_site=True,
+        )
         Site.clear_site_root_paths_cache()
         self.addCleanup(Site.clear_site_root_paths_cache)
         cache.clear()
 
-    def _reads(self) -> int:
+    def _sitemap(self) -> tuple[bytes, int]:
         cache.clear()
         Site.clear_site_root_paths_cache()
         with CaptureQueriesContext(connection) as queries:
             response = self.client.get("/sitemap.xml")
         self.assertEqual(response.status_code, 200)
-        return django_cache_reads(queries)
+        return response.content, django_cache_reads(queries)
 
     def test_cache_reads_do_not_grow_with_magazine_pages(self) -> None:
-        MagazineIssueFactory.create()
-        one_issue = self._reads()
+        published = timezone.localdate() - timezone.timedelta(days=1)
+        issue = MagazineIssueFactory.create(publication_date=published)
+        one_body, one_issue = self._sitemap()
+        self.assertIn(issue.full_url.encode(), one_body)
 
-        MagazineIssueFactory.create_batch(4)
-        several_issues = self._reads()
+        more_issues = MagazineIssueFactory.create_batch(
+            4,
+            publication_date=published,
+        )
+        several_body, several_issues = self._sitemap()
+        for page in (issue, *more_issues):
+            self.assertIn(page.full_url.encode(), several_body)
 
         self.assertEqual(several_issues, one_issue)
         self.assertLessEqual(several_issues, 2)
