@@ -6,13 +6,18 @@ from unittest import mock
 
 from django.contrib.staticfiles import finders
 from django.core.cache import cache
+from django.core.management import call_command
+from django.db import connection
 from django.templatetags.static import static
 from django.test import RequestFactory, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
+from common.cache_queries import DATABASE_CACHES, django_cache_reads
 from common.models import CrawlerPolicySetting
 from core.utils import get_default_site
 from home.models import HomePage
+from magazine.factories import MagazineIssueFactory
 from navigation.models import NavigationMenuSetting
 
 
@@ -542,3 +547,32 @@ class DiscoveryLinkHeaderTest(TestCase):
         response = self.client.get("/robots.txt")
 
         self.assertNotIn("Link", response)
+
+
+@override_settings(CACHES=DATABASE_CACHES)
+class SitemapCacheQueryTest(TestCase):
+    """Sitemap URL generation must not read django_cache once per page."""
+
+    def setUp(self):
+        call_command("createcachetable", verbosity=0)
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+        cache.clear()
+
+    def _reads(self) -> int:
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get("/sitemap.xml")
+        self.assertEqual(response.status_code, 200)
+        return django_cache_reads(queries)
+
+    def test_cache_reads_do_not_grow_with_magazine_pages(self) -> None:
+        MagazineIssueFactory.create()
+        one_issue = self._reads()
+
+        MagazineIssueFactory.create_batch(4)
+        several_issues = self._reads()
+
+        self.assertEqual(several_issues, one_issue)
+        self.assertLessEqual(several_issues, 2)

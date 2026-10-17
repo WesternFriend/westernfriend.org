@@ -1,7 +1,7 @@
 # ADR 0007: Shared database cache
 
 Date: 2026-10-06
-Status: Accepted
+Status: Superseded by ADR 0008
 
 ## Context
 

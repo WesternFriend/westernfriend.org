@@ -1,12 +1,23 @@
 import datetime
 from unittest.mock import patch
 
+from django.core.cache import cache, caches
+from django.core.management import call_command
 from django.db import connection, reset_queries
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
+from wagtail.images import get_image_model
+from wagtail.images.models import Rendition
+from wagtail.images.tests.utils import get_test_image_file
 from wagtail.models import Page, Site
 
 from accounts.models import User
+from common.cache_queries import (
+    DATABASE_CACHES,
+    django_cache_queries,
+    django_cache_reads,
+)
 from contact.models import Person, PersonIndexPage
 from home.models import HomePage
 from magazine.factories import (
@@ -989,3 +1000,127 @@ class ArchiveIssueFactoryTest(TestCase):
 
         self.assertEqual(first.get_parent(), second.get_parent())
         self.assertGreaterEqual(second.archive_articles.count(), 2)
+
+
+def _point_site_at_home() -> HomePage:
+    home = HomePage.objects.get()
+    Site.objects.all().delete()
+    Site.objects.create(
+        hostname="testserver",
+        root_page=home,
+        is_default_site=True,
+    )
+    Site.clear_site_root_paths_cache()
+    return home
+
+
+@override_settings(CACHES=DATABASE_CACHES)
+class TestRenditionCacheQueries(TestCase):
+    """Rendition lookups must not read or write the shared database cache."""
+
+    def setUp(self) -> None:
+        call_command("createcachetable", verbosity=0)
+        self.image_model = get_image_model()
+
+    def test_rendition_cache_backend_is_the_renditions_alias(self) -> None:
+        self.assertIs(Rendition.cache_backend, caches["renditions"])
+
+    def _rendition_cache_queries(self, image_count: int, *filters: str) -> int:
+        images = [
+            self.image_model.objects.create(
+                title=f"Cover {image_count}-{index}",
+                file=get_test_image_file(),
+            )
+            for index in range(image_count)
+        ]
+        cache.clear()
+        with CaptureQueriesContext(connection) as queries:
+            for image in images:
+                image.get_renditions(*filters)
+        return django_cache_queries(queries)
+
+    def test_cache_queries_do_not_grow_with_rendition_filters(self) -> None:
+        one_width = self._rendition_cache_queries(1, "width-20")
+        four_widths = self._rendition_cache_queries(
+            1,
+            "width-20",
+            "width-40",
+            "width-60",
+            "width-80",
+        )
+
+        self.assertEqual(one_width, 0)
+        self.assertEqual(four_widths, one_width)
+
+    def test_cache_queries_do_not_grow_with_images(self) -> None:
+        one_image = self._rendition_cache_queries(1, "width-20")
+        three_images = self._rendition_cache_queries(3, "width-20")
+
+        self.assertEqual(one_image, 0)
+        self.assertEqual(three_images, one_image)
+
+
+@override_settings(CACHES=DATABASE_CACHES)
+class TestMagazinePageCacheQueries(TestCase):
+    """Magazine pages must read django_cache once, however many links they render."""
+
+    def setUp(self) -> None:
+        call_command("createcachetable", verbosity=0)
+        self.addCleanup(Site.clear_site_root_paths_cache)
+        self.issue = MagazineIssueFactory.create(
+            publication_date=timezone.now() - timezone.timedelta(days=1),
+        )
+        _point_site_at_home()
+
+    def _reads(self, url: str) -> int:
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        return django_cache_reads(queries)
+
+    def _article_with_links(self, link_count: int) -> MagazineArticle:
+        targets = [
+            MagazineArticleFactory.create(
+                parent=self.issue,
+                title=f"Link target {link_count}-{index}",
+            )
+            for index in range(link_count)
+        ]
+        html = "".join(
+            f'<p><a linktype="page" id="{target.pk}">{target.title}</a></p>'
+            for target in targets
+        )
+        return MagazineArticleFactory.create(
+            parent=self.issue,
+            is_featured=True,
+            title=f"Linked article {link_count}",
+            body=[("rich_text", html)],
+        )
+
+    def test_article_cache_reads_do_not_grow_with_rich_text_links(self) -> None:
+        one_link = self._article_with_links(1)
+        one_link_reads = self._reads(one_link.url)
+        self.assertContains(self.client.get(one_link.url), "Link target 1-0")
+
+        several_links = self._article_with_links(4)
+        several_reads = self._reads(several_links.url)
+
+        self.assertEqual(several_reads, one_link_reads)
+        self.assertLessEqual(several_reads, 1)
+
+    def test_issue_page_reads_django_cache_at_most_once(self) -> None:
+        cover = get_image_model().objects.create(
+            title="Issue cover",
+            file=get_test_image_file(),
+        )
+        self.issue.cover_image = cover
+        self.issue.save()
+
+        self.assertLessEqual(self._reads(self.issue.url), 1)
+
+    def test_article_page_reads_django_cache_at_most_once(self) -> None:
+        article = self._article_with_links(3)
+
+        self.assertLessEqual(self._reads(article.url), 1)

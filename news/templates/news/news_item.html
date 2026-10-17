@@ -67,7 +67,7 @@
             "datePublished": "{{ page.publication_date|date:'Y-m-d' }}",
             "mainEntityOfPage": {
                 "@type": "WebPage",
-                "@id": "{{ page.full_url }}"
+                "@id": "{% fullpageurl page %}"
             },
             {% if page.teaser %}
                 "description": "{{ page.teaser|escapejs }}",
