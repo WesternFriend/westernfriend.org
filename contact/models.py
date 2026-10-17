@@ -23,6 +23,7 @@ from wagtail.search import index
 from wagtail.url_routing import RouteResult
 
 from addresses.models import Address
+from common.pages import live_specific_pages
 
 
 class ContactPublicationStatistics(models.Model):
@@ -911,5 +912,5 @@ class OrganizationIndexPage(Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        context["organizations"] = list(self.get_descendants().live().specific())
+        context["organizations"] = live_specific_pages(self.get_descendants())
         return context

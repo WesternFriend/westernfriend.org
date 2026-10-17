@@ -138,10 +138,12 @@ class TestPublicBoardDocumentQueryCounts(TestCase):
         images=None,
         category: str = PublicBoardDocument.PublicBoardDocmentCategoryChoices.BOARD_PHOTOS,
         live: bool = True,
+        prepare_renditions: bool = True,
     ) -> PublicBoardDocument:
         images = images or []
-        for image in images:
-            image.get_rendition(BODY_IMAGE_RENDITION_SPEC)
+        if prepare_renditions:
+            for image in images:
+                image.get_rendition(BODY_IMAGE_RENDITION_SPEC)
         document = PublicBoardDocument(
             title=title,
             slug=title.lower().replace(" ", "-"),
@@ -166,11 +168,9 @@ class TestPublicBoardDocumentQueryCounts(TestCase):
     def test_rendition_queries_do_not_grow_with_images(self) -> None:
         one = self._document("One photo", images=[self._image("one")])
         _, one_queries = self._get(one.url)
-        several = self._document(
-            "Several photos",
-            images=[self._image(f"photo-{index}") for index in range(4)],
-        )
-        _, several_queries = self._get(several.url)
+        several_images = [self._image(f"photo-{index}") for index in range(4)]
+        several = self._document("Several photos", images=several_images)
+        several_response, several_queries = self._get(several.url)
 
         one_renditions = _queries_matching(one_queries, "wagtailimages_rendition")
         several_renditions = _queries_matching(
@@ -179,6 +179,39 @@ class TestPublicBoardDocumentQueryCounts(TestCase):
         )
         self.assertEqual(several_renditions, one_renditions)
         self.assertLessEqual(several_renditions, 1)
+        for image in several_images:
+            rendition = image.get_rendition(BODY_IMAGE_RENDITION_SPEC)
+            self.assertContains(several_response, rendition.url)
+
+    def test_cold_renditions_do_not_query_per_image(self) -> None:
+        one_image = self._image("cold-one")
+        one = self._document(
+            "Cold one",
+            images=[one_image],
+            prepare_renditions=False,
+        )
+        one_response, one_queries = self._get(one.url)
+        several_images = [self._image(f"cold-{index}") for index in range(4)]
+        several = self._document(
+            "Cold several",
+            images=several_images,
+            prepare_renditions=False,
+        )
+        several_response, several_queries = self._get(several.url)
+
+        one_renditions = _queries_matching(one_queries, "wagtailimages_rendition")
+        several_renditions = _queries_matching(
+            several_queries,
+            "wagtailimages_rendition",
+        )
+        self.assertEqual(several_renditions, one_renditions)
+        self.assertLessEqual(several_renditions, 3)
+        for image in [one_image, *several_images]:
+            rendition = image.get_rendition(BODY_IMAGE_RENDITION_SPEC)
+            self.assertContains(
+                several_response if image in several_images else one_response,
+                rendition.url,
+            )
 
     def test_index_queries_do_not_grow_with_documents(self) -> None:
         self._document("Alpha")

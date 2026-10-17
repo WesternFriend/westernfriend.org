@@ -261,13 +261,11 @@ class TestLibraryItemStructuredData(TestCase):
             with CaptureQueriesContext(connection) as captured:
                 response = self.client.get(library_item.url)
             self.assertEqual(response.status_code, 200)
-            self.assertContains(response, f"Ada{author_count}0")
-            return sum(
-                "django_content_type" in query["sql"]
-                or "FROM person" in query["sql"]
-                or "JOIN person" in query["sql"]
-                for query in captured
-            )
+            for index in range(author_count):
+                self.assertContains(response, f"Ada{author_count}{index}")
+            # Count every query. Filtering on an unquoted "person" table name
+            # misses Django's quoted identifier and can hide per-author reads.
+            return len(captured)
 
         one_author = queries_for(1)
         several_authors = queries_for(4)

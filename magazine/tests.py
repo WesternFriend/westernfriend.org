@@ -4,6 +4,7 @@ from unittest.mock import patch
 from django.core.cache import cache, caches
 from django.core.management import call_command
 from django.db import connection, reset_queries
+from django.http import HttpResponse
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
@@ -1137,26 +1138,36 @@ class TestMagazineIndexCoverQueries(TestCase):
         _point_site_at_home()
         self.image_model = get_image_model()
 
-    def _cover(self, title: str):
+    def _cover(self, title: str, *, prepare_renditions: bool = True):
         image = self.image_model.objects.create(
             title=title,
             file=get_test_image_file(filename=f"{title}.gif"),
         )
-        for spec in ("width-300", "width-500", "width-800", "width-1200"):
-            image.get_rendition(spec)
+        if prepare_renditions:
+            for spec in ("width-300", "width-500", "width-800", "width-1200"):
+                image.get_rendition(spec)
         return image
 
-    def _issue(self, title: str, days_ago: int) -> MagazineIssue:
+    def _issue(
+        self,
+        title: str,
+        days_ago: int = 0,
+        *,
+        publication_date: datetime.date | None = None,
+        prepare_renditions: bool = True,
+    ) -> MagazineIssue:
+        if publication_date is None:
+            publication_date = timezone.localdate() - datetime.timedelta(days=days_ago)
         issue = MagazineIssue(
             title=title,
             slug=title.lower().replace(" ", "-"),
-            publication_date=timezone.localdate() - datetime.timedelta(days=days_ago),
-            cover_image=self._cover(title),
+            publication_date=publication_date,
+            cover_image=self._cover(title, prepare_renditions=prepare_renditions),
         )
         self.index.add_child(instance=issue)
         return issue
 
-    def _image_queries(self, url: str) -> tuple[int, int]:
+    def _image_queries(self, url: str) -> tuple[int, int, HttpResponse]:
         cache.clear()
         Site.clear_site_root_paths_cache()
         with CaptureQueriesContext(connection) as captured:
@@ -1165,27 +1176,52 @@ class TestMagazineIndexCoverQueries(TestCase):
         return (
             _image_table_queries(captured, "wagtailimages_image"),
             _image_table_queries(captured, "wagtailimages_rendition"),
+            response,
         )
 
     def test_recent_cover_queries_do_not_grow_with_issues(self) -> None:
         self._issue("Recent one", 1)
-        one_images, one_renditions = self._image_queries(self.index.url)
+        one_images, one_renditions, _one_response = self._image_queries(self.index.url)
         self._issue("Recent two", 10)
         self._issue("Recent three", 20)
-        several_images, several_renditions = self._image_queries(self.index.url)
+        several_images, several_renditions, several_response = self._image_queries(
+            self.index.url,
+        )
 
         self.assertEqual(several_images, one_images)
         self.assertEqual(several_renditions, one_renditions)
         self.assertLessEqual(several_renditions, 1)
+        for spec in ("width-300", "width-500", "width-800", "width-1200"):
+            self.assertContains(several_response, spec)
+
+    def test_cold_cover_renditions_do_not_query_per_issue(self) -> None:
+        self._issue("Cold recent one", 1, prepare_renditions=False)
+        _one_images, one_renditions, one_response = self._image_queries(self.index.url)
+        self._issue("Cold recent two", 10, prepare_renditions=False)
+        self._issue("Cold recent three", 20, prepare_renditions=False)
+        _several_images, several_renditions, several_response = self._image_queries(
+            self.index.url,
+        )
+
+        self.assertEqual(several_renditions, one_renditions)
+        self.assertLessEqual(several_renditions, 3)
+        for response in (one_response, several_response):
+            for spec in ("width-300", "width-500", "width-800", "width-1200"):
+                self.assertContains(response, spec)
 
     def test_archive_year_cover_queries_do_not_grow_with_issues(self) -> None:
-        self._issue("Archive one", 400)
-        year = (timezone.localdate() - datetime.timedelta(days=400)).year
-        url = f"{self.index.url}?year={year}"
-        one_images, one_renditions = self._image_queries(url)
-        self._issue("Archive two", 410)
-        self._issue("Archive three", 420)
-        several_images, several_renditions = self._image_queries(url)
+        # A fixed month keeps all three issues in one archive year. Offsets of
+        # 400, 410, and 420 days can straddle January and the previous December.
+        self._issue("Archive one", publication_date=datetime.date(2019, 6, 1))
+        url = f"{self.index.url}?year=2019"
+        one_images, one_renditions, _one_response = self._image_queries(url)
+        self._issue("Archive two", publication_date=datetime.date(2019, 6, 15))
+        self._issue("Archive three", publication_date=datetime.date(2019, 7, 1))
+        several_images, several_renditions, several_response = self._image_queries(url)
+        for title in ("Archive one", "Archive two", "Archive three"):
+            self.assertContains(several_response, title)
+        for spec in ("width-300", "width-500", "width-800", "width-1200"):
+            self.assertContains(several_response, spec)
 
         self.assertEqual(several_images, one_images)
         self.assertEqual(several_renditions, one_renditions)

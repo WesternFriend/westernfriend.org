@@ -2,7 +2,7 @@ import datetime
 from datetime import timedelta
 
 from django.db import models
-from django.db.models import Prefetch, QuerySet
+from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.utils import timezone
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
@@ -18,11 +18,11 @@ from wagtail.admin.panels import (
     PageChooserPanel,
 )
 from wagtail.fields import RichTextField, StreamField
-from wagtail.images import get_image_model
 from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from common.models import CrawlerPolicySetting, DrupalFields
+from common.renditions import attach_renditions
 from core.constants import COMMON_STREAMFIELD_BLOCKS
 from pagination.helpers import get_paginated_items
 
@@ -33,26 +33,24 @@ MAGAZINE_ARCHIVE_THRESHOLD_DAYS = 180
 COVER_IMAGE_RENDITION_SPECS = ("width-300", "width-500", "width-800", "width-1200")
 
 
-def _issues_with_cover_renditions() -> QuerySet:
-    """Live issues with cover images and the srcset renditions prefetched.
-
-    ``srcset_image`` looks up each width on the image. Prefetching those
-    renditions keeps the magazine index to one image query and one rendition
-    query, however many covers are on the page.
-    """
-    rendition_model = get_image_model().get_rendition_model()
+def _published_issues() -> QuerySet:
+    """Live issues, newest first, with cover images selected."""
     return (
         MagazineIssue.objects.live()
         .order_by("-publication_date")
         .select_related("cover_image")
-        .prefetch_related(
-            Prefetch(
-                "cover_image__renditions",
-                queryset=rendition_model.objects.filter(
-                    filter_spec__in=COVER_IMAGE_RENDITION_SPECS,
-                ),
-            ),
-        )
+    )
+
+
+def _attach_cover_renditions(issues) -> None:
+    """Attach the srcset renditions ``magazine_issue_cover.html`` renders.
+
+    The renditions are stored on ``prefetched_renditions``, which is what
+    ``srcset_image`` reads. Missing widths are created in one insert.
+    """
+    attach_renditions(
+        (issue.cover_image for issue in issues if issue.cover_image_id),
+        *COVER_IMAGE_RENDITION_SPECS,
     )
 
 
@@ -113,13 +111,17 @@ class MagazineIndexPage(Page):
     ) -> dict:
         context = super().get_context(request)
 
-        published_issues = _issues_with_cover_renditions()
+        published_issues = _published_issues()
         archive_threshold_date = get_archive_threshold_date()
 
         # recent issues are published after the archive threshold
-        context["recent_issues"] = published_issues.filter(
-            publication_date__gte=archive_threshold_date,
+        recent_issues = list(
+            published_issues.filter(
+                publication_date__gte=archive_threshold_date,
+            ),
         )
+        _attach_cover_renditions(recent_issues)
+        context["recent_issues"] = recent_issues
 
         archive_issues = published_issues.filter(
             publication_date__lt=archive_threshold_date,
@@ -151,6 +153,7 @@ class MagazineIndexPage(Page):
             items_per_page=items_per_page,
             page_number=page_number,
         )
+        _attach_cover_renditions(context["archive_issues"].page.object_list)
 
         context["archive_issues_fragment_identifier"] = "#archive-issues"
         context["archive_issues_years"] = archive_issues_years

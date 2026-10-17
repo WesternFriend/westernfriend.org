@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from django.db import models
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
@@ -7,6 +5,8 @@ from wagtail.models import Page
 from wagtail.search import index
 
 from common.models import DrupalFields
+from common.pages import live_specific_pages
+from common.renditions import attach_renditions
 from core.constants import COMMON_STREAMFIELD_BLOCKS
 
 # Spec used by blocks/blocks/formatted_image_block.html.
@@ -17,8 +17,9 @@ def _prefetch_streamfield_renditions(stream_value, *filter_specs: str) -> None:
     """Attach renditions to images already loaded on a StreamField.
 
     Image blocks bulk-load their images, then each ``{% image %}`` tag looks
-    up its rendition. Setting ``prefetched_renditions`` makes that lookup use
-    the images already in memory.
+    up its rendition. Creating any missing renditions here keeps that lookup
+    from querying once per image, including the first time a rendition is
+    generated.
     """
     images = []
     for child in stream_value:
@@ -27,24 +28,7 @@ def _prefetch_streamfield_renditions(stream_value, *filter_specs: str) -> None:
         image = child.value.get("image") if child.value else None
         if image is not None:
             images.append(image)
-    if not images:
-        return
-
-    grouped: dict[int, list] = defaultdict(list)
-    renditions = (
-        images[0]
-        .get_rendition_model()
-        .objects.filter(
-            image_id__in={image.pk for image in images},
-            filter_spec__in=filter_specs,
-        )
-    )
-    for rendition in renditions:
-        grouped[rendition.image_id].append(rendition)
-    for image in images:
-        # An empty list still counts as prefetched, so a missing rendition
-        # is created instead of queried once per image.
-        image.prefetched_renditions = grouped.get(image.pk, [])
+    attach_renditions(images, *filter_specs)
 
 
 class MeetingDocumentIndexPage(Page):
@@ -171,7 +155,7 @@ class PublicBoardDocumentIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         # category lives on the specific model, so order after .specific().
-        documents = list(self.get_children().live().specific())
+        documents = live_specific_pages(self.get_children())
         documents.sort(key=lambda document: (document.category, document.path))
         context["documents"] = documents
         return context

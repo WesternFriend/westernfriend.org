@@ -1,4 +1,5 @@
 from io import BytesIO, StringIO
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from django.conf import settings
@@ -13,7 +14,7 @@ from django.forms.forms import Form
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.templatetags.static import static
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.utils.text import slugify
 from PIL import Image as PILImage
 from wagtail.images import get_image_model
@@ -23,6 +24,7 @@ from wagtail.models import Locale, Page, PageViewRestriction, Site
 from common.apps import CommonConfig, _locale_cache_local, _site_root_paths_local
 from common.forms import DESCRIPTION_HELP_TEXT, RequiredDescriptionImageForm
 from common.middleware import PublicCacheControlMiddleware
+from common.pages import live_specific_pages
 from common.templatetags.common_form_tags import add_class
 from common.templatetags.common_tags import (
     absolute_static,
@@ -882,3 +884,21 @@ class ImagesWithoutDescriptionCommandTests(TestCase):
         call_command("images_without_description", stdout=output)
 
         self.assertIn("Every image has a description.", output.getvalue())
+
+
+class TestLiveSpecificPages(SimpleTestCase):
+    def test_drops_pages_unpublished_before_specific_resolution(self) -> None:
+        class Listing:
+            def live(self):
+                return self
+
+            def specific(self):
+                return [
+                    SimpleNamespace(live=False, title="gone"),
+                    SimpleNamespace(live=True, title="here"),
+                ]
+
+        self.assertEqual(
+            [page.title for page in live_specific_pages(Listing())],
+            ["here"],
+        )
