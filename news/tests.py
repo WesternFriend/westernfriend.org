@@ -192,15 +192,18 @@ class TestNewsItemTopicLinkCacheQueries(TestCase):
 
     def count_cache_queries(self, topic_count: int) -> int:
         news_item = NewsItemFactory.create()
-        for _ in range(topic_count):
-            NewsItemTopicFactory.create(news_item=news_item)
+        topics = [
+            NewsItemTopicFactory.create(news_item=news_item).topic
+            for _ in range(topic_count)
+        ]
         Site.objects.update(root_page=HomePage.objects.get())
         cache.clear()
         Site.clear_site_root_paths_cache()
         with CaptureQueriesContext(connection) as queries:
             response = self.client.get(news_item.url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Topics:")
+        for topic in topics:
+            self.assertContains(response, f'href="{topic.url}"', count=1)
         return sum(DATABASE_CACHE_TABLE in query["sql"] for query in queries)
 
     def test_cache_queries_do_not_grow_with_topics(self) -> None:
