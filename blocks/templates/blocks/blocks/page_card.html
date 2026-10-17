@@ -8,5 +8,8 @@
             <p>{{ value.text }}</p>
         {% endif %}
     </div>
-    <a href="{% pageurl value.page %}" class="absolute inset-0" aria-label="Go to {{ value.page.title }}"></a>
+    {# A chosen page that was later deleted resolves to None #}
+    {% if value.page %}
+        <a href="{% pageurl value.page %}" class="absolute inset-0" aria-label="Go to {{ value.page.title }}"></a>
+    {% endif %}
 </article>
