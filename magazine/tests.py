@@ -32,6 +32,7 @@ from subscription.models import (
 )
 
 from .models import (
+    COVER_IMAGE_RENDITION_SPECS,
     ArchiveArticle,
     ArchiveArticleAuthor,
     ArchiveIssue,
@@ -1179,11 +1180,21 @@ class TestMagazineIndexCoverQueries(TestCase):
             response,
         )
 
+    def _assert_cover_urls(
+        self,
+        response: HttpResponse,
+        *issues: MagazineIssue,
+    ) -> None:
+        for issue in issues:
+            for spec in COVER_IMAGE_RENDITION_SPECS:
+                rendition = issue.cover_image.get_rendition(spec)
+                self.assertContains(response, rendition.url)
+
     def test_recent_cover_queries_do_not_grow_with_issues(self) -> None:
-        self._issue("Recent one", 1)
-        one_images, one_renditions, _one_response = self._image_queries(self.index.url)
-        self._issue("Recent two", 10)
-        self._issue("Recent three", 20)
+        recent_one = self._issue("Recent one", 1)
+        one_images, one_renditions, one_response = self._image_queries(self.index.url)
+        recent_two = self._issue("Recent two", 10)
+        recent_three = self._issue("Recent three", 20)
         several_images, several_renditions, several_response = self._image_queries(
             self.index.url,
         )
@@ -1191,37 +1202,50 @@ class TestMagazineIndexCoverQueries(TestCase):
         self.assertEqual(several_images, one_images)
         self.assertEqual(several_renditions, one_renditions)
         self.assertLessEqual(several_renditions, 1)
-        for spec in ("width-300", "width-500", "width-800", "width-1200"):
-            self.assertContains(several_response, spec)
+        self._assert_cover_urls(one_response, recent_one)
+        self._assert_cover_urls(several_response, recent_one, recent_two, recent_three)
 
     def test_cold_cover_renditions_do_not_query_per_issue(self) -> None:
-        self._issue("Cold recent one", 1, prepare_renditions=False)
+        cold_one = self._issue("Cold recent one", 1, prepare_renditions=False)
         _one_images, one_renditions, one_response = self._image_queries(self.index.url)
-        self._issue("Cold recent two", 10, prepare_renditions=False)
-        self._issue("Cold recent three", 20, prepare_renditions=False)
+        cold_two = self._issue("Cold recent two", 10, prepare_renditions=False)
+        cold_three = self._issue("Cold recent three", 20, prepare_renditions=False)
         _several_images, several_renditions, several_response = self._image_queries(
             self.index.url,
         )
 
         self.assertEqual(several_renditions, one_renditions)
         self.assertLessEqual(several_renditions, 3)
-        for response in (one_response, several_response):
-            for spec in ("width-300", "width-500", "width-800", "width-1200"):
-                self.assertContains(response, spec)
+        self._assert_cover_urls(one_response, cold_one)
+        self._assert_cover_urls(several_response, cold_one, cold_two, cold_three)
 
     def test_archive_year_cover_queries_do_not_grow_with_issues(self) -> None:
         # A fixed month keeps all three issues in one archive year. Offsets of
         # 400, 410, and 420 days can straddle January and the previous December.
-        self._issue("Archive one", publication_date=datetime.date(2019, 6, 1))
+        archive_one = self._issue(
+            "Archive one",
+            publication_date=datetime.date(2019, 6, 1),
+        )
         url = f"{self.index.url}?year=2019"
-        one_images, one_renditions, _one_response = self._image_queries(url)
-        self._issue("Archive two", publication_date=datetime.date(2019, 6, 15))
-        self._issue("Archive three", publication_date=datetime.date(2019, 7, 1))
+        one_images, one_renditions, one_response = self._image_queries(url)
+        archive_two = self._issue(
+            "Archive two",
+            publication_date=datetime.date(2019, 6, 15),
+        )
+        archive_three = self._issue(
+            "Archive three",
+            publication_date=datetime.date(2019, 7, 1),
+        )
         several_images, several_renditions, several_response = self._image_queries(url)
         for title in ("Archive one", "Archive two", "Archive three"):
             self.assertContains(several_response, title)
-        for spec in ("width-300", "width-500", "width-800", "width-1200"):
-            self.assertContains(several_response, spec)
+        self._assert_cover_urls(one_response, archive_one)
+        self._assert_cover_urls(
+            several_response,
+            archive_one,
+            archive_two,
+            archive_three,
+        )
 
         self.assertEqual(several_images, one_images)
         self.assertEqual(several_renditions, one_renditions)

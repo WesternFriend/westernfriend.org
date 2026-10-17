@@ -16,36 +16,37 @@ def attach_renditions(images: Iterable, *filter_specs: str) -> None:
     once per image.
     """
     specs = list(dict.fromkeys(filter_specs))
-    unique_images = _unique_images(images)
-    if not unique_images or not specs:
+    images_by_pk = _images_by_pk(images)
+    if not images_by_pk or not specs:
         return
 
-    rendition_model = unique_images[0].get_rendition_model()
-    image_ids = {image.pk for image in unique_images}
+    # select_related builds a separate image object per row, even when two
+    # pages share a cover. Read and generate once per primary key, then
+    # attach the renditions to every object that was passed in.
+    representatives = [copies[0] for copies in images_by_pk.values()]
+    rendition_model = representatives[0].get_rendition_model()
+    image_ids = set(images_by_pk)
     grouped = _renditions_by_image(rendition_model, image_ids, specs)
-    created = _missing_renditions(unique_images, specs, grouped)
+    created = _missing_renditions(representatives, specs, grouped)
     if created:
         rendition_model.objects.bulk_create(created, ignore_conflicts=True)
         grouped = _renditions_by_image(rendition_model, image_ids, specs)
 
-    for image in unique_images:
-        renditions = grouped.get(image.pk, [])
+    for image_id, copies in images_by_pk.items():
+        renditions = grouped.get(image_id, [])
         for rendition in renditions:
-            # Keep alt text and other image fields from the instance already
-            # loaded with the page, instead of querying the image per rendition.
-            rendition.image = image
-        image.prefetched_renditions = renditions
+            # Keep alt text on an instance already loaded with the page.
+            rendition.image = copies[0]
+        for image in copies:
+            image.prefetched_renditions = renditions
 
 
-def _unique_images(images: Iterable) -> list:
-    unique_images = []
-    seen: set[int] = set()
+def _images_by_pk(images: Iterable) -> dict[int, list]:
+    grouped: dict[int, list] = defaultdict(list)
     for image in images:
-        if image is None or image.pk in seen:
-            continue
-        seen.add(image.pk)
-        unique_images.append(image)
-    return unique_images
+        if image is not None:
+            grouped[image.pk].append(image)
+    return grouped
 
 
 def _renditions_by_image(rendition_model, image_ids: set[int], specs: list[str]):
