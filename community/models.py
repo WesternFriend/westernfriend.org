@@ -68,8 +68,8 @@ class OnlineWorship(DrupalFields, Page):
         on_delete=models.SET_NULL,
         related_name="online_worship",
     )
-    # TODO: Define a custom, orderable model for this
-    # to allow for multiple times of worship.
+    # Issue #884 tracks the sortable worship listing; multiple schedules per
+    # meeting remain an editor workflow decision not specified by that issue.
     times_of_worship = RichTextField(blank=True)
     online_worship_day = models.CharField(
         max_length=255,
