@@ -1,4 +1,5 @@
 from io import BytesIO, StringIO
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from django.conf import settings
@@ -8,12 +9,14 @@ from django.core.files.images import ImageFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.signals import request_finished, request_started
+from django.db import connection
 from django.forms import CharField, TextInput
 from django.forms.forms import Form
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.templatetags.static import static
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils.text import slugify
 from PIL import Image as PILImage
 from wagtail.images import get_image_model
@@ -23,6 +26,8 @@ from wagtail.models import Locale, Page, PageViewRestriction, Site
 from common.apps import CommonConfig, _locale_cache_local, _site_root_paths_local
 from common.forms import DESCRIPTION_HELP_TEXT, RequiredDescriptionImageForm
 from common.middleware import PublicCacheControlMiddleware
+from common.pages import live_specific_pages
+from common.renditions import attach_renditions
 from common.templatetags.common_form_tags import add_class
 from common.templatetags.common_tags import (
     absolute_static,
@@ -882,3 +887,52 @@ class ImagesWithoutDescriptionCommandTests(TestCase):
         call_command("images_without_description", stdout=output)
 
         self.assertIn("Every image has a description.", output.getvalue())
+
+
+class TestLiveSpecificPages(SimpleTestCase):
+    def test_drops_pages_unpublished_before_specific_resolution(self) -> None:
+        class Listing:
+            def live(self):
+                return self
+
+            def specific(self):
+                return [
+                    SimpleNamespace(live=False, title="gone"),
+                    SimpleNamespace(live=True, title="here"),
+                ]
+
+        self.assertEqual(
+            [page.title for page in live_specific_pages(Listing())],
+            ["here"],
+        )
+
+
+class TestAttachRenditions(TestCase):
+    def test_shared_image_instances_reuse_one_rendition(self) -> None:
+        image_model = get_image_model()
+        buffer = BytesIO()
+        PILImage.new("RGB", (10, 10), "#55624c").save(buffer, format="PNG")
+        original = image_model.objects.create(
+            title="Shared cover",
+            description="Cover of the shared issue",
+            file=ImageFile(buffer, name="shared-cover.png"),
+        )
+        # A fresh get() is a distinct object, as select_related is for each row.
+        first = image_model.objects.get(pk=original.pk)
+        second = image_model.objects.get(pk=original.pk)
+
+        attach_renditions([first, second], "width-300")
+
+        self.assertEqual(
+            image_model.get_rendition_model()
+            .objects.filter(image=original, filter_spec="width-300")
+            .count(),
+            1,
+        )
+        with CaptureQueriesContext(connection) as captured:
+            first_url = first.get_rendition("width-300").url
+            second_url = second.get_rendition("width-300").url
+        self.assertEqual(first_url, second_url)
+        self.assertFalse(
+            any("wagtailimages_rendition" in query["sql"] for query in captured),
+        )
