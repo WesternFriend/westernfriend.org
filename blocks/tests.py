@@ -1,8 +1,9 @@
 from unittest.mock import Mock
 
 from django.test import TestCase
+from wagtail.models import Page, Site
 
-from .blocks import HeadingBlock, MediaBlock, PullQuoteBlock
+from .blocks import ButtonBlock, HeadingBlock, MediaBlock, PageCardBlock, PullQuoteBlock
 
 
 class MediaBlockTest(TestCase):
@@ -89,3 +90,38 @@ class HeadingBlockTest(TestCase):
         self.assertIn("</h2>", html)
         self.assertNotIn("style=", html)
         self.assertNotIn("#ff0000", html)
+
+
+class PageCardBlockTest(TestCase):
+    def test_page_card_links_to_its_page(self) -> None:
+        root_page = Site.objects.get(is_default_site=True).root_page
+        page = root_page.add_child(instance=Page(title="About", slug="about"))
+        block = PageCardBlock()
+        value = block.to_python({"page": page.id, "text": "Card text"})
+
+        html = block.render(value)
+
+        self.assertIn(f'href="{page.url}"', html)
+        self.assertIn('aria-label="Go to About"', html)
+
+
+class PageLinkBlocksWithoutPageTest(TestCase):
+    """A chosen page that was later deleted resolves to None and must still render."""
+
+    def test_page_card_without_page_renders_without_link(self) -> None:
+        block = PageCardBlock()
+        value = block.to_python({"page": None, "text": "Card text"})
+
+        html = block.render(value)
+
+        self.assertIn("Card text", html)
+        self.assertNotIn("<a ", html)
+
+    def test_button_without_page_renders_empty_href(self) -> None:
+        block = ButtonBlock()
+        value = block.to_python({"button_text": "Read more", "page_link": None})
+
+        html = block.render(value)
+
+        self.assertIn("Read more", html)
+        self.assertIn('href=""', html)
