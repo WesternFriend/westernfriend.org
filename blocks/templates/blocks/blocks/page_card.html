@@ -1,3 +1,4 @@
+{% load wagtailcore_tags %}
 <article class="card h-full bg-base-100 shadow-md">
     <header class="card-header bg-primary text-primary-content p-4 font-bold">
         {{ value.page.title }}
@@ -7,5 +8,5 @@
             <p>{{ value.text }}</p>
         {% endif %}
     </div>
-    <a href="{{ value.page.url }}" class="absolute inset-0" aria-label="Go to {{ value.page.title }}"></a>
+    <a href="{% pageurl value.page %}" class="absolute inset-0" aria-label="Go to {{ value.page.title }}"></a>
 </article>

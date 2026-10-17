@@ -2,10 +2,15 @@ import json
 import re
 from datetime import date
 
-from django.test import RequestFactory, SimpleTestCase, TestCase
+from django.core.cache import cache
+from django.core.management import call_command
+from django.db import connection
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from wagtail.models import Site
 
+from core.settings import DATABASE_CACHE_TABLE
 from home.models import HomePage
 from news.models import (
     NewsIndexPage,
@@ -16,6 +21,7 @@ from news.models import (
 from .factories import (
     NewsIndexPageFactory,
     NewsItemFactory,
+    NewsItemTopicFactory,
 )
 
 
@@ -164,3 +170,38 @@ class TestNewsItemStructuredData(TestCase):
         data = self.get_news_article_json_ld()
 
         self.assertCountEqual(data["keywords"], ["quakers", "peace"])
+
+
+@override_settings(
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": DATABASE_CACHE_TABLE,
+        },
+    },
+)
+class TestNewsItemTopicLinkCacheQueries(TestCase):
+    """Topic links must not each read the site root paths from the cache.
+
+    Production uses DatabaseCache, where every cache read is a SQL query.
+    """
+
+    def setUp(self) -> None:
+        call_command("createcachetable", verbosity=0)
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def count_cache_queries(self, topic_count: int) -> int:
+        news_item = NewsItemFactory.create()
+        for _ in range(topic_count):
+            NewsItemTopicFactory.create(news_item=news_item)
+        Site.objects.update(root_page=HomePage.objects.get())
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(news_item.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Topics:")
+        return sum(DATABASE_CACHE_TABLE in query["sql"] for query in queries)
+
+    def test_cache_queries_do_not_grow_with_topics(self) -> None:
+        self.assertEqual(self.count_cache_queries(5), self.count_cache_queries(1))
