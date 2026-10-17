@@ -390,6 +390,16 @@ class CacheSettingsEnvironmentTests(SimpleTestCase):
                         "django.core.cache.backends.db.DatabaseCache",
                     )
                     self.assertEqual(cache["LOCATION"], "django_cache")
+                    renditions = core.settings.CACHES["renditions"]
+                    self.assertEqual(
+                        renditions["BACKEND"],
+                        "django.core.cache.backends.locmem.LocMemCache",
+                    )
+                    self.assertEqual(renditions["LOCATION"], "renditions")
+                    self.assertEqual(
+                        renditions["TIMEOUT"],
+                        core.settings.RENDITION_CACHE_TIMEOUT,
+                    )
         finally:
             importlib.reload(core.settings)
             if had_caches:
@@ -431,6 +441,7 @@ class CacheSettingsEnvironmentTests(SimpleTestCase):
                         django_settings.CACHES["default"]["BACKEND"],
                         "django.core.cache.backends.locmem.LocMemCache",
                     )
+                    self.assertNotIn("renditions", django_settings.CACHES)
         finally:
             importlib.reload(core.settings)
             if had_caches:

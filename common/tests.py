@@ -20,7 +20,7 @@ from wagtail.images import get_image_model
 from wagtail.images.forms import get_image_form, get_image_multi_form
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
-from common.apps import CommonConfig, _locale_cache_local
+from common.apps import CommonConfig, _locale_cache_local, _site_root_paths_local
 from common.forms import DESCRIPTION_HELP_TEXT, RequiredDescriptionImageForm
 from common.middleware import PublicCacheControlMiddleware
 from common.templatetags.common_form_tags import add_class
@@ -348,6 +348,87 @@ class LocaleCacheTest(TestCase):
             )
         finally:
             request_finished.send(sender=None)
+
+
+class SiteRootPathsCacheTest(TestCase):
+    """Tests for the per-request Site.get_site_root_paths memo.
+
+    The memo is thread-local and is active only for the lifetime of an HTTP
+    request. Outside that window the original method runs, so tests and
+    management commands do not keep a stale list across database resets.
+    """
+
+    def setUp(self):
+        _site_root_paths_local.active = False
+        _site_root_paths_local.filled = False
+        _site_root_paths_local.paths = None
+
+    def tearDown(self):
+        _site_root_paths_local.active = False
+        _site_root_paths_local.filled = False
+        _site_root_paths_local.paths = None
+
+    def test_patch_is_idempotent(self):
+        """A second call does not stack wrappers."""
+        before = Site.get_site_root_paths
+        CommonConfig._patch_site_root_paths()
+        self.assertIs(Site.get_site_root_paths, before)
+        self.assertTrue(Site.get_site_root_paths.__patched_by_app__)
+
+    def test_request_started_activates_memo(self):
+        """request_started marks the memo active and empty."""
+        request_started.send(sender=None, environ={})
+        self.assertTrue(_site_root_paths_local.active)
+        self.assertFalse(_site_root_paths_local.filled)
+        request_finished.send(sender=None)
+
+    def test_request_finished_deactivates_memo(self):
+        """request_finished turns the memo off."""
+        request_started.send(sender=None, environ={})
+        request_finished.send(sender=None)
+        self.assertFalse(_site_root_paths_local.active)
+        self.assertFalse(_site_root_paths_local.filled)
+
+    def test_not_memoized_outside_request(self):
+        """Each call outside a request reaches the cache backend."""
+        cached = [(1, "/home/", "http://localhost", "en")]
+        with patch("wagtail.models.sites.cache.get", return_value=cached) as mocked:
+            Site.get_site_root_paths()
+            Site.get_site_root_paths()
+        self.assertEqual(mocked.call_count, 2)
+
+    def test_memoized_within_request(self):
+        """Two calls inside a request hit the cache backend once.
+
+        The memo is activated directly (rather than via request_started) to
+        avoid Django's close_old_connections handler tearing down the test DB
+        connection as a side-effect of sending that signal.
+        """
+        cached = [(1, "/home/", "http://localhost", "en")]
+        _site_root_paths_local.active = True
+        _site_root_paths_local.filled = False
+        with patch("wagtail.models.sites.cache.get", return_value=cached) as mocked:
+            first = Site.get_site_root_paths()
+            second = Site.get_site_root_paths()
+        self.assertEqual(mocked.call_count, 1)
+        self.assertEqual(first, second)
+
+    def test_clear_drops_the_memo(self):
+        """clear_site_root_paths_cache forgets the memoized list."""
+        cached = [(1, "/home/", "http://localhost", "en")]
+        _site_root_paths_local.active = True
+        _site_root_paths_local.filled = False
+        with patch("wagtail.models.sites.cache.get", return_value=cached):
+            Site.get_site_root_paths()
+        self.assertTrue(_site_root_paths_local.filled)
+
+        with patch("wagtail.models.sites.cache.delete"):
+            Site.clear_site_root_paths_cache()
+        self.assertFalse(_site_root_paths_local.filled)
+
+        with patch("wagtail.models.sites.cache.get", return_value=cached) as mocked:
+            Site.get_site_root_paths()
+        self.assertEqual(mocked.call_count, 1)
 
 
 class BreadcrumbsTemplateTest(TestCase):

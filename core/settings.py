@@ -344,10 +344,14 @@ elif NOT_COLLECTING_STATICFILES:
 # workers and survive restarts. Off by default (local development, tests):
 # Django's per-process LocMemCache is used. The table name is fixed, and the
 # migrate pre-deploy job always runs `createcachetable django_cache`, so the
-# table exists before the switch is turned on. Ceiling: every cache hit is a
-# database query; move to django.core.cache.backends.redis.RedisCache if
-# traffic outgrows that.
+# table exists before the switch is turned on. Ceiling: every default-cache
+# hit is a database query; move to django.core.cache.backends.redis.RedisCache
+# if traffic outgrows that.
+#
+# Renditions use a separate process-local cache so image lookups do not read
+# or write django_cache or count toward its entry cap. See ADR 0008.
 DATABASE_CACHE_TABLE = "django_cache"
+RENDITION_CACHE_TIMEOUT = 60
 USE_DATABASE_CACHE = os.getenv("DJANGO_DATABASE_CACHE", "false").lower() in (
     "true",
     "1",
@@ -358,6 +362,11 @@ if USE_DATABASE_CACHE:
         "default": {
             "BACKEND": "django.core.cache.backends.db.DatabaseCache",
             "LOCATION": DATABASE_CACHE_TABLE,
+        },
+        "renditions": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "renditions",
+            "TIMEOUT": RENDITION_CACHE_TIMEOUT,
         },
     }
 
