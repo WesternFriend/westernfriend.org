@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.db import models
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
@@ -6,6 +8,43 @@ from wagtail.search import index
 
 from common.models import DrupalFields
 from core.constants import COMMON_STREAMFIELD_BLOCKS
+
+# Spec used by blocks/blocks/formatted_image_block.html.
+BODY_IMAGE_RENDITION_SPEC = "width-800|jpegquality-80"
+
+
+def _prefetch_streamfield_renditions(stream_value, *filter_specs: str) -> None:
+    """Attach renditions to images already loaded on a StreamField.
+
+    Image blocks bulk-load their images, then each ``{% image %}`` tag looks
+    up its rendition. Setting ``prefetched_renditions`` makes that lookup use
+    the images already in memory.
+    """
+    images = []
+    for child in stream_value:
+        if child.block_type != "image":
+            continue
+        image = child.value.get("image") if child.value else None
+        if image is not None:
+            images.append(image)
+    if not images:
+        return
+
+    grouped: dict[int, list] = defaultdict(list)
+    renditions = (
+        images[0]
+        .get_rendition_model()
+        .objects.filter(
+            image_id__in={image.pk for image in images},
+            filter_spec__in=filter_specs,
+        )
+    )
+    for rendition in renditions:
+        grouped[rendition.image_id].append(rendition)
+    for image in images:
+        # An empty list still counts as prefetched, so a missing rendition
+        # is created instead of queried once per image.
+        image.prefetched_renditions = grouped.get(image.pk, [])
 
 
 class MeetingDocumentIndexPage(Page):
@@ -129,6 +168,14 @@ class PublicBoardDocumentIndexPage(Page):
         index.SearchField("intro"),
     ]
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        # category lives on the specific model, so order after .specific().
+        documents = list(self.get_children().live().specific())
+        documents.sort(key=lambda document: (document.category, document.path))
+        context["documents"] = documents
+        return context
+
 
 class PublicBoardDocument(DrupalFields, Page):
     class PublicBoardDocmentCategoryChoices(models.TextChoices):
@@ -183,3 +230,8 @@ class PublicBoardDocument(DrupalFields, Page):
         FieldPanel("publication_date"),
         FieldPanel("body"),
     ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        _prefetch_streamfield_renditions(self.body, BODY_IMAGE_RENDITION_SPEC)
+        return context

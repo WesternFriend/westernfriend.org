@@ -2,7 +2,7 @@ import datetime
 from datetime import timedelta
 
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import Prefetch, QuerySet
 from django.http import HttpRequest
 from django.utils import timezone
 from modelcluster.contrib.taggit import ClusterTaggableManager  # type: ignore
@@ -18,6 +18,7 @@ from wagtail.admin.panels import (
     PageChooserPanel,
 )
 from wagtail.fields import RichTextField, StreamField
+from wagtail.images import get_image_model
 from wagtail.models import Orderable, Page
 from wagtail.search import index
 
@@ -28,6 +29,31 @@ from pagination.helpers import get_paginated_items
 from .panels import NestedInlinePanel
 
 MAGAZINE_ARCHIVE_THRESHOLD_DAYS = 180
+# Specs used by magazine_issue_cover.html's srcset_image tag.
+COVER_IMAGE_RENDITION_SPECS = ("width-300", "width-500", "width-800", "width-1200")
+
+
+def _issues_with_cover_renditions() -> QuerySet:
+    """Live issues with cover images and the srcset renditions prefetched.
+
+    ``srcset_image`` looks up each width on the image. Prefetching those
+    renditions keeps the magazine index to one image query and one rendition
+    query, however many covers are on the page.
+    """
+    rendition_model = get_image_model().get_rendition_model()
+    return (
+        MagazineIssue.objects.live()
+        .order_by("-publication_date")
+        .select_related("cover_image")
+        .prefetch_related(
+            Prefetch(
+                "cover_image__renditions",
+                queryset=rendition_model.objects.filter(
+                    filter_spec__in=COVER_IMAGE_RENDITION_SPECS,
+                ),
+            ),
+        )
+    )
 
 
 def get_archive_threshold_date() -> datetime.date:
@@ -87,7 +113,7 @@ class MagazineIndexPage(Page):
     ) -> dict:
         context = super().get_context(request)
 
-        published_issues = MagazineIssue.objects.live().order_by("-publication_date")
+        published_issues = _issues_with_cover_renditions()
         archive_threshold_date = get_archive_threshold_date()
 
         # recent issues are published after the archive threshold
