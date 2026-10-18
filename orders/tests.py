@@ -1,13 +1,13 @@
 from datetime import datetime
 from decimal import Decimal
 from http import HTTPStatus
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
+from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core import mail
 from django.template.loader import render_to_string
 from django.test import (
-    Client,
     RequestFactory,
     TestCase,
     TransactionTestCase,
@@ -20,7 +20,9 @@ from cart.cart import Cart
 from cart.tests import scaffold_product_index_page
 from orders.forms import OrderCreateForm
 from orders.views import create_cart_order_items
+from shipping.calculator import get_book_shipping_cost
 from store.factories import ProductFactory
+from store.models import Product
 
 from .models import BookstoreOrderNotificationSettings, Order, OrderItem
 from .notifications import send_order_paid_notification
@@ -122,79 +124,129 @@ class OrderItemModelTest(TestCase):
 
 
 class OrderCreateViewTest(TestCase):
+    valid_order_data = {
+        "purchaser_given_name": "John",
+        "purchaser_family_name": "Doe",
+        "purchaser_email": "john@example.com",
+        "recipient_name": "John Doe",
+        "recipient_street_address": "123 Main St",
+        "recipient_postal_code": "12345",
+        "recipient_address_locality": "Springfield",
+        "recipient_address_region": "OR",
+        "recipient_address_country": "United States",
+    }
+
     def setUp(self) -> None:
-        # Create a client to make requests
-        self.client = Client()
+        product_index_page = scaffold_product_index_page()
 
-        # Mock the Cart
-        self.cart_mock = patch("cart.cart.Cart").start()
+        self.product = ProductFactory.build(price_usd=Decimal("10.00"))
+        product_index_page.add_child(instance=self.product)
 
-    def tearDown(self) -> None:
-        # Stop the Cart mock
-        patch.stopall()
+    def add_to_cart(self, product: Product, quantity: int = 1) -> None:
+        """Put a product in the test client's session cart."""
+        cart = Cart(self.client)  # type: ignore
+        cart.add(product, quantity=quantity)
+        cart.session.save()
 
-    def test_order_create_view_get_request(self) -> None:
-        # Send a GET request
+    def test_get_with_items_in_cart_renders_form(self) -> None:
+        self.add_to_cart(self.product)
+
         response = self.client.get(reverse("orders:order_create"))
 
-        # Check that the response has a status code of 200
-        self.assertEqual(response.status_code, 200)
-
-        # Check if the correct template was used
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "orders/create.html")
 
-    def test_order_create_view_post_request_form_valid(self) -> None:
-        # Mock the OrderCreateForm
-        with patch("orders.views.OrderCreateForm") as mock_order_create_form:
-            # Instance of the form
-            mock_form = MagicMock()
+    def test_get_with_empty_cart_redirects_to_cart(self) -> None:
+        response = self.client.get(reverse("orders:order_create"), follow=True)
 
-            # Set is_valid to return True
-            mock_form.is_valid.return_value = True
+        self.assertRedirects(response, reverse("cart:detail"))
+        self.assertContains(response, "Your cart is empty")
 
-            # Set save to return a mock order with an id
-            mock_order = MagicMock()
-            mock_order.id = 1
-            mock_form.save.return_value = mock_order
+    def test_post_with_empty_cart_does_not_create_order(self) -> None:
+        response = self.client.post(
+            reverse("orders:order_create"),
+            self.valid_order_data,
+            follow=True,
+        )
 
-            # Set our mock form as the return value of the form class
-            mock_order_create_form.return_value = mock_form
+        self.assertRedirects(response, reverse("cart:detail"))
+        self.assertContains(response, "Your cart is empty")
+        self.assertEqual(Order.objects.count(), 0)
 
-            # Send a POST request
-            response = self.client.post(
-                reverse("orders:order_create"),
-            )
+    def test_post_valid_form_creates_order_and_redirects_to_payment(self) -> None:
+        self.add_to_cart(self.product, quantity=2)
 
-            # Check that the response is a redirect
-            self.assertEqual(
-                response.status_code,
-                HTTPStatus.FOUND,
-            )
+        response = self.client.post(
+            reverse("orders:order_create"),
+            self.valid_order_data,
+        )
 
-            # Check if the redirect URL is correct
-            self.assertRedirects(
-                response,
-                reverse(
-                    "payment:process_bookstore_order_payment",
-                    kwargs={"order_id": mock_order.id},
-                ),
-                fetch_redirect_response=False,
-            )
+        order = Order.objects.get()
+        self.assertRedirects(
+            response,
+            reverse(
+                "payment:process_bookstore_order_payment",
+                kwargs={"order_id": order.id},
+            ),
+            fetch_redirect_response=False,
+        )
+        self.assertEqual(order.purchaser_email, "john@example.com")
+        self.assertEqual(order.shipping_cost, get_book_shipping_cost(2))
 
-    def test_order_create_view_post_request_form_invalid(self) -> None:
-        # Create a dictionary with the invalid data you want to test
-        invalid_data = {
-            "field_name": "invalid value",
-        }  # replace with your actual invalid data
+        item = order.items.get()
+        self.assertEqual(item.product_id, self.product.id)
+        self.assertEqual(item.product_title, self.product.title)
+        self.assertEqual(item.price, Decimal("10.00"))
+        self.assertEqual(item.quantity, 2)
 
-        # Send a POST request using the client
-        response = self.client.post(reverse("orders:order_create"), invalid_data)
+    def test_post_valid_form_clears_cart(self) -> None:
+        self.add_to_cart(self.product)
 
-        # Check that the response has a status code of 200
-        self.assertEqual(response.status_code, 200)
+        self.client.post(reverse("orders:order_create"), self.valid_order_data)
 
-        # Check if the correct template was used
+        self.assertNotIn(settings.CART_SESSION_ID, self.client.session)
+        self.assertEqual(len(Cart(self.client)), 0)  # type: ignore
+
+    def test_order_item_uses_current_product_price(self) -> None:
+        self.add_to_cart(self.product)
+
+        # An editor changes the price after the product was added to the cart
+        self.product.price_usd = Decimal("12.00")
+        self.product.save()
+
+        self.client.post(reverse("orders:order_create"), self.valid_order_data)
+
+        item = OrderItem.objects.get()
+        self.assertEqual(item.price, Decimal("12.00"))
+
+    def test_failed_item_creation_rolls_back_order_and_keeps_cart(self) -> None:
+        self.add_to_cart(self.product)
+
+        with (
+            patch(
+                "orders.views.OrderItem.objects.create",
+                side_effect=RuntimeError("item creation failed"),
+            ),
+            self.assertRaises(RuntimeError),
+        ):
+            self.client.post(reverse("orders:order_create"), self.valid_order_data)
+
+        self.assertEqual(Order.objects.count(), 0)
+        self.assertEqual(OrderItem.objects.count(), 0)
+        self.assertEqual(len(Cart(self.client)), 1)  # type: ignore
+
+    def test_post_invalid_form_rerenders_and_keeps_cart(self) -> None:
+        self.add_to_cart(self.product)
+
+        response = self.client.post(
+            reverse("orders:order_create"),
+            {"purchaser_given_name": "John"},
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "orders/create.html")
+        self.assertEqual(Order.objects.count(), 0)
+        self.assertEqual(len(Cart(self.client)), 1)  # type: ignore
 
 
 class CreateCartOrderItemsTest(TestCase):
