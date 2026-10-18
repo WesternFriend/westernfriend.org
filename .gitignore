@@ -114,3 +114,6 @@ media/
 
 # Data migration
 migration_data/
+
+# Compiled Tailwind CSS: built by `python manage.py tailwind build`, not committed
+theme/static/css/dist/

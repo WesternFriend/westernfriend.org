@@ -5,7 +5,30 @@ from wagtail.models import Page
 from wagtail.search import index
 
 from common.models import DrupalFields
+from common.pages import live_specific_pages
+from common.renditions import attach_renditions
 from core.constants import COMMON_STREAMFIELD_BLOCKS
+
+# Spec used by blocks/blocks/formatted_image_block.html.
+BODY_IMAGE_RENDITION_SPEC = "width-800|jpegquality-80"
+
+
+def _prefetch_streamfield_renditions(stream_value, *filter_specs: str) -> None:
+    """Attach renditions to images already loaded on a StreamField.
+
+    Image blocks bulk-load their images, then each ``{% image %}`` tag looks
+    up its rendition. Creating any missing renditions here keeps that lookup
+    from querying once per image, including the first time a rendition is
+    generated.
+    """
+    images = []
+    for child in stream_value:
+        if child.block_type != "image":
+            continue
+        image = child.value.get("image") if child.value else None
+        if image is not None:
+            images.append(image)
+    attach_renditions(images, *filter_specs)
 
 
 class MeetingDocumentIndexPage(Page):
@@ -129,6 +152,14 @@ class PublicBoardDocumentIndexPage(Page):
         index.SearchField("intro"),
     ]
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        # category lives on the specific model, so order after .specific().
+        documents = live_specific_pages(self.get_children())
+        documents.sort(key=lambda document: (document.category, document.path))
+        context["documents"] = documents
+        return context
+
 
 class PublicBoardDocument(DrupalFields, Page):
     class PublicBoardDocmentCategoryChoices(models.TextChoices):
@@ -183,3 +214,8 @@ class PublicBoardDocument(DrupalFields, Page):
         FieldPanel("publication_date"),
         FieldPanel("body"),
     ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        _prefetch_streamfield_renditions(self.body, BODY_IMAGE_RENDITION_SPEC)
+        return context

@@ -1,3 +1,4 @@
+{% load wagtailcore_tags %}
 <li class="dropdown">
     {# Native disclosure: <summary> exposes its expanded/collapsed state to assistive tech. #}
     {# Site navigation intentionally avoids ARIA menu roles, which promise application-style arrow-key behavior. #}
@@ -7,7 +8,7 @@
         </summary>
         <ul id="{{ value.submenu_id }}" aria-labelledby="summary-for-{{ value.submenu_id }}" class="p-2 shadow menu dropdown-content z-[1] bg-white rounded-box w-52">
             {% for item in value.menu_items %}
-                {{ item }}
+                {% include_block item %}
             {% endfor %}
         </ul>
     </details>

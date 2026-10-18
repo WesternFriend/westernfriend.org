@@ -4,7 +4,6 @@ from django.forms.utils import flatatt
 from django.utils.html import format_html, format_html_join
 from wagtail import blocks as wagtail_blocks
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail_color_panel.blocks import NativeColorBlock
 from wagtailmedia.blocks import AbstractMediaChooserBlock
 
 # TODO: convert to a models.TextChoices class
@@ -90,9 +89,6 @@ class HeadingBlock(wagtail_blocks.StructBlock):
     target_slug = wagtail_blocks.CharBlock(
         help_text="Used to link to a specific location within this page. A slug should only contain letters, numbers, underscore (_), or hyphen (-).",
         validators=(validate_slug,),
-        required=False,
-    )
-    color = NativeColorBlock(
         required=False,
     )
 

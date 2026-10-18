@@ -1,15 +1,25 @@
 """Tests for core utility functions."""
 
+import json
+from pathlib import Path
 from unittest import mock
 
+from django.contrib.staticfiles import finders
 from django.core.cache import cache
+from django.core.management import call_command
+from django.db import connection
 from django.templatetags.static import static
 from django.test import RequestFactory, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
+from django.utils import timezone
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
+from common.cache_queries import DATABASE_CACHES, django_cache_reads
 from common.models import CrawlerPolicySetting
 from core.utils import get_default_site
+from home.factories import HomePageFactory
 from home.models import HomePage
+from magazine.factories import MagazineIssueFactory
 from navigation.models import NavigationMenuSetting
 
 
@@ -245,6 +255,41 @@ class FaviconTest(TestCase):
 
         self.assertEqual(response.status_code, 301)
         self.assertEqual(response["Location"], static("img/favicon.ico"))
+
+
+class AppIconsTest(TestCase):
+    """Test the static assets referenced by the base template and manifest."""
+
+    def test_base_template_icons_and_manifest_assets_exist(self):
+        static_root = Path(__file__).resolve().parent / "static"
+        template_assets = [
+            "img/favicon-32x32.png",
+            "img/favicon-16x16.png",
+            "img/favicon.ico",
+            "manifest.json",
+            "img/apple-touch-icon.png",
+        ]
+        for asset in template_assets:
+            with self.subTest(asset=asset):
+                found_path = finders.find(asset)
+                self.assertIsNotNone(found_path)
+                if found_path is not None:
+                    self.assertEqual(Path(found_path).resolve(), static_root / asset)
+
+        manifest_path = finders.find("manifest.json")
+        if manifest_path is None:
+            self.fail("Could not find manifest.json")
+        manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+        manifest_assets = [icon["src"] for icon in manifest["icons"]]
+        manifest_assets.extend(image["src"] for image in manifest["screenshots"])
+        for asset_url in manifest_assets:
+            with self.subTest(asset_url=asset_url):
+                self.assertTrue(asset_url.startswith("/static/"))
+                asset = asset_url[len("/static/") :]
+                found_path = finders.find(asset)
+                self.assertIsNotNone(found_path)
+                if found_path is not None:
+                    self.assertEqual(Path(found_path).resolve(), static_root / asset)
 
 
 class SitemapTest(TestCase):
@@ -504,3 +549,46 @@ class DiscoveryLinkHeaderTest(TestCase):
         response = self.client.get("/robots.txt")
 
         self.assertNotIn("Link", response)
+
+
+@override_settings(CACHES=DATABASE_CACHES)
+class SitemapCacheQueryTest(TestCase):
+    """Sitemap URL generation must not read django_cache once per page."""
+
+    def setUp(self):
+        call_command("createcachetable", verbosity=0)
+        home = HomePageFactory.create()
+        Site.objects.all().delete()
+        Site.objects.create(
+            hostname="testserver",
+            root_page=home,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+        cache.clear()
+
+    def _sitemap(self) -> tuple[bytes, int]:
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get("/sitemap.xml")
+        self.assertEqual(response.status_code, 200)
+        return response.content, django_cache_reads(queries)
+
+    def test_cache_reads_do_not_grow_with_magazine_pages(self) -> None:
+        published = timezone.localdate() - timezone.timedelta(days=1)
+        issue = MagazineIssueFactory.create(publication_date=published)
+        one_body, one_issue = self._sitemap()
+        self.assertIn(issue.full_url.encode(), one_body)
+
+        more_issues = MagazineIssueFactory.create_batch(
+            4,
+            publication_date=published,
+        )
+        several_body, several_issues = self._sitemap()
+        for page in (issue, *more_issues):
+            self.assertIn(page.full_url.encode(), several_body)
+
+        self.assertEqual(several_issues, one_issue)
+        self.assertLessEqual(several_issues, 2)
