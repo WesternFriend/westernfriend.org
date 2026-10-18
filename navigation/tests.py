@@ -1,9 +1,14 @@
 from unittest.mock import Mock
 
-from django.test import SimpleTestCase, TestCase
+from django.core.cache import cache
+from django.core.management import call_command
+from django.db import connection
+from django.test import SimpleTestCase, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
-from wagtail.models import Site
+from wagtail.models import Page, Site
 
+from core.settings import DATABASE_CACHE_TABLE
 from home.models import HomePage
 
 from .blocks import (
@@ -124,7 +129,11 @@ class TestNavigationPageChooserStructValueWithoutPageUrl(SimpleTestCase):
     def make_value(self, anchor):
         return NavigationPageChooserStructValue(
             NavigationPageChooserBlock(),
-            {"title": "My page", "page": Mock(url=None), "anchor": anchor},
+            {
+                "title": "My page",
+                "page": Mock(**{"get_url.return_value": None}),
+                "anchor": anchor,
+            },
         )
 
     def test_href_with_anchor_only(self) -> None:
@@ -231,3 +240,73 @@ class TestNavigationMenuRendering(TestCase):
         self.assertIn("Quaker Links", links)
         self.assertIn("<summary", links)
         self.assertNotIn('role="menu', html)
+
+
+@override_settings(
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": DATABASE_CACHE_TABLE,
+        },
+    },
+)
+class TestNavigationMenuCacheQueries(TestCase):
+    """Menu page links must not each read the site root paths from the cache.
+
+    Production uses DatabaseCache, where every cache read is a SQL query, so a
+    per-link lookup is an N+1 on every page that renders the navbar.
+    """
+
+    def setUp(self) -> None:
+        call_command("createcachetable", verbosity=0)
+        self.site = Site.objects.get(is_default_site=True)
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def set_menu_pages(self, count: int) -> None:
+        pages = [
+            self.site.root_page.add_child(
+                instance=Page(title=f"Menu page {n}", slug=f"menu-page-{count}-{n}"),
+            )
+            for n in range(count)
+        ]
+        page_links = [
+            ("page", {"title": page.title, "page": page, "anchor": ""})
+            for page in pages
+        ]
+        NavigationMenuSetting.objects.update_or_create(
+            site=self.site,
+            defaults={
+                "menu_items": [
+                    (
+                        "internal_page",
+                        {"title": pages[0].title, "page": pages[0], "anchor": ""},
+                    ),
+                    ("drop_down", {"title": "More", "menu_items": page_links}),
+                ],
+            },
+        )
+
+    def count_cache_queries(self) -> int:
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(reverse("login"))
+        self.assertEqual(response.status_code, 200)
+        return sum(DATABASE_CACHE_TABLE in query["sql"] for query in queries)
+
+    def test_cache_queries_do_not_grow_with_menu_links(self) -> None:
+        self.set_menu_pages(1)
+        one_link_queries = self.count_cache_queries()
+
+        self.set_menu_pages(5)
+        five_link_queries = self.count_cache_queries()
+
+        self.assertEqual(five_link_queries, one_link_queries)
+
+    def test_menu_page_links_render(self) -> None:
+        self.set_menu_pages(2)
+
+        html = self.client.get(reverse("login")).content.decode()
+
+        self.assertIn('href="/menu-page-2-0/"', html)
+        self.assertIn('href="/menu-page-2-1/"', html)

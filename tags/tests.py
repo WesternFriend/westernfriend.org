@@ -252,3 +252,25 @@ class TaggedPageListViewQueryOptimizationTest(TestCase):
         for article in magazine_articles:
             self.assertIsNotNone(article._parent_page)
             self.assertIsInstance(article.parent_issue, MagazineIssue)
+
+
+class TaggedPageListViewUnknownTagTest(TestCase):
+    """An unknown tag slug is a bad URL, not a server error."""
+
+    def test_unknown_tag_slug_returns_404(self) -> None:
+        url = reverse("tags:tagged_page_list", kwargs={"tag": "no-such-tag"})
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_existing_tag_with_no_pages_still_renders(self) -> None:
+        # The tag exists, so the page belongs to it even while empty. This is
+        # the case a bare 404 on an empty result would have broken.
+        tag = Tag.objects.create(name="Lonely Tag", slug="lonely-tag")
+        url = reverse("tags:tagged_page_list", kwargs={"tag": tag.slug})
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["tag_name"], "Lonely Tag")

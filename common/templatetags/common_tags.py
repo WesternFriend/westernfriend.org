@@ -1,7 +1,6 @@
 import json
 
 from django import template
-from django.core.cache import cache
 from django.core.serializers.json import DjangoJSONEncoder
 from django.templatetags.static import static
 from django.utils.safestring import SafeString, mark_safe
@@ -127,18 +126,6 @@ def exclude_from_breadcrumbs(page):
     return page._meta.model_name.lower() in EXCLUDED_BREADCRUMB_MODELS
 
 
-LIVE_PAGE_URL_CACHE_SECONDS = 300
-
-
-def live_page_url_cache_key(site_id, slug: str) -> str:
-    """Cache key for :func:`live_page_url_by_slug`, scoped to one site.
-
-    ``common.signal_handlers`` builds the same key to invalidate the entry, so
-    the format lives here as the single source of truth.
-    """
-    return f"live_page_url:{site_id if site_id is not None else 'none'}:{slug}"
-
-
 @register.simple_tag(takes_context=True)
 def live_page_url_by_slug(context, slug: str):
     """Return the URL of the live, public page with this slug, or None.
@@ -150,27 +137,22 @@ def live_page_url_by_slug(context, slug: str):
     never links one site's footer to another site's page, nor to an unrelated
     page elsewhere in the tree that happens to share the slug.
 
-    The URL is cached per site rather than the page, because the caller is the
-    footer on every page: once warm this costs no query at all. The entry is
-    invalidated by ``common.signal_handlers`` when a page is published,
-    unpublished, moved, or has its view restrictions changed, so an edit shows
-    at once; LIVE_PAGE_URL_CACHE_SECONDS is only a backstop.
+    It queries the page tree on each call rather than caching the URL.
+    Production keeps the Django cache in PostgreSQL, so a cache read would be a
+    query too, and a cached URL would also have to be invalidated whenever the
+    page is published, unpublished, moved, or restricted. A direct query is
+    always current.
     """
     request = context.get("request")
     site = Site.find_for_request(request) if request else None
-    cache_key = live_page_url_cache_key(site.id if site else None, slug)
-    cached = cache.get(cache_key)
-
-    if cached is None:
-        pages = Page.objects.live().public()
-        if site is not None:
-            # Only pages under this site's root, so a shared slug on another
-            # site (or an unrelated subtree) can't be picked up.
-            pages = pages.descendant_of(site.root_page, inclusive=True)
-        page = pages.filter(slug=slug).first()
-        # "" records "no such page", which None could not do: a cached None
-        # is indistinguishable from a cache miss.
-        cached = page.url if page else ""
-        cache.set(cache_key, cached, LIVE_PAGE_URL_CACHE_SECONDS)
-
-    return cached or None
+    pages = Page.objects.live().public().filter(slug=slug)
+    if site is not None:
+        # Only pages under this site's root, so a shared slug on another
+        # site (or an unrelated subtree) can't be picked up.
+        pages = pages.descendant_of(site.root_page, inclusive=True)
+    page = pages.first()
+    if page is None:
+        return None
+    # Passing the request reuses its site root paths instead of reading them
+    # from the cache again.
+    return page.get_url(request=request)

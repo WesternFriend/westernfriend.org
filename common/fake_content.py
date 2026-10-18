@@ -265,7 +265,7 @@ def _block(block_type: str, value: object) -> dict:
 def heading_block(text: str, level: str = "h2") -> dict:
     return _block(
         "heading",
-        {"heading_level": level, "heading_text": text, "target_slug": "", "color": ""},
+        {"heading_level": level, "heading_text": text, "target_slug": ""},
     )
 
 

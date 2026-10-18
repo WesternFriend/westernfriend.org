@@ -14,12 +14,7 @@
             {% endif %}
         </header>
 
-    {% comment %}
-    This code is a bit hard to decipher, but it's basically saying:
-    "Get all the children of this page, sort them by category, and then group them by category."
-    https://docs.djangoproject.com/en/4.2/ref/templates/builtins/#regroup
-    {% endcomment %}
-        {% regroup page.get_children|dictsort:"specific.category" by specific.get_category_display as documents_by_category %}
+        {% regroup documents by get_category_display as documents_by_category %}
 
         <div class="space-y-8">
             {% for category, documents in documents_by_category %}
