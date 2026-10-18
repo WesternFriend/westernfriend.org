@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load wagtailcore_tags %}
+{% load common_tags wagtailcore_tags %}
 
 {% block body_class %}template-libraryitem{% endblock %}
 
@@ -111,15 +111,15 @@
             "@context": "https://schema.org",
             "@type": "CreativeWork",
             "name": "{{ page.title }}",
-            {% if page.specific.authors.count %}
+            {% if page.authors.count %}
                 "author": [
-                    {% for author in page.specific.authors.all %}
+                    {% for author in page.authors.all %}
                         {
-                            "@type": "{% if author.author.content_type.model == 'person' %}Person{% else %}Organization{% endif %}",
+                            "@type": "{% if author.author|model_name == "person" %}Person{% else %}Organization{% endif %}",
                             "name": "{{ author.author.title }}"
-                            {% if author.author.content_type.model == 'person' %}
-                                ,"givenName": "{{ author.author.specific.given_name }}",
-                                "familyName": "{{ author.author.specific.family_name }}"
+                            {% if author.author|model_name == "person" %}
+                                ,"givenName": "{{ author.author.given_name }}",
+                                "familyName": "{{ author.author.family_name }}"
                             {% endif %}
                         }{% if not forloop.last %},{% endif %}
                     {% endfor %}
@@ -157,7 +157,7 @@
                     {% endfor %}
                 ],
             {% endif %}
-            "url": "{{ page.full_url }}"
+            "url": "{% fullpageurl page %}"
         }
     </script>
 

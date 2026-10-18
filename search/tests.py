@@ -1,17 +1,21 @@
 import re
 from http import HTTPStatus
 
+from django.core.cache import cache
+from django.core.management import call_command
 from django.db import connection
 from django.template import TemplateDoesNotExist
-from django.test import Client, TestCase, override_settings
+from django.test import Client, RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
-from wagtail.models import Page
+from wagtail.models import Page, Site
 from wagtail.search.backends import get_search_backend
 
+from common.cache_queries import DATABASE_CACHES, django_cache_reads
 from contact.factories import PersonFactory
 from magazine.factories import MagazineArticleFactory, MagazineIssueFactory
 from magazine.models import MagazineArticle
+from navigation.models import NavigationMenuSetting
 from search.views import MAX_QUERY_LENGTH, MAX_QUERY_WORDS, STOPWORDS
 
 
@@ -1052,3 +1056,60 @@ class _StubPage:
             ELLIPSIS = "…"
 
     elided_page_range = [1, 2, 3]
+
+
+@override_settings(CACHES=DATABASE_CACHES)
+class TestSearchCacheQueries(TestCase):
+    """Search must not reload the navigation menu or site root paths per result.
+
+    Sentry saw that repeat while the cache table was missing. With the table
+    present, the menu is loaded once and page URLs reuse the request.
+    """
+
+    def setUp(self) -> None:
+        call_command("createcachetable", verbosity=0)
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+        site = Site.find_for_request(RequestFactory().get("/"))
+        # The first lookup creates the row. Measure only requests that find it.
+        NavigationMenuSetting.objects.get_or_create(site=site)
+        root = Page.get_first_root_node()
+        self.pages = [
+            root.add_child(
+                instance=Page(title="UniqueNeedle", slug="unique-needle"),
+            ),
+        ]
+        for index in range(10):
+            self.pages.append(
+                root.add_child(
+                    instance=Page(
+                        title=f"CacheResult {index}",
+                        slug=f"cache-result-{index}",
+                    ),
+                ),
+            )
+        backend = get_search_backend()
+        for page in self.pages:
+            backend.add(page)
+
+    def _counts(self, query: str) -> tuple[int, int, int]:
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(reverse("search"), {"query": query})
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        results = response.context["paginated_search_results"].page.object_list
+        menu_queries = sum(
+            NavigationMenuSetting._meta.db_table in query["sql"] for query in queries
+        )
+        return len(results), django_cache_reads(queries), menu_queries
+
+    def test_cache_and_menu_queries_do_not_grow_with_results(self) -> None:
+        one_count, one_reads, one_menu = self._counts("UniqueNeedle")
+        ten_count, ten_reads, ten_menu = self._counts("CacheResult")
+
+        self.assertEqual(one_count, 1)
+        self.assertEqual(ten_count, 10)
+        self.assertEqual(ten_reads, one_reads)
+        self.assertLessEqual(ten_reads, 1)
+        self.assertEqual(ten_menu, one_menu)

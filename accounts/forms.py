@@ -6,7 +6,7 @@ from accounts.models import User
 
 
 class CustomUserForm(RegistrationForm):
-    """Custom user registration form with captcha."""
+    """Custom user registration form with first and last name fields."""
 
     # Autocomplete tokens satisfy WCAG 2.1 SC 1.3.5 (Identify Input Purpose)
     first_name = forms.CharField(
