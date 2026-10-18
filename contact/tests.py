@@ -4,10 +4,12 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.core.cache import cache
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 from django.http import Http404
 from django.test import RequestFactory, TestCase, TransactionTestCase
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from wagtail.models import Locale, Page, PageViewRestriction, Revision, Site
 
@@ -142,6 +144,53 @@ class OrganizationIndexPageFactoryTest(TestCase):
             organization_index_page.get_parent().specific,
             CommunityPage,
         )
+
+
+class TestOrganizationIndexQueries(TestCase):
+    def setUp(self) -> None:
+        self.index = OrganizationIndexPageFactory.create(slug="organizations")
+        Site.objects.update(root_page=self.index.get_parent().get_parent())
+        Site.objects.update(hostname="testserver")
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def _organization(self, title: str, *, live: bool = True) -> Organization:
+        organization = OrganizationFactory.build(title=title, slug=title.lower())
+        self.index.add_child(instance=organization)
+        if not live:
+            organization.unpublish()
+        return organization
+
+    def _query_count(self) -> int:
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+        with CaptureQueriesContext(connection) as captured:
+            response = self.client.get(self.index.url)
+        self.assertEqual(response.status_code, 200)
+        return len(captured), response
+
+    def test_queries_do_not_grow_with_organizations(self) -> None:
+        self._organization("alpha")
+        self.client.get(self.index.url)
+        one_count, one_response = self._query_count()
+        self.assertContains(one_response, "alpha")
+
+        for index in range(4):
+            self._organization(f"org{index}")
+        several_count, several_response = self._query_count()
+
+        self.assertEqual(several_count, one_count)
+        self.assertContains(several_response, "org3")
+
+    def test_lists_live_specific_organizations(self) -> None:
+        visible = self._organization("visibleorg")
+        hidden = self._organization("hiddenorg", live=False)
+
+        _count, response = self._query_count()
+
+        self.assertContains(response, visible.title)
+        self.assertContains(response, visible.website)
+        self.assertNotContains(response, hidden.title)
 
 
 class OrganizationFactoryTest(TestCase):
