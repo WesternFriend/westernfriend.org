@@ -2,8 +2,18 @@ from wagtail import blocks as wagtail_blocks
 from wagtail.blocks import StructValue
 
 
+class NavigationLinkBlock(wagtail_blocks.StructBlock):
+    """Render a link with an href resolved against the current request."""
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        request = (parent_context or {}).get("request")
+        context["href"] = value.href(request=request)
+        return context
+
+
 class NavigationExternalLinkStructValue(StructValue):
-    def href(self) -> str:
+    def href(self, request=None) -> str:
         """Construct a URL with anchor if exists, otherwise use URL."""
         url = self.get("url")
         anchor = self.get("anchor")
@@ -17,7 +27,7 @@ class NavigationExternalLinkStructValue(StructValue):
         return ""
 
 
-class NavigationExternalLinkBlock(wagtail_blocks.StructBlock):
+class NavigationExternalLinkBlock(NavigationLinkBlock):
     title = wagtail_blocks.CharBlock()
     url = wagtail_blocks.URLBlock()
     anchor = wagtail_blocks.CharBlock(
@@ -33,10 +43,14 @@ class NavigationExternalLinkBlock(wagtail_blocks.StructBlock):
 
 
 class NavigationPageChooserStructValue(StructValue):
-    def href(self):
-        """Construct a URL with anchor if exists, otherwise use URL."""
+    def href(self, request=None):
+        """Construct a URL with anchor if exists, otherwise use URL.
+
+        Pass the request so the page URL reuses the site root paths cached on
+        it; without one, each menu page does its own cache lookup.
+        """
         page = self.get("page")
-        url = "#" if page is None else page.url
+        url = "#" if page is None else page.get_url(request=request)
         anchor = self.get("anchor")
 
         if url and anchor:
@@ -48,7 +62,7 @@ class NavigationPageChooserStructValue(StructValue):
         return "#"
 
 
-class NavigationPageChooserBlock(wagtail_blocks.StructBlock):
+class NavigationPageChooserBlock(NavigationLinkBlock):
     title = wagtail_blocks.CharBlock()
     page = wagtail_blocks.PageChooserBlock()
     anchor = wagtail_blocks.CharBlock(

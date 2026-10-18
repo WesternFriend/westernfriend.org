@@ -1,21 +1,35 @@
 import re
+from io import BytesIO, StringIO
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.core.files.images import ImageFile
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from django.core.signals import request_finished, request_started
+from django.db import connection
 from django.forms import CharField, TextInput
 from django.forms.forms import Form
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.templatetags.static import static
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
+from django.utils.text import slugify
+from PIL import Image as PILImage
+from wagtail.images import get_image_model
+from wagtail.images.forms import get_image_form, get_image_multi_form
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
-from common.apps import CommonConfig, _locale_cache_local
+from common.apps import CommonConfig, _locale_cache_local, _site_root_paths_local
+from common.forms import DESCRIPTION_HELP_TEXT, RequiredDescriptionImageForm
 from common.middleware import PublicCacheControlMiddleware
+from common.pages import live_specific_pages
+from common.renditions import attach_renditions
 from common.templatetags.common_form_tags import add_class
 from common.templatetags.common_tags import (
     absolute_static,
@@ -341,6 +355,87 @@ class LocaleCacheTest(TestCase):
             )
         finally:
             request_finished.send(sender=None)
+
+
+class SiteRootPathsCacheTest(TestCase):
+    """Tests for the per-request Site.get_site_root_paths memo.
+
+    The memo is thread-local and is active only for the lifetime of an HTTP
+    request. Outside that window the original method runs, so tests and
+    management commands do not keep a stale list across database resets.
+    """
+
+    def setUp(self):
+        _site_root_paths_local.active = False
+        _site_root_paths_local.filled = False
+        _site_root_paths_local.paths = None
+
+    def tearDown(self):
+        _site_root_paths_local.active = False
+        _site_root_paths_local.filled = False
+        _site_root_paths_local.paths = None
+
+    def test_patch_is_idempotent(self):
+        """A second call does not stack wrappers."""
+        before = Site.get_site_root_paths
+        CommonConfig._patch_site_root_paths()
+        self.assertIs(Site.get_site_root_paths, before)
+        self.assertTrue(Site.get_site_root_paths.__patched_by_app__)
+
+    def test_request_started_activates_memo(self):
+        """request_started marks the memo active and empty."""
+        request_started.send(sender=None, environ={})
+        self.assertTrue(_site_root_paths_local.active)
+        self.assertFalse(_site_root_paths_local.filled)
+        request_finished.send(sender=None)
+
+    def test_request_finished_deactivates_memo(self):
+        """request_finished turns the memo off."""
+        request_started.send(sender=None, environ={})
+        request_finished.send(sender=None)
+        self.assertFalse(_site_root_paths_local.active)
+        self.assertFalse(_site_root_paths_local.filled)
+
+    def test_not_memoized_outside_request(self):
+        """Each call outside a request reaches the cache backend."""
+        cached = [(1, "/home/", "http://localhost", "en")]
+        with patch("wagtail.models.sites.cache.get", return_value=cached) as mocked:
+            Site.get_site_root_paths()
+            Site.get_site_root_paths()
+        self.assertEqual(mocked.call_count, 2)
+
+    def test_memoized_within_request(self):
+        """Two calls inside a request hit the cache backend once.
+
+        The memo is activated directly (rather than via request_started) to
+        avoid Django's close_old_connections handler tearing down the test DB
+        connection as a side-effect of sending that signal.
+        """
+        cached = [(1, "/home/", "http://localhost", "en")]
+        _site_root_paths_local.active = True
+        _site_root_paths_local.filled = False
+        with patch("wagtail.models.sites.cache.get", return_value=cached) as mocked:
+            first = Site.get_site_root_paths()
+            second = Site.get_site_root_paths()
+        self.assertEqual(mocked.call_count, 1)
+        self.assertEqual(first, second)
+
+    def test_clear_drops_the_memo(self):
+        """clear_site_root_paths_cache forgets the memoized list."""
+        cached = [(1, "/home/", "http://localhost", "en")]
+        _site_root_paths_local.active = True
+        _site_root_paths_local.filled = False
+        with patch("wagtail.models.sites.cache.get", return_value=cached):
+            Site.get_site_root_paths()
+        self.assertTrue(_site_root_paths_local.filled)
+
+        with patch("wagtail.models.sites.cache.delete"):
+            Site.clear_site_root_paths_cache()
+        self.assertFalse(_site_root_paths_local.filled)
+
+        with patch("wagtail.models.sites.cache.get", return_value=cached) as mocked:
+            Site.get_site_root_paths()
+        self.assertEqual(mocked.call_count, 1)
 
 
 class BreadcrumbsTemplateTest(TestCase):
@@ -779,3 +874,160 @@ class NewWindowLinkPatternTests(TestCase):
         found = list(self._links_opening_a_new_window())
 
         self.assertGreaterEqual(len(found), 10)
+
+
+class RequiredDescriptionImageFormTests(TestCase):
+    """Tests for requiring a description on images, used as alt text."""
+
+    @staticmethod
+    def _upload() -> SimpleUploadedFile:
+        buffer = BytesIO()
+        PILImage.new("RGB", (10, 10), "#33658a").save(buffer, format="PNG")
+        return SimpleUploadedFile(
+            "example.png",
+            buffer.getvalue(),
+            content_type="image/png",
+        )
+
+    def test_setting_wires_up_the_project_form(self) -> None:
+        form_class = get_image_form(get_image_model())
+
+        self.assertTrue(issubclass(form_class, RequiredDescriptionImageForm))
+
+    def test_multiple_upload_form_also_requires_a_description(self) -> None:
+        # The admin's "Add images" screen uses this form, so checking the single
+        # form alone would miss the route editors use most. When the description
+        # is missing, Wagtail holds the file as an UploadedFile and asks for it
+        # rather than saving an image without one.
+        form = get_image_multi_form(get_image_model())()
+
+        self.assertTrue(form.fields["description"].required)
+
+    def test_description_is_required(self) -> None:
+        form_class = get_image_form(get_image_model())
+
+        form = form_class(
+            data={"title": "Friends gathering", "description": ""},
+            files={"file": self._upload()},
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("description", form.errors)
+
+    def test_image_with_a_description_is_accepted(self) -> None:
+        form_class = get_image_form(get_image_model())
+
+        form = form_class(
+            data={
+                "title": "Friends gathering",
+                "description": "Friends talking together after meeting for worship.",
+            },
+            files={"file": self._upload()},
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_help_text_tells_editors_what_to_write(self) -> None:
+        # Asserted on an instance, not on base_fields: the form sets `required`
+        # and `help_text` in __init__, so the class-level fields are untouched.
+        form = get_image_form(get_image_model())()
+
+        description = form.fields["description"]
+
+        self.assertTrue(description.required)
+        self.assertEqual(description.help_text, DESCRIPTION_HELP_TEXT)
+
+
+class ImagesWithoutDescriptionCommandTests(TestCase):
+    """Tests for the command that lists images missing a description."""
+
+    def _create_image(self, title: str, description: str):
+        buffer = BytesIO()
+        PILImage.new("RGB", (10, 10), "#55624c").save(buffer, format="PNG")
+        return get_image_model().objects.create(
+            title=title,
+            description=description,
+            file=ImageFile(buffer, name=f"{slugify(title)}.png"),
+        )
+
+    def test_lists_images_missing_a_description(self) -> None:
+        described = self._create_image("Described", "Friends after worship.")
+        bare = self._create_image("Bare", "")
+        output = StringIO()
+
+        call_command("images_without_description", stdout=output)
+
+        printed = output.getvalue()
+        self.assertIn(f"{bare.pk}\t{bare.title}", printed)
+        self.assertNotIn(described.title, printed)
+        self.assertIn("1 image(s) have no description", printed)
+
+    def test_lists_images_with_whitespace_only_descriptions(self) -> None:
+        # The admin form strips whitespace before validating, but images that
+        # predate the form (or were imported) can hold a description of only
+        # spaces, which renders as empty alt text just the same.
+        padded = self._create_image("Padded", "   ")
+        output = StringIO()
+
+        call_command("images_without_description", stdout=output)
+
+        printed = output.getvalue()
+        self.assertIn(f"{padded.pk}\t{padded.title}", printed)
+        self.assertIn("1 image(s) have no description", printed)
+
+    def test_reports_when_every_image_has_a_description(self) -> None:
+        self._create_image("Described", "Friends after worship.")
+        output = StringIO()
+
+        call_command("images_without_description", stdout=output)
+
+        self.assertIn("Every image has a description.", output.getvalue())
+
+
+class TestLiveSpecificPages(SimpleTestCase):
+    def test_drops_pages_unpublished_before_specific_resolution(self) -> None:
+        class Listing:
+            def live(self):
+                return self
+
+            def specific(self):
+                return [
+                    SimpleNamespace(live=False, title="gone"),
+                    SimpleNamespace(live=True, title="here"),
+                ]
+
+        self.assertEqual(
+            [page.title for page in live_specific_pages(Listing())],
+            ["here"],
+        )
+
+
+class TestAttachRenditions(TestCase):
+    def test_shared_image_instances_reuse_one_rendition(self) -> None:
+        image_model = get_image_model()
+        buffer = BytesIO()
+        PILImage.new("RGB", (10, 10), "#55624c").save(buffer, format="PNG")
+        original = image_model.objects.create(
+            title="Shared cover",
+            description="Cover of the shared issue",
+            file=ImageFile(buffer, name="shared-cover.png"),
+        )
+        # A fresh get() is a distinct object, as select_related is for each row.
+        first = image_model.objects.get(pk=original.pk)
+        second = image_model.objects.get(pk=original.pk)
+
+        attach_renditions([first, second], "width-300")
+
+        self.assertEqual(
+            image_model.get_rendition_model()
+            .objects.filter(image=original, filter_spec="width-300")
+            .count(),
+            1,
+        )
+        with CaptureQueriesContext(connection) as captured:
+            first_url = first.get_rendition("width-300").url
+            second_url = second.get_rendition("width-300").url
+        self.assertEqual(first_url, second_url)
+        self.assertFalse(
+            any("wagtailimages_rendition" in query["sql"] for query in captured),
+        )

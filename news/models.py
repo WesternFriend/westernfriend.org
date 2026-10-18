@@ -185,4 +185,4 @@ class NewsItemTopic(Orderable):
     ]
 
     def __str__(self) -> str:
-        return self.topic.title
+        return self.topic.title if self.topic is not None else ""
