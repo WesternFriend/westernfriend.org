@@ -31,51 +31,61 @@ STATEMENT_TITLE = "Accessibility"
 BODY_BLOCKS = [
     (
         "rich_text",
-        "<p>Western Friend wants everyone to be able to read what we publish, "
-        "including people who use screen readers, keyboards, magnification, or "
-        "speech input.</p>",
+        (
+            "<p>Western Friend wants everyone to be able to read what we publish, "
+            "including people who use screen readers, keyboards, magnification, or "
+            "speech input.</p>"
+        ),
     ),
     ("heading", "What we aim for"),
     (
         "rich_text",
-        "<p>We aim to meet the Web Content Accessibility Guidelines (WCAG) 2.2 "
-        "at level AA across westernfriend.org.</p>",
+        (
+            "<p>We aim to meet the Web Content Accessibility Guidelines (WCAG) 2.2 "
+            "at level AA across westernfriend.org.</p>"
+        ),
     ),
     ("heading", "Where we currently fall short"),
     (
         "rich_text",
-        "<p>We had the site reviewed in September 2026. These are the problems "
-        "we know about and have not yet fixed:</p>"
-        "<ul>"
-        "<li><b>Audio and video have no captions or transcripts.</b> Podcasts "
-        "and uploaded video are published without them. Where a video is hosted "
-        "on YouTube or Vimeo, any captions are the ones that service provides.</li>"
-        "<li><b>Some embedded material is outside our control.</b> The Internet "
-        "Archive reader and the PayPal payment buttons come from other "
-        "organisations, and we cannot change how they behave with assistive "
-        "technology. If one of them blocks you, write to us and we will get you "
-        "what you need another way.</li>"
-        "<li><b>Our testing has limits.</b> The review used automated checks and "
-        "keyboard testing. We have not yet done a full pass with a screen "
-        "reader, so there will be problems we have not found. Please tell us "
-        "about them.</li>"
-        "</ul>",
+        (
+            "<p>We had the site reviewed in September 2026. These are the problems "
+            "we know about and have not yet fixed:</p>"
+            "<ul>"
+            "<li><b>Audio and video have no captions or transcripts.</b> Podcasts "
+            "and uploaded video are published without them. Where a video is hosted "
+            "on YouTube or Vimeo, any captions are the ones that service provides.</li>"
+            "<li><b>Some embedded material is outside our control.</b> The Internet "
+            "Archive reader and the PayPal payment buttons come from other "
+            "organisations, and we cannot change how they behave with assistive "
+            "technology. If one of them blocks you, write to us and we will get you "
+            "what you need another way.</li>"
+            "<li><b>Our testing has limits.</b> The review used automated checks and "
+            "keyboard testing. We have not yet done a full pass with a screen "
+            "reader, so there will be problems we have not found. Please tell us "
+            "about them.</li>"
+            "</ul>"
+        ),
     ),
     ("heading", "Telling us about a problem"),
     (
         "rich_text",
-        "<p>If something on this site stops you reading it, please write to "
-        '<a href="mailto:editor@westernfriend.org">editor@westernfriend.org</a> '
-        "or call (503) 487-2945. Tell us the page and what happened, and we will "
-        "reply and say what we can do.</p>"
-        "<p>If you need an article in another form, ask, and we will send it to "
-        "you.</p>",
+        (
+            "<p>If something on this site stops you reading it, please write to "
+            '<a href="mailto:editor@westernfriend.org">editor@westernfriend.org</a> '
+            "or call (503) 487-2945. Tell us the page and what happened, and we will "
+            "reply and say what we can do.</p>"
+            "<p>If you need an article in another form, ask, and we will send it to "
+            "you.</p>"
+        ),
     ),
     ("heading", "This statement"),
     (
         "rich_text",
-        "<p>This is a draft awaiting editorial review. Confirm the wording is "
-        "true, then set the date you publish it.</p>",
+        (
+            "<p>This is a draft awaiting editorial review. Confirm the wording is "
+            "true, then set the date you publish it.</p>"
+        ),
     ),
 ]
 
@@ -96,9 +106,7 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args: tuple, **options: dict) -> None:
-        site = (
-            Site.objects.filter(is_default_site=True).first() or Site.objects.first()
-        )
+        site = Site.objects.filter(is_default_site=True).first() or Site.objects.first()
         if site is None:
             message = "No Wagtail site is configured to attach the page to."
             raise CommandError(message)
@@ -109,7 +117,7 @@ class Command(BaseCommand):
             state = "live" if existing.live else "a draft"
             self.stdout.write(
                 f'A page with slug "{STATEMENT_SLUG}" already exists under '
-                f'"{home.title}" ({state}); leaving it untouched.'
+                f'"{home.title}" ({state}); leaving it untouched.',
             )
             return
 
@@ -131,6 +139,6 @@ class Command(BaseCommand):
             self.style.SUCCESS(
                 f'Created "{STATEMENT_TITLE}" as an unpublished draft under '
                 f'"{home.title}". Review it in the Wagtail admin and publish it '
-                "when the wording is true; the footer link appears once it is live."
-            )
+                "when the wording is true; the footer link appears once it is live.",
+            ),
         )
