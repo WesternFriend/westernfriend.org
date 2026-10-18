@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0027_drop_drupal_fields_non_nullable_strings'),
+        ('events', '0028_alter_event_body'),
     ]
 
     operations = [
