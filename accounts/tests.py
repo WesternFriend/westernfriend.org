@@ -3,15 +3,17 @@ import re
 import sys
 from unittest import mock
 from unittest.mock import PropertyMock, patch
+from urllib.parse import parse_qs, urlsplit
 
 import yaml
 from django.conf import Settings, settings
 from django.contrib.messages import get_messages
-from django.core import mail
+from django.core import mail, signing
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import resolve_url
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import NoReverseMatch, reverse
+from django_registration.backends.activation import REGISTRATION_SALT
 from wagtail.models import Page, Site
 
 import core.settings
@@ -596,4 +598,18 @@ class RegistrationConfirmationTest(TestCase):
         body = mail.outbox[0].body
         self.assertIn("To complete your registration, click on the link below.", body)
         self.assertIn("copy and paste it into your browser", body)
-        self.assertIn("activation_key=", body)
+
+        # The link must carry a real key for this user, not just the
+        # "activation_key=" prefix: an empty or garbled key would still pass a
+        # substring check.
+        links = re.findall(r"https?://\S+", body)
+        self.assertEqual(len(links), 1, body)
+        url = urlsplit(links[0])
+        self.assertEqual(url.path, reverse("django_registration_activate"))
+        keys = parse_qs(url.query).get("activation_key", [])
+        self.assertEqual(len(keys), 1, links[0])
+        user = User.objects.get(email="new@example.com")
+        self.assertEqual(
+            signing.loads(keys[0], salt=REGISTRATION_SALT),
+            user.get_username(),
+        )
