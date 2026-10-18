@@ -1,10 +1,13 @@
 import importlib
 import re
+import sys
 from unittest import mock
 from unittest.mock import PropertyMock, patch
 
-from django.conf import settings
+import yaml
+from django.conf import Settings, settings
 from django.core import mail
+from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import resolve_url
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import NoReverseMatch, reverse
@@ -223,6 +226,245 @@ class SmtpSettingsEnvironmentTests(SimpleTestCase):
                 )
         finally:
             importlib.reload(core.settings)
+
+
+class SecretKeySettingsTests(SimpleTestCase):
+    """A missing SECRET_KEY must stop the process, not be invented per worker.
+
+    The old fallback generated a random key, so each gunicorn worker ran with a
+    different one: sessions and CSRF tokens signed by one were rejected by the
+    others, and the real problem never surfaced.
+    """
+
+    def _reload_with(self, environment):
+        with (
+            mock.patch("dotenv.load_dotenv"),
+            mock.patch.dict("os.environ", environment, clear=True),
+        ):
+            importlib.reload(core.settings)
+
+    def tearDown(self):
+        importlib.reload(core.settings)
+
+    def test_refuses_to_start_without_a_key_in_production(self):
+        with self.assertRaises(ImproperlyConfigured) as caught:
+            self._reload_with({"DJANGO_DEBUG": "false"})
+
+        # The message has to say which variable and how to make one, or the
+        # person hitting it at 3am learns nothing from the crash.
+        self.assertIn("DJANGO_SECRET_KEY", str(caught.exception))
+        self.assertIn("get_random_secret_key", str(caught.exception))
+
+    def test_refuses_an_empty_key_in_production(self):
+        """An unset variable in a .env or compose file still defines it as ""."""
+        with self.assertRaises(ImproperlyConfigured):
+            self._reload_with({"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": ""})
+
+    def test_refuses_a_whitespace_only_key_in_production(self):
+        """Whitespace is truthy, so a bare falsiness check would let it through.
+
+        A key of spaces signs just as badly as no key at all.
+        """
+        with self.assertRaises(ImproperlyConfigured):
+            self._reload_with({"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "   "})
+
+    def test_surrounding_whitespace_is_preserved(self):
+        """A padded key keeps signing exactly as it always has.
+
+        Django has always used the env value verbatim, so a deployment whose
+        key carries surrounding whitespace has been signing with it all along.
+        Normalising here would silently rotate their key and invalidate every
+        live session and reset token — the invisible breakage this change
+        exists to prevent. Whitespace is validated (see the tests above) but
+        never altered.
+        """
+        self._reload_with(
+            {"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "  a-real-secret\n"},
+        )
+
+        self.assertEqual(core.settings.SECRET_KEY, "  a-real-secret\n")
+
+    def test_uses_the_key_from_the_environment_in_production(self):
+        self._reload_with(
+            {"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "a-real-secret"},
+        )
+
+        self.assertEqual(core.settings.SECRET_KEY, "a-real-secret")
+
+    def test_debug_still_runs_without_a_key(self):
+        """Local development must not need a secret configured."""
+        self._reload_with({"DJANGO_DEBUG": "true"})
+
+        self.assertTrue(core.settings.SECRET_KEY)
+
+    def test_collectstatic_runs_without_a_key(self):
+        """The build runs collectstatic before the runtime secret exists.
+
+        It signs nothing, so it gets a placeholder rather than a hard stop —
+        the same exemption DATABASES already makes for this command.
+        """
+        with mock.patch.object(sys, "argv", ["manage.py", "collectstatic"]):
+            self._reload_with({"DJANGO_DEBUG": "false"})
+
+        self.assertTrue(core.settings.SECRET_KEY)
+
+    def test_tailwind_build_runs_without_a_key(self):
+        """The build compiles the CSS before collectstatic, also without a secret."""
+        with mock.patch.object(sys, "argv", ["manage.py", "tailwind", "build"]):
+            self._reload_with({"DJANGO_DEBUG": "false"})
+
+        self.assertTrue(core.settings.SECRET_KEY)
+
+    def test_tailwind_start_still_fails_without_a_key(self):
+        """Only the one-off build is exempt, not the watcher or dev server."""
+        with (
+            mock.patch.object(sys, "argv", ["manage.py", "tailwind", "dev"]),
+            self.assertRaises(ImproperlyConfigured),
+        ):
+            self._reload_with({"DJANGO_DEBUG": "false"})
+
+    def test_other_commands_still_fail_without_a_key(self):
+        """The collectstatic exemption must not leak to anything that serves."""
+        with (
+            mock.patch.object(sys, "argv", ["manage.py", "migrate"]),
+            self.assertRaises(ImproperlyConfigured),
+        ):
+            self._reload_with({"DJANGO_DEBUG": "false"})
+
+    def test_fallback_keys_are_parsed_for_rotation(self):
+        """Old keys keep existing sessions valid while a new key rolls out."""
+        self._reload_with(
+            {
+                "DJANGO_DEBUG": "false",
+                "DJANGO_SECRET_KEY": "new-key",
+                "DJANGO_SECRET_KEY_FALLBACKS": "old-key,older-key,",
+            },
+        )
+
+        self.assertEqual(
+            core.settings.SECRET_KEY_FALLBACKS,
+            ["old-key", "older-key"],
+        )
+
+    def test_fallback_keys_are_kept_verbatim(self):
+        """A fallback must equal the previous key byte for byte.
+
+        If the key being rotated out carried whitespace, only a verbatim
+        fallback can still match the signatures it minted — stripping here
+        would make rotation silently fail for exactly the deployments the
+        fallback mechanism exists to protect.
+        """
+        self._reload_with(
+            {
+                "DJANGO_DEBUG": "false",
+                "DJANGO_SECRET_KEY": "new-key",
+                "DJANGO_SECRET_KEY_FALLBACKS": "  padded-old-key\n",
+            },
+        )
+
+        self.assertEqual(core.settings.SECRET_KEY_FALLBACKS, ["  padded-old-key\n"])
+
+    def test_no_fallback_keys_by_default(self):
+        self._reload_with({"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "k"})
+
+        self.assertEqual(core.settings.SECRET_KEY_FALLBACKS, [])
+
+
+class CacheSettingsEnvironmentTests(SimpleTestCase):
+    def test_database_cache_when_enabled(self):
+        """DJANGO_DATABASE_CACHE=True → DatabaseCache on the django_cache table."""
+        had_caches = "CACHES" in core.settings.__dict__
+        original_caches = core.settings.__dict__.get("CACHES")
+
+        try:
+            for value in ("True", "true", "1"):
+                with (
+                    self.subTest(value=value),
+                    mock.patch.dict("os.environ", {"DJANGO_DATABASE_CACHE": value}),
+                ):
+                    importlib.reload(core.settings)
+                    cache = core.settings.CACHES["default"]
+
+                    self.assertEqual(
+                        cache["BACKEND"],
+                        "django.core.cache.backends.db.DatabaseCache",
+                    )
+                    self.assertEqual(cache["LOCATION"], "django_cache")
+                    renditions = core.settings.CACHES["renditions"]
+                    self.assertEqual(
+                        renditions["BACKEND"],
+                        "django.core.cache.backends.locmem.LocMemCache",
+                    )
+                    self.assertEqual(renditions["LOCATION"], "renditions")
+                    self.assertEqual(
+                        renditions["TIMEOUT"],
+                        core.settings.RENDITION_CACHE_TIMEOUT,
+                    )
+        finally:
+            importlib.reload(core.settings)
+            if had_caches:
+                core.settings.CACHES = original_caches
+            else:
+                core.settings.__dict__.pop("CACHES", None)
+
+    def test_default_cache_when_database_cache_not_enabled(self):
+        """DJANGO_DATABASE_CACHE unset or false → LocMemCache applies."""
+        had_caches = "CACHES" in core.settings.__dict__
+        original_caches = core.settings.__dict__.get("CACHES")
+
+        try:
+            for environment in ({}, {"DJANGO_DATABASE_CACHE": "False"}):
+                with (
+                    self.subTest(environment=environment),
+                    mock.patch("dotenv.load_dotenv"),
+                    # A cleared environment now means "production with no
+                    # secret", which settings refuses to start with, so supply
+                    # the one required variable alongside each subTest's own.
+                    # This test is about CACHES, not secrets.
+                    mock.patch.dict(
+                        "os.environ",
+                        {
+                            **environment,
+                            "DJANGO_SECRET_KEY": "test-key-for-settings-reload",
+                        },
+                        clear=True,
+                    ),
+                ):
+                    core.settings.__dict__.pop("CACHES", None)
+                    importlib.reload(core.settings)
+
+                    self.assertFalse(core.settings.USE_DATABASE_CACHE)
+                    self.assertNotIn("CACHES", core.settings.__dict__)
+
+                    django_settings = Settings("core.settings")
+                    self.assertEqual(
+                        django_settings.CACHES["default"]["BACKEND"],
+                        "django.core.cache.backends.locmem.LocMemCache",
+                    )
+                    self.assertNotIn("renditions", django_settings.CACHES)
+        finally:
+            importlib.reload(core.settings)
+            if had_caches:
+                core.settings.CACHES = original_caches
+            else:
+                core.settings.__dict__.pop("CACHES", None)
+
+    def test_pre_deploy_job_creates_the_configured_cache_table(self):
+        """The pre-deploy job names the table explicitly, so it is created
+        even while the database cache is switched off."""
+        app_spec = yaml.safe_load(
+            (core.settings.BASE_DIR / ".do/deploy.template.yaml").read_text(),
+        )
+        pre_deploy_jobs = [
+            job for job in app_spec["spec"]["jobs"] if job["kind"] == "PRE_DEPLOY"
+        ]
+        self.assertEqual(len(pre_deploy_jobs), 1)
+        run_command = pre_deploy_jobs[0]["run_command"]
+        self.assertIn("python manage.py migrate", run_command)
+        self.assertIn(
+            f"python manage.py createcachetable {core.settings.DATABASE_CACHE_TABLE}",
+            run_command,
+        )
 
 
 class AccountPageAccessibilityTest(TestCase):

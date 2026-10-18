@@ -1,10 +1,17 @@
 from urllib.parse import urljoin
 
+from django.core.cache import cache
+from django.core.management import call_command
+from django.db import connection
 from django.templatetags.static import static
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
+from wagtail.images import get_image_model
+from wagtail.images.tests.utils import get_test_image_file
 from wagtail.models import Page, Site
 
+from common.cache_queries import DATABASE_CACHES, django_cache_reads
 from contact.factories import PersonFactory
 from events.factories import EventFactory
 from events.models import Event
@@ -103,6 +110,40 @@ class HomePageRenderTest(TestCase):
         self.assertContains(response, former_author.title)
         self.assertContains(response, event.title)
         self.assertContains(response, event.url)
+
+
+@override_settings(CACHES=DATABASE_CACHES)
+class TestHomePageCacheQueries(TestCase):
+    """The home page, including its cover renditions, reads django_cache once."""
+
+    def setUp(self) -> None:
+        call_command("createcachetable", verbosity=0)
+        self.home_page = HomePageFactory.create()
+        Site.objects.all().delete()
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home_page,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+        cover = get_image_model().objects.create(
+            title="Home cover",
+            file=get_test_image_file(),
+        )
+        MagazineIssueFactory.create(
+            publication_date=timezone.now() - timezone.timedelta(days=1),
+            cover_image=cover,
+        )
+
+    def test_home_page_reads_django_cache_at_most_once(self) -> None:
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Current Issue")
+        self.assertLessEqual(django_cache_reads(queries), 1)
 
     def test_head_and_structured_data_use_absolute_urls(self) -> None:
         response = self.client.get("/")

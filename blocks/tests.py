@@ -4,10 +4,14 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from wagtail.documents.models import Document
+from wagtail.models import Page, Site
 
 from .blocks import (
+    ButtonBlock,
+    HeadingBlock,
     MediaBlock,
     MediaChooserBlock,
+    PageCardBlock,
     PullQuoteBlock,
     validate_webvtt_document,
 )
@@ -185,3 +189,66 @@ class TestPullQuoteBlock(TestCase):
 
         # Assert that an empty string is returned
         self.assertEqual(html, "")
+
+
+class HeadingBlockTest(TestCase):
+    def setUp(self) -> None:
+        self.block = HeadingBlock()
+
+    def test_render_ignores_legacy_color_and_emits_no_inline_style(self) -> None:
+        # A heading saved before the color field was removed still carries a
+        # stored "color" key in its StreamField data. It must be ignored, and
+        # the rendered heading must not emit any inline color styling
+        # (WCAG 1.4.3 - see #1299).
+        value = self.block.to_python(
+            {
+                "heading_level": "h2",
+                "heading_text": "Accessible Heading",
+                "target_slug": "accessible-heading",
+                "color": "#ff0000",  # legacy value, no longer a field
+            },
+        )
+
+        html = self.block.render(value)
+
+        self.assertIn("Accessible Heading", html)
+        self.assertIn('id="accessible-heading"', html)
+        self.assertIn("<h2", html)
+        self.assertIn("</h2>", html)
+        self.assertNotIn("style=", html)
+        self.assertNotIn("#ff0000", html)
+
+
+class PageCardBlockTest(TestCase):
+    def test_page_card_links_to_its_page(self) -> None:
+        root_page = Site.objects.get(is_default_site=True).root_page
+        page = root_page.add_child(instance=Page(title="About", slug="about"))
+        block = PageCardBlock()
+        value = block.to_python({"page": page.id, "text": "Card text"})
+
+        html = block.render(value)
+
+        self.assertIn(f'href="{page.url}"', html)
+        self.assertIn('aria-label="Go to About"', html)
+
+
+class PageLinkBlocksWithoutPageTest(TestCase):
+    """A chosen page that was later deleted resolves to None and must still render."""
+
+    def test_page_card_without_page_renders_without_link(self) -> None:
+        block = PageCardBlock()
+        value = block.to_python({"page": None, "text": "Card text"})
+
+        html = block.render(value)
+
+        self.assertIn("Card text", html)
+        self.assertNotIn("<a ", html)
+
+    def test_button_without_page_renders_empty_href(self) -> None:
+        block = ButtonBlock()
+        value = block.to_python({"button_text": "Read more", "page_link": None})
+
+        html = block.render(value)
+
+        self.assertIn("Read more", html)
+        self.assertIn('href=""', html)

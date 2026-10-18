@@ -1,6 +1,7 @@
 from itertools import chain
 
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView
 from taggit.models import Tag
 from wagtail.admin.viewsets.model import ModelViewSet
@@ -84,9 +85,11 @@ class TaggedPageListView(ListView):
         context = super().get_context_data(**kwargs)
 
         tag_slug = self.kwargs["tag"]
-        tag_name = Tag.objects.get(slug=tag_slug).name
+        # A slug that matches no tag is a bad URL, not a server error: the URL
+        # pattern accepts any word characters, so anything can reach this view.
+        tag = get_object_or_404(Tag, slug=tag_slug)
 
-        context["tag_name"] = tag_name
+        context["tag_name"] = tag.name
 
         _page_raw = self.request.GET.get("page", "1")
         page_number = int(_page_raw) if _page_raw.isdigit() else 1

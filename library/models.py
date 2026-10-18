@@ -108,7 +108,12 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
             .prefetch_related(
                 Prefetch(
                     "authors",
-                    queryset=LibraryItemAuthor.objects.select_related("author"),
+                    queryset=LibraryItemAuthor.objects.prefetch_related(
+                        Prefetch(
+                            "author",
+                            queryset=Page.objects.specific(),
+                        ),
+                    ),
                 ),
                 Prefetch(
                     "topics",
