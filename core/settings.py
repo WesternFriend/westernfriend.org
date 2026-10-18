@@ -30,11 +30,13 @@ RUNNING_TESTS = len(sys.argv) > 1 and sys.argv[1] == "test"
 if RUNNING_TESTS:
     logging.disable(logging.CRITICAL)
 
-default_allowed_hosts = "127.0.0.1,localhost,westernfriend.eu.ngrok.io"
+default_allowed_hosts = "127.0.0.1,localhost"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default_allowed_hosts).split(",")
 
-default_csrf_trusted_origins = "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost,https://westernfriend.eu.ngrok.io"
+default_csrf_trusted_origins = (
+    "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost"
+)
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "DJANGO_CSRF_TRUSTED_ORIGINS",
@@ -292,6 +294,39 @@ MIDDLEWARE = [
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
+
+# HTTPS in production (#1225). TLS ends at the hosting platform's proxy, so
+# Django only knows a request was HTTPS from the X-Forwarded-Proto header the
+# proxy sets. Without it, request.is_secure() is always False, and the links in
+# password-reset and activation emails are built with http://.
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # DJANGO_SECURE_SSL_REDIRECT=false turns the redirect off without a code
+    # change, e.g. if the proxy header ever stops arriving and every request
+    # starts redirecting to itself. Off while running tests, because the test
+    # client makes plain-HTTP requests and every one would be redirected.
+    SECURE_SSL_REDIRECT = (
+        os.getenv("DJANGO_SECURE_SSL_REDIRECT", "true").lower() in ("true", "1")
+        and not RUNNING_TESTS
+    )
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Start with a short max-age and raise it (e.g. to 31536000) once HTTPS is
+    # confirmed everywhere: browsers keep a max-age they have seen, so a long one
+    # can't be taken back. Subdomains and preload stay off until every subdomain
+    # is known to serve HTTPS.
+    SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_SECURE_HSTS_SECONDS", "3600"))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+
+SILENCED_SYSTEM_CHECKS = [
+    # X_FRAME_OPTIONS is SAMEORIGIN, not DENY, because the Wagtail admin shows
+    # page previews in an iframe.
+    "security.W019",
+    # HSTS subdomains and preload are off on purpose; see above.
+    "security.W005",
+    "security.W021",
+]
 
 ROOT_URLCONF = "core.urls"
 
