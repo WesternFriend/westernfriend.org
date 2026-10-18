@@ -299,6 +299,13 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 # Django only knows a request was HTTPS from the X-Forwarded-Proto header the
 # proxy sets. Without it, request.is_secure() is always False, and the links in
 # password-reset and activation emails are built with http://.
+#
+# Trusting that header is only safe if the proxy sets it itself and drops any
+# X-Forwarded-Proto a client sends. A DigitalOcean community answer says App
+# Platform does both; its official docs don't say either way. If the site ever
+# moves behind a proxy that passes the client's header through, a plain-HTTP
+# request could claim to be HTTPS and skip the redirect: make that proxy
+# overwrite the header, or remove SECURE_PROXY_SSL_HEADER.
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     # DJANGO_SECURE_SSL_REDIRECT=false turns the redirect off without a code

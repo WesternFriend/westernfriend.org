@@ -396,8 +396,23 @@ class HttpsSettingsTests(SimpleTestCase):
         ):
             importlib.reload(core.settings)
 
+    def setUp(self):
+        # reload() never deletes a name, so a production reload would leave
+        # these settings on core.settings for every later test. Remember which
+        # ones existed, and their values, so tearDown can put them back exactly.
+        self.original_https_settings = {
+            name: core.settings.__dict__[name]
+            for name in self.HTTPS_SETTINGS
+            if name in core.settings.__dict__
+        }
+
     def tearDown(self):
         importlib.reload(core.settings)
+        for name in self.HTTPS_SETTINGS:
+            if name in self.original_https_settings:
+                setattr(core.settings, name, self.original_https_settings[name])
+            else:
+                core.settings.__dict__.pop(name, None)
 
     def test_production_trusts_the_proxy_and_requires_https(self):
         self._reload_with(self.PRODUCTION)
