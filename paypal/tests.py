@@ -4,7 +4,7 @@ from http import HTTPStatus
 from unittest import mock
 
 from django.core.cache import cache
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from requests.exceptions import HTTPError, Timeout
 
@@ -13,8 +13,10 @@ from orders.factories import OrderFactory, OrderItemFactory
 from subscription.models import Subscription
 
 from .auth import (
+    TOKEN_EXPIRY_MARGIN_S,
     construct_paypal_auth_headers,
     get_auth_token,
+    token_cache_key,
 )
 from .models import (
     PayPalError,
@@ -30,6 +32,65 @@ from .subscriptions import (
 
 
 class GetAuthTokenTest(TestCase):
+    def setUp(self):
+        # Tokens are cached, so one test's token must not leak into the next.
+        cache.clear()
+        self.addCleanup(cache.clear)
+
+    @staticmethod
+    def _token_response(token, **fields):
+        response = mock.Mock()
+        response.status_code = 200
+        response.json.return_value = {"access_token": token, **fields}
+        return response
+
+    @mock.patch("paypal.auth.requests.post")
+    def test_token_is_fetched_once_per_expiry_window(self, mock_post):
+        mock_post.return_value = self._token_response("some_token", expires_in=32400)
+
+        self.assertEqual(get_auth_token(), "some_token")
+        self.assertEqual(get_auth_token(), "some_token")
+
+        self.assertEqual(mock_post.call_count, 1)
+
+    @mock.patch("paypal.auth.requests.post")
+    def test_token_is_cached_until_shortly_before_it_expires(self, mock_post):
+        mock_post.return_value = self._token_response("some_token", expires_in=32400)
+
+        with mock.patch.object(cache, "set", wraps=cache.set) as cache_set:
+            get_auth_token()
+
+        cache_set.assert_called_once_with(
+            token_cache_key(),
+            "some_token",
+            32400 - TOKEN_EXPIRY_MARGIN_S,
+        )
+
+    @mock.patch("paypal.auth.requests.post")
+    def test_token_without_a_usable_lifetime_is_not_cached(self, mock_post):
+        for fields in ({}, {"expires_in": 30}, {"expires_in": "soon"}):
+            with self.subTest(fields=fields):
+                cache.clear()
+                mock_post.reset_mock()
+                mock_post.return_value = self._token_response("some_token", **fields)
+
+                get_auth_token()
+                get_auth_token()
+
+                self.assertEqual(mock_post.call_count, 2)
+
+    @mock.patch("paypal.auth.requests.post")
+    def test_another_paypal_app_gets_its_own_token(self, mock_post):
+        mock_post.return_value = self._token_response("live_token", expires_in=32400)
+        get_auth_token()
+
+        mock_post.return_value = self._token_response("other_token", expires_in=32400)
+        with override_settings(PAYPAL_CLIENT_ID="another-app"):
+            self.assertEqual(get_auth_token(), "other_token")
+
+        self.assertEqual(get_auth_token(), "live_token")
+        self.assertEqual(mock_post.call_count, 2)
+
     @mock.patch("paypal.auth.requests.post")
     def test_get_auth_token_success(self, mock_post):
         # Mock successful API response
