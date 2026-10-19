@@ -4,7 +4,9 @@ import random
 import re
 from unittest.mock import Mock, patch
 
+from django.db import connection
 from django.test import RequestFactory, SimpleTestCase, TestCase
+from django.test.utils import CaptureQueriesContext
 from wagtail.models import Site
 
 from contact.factories import PersonFactory
@@ -165,7 +167,7 @@ class TestLibraryItemGetContext(TestCase):
             )
 
         request = self.factory.get("/")
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(6):
             context = self.library_item.get_context(request)
 
         self.assertIsNotNone(context)
@@ -178,6 +180,9 @@ class TestLibraryItemGetContext(TestCase):
                 library_item_author.author
                 for library_item_author in context["page"].authors.all()
             ]
+            author_names = [
+                (author.given_name, author.family_name) for author in context_authors
+            ]
             context_topics = [
                 library_item_topic.topic
                 for library_item_topic in context["page"].topics.all()
@@ -186,6 +191,10 @@ class TestLibraryItemGetContext(TestCase):
         self.assertCountEqual(
             [author.pk for author in context_authors],
             [author.pk for author in authors],
+        )
+        self.assertCountEqual(
+            author_names,
+            [(author.given_name, author.family_name) for author in authors],
         )
         self.assertCountEqual(
             [topic.pk for topic in context_topics],
@@ -231,6 +240,37 @@ class TestLibraryItemStructuredData(TestCase):
         self.assertEqual(data["author"][0]["givenName"], author.given_name)
         self.assertEqual(data["about"], [topic.title])
         self.assertEqual(data["datePublished"], "2020-05-17")
+
+    def test_author_queries_do_not_grow_with_authors(self) -> None:
+        """Specific authors are loaded in bulk, not once per author."""
+
+        def queries_for(author_count: int) -> int:
+            library_item = LibraryItemFactory.create()
+            for index in range(author_count):
+                LibraryItemAuthor.objects.create(
+                    library_item=library_item,
+                    author=PersonFactory.create(
+                        given_name=f"Ada{author_count}{index}",
+                        family_name="Lovelace",
+                    ),
+                )
+            Site.objects.update(root_page=HomePage.objects.get())
+            Site.clear_site_root_paths_cache()
+            self.client.get(library_item.url)
+            Site.clear_site_root_paths_cache()
+            with CaptureQueriesContext(connection) as captured:
+                response = self.client.get(library_item.url)
+            self.assertEqual(response.status_code, 200)
+            for index in range(author_count):
+                self.assertContains(response, f"Ada{author_count}{index}")
+            # Count every query. Filtering on an unquoted "person" table name
+            # misses Django's quoted identifier and can hide per-author reads.
+            return len(captured)
+
+        one_author = queries_for(1)
+        several_authors = queries_for(4)
+
+        self.assertEqual(several_authors, one_author)
 
 
 class TestAddLibraryItemTopics(TestCase):
