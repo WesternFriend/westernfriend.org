@@ -6,13 +6,14 @@ from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase, override_settings, tag
+from django.test import SimpleTestCase, TestCase, override_settings, tag
 from django.urls import reverse
 from wagtail.images import get_image_model
 from wagtail.models import Page, PageViewRestriction, Site
 
 from cli.dev_content.images import get_seed_collection
 from cli.dev_content.seeder import DEV_USERS, SCALES, DevContentSeeder
+from cli.management.commands.a11y_urls import Command as A11yUrlsCommand
 from cli.management.commands.seed_dev_content import delete_content, has_content
 from contact.models import Meeting, Person
 from events.factories import EventFactory
@@ -259,3 +260,18 @@ class A11yUrlsGuardTest(TestCase):
         # naming the missing type makes the CI failure self-explanatory.
         with self.assertRaisesMessage(CommandError, "magazine issue"):
             call_command("a11y_urls", stdout=StringIO())
+
+
+class A11ySearchQueryTest(SimpleTestCase):
+    """How a11y_urls picks the search word from an article title."""
+
+    def test_skips_short_words(self) -> None:
+        # Short words are the likely stopwords, so the first long one is used.
+        self.assertEqual(A11yUrlsCommand._search_query("The Inner Light"), "inner")
+
+    def test_falls_back_to_the_first_word_when_every_word_is_short(self) -> None:
+        self.assertEqual(A11yUrlsCommand._search_query("On Joy"), "on")
+
+    def test_fails_loudly_without_a_usable_word(self) -> None:
+        with self.assertRaisesMessage(CommandError, "Cannot build a search query"):
+            A11yUrlsCommand._search_query("1959: 2026")
