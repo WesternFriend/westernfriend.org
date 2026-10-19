@@ -13,6 +13,9 @@ from magazine.factories import MagazineArticleFactory, MagazineIssueFactory
 from magazine.feeds import FEED_ISSUE_COUNT
 from magazine.models import MagazineArticleAuthor, MagazineIndexPage
 
+# Plain text, so the RSS escaping of the description can't disguise it
+BODY_MARKER = "SubscriberOnlyBodyMarker"
+
 
 class MagazineFeedTestCase(TestCase):
     def setUp(self) -> None:
@@ -72,6 +75,7 @@ class MagazineArticleFeedTest(MagazineFeedTestCase):
         self.article = MagazineArticleFactory(
             title="Feed Article",
             teaser="<p>A short teaser.</p>",
+            body=[{"type": "rich_text", "value": f"<p>{BODY_MARKER} text.</p>"}],
             parent=self.issue,
         )
         author = PersonFactory(given_name="Ada", family_name="Writer")
@@ -91,11 +95,13 @@ class MagazineArticleFeedTest(MagazineFeedTestCase):
 
     def test_never_includes_the_article_body(self) -> None:
         # Most articles are for subscribers; the feed carries the teaser only.
-        body_text = str(self.article.body)[:40]
-        response = self.client.get(reverse("magazine_article_feed"))
+        self.assertIn(BODY_MARKER, str(self.article.body))
 
-        self.assertTrue(body_text.strip())
-        self.assertNotContains(response, body_text)
+        response = self.client.get(reverse("magazine_article_feed"))
+        (item,) = ElementTree.fromstring(response.content).findall("./channel/item")
+
+        self.assertNotIn(BODY_MARKER, item.findtext("description"))
+        self.assertNotContains(response, BODY_MARKER)
 
     def test_leaves_out_unpublished_and_private_articles(self) -> None:
         draft = MagazineArticleFactory(title="Draft Article", parent=self.issue)
