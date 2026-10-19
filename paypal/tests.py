@@ -92,6 +92,25 @@ class GetAuthTokenTest(TestCase):
         self.assertEqual(mock_post.call_count, 2)
 
     @mock.patch("paypal.auth.requests.post")
+    def test_sandbox_and_live_get_separate_tokens(self, mock_post):
+        # Same client ID, different API URL: a sandbox token must never be
+        # sent to the live API, or the other way round.
+        sandbox = override_settings(PAYPAL_API_URL="https://api-m.sandbox.paypal.com")
+        live = override_settings(PAYPAL_API_URL="https://api-m.paypal.com")
+
+        mock_post.return_value = self._token_response("sandbox_token", expires_in=32400)
+        with sandbox:
+            get_auth_token()
+
+        mock_post.return_value = self._token_response("live_token", expires_in=32400)
+        with live:
+            self.assertEqual(get_auth_token(), "live_token")
+
+        with sandbox:
+            self.assertEqual(get_auth_token(), "sandbox_token")
+        self.assertEqual(mock_post.call_count, 2)
+
+    @mock.patch("paypal.auth.requests.post")
     def test_get_auth_token_success(self, mock_post):
         # Mock successful API response
         mock_response = mock.Mock()
