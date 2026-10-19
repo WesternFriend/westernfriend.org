@@ -220,20 +220,39 @@ class OrderCreateViewTest(TestCase):
         self.assertEqual(item.price, Decimal("12.00"))
 
     def test_failed_item_creation_rolls_back_order_and_keeps_cart(self) -> None:
+        # Two products, so the first item is saved before the second fails
+        # and the rollback has a saved item to undo.
+        second_product = ProductFactory.build(price_usd=Decimal("15.00"))
+        self.product.get_parent().add_child(instance=second_product)
         self.add_to_cart(self.product)
+        self.add_to_cart(second_product)
+
+        create_item = OrderItem.objects.create
+        item_calls = []
+        failure = RuntimeError("item creation failed")
+
+        def fail_on_second_item(**kwargs):
+            item_calls.append(kwargs)
+            if len(item_calls) == 2:
+                raise failure
+            return create_item(**kwargs)
 
         with (
             patch(
                 "orders.views.OrderItem.objects.create",
-                side_effect=RuntimeError("item creation failed"),
+                side_effect=fail_on_second_item,
             ),
             self.assertRaises(RuntimeError),
         ):
             self.client.post(reverse("orders:order_create"), self.valid_order_data)
 
-        self.assertEqual(Order.objects.count(), 0)
+        self.assertEqual(len(item_calls), 2)
         self.assertEqual(OrderItem.objects.count(), 0)
-        self.assertEqual(len(Cart(self.client)), 1)  # type: ignore
+        self.assertEqual(Order.objects.count(), 0)
+        self.assertEqual(
+            set(Cart(self.client).cart),  # type: ignore
+            {str(self.product.id), str(second_product.id)},
+        )
 
     def test_post_invalid_form_rerenders_and_keeps_cart(self) -> None:
         self.add_to_cart(self.product)
