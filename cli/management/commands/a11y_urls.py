@@ -2,10 +2,10 @@
 
 The list covers one live page of every major template the September 2026
 audit called representative: home, a magazine issue, an article, a library
-item, an event, a memorial, search results, subscribe, and login. pa11y-ci
-reads these URLs (see .pa11yci and docs/accessibility-checks.md), so the CI
-job scans whatever the seeded database actually contains instead of
-hard-coding slugs the seeder might change.
+item, an event, a memorial, search results, subscribe, and login.
+scripts/a11y-check.mjs scans these URLs (see docs/accessibility-checks.md),
+so the CI job scans whatever the seeded database actually contains instead
+of hard-coding slugs the seeder might change.
 
 The command fails if any page type has no live page: silently scanning fewer
 templates would let a regression through while CI stays green.
