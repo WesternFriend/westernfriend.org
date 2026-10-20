@@ -19,9 +19,10 @@ from events.models import Event
 from library.models import LibraryItem
 from magazine.models import MagazineArticle, MagazineIssue
 from memorials.models import Memorial
+from search.views import STOPWORDS
 from subscription.models import SubscriptionIndexPage
 
-# Shorter words are the ones likely to be search stopwords.
+# Longer words are preferred: they are less likely to match many pages.
 MIN_QUERY_WORD_LENGTH = 4
 
 
@@ -75,11 +76,16 @@ class Command(BaseCommand):
     def _search_query(title: str) -> str:
         """Return a word from the title the search backend will match.
 
-        Skips short words, which are the ones likely to be stopwords; the
-        title itself comes from a live article, so the word is guaranteed to
-        index at least that page.
+        Skips the search view's own stopwords, which it strips from the query
+        (so a stopword would scan the empty state), and prefers longer words.
+        The title comes from a live article, so a remaining word indexes at
+        least that page.
         """
-        words = [word for word in title.split() if word.isalpha()]
+        words = [
+            word
+            for word in title.split()
+            if word.isalpha() and word.lower() not in STOPWORDS
+        ]
         for word in words:
             if len(word) >= MIN_QUERY_WORD_LENGTH:
                 return quote(word.lower())

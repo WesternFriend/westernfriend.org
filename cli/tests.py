@@ -266,11 +266,22 @@ class A11ySearchQueryTest(SimpleTestCase):
     """How a11y_urls picks the search word from an article title."""
 
     def test_skips_short_words(self) -> None:
-        # Short words are the likely stopwords, so the first long one is used.
         self.assertEqual(A11yUrlsCommand._search_query("The Inner Light"), "inner")
 
-    def test_falls_back_to_the_first_word_when_every_word_is_short(self) -> None:
-        self.assertEqual(A11yUrlsCommand._search_query("On Joy"), "on")
+    def test_skips_long_stopwords(self) -> None:
+        # "About" and "their" pass the length check but are search stopwords:
+        # the view would strip them and the scan would see the empty state.
+        self.assertEqual(
+            A11yUrlsCommand._search_query("About Their Silence"),
+            "silence",
+        )
+
+    def test_falls_back_to_a_short_word_that_is_not_a_stopword(self) -> None:
+        self.assertEqual(A11yUrlsCommand._search_query("On Joy"), "joy")
+
+    def test_fails_loudly_when_every_word_is_a_stopword(self) -> None:
+        with self.assertRaisesMessage(CommandError, "Cannot build a search query"):
+            A11yUrlsCommand._search_query("About Them")
 
     def test_fails_loudly_without_a_usable_word(self) -> None:
         with self.assertRaisesMessage(CommandError, "Cannot build a search query"):
