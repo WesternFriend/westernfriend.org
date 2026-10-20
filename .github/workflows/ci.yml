@@ -240,8 +240,8 @@ jobs:
         run: |
           set -o pipefail
           {
-            uv run --no-sync python manage.py migrate --no-input
-            uv run --no-sync python manage.py seed_dev_content --scale small --seed 1234
+            uv run --no-sync python manage.py migrate --no-input &&
+              uv run --no-sync python manage.py seed_dev_content --scale small --seed 1234
           } 2>&1 | tee /tmp/a11y-seed.txt
 
       - name: Run accessibility checks
