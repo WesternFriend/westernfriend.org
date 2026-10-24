@@ -1,4 +1,5 @@
 import re
+from urllib.parse import quote
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest, HttpResponse
@@ -158,6 +159,25 @@ STOPWORDS: frozenset[str] = frozenset(
         "yourselves",
     },
 )
+
+
+def text_fragment(search_query: str | None) -> str:
+    """Return a URL text fragment that highlights the search words on a result.
+
+    Browsers that support text fragments scroll to the first match of each
+    ``text=`` directive and highlight it; other browsers ignore the fragment.
+    Each word gets its own directive because search matches any of the words,
+    so the whole query rarely appears word for word on the page. A directive
+    with no match is skipped by the browser, so the link still works.
+    """
+    if not search_query:
+        return ""
+    # "-" separates a directive's prefix and suffix, so it must be encoded too.
+    directives = "&".join(
+        "text=" + quote(word, safe="").replace("-", "%2D")
+        for word in search_query.split()
+    )
+    return f"#:~:{directives}"
 
 
 def search(request: HttpRequest) -> HttpResponse:  # noqa: C901, PLR0912, PLR0915
@@ -349,6 +369,7 @@ def search(request: HttpRequest) -> HttpResponse:  # noqa: C901, PLR0912, PLR091
         {
             "search_query": search_query,
             "search_querystring": f"query={search_query}" if search_query else "",
+            "result_fragment": text_fragment(search_query),
             "paginated_search_results": paginated_search_results,
             "query_truncated": query_truncated,
             "max_query_words": MAX_QUERY_WORDS,
