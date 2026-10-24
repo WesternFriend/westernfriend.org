@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
@@ -35,11 +35,11 @@ class TestMollyWingateBlogIndexPage(TestCase):
         # Create blog posts with different dates and a duplicate date
         blog_post_1 = MollyWingateBlogPage(
             title="First Post",
-            publication_date=timezone.localdate() - datetime.timedelta(days=2),
+            publication_date=timezone.localdate() - dt.timedelta(days=2),
         )
         blog_post_2 = MollyWingateBlogPage(
             title="Second Post",
-            publication_date=timezone.localdate() - datetime.timedelta(days=1),
+            publication_date=timezone.localdate() - dt.timedelta(days=1),
         )
         blog_post_3 = MollyWingateBlogPage(
             title="Third Post",

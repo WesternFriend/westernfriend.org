@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 
 from django.core.cache import cache
 from django.db import connection
@@ -55,7 +55,7 @@ class TestMeetingDocumentIndexPage(TestCase):
         document2 = MeetingDocument(
             title="Document 2",
             publishing_meeting=self.meeting,
-            publication_date=timezone.localdate() - datetime.timedelta(days=1),
+            publication_date=timezone.localdate() - dt.timedelta(days=1),
             document_type="epistle",
         )
 

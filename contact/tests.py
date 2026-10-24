@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import json
 import re
 
@@ -854,7 +854,7 @@ class ContactPageRenderingTest(TestCase):
             phone="555-0100",
             email="clerk@example.org",
             website="https://example.org/meeting",
-            information_last_verified=datetime.date(2026, 1, 15),
+            information_last_verified=dt.date(2026, 1, 15),
         )
         MeetingAddress.objects.create(
             page=meeting,
@@ -917,7 +917,7 @@ class ContactPageRenderingTest(TestCase):
         archive_issue = deep_archive.add_child(
             instance=ArchiveIssue(
                 title="Friends Bulletin 1950",
-                publication_date=datetime.date(1950, 1, 1),
+                publication_date=dt.date(1950, 1, 1),
                 internet_archive_identifier="friendsbulletin1950",
             ),
         )
@@ -1026,11 +1026,11 @@ class ContactAdminListingTest(TestCase):
                 contact=person,
                 contact_type=ContactPublicationStatistics.ContactType.PERSON,
                 article_count=article_count,
-                last_published_at=datetime.datetime(
+                last_published_at=dt.datetime(
                     2024,
                     1,
                     published_day,
-                    tzinfo=datetime.UTC,
+                    tzinfo=dt.UTC,
                 ),
             )
 

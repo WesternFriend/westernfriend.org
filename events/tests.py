@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 
 from django.http import Http404
 from django.test import RequestFactory, TestCase
@@ -48,20 +48,20 @@ class EventsIndexPageTest(TestCase):
         # Create the EventsIndexPage
         self.events_index_page = EventsIndexPageFactory.create()
 
-        base_datetime = timezone.now() + datetime.timedelta(days=10)
+        base_datetime = timezone.now() + dt.timedelta(days=10)
 
         # Create 25 events ordered by date
         self.western_events = [
             EventFactory.create(
                 category=Event.EventCategoryChoices.WESTERN,
-                start_date=base_datetime + datetime.timedelta(days=i),
+                start_date=base_datetime + dt.timedelta(days=i),
             )
             for i in range(13)
         ]
         self.other_events = [
             EventFactory.create(
                 category=Event.EventCategoryChoices.OTHER,
-                start_date=base_datetime + datetime.timedelta(days=i),
+                start_date=base_datetime + dt.timedelta(days=i),
             )
             for i in range(12)
         ]
@@ -161,20 +161,20 @@ class TestEventPageGetContextUpcomingEventsStartAndEndDate(TestCase):
 
         # Create an event that has already ended
         self.ended_event = EventFactory.create(
-            start_date=timezone.now() - datetime.timedelta(days=2),
-            end_date=timezone.now() - datetime.timedelta(days=1),
+            start_date=timezone.now() - dt.timedelta(days=2),
+            end_date=timezone.now() - dt.timedelta(days=1),
         )
 
         # Create an event that is currently ongoing
         self.ongoing_event = EventFactory.create(
-            start_date=timezone.now() - datetime.timedelta(days=1),
-            end_date=timezone.now() + datetime.timedelta(days=1),
+            start_date=timezone.now() - dt.timedelta(days=1),
+            end_date=timezone.now() + dt.timedelta(days=1),
         )
 
         # Create an event that is upcoming
         self.upcoming_event = EventFactory.create(
-            start_date=timezone.now() + datetime.timedelta(days=1),
-            end_date=timezone.now() + datetime.timedelta(days=2),
+            start_date=timezone.now() + dt.timedelta(days=1),
+            end_date=timezone.now() + dt.timedelta(days=2),
         )
 
     def test_get_context_contains_only_ongoing_and_upcoming_events(self):

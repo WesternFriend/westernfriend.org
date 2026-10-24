@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 from unittest.mock import patch
 
 from django.core.cache import cache, caches
@@ -50,19 +50,19 @@ from .models import (
 class ArchiveThresholdDateTest(SimpleTestCase):
     def test_threshold_advances_with_current_date(self) -> None:
         """The threshold is recomputed on each call, not frozen at import."""
-        first_day = datetime.date(2026, 1, 1)
-        later_day = datetime.date(2026, 3, 1)
+        first_day = dt.date(2026, 1, 1)
+        later_day = dt.date(2026, 3, 1)
 
         with patch("django.utils.timezone.localdate", return_value=first_day):
             self.assertEqual(
                 get_archive_threshold_date(),
-                first_day - datetime.timedelta(days=180),
+                first_day - dt.timedelta(days=180),
             )
 
         with patch("django.utils.timezone.localdate", return_value=later_day):
             self.assertEqual(
                 get_archive_threshold_date(),
-                later_day - datetime.timedelta(days=180),
+                later_day - dt.timedelta(days=180),
             )
 
 
@@ -92,7 +92,7 @@ class MagazineIndexPageTest(TestCase):
         self.archive_magazine_issues = []
 
         for i in range(number_of_archive_issues + 1):
-            archive_days_ago = datetime.timedelta(days=181 + i)
+            archive_days_ago = dt.timedelta(days=181 + i)
             archive_magazine_issue = MagazineIssue(
                 title=f"Archive issue {i}",
                 publication_date=today - archive_days_ago,
@@ -137,7 +137,7 @@ class MagazineIndexPageTest(TestCase):
         """A recent issue moves to the archive once the current date passes the
         threshold, without a process restart."""
         mock_request = RequestFactory().get("/magazine/")
-        later_day = self.recent_magazine_issue.publication_date + datetime.timedelta(
+        later_day = self.recent_magazine_issue.publication_date + dt.timedelta(
             days=181,
         )
 
@@ -251,7 +251,7 @@ class MagazineIssueTest(TestCase):
         )
         self.archive_magazine_issue = MagazineIssue(
             title="Issue 2",
-            publication_date=timezone.localdate() - datetime.timedelta(days=181),
+            publication_date=timezone.localdate() - dt.timedelta(days=181),
         )
         self.magazine_index.add_child(instance=self.recent_magazine_issue)
         self.magazine_index.add_child(instance=self.archive_magazine_issue)
@@ -310,7 +310,7 @@ class MagazineIssueTest(TestCase):
         date."""
         self.assertEqual(
             self.recent_magazine_issue.publication_end_date,
-            timezone.localdate() + datetime.timedelta(days=31),
+            timezone.localdate() + dt.timedelta(days=31),
         )
 
     def test_get_sitemap_urls(self) -> None:
@@ -344,13 +344,13 @@ class MagazineIssueTest(TestCase):
 
         with patch(
             "django.utils.timezone.localdate",
-            return_value=publication_date + datetime.timedelta(days=180),
+            return_value=publication_date + dt.timedelta(days=180),
         ):
             self.assertFalse(self.recent_magazine_issue.is_public_access)
 
         with patch(
             "django.utils.timezone.localdate",
-            return_value=publication_date + datetime.timedelta(days=181),
+            return_value=publication_date + dt.timedelta(days=181),
         ):
             self.assertTrue(self.recent_magazine_issue.is_public_access)
 
@@ -550,7 +550,7 @@ class MagazineArticleTest(TestCase):
         )
         self.subscription = Subscription.objects.create(
             user=self.subscriber_user,
-            expiration_date=timezone.localdate() + datetime.timedelta(days=365),
+            expiration_date=timezone.localdate() + dt.timedelta(days=365),
         )
 
         site_root = Page.objects.get(id=2)
@@ -574,7 +574,7 @@ class MagazineArticleTest(TestCase):
         )
         self.archive_magazine_issue = MagazineIssue(
             title="Issue 2",
-            publication_date=today - datetime.timedelta(days=181),
+            publication_date=today - dt.timedelta(days=181),
         )
         self.magazine_index.add_child(instance=self.recent_magazine_issue)
         self.magazine_index.add_child(instance=self.archive_magazine_issue)
@@ -736,7 +736,7 @@ class DeepArchiveIndexPageTest(TestCase):
             archive_issue = ArchiveIssue(
                 title=f"Archive Issue {year}",  # type: ignore
                 internet_archive_identifier=f"archive-issue-{year}",  # type: ignore
-                publication_date=datetime.date(year, 1, 1),  # type: ignore
+                publication_date=dt.date(year, 1, 1),  # type: ignore
             )
             self.deep_archive_index.add_child(instance=archive_issue)
             self.archive_issues.append(archive_issue)
@@ -875,7 +875,7 @@ class ArchiveIssueQueryOptimizationTestCase(TestCase):
         self.archive_issue = ArchiveIssue(
             title="Test Archive Issue",
             internet_archive_identifier="test-issue-123",
-            publication_date=datetime.date(1950, 1, 1),
+            publication_date=dt.date(1950, 1, 1),
         )
         self.deep_archive_index.add_child(instance=self.archive_issue)
 
@@ -1154,11 +1154,11 @@ class TestMagazineIndexCoverQueries(TestCase):
         title: str,
         days_ago: int = 0,
         *,
-        publication_date: datetime.date | None = None,
+        publication_date: dt.date | None = None,
         prepare_renditions: bool = True,
     ) -> MagazineIssue:
         if publication_date is None:
-            publication_date = timezone.localdate() - datetime.timedelta(days=days_ago)
+            publication_date = timezone.localdate() - dt.timedelta(days=days_ago)
         issue = MagazineIssue(
             title=title,
             slug=title.lower().replace(" ", "-"),
@@ -1224,17 +1224,17 @@ class TestMagazineIndexCoverQueries(TestCase):
         # 400, 410, and 420 days can straddle January and the previous December.
         archive_one = self._issue(
             "Archive one",
-            publication_date=datetime.date(2019, 6, 1),
+            publication_date=dt.date(2019, 6, 1),
         )
         url = f"{self.index.url}?year=2019"
         one_images, one_renditions, one_response = self._image_queries(url)
         archive_two = self._issue(
             "Archive two",
-            publication_date=datetime.date(2019, 6, 15),
+            publication_date=dt.date(2019, 6, 15),
         )
         archive_three = self._issue(
             "Archive three",
-            publication_date=datetime.date(2019, 7, 1),
+            publication_date=dt.date(2019, 7, 1),
         )
         several_images, several_renditions, several_response = self._image_queries(url)
         for title in ("Archive one", "Archive two", "Archive three"):

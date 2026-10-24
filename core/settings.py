@@ -273,7 +273,7 @@ TAILWIND_APP_NAME = "theme"
 # so neither development nor the deploy needs Node. Pinned so every build, local
 # or production, produces the same CSS; bump it deliberately.
 TAILWIND_USE_STANDALONE_BINARY = True
-TAILWIND_STANDALONE_BINARY_VERSION = "v4.1.5"
+TAILWIND_STANDALONE_BINARY_VERSION = "v4.3.3"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

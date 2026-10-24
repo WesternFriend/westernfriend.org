@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 from datetime import timedelta
 
 from django.db import models
@@ -54,7 +54,7 @@ def _attach_cover_renditions(issues) -> None:
     )
 
 
-def get_archive_threshold_date() -> datetime.date:
+def get_archive_threshold_date() -> dt.date:
     """Return the date before which magazine issues are publicly accessible.
 
     Computed on each call so the threshold advances with the current date,
@@ -206,7 +206,7 @@ class MagazineIssue(DrupalFields, Page):  # type: ignore
         )
 
     @property
-    def publication_end_date(self) -> datetime.date | None:
+    def publication_end_date(self) -> dt.date | None:
         """Return the first day of the month after the publication date.
 
         NOTE: we can return any day in the following month,

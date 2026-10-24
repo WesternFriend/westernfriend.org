@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 from typing import Any
 
 import factory
@@ -65,7 +65,7 @@ class EventFactory(DjangoModelFactory):
                 "date_time_between",
                 start_date="-365d",
                 end_date="-5d",
-                tzinfo=datetime.UTC,
+                tzinfo=dt.UTC,
             ),
             end_date=None,
         )
@@ -80,13 +80,12 @@ class EventFactory(DjangoModelFactory):
     start_date = factory.Faker(
         "future_datetime",
         end_date="+90d",
-        tzinfo=datetime.UTC,
+        tzinfo=dt.UTC,
     )
     # Most events have an end: an afternoon, an evening, or a weekend.
     end_date = factory.LazyAttribute(  # type: ignore
         lambda obj: (
-            obj.start_date
-            + datetime.timedelta(hours=fake.random_element([2, 3, 26, 50]))
+            obj.start_date + dt.timedelta(hours=fake.random_element([2, 3, 26, 50]))
             if fake.boolean(chance_of_getting_true=70)
             else None
         ),

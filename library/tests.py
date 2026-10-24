@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import json
 import random
 import re
@@ -207,7 +207,7 @@ class TestLibraryItemStructuredData(TestCase):
         """Test that the library item page embeds valid schema.org JSON-LD."""
         library_item = LibraryItemFactory.create(
             title="Faith and Practice",
-            publication_date=datetime.date(2020, 5, 17),
+            publication_date=dt.date(2020, 5, 17),
         )
         author = PersonFactory.create()
         topic = TopicFactory.create()

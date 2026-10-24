@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 from typing import Any
 
 import factory
@@ -82,7 +82,7 @@ class OnlineWorshipFactory(DjangoModelFactory):
         elements=OnlineWorship.OnlineWorshipDayChoices.values,
     )
     online_worship_time = factory.LazyFunction(  # type: ignore
-        lambda: datetime.time(fake.random_int(7, 19), fake.random_element([0, 30])),
+        lambda: dt.time(fake.random_int(7, 19), fake.random_element([0, 30])),
     )
     online_worship_timezone = factory.Faker(  # type: ignore
         "random_element",
