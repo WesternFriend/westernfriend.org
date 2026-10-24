@@ -227,7 +227,8 @@
       "profile": "https://everember.ai/",
       "contributions": [
         "code",
-        "a11y"
+        "a11y",
+        "test"
       ]
     }
   ],
