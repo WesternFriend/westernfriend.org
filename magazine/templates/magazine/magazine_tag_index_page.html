@@ -12,7 +12,7 @@
             {% if articles.all.count %}
                 <section class="space-y-4">
                     {% for article in articles %}
-                        {% include "magazine/magazine_article_summary.html" with article=article %}
+                        {% include "magazine/magazine_article_summary.html" with article=article heading_level="h2" %}
                     {% endfor %}
                 </section>
             {% else %}

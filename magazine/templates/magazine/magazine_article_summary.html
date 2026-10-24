@@ -2,11 +2,20 @@
 
 <article class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow mb-4">
     <div class="card-body">
-        <h3 class="card-title">
-            <a href="{% pageurl article %}{{ result_fragment }}">
-                {{ article.title }}
-            </a>
-        </h3>
+        {# h3 under a page's h2 section; pass heading_level="h2" where the list sits directly under the page's h1 #}
+        {% if heading_level == "h2" %}
+            <h2 class="card-title">
+                <a href="{% pageurl article %}">
+                    {{ article.title }}
+                </a>
+            </h2>
+        {% else %}
+            <h3 class="card-title">
+                <a href="{% pageurl article %}{{ result_fragment }}">
+                    {{ article.title }}
+                </a>
+            </h3>
+        {% endif %}
 
         {% with author_links=article.authors.all %}
             {% if author_links %}
