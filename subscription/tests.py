@@ -208,12 +208,19 @@ class ManageSubscriptionPageTestCase(TestCase):
 
         self.assertNotIn("subscription_index_page", context)
 
-    def test_manage_in_paypal_link_announces_the_new_window(self) -> None:
+    @patch("subscription.models.paypal_subscriptions.subscription_is_active")
+    def test_manage_in_paypal_link_announces_the_new_window(
+        self,
+        mock_is_active,
+    ) -> None:
         # The other tests here call get_context only, so nothing renders the
         # subscriber's branch of the template. The PayPal link opens a new
         # window, so it has to carry the shared screen-reader note.
         # UserFactory picks is_active at random, and Django won't log in an
         # inactive user, so this test sets it.
+        # The page shows the subscription's status, which asks PayPal, so the
+        # check is patched to keep the test off the network.
+        mock_is_active.return_value = True
         self.user.is_active = True
         self.user.save(update_fields=["is_active"])
         self.client.force_login(self.user)
