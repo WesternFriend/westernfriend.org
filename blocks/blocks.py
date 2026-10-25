@@ -168,6 +168,27 @@ class MediaBlock(wagtail_blocks.StructBlock):
         label = "Media"
         template = "blocks/blocks/media.html"
 
+    @staticmethod
+    def _upgrade_legacy_value(value):
+        """Wrap a value saved by the old chooser-only ``MediaBlock``.
+
+        Library item bodies had a ``media`` block from migration 0001 to 0021
+        that stored only the media id. Pages saved then may still hold that
+        bare id, which the struct cannot read, so it becomes ``{"media": id}``
+        and captions and transcript take their empty defaults.
+        """
+        if isinstance(value, dict):
+            return value
+        return {"media": value}
+
+    def to_python(self, value):
+        return super().to_python(self._upgrade_legacy_value(value))
+
+    def bulk_to_python(self, values):
+        return super().bulk_to_python(
+            [self._upgrade_legacy_value(value) for value in values],
+        )
+
 
 class PageCardBlock(wagtail_blocks.StructBlock):
     page = wagtail_blocks.PageChooserBlock(required=True)
