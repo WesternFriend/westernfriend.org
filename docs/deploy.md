@@ -247,7 +247,7 @@ TLS ends at App Platform's proxy, so the app itself receives plain HTTP. With `D
 
 None of this needs a new variable; the defaults apply on the first deploy. With `DJANGO_DEBUG` "True" (local development), nothing changes.
 
-Trusting the header is only safe if the proxy sets it itself and replaces any `X-Forwarded-Proto` a client sends. A DigitalOcean community answer says App Platform does both; its documentation doesn't say either way. If the site ever moves behind a proxy that passes the client's header through, make that proxy overwrite it, or remove `SECURE_PROXY_SSL_HEADER` from `core/settings.py`.
+Trusting the header is only safe if the proxy sets it itself and replaces any `X-Forwarded-Proto` a client sends. A DigitalOcean community answer says App Platform does both; its documentation doesn't say either way. If the site ever moves behind a proxy that passes the client's header through, make that proxy overwrite it. Don't remove `SECURE_PROXY_SSL_HEADER` from `core/settings.py` instead: every request would then look like plain HTTP, so while `DJANGO_SECURE_SSL_REDIRECT` is on, every page would redirect to itself. If the setting ever has to go, set `DJANGO_SECURE_SSL_REDIRECT` to "false" first, and expect `http://` links in emails and no HSTS header.
 
 Before deploying, make sure `wf-website` has `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS` set (step 5 of [App](#app)), with `https://` origins. Their defaults now list only `127.0.0.1` and `localhost`, so an app that relied on the default no longer accepts requests for its real domain.
 
@@ -267,4 +267,4 @@ If Cloudflare is in front of the app, its SSL/TLS encryption mode must be **Full
 
 If every page redirects to itself (the browser shows "too many redirects"), the proxy header isn't arriving. Set `DJANGO_SECURE_SSL_REDIRECT` to "false" on `wf-website` and save; the site then serves without the redirect while you find out why. The same applies to any HTTP health check that reaches the app without the header: it would get a redirect instead of a `200`.
 
-**Rolling back:** set `DJANGO_SECURE_SSL_REDIRECT` to "false" to stop the redirect, and `DJANGO_SECURE_HSTS_SECONDS` to `0` to stop sending HSTS. A browser that already received HSTS drops it the next time it loads the site and gets the `0`; one that doesn't come back keeps using HTTPS until its `max-age` runs out, which is one hour with the default.
+**Rolling back:** set `DJANGO_SECURE_SSL_REDIRECT` to "false" to stop the redirect, and `DJANGO_SECURE_HSTS_SECONDS` to `0` to stop sending HSTS. With `0`, Django sends no header at all, so a browser that already saved HSTS keeps using HTTPS until the last `max-age` it received runs out, which is one hour with the default. To release returning visitors sooner, set it to `1` instead: Django then sends `max-age=1` over HTTPS, which replaces the saved value, so it lapses a second later. Visitors who don't come back keep their saved `max-age`.

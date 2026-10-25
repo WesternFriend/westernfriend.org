@@ -305,7 +305,9 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 # Platform does both; its official docs don't say either way. If the site ever
 # moves behind a proxy that passes the client's header through, a plain-HTTP
 # request could claim to be HTTPS and skip the redirect: make that proxy
-# overwrite the header, or remove SECURE_PROXY_SSL_HEADER.
+# overwrite the header. Don't just remove SECURE_PROXY_SSL_HEADER: every request
+# would then look like plain HTTP, and with SECURE_SSL_REDIRECT on, every page
+# would redirect to itself.
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     # DJANGO_SECURE_SSL_REDIRECT=false turns the redirect off without a code
