@@ -28,6 +28,8 @@
         <meta name="publisher" content="Friends Bulletin Corporation" />
         <meta name="keywords" content="Quaker, Friends, Western Friend, Quakerism, Religious Society of Friends, pacifism, social justice, spirituality, magazine" />
         <link rel="canonical" href="{% canonical_url %}" />
+        <link rel="alternate" type="application/rss+xml" title="Western Friend magazine articles" href="{% url 'magazine_article_feed' %}" />
+        <link rel="alternate" type="application/rss+xml" title="Western Friend magazine issues" href="{% url 'magazine_issue_feed' %}" />
 
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
@@ -118,15 +120,6 @@
         <a href="#main-content" class="skip-link">Skip to main content</a>
 
         {% include "heading.html" %}
-
-        <!-- Theme toggle: announced as a "Dark mode" switch with on/off state -->
-        <aside class="theme-toggle fixed top-2 right-2 md:top-4 md:right-4 z-60 bg-base-100 p-2 rounded-lg shadow-md" aria-label="Display settings">
-            <label class="flex items-center gap-2 cursor-pointer">
-                <i class="bi bi-sun-fill" aria-hidden="true"></i>
-                <input type="checkbox" id="theme-toggle" class="toggle toggle-sm theme-controller" role="switch" aria-label="Dark mode" />
-                <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
-            </label>
-        </aside>
 
         <main id="main-content" class="container mx-auto px-4 mt-4 mb-4 flex-shrink-0">
             {% if messages %}
