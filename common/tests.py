@@ -834,11 +834,16 @@ class NewWindowLinkPatternTests(TestCase):
 
     @staticmethod
     def _rel_tokens(link: str) -> list[str]:
+        # Only the opening <a> tag holds attributes; searching the whole link
+        # would let link text such as 'rel="noopener"' pass the check.
+        opening_tag = re.match(r"<a\b[^>]*>", link)
+        if not opening_tag:
+            return []
         # The boundary has to be a real attribute break: \b alone would let
         # data-rel="noopener" satisfy the check, since the hyphen counts as one.
         match = re.search(
             r"(?:^|[\s\"'/])rel\s*=\s*([\"'])(.*?)\1",
-            link,
+            opening_tag.group(0),
             re.DOTALL,
         )
         return match.group(2).split() if match else []
@@ -863,6 +868,21 @@ class NewWindowLinkPatternTests(TestCase):
         ]
 
         self.assertEqual(missing, [], f"Links missing rel=noopener: {missing}")
+
+    def test_rel_is_read_from_the_opening_tag_only(self) -> None:
+        self.assertEqual(
+            self._rel_tokens(
+                '<a target="_blank">(opens in new window) '
+                'Set rel="noopener" on links</a>',
+            ),
+            [],
+        )
+        self.assertEqual(
+            self._rel_tokens(
+                '<a href="/x" target="_blank" rel="noopener noreferrer">x</a>',
+            ),
+            ["noopener", "noreferrer"],
+        )
 
     def test_the_included_note_matches_the_constant(self) -> None:
         # The announcement check accepts the include directive without
