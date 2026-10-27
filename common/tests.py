@@ -879,6 +879,13 @@ class ThemeTogglePlacementTests(TestCase):
         # could cover content and focused elements on small screens.
         self.assertNotIn("fixed", self.toggle.ancestor_classes)
 
+    def test_toggle_is_not_hidden(self) -> None:
+        # Being inside the navigation bar is not enough if the toggle, or an
+        # element wrapping it, has the hidden class or the hidden attribute.
+        for element in [*self.toggle.ancestors, self.toggle.attrs]:
+            self.assertNotIn("hidden", element.get("class", "").split(), element)
+            self.assertNotIn("hidden", element)
+
     def test_only_one_toggle_is_rendered(self) -> None:
         # Guards against the old floating one being left behind alongside the
         # new one, which would duplicate the id and break the theme script.
