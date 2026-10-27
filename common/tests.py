@@ -797,8 +797,11 @@ NEW_WINDOW_WRAPPER = "opens_in_new_window.html"
 
 # A link that opens a new window. The quotes are optional (target=_blank is
 # valid HTML), but the value has to end there, so target="_blanket" is not one.
+# The name has to start there too: \b would match inside data-target, so the
+# attribute can't follow a letter, digit, underscore or hyphen. It can follow a
+# template tag, as in {% if %}target="_blank".
 NEW_WINDOW_LINK = re.compile(
-    r"<a\b[^>]*?\btarget\s*=\s*([\"']?)_blank\1(?![\w-]).*?</a>",
+    r"<a\b[^>]*?(?<![\w-])target\s*=\s*([\"']?)_blank\1(?![\w-]).*?</a>",
     re.DOTALL,
 )
 
@@ -911,6 +914,7 @@ class NewWindowLinkPatternTests(TestCase):
             '<a href="/x" target="_blanket">x</a>',
             "<a href=/x target=_blank-ish>x</a>",
             '<a href="/x" target="_self">x</a>',
+            '<a href="/x" data-target="_blank">x</a>',
         ):
             with self.subTest(link=link):
                 self.assertIsNone(NEW_WINDOW_LINK.search(link))
