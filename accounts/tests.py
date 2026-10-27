@@ -628,5 +628,5 @@ class RegistrationStatusPagesTest(TestCase):
         response = self.client.get(reverse("django_registration_disallowed"))
 
         self.assertContains(response, "Registration is Closed")
-        self.assertContains(response, '<a href="/contact" class="link link-primary">')
+        self.assertContains(response, '<a href="/contact/" class="link link-primary">')
         self.assertContains(response, '<a href="/" class="btn btn-outline">')
