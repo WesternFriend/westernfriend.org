@@ -101,6 +101,28 @@ class HeadingBlock(wagtail_blocks.StructBlock):
 CAPTIONS_NOT_VTT_ERROR = (
     "Captions must be a WebVTT (.vtt) file. '%(filename)s' is not a .vtt file."
 )
+CAPTIONS_NO_WEBVTT_HEADER_ERROR = (
+    "Captions must be a WebVTT (.vtt) file. '%(filename)s' does not start with WEBVTT."
+)
+
+_UTF8_BOM = b"\xef\xbb\xbf"
+_WEBVTT_SIGNATURE = b"WEBVTT"
+# A space or tab (before a header comment), a line break, or the end of an
+# otherwise empty file.
+_AFTER_WEBVTT_SIGNATURE = (b" ", b"\t", b"\n", b"\r", b"")
+
+
+def starts_with_webvtt_signature(file) -> bool:
+    """Return whether an open binary file starts with the WebVTT signature.
+
+    The WebVTT spec allows a UTF-8 byte order mark, then requires ``WEBVTT``
+    followed by a space, a tab, a line break, or the end of the file. Only
+    those first bytes are read; the cues are not parsed.
+    """
+    head = file.read(len(_UTF8_BOM) + len(_WEBVTT_SIGNATURE) + 1)
+    head = head.removeprefix(_UTF8_BOM)
+    after = head[len(_WEBVTT_SIGNATURE) : len(_WEBVTT_SIGNATURE) + 1]
+    return head.startswith(_WEBVTT_SIGNATURE) and after in _AFTER_WEBVTT_SIGNATURE
 
 
 def validate_webvtt_document(document) -> None:
@@ -108,11 +130,21 @@ def validate_webvtt_document(document) -> None:
 
     Without this, any document the editor picks is rendered as a caption
     ``<track>``: a PDF or an image produces a track the browser cannot parse,
-    so the captions silently never appear.
+    so the captions silently never appear. The same happens to a file that
+    only has the .vtt extension, such as a renamed SubRip (.srt) file, so the
+    file must also start with the WebVTT signature.
     """
     if document.file_extension.lower() != "vtt":
         raise ValidationError(
             CAPTIONS_NOT_VTT_ERROR,
+            code="invalid_caption_format",
+            params={"filename": document.filename},
+        )
+    with document.open_file() as file:
+        is_webvtt = starts_with_webvtt_signature(file)
+    if not is_webvtt:
+        raise ValidationError(
+            CAPTIONS_NO_WEBVTT_HEADER_ERROR,
             code="invalid_caption_format",
             params={"filename": document.filename},
         )

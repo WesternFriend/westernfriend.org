@@ -1,6 +1,8 @@
 import shutil
 import tempfile
+from contextlib import nullcontext
 from html.parser import HTMLParser
+from io import BytesIO
 from unittest.mock import Mock
 
 from django.contrib.auth import get_user_model
@@ -181,10 +183,11 @@ class MediaBlockTest(TestCase):
 
 class ValidateWebVttDocumentTest(TestCase):
     @staticmethod
-    def _document(extension: str) -> Mock:
+    def _document(extension: str, contents: bytes = b"WEBVTT\n") -> Mock:
         document = Mock()
         document.file_extension = extension
         document.filename = f"captions.{extension}"
+        document.open_file = lambda: nullcontext(BytesIO(contents))
         return document
 
     def test_accepts_a_vtt_document(self) -> None:
@@ -201,6 +204,38 @@ class ValidateWebVttDocumentTest(TestCase):
     def test_rejects_a_document_with_no_extension(self) -> None:
         with self.assertRaises(ValidationError):
             validate_webvtt_document(self._document(""))
+
+    def test_accepts_a_byte_order_mark_before_the_signature(self) -> None:
+        # Editors that save UTF-8 with a BOM are still writing valid WebVTT.
+        validate_webvtt_document(
+            self._document("vtt", b"\xef\xbb\xbfWEBVTT\n\n00:00.000 --> 00:01.000\n"),
+        )
+
+    def test_accepts_what_the_spec_allows_after_the_signature(self) -> None:
+        for contents in (
+            b"WEBVTT Kind: captions\n",
+            b"WEBVTT\tTitle\n",
+            b"WEBVTT\r\n",
+            b"WEBVTT",
+        ):
+            with self.subTest(contents=contents):
+                validate_webvtt_document(self._document("vtt", contents))
+
+    def test_rejects_a_vtt_document_without_the_signature(self) -> None:
+        # The extension alone lets a renamed SubRip file through, and the
+        # browser can't parse it as captions.
+        for contents in (
+            b"1\n00:00:00,000 --> 00:00:01,000\nHello\n",
+            b"%PDF-1.4",
+            b"",
+            b"WEBVTTX\n",
+            b"webvtt\n",
+            b" WEBVTT\n",
+        ):
+            with self.subTest(contents=contents):
+                with self.assertRaises(ValidationError) as raised:
+                    validate_webvtt_document(self._document("vtt", contents))
+                self.assertIn("does not start with WEBVTT", str(raised.exception))
 
 
 class MediaChooserBlockTest(TestCase):
@@ -223,7 +258,18 @@ class MediaChooserBlockTest(TestCase):
         self.assertEqual(self.block.render_basic(None), "")
 
 
-class MediaBlockCaptionsValidationTest(TestCase):
+class _TemporaryMediaRootMixin:
+    """Keep uploaded test files out of the real media folder."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        media_root = tempfile.mkdtemp(prefix="media-block-tests-")
+        cls.addClassCleanup(shutil.rmtree, media_root, ignore_errors=True)
+        cls.enterClassContext(override_settings(MEDIA_ROOT=media_root))
+        super().setUpClass()
+
+
+class MediaBlockCaptionsValidationTest(_TemporaryMediaRootMixin, TestCase):
     """The captions chooser must reject a non-WebVTT document *through the block*,
     not only via the standalone validator. Otherwise the validator could exist
     but never run when an editor selects a file, and the direct-call test above
@@ -249,20 +295,27 @@ class MediaBlockCaptionsValidationTest(TestCase):
         )
         self.assertEqual(self._captions_block().clean(vtt), vtt)
 
+    def test_block_rejects_a_vtt_document_that_is_not_webvtt(self) -> None:
+        srt = Document.objects.create(
+            title="renamed subrip",
+            file=SimpleUploadedFile(
+                "renamed.vtt",
+                b"1\n00:00:00,000 --> 00:00:01,000\nHello\n",
+            ),
+        )
+        with self.assertRaises(ValidationError):
+            self._captions_block().clean(srt)
+
+    def test_block_accepts_a_webvtt_document_with_a_byte_order_mark(self) -> None:
+        vtt = Document.objects.create(
+            title="captions with a BOM",
+            file=SimpleUploadedFile("bom.vtt", b"\xef\xbb\xbfWEBVTT\n"),
+        )
+        self.assertEqual(self._captions_block().clean(vtt), vtt)
+
     def test_optional_empty_caption_is_valid(self) -> None:
         # required=False, so no selection must stay valid.
         self.assertIsNone(self._captions_block().clean(None))
-
-
-class _TemporaryMediaRootMixin:
-    """Keep uploaded test files out of the real media folder."""
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        media_root = tempfile.mkdtemp(prefix="media-block-tests-")
-        cls.addClassCleanup(shutil.rmtree, media_root, ignore_errors=True)
-        cls.enterClassContext(override_settings(MEDIA_ROOT=media_root))
-        super().setUpClass()
 
 
 class MediaBlockLegacyValueTest(_TemporaryMediaRootMixin, TestCase):
@@ -344,6 +397,13 @@ class ServeCaptionsViewTest(_TemporaryMediaRootMixin, TestCase):
             file=ContentFile(b"%PDF-1.4", name="notes.pdf"),
         )
         self.assertEqual(self.client.get(self._url(pdf)).status_code, 404)
+
+    def test_a_vtt_document_without_the_signature_is_not_found(self) -> None:
+        renamed = Document.objects.create(
+            title="notes",
+            file=ContentFile(b"%PDF-1.4", name="notes.vtt"),
+        )
+        self.assertEqual(self.client.get(self._url(renamed)).status_code, 404)
 
     def test_post_is_not_allowed(self) -> None:
         self.assertEqual(self.client.post(self._url(self.captions)).status_code, 405)

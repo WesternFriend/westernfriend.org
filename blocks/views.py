@@ -5,6 +5,8 @@ from wagtail import hooks
 from wagtail.documents import get_document_model
 from wagtail.documents.models import document_served
 
+from .blocks import starts_with_webvtt_signature
+
 CAPTIONS_CONTENT_TYPE = "text/vtt; charset=utf-8"
 
 
@@ -24,8 +26,9 @@ def serve_captions(
     It applies the same checks as Wagtail's document view, so private
     collections stay private: the filename must match, and every
     ``before_serve_document`` hook (including collection view restrictions)
-    runs first. Only ``.vtt`` documents are served, so this cannot be used to
-    stream other documents past the usual redirect.
+    runs first. Only ``.vtt`` documents that start with the WebVTT signature
+    are served, so this cannot be used to stream other documents past the
+    usual redirect, even one renamed to .vtt.
     """
     document_model = get_document_model()
     document = get_object_or_404(document_model, id=document_id)
@@ -41,6 +44,14 @@ def serve_captions(
         result = hook(document, request)
         if isinstance(result, HttpResponse):
             return result
+
+    # Read the signature from the file that is then streamed, so remote
+    # storage downloads it once.
+    document.file.open("rb")
+    if not starts_with_webvtt_signature(document.file):
+        document.file.close()
+        raise Http404
+    document.file.seek(0)
 
     document_served.send(sender=document_model, instance=document, request=request)
 
