@@ -133,9 +133,14 @@ def live_page_url_by_slug(context, slug: str):
     Lets a template link to an editor-created page without the link turning
     into a 404 before that page exists.
 
-    The lookup is scoped to the current Wagtail site, so a multi-site install
-    never links one site's footer to another site's page, nor to an unrelated
-    page elsewhere in the tree that happens to share the slug.
+    Only direct children of the current Wagtail site's home page are
+    considered, which is where docs/accessibility-statement.md and the
+    create_accessibility_statement command put the page. Wagtail keeps slugs
+    unique among siblings, so at most one page matches. A multi-site install
+    never links one site's footer to another site's page, and a deeper page in
+    the same site that happens to share the slug is never picked. Without a
+    request, or when no site matches it, any live, public page with the slug
+    can match.
 
     It queries the page tree on each call rather than caching the URL.
     Production keeps the Django cache in PostgreSQL, so a cache read would be a
@@ -147,9 +152,9 @@ def live_page_url_by_slug(context, slug: str):
     site = Site.find_for_request(request) if request else None
     pages = Page.objects.live().public().filter(slug=slug)
     if site is not None:
-        # Only pages under this site's root, so a shared slug on another
-        # site (or an unrelated subtree) can't be picked up.
-        pages = pages.descendant_of(site.root_page, inclusive=True)
+        # Only the home page's own children, so a shared slug on another
+        # site, or deeper in this one, can't be picked up.
+        pages = pages.child_of(site.root_page)
     page = pages.first()
     if page is None:
         return None

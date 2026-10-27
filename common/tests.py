@@ -841,6 +841,22 @@ class AccessibilityStatementFooterLinkTest(TestCase):
 
         self.assertNotIn("Accessibility", self._footer())
 
+    def test_links_to_the_home_page_child_not_a_nested_namesake(self) -> None:
+        # Slugs are only unique among siblings, so a section can hold its own
+        # "accessibility" page. The statement is the one directly under home,
+        # even when the nested page was published first.
+        section = self.home.add_child(instance=Page(title="About", slug="about"))
+        nested = section.add_child(
+            instance=Page(title="Accessibility", slug="accessibility"),
+        )
+        nested.save_revision().publish()
+        self._publish()
+
+        footer = self._footer()
+
+        self.assertIn('href="/accessibility/"', footer)
+        self.assertNotIn('href="/about/accessibility/"', footer)
+
     @override_settings(CACHES=DATABASE_CACHES)
     def test_footer_link_adds_no_cache_read_to_a_page(self) -> None:
         # The footer is on every page, and production keeps the Django cache in
@@ -909,6 +925,16 @@ class LivePageUrlBySlugTest(TestCase):
             page=page,
             restriction_type=PageViewRestriction.LOGIN,
         )
+
+        self.assertIsNone(
+            live_page_url_by_slug(self._context(), "accessibility"),
+        )
+
+    def test_ignores_a_page_nested_below_a_home_child(self) -> None:
+        # The docs and the create command put the statement directly under
+        # home, so a deeper page that shares the slug is some other page.
+        section = self.home.add_child(instance=Page(title="About", slug="about"))
+        self._publish_accessibility(parent=section)
 
         self.assertIsNone(
             live_page_url_by_slug(self._context(), "accessibility"),
