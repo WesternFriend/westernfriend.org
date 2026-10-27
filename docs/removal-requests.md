@@ -10,8 +10,10 @@ own site. We can only ask the Internet Archive.
 
 ## Who decides
 
-The editor decides, the same as for any other editorial change. Nothing here
-needs a developer.
+The editor decides, the same as for any other editorial change. Editing the
+page, unpublishing it or making it private needs no developer. Removing an
+entry that still shows on a listing does; see
+[Check the listings too](#check-the-listings-too).
 
 Talk to the maintainer before asking the Internet Archive to exclude anything,
 since an exclusion can cover a whole domain rather than one page.
@@ -76,11 +78,11 @@ existing results may take time to clear, instead of promising they will go.
 Unpublishing a page or making it private only affects that page. Details can
 remain on the listings that link to it, so look at those as well as the page
 address before telling anyone the entry is no longer visible. For a memorial,
-the person's name and their dates of birth and death stay on the memorials
-index, and their name stays under "Memorials" on the memorial meeting's page,
-whether the memorial has been unpublished or made private. Site search still
-finds a page that has been made private, though not one that has been
-unpublished.
+the memorial's title stays on the memorials index, together with whichever of
+its dates of birth and death are filled in, and the person's name stays under
+"Memorials" on the memorial meeting's page, whether the memorial has been
+unpublished or made private. Site search still finds a page that has been made
+private, though not one that has been unpublished.
 
 This is a fault in the site rather than something the editor has done wrong:
 those listings should leave out unpublished and private pages, and at present
