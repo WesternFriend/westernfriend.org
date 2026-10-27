@@ -96,8 +96,10 @@ There is no setting in the admin that hides a listing entry, so report it to
 whoever maintains the site and ask for the entry to be removed. Tell the
 requester where it stands rather than leaving them to find it: say which was
 done — the page is unpublished and its address now shows "page not found", or
-the page is private and no longer opens for readers — that one listing still
-carries the name, and that removing the listing entry needs a developer. A
+the page is private and no longer opens for readers — which listing still
+shows the entry and what it shows (the memorial's title on the memorials
+index, or the person's name on the meeting's page), and that removing the
+listing entry needs a developer. A
 request is only complete once that entry is gone too.
 
 ## Asking the Internet Archive
