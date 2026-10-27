@@ -795,6 +795,21 @@ NEW_WINDOW_INCLUDE = "new_window_note.txt"
 NEW_WINDOW_WRAPPER = "opens_in_new_window.html"
 
 
+# A link that opens a new window. The quotes are optional (target=_blank is
+# valid HTML), but the value has to end there, so target="_blanket" is not one.
+NEW_WINDOW_LINK = re.compile(
+    r"<a\b[^>]*?\btarget\s*=\s*([\"']?)_blank\1(?![\w-]).*?</a>",
+    re.DOTALL,
+)
+
+
+def includes_template(name: str, source: str) -> bool:
+    # The template has to be included, not just named: a URL or label that
+    # merely mentions the filename does not announce anything.
+    pattern = r"\{%\s*include\s+([\"'])" + re.escape(name) + r"\1"
+    return re.search(pattern, source) is not None
+
+
 class NewWindowLinkPatternTests(TestCase):
     """Links that open a new window announce it the same way everywhere."""
 
@@ -810,11 +825,7 @@ class NewWindowLinkPatternTests(TestCase):
     def _links_opening_a_new_window(self):
         for path in self._template_files():
             markup = path.read_text(encoding="utf-8")
-            for match in re.finditer(
-                r"<a\b[^>]*?\btarget\s*=\s*([\"'])_blank\1.*?</a>",
-                markup,
-                re.DOTALL,
-            ):
+            for match in NEW_WINDOW_LINK.finditer(markup):
                 yield path, match.group(0)
 
     @staticmethod
@@ -825,10 +836,13 @@ class NewWindowLinkPatternTests(TestCase):
         label = re.search(r"\baria-label\s*=\s*([\"'])(.*?)\1", link, re.DOTALL)
         if label:
             text = label.group(2)
-            return NEW_WINDOW_NOTE in text or NEW_WINDOW_INCLUDE in text
+            return NEW_WINDOW_NOTE in text or includes_template(
+                NEW_WINDOW_INCLUDE,
+                text,
+            )
         return (
-            NEW_WINDOW_WRAPPER in link
-            or NEW_WINDOW_INCLUDE in link
+            includes_template(NEW_WINDOW_WRAPPER, link)
+            or includes_template(NEW_WINDOW_INCLUDE, link)
             or NEW_WINDOW_NOTE in link
         )
 
@@ -882,6 +896,50 @@ class NewWindowLinkPatternTests(TestCase):
                 '<a href="/x" target="_blank" rel="noopener noreferrer">x</a>',
             ),
             ["noopener", "noreferrer"],
+        )
+
+    def test_the_scan_finds_unquoted_targets_but_not_near_misses(self) -> None:
+        for link in (
+            '<a href="/x" target="_blank">x</a>',
+            "<a href='/x' target='_blank'>x</a>",
+            "<a href=/x target=_blank>x</a>",
+            '<a href="/x" {% if y %}target="_blank"{% endif %}>x</a>',
+        ):
+            with self.subTest(link=link):
+                self.assertIsNotNone(NEW_WINDOW_LINK.search(link))
+        for link in (
+            '<a href="/x" target="_blanket">x</a>',
+            "<a href=/x target=_blank-ish>x</a>",
+            '<a href="/x" target="_self">x</a>',
+        ):
+            with self.subTest(link=link):
+                self.assertIsNone(NEW_WINDOW_LINK.search(link))
+
+    def test_naming_the_template_is_not_including_it(self) -> None:
+        # A URL or label that only mentions the filename announces nothing.
+        self.assertFalse(
+            self._announces_new_window(
+                '<a href="/docs/opens_in_new_window.html" target="_blank" '
+                'rel="noopener">Docs</a>',
+            ),
+        )
+        self.assertFalse(
+            self._announces_new_window(
+                '<a href="/x" target="_blank" rel="noopener" '
+                'aria-label="See new_window_note.txt">x</a>',
+            ),
+        )
+        self.assertTrue(
+            self._announces_new_window(
+                '<a href="/x" target="_blank" rel="noopener">x'
+                '{% include "opens_in_new_window.html" %}</a>',
+            ),
+        )
+        self.assertTrue(
+            self._announces_new_window(
+                '<a href="/x" target="_blank" rel="noopener" '
+                "aria-label=\"Visit {% include 'new_window_note.txt' %}\">x</a>",
+            ),
         )
 
     def test_the_included_note_matches_the_constant(self) -> None:
