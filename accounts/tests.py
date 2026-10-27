@@ -577,6 +577,25 @@ class AccountPagesAreNoindexTest(TestCase):
         # Without this the assertion above would pass by matching nothing.
         self.assertGreaterEqual(len(list(self._page_templates())), 10)
 
+    def test_account_pages_render_the_noindex_tag(self) -> None:
+        # The source check passes on an empty override, a wrong content value,
+        # or base.html dropping the block, so render the pages too.
+        for url_name in (
+            "login",
+            "django_registration_register",
+            "django_registration_activation_complete",
+            "password_reset",
+            "password_reset_done",
+            "password_reset_complete",
+        ):
+            with self.subTest(url_name=url_name):
+                response = self.client.get(reverse(url_name))
+
+                self.assertContains(
+                    response,
+                    '<meta name="robots" content="noindex" />',
+                )
+
 
 class RegistrationConfirmationTest(TestCase):
     """After registering, people are told to check their email (#961)."""
