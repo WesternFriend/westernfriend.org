@@ -11,6 +11,13 @@ from django_registration.backends.activation.views import (
 
 from accounts.forms import CustomUserForm
 
+CHECK_EMAIL_MESSAGE = (
+    "Thanks for starting to register an account on our website. "
+    "To complete your registration, please check your email for a message "
+    "from us. You should have just received one. Please look in your spam "
+    "or junk folder if our message is not in your inbox."
+)
+
 
 class CustomRegistrationView(RegistrationView):
     form_class = CustomUserForm
@@ -18,11 +25,9 @@ class CustomRegistrationView(RegistrationView):
     template_name = "django_registration/registration_form.html"
 
     def form_valid(self, form):
-        check_email_message = """Thanks for starting to register an account on our website.
-        To complete your registration, please check your email for an message from us.
-        You should have just received one. Please look in your spam / junk folder if our message is not in your inbox"""
-        # notice we use `self.request` here since the request is a member of the CustomRegistrationView instance
-        messages.info(self.request, check_email_message)
+        # Registration redirects to the home page, so without this the person
+        # gets no sign that it worked or that an email is on its way.
+        messages.info(self.request, CHECK_EMAIL_MESSAGE)
 
         return super().form_valid(form)
 

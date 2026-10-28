@@ -7,11 +7,13 @@ from django.db import connection, reset_queries
 from django.http import HttpResponse
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone
 from wagtail.images import get_image_model
 from wagtail.images.models import Rendition
 from wagtail.images.tests.utils import get_test_image_file
 from wagtail.models import Page, Site
+from wagtail.search.backends import get_search_backend
 
 from accounts.models import User
 from common.cache_queries import (
@@ -428,6 +430,61 @@ class MagazineTagIndexPageTest(TestCase):
             self.article3,
             context["articles"],
         )
+
+    def test_tagged_articles_are_h2_under_the_page_h1(self) -> None:
+        # The list sits directly under the page's <h1>, so an <h3> title
+        # would skip a heading level.
+        response = self.client.get(f"{self.magazine_tag_index_page.url}?tag=Python")
+        html = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertRegex(
+            html,
+            r'<h2 class="card-title">\s*<a href="[^"]*">\s*Article 1',
+        )
+        self.assertNotIn('<h3 class="card-title">', html)
+
+
+class MagazineArticleSummaryHeadingTest(TestCase):
+    """The article card's title level follows the page it is listed on."""
+
+    def setUp(self) -> None:
+        root = Site.objects.get(is_default_site=True).root_page
+        magazine_index = MagazineIndexPage(title="Magazine")
+        root.add_child(instance=magazine_index)
+        department_index = MagazineDepartmentIndexPage(title="Departments")
+        magazine_index.add_child(instance=department_index)
+        self.department = MagazineDepartment(title="Heading Department")
+        department_index.add_child(instance=self.department)
+        self.article = MagazineArticle(
+            title="Heading Level Article",
+            department=self.department,
+        )
+        magazine_index.add_child(instance=self.article)
+
+    def test_department_page_keeps_h3_under_its_articles_h2(self) -> None:
+        response = self.client.get(self.department.url)
+        html = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('<h2 id="articles-heading">', html)
+        self.assertRegex(
+            html,
+            r'<h3 class="card-title">\s*<a href="[^"]*">\s*Heading Level Article',
+        )
+
+    def test_search_result_is_h2_under_the_search_h1(self) -> None:
+        get_search_backend().add(self.article)
+
+        response = self.client.get(reverse("search"), {"query": "Heading Level"})
+        html = response.content.decode()
+
+        self.assertTemplateUsed(response, "search/magazine_article.html")
+        self.assertRegex(
+            html,
+            r'<h2 class="card-title">\s*<a href="[^"]*">\s*Heading Level Article',
+        )
+        self.assertNotIn('<h3 class="card-title">', html)
 
 
 class MagazineDepartmentIndexPageTest(TestCase):
