@@ -2,9 +2,10 @@ import json
 
 from django import template
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Exists, OuterRef, Q
 from django.templatetags.static import static
 from django.utils.safestring import SafeString, mark_safe
-from wagtail.models import Page, Site
+from wagtail.models import Page, PageViewRestriction, Site
 
 register = template.Library()
 
@@ -147,15 +148,30 @@ def live_page_url_by_slug(context, slug: str):
     query too, and a cached URL would also have to be invalidated whenever the
     page is published, unpublished, moved, or restricted. A direct query is
     always current.
+
+    The footer renders it on every page. With a site, the lookup is one query
+    whether or not the page exists (building the URL can also read the site
+    root paths from the cache).
     """
     request = context.get("request")
     site = Site.find_for_request(request) if request else None
-    pages = Page.objects.live().public().filter(slug=slug)
-    if site is not None:
+    pages = Page.objects.live().filter(slug=slug)
+    if site is None:
+        # Any live page may share the slug here, so leave out restricted
+        # ones in the query itself.
+        page = pages.public().first()
+    else:
         # Only the home page's own children, so a shared slug on another
-        # site, or deeper in this one, can't be picked up.
-        pages = pages.child_of(site.root_page)
-    page = pages.first()
+        # site, or deeper in this one, can't be picked up. A child of home is
+        # private if a view restriction is on it, on home, or above home, so
+        # that check goes into the same query. public() would read every view
+        # restriction in the database first.
+        root = site.root_page
+        restricted = PageViewRestriction.objects.filter(
+            Q(page=OuterRef("pk"))
+            | Q(page__in=Page.objects.ancestor_of(root, inclusive=True)),
+        )
+        page = pages.child_of(root).exclude(Exists(restricted)).first()
     if page is None:
         return None
     # Passing the request reuses its site root paths instead of reading them

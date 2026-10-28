@@ -931,6 +931,69 @@ class LivePageUrlBySlugTest(TestCase):
             live_page_url_by_slug(self._context(), "accessibility"),
         )
 
+    def test_ignores_a_page_under_a_private_section(self) -> None:
+        # A restriction on a page above it hides the statement too.
+        self._publish_accessibility()
+        PageViewRestriction.objects.create(
+            page=self.home,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        self.assertIsNone(
+            live_page_url_by_slug(self._context(), "accessibility"),
+        )
+
+    def test_ignores_a_page_when_the_whole_tree_is_private(self) -> None:
+        # A restriction above home, on the tree's root, covers home's children.
+        self._publish_accessibility()
+        PageViewRestriction.objects.create(
+            page=Page.objects.get(depth=1),
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        self.assertIsNone(
+            live_page_url_by_slug(self._context(), "accessibility"),
+        )
+
+    def test_ignores_a_private_page_without_a_request(self) -> None:
+        # Without a site any live page with the slug can match, so private
+        # ones are left out there too.
+        page = self._publish_accessibility()
+        PageViewRestriction.objects.create(
+            page=page,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        self.assertIsNone(live_page_url_by_slug({}, "accessibility"))
+
+    def test_keeps_a_page_when_another_section_is_private(self) -> None:
+        # Only restrictions on the statement or the pages above it count.
+        page = self._publish_accessibility()
+        members = self.home.add_child(instance=Page(title="Members", slug="members"))
+        PageViewRestriction.objects.create(
+            page=members,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        self.assertEqual(
+            live_page_url_by_slug(self._context(), "accessibility"),
+            page.url,
+        )
+
+    def test_costs_one_query_with_or_without_the_page(self) -> None:
+        # The footer runs this on every page, and search counts every query.
+        # In a real request the site is already found by the time the footer
+        # renders, so it is found first here too.
+        context = self._context()
+        Site.find_for_request(context["request"])
+
+        with self.assertNumQueries(1):
+            live_page_url_by_slug(context, "accessibility")
+
+        self._publish_accessibility()
+        with self.assertNumQueries(1):
+            live_page_url_by_slug(context, "accessibility")
+
     def test_ignores_a_page_nested_below_a_home_child(self) -> None:
         # The docs and the create command put the statement directly under
         # home, so a deeper page that shares the slug is some other page.
