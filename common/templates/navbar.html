@@ -25,14 +25,14 @@
 
             <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse">
                 <div class="flex flex-col xl:flex-row xl:items-center xl:space-x-1">
-                    <ul class="menu menu-horizontal menu-compact bg-black website-links" aria-label="Site navigation links">
+                    <ul class="menu menu-horizontal menu-sm bg-black website-links" aria-label="Site navigation links">
                         {# include_block renders each <li> without StreamField's wrapper <div>, keeping the list valid #}
                         {% for menu_item in settings.navigation.NavigationMenuSetting.menu_items %}
                             {% include_block menu_item %}
                         {% endfor %}
                     </ul>
 
-                    <ul class="menu menu-horizontal menu-compact bg-black xl:ml-2" aria-label="Account navigation">
+                    <ul class="menu menu-horizontal menu-sm bg-black xl:ml-2" aria-label="Account navigation">
                         <li class="nav-item">
                             {% if user.is_authenticated %}
                                 <form id="logout-form" method="post" action="{% url 'logout' %}?next={{ request.path }}">
@@ -55,10 +55,10 @@
                     </ul>
 
                     <form action="{% url 'search' %}" method="get" class="relative mt-2 mb-3 xl:mb-0 xl:mt-0 xl:ml-2" role="search">
-                        <div class="flex">
-                            <label for="navbar-search-input" class="sr-only">Search</label>
+                        <div class="flex items-center">
+                            <label for="navbar-search-input" class="text-sm text-white mr-2">Search</label>
                             <input id="navbar-search-input" name="query" type="search"
-                                   class="bg-[#ffefed] border-0 rounded-l-lg py-1 px-1 text-sm text-gray-800 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#aa3f2e] w-full"
+                                   class="bg-brand-soft border-0 rounded-l-lg py-1 px-1 text-sm text-gray-800 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand w-full"
                                    placeholder="Search" aria-label="Search" />
                             <button class="bg-gray-700 hover:bg-gray-800 text-white px-2 rounded-r-lg focus:ring-2 focus:ring-gray-300 focus:outline-none"
                                     type="submit" aria-label="Submit search">
