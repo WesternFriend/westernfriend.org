@@ -4,7 +4,22 @@ from collections import defaultdict
 from collections.abc import Iterable
 from io import BytesIO
 
-from wagtail.images.models import Filter
+from wagtail.images.models import Filter, SourceImageIOError
+
+# Must match the filters in blocks/blocks/formatted_image_block.html.
+BODY_IMAGE_RENDITION_SPEC = "width-800|jpegquality-80"
+
+
+def _prefetch_streamfield_renditions(stream_value, *filter_specs: str) -> None:
+    """Attach renditions to images already loaded on a StreamField."""
+    images = []
+    for child in stream_value:
+        if child.block_type != "image":
+            continue
+        image = child.value.get("image") if child.value else None
+        if image is not None:
+            images.append(image)
+    attach_renditions(images, *filter_specs)
 
 
 def attach_renditions(images: Iterable, *filter_specs: str) -> None:
@@ -27,7 +42,7 @@ def attach_renditions(images: Iterable, *filter_specs: str) -> None:
     rendition_model = representatives[0].get_rendition_model()
     image_ids = set(images_by_pk)
     grouped = _renditions_by_image(rendition_model, image_ids, specs)
-    created = _missing_renditions(representatives, specs, grouped)
+    created, unreadable_ids = _missing_renditions(representatives, specs, grouped)
     if created:
         rendition_model.objects.bulk_create(created, ignore_conflicts=True)
         grouped = _renditions_by_image(rendition_model, image_ids, specs)
@@ -39,6 +54,10 @@ def attach_renditions(images: Iterable, *filter_specs: str) -> None:
             rendition.image = copies[0]
         for image in copies:
             image.prefetched_renditions = renditions
+            if image_id in unreadable_ids:
+                # Prevent a second storage read and let Wagtail's image tag
+                # handle the failure without caching a placeholder rendition.
+                image.open_file = _unreadable_source
 
 
 def _images_by_pk(images: Iterable) -> dict[int, list]:
@@ -60,15 +79,24 @@ def _renditions_by_image(rendition_model, image_ids: set[int], specs: list[str])
     return grouped
 
 
-def _missing_renditions(images, specs: list[str], grouped) -> list:
+def _unreadable_source():
+    raise SourceImageIOError
+
+
+def _missing_renditions(images, specs: list[str], grouped) -> tuple[list, set]:
     to_create = []
+    unreadable_ids = set()
     for image in images:
         have = {rendition.filter_spec for rendition in grouped[image.pk]}
         missing = [spec for spec in specs if spec not in have]
         if not missing:
             continue
-        with image.open_file() as source_file:
-            original = source_file.read()
+        try:
+            with image.open_file() as source_file:
+                original = source_file.read()
+        except OSError:
+            unreadable_ids.add(image.pk)
+            continue
         for spec in missing:
             rendition_filter = image.clean_filter_for_svg(Filter(spec=spec))
             to_create.append(
@@ -77,4 +105,4 @@ def _missing_renditions(images, specs: list[str], grouped) -> list:
                     BytesIO(original),
                 ),
             )
-    return to_create
+    return to_create, unreadable_ids
