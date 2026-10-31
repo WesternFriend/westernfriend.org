@@ -361,6 +361,124 @@ class SecretKeySettingsTests(SimpleTestCase):
         self.assertEqual(core.settings.SECRET_KEY_FALLBACKS, [])
 
 
+class HttpsSettingsTests(SimpleTestCase):
+    """Production serves HTTPS behind a TLS-terminating proxy (#1225)."""
+
+    HTTPS_SETTINGS = (
+        "SECURE_PROXY_SSL_HEADER",
+        "SECURE_SSL_REDIRECT",
+        "SESSION_COOKIE_SECURE",
+        "CSRF_COOKIE_SECURE",
+        "SECURE_HSTS_SECONDS",
+        "SECURE_HSTS_INCLUDE_SUBDOMAINS",
+        "SECURE_HSTS_PRELOAD",
+    )
+    PRODUCTION = {"DJANGO_DEBUG": "false", "DJANGO_SECRET_KEY": "a-real-secret"}
+
+    def _reload_with(self, environment, argv=("manage.py", "runserver")):
+        # reload() re-runs the module in its existing namespace, so a setting
+        # left over from an earlier reload would hide a missing assignment.
+        for name in self.HTTPS_SETTINGS:
+            core.settings.__dict__.pop(name, None)
+        with (
+            mock.patch("dotenv.load_dotenv"),
+            mock.patch.dict("os.environ", environment, clear=True),
+            mock.patch.object(sys, "argv", list(argv)),
+        ):
+            importlib.reload(core.settings)
+
+    def setUp(self):
+        # reload() never deletes a name, so a production reload would leave
+        # these settings on core.settings for every later test. Remember which
+        # ones existed, and their values, so tearDown can put them back exactly.
+        self.original_https_settings = {
+            name: core.settings.__dict__[name]
+            for name in self.HTTPS_SETTINGS
+            if name in core.settings.__dict__
+        }
+
+    def tearDown(self):
+        importlib.reload(core.settings)
+        for name in self.HTTPS_SETTINGS:
+            if name in self.original_https_settings:
+                setattr(core.settings, name, self.original_https_settings[name])
+            else:
+                core.settings.__dict__.pop(name, None)
+
+    def test_production_trusts_the_proxy_and_requires_https(self):
+        self._reload_with(self.PRODUCTION)
+
+        self.assertEqual(
+            core.settings.SECURE_PROXY_SSL_HEADER,
+            ("HTTP_X_FORWARDED_PROTO", "https"),
+        )
+        self.assertTrue(core.settings.SECURE_SSL_REDIRECT)
+        self.assertTrue(core.settings.SESSION_COOKIE_SECURE)
+        self.assertTrue(core.settings.CSRF_COOKIE_SECURE)
+
+    def test_hsts_starts_short_without_subdomains_or_preload(self):
+        self._reload_with(self.PRODUCTION)
+
+        self.assertEqual(core.settings.SECURE_HSTS_SECONDS, 3600)
+        self.assertFalse(core.settings.SECURE_HSTS_INCLUDE_SUBDOMAINS)
+        self.assertFalse(core.settings.SECURE_HSTS_PRELOAD)
+
+    def test_hsts_max_age_can_be_raised_from_the_environment(self):
+        self._reload_with(
+            {**self.PRODUCTION, "DJANGO_SECURE_HSTS_SECONDS": "31536000"},
+        )
+
+        self.assertEqual(core.settings.SECURE_HSTS_SECONDS, 31536000)
+
+    def test_ssl_redirect_can_be_turned_off_from_the_environment(self):
+        self._reload_with({**self.PRODUCTION, "DJANGO_SECURE_SSL_REDIRECT": "false"})
+
+        self.assertFalse(core.settings.SECURE_SSL_REDIRECT)
+
+    def test_no_ssl_redirect_while_running_tests(self):
+        # The test client makes plain-HTTP requests.
+        self._reload_with(self.PRODUCTION, argv=("manage.py", "test"))
+
+        self.assertFalse(core.settings.SECURE_SSL_REDIRECT)
+
+    def test_local_development_is_left_on_plain_http(self):
+        self._reload_with({"DJANGO_DEBUG": "true"})
+
+        for name in self.HTTPS_SETTINGS:
+            self.assertNotIn(name, vars(core.settings), name)
+
+    def test_ngrok_is_not_a_default_host(self):
+        self._reload_with({"DJANGO_DEBUG": "true"})
+
+        self.assertNotIn("westernfriend.eu.ngrok.io", core.settings.ALLOWED_HOSTS)
+        self.assertFalse(
+            any("ngrok" in origin for origin in core.settings.CSRF_TRUSTED_ORIGINS),
+        )
+
+
+class HttpsEmailLinkTests(TestCase):
+    @override_settings(
+        SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"),
+        MAILERS={
+            "default": {
+                "BACKEND": "django.core.mail.backends.locmem.EmailBackend",
+            },
+        },
+    )
+    def test_password_reset_link_uses_https_behind_the_proxy(self):
+        user = User.objects.create_user(email="https@example.com", password="x")
+
+        self.client.post(
+            reverse("password_reset"),
+            {"email": user.email},
+            headers={"x-forwarded-proto": "https"},
+        )
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("https://", mail.outbox[0].body)
+        self.assertNotIn("http://", mail.outbox[0].body)
+
+
 class CacheSettingsEnvironmentTests(SimpleTestCase):
     def test_database_cache_when_enabled(self):
         """DJANGO_DATABASE_CACHE=True → DatabaseCache on the django_cache table."""
