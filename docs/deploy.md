@@ -248,7 +248,7 @@ This builds the currently deployed standalone code as well as the npm migration.
 
 After the migration deploy succeeds, simplify the live command to the permanent command above. Check the site's stylesheet URL points at Spaces and that the library filters, checkout, and registration forms are styled in light and dark themes.
 
-**Rolling back:** set the build command back to the one you noted in step 1 and remove `DISABLE_COLLECTSTATIC`. Without a committed CSS file, the site then has no stylesheet, so also revert the commit that stopped committing it.
+**Rolling back:** restore the previous code and temporary build command together. Keep `DISABLE_COLLECTSTATIC=1` and collect files after compiling CSS.
 
 ## Serve the site over HTTPS behind the proxy
 

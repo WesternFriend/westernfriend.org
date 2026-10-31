@@ -41,7 +41,9 @@ REDIRECT_HOSTS = [
     if host.strip()
 ]
 
-default_csrf_trusted_origins = "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost"
+default_csrf_trusted_origins = (
+    "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost"
+)
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "DJANGO_CSRF_TRUSTED_ORIGINS",
