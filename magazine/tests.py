@@ -595,6 +595,8 @@ class MagazineDepartmentTest(TestCase):
 
 class MagazineArticleTest(TestCase):
     def setUp(self) -> None:
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
         self.admin_user = User.objects.create_superuser(
             email="admin@email.com",
             password="password",  # nosec - Banned password
