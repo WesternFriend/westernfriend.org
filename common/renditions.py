@@ -82,8 +82,12 @@ def _missing_renditions(images, specs: list[str], grouped) -> list:
         missing = [spec for spec in specs if spec not in have]
         if not missing:
             continue
-        with image.open_file() as source_file:
-            original = source_file.read()
+        try:
+            with image.open_file() as source_file:
+                original = source_file.read()
+        except OSError:
+            # Let Wagtail's image tag supply its missing-image fallback.
+            continue
         for spec in missing:
             rendition_filter = image.clean_filter_for_svg(Filter(spec=spec))
             to_create.append(

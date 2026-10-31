@@ -701,6 +701,32 @@ class MagazineArticleTest(TestCase):
         self.assertFalse(context["user_can_view_full_article"])
         prefetch.assert_not_called()
 
+    def test_missing_body_image_does_not_prevent_article_rendering(self) -> None:
+        image_model = get_image_model()
+        missing = image_model.objects.create(
+            title="Missing image",
+            file=get_test_image_file(filename="missing-article.gif"),
+        )
+        healthy = image_model.objects.create(
+            title="Available image",
+            file=get_test_image_file(filename="available-article.gif"),
+        )
+        self.archive_magazine_article.body = [
+            image_block(missing),
+            image_block(healthy),
+        ]
+        self.archive_magazine_article.save()
+        missing.file.close()
+        missing.file.storage.delete(missing.file.name)
+        cache.clear()
+
+        response = self.client.get(self.archive_magazine_article.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "not-found")
+        rendition = healthy.renditions.get(filter_spec=BODY_IMAGE_RENDITION_SPEC)
+        self.assertContains(response, rendition.url)
+
     def test_get_sitemap_urls(self) -> None:
         """Validate the output of get_sitemap_urls."""
 
