@@ -361,6 +361,8 @@ class MagazineIssueTest(TestCase):
 
 class MagazineTagIndexPageTest(TestCase):
     def setUp(self) -> None:
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
         self.factory = RequestFactory()
         self.root = Site.objects.get(is_default_site=True).root_page
 
