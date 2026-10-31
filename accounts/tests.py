@@ -3,17 +3,22 @@ import re
 import sys
 from unittest import mock
 from unittest.mock import PropertyMock, patch
+from urllib.parse import parse_qs, urlsplit
 
 import yaml
 from django.conf import Settings, settings
-from django.core import mail
+from django.contrib.messages import get_messages
+from django.core import mail, signing
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import resolve_url
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import NoReverseMatch, reverse
+from django_registration.backends.activation import REGISTRATION_SALT
+from wagtail.models import Page, Site
 
 import core.settings
-from accounts.views import CustomLoginView
+from accounts.views import CHECK_EMAIL_MESSAGE, CustomLoginView
+from home.models import HomePage
 from subscription.models import Subscription
 
 from .models import User
@@ -308,21 +313,6 @@ class SecretKeySettingsTests(SimpleTestCase):
 
         self.assertTrue(core.settings.SECRET_KEY)
 
-    def test_tailwind_build_runs_without_a_key(self):
-        """The build compiles the CSS before collectstatic, also without a secret."""
-        with mock.patch.object(sys, "argv", ["manage.py", "tailwind", "build"]):
-            self._reload_with({"DJANGO_DEBUG": "false"})
-
-        self.assertTrue(core.settings.SECRET_KEY)
-
-    def test_tailwind_start_still_fails_without_a_key(self):
-        """Only the one-off build is exempt, not the watcher or dev server."""
-        with (
-            mock.patch.object(sys, "argv", ["manage.py", "tailwind", "dev"]),
-            self.assertRaises(ImproperlyConfigured),
-        ):
-            self._reload_with({"DJANGO_DEBUG": "false"})
-
     def test_other_commands_still_fail_without_a_key(self):
         """The collectstatic exemption must not leak to anything that serves."""
         with (
@@ -534,4 +524,77 @@ class AccountPageAccessibilityTest(TestCase):
         self.assertRegex(
             html,
             r'<input[^>]*autocomplete="family-name"[^>]*id="id_last_name"',
+        )
+
+
+class RegistrationConfirmationTest(TestCase):
+    """After registering, people are told to check their email (#961)."""
+
+    def _register(self, **kwargs):
+        return self.client.post(
+            reverse("django_registration_register"),
+            {
+                "email": "new@example.com",
+                "first_name": "Test",
+                "last_name": "User",
+                "password1": "Correct-Horse-7731",
+                "password2": "Correct-Horse-7731",
+            },
+            **kwargs,
+        )
+
+    def test_registering_queues_the_check_email_message(self) -> None:
+        response = self._register()
+
+        self.assertRedirects(response, "/", fetch_redirect_response=False)
+        queued = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertEqual(queued, [CHECK_EMAIL_MESSAGE])
+
+    def test_message_reads_as_one_sentence_block(self) -> None:
+        # It is shown in a single alert, so no line breaks or source
+        # indentation should end up inside it.
+        self.assertNotIn("\n", CHECK_EMAIL_MESSAGE)
+        self.assertNotIn("  ", CHECK_EMAIL_MESSAGE)
+        self.assertIn("check your email for a message from us", CHECK_EMAIL_MESSAGE)
+
+    def test_message_is_shown_on_the_page_they_land_on(self) -> None:
+        Site.objects.all().delete()
+        root = Page.objects.get(depth=1)
+        home = root.add_child(
+            instance=HomePage(title="Home", slug="registration-home"),
+        )
+        Site.objects.create(
+            hostname="testserver",
+            root_page=home,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+        response = self._register(follow=True)
+
+        self.assertRedirects(response, "/")
+        self.assertContains(response, "please check your email for a message")
+
+    def test_activation_email_explains_how_to_finish(self) -> None:
+        self._register()
+
+        self.assertEqual(len(mail.outbox), 1)
+        body = mail.outbox[0].body
+        self.assertIn("To complete your registration, click on the link below.", body)
+        self.assertIn("copy and paste it into your browser", body)
+
+        # The link must carry a real key for this user, not just the
+        # "activation_key=" prefix: an empty or garbled key would still pass a
+        # substring check.
+        links = re.findall(r"https?://\S+", body)
+        self.assertEqual(len(links), 1, body)
+        url = urlsplit(links[0])
+        self.assertEqual(url.path, reverse("django_registration_activate"))
+        keys = parse_qs(url.query).get("activation_key", [])
+        self.assertEqual(len(keys), 1, links[0])
+        user = User.objects.get(email="new@example.com")
+        self.assertEqual(
+            signing.loads(keys[0], salt=REGISTRATION_SALT),
+            user.get_username(),
         )

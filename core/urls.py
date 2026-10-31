@@ -14,6 +14,7 @@ from accounts.views import (
 )
 from blocks.views import serve_captions
 from common.views import favicon_ico, llms_txt, robots_txt, sitemap
+from magazine.feeds import MagazineArticleFeed, MagazineIssueFeed
 from search import views as search_views
 
 handler404 = "common.views.custom_404"
@@ -60,6 +61,12 @@ urlpatterns = [
     path("robots.txt", robots_txt, name="robots_txt"),
     path("llms.txt", llms_txt, name="llms_txt"),
     path("sitemap.xml", sitemap, name="sitemap"),
+    path(
+        "feeds/magazine/articles/",
+        MagazineArticleFeed(),
+        name="magazine_article_feed",
+    ),
+    path("feeds/magazine/issues/", MagazineIssueFeed(), name="magazine_issue_feed"),
     path("__reload__/", include("django_browser_reload.urls")),
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's page serving mechanism. This should be the last pattern in

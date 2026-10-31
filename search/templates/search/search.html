@@ -12,12 +12,14 @@
 
     <section aria-label="Search form">
         <form action="{% url 'search' %}" method="get" class="mb-6" role="search">
+            <label for="search-query" class="label block mb-2">Search query</label>
             <div class="join w-full max-w-md">
                 <input
+                    id="search-query"
                     type="search"
                     name="query"{% if search_query %}
                         value="{{ search_query }}"{% endif %}
-                    class="input input-bordered join-item flex-1"
+                    class="input join-item flex-1"
                     placeholder="Enter search terms"
                     aria-label="Search query"
                     maxlength="{{ max_query_length }}"
@@ -67,7 +69,7 @@
                                 <article class="card bg-base-100 shadow">
                                     <div class="card-body">
                                         <h2 class="card-title text-lg">
-                                            <a href="{% pageurl result %}">
+                                            <a href="{% pageurl result %}{{ result_fragment }}">
                                                 {{ result }}
                                             </a>
                                         </h2>

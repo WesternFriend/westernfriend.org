@@ -3,7 +3,7 @@
   <article class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow mb-4">
     <div class="card-body">
       <h2 class="card-title text-lg">
-        <a href="{% pageurl entity %}">{{ entity.title }}</a>
+        <a href="{% pageurl entity %}{{ result_fragment }}">{{ entity.title }}</a>
       </h2>
       {% if entity.specific.publication_date %}
         <p class="text-sm text-base-content/70">
