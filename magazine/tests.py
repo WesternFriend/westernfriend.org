@@ -1,4 +1,5 @@
 import datetime
+from contextlib import contextmanager
 from unittest.mock import patch
 
 from django.core.cache import cache, caches
@@ -21,6 +22,8 @@ from common.cache_queries import (
     django_cache_queries,
     django_cache_reads,
 )
+from common.fake_content import image_block
+from common.renditions import BODY_IMAGE_RENDITION_SPEC
 from contact.models import Person, PersonIndexPage
 from home.models import HomePage
 from magazine.factories import (
@@ -359,6 +362,8 @@ class MagazineIssueTest(TestCase):
 
 class MagazineTagIndexPageTest(TestCase):
     def setUp(self) -> None:
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
         self.factory = RequestFactory()
         self.root = Site.objects.get(is_default_site=True).root_page
 
@@ -593,6 +598,8 @@ class MagazineDepartmentTest(TestCase):
 
 class MagazineArticleTest(TestCase):
     def setUp(self) -> None:
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
         self.admin_user = User.objects.create_superuser(
             email="admin@email.com",
             password="password",  # nosec - Banned password
@@ -658,6 +665,110 @@ class MagazineArticleTest(TestCase):
         )
         self.recent_magazine_issue.add_child(instance=self.recent_magazine_article)
         self.archive_magazine_issue.add_child(instance=self.archive_magazine_article)
+
+    def test_public_body_images_are_bulk_prefetched_on_cold_render(self) -> None:
+        images = [
+            get_image_model().objects.create(
+                title=f"Article image {index}",
+                file=get_test_image_file(filename=f"article-{index}.gif"),
+            )
+            for index in range(4)
+        ]
+        self.archive_magazine_article.body = [image_block(image) for image in images]
+        self.archive_magazine_article.save()
+        cache.clear()
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(self.archive_magazine_article.url)
+
+        self.assertEqual(response.status_code, 200)
+        selects = [
+            query
+            for query in queries
+            if "wagtailimages_rendition" in query["sql"]
+            and query["sql"].lstrip().upper().startswith("SELECT")
+        ]
+        self.assertLessEqual(len(selects), 2)
+        for image in images:
+            self.assertContains(
+                response,
+                image.get_rendition(BODY_IMAGE_RENDITION_SPEC).url,
+            )
+
+    def test_restricted_body_does_not_prefetch_renditions(self) -> None:
+        request = RequestFactory().get("/")
+        request.user = self.regular_user
+        with patch("magazine.models._prefetch_streamfield_renditions") as prefetch:
+            context = self.recent_magazine_article.get_context(request)
+        self.assertFalse(context["user_can_view_full_article"])
+        prefetch.assert_not_called()
+
+    def test_missing_body_image_does_not_prevent_article_rendering(self) -> None:
+        image_model = get_image_model()
+        missing = image_model.objects.create(
+            title="Missing image",
+            file=get_test_image_file(filename="missing-article.gif"),
+        )
+        healthy = image_model.objects.create(
+            title="Available image",
+            file=get_test_image_file(filename="available-article.gif"),
+        )
+        self.archive_magazine_article.body = [
+            image_block(missing),
+            image_block(healthy),
+        ]
+        self.archive_magazine_article.save()
+        missing.file.close()
+        missing.file.storage.delete(missing.file.name)
+        cache.clear()
+
+        response = self.client.get(self.archive_magazine_article.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "not-found")
+        rendition = healthy.renditions.get(filter_spec=BODY_IMAGE_RENDITION_SPEC)
+        self.assertContains(response, rendition.url)
+
+    def test_body_image_read_error_uses_fallback_without_retry(self) -> None:
+        image_model = get_image_model()
+        unreadable = image_model.objects.create(
+            title="Unreadable image",
+            file=get_test_image_file(filename="unreadable-article.gif"),
+        )
+        healthy = image_model.objects.create(
+            title="Readable image",
+            file=get_test_image_file(filename="readable-article.gif"),
+        )
+        self.archive_magazine_article.body = [
+            image_block(unreadable),
+            image_block(healthy),
+        ]
+        self.archive_magazine_article.save()
+        cache.clear()
+        original_open_file = image_model.open_file
+        attempts = []
+
+        class FailingReader:
+            def read(self):
+                raise OSError
+
+        @contextmanager
+        def open_file(image):
+            if image.pk == unreadable.pk:
+                attempts.append(image.pk)
+                with original_open_file(image):
+                    yield FailingReader()
+            else:
+                with original_open_file(image) as source:
+                    yield source
+
+        with patch.object(image_model, "open_file", open_file):
+            response = self.client.get(self.archive_magazine_article.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "not-found")
+        self.assertEqual(attempts, [unreadable.pk])
+        rendition = healthy.renditions.get(filter_spec=BODY_IMAGE_RENDITION_SPEC)
+        self.assertContains(response, rendition.url)
 
     def test_get_sitemap_urls(self) -> None:
         """Validate the output of get_sitemap_urls."""
