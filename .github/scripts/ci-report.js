@@ -37,6 +37,11 @@ const CHECKS = {
     label: 'Development content seeding tests',
     fix: 'uv run python manage.py test --tag seed',
   },
+  'a11y-checker-tests': {
+    job: 'a11y',
+    label: 'Accessibility checker tests',
+    fix: 'npm ci --prefix scripts && node --test scripts/a11y-check.test.mjs',
+  },
   'a11y-seed': {
     job: 'a11y',
     label: 'Development site seeding (for the accessibility checks)',

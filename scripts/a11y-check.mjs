@@ -1,8 +1,8 @@
 /**
  * Automated accessibility check: axe-core against a running server.
  *
- * Usage, after `npm ci --include=dev` installs the versions locked in
- * package-lock.json:
+ * Usage, after `npm ci --prefix scripts` installs the versions locked in
+ * scripts/package-lock.json:
  *   node scripts/a11y-check.mjs <url> [<url> ...]
  *
  * The URL list normally comes from `./manage.py a11y_urls` so the scan covers
@@ -20,22 +20,36 @@
  * Tool choice (issue #1282): axe-core driven by puppeteer-core. Both are
  * pure-JavaScript npm packages - no browser download, no native binaries -
  * and the browser is whatever Chrome the environment already has (CHROME_PATH,
- * or the places Chrome normally lives). They are devDependencies pinned to
- * exact versions, and package-lock.json locks everything they depend on.
- * pa11y-ci and @axe-core/cli were considered and rejected;
- * docs/accessibility-checks.md has the reasons.
+ * or the places Chrome normally lives). scripts/package.json pins them to
+ * exact versions, separately from the site's own packages, and
+ * scripts/package-lock.json locks everything they depend on. pa11y-ci and
+ * @axe-core/cli were considered and rejected; docs/accessibility-checks.md
+ * has the reasons.
  */
 
 import { readFileSync, existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import process from "node:process";
 
-import puppeteer from "puppeteer-core";
-
-// axe runs inside the page, so its built file is read as source text and
-// injected rather than imported.
-const require = createRequire(import.meta.url);
-const AXE_SOURCE = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
+// Say how to install the packages, rather than failing with a
+// module-resolution stack trace.
+let puppeteer;
+let AXE_SOURCE;
+try {
+    ({ default: puppeteer } = await import("puppeteer-core"));
+    // axe runs inside the page, so its built file is read as source text and
+    // injected rather than imported.
+    const require = createRequire(import.meta.url);
+    AXE_SOURCE = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
+} catch (error) {
+    if (error.code !== "ERR_MODULE_NOT_FOUND" && error.code !== "MODULE_NOT_FOUND") {
+        throw error;
+    }
+    console.error(
+        "The checker's packages aren't installed. Run: npm ci --prefix scripts",
+    );
+    process.exit(2);
+}
 
 // WCAG 2.2 AA and everything it inherits. No best-practice rules, so every
 // failure maps to a WCAG success criterion the project has committed to.
@@ -72,41 +86,49 @@ function chromePath() {
     return found;
 }
 
+// The Content-Types Chrome applies a stylesheet under, by their type and
+// subtype: text/css, and also none at all or this placeholder, which Chrome
+// accepts for compatibility.
+const APPLIED_AS_CSS = new Set([
+    "text/css",
+    "",
+    "application/x-unknown-content-type",
+]);
+
+// Why a finished stylesheet request didn't load as CSS, or null if it did.
+function stylesheetProblem(request) {
+    const response = request.response();
+    if (!response) return request.failure()?.errorText ?? "no response";
+    const status = response.status();
+    // Chrome revalidated the copy it already had, and applies that.
+    if (status === 304) return null;
+    if (status < 200 || status >= 300) return `HTTP ${status}`;
+    const type = response.headers()["content-type"] ?? "";
+    const essence = type.split(";")[0].trim().toLowerCase();
+    return APPLIED_AS_CSS.has(essence) ? null : `served as ${type}, not CSS`;
+}
+
 // Records every stylesheet the page requests, by URL, with why it didn't
 // load, or null once it has. The network is the measure: Chrome gives a
 // stylesheet that 404s or isn't CSS an empty `sheet`, not a missing one, so
 // the page itself can't tell a failed stylesheet from an empty one.
 function watchStylesheets(page) {
     const stylesheets = new Map();
-    const settle = (request) => {
+    page.on("request", (request) => {
         if (request.resourceType() !== "stylesheet") return;
-        const status = request.response()?.status();
-        if (status >= 300 && status < 400) {
-            // A redirect: the request it leads to is checked instead.
-            stylesheets.delete(request.url());
-        } else if (status === undefined) {
-            stylesheets.set(
-                request.url(),
-                request.failure()?.errorText ?? "no response",
-            );
-        } else if (status < 200 || status >= 300) {
-            stylesheets.set(request.url(), `HTTP ${status}`);
-        } else {
-            // Chrome won't apply a stylesheet served as anything but CSS.
-            const type = request.response().headers()["content-type"] ?? "";
-            stylesheets.set(
-                request.url(),
-                /^text\/css\b/i.test(type)
-                    ? null
-                    : `served as ${type || "no content type"}, not text/css`,
-            );
+        // A request that follows a redirect carries the URLs it came through;
+        // only where the chain ends is checked. A 3xx that Chrome doesn't
+        // follow has no such request, so it stays recorded as a failure.
+        for (const earlier of request.redirectChain()) {
+            stylesheets.delete(earlier.url());
+        }
+        stylesheets.set(request.url(), "still loading");
+    });
+    const settle = (request) => {
+        if (request.resourceType() === "stylesheet") {
+            stylesheets.set(request.url(), stylesheetProblem(request));
         }
     };
-    page.on("request", (request) => {
-        if (request.resourceType() === "stylesheet") {
-            stylesheets.set(request.url(), "still loading");
-        }
-    });
     page.on("requestfinished", settle);
     page.on("requestfailed", settle);
     return stylesheets;

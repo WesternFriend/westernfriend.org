@@ -23,13 +23,16 @@ fails CI instead of waiting for a reader to write in. This implements
   fail, so the check stays strict without crying wolf.
 - **Stylesheets:** every stylesheet a page requests has to load as CSS
   before axe runs, because a page missing its styles can pass contrast and
-  layout rules the real page fails. A stylesheet that returns an error
-  status, fails on the network, is served as something other than
-  `text/css`, or is still loading once the page has loaded fails that page,
-  with the stylesheet's URL and the reason. None is optional; if one ever
-  needs to be, it should get an explicit exception in
-  `scripts/a11y-check.mjs`, with the reason. `scripts/a11y-check.test.mjs`
-  checks this against a local test server, and CI runs it before the scan.
+  layout rules the real page fails. A stylesheet fails its page, with its
+  URL and the reason, when it returns an error status, fails on the
+  network, is still loading once the page has loaded, or is served as a
+  type Chrome won't apply as CSS (it applies `text/css`, and also a missing
+  or unknown type). Redirects are followed, and a `304` for a copy Chrome
+  already has counts as loaded. None is optional, including the Bootstrap Icons
+  stylesheet from jsDelivr; if one ever needs to be, it should get an
+  explicit exception in `scripts/a11y-check.mjs`, with the reason.
+  `scripts/a11y-check.test.mjs` checks each of these cases against a local
+  test server, and CI runs it as its own check before seeding.
 
 ## Tool choice (recorded per the issue)
 
@@ -37,10 +40,12 @@ fails CI instead of waiting for a reader to write in. This implements
 npm packages with no native binaries and no browser download. The browser is
 whatever Chrome the environment already has.
 
-The two packages are `devDependencies` in `package.json`, pinned to exact
-versions, and `package-lock.json` locks everything they depend on, so every
-run executes the same code. CI installs them with `npm ci`, in the step that
-also installs the CSS toolchain, and Dependabot's npm updates cover them.
+The two packages are pinned to exact versions in `scripts/package.json`,
+and `scripts/package-lock.json` locks everything they depend on, so every
+run executes the same code. They are kept apart from the site's own
+`package.json`, so the deploy and the test job never install them; only
+the `Accessibility checks` job runs `npm ci --prefix scripts`. Dependabot's
+npm updates cover `/scripts` too.
 `axe-core` decides what counts as a violation, so an update to it is a rule
 change: review it as one, and expect it to find things the old version
 didn't.
@@ -59,10 +64,11 @@ Alternatives considered and rejected:
 ## Running it locally
 
 ```sh
-# Install the checker and build the CSS, if you haven't: axe's
+# Build the CSS and install the checker, if you haven't: axe's
 # color-contrast rules need the CSS. Node.js 24, as package.json says.
 npm ci --include=dev
 npm run build:css
+npm ci --prefix scripts
 
 # Seed a development database, if you haven't (see getting-started docs).
 # DJANGO_DEBUG because the seeder refuses to run against a production setup.
