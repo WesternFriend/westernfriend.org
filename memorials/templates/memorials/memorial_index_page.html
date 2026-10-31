@@ -21,36 +21,36 @@
                     <form id="filter-form" aria-label="Memorial filter form">
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                             <div class="md:col-span-5">
-                                <div class="form-control">
+                                <fieldset class="fieldset">
                                     <label for="title" class="label">
-                                        <span class="label-text">Person</span>
+                                        Person
                                     </label>
                                     <input
                                         id="title"
                                         name="title"
                                         type="text"
-                                        class="input input-bordered w-full"
+                                        class="input w-full"
                                         placeholder="Person name"
                                     >
-                                </div>
+                                </fieldset>
                             </div>
 
                             <div class="md:col-span-5">
-                                <div class="form-control">
+                                <fieldset class="fieldset">
                                     <label for="memorial_meeting__title" class="label">
-                                        <span class="label-text">Meeting</span>
+                                        Meeting
                                     </label>
                                     <select
                                         name="memorial_meeting__title"
                                         id="memorial_meeting__title"
-                                        class="select select-bordered w-full"
+                                        class="select w-full"
                                     >
                                         <option selected disabled hidden>Choose a meeting...</option>
                                         {% for meeting in meetings %}
                                             <option>{{ meeting }}</option>
                                         {% endfor %}
                                     </select>
-                                </div>
+                                </fieldset>
                             </div>
 
                             <div class="md:col-span-2 flex items-end space-x-2">

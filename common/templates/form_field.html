@@ -8,15 +8,15 @@
 
     Optional: input_class (widget CSS classes), wrapper_class (extra wrapper classes).
 {% endcomment %}
-<div class="form-control{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+<fieldset class="fieldset{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
     <label for="{{ field.id_for_label }}" class="label whitespace-normal">
-        <span class="label-text font-medium">{{ field.label }}{% if not field.field.required %} <span class="font-normal">(optional)</span>{% endif %}</span>
+        <span class="font-medium">{{ field.label }}{% if not field.field.required %} <span class="font-normal">(optional)</span>{% endif %}</span>
     </label>
-    {% with css=input_class|default:"input input-bordered w-full bg-white text-gray-800" %}
+    {% with css=input_class|default:"input w-full bg-white text-gray-800" %}
         {{ field|add_class:css }}
     {% endwith %}
     {% if field.help_text %}
-        <div id="{{ field.auto_id }}_helptext" class="label-text-alt text-sm mt-1">{{ field.help_text }}</div>
+        <div id="{{ field.auto_id }}_helptext" class="label whitespace-normal text-sm mt-1">{{ field.help_text }}</div>
     {% endif %}
     {% if field.errors %}
         <div id="{{ field.auto_id }}_error" class="form-field-error text-sm mt-1">
@@ -25,4 +25,4 @@
             {% endfor %}
         </div>
     {% endif %}
-</div>
+</fieldset>
