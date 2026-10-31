@@ -70,7 +70,7 @@
                 position: absolute;
                 top: -40px;
                 left: 0;
-                background: #aa3f2e;
+                background: var(--color-brand);
                 color: white;
                 padding: 8px;
                 z-index: 100;
@@ -87,12 +87,12 @@
                 outline: none;
             }
             :focus-visible {
-                outline: 2px solid #aa3f2e;
+                outline: 2px solid var(--color-brand);
                 outline-offset: 2px;
             }
             /* Lighter focus ring keeps 3:1 contrast against the dark theme background */
             [data-theme="dark"] :focus-visible {
-                outline-color: #f4a79b;
+                outline-color: var(--color-brand-focus-dark);
             }
 
             /* Insert other critical CSS here */
