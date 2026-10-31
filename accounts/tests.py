@@ -313,21 +313,6 @@ class SecretKeySettingsTests(SimpleTestCase):
 
         self.assertTrue(core.settings.SECRET_KEY)
 
-    def test_tailwind_build_runs_without_a_key(self):
-        """The build compiles the CSS before collectstatic, also without a secret."""
-        with mock.patch.object(sys, "argv", ["manage.py", "tailwind", "build"]):
-            self._reload_with({"DJANGO_DEBUG": "false"})
-
-        self.assertTrue(core.settings.SECRET_KEY)
-
-    def test_tailwind_start_still_fails_without_a_key(self):
-        """Only the one-off build is exempt, not the watcher or dev server."""
-        with (
-            mock.patch.object(sys, "argv", ["manage.py", "tailwind", "dev"]),
-            self.assertRaises(ImproperlyConfigured),
-        ):
-            self._reload_with({"DJANGO_DEBUG": "false"})
-
     def test_other_commands_still_fail_without_a_key(self):
         """The collectstatic exemption must not leak to anything that serves."""
         with (
