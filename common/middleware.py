@@ -15,10 +15,11 @@ class CanonicalHostRedirectMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        host = request.META.get("HTTP_HOST", "").split(":", 1)[0].lower()
+        environ = request.META
+        host = environ.get("HTTP_HOST", "").split(":", 1)[0].lower()
         if settings.CANONICAL_HOST and host in settings.REDIRECT_HOSTS:
             return HttpResponsePermanentRedirect(
-                f"https://{settings.CANONICAL_HOST}{request.get_full_path()}"
+                f"https://{settings.CANONICAL_HOST}{request.get_full_path()}",
             )
         return self.get_response(request)
 

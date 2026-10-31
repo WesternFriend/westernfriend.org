@@ -56,7 +56,7 @@ class CanonicalHostRedirectTests(SimpleTestCase):
     def test_redirect_before_host_validation_preserves_path_and_query(self):
         response = self.client.get(
             "/favicon.ico?source=bot&x=1",
-            HTTP_HOST="CORAL-APP-QPF8K.ONDIGITALOCEAN.APP:443",
+            headers={"host": "CORAL-APP-QPF8K.ONDIGITALOCEAN.APP:443"},
         )
         self.assertEqual(response.status_code, 301)
         self.assertEqual(
@@ -65,7 +65,7 @@ class CanonicalHostRedirectTests(SimpleTestCase):
         )
 
     def test_unlisted_host_is_rejected(self):
-        response = self.client.get("/", HTTP_HOST="unknown.example")
+        response = self.client.get("/", headers={"host": "unknown.example"})
         self.assertEqual(response.status_code, 400)
 
     def test_canonical_host_passes_through(self):
@@ -77,7 +77,10 @@ class CanonicalHostRedirectTests(SimpleTestCase):
 
     @override_settings(CANONICAL_HOST="")
     def test_empty_canonical_host_disables_redirect(self):
-        response = self.client.get("/", HTTP_HOST="coral-app-qpf8k.ondigitalocean.app")
+        response = self.client.get(
+            "/",
+            headers={"host": "coral-app-qpf8k.ondigitalocean.app"},
+        )
         self.assertEqual(response.status_code, 400)
 
 
