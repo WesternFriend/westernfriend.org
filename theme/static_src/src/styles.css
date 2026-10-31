@@ -2,13 +2,8 @@
 
 @plugin "@tailwindcss/typography";
 
-/*
-  * daisyUI is vendored as the standalone bundles from its GitHub release
-  * (currently v5.0.35), because the Tailwind standalone binary can't load npm
-  * packages. To upgrade, replace both files with the ones from the new release:
-  * https://github.com/saadeghi/daisyui/releases
-  * @tailwindcss/typography is built into the standalone binary.
-  */
+/* Downloaded by manage.py download_daisyui; version and hashes in core/settings.py.
+ * @tailwindcss/typography is built into the standalone binary. */
 @plugin "./daisyui.mjs";
 
 /*
@@ -31,7 +26,7 @@
   */
 @source "../../../**/*.{html,py,js}";
 
-/* The vendored daisyUI bundles name every daisyUI class; don't scan them */
+/* The downloaded daisyUI bundles name every daisyUI class; don't scan them */
 @source not "./daisyui*.mjs";
 
 /* Percentage (not px) so the user's browser font-size preference is respected */

@@ -52,12 +52,15 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 
-# True only while running `manage.py tailwind build` or `manage.py collectstatic`,
+# True while downloading/building CSS or collecting static files,
 # which happen at build time before runtime secrets exist. See
 # NOT_COLLECTING_STATICFILES further down for the long-standing database
 # equivalent — the two are deliberately separate expressions, because that one
 # is also False for a bare `manage.py`.
-BUILDING_STATIC_ASSETS = sys.argv[1:2] == ["collectstatic"] or sys.argv[1:3] == [
+BUILDING_STATIC_ASSETS = sys.argv[1:2] in (
+    ["collectstatic"],
+    ["download_daisyui"],
+) or sys.argv[1:3] == [
     "tailwind",
     "build",
 ]
@@ -274,6 +277,13 @@ TAILWIND_APP_NAME = "theme"
 # or production, produces the same CSS; bump it deliberately.
 TAILWIND_USE_STANDALONE_BINARY = True
 TAILWIND_STANDALONE_BINARY_VERSION = "v4.1.5"
+
+# Standalone daisyUI release assets; update both hashes when upgrading.
+DAISYUI_VERSION = "5.7.50"
+DAISYUI_SHA256 = {
+    "daisyui.mjs": "d69de07c7463bb1f41548e2688f88ee105cdadf9779fce5b3c47b3bfaa6be472",
+    "daisyui-theme.mjs": "e48a35d8326d650181ca600560e8520cf6b44cf9242bbd9d45825607e641f251",
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

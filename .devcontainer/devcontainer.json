@@ -48,5 +48,5 @@
   "forwardPorts": [
     8000
   ],
-  "postCreateCommand": "cp .env.example .env && uv venv && . .venv/bin/activate && uv sync && python manage.py migrate && python manage.py tailwind build && pre-commit install"
+  "postCreateCommand": "cp .env.example .env && uv venv && . .venv/bin/activate && uv sync && python manage.py migrate && python manage.py download_daisyui && python manage.py tailwind build && pre-commit install"
 }

@@ -48,7 +48,7 @@ Set up the site by following the steps below. The order of steps matters. So, be
      1. Python Buildpack,
      2. Procfile Buildpack,
      3. Custom Build Command
-   - set the build command to `python manage.py tailwind build && python manage.py collectstatic --noinput`. The app-level `DISABLE_COLLECTSTATIC` variable (step 5) stops the buildpack from running `collectstatic` before the CSS exists. See [Build the CSS during the deploy on an existing app](#build-the-css-during-the-deploy-on-an-existing-app)
+   - set the build command to `python manage.py download_daisyui && python manage.py tailwind build && python manage.py collectstatic --noinput`. The app-level `DISABLE_COLLECTSTATIC` variable (step 5) stops the buildpack from running `collectstatic` before the CSS exists. See [Build the CSS during the deploy on an existing app](#build-the-css-during-the-deploy-on-an-existing-app)
    - run command should be auto-configured as follows
      - `gunicorn core.wsgi --log-file -`
    - make sure there is a `migrate` Job that runs before every deploy, with the run command `python manage.py migrate && python manage.py createcachetable django_cache`. It runs once per deploy, before the web service starts, so web instances never race each other to migrate. See [Set up the pre-deploy job on an existing app](#set-up-the-pre-deploy-job-on-an-existing-app)
@@ -212,20 +212,27 @@ The cache table must exist before the switch is turned on; otherwise every cache
 
 ## Build the CSS during the deploy on an existing app
 
-The compiled Tailwind CSS (`theme/static/css/dist/styles.css`) is not committed. The `wf-website` build compiles it with `python manage.py tailwind build`, which downloads Tailwind's standalone binary, so the build needs no Node. The Python buildpack runs `collectstatic` on its own, but that happens before the custom build command, so before the CSS exists. Turning it off with `DISABLE_COLLECTSTATIC` and running `collectstatic` at the end of the build command puts the CSS in the static files.
+The compiled Tailwind CSS (`theme/static/css/dist/styles.css`) is not committed. The `wf-website` build compiles it with `python manage.py download_daisyui && python manage.py tailwind build`, which downloads Tailwind's standalone binary, so the build needs no Node. The Python buildpack runs `collectstatic` on its own, but that happens before the custom build command, so before the CSS exists. Turning it off with `DISABLE_COLLECTSTATIC` and running `collectstatic` at the end of the build command puts the CSS in the static files.
 
-Changing `.do/deploy.template.yaml` does not update a running app, because App Platform keeps its own copy of the app spec. Make these changes in the DigitalOcean dashboard, then deploy the commit that switches to the standalone binary (the one that stops committing the CSS). Do it in that order: a deploy of that commit without the new build command serves the site without its stylesheet.
+Changing `.do/deploy.template.yaml` does not update a running app, because App Platform keeps its own copy of the app spec. Make these changes in the DigitalOcean dashboard, then deploy the daisyUI migration commit (the one that stops committing the bundles). Do it in that order: a build of that commit without the download step fails because the daisyUI bundles are missing.
 
 1. Note the `wf-website` component's current build command (in its component settings), so you can roll back.
-2. In the `wf-website` component settings, set the build command to `python manage.py tailwind build && python manage.py collectstatic --noinput`.
+2. Before merging the daisyUI migration, set this temporary build command in the web component settings. It builds both the old code and the migration, and a failed download still stops the build:
+
+   ```sh
+   if [ -f common/management/commands/download_daisyui.py ]; then python manage.py download_daisyui || exit 1; fi
+   python manage.py tailwind build && python manage.py collectstatic --noinput
+   ```
 3. Add the app-level environment variable `DISABLE_COLLECTSTATIC` with the value `1` (scope: build time) and save. At the app level it also covers the `migrate` job, which serves no static files, so its build doesn't need `collectstatic`.
 4. Make sure the `wf-website` component has its own `DJANGO_USE_SPACES` and four `AWS_*` variables with the scope **Run and build time**, not just run time. `collectstatic` now runs during the build, and it uploads to Spaces only if `DJANGO_USE_SPACES` is "True" then. Otherwise it writes the files to the build's local disk, which the running site never serves. Keep the app-level copies at run time only, so the `migrate` job's build doesn't get the credentials.
-5. Saving these settings starts a rebuild of the code that is currently deployed. **That build is expected to fail** until the commit that switches to the standalone binary is deployed: older code still runs `tailwind build` through npm, so it stops with django-tailwind's "node.js and/or npm is not installed" error. App Platform keeps the last good deploy live when a build fails, so the site is unaffected.
-6. Merge (or deploy) the commit that switches to the standalone binary. Its build runs the new build command and succeeds.
+5. Saving these settings starts a rebuild of the currently deployed code. Confirm it succeeds with the temporary command before merging.
+6. Merge (or deploy) the daisyUI migration commit. Its build runs the new build command and succeeds.
 7. When that deploy finishes, open the `wf-website` build logs and confirm `tailwind build` printed `Done`. Then check where `collectstatic` put the files, from the line it prints last:
    - Uploaded to Spaces: no destination path, for example `251 static files copied.` (sometimes followed by a count of unmodified files). To double-check, look in the Spaces bucket: `static/css/dist/styles.css` should have a last-modified time matching the build.
    - Written to local disk instead: the line ends with a path, `... static files copied to '/workspace/static_root'.` The Spaces variables were not available at build time; recheck their scope (step 4) and redeploy.
 
    Then load the home page and check that it is styled, and that the stylesheet's URL points at the Spaces bucket.
 
-**Rolling back:** set the build command back to the one you noted in step 1 and remove `DISABLE_COLLECTSTATIC`. Without a committed CSS file, the site then has no stylesheet, so also revert the commit that stopped committing it.
+After the migration deploy succeeds, simplify the build command to `python manage.py download_daisyui && python manage.py tailwind build && python manage.py collectstatic --noinput`.
+
+**Rolling back the daisyUI migration:** restore the previously deployed code (including its bundled daisyUI files) and the build command noted in step 1. Keep `DISABLE_COLLECTSTATIC` enabled and keep the Tailwind build before `collectstatic`, because compiled CSS is still generated during deployment.

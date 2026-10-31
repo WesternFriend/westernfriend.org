@@ -231,7 +231,7 @@ class TestNavigationMenuRendering(TestCase):
         html = self.client.get(reverse("login")).content.decode()
 
         links = html.split(
-            'class="menu menu-horizontal menu-compact bg-black website-links"',
+            'class="menu menu-horizontal menu-sm bg-black website-links"',
             1,
         )[1]
         links = links.split("</ul>\n", 1)[0]

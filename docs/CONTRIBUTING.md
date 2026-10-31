@@ -58,7 +58,7 @@ This project uses Docker to manage a Postgres database.
 
 1. **Create .env File** (with `DJANGO_DEBUG=true`)
 2. **Run Database Migrations**: `python manage.py migrate`
-3. **Build the CSS**: `python manage.py tailwind build` (see [Tailwind CSS](#tailwind-css))
+3. **Build the CSS**: `python manage.py download_daisyui && python manage.py tailwind build` (see [Tailwind CSS](#tailwind-css))
 4. **Add Content**: `python manage.py seed_dev_content` (see [Development content](#development-content))
 5. **Run the Server**: `python manage.py runserver` (access from http://localhost:8000)
 
@@ -92,7 +92,7 @@ The field values come from the factories in each app's `factories.py`, which tes
 The site's stylesheet is compiled from `theme/static_src/src/styles.css` into `theme/static/css/dist/styles.css`. The compiled file is not committed, so build it once after cloning, and again after pulling changes to templates or styles:
 
 ```bash
-python manage.py tailwind build
+python manage.py download_daisyui && python manage.py tailwind build
 ```
 
 While editing templates or styles, run the watcher in a separate terminal instead, so the CSS rebuilds as you save:
@@ -101,7 +101,7 @@ While editing templates or styles, run the watcher in a separate terminal instea
 python manage.py tailwind start
 ```
 
-Neither command needs Node. django-tailwind downloads Tailwind's standalone binary on first use, at the version pinned by `TAILWIND_STANDALONE_BINARY_VERSION` in `core/settings.py`. daisyUI is loaded from the two bundles vendored next to `styles.css` (`daisyui.mjs` and `daisyui-theme.mjs`); to upgrade it, replace both with the files from a newer [daisyUI release](https://github.com/saadeghi/daisyui/releases). The deploy builds the CSS itself (see [deploy.md](deploy.md)).
+Neither command needs Node. django-tailwind downloads Tailwind's standalone binary on first use, at the version pinned by `TAILWIND_STANDALONE_BINARY_VERSION` in `core/settings.py`. daisyUI's standalone bundles are downloaded by `download_daisyui`, which verifies each SHA-256 checksum and reuses matching local files. The version and both checksums are pinned in `core/settings.py`. To upgrade, download both assets from the chosen [daisyUI release](https://github.com/saadeghi/daisyui/releases), compute `shasum -a 256` for each, and update all three values together. Run the download command before starting `tailwind start` too. The deploy builds the CSS itself (see [deploy.md](deploy.md)).
 
 ### Dependency Management
 
