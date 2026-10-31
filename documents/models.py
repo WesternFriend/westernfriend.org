@@ -6,29 +6,11 @@ from wagtail.search import index
 
 from common.models import DrupalFields
 from common.pages import live_specific_pages
-from common.renditions import attach_renditions
+from common.renditions import (
+    BODY_IMAGE_RENDITION_SPEC,
+    _prefetch_streamfield_renditions,
+)
 from core.constants import COMMON_STREAMFIELD_BLOCKS
-
-# Spec used by blocks/blocks/formatted_image_block.html.
-BODY_IMAGE_RENDITION_SPEC = "width-800|jpegquality-80"
-
-
-def _prefetch_streamfield_renditions(stream_value, *filter_specs: str) -> None:
-    """Attach renditions to images already loaded on a StreamField.
-
-    Image blocks bulk-load their images, then each ``{% image %}`` tag looks
-    up its rendition. Creating any missing renditions here keeps that lookup
-    from querying once per image, including the first time a rendition is
-    generated.
-    """
-    images = []
-    for child in stream_value:
-        if child.block_type != "image":
-            continue
-        image = child.value.get("image") if child.value else None
-        if image is not None:
-            images.append(image)
-    attach_renditions(images, *filter_specs)
 
 
 class MeetingDocumentIndexPage(Page):

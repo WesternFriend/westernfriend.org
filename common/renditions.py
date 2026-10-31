@@ -6,6 +6,21 @@ from io import BytesIO
 
 from wagtail.images.models import Filter
 
+# Must match the filters in blocks/blocks/formatted_image_block.html.
+BODY_IMAGE_RENDITION_SPEC = "width-800|jpegquality-80"
+
+
+def _prefetch_streamfield_renditions(stream_value, *filter_specs: str) -> None:
+    """Attach renditions to images already loaded on a StreamField."""
+    images = []
+    for child in stream_value:
+        if child.block_type != "image":
+            continue
+        image = child.value.get("image") if child.value else None
+        if image is not None:
+            images.append(image)
+    attach_renditions(images, *filter_specs)
+
 
 def attach_renditions(images: Iterable, *filter_specs: str) -> None:
     """Load or create renditions and store them on each image.

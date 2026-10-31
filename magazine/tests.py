@@ -21,6 +21,8 @@ from common.cache_queries import (
     django_cache_queries,
     django_cache_reads,
 )
+from common.fake_content import image_block
+from common.renditions import BODY_IMAGE_RENDITION_SPEC
 from contact.models import Person, PersonIndexPage
 from home.models import HomePage
 from magazine.factories import (
@@ -658,6 +660,42 @@ class MagazineArticleTest(TestCase):
         )
         self.recent_magazine_issue.add_child(instance=self.recent_magazine_article)
         self.archive_magazine_issue.add_child(instance=self.archive_magazine_article)
+
+    def test_public_body_images_are_bulk_prefetched_on_cold_render(self) -> None:
+        images = [
+            get_image_model().objects.create(
+                title=f"Article image {index}",
+                file=get_test_image_file(filename=f"article-{index}.gif"),
+            )
+            for index in range(4)
+        ]
+        self.archive_magazine_article.body = [image_block(image) for image in images]
+        self.archive_magazine_article.save()
+        cache.clear()
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(self.archive_magazine_article.url)
+
+        self.assertEqual(response.status_code, 200)
+        selects = [
+            query
+            for query in queries
+            if "wagtailimages_rendition" in query["sql"]
+            and query["sql"].lstrip().upper().startswith("SELECT")
+        ]
+        self.assertLessEqual(len(selects), 2)
+        for image in images:
+            self.assertContains(
+                response,
+                image.get_rendition(BODY_IMAGE_RENDITION_SPEC).url,
+            )
+
+    def test_restricted_body_does_not_prefetch_renditions(self) -> None:
+        request = RequestFactory().get("/")
+        request.user = self.regular_user
+        with patch("magazine.models._prefetch_streamfield_renditions") as prefetch:
+            context = self.recent_magazine_article.get_context(request)
+        self.assertFalse(context["user_can_view_full_article"])
+        prefetch.assert_not_called()
 
     def test_get_sitemap_urls(self) -> None:
         """Validate the output of get_sitemap_urls."""
