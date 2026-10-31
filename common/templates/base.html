@@ -1,4 +1,4 @@
-{% load common_tags static tailwind_tags wagtailcore_tags wagtailuserbar %}
+{% load common_tags static wagtailcore_tags wagtailuserbar %}
 
 <!DOCTYPE html>
 <html class="h-full" lang="en" data-theme="light">
@@ -98,7 +98,7 @@
             /* Insert other critical CSS here */
         </style>
 
-        {% tailwind_css %}
+        <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
 
         {# Load other CSS files #}
         <link rel="stylesheet" type="text/css" href="{% static 'css/ckeditor.css' %}">

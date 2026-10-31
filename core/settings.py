@@ -52,15 +52,9 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 
-# True while building CSS or collecting static files,
-# which happen at build time before runtime secrets exist. See
-# NOT_COLLECTING_STATICFILES further down for the long-standing database
-# equivalent — the two are deliberately separate expressions, because that one
-# is also False for a bare `manage.py`.
-BUILDING_STATIC_ASSETS = sys.argv[1:2] == ["collectstatic"] or sys.argv[1:3] == [
-    "tailwind",
-    "build",
-]
+# collectstatic runs at build time before runtime secrets exist. CSS is built
+# separately by npm, without loading Django settings.
+BUILDING_STATIC_ASSETS = sys.argv[1:2] == ["collectstatic"]
 
 if DEBUG:
     SECRET_KEY = "not-so-secret-key"  # noqa: S105 - local development only
@@ -234,7 +228,6 @@ INSTALLED_APPS = [
     "modelcluster",
     "storages",
     "taggit",
-    "tailwind",
     "wagtail",
     "wagtail.admin",
     "wagtail.contrib.forms",
@@ -263,14 +256,9 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
     "django.contrib.staticfiles",
     # keep-sorted end
-    # The theme needs to be listed after tailwind
-    # because it uses tailwind's CSS
+    # CSS sources and compiled static files.
     "theme",
 ]
-
-TAILWIND_APP_NAME = "theme"
-# npm owns the Tailwind CLI and plugins; package-lock.json pins their integrity.
-TAILWIND_USE_STANDALONE_BINARY = False
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

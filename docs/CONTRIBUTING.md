@@ -96,7 +96,7 @@ npm ci --include=dev
 npm run build:css
 ```
 
-While editing templates or styles, run `npm run watch:css` in a separate terminal. `python manage.py tailwind build` and `python manage.py tailwind start` also delegate to these npm-managed tools through django-tailwind.
+While editing templates or styles, run `npm run watch:css` in a separate terminal. CSS compilation runs independently of Django; the theme app supplies the generated stylesheet through Django static files.
 
 The root `package.json` declares the theme workspace. Its dependencies are listed in `theme/static_src/package.json`; the single root `package-lock.json` records exact versions and integrity hashes for Tailwind, daisyUI, typography, and their dependencies. Commit both manifests and the lockfile; do not commit `node_modules` or compiled CSS. Deployment uses `npm ci --include=dev` so build tools are installed even when `NODE_ENV=production`.
 
