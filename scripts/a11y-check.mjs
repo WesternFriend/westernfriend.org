@@ -30,7 +30,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import process from "node:process";
-import { MIMEType } from "node:util";
+
 
 // Say how to install the packages, rather than failing with a
 // module-resolution stack trace.
@@ -98,10 +98,12 @@ const APPLIED_AS_CSS = new Set([
     "application/x-unknown-content-type",
 ]);
 
-// The type and subtype a Content-Type header names, read as Chrome reads it:
-// a repeated header arrives as one comma-separated list, and the last value
-// that parses as a media type wins (commas inside quotes don't split, and
-// "*/*" doesn't count). With none, it's "", as if there were no header.
+// The type a Content-Type header names, read the way Chrome reads it (checked
+// against Chrome on 21 headers): a repeated header arrives as one
+// comma-separated list, and commas inside quotes don't split it. Each value's
+// type runs to its first space, tab, ";" or "(", and counts only if it has a
+// "/" and isn't "*/*". The last one that counts wins; with none, it's "", as
+// if there were no header.
 function contentTypeEssence(header) {
     const values = [];
     let value = "";
@@ -124,12 +126,8 @@ function contentTypeEssence(header) {
     values.push(value);
     let essence = "";
     for (const candidate of values) {
-        try {
-            const type = new MIMEType(candidate.trim());
-            if (type.essence !== "*/*") essence = type.essence;
-        } catch {
-            // Not a media type, so it's skipped.
-        }
+        const type = candidate.replace(/^[ \t]+/, "").split(/[ \t;(]/)[0];
+        if (type.includes("/") && type !== "*/*") essence = type.toLowerCase();
     }
     return essence;
 }
@@ -154,8 +152,13 @@ function stylesheetProblem(request) {
         const revalidating = "if-none-match" in headers || "if-modified-since" in headers;
         return revalidating ? null : "HTTP 304 to a request with no cached copy";
     }
-    const essence = contentTypeEssence(response.headers()["content-type"] ?? "");
-    return APPLIED_AS_CSS.has(essence) ? null : `served as ${essence}, not CSS`;
+    const header = response.headers()["content-type"] ?? "";
+    const essence = contentTypeEssence(header);
+    if (APPLIED_AS_CSS.has(essence)) return null;
+    // Show the header itself too when the type was read out of a longer one.
+    return header.trim().toLowerCase() === essence
+        ? `served as ${essence}, not CSS`
+        : `served as ${essence} (Content-Type: ${header}), not CSS`;
 }
 
 // Records every stylesheet the page requests, by URL, with why it didn't

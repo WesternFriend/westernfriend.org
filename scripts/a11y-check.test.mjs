@@ -83,6 +83,18 @@ const ROUTES = {
     "/quoted-comma.css": css('text/css; x="a, text/html; y=z"'),
     "/invalid-last/": html(page("/invalid-last.css")),
     "/invalid-last.css": css("text/html, foo"),
+    "/valid-then-invalid/": html(page("/valid-then-invalid.css")),
+    "/valid-then-invalid.css": css("text/css, foo"),
+    "/any-type-last/": html(page("/any-type-last.css")),
+    "/any-type-last.css": css("text/css, */*"),
+    "/type-with-comment/": html(page("/type-with-comment.css")),
+    "/type-with-comment.css": css("text/html (x)"),
+    "/bare-slash-last/": html(page("/bare-slash-last.css")),
+    "/bare-slash-last.css": css("text/css, text/"),
+    "/escaped-quote/": html(page("/escaped-quote.css")),
+    "/escaped-quote.css": css('text/css; x="a\\", text/html"'),
+    "/lone-invalid/": html(page("/lone-invalid.css")),
+    "/lone-invalid.css": css("foo"),
     "/repeated-type-not-css/": html(page("/html-last.css")),
     "/html-last.css": (request, response) => {
         response.writeHead(200, ["Content-Type", "text/css", "Content-Type", "text/html"]);
@@ -213,7 +225,7 @@ test("a stylesheet served as HTML fails the check", async () => {
     assertFailsOn(
         await check("/not-css/"),
         "/html-instead.css",
-        "served as text/html, not CSS",
+        "served as text/html (Content-Type: text/html; charset=utf-8), not CSS",
     );
 });
 
@@ -257,19 +269,31 @@ test("a stylesheet with the unknown-type placeholder counts as loaded", async ()
     assertPasses(await check("/unknown-type/"));
 });
 
-test("a repeated Content-Type header is read as its last value", async () => {
+test("a repeated Content-Type header is read as its last valid value", async () => {
     assertPasses(await check("/repeated-type/"));
     assertFailsOn(
         await check("/repeated-type-not-css/"),
         "/html-last.css",
-        "served as text/html, not CSS",
+        "served as text/html (Content-Type: text/css, text/html), not CSS",
     );
 });
 
 test("a Content-Type is read as Chrome reads it: the last valid value", async () => {
-    assertFailsOn(await check("/trailing-comma/"), "/trailing-comma.css", "served as text/html, not CSS");
-    assertFailsOn(await check("/invalid-last/"), "/invalid-last.css", "served as text/html, not CSS");
+    const reads = async (path, stylesheet, header, essence) =>
+        assertFailsOn(
+            await check(path),
+            stylesheet,
+            `served as ${essence} (Content-Type: ${header}), not CSS`,
+        );
+    await reads("/trailing-comma/", "/trailing-comma.css", "text/html,", "text/html");
+    await reads("/invalid-last/", "/invalid-last.css", "text/html, foo", "text/html");
+    await reads("/type-with-comment/", "/type-with-comment.css", "text/html (x)", "text/html");
+    await reads("/bare-slash-last/", "/bare-slash-last.css", "text/css, text/", "text/");
     assertPasses(await check("/quoted-comma/"));
+    assertPasses(await check("/escaped-quote/"));
+    assertPasses(await check("/valid-then-invalid/"));
+    assertPasses(await check("/any-type-last/"));
+    assertPasses(await check("/lone-invalid/"));
 });
 
 test("a 304 when Chrome had no cached copy fails the check", async () => {
