@@ -15,3 +15,13 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      css-toolchain:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+          - "daisyui"
