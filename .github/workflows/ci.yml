@@ -210,7 +210,7 @@ jobs:
       PUPPETEER_CORE_VERSION: "24.9.0"
     services:
       postgres:
-        image: postgres
+        image: postgres:18
         env:
           POSTGRES_PASSWORD: postgres
           # The settings' default development database, created at startup so
