@@ -56,32 +56,32 @@
                 <h2 id="purchaser-information">Purchaser</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {% include "form_field.html" with field=form.purchaser_given_name input_class="input input-bordered w-full" %}
+                    {% include "form_field.html" with field=form.purchaser_given_name input_class="input w-full" %}
 
-                    {% include "form_field.html" with field=form.purchaser_family_name input_class="input input-bordered w-full" %}
+                    {% include "form_field.html" with field=form.purchaser_family_name input_class="input w-full" %}
                 </div>
 
-                {% include "form_field.html" with field=form.purchaser_meeting_or_organization input_class="input input-bordered w-full" wrapper_class="mt-4" %}
+                {% include "form_field.html" with field=form.purchaser_meeting_or_organization input_class="input w-full" wrapper_class="mt-4" %}
 
-                {% include "form_field.html" with field=form.purchaser_email input_class="input input-bordered w-full" wrapper_class="mt-4" %}
+                {% include "form_field.html" with field=form.purchaser_email input_class="input w-full" wrapper_class="mt-4" %}
             </section>
 
             <section aria-labelledby="recipient-information">
                 <h2 id="recipient-information">Recipient</h2>
 
-                {% include "form_field.html" with field=form.recipient_name input_class="input input-bordered w-full" %}
+                {% include "form_field.html" with field=form.recipient_name input_class="input w-full" %}
 
-                {% include "form_field.html" with field=form.recipient_street_address input_class="input input-bordered w-full" wrapper_class="mt-4" %}
+                {% include "form_field.html" with field=form.recipient_street_address input_class="input w-full" wrapper_class="mt-4" %}
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    {% include "form_field.html" with field=form.recipient_address_locality input_class="input input-bordered w-full" %}
+                    {% include "form_field.html" with field=form.recipient_address_locality input_class="input w-full" %}
 
-                    {% include "form_field.html" with field=form.recipient_address_region input_class="input input-bordered w-full" %}
+                    {% include "form_field.html" with field=form.recipient_address_region input_class="input w-full" %}
 
-                    {% include "form_field.html" with field=form.recipient_postal_code input_class="input input-bordered w-full" %}
+                    {% include "form_field.html" with field=form.recipient_postal_code input_class="input w-full" %}
                 </div>
 
-                {% include "form_field.html" with field=form.recipient_address_country input_class="select select-bordered w-full" wrapper_class="mt-4" %}
+                {% include "form_field.html" with field=form.recipient_address_country input_class="select w-full" wrapper_class="mt-4" %}
             </section>
 
             <div class="flex justify-end mt-6">

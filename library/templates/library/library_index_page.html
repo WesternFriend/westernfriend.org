@@ -29,11 +29,11 @@
                         </div>
 
                         <form id="facetForm">
-                            <div class="form-control mb-3">
+                            <fieldset class="fieldset mb-3">
                                 <label for="audience" class="label">
-                                    <span class="label-text">Audience</span>
+                                    Audience
                                 </label>
-                                <select class="select select-bordered w-full" name="item_audience__title" id="audience">
+                                <select class="select w-full" name="item_audience__title" id="audience">
                                     {% if not request.GET.item_audience__title %}
                                         <option selected disabled hidden>Select...</option>
                                     {% endif %}
@@ -47,13 +47,13 @@
                                         </option>
                                     {% endfor %}
                                 </select>
-                            </div>
+                            </fieldset>
 
-                            <div class="form-control mb-3">
+                            <fieldset class="fieldset mb-3">
                                 <label for="genre" class="label">
-                                    <span class="label-text">Genre</span>
+                                    Genre
                                 </label>
-                                <select class="select select-bordered w-full" name="item_genre__title" id="genre">
+                                <select class="select w-full" name="item_genre__title" id="genre">
                                     {% if not request.GET.item_genre__title %}
                                         <option selected disabled hidden>Select...</option>
                                     {% endif %}
@@ -67,13 +67,13 @@
                                         </option>
                                     {% endfor %}
                                 </select>
-                            </div>
+                            </fieldset>
 
-                            <div class="form-control mb-3">
+                            <fieldset class="fieldset mb-3">
                                 <label for="medium" class="label">
-                                    <span class="label-text">Medium</span>
+                                    Medium
                                 </label>
-                                <select class="select select-bordered w-full" name="item_medium__title" id="medium">
+                                <select class="select w-full" name="item_medium__title" id="medium">
                                     {% if not request.GET.item_medium__title %}
                                         <option selected disabled hidden>Select...</option>
                                     {% endif %}
@@ -87,13 +87,13 @@
                                         </option>
                                     {% endfor %}
                                 </select>
-                            </div>
+                            </fieldset>
 
-                            <div class="form-control mb-3">
+                            <fieldset class="fieldset mb-3">
                                 <label for="time_period" class="label">
-                                    <span class="label-text">Time Period</span>
+                                    Time Period
                                 </label>
-                                <select class="select select-bordered w-full" name="item_time_period__title" id="time_period">
+                                <select class="select w-full" name="item_time_period__title" id="time_period">
                                     {% if not request.GET.item_time_period__title %}
                                         <option selected disabled hidden>Select...</option>
                                     {% endif %}
@@ -106,13 +106,13 @@
                                         </option>
                                     {% endfor %}
                                 </select>
-                            </div>
+                            </fieldset>
 
-                            <div class="form-control mb-3">
+                            <fieldset class="fieldset mb-3">
                                 <label for="topic" class="label">
-                                    <span class="label-text">Topic</span>
+                                    Topic
                                 </label>
-                                <select class="select select-bordered w-full" name="topics__topic__title" id="topic">
+                                <select class="select w-full" name="topics__topic__title" id="topic">
                                     {% if not request.GET.topics__topic__title %}
                                         <option selected disabled hidden>Select...</option>
                                     {% endif %}
@@ -126,7 +126,7 @@
                                         </option>
                                     {% endfor %}
                                 </select>
-                            </div>
+                            </fieldset>
                         </form>
                     </div>
                 </div>
@@ -141,10 +141,10 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div class="lg:col-span-1">
                                     <label for="author-select-list" class="label">
-                                        <span class="label-text">Author</span>
+                                        Author
                                     </label>
                                     <input
-                                        class="input input-bordered w-full"
+                                        class="input w-full"
                                         list="author-select-options"
                                         id="author-select-list"
                                         name="authors__author__title"
@@ -164,12 +164,12 @@
 
                                 <div class="lg:col-span-2">
                                     <label for="title-search" class="label">
-                                        <span class="label-text">Title</span>
+                                        Title
                                     </label>
                                     <input
                                         type="text"
                                         name="title__icontains"
-                                        class="input input-bordered w-full"
+                                        class="input w-full"
                                         id="title-search"
                                         {% if request.GET.title__icontains %}
                                             value="{{ request.GET.title__icontains }}"

@@ -5,7 +5,13 @@ from django.core.cache import cache
 from django.core.management import call_command
 from django.db import connection
 from django.template import TemplateDoesNotExist
-from django.test import Client, RequestFactory, TestCase, override_settings
+from django.test import (
+    Client,
+    RequestFactory,
+    SimpleTestCase,
+    TestCase,
+    override_settings,
+)
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from wagtail.models import Page, Site
@@ -16,7 +22,7 @@ from contact.factories import PersonFactory
 from magazine.factories import MagazineArticleFactory, MagazineIssueFactory
 from magazine.models import MagazineArticle
 from navigation.models import NavigationMenuSetting
-from search.views import MAX_QUERY_LENGTH, MAX_QUERY_WORDS, STOPWORDS
+from search.views import MAX_QUERY_LENGTH, MAX_QUERY_WORDS, STOPWORDS, text_fragment
 
 
 class SearchViewTestCase(TestCase):
@@ -991,6 +997,73 @@ class SearchIndexEntryIndexTestCase(TestCase):
         self.assertIn(self.index_name, plan)
 
 
+class SearchCrawlerDirectivesTest(TestCase):
+    """Search is the heaviest page to render, and crawlers loop through it."""
+
+    def test_search_page_is_noindex(self) -> None:
+        response = self.client.get(reverse("search"))
+
+        self.assertContains(response, '<meta name="robots" content="noindex" />')
+
+    def test_search_pagination_links_are_nofollow(self) -> None:
+        # Each query makes its own set of paged URLs, so following them is
+        # unbounded work for no indexable result.
+        # The search view shows 25 per page, so this needs to clear that.
+        issue = MagazineIssueFactory.create()
+        for index in range(30):
+            MagazineArticleFactory.create(
+                title=f"Findable article {index}",
+                parent=issue,
+            )
+
+        search_backend = get_search_backend()
+        for page in Page.objects.all():
+            search_backend.add(page)
+
+        response = self.client.get(reverse("search"), {"query": "Findable"})
+        html = response.content.decode()
+
+        page_links = re.findall(r"<a\b[^>]*\?page=[^>]*>", html)
+        self.assertTrue(page_links, "expected paginated search links")
+        for link in page_links:
+            self.assertIn('rel="nofollow"', link)
+
+
+class ContentListingsStayCrawlableTest(TestCase):
+    """The paginator is shared, so nofollow must not leak to content listings."""
+
+    def test_paginator_has_no_rel_by_default(self) -> None:
+        from django.template.loader import render_to_string
+
+        html = render_to_string(
+            "paginator.html",
+            {
+                "paginated_items": _StubPage(),
+                "current_querystring": "",
+            },
+        )
+
+        self.assertIn("?page=", html)
+        self.assertNotIn("nofollow", html)
+
+
+class _StubPage:
+    """Minimum shape paginator.html reads, with more than one page."""
+
+    class page:
+        number = 1
+        has_other_pages = True
+        has_previous = False
+        has_next = True
+        next_page_number = 2
+
+        class paginator:
+            num_pages = 3
+            ELLIPSIS = "…"
+
+    elided_page_range = [1, 2, 3]
+
+
 @override_settings(CACHES=DATABASE_CACHES)
 class TestSearchCacheQueries(TestCase):
     """Search must not reload the navigation menu or site root paths per result.
@@ -1046,3 +1119,78 @@ class TestSearchCacheQueries(TestCase):
         self.assertEqual(ten_reads, one_reads)
         self.assertLessEqual(ten_reads, 1)
         self.assertEqual(ten_menu, one_menu)
+
+
+class TextFragmentTest(SimpleTestCase):
+    """The URL fragment that highlights the search words on a result (#935)."""
+
+    def test_no_query_gives_no_fragment(self) -> None:
+        self.assertEqual(text_fragment(None), "")
+        self.assertEqual(text_fragment(""), "")
+
+    def test_one_directive_per_word(self) -> None:
+        # Search matches any word, so each one is highlighted on its own.
+        self.assertEqual(
+            text_fragment("quaker testimony"),
+            "#:~:text=quaker&text=testimony",
+        )
+
+    def test_directive_delimiters_are_encoded(self) -> None:
+        # "-", "&" and "," have meaning inside a text directive.
+        self.assertEqual(
+            text_fragment("a-b c&d e,f"),
+            "#:~:text=a%2Db&text=c%26d&text=e%2Cf",
+        )
+
+
+class SearchResultTextFragmentTest(TestCase):
+    """Result links carry the fragment; other links on the card do not."""
+
+    def setUp(self) -> None:
+        issue = MagazineIssueFactory(title="Fragment Issue")
+        self.article = MagazineArticleFactory(
+            title="Fragment Testimony Article",
+            parent=issue,
+        )
+        from magazine.models import MagazineArticleAuthor
+
+        author = PersonFactory(given_name="Ada", family_name="Writer")
+        MagazineArticleAuthor.objects.create(article=self.article, author=author)
+
+        root_page = Page.objects.first()
+        self.generic_page = Page(title="Fragment Meeting Notes")
+        root_page.add_child(instance=self.generic_page)
+
+        search_backend = get_search_backend()
+        for page in Page.objects.all():
+            search_backend.add(page)
+
+    def test_fallback_result_link_has_the_fragment(self) -> None:
+        response = self.client.get(reverse("search"), {"query": "Meeting"})
+
+        self.assertRegex(
+            response.content.decode(),
+            r'<a href="[^"]*#:~:text=Meeting">\s*Fragment Meeting Notes',
+        )
+
+    def test_custom_template_result_link_has_the_fragment(self) -> None:
+        response = self.client.get(reverse("search"), {"query": "Testimony"})
+        html = response.content.decode()
+
+        self.assertTemplateUsed(response, "search/magazine_article.html")
+        self.assertRegex(
+            html,
+            r'<a href="[^"]*#:~:text=Testimony">\s*Fragment Testimony Article',
+        )
+        # The author link goes to a different page, which may not mention
+        # the search words, so it is left alone.
+        self.assertRegex(html, r'<a href="[^"#]*">Ada Writer</a>')
+
+    def test_stopwords_are_not_highlighted(self) -> None:
+        response = self.client.get(
+            reverse("search"),
+            {"query": "the Fragment Testimony"},
+        )
+
+        self.assertContains(response, "#:~:text=Fragment&amp;text=Testimony")
+        self.assertNotContains(response, "text=the")

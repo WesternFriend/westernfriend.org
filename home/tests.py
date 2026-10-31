@@ -89,6 +89,20 @@ class HomePageRenderTest(TestCase):
         Site.clear_site_root_paths_cache()
         self.addCleanup(Site.clear_site_root_paths_cache)
 
+    def test_featured_event_teaser_escapes_plain_text_once(self) -> None:
+        EventFactory.create(
+            is_featured=True,
+            start_date=timezone.now() + timezone.timedelta(days=1),
+            teaser='Join Quakers & Climate <script>alert("test")</script> Worldwide for gathering of faith today',
+        )
+
+        response = self.client.get("/")
+
+        self.assertContains(response, "Join Quakers &amp; Climate &lt;script&gt;")
+        self.assertNotContains(response, "Quakers &amp;amp;")
+        self.assertNotContains(response, '<script>alert("test")</script>')
+        self.assertContains(response, "gathering of faith …")
+
     def test_renders_current_issue_and_featured_content(self) -> None:
         issue = MagazineIssueFactory.create(
             publication_date=timezone.now() - timezone.timedelta(days=1),

@@ -34,9 +34,14 @@ default_allowed_hosts = "127.0.0.1,localhost"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default_allowed_hosts).split(",")
 
-default_csrf_trusted_origins = (
-    "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost"
-)
+CANONICAL_HOST = os.getenv("DJANGO_CANONICAL_HOST", "").strip()
+REDIRECT_HOSTS = [
+    host.strip().lower()
+    for host in os.getenv("DJANGO_REDIRECT_HOSTS", "").split(",")
+    if host.strip()
+]
+
+default_csrf_trusted_origins = "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost"
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "DJANGO_CSRF_TRUSTED_ORIGINS",
@@ -54,15 +59,9 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("true", "1")
 
-# True only while running `manage.py tailwind build` or `manage.py collectstatic`,
-# which happen at build time before runtime secrets exist. See
-# NOT_COLLECTING_STATICFILES further down for the long-standing database
-# equivalent — the two are deliberately separate expressions, because that one
-# is also False for a bare `manage.py`.
-BUILDING_STATIC_ASSETS = sys.argv[1:2] == ["collectstatic"] or sys.argv[1:3] == [
-    "tailwind",
-    "build",
-]
+# collectstatic runs at build time before runtime secrets exist. CSS is built
+# separately by npm, without loading Django settings.
+BUILDING_STATIC_ASSETS = sys.argv[1:2] == ["collectstatic"]
 
 if DEBUG:
     SECRET_KEY = "not-so-secret-key"  # noqa: S105 - local development only
@@ -236,7 +235,6 @@ INSTALLED_APPS = [
     "modelcluster",
     "storages",
     "taggit",
-    "tailwind",
     "wagtail",
     "wagtail.admin",
     "wagtail.contrib.forms",
@@ -265,19 +263,12 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
     "django.contrib.staticfiles",
     # keep-sorted end
-    # The theme needs to be listed after tailwind
-    # because it uses tailwind's CSS
+    # CSS sources and compiled static files.
     "theme",
 ]
 
-TAILWIND_APP_NAME = "theme"
-# Build the CSS with Tailwind's standalone binary (downloaded by pytailwindcss),
-# so neither development nor the deploy needs Node. Pinned so every build, local
-# or production, produces the same CSS; bump it deliberately.
-TAILWIND_USE_STANDALONE_BINARY = True
-TAILWIND_STANDALONE_BINARY_VERSION = "v4.1.5"
-
 MIDDLEWARE = [
+    "common.middleware.CanonicalHostRedirectMiddleware",
     "django.middleware.security.SecurityMiddleware",
     # Must run after the session, CSRF, and message middleware add cookies
     "common.middleware.PublicCacheControlMiddleware",

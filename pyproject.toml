@@ -65,10 +65,10 @@ dependencies = [
     "boto3",
     "dj-database-url",
     "django>=6.1",
+    "django-browser-reload>=1.18.0",
     "django-extensions",
     "django-registration",
     "django-storages",
-    "django-tailwind[reload]>=4.0.1",
     "django-timezone-field",
     "django_coverage_plugin",
     "gunicorn",
@@ -193,9 +193,30 @@ ban-relative-imports = "parents"
 # TODO: add this back in when we figure out how to make it work
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
+# Migrations are generated code, and about half of all reported errors were in
+# them. mypy matches exclude paths with forward slashes on every platform.
+exclude = ["/migrations/"]
 
 [[tool.mypy.overrides]]
 module = "wagtail.*"
+ignore_missing_imports = true
+
+# Packages that ship neither type stubs nor a py.typed marker. Without this
+# every import of them is an error, which hides the real ones.
+[[tool.mypy.overrides]]
+module = [
+    "dateutil.*",
+    "django_filters.*",
+    "django_registration.*",
+    "modelcluster.*",
+    "modelsearch.*",
+    "taggit.*",
+    "timezone_field.*",
+    "treebeard.*",
+    "wagtail_color_panel.*",
+    "wagtail_factories.*",
+    "wagtailmedia.*",
+]
 ignore_missing_imports = true
 
 [tool.django-stubs]
@@ -230,7 +251,6 @@ upgrade = false
 dev = [
     "cookiecutter>=2.6.0",
     "coverage>=7.7.1",
-    "django-browser-reload>=1.18.0",
     "django-stubs[compatible-mypy]>=5.1.3",
     "factory-boy>=3.3.3",
     "mypy>=1.15.0",

@@ -2,21 +2,22 @@
 
 @plugin "@tailwindcss/typography";
 
-/*
-  * daisyUI is vendored as the standalone bundles from its GitHub release
-  * (currently v5.0.35), because the Tailwind standalone binary can't load npm
-  * packages. To upgrade, replace both files with the ones from the new release:
-  * https://github.com/saadeghi/daisyui/releases
-  * @tailwindcss/typography is built into the standalone binary.
-  */
-@plugin "./daisyui.mjs";
+@plugin "daisyui";
+
+/* Brand accents shared by templates and Tailwind utilities. Keep these separate
+ * from daisyUI's primary colors, whose dark-theme contrast is tuned below. */
+@theme static {
+  --color-brand: #aa3f2e;
+  --color-brand-soft: #ffefed;
+  --color-brand-focus-dark: #f4a79b;
+}
 
 /*
   * Lighten the dark theme's primary color so primary-colored text and links
   * (breadcrumbs, .link-primary, outline buttons) meet WCAG AA contrast (4.5:1)
   * on the dark background. Filled primary buttons switch to dark text to match.
   */
-@plugin "./daisyui-theme.mjs" {
+@plugin "daisyui/theme" {
   name: "dark";
   --color-primary: oklch(72% 0.15 277);
   --color-primary-content: oklch(20% 0.06 277);
@@ -31,8 +32,9 @@
   */
 @source "../../../**/*.{html,py,js}";
 
-/* The vendored daisyUI bundles name every daisyUI class; don't scan them */
-@source not "./daisyui*.mjs";
+/* Scan project sources, excluding installed npm packages. */
+@source not "../../../node_modules";
+@source not "../node_modules";
 
 /* Percentage (not px) so the user's browser font-size preference is respected */
 :root {
