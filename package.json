@@ -14,5 +14,9 @@
   },
   "overrides": {
     "postcss-selector-parser": "6.1.5"
+  },
+  "devDependencies": {
+    "axe-core": "4.10.2",
+    "puppeteer-core": "25.14.0"
   }
 }

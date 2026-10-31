@@ -1,9 +1,9 @@
 /**
  * Automated accessibility check: axe-core against a running server.
  *
- * Usage (the versions are the ones pinned in the CI job):
- *   npx --yes --package=axe-core@4.10.2 --package=puppeteer-core@24.9.0 \
- *     -- node scripts/a11y-check.mjs <url> [<url> ...]
+ * Usage, after `npm ci --include=dev` installs the versions locked in
+ * package-lock.json:
+ *   node scripts/a11y-check.mjs <url> [<url> ...]
  *
  * The URL list normally comes from `./manage.py a11y_urls` so the scan covers
  * whatever the seeded database actually contains (see docs/accessibility-checks.md).
@@ -15,32 +15,22 @@
  * Tool choice (issue #1282): axe-core driven by puppeteer-core. Both are
  * pure-JavaScript npm packages - no browser download, no native binaries -
  * and the browser is whatever Chrome the environment already has (CHROME_PATH,
- * or the places Chrome normally lives). They run through npx at exact
- * versions, so the repository has no package.json or lockfile. pa11y-ci and
- * @axe-core/cli were considered and rejected; docs/accessibility-checks.md
- * has the reasons.
+ * or the places Chrome normally lives). They are devDependencies pinned to
+ * exact versions, and package-lock.json locks everything they depend on.
+ * pa11y-ci and @axe-core/cli were considered and rejected;
+ * docs/accessibility-checks.md has the reasons.
  */
 
 import { readFileSync, existsSync } from "node:fs";
 import { createRequire } from "node:module";
-import { basename, delimiter, dirname } from "node:path";
 import process from "node:process";
 
-// npx puts the packages it installs on PATH (their node_modules/.bin) but not
-// on Node's module search path, so look beside those directories as well as
-// in the usual places.
-const require = createRequire(import.meta.url);
-const SEARCH_PATHS = [
-    ...(process.env.PATH ?? "")
-        .split(delimiter)
-        .filter((dir) => basename(dir) === ".bin")
-        .map((dir) => dirname(dir)),
-    process.cwd(),
-];
-const resolve = (request) => require.resolve(request, { paths: SEARCH_PATHS });
+import puppeteer from "puppeteer-core";
 
-const puppeteer = require(resolve("puppeteer-core"));
-const AXE_SOURCE = readFileSync(resolve("axe-core/axe.min.js"), "utf8");
+// axe runs inside the page, so its built file is read as source text and
+// injected rather than imported.
+const require = createRequire(import.meta.url);
+const AXE_SOURCE = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 
 // WCAG 2.2 AA and everything it inherits. No best-practice rules, so every
 // failure maps to a WCAG success criterion the project has committed to.

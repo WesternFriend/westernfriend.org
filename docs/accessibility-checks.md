@@ -28,17 +28,13 @@ fails CI instead of waiting for a reader to write in. This implements
 npm packages with no native binaries and no browser download. The browser is
 whatever Chrome the environment already has.
 
-The two packages run through `npx` at exact versions, set as
-`AXE_CORE_VERSION` and `PUPPETEER_CORE_VERSION` in the `Accessibility checks`
-job. The repository has no `package.json` or lockfile for them, so there is
-nothing to install unless you run the check. To upgrade, change the versions
-there (and in the commands below). Without a lockfile, two things are worth
-knowing:
-
-- `puppeteer-core`'s own dependencies resolve afresh on each run. `axe-core`,
-  which decides what counts as a violation, has no dependencies, so the rules
-  only change when its version does.
-- Dependabot doesn't see these versions, so it won't propose updates.
+The two packages are `devDependencies` in `package.json`, pinned to exact
+versions, and `package-lock.json` locks everything they depend on, so every
+run executes the same code. CI installs them with `npm ci`, in the step that
+also installs the CSS toolchain, and Dependabot's npm updates cover them.
+`axe-core` decides what counts as a violation, so an update to it is a rule
+change: review it as one, and expect it to find things the old version
+didn't.
 
 Alternatives considered and rejected:
 
@@ -54,8 +50,10 @@ Alternatives considered and rejected:
 ## Running it locally
 
 ```sh
-# Build the CSS, if you haven't: axe's color-contrast rules need it
-./manage.py tailwind build
+# Install the checker and build the CSS, if you haven't: axe's
+# color-contrast rules need the CSS. Node.js 24, as package.json says.
+npm ci --include=dev
+npm run build:css
 
 # Seed a development database, if you haven't (see getting-started docs).
 # DJANGO_DEBUG because the seeder refuses to run against a production setup.
@@ -68,10 +66,8 @@ DJANGO_DEBUG=true ./manage.py runserver 8000
 
 # In another shell: scan the representative pages. Two steps, so a failure
 # from a11y_urls is seen rather than swallowed by the $() substitution.
-# npx fetches the two packages at the versions CI uses; Node.js 18 or later.
 ./manage.py a11y_urls > /tmp/a11y-urls.txt
-npx --yes --package=axe-core@4.10.2 --package=puppeteer-core@24.9.0 \
-  -- node scripts/a11y-check.mjs $(cat /tmp/a11y-urls.txt)
+node scripts/a11y-check.mjs $(cat /tmp/a11y-urls.txt)
 ```
 
 If Chrome is somewhere unusual, point the script at it with
