@@ -119,5 +119,5 @@ migration_data/
 theme/static/css/dist/
 
 # Downloaded and checksum-verified daisyUI build dependencies
-theme/static_src/src/daisyui.mjs
-theme/static_src/src/daisyui-theme.mjs
+theme/static_src/src/daisyui
+theme/static_src/src/.daisyui-*

@@ -101,7 +101,7 @@ While editing templates or styles, run the watcher in a separate terminal instea
 python manage.py tailwind start
 ```
 
-Neither command needs Node. django-tailwind downloads Tailwind's standalone binary on first use, at the version pinned by `TAILWIND_STANDALONE_BINARY_VERSION` in `core/settings.py`. daisyUI's standalone bundles are downloaded by `download_daisyui`, which verifies each SHA-256 checksum and reuses matching local files. The version and both checksums are pinned in `core/settings.py`. To upgrade, download both assets from the chosen [daisyUI release](https://github.com/saadeghi/daisyui/releases), compute `shasum -a 256` for each, and update all three values together. Run the download command before starting `tailwind start` too. The deploy builds the CSS itself (see [deploy.md](deploy.md)).
+Neither command needs Node. django-tailwind downloads Tailwind's standalone binary on first use, at the version pinned by `TAILWIND_STANDALONE_BINARY_VERSION` in `core/settings.py`. daisyUI's standalone bundles are downloaded by `download_daisyui`, which verifies each SHA-256 checksum and reuses matching local files. It stages each pair in a unique ignored directory and atomically switches the `daisyui` directory link after both bundles are ready. The version and both checksums are pinned in `core/settings.py`. To upgrade, download both assets from the chosen [daisyUI release](https://github.com/saadeghi/daisyui/releases), compute `shasum -a 256` for each, and update all three values together. Run the download command before starting `tailwind start` too. The deploy builds the CSS itself (see [deploy.md](deploy.md)).
 
 ### Dependency Management
 

@@ -4,14 +4,14 @@
 
 /* Downloaded by manage.py download_daisyui; version and hashes in core/settings.py.
  * @tailwindcss/typography is built into the standalone binary. */
-@plugin "./daisyui.mjs";
+@plugin "./daisyui/daisyui.mjs";
 
 /*
   * Lighten the dark theme's primary color so primary-colored text and links
   * (breadcrumbs, .link-primary, outline buttons) meet WCAG AA contrast (4.5:1)
   * on the dark background. Filled primary buttons switch to dark text to match.
   */
-@plugin "./daisyui-theme.mjs" {
+@plugin "./daisyui/daisyui-theme.mjs" {
   name: "dark";
   --color-primary: oklch(72% 0.15 277);
   --color-primary-content: oklch(20% 0.06 277);
@@ -27,7 +27,8 @@
 @source "../../../**/*.{html,py,js}";
 
 /* The downloaded daisyUI bundles name every daisyUI class; don't scan them */
-@source not "./daisyui*.mjs";
+@source not "./daisyui/**";
+@source not "./.daisyui-*/**";
 
 /* Percentage (not px) so the user's browser font-size preference is respected */
 :root {

@@ -16,8 +16,9 @@ class DaisyUIDownloadTests(SimpleTestCase):
     def setUp(self):
         self.directory = TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
-        self.destination = Path(self.directory.name) / "theme/static_src/src"
-        self.destination.mkdir(parents=True)
+        self.root = Path(self.directory.name) / "theme/static_src/src"
+        self.root.mkdir(parents=True)
+        self.destination = self.root / "daisyui"
         self.payloads = {"daisyui.mjs": b"plugin", "daisyui-theme.mjs": b"theme"}
         self.hashes = {
             name: hashlib.sha256(data).hexdigest()
@@ -49,8 +50,11 @@ class DaisyUIDownloadTests(SimpleTestCase):
 
     @patch("common.management.commands.download_daisyui.requests.get")
     def test_checksum_failure_preserves_existing_bundles(self, get):
+        old = self.root / ".daisyui-old"
+        old.mkdir()
+        self.destination.symlink_to(old.name, target_is_directory=True)
         for name in self.payloads:
-            (self.destination / name).write_bytes(b"old")
+            (old / name).write_bytes(b"old")
         get.side_effect = [Mock(content=b"plugin"), Mock(content=b"tampered")]
         with self.assertRaisesMessage(CommandError, "SHA-256 mismatch"):
             self.download()
@@ -64,7 +68,55 @@ class DaisyUIDownloadTests(SimpleTestCase):
         get.return_value.raise_for_status.side_effect = requests.HTTPError("HTTP 404")
         with self.assertRaisesMessage(CommandError, "HTTP 404"):
             self.download()
-        self.assertEqual(list(self.destination.iterdir()), [])
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    @patch("common.management.commands.download_daisyui.requests.get")
+    def test_interrupted_publish_keeps_the_complete_old_pair(self, get):
+        old = self.root / ".daisyui-old"
+        old.mkdir()
+        self.destination.symlink_to(old.name, target_is_directory=True)
+        for name in self.payloads:
+            (old / name).write_bytes(b"old")
+        get.side_effect = [Mock(content=data) for data in self.payloads.values()]
+        with (
+            patch("pathlib.Path.replace", side_effect=OSError("interrupted")),
+            self.assertRaisesMessage(OSError, "interrupted"),
+        ):
+            self.download()
+        for name in self.payloads:
+            self.assertEqual((self.destination / name).read_bytes(), b"old")
+        self.assertEqual(set(self.root.iterdir()), {old, self.destination})
+
+    @patch("common.management.commands.download_daisyui.requests.get")
+    def test_concurrent_installs_publish_complete_pairs(self, get):
+        from concurrent.futures import ThreadPoolExecutor
+        from tempfile import mkdtemp
+        from threading import Barrier
+
+        barrier = Barrier(2)
+
+        def stage(**kwargs):
+            directory = mkdtemp(**kwargs)
+            barrier.wait(timeout=10)
+            return directory
+
+        def response(url, **kwargs):
+            return Mock(content=self.payloads[url.rsplit("/", 1)[1]])
+
+        get.side_effect = response
+        with (
+            patch(
+                "common.management.commands.download_daisyui.mkdtemp",
+                side_effect=stage,
+            ),
+            ThreadPoolExecutor(max_workers=2) as executor,
+        ):
+            results = [executor.submit(self.download) for _ in range(2)]
+            for result in results:
+                result.result(timeout=15)
+        self.assertTrue(self.destination.is_symlink())
+        for name, data in self.payloads.items():
+            self.assertEqual((self.destination / name).read_bytes(), data)
 
 
 class FormLabelTests(SimpleTestCase):
@@ -83,11 +135,8 @@ class FormLabelTests(SimpleTestCase):
         # Isolate page content from navigation and site settings that need a DB.
         templates = deepcopy(settings.TEMPLATES)
         templates[0]["APP_DIRS"] = False
+        templates[0]["DIRS"].insert(0, Path(settings.BASE_DIR) / "theme/test_templates")
         templates[0]["OPTIONS"]["loaders"] = [
-            (
-                "django.template.loaders.locmem.Loader",
-                {"base.html": "{% block content %}{% endblock %}"},
-            ),
             "django.template.loaders.filesystem.Loader",
             "django.template.loaders.app_directories.Loader",
         ]
