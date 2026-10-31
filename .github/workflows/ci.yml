@@ -126,6 +126,24 @@ jobs:
           set -o pipefail
           uv run --no-sync python manage.py check --fail-level WARNING 2>&1 | tee /tmp/django-check.txt
 
+      # The deployment checklist against production-like settings: DEBUG off,
+      # a key strong enough for security.W009, and SMTP configured so the
+      # console email backend isn't used. All values are placeholders; the
+      # checks don't connect to anything.
+      - name: Django deployment checks
+        id: deploy-check
+        continue-on-error: true
+        env:
+          DJANGO_DEBUG: "false"
+          DJANGO_SECRET_KEY: ci-placeholder-deploy-check-key-not-a-real-secret-0123456789abcdefgh
+          DJANGO_ALLOWED_HOSTS: westernfriend.org
+          EMAIL_HOST: smtp.example.com
+          EMAIL_HOST_USER: ci-placeholder
+          EMAIL_HOST_PASSWORD: ci-placeholder
+        run: |
+          set -o pipefail
+          uv run --no-sync python manage.py check --deploy --fail-level WARNING 2>&1 | tee /tmp/deploy-check.txt
+
       - name: Check for missing migrations
         id: migrations
         continue-on-error: true
@@ -160,17 +178,20 @@ jobs:
         if: always()
         env:
           DJANGO_CHECK_OUTCOME: ${{ steps.django-check.outcome }}
+          DEPLOY_CHECK_OUTCOME: ${{ steps.deploy-check.outcome }}
           MIGRATIONS_OUTCOME: ${{ steps.migrations.outcome }}
           TESTS_OUTCOME: ${{ steps.tests.outcome }}
         run: |
-          touch /tmp/django-check.txt /tmp/migrations.txt /tmp/tests.txt
+          touch /tmp/django-check.txt /tmp/deploy-check.txt /tmp/migrations.txt /tmp/tests.txt
           jq -n \
             --arg django_check_outcome "$DJANGO_CHECK_OUTCOME" --rawfile django_check_output /tmp/django-check.txt \
+            --arg deploy_check_outcome "$DEPLOY_CHECK_OUTCOME" --rawfile deploy_check_output /tmp/deploy-check.txt \
             --arg migrations_outcome "$MIGRATIONS_OUTCOME" --rawfile migrations_output /tmp/migrations.txt \
             --arg tests_outcome "$TESTS_OUTCOME" --rawfile tests_output /tmp/tests.txt \
             '{
               checks: {
                 "django-check": {outcome: $django_check_outcome, output: $django_check_output},
+                "deploy-check": {outcome: $deploy_check_outcome, output: $deploy_check_output},
                 "migrations": {outcome: $migrations_outcome, output: $migrations_output},
                 "tests": {outcome: $tests_outcome, output: $tests_output}
               }
@@ -187,6 +208,7 @@ jobs:
         if: always()
         run: |
           if [ "${{ steps.django-check.outcome }}" != "success" ] || \
+             [ "${{ steps.deploy-check.outcome }}" != "success" ] || \
              [ "${{ steps.migrations.outcome }}" != "success" ] || \
              [ "${{ steps.tests.outcome }}" != "success" ]; then
             echo "One or more checks failed. See the job summary for details."
