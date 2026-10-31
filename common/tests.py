@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.core.cache import cache
 from django.core.files.images import ImageFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
@@ -27,6 +28,7 @@ from wagtail.images.forms import get_image_form, get_image_multi_form
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from common.apps import CommonConfig, _locale_cache_local, _site_root_paths_local
+from common.cache_queries import DATABASE_CACHES, django_cache_reads
 from common.forms import DESCRIPTION_HELP_TEXT, RequiredDescriptionImageForm
 from common.middleware import (
     CanonicalHostRedirectMiddleware,
@@ -39,6 +41,7 @@ from common.templatetags.common_tags import (
     absolute_static,
     canonical_url,
     exclude_from_breadcrumbs,
+    live_page_url_by_slug,
     model_name,
     site_root_url,
     specific_pages,
@@ -823,6 +826,364 @@ class FlashMessageRolesTest(TestCase):
             html,
             r'role="status"[^>]*>\s*<i[^>]*>\s*</i>\s*<span>Order placed',
         )
+
+
+class AccessibilityStatementFooterLinkTest(TestCase):
+    """The footer links to the statement, but only once it exists."""
+
+    def setUp(self) -> None:
+        cache.clear()
+        Site.objects.all().delete()
+        root = Page.objects.get(depth=1)
+        self.home = root.add_child(
+            instance=HomePage(title="Home", slug="a11y-home"),
+        )
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def _footer(self) -> str:
+        return render_to_string("footer.html", request=RequestFactory().get("/"))
+
+    def _publish(self, slug: str = "accessibility", title: str = "Accessibility"):
+        page = self.home.add_child(instance=Page(title=title, slug=slug))
+        page.save_revision().publish()
+        return page
+
+    def test_no_link_before_the_page_exists(self) -> None:
+        # A footer link to a page nobody has written yet would be a 404 on
+        # every page of the site, which is a poor look in an accessibility fix.
+        self.assertNotIn("Accessibility", self._footer())
+
+    def test_link_appears_once_the_page_is_published(self) -> None:
+        self._publish()
+
+        footer = self._footer()
+
+        self.assertIn("Accessibility", footer)
+        self.assertIn("/accessibility/", footer)
+
+    def test_publishing_shows_the_link_on_the_next_render(self) -> None:
+        # A footer rendered before the page existed must not hold on to
+        # "no such page" once an editor publishes it.
+        self.assertNotIn("Accessibility", self._footer())
+
+        self._publish()
+
+        self.assertIn("Accessibility", self._footer())
+
+    def test_unpublishing_drops_the_link_on_the_next_render(self) -> None:
+        # Otherwise every page would carry a dead link to the statement.
+        page = self._publish()
+        self.assertIn("Accessibility", self._footer())
+
+        page.unpublish()
+
+        self.assertNotIn("Accessibility", self._footer())
+
+    def test_links_to_the_home_page_child_not_a_nested_namesake(self) -> None:
+        # Slugs are only unique among siblings, so a section can hold its own
+        # "accessibility" page. The statement is the one directly under home,
+        # even when the nested page was published first.
+        section = self.home.add_child(instance=Page(title="About", slug="about"))
+        nested = section.add_child(
+            instance=Page(title="Accessibility", slug="accessibility"),
+        )
+        nested.save_revision().publish()
+        self._publish()
+
+        footer = self._footer()
+
+        self.assertIn('href="/accessibility/"', footer)
+        self.assertNotIn('href="/about/accessibility/"', footer)
+
+    @override_settings(CACHES=DATABASE_CACHES)
+    def test_footer_link_adds_no_cache_read_to_a_page(self) -> None:
+        # The footer is on every page, and production keeps the Django cache in
+        # PostgreSQL, where every cache read is a query. The page as a whole
+        # should still read django_cache at most once with the link showing.
+        call_command("createcachetable", verbosity=0)
+        self._publish()
+        cache.clear()
+        Site.clear_site_root_paths_cache()
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get("/")
+
+        self.assertContains(response, 'href="/accessibility/"')
+        self.assertLessEqual(django_cache_reads(queries), 1)
+
+
+class LivePageUrlBySlugTest(TestCase):
+    """The tag behind the footer link."""
+
+    def setUp(self) -> None:
+        cache.clear()
+        Site.objects.all().delete()
+        root = Page.objects.get(depth=1)
+        self.home = root.add_child(
+            instance=HomePage(title="Home", slug="a11y-tag-home"),
+        )
+        self.site = Site.objects.create(
+            hostname="testserver",
+            root_page=self.home,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def _context(self, host: str = "testserver") -> dict:
+        return {"request": RequestFactory().get("/", HTTP_HOST=host)}
+
+    def _publish_accessibility(self, parent=None):
+        page = (parent or self.home).add_child(
+            instance=Page(title="Accessibility", slug="accessibility"),
+        )
+        page.save_revision().publish()
+        return page
+
+    def test_returns_none_when_no_page_matches(self) -> None:
+        self.assertIsNone(
+            live_page_url_by_slug(self._context(), "nothing-is-here"),
+        )
+
+    def test_returns_none_without_a_request(self) -> None:
+        self.assertIsNone(live_page_url_by_slug({}, "nothing-is-here"))
+
+    def test_returns_the_live_page(self) -> None:
+        page = self._publish_accessibility()
+
+        self.assertEqual(
+            live_page_url_by_slug(self._context(), "accessibility"),
+            page.url,
+        )
+
+    def test_ignores_a_private_page(self) -> None:
+        # A restricted page would render a link the reader cannot follow.
+        page = self._publish_accessibility()
+        PageViewRestriction.objects.create(
+            page=page,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        self.assertIsNone(
+            live_page_url_by_slug(self._context(), "accessibility"),
+        )
+
+    def test_ignores_a_page_under_a_private_section(self) -> None:
+        # A restriction on a page above it hides the statement too.
+        self._publish_accessibility()
+        PageViewRestriction.objects.create(
+            page=self.home,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        self.assertIsNone(
+            live_page_url_by_slug(self._context(), "accessibility"),
+        )
+
+    def test_ignores_a_page_when_the_whole_tree_is_private(self) -> None:
+        # A restriction above home, on the tree's root, covers home's children.
+        self._publish_accessibility()
+        PageViewRestriction.objects.create(
+            page=Page.objects.get(depth=1),
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        self.assertIsNone(
+            live_page_url_by_slug(self._context(), "accessibility"),
+        )
+
+    def test_ignores_a_private_page_without_a_request(self) -> None:
+        # Without a site any live page with the slug can match, so private
+        # ones are left out there too.
+        page = self._publish_accessibility()
+        PageViewRestriction.objects.create(
+            page=page,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        self.assertIsNone(live_page_url_by_slug({}, "accessibility"))
+
+    def test_keeps_a_page_when_another_section_is_private(self) -> None:
+        # Only restrictions on the statement or the pages above it count.
+        page = self._publish_accessibility()
+        members = self.home.add_child(instance=Page(title="Members", slug="members"))
+        PageViewRestriction.objects.create(
+            page=members,
+            restriction_type=PageViewRestriction.LOGIN,
+        )
+
+        self.assertEqual(
+            live_page_url_by_slug(self._context(), "accessibility"),
+            page.url,
+        )
+
+    def test_costs_one_query_with_or_without_the_page(self) -> None:
+        # The footer runs this on every page, and search counts every query.
+        # In a real request the site is already found by the time the footer
+        # renders, so it is found first here too.
+        context = self._context()
+        Site.find_for_request(context["request"])
+
+        with self.assertNumQueries(1):
+            live_page_url_by_slug(context, "accessibility")
+
+        self._publish_accessibility()
+        with self.assertNumQueries(1):
+            live_page_url_by_slug(context, "accessibility")
+
+    def test_ignores_a_page_nested_below_a_home_child(self) -> None:
+        # The docs and the create command put the statement directly under
+        # home, so a deeper page that shares the slug is some other page.
+        section = self.home.add_child(instance=Page(title="About", slug="about"))
+        self._publish_accessibility(parent=section)
+
+        self.assertIsNone(
+            live_page_url_by_slug(self._context(), "accessibility"),
+        )
+
+    def test_scoped_to_the_current_site(self) -> None:
+        # The same slug on another site must not leak across.
+        root = Page.objects.get(depth=1)
+        other_home = root.add_child(
+            instance=HomePage(title="Other", slug="a11y-other-home"),
+        )
+        Site.objects.create(hostname="other.example", root_page=other_home)
+        other_page = other_home.add_child(
+            instance=Page(title="Accessibility", slug="accessibility"),
+        )
+        other_page.save_revision().publish()
+        Site.clear_site_root_paths_cache()
+
+        # This site has no such page, even though another site does.
+        self.assertIsNone(
+            live_page_url_by_slug(self._context("testserver"), "accessibility"),
+        )
+        # The other site resolves its own, as a link relative to that site.
+        self.assertEqual(
+            live_page_url_by_slug(self._context("other.example"), "accessibility"),
+            "/accessibility/",
+        )
+        self.assertNotEqual(other_page.url, "/accessibility/")
+
+
+class CreateAccessibilityStatementCommandTest(TestCase):
+    """The management command seeds the statement as an unpublished draft."""
+
+    def setUp(self) -> None:
+        cache.clear()
+        Site.objects.all().delete()
+        root = Page.objects.get(depth=1)
+        self.home = root.add_child(
+            instance=HomePage(title="Home", slug="a11y-cmd-home"),
+        )
+        Site.objects.create(
+            hostname="testserver",
+            root_page=self.home,
+            is_default_site=True,
+        )
+        Site.clear_site_root_paths_cache()
+        self.addCleanup(Site.clear_site_root_paths_cache)
+
+    def _run(self) -> str:
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        out = StringIO()
+        call_command("create_accessibility_statement", stdout=out)
+        return out.getvalue()
+
+    def test_creates_an_unpublished_draft_under_home(self) -> None:
+        from wf_pages.models import WfPage
+
+        self._run()
+
+        page = WfPage.objects.get(slug="accessibility")
+        self.assertFalse(page.live)
+        self.assertEqual(page.get_parent().id, self.home.id)
+        self.assertIsNotNone(page.get_latest_revision())
+        body = str(page.body)
+        self.assertIn("WCAG", body)
+        self.assertIn("editor@westernfriend.org", body)
+
+    def test_no_footer_link_until_the_draft_is_published(self) -> None:
+        self._run()
+
+        footer = render_to_string("footer.html", request=RequestFactory().get("/"))
+
+        self.assertNotIn("/accessibility/", footer)
+
+    def test_is_idempotent(self) -> None:
+        from wf_pages.models import WfPage
+
+        self._run()
+        second = self._run()
+
+        self.assertEqual(WfPage.objects.filter(slug="accessibility").count(), 1)
+        self.assertIn("already exists", second)
+
+    def test_refuses_without_a_site_to_attach_the_page_to(self) -> None:
+        from django.core.management.base import CommandError
+
+        from wf_pages.models import WfPage
+
+        Site.objects.all().delete()
+
+        with self.assertRaisesMessage(CommandError, "No Wagtail site is configured"):
+            self._run()
+
+        self.assertFalse(WfPage.objects.filter(slug="accessibility").exists())
+
+    def _add_other_site(self, hostname: str) -> None:
+        root = Page.objects.get(depth=1)
+        other_home = root.add_child(
+            instance=HomePage(title="Other home", slug="a11y-cmd-other-home"),
+        )
+        Site.objects.create(hostname=hostname, root_page=other_home)
+
+    # Wagtail lists sites by name (here, the hostname), so these two put the
+    # other site first and then last in that order.
+
+    def test_prefers_the_default_site_listed_after_another(self) -> None:
+        from wf_pages.models import WfPage
+
+        # Site.objects.first() alone would pick the other site.
+        self._add_other_site("aaa.example")
+
+        self._run()
+
+        page = WfPage.objects.get(slug="accessibility")
+        self.assertEqual(page.get_parent().id, self.home.id)
+        self.assertFalse(page.live)
+
+    def test_prefers_the_default_site_listed_before_another(self) -> None:
+        from wf_pages.models import WfPage
+
+        # Site.objects.last() alone would pick the other site.
+        self._add_other_site("zzz.example")
+
+        self._run()
+
+        page = WfPage.objects.get(slug="accessibility")
+        self.assertEqual(page.get_parent().id, self.home.id)
+        self.assertFalse(page.live)
+
+    def test_uses_the_only_site_when_none_is_the_default(self) -> None:
+        from wf_pages.models import WfPage
+
+        Site.objects.update(is_default_site=False)
+
+        self._run()
+
+        page = WfPage.objects.get(slug="accessibility")
+        self.assertEqual(page.get_parent().id, self.home.id)
+        self.assertFalse(page.live)
 
 
 # The wording's single shared source is new_window_note.txt: the sr-only
