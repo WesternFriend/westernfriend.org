@@ -36,6 +36,7 @@ class FormLabelTests(SimpleTestCase):
             "memorials/memorial_index_page.html": {},
             "magazine/deep_archive_index_page.html": {},
             "search/search.html": {},
+            "404.html": {},
             "cart/detail.html": {"cart": [{"product": product, "quantity": 1}]},
             "orders/create.html": {"form": OrderCreateForm()},
             "subscription/register.html": {"form": CustomUserForm()},
