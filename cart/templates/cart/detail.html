@@ -48,23 +48,26 @@
                                     >
                                         {% csrf_token %}
 
-                                        <div class="join">
-                                            <input
-                                                id="update-button-{{ product.id }}"
-                                                type="number"
-                                                name="quantity"
-                                                min="1"
-                                                required=""
-                                                aria-label="Quantity of {{ product.title }}"
-                                                class="input input-bordered w-20 join-item"
-                                                value="{{ item.quantity }}"
-                                            >
-                                            <button
-                                                type="submit"
-                                                aria-label="Update quantity for {{ product.title }}"
-                                                class="btn btn-outline join-item">
-                                                Update
-                                            </button>
+                                        <div>
+                                            <label for="update-button-{{ product.id }}" class="label block mb-1 whitespace-normal">Quantity of {{ product.title }}</label>
+                                            <div class="join">
+                                                <input
+                                                    id="update-button-{{ product.id }}"
+                                                    type="number"
+                                                    name="quantity"
+                                                    min="1"
+                                                    required=""
+                                                    aria-label="Quantity of {{ product.title }}"
+                                                    class="input w-20 join-item"
+                                                    value="{{ item.quantity }}"
+                                                >
+                                                <button
+                                                    type="submit"
+                                                    aria-label="Update quantity for {{ product.title }}"
+                                                    class="btn btn-outline join-item">
+                                                    Update
+                                                </button>
+                                            </div>
                                         </div>
                                     </form>
                                 </td>
