@@ -90,7 +90,7 @@ spec:
       # files. The Python buildpack would otherwise run collectstatic itself,
       # before this command and so before the CSS exists; the app-level
       # DISABLE_COLLECTSTATIC turns that off and collectstatic runs here instead.
-      build_command: python manage.py download_daisyui && python manage.py tailwind build && python manage.py collectstatic --noinput
+      build_command: npm ci --include=dev && npm run build:css && python manage.py collectstatic --noinput
       envs:
         # Repeats the app-level Spaces settings with build-time scope as well:
         # the build command's collectstatic uploads to Spaces only when

@@ -17,14 +17,6 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict
-  # - repo: local
-  #   hooks:
-  #     - id: build-tailwind
-  #       name: Check that the Tailwind CSS builds
-  #       entry: python manage.py tailwind build
-  #       language: system
-  #       files: ^theme/static_src/
-  #       pass_filenames: false
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.21.2
     hooks:

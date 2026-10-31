@@ -115,9 +115,6 @@ media/
 # Data migration
 migration_data/
 
-# Compiled Tailwind CSS: built by `python manage.py tailwind build`, not committed
+# npm dependencies and compiled Tailwind CSS
+node_modules/
 theme/static/css/dist/
-
-# Downloaded and checksum-verified daisyUI build dependencies
-theme/static_src/src/daisyui
-theme/static_src/src/.daisyui-*
