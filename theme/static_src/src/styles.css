@@ -24,6 +24,10 @@
   */
 @source "../../../**/*.{html,py,js}";
 
+/* Scan project sources, excluding installed npm packages. */
+@source not "../../../node_modules";
+@source not "../node_modules";
+
 /* Percentage (not px) so the user's browser font-size preference is respected */
 :root {
   font-size: 100%;
