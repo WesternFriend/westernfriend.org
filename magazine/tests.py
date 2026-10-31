@@ -1,4 +1,5 @@
 import datetime
+from contextlib import contextmanager
 from unittest.mock import patch
 
 from django.core.cache import cache, caches
@@ -724,6 +725,48 @@ class MagazineArticleTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "not-found")
+        rendition = healthy.renditions.get(filter_spec=BODY_IMAGE_RENDITION_SPEC)
+        self.assertContains(response, rendition.url)
+
+    def test_body_image_read_error_uses_fallback_without_retry(self) -> None:
+        image_model = get_image_model()
+        unreadable = image_model.objects.create(
+            title="Unreadable image",
+            file=get_test_image_file(filename="unreadable-article.gif"),
+        )
+        healthy = image_model.objects.create(
+            title="Readable image",
+            file=get_test_image_file(filename="readable-article.gif"),
+        )
+        self.archive_magazine_article.body = [
+            image_block(unreadable),
+            image_block(healthy),
+        ]
+        self.archive_magazine_article.save()
+        cache.clear()
+        original_open_file = image_model.open_file
+        attempts = []
+
+        class FailingReader:
+            def read(self):
+                raise OSError
+
+        @contextmanager
+        def open_file(image):
+            if image.pk == unreadable.pk:
+                attempts.append(image.pk)
+                with original_open_file(image):
+                    yield FailingReader()
+            else:
+                with original_open_file(image) as source:
+                    yield source
+
+        with patch.object(image_model, "open_file", open_file):
+            response = self.client.get(self.archive_magazine_article.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "not-found")
+        self.assertEqual(attempts, [unreadable.pk])
         rendition = healthy.renditions.get(filter_spec=BODY_IMAGE_RENDITION_SPEC)
         self.assertContains(response, rendition.url)
 
