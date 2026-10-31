@@ -26,7 +26,7 @@ from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from common.apps import CommonConfig, _locale_cache_local, _site_root_paths_local
 from common.forms import DESCRIPTION_HELP_TEXT, RequiredDescriptionImageForm
-from common.middleware import PublicCacheControlMiddleware
+from common.middleware import CanonicalHostRedirectMiddleware, PublicCacheControlMiddleware
 from common.pages import live_specific_pages
 from common.renditions import attach_renditions
 from common.templatetags.common_form_tags import add_class
@@ -41,6 +41,41 @@ from common.templatetags.common_tags import (
 )
 from home.models import HomePage
 from store.factories import ProductFactory
+
+
+@override_settings(
+    CANONICAL_HOST="westernfriend.org",
+    REDIRECT_HOSTS=["coral-app-qpf8k.ondigitalocean.app"],
+    ALLOWED_HOSTS=["westernfriend.org"],
+    DEBUG=False,
+)
+class CanonicalHostRedirectTests(SimpleTestCase):
+    def test_redirect_before_host_validation_preserves_path_and_query(self):
+        response = self.client.get(
+            "/favicon.ico?source=bot&x=1",
+            HTTP_HOST="CORAL-APP-QPF8K.ONDIGITALOCEAN.APP:443",
+        )
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(
+            response["Location"],
+            "https://westernfriend.org/favicon.ico?source=bot&x=1",
+        )
+
+    def test_unlisted_host_is_rejected(self):
+        response = self.client.get("/", HTTP_HOST="unknown.example")
+        self.assertEqual(response.status_code, 400)
+
+    def test_canonical_host_passes_through(self):
+        response = HttpResponse("passed")
+        get_response = MagicMock(return_value=response)
+        request = RequestFactory().get("/", HTTP_HOST="westernfriend.org")
+        self.assertIs(CanonicalHostRedirectMiddleware(get_response)(request), response)
+        get_response.assert_called_once_with(request)
+
+    @override_settings(CANONICAL_HOST="")
+    def test_empty_canonical_host_disables_redirect(self):
+        response = self.client.get("/", HTTP_HOST="coral-app-qpf8k.ondigitalocean.app")
+        self.assertEqual(response.status_code, 400)
 
 
 class MockModel:

@@ -1,10 +1,25 @@
 from http import HTTPStatus
 
 from django.conf import settings
+from django.http import HttpResponsePermanentRedirect
 from django.urls import reverse
 from django.utils.cache import patch_cache_control
 
 from common.models import CrawlerPolicySetting
+
+class CanonicalHostRedirectMiddleware:
+    """Redirect explicitly configured hosts before Django validates the host."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        host = request.META.get("HTTP_HOST", "").split(":", 1)[0].lower()
+        if settings.CANONICAL_HOST and host in settings.REDIRECT_HOSTS:
+            return HttpResponsePermanentRedirect(
+                f"https://{settings.CANONICAL_HOST}{request.get_full_path()}"
+            )
+        return self.get_response(request)
 
 # Paths that serve per-visitor content, matching the Cloudflare cache rule
 PRIVATE_PATH_PREFIXES = (

@@ -34,6 +34,13 @@ default_allowed_hosts = "127.0.0.1,localhost,westernfriend.eu.ngrok.io"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default_allowed_hosts).split(",")
 
+CANONICAL_HOST = os.getenv("DJANGO_CANONICAL_HOST", "").strip()
+REDIRECT_HOSTS = [
+    host.strip().lower()
+    for host in os.getenv("DJANGO_REDIRECT_HOSTS", "").split(",")
+    if host.strip()
+]
+
 default_csrf_trusted_origins = "http://127.0.0.1,https://127.0.0.1,http://localhost,https://localhost,https://westernfriend.eu.ngrok.io"
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
@@ -261,6 +268,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "common.middleware.CanonicalHostRedirectMiddleware",
     "django.middleware.security.SecurityMiddleware",
     # Must run after the session, CSRF, and message middleware add cookies
     "common.middleware.PublicCacheControlMiddleware",
