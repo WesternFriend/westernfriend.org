@@ -83,6 +83,8 @@ Set up the site by following the steps below. The order of steps matters. So, be
    On the `wf-website` component, scope run time:
 
    - `DJANGO_ALLOWED_HOSTS` - each allowed host needs only the domain (and subdomain if relevant), no protocol
+   - `DJANGO_CANONICAL_HOST` - destination hostname without a protocol, for example `westernfriend.org`; defaults to empty
+   - `DJANGO_REDIRECT_HOSTS` - comma-separated hostnames to redirect to the canonical host over HTTPS, without protocols or ports; defaults to empty. For production, use `coral-app-qpf8k.ondigitalocean.app`. Keep `DJANGO_ALLOWED_HOSTS` restricted to the hosts Django should serve
    - `DJANGO_CSRF_TRUSTED_ORIGINS`- each origin should begin with a protocol, e.g., `https://...`
    - `PAYPAL_CLIENT_ENVIRONMENT` - one of "PRODUCTION" or "SANDBOX"
    - `PAYPAL_CLIENT_ID` - ID obtained from PayPal developer dashboard
@@ -108,6 +110,8 @@ Set up the site by following the steps below. The order of steps matters. So, be
 After the initial app is deployed, configure a domain (or subdomain) on our registrar that points to the deployed app via a CNAME record.
 
 Add a domain name [under the app settings](https://docs.digitalocean.com/products/app-platform/how-to/manage-domains). Be sure to add a corresponding CNAME record to the domain DNS configuration. DNS settings are managed wherever the domain is registered.
+
+For the existing production app, deploy the redirect middleware and set the web service (`westernfriend-website`) runtime variables `DJANGO_CANONICAL_HOST=westernfriend.org` and `DJANGO_REDIRECT_HOSTS=coral-app-qpf8k.ondigitalocean.app` in App Platform. The template calls its web service `wf-website`; the existing production service has a different name. The template does not update an existing app. Verify that the default domain returns a 301 to the same path and query on `https://westernfriend.org`, and that an unlisted host still receives a 400.
 
 ## Initialize the App
 

@@ -118,6 +118,12 @@ spec:
         - key: DJANGO_ALLOWED_HOSTS
           scope: RUN_TIME
           value: change.me
+        - key: DJANGO_CANONICAL_HOST
+          scope: RUN_TIME
+          value: change.me
+        - key: DJANGO_REDIRECT_HOSTS
+          scope: RUN_TIME
+          value: change-me.ondigitalocean.app
         - key: DJANGO_CSRF_TRUSTED_ORIGINS
           scope: RUN_TIME
           value: https://change.me
