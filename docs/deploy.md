@@ -111,7 +111,7 @@ After the initial app is deployed, configure a domain (or subdomain) on our regi
 
 Add a domain name [under the app settings](https://docs.digitalocean.com/products/app-platform/how-to/manage-domains). Be sure to add a corresponding CNAME record to the domain DNS configuration. DNS settings are managed wherever the domain is registered.
 
-For the existing production app, deploy the redirect middleware and set the web service (`westernfriend-website`) runtime variables `DJANGO_CANONICAL_HOST=westernfriend.org` and `DJANGO_REDIRECT_HOSTS=coral-app-qpf8k.ondigitalocean.app` in App Platform. The template does not update an existing app. Verify that the default domain returns a 301 to the same path and query on `https://westernfriend.org`, and that an unlisted host still receives a 400.
+For the existing production app, deploy the redirect middleware and set the web service (`westernfriend-website`) runtime variables `DJANGO_CANONICAL_HOST=westernfriend.org` and `DJANGO_REDIRECT_HOSTS=coral-app-qpf8k.ondigitalocean.app` in App Platform. The template calls its web service `wf-website`; the existing production service has a different name. The template does not update an existing app. Verify that the default domain returns a 301 to the same path and query on `https://westernfriend.org`, and that an unlisted host still receives a 400.
 
 ## Initialize the App
 
