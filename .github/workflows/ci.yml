@@ -256,6 +256,7 @@ jobs:
           set -o pipefail
           {
             npm ci --prefix scripts &&
+              touch /tmp/a11y-checker-installed &&
               node --test scripts/a11y-check.test.mjs
           } 2>&1 | tee /tmp/a11y-checker-tests.txt
 
@@ -277,6 +278,12 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
+          # Without its packages the checker can't run; say so, rather than
+          # show a module-resolution error as if the site had failed.
+          if [ ! -e /tmp/a11y-checker-installed ]; then
+            echo "Not run: the checker could not be installed - see its check above." | tee /tmp/a11y.txt
+            exit 1
+          fi
           uv run --no-sync python manage.py runserver 127.0.0.1:8000 --noreload &
           for _ in $(seq 1 30); do
             curl --silent --fail --output /dev/null http://127.0.0.1:8000/ && break

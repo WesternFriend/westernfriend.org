@@ -30,7 +30,7 @@ fails CI instead of waiting for a reader to write in. This implements
   `text/css`, and also a missing Content-Type or the placeholder
   `application/x-unknown-content-type` (unless the response says
   `X-Content-Type-Options: nosniff`); with a repeated Content-Type, it goes
-  by the last one. Redirects are followed, and a `304` counts as loaded
+  by the last valid one. Redirects are followed, and a `304` counts as loaded
   only when Chrome asked to revalidate a copy it already had. None is
   optional, including the Bootstrap Icons stylesheet from jsDelivr; if one
   ever needs to be, it should get an explicit exception in

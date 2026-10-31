@@ -76,6 +76,13 @@ const ROUTES = {
         response.writeHead(200, ["Content-Type", "text/html", "Content-Type", "text/css"]);
         response.end(CSS);
     },
+    "/trailing-comma/": html(page("/trailing-comma.css")),
+    "/trailing-comma.css": css("text/html,"),
+    "/quoted-comma/": html(page("/quoted-comma.css")),
+    // One value: the comma is inside quotes, so text/html isn't a second type.
+    "/quoted-comma.css": css('text/css; x="a, text/html; y=z"'),
+    "/invalid-last/": html(page("/invalid-last.css")),
+    "/invalid-last.css": css("text/html, foo"),
     "/repeated-type-not-css/": html(page("/html-last.css")),
     "/html-last.css": (request, response) => {
         response.writeHead(200, ["Content-Type", "text/css", "Content-Type", "text/html"]);
@@ -206,7 +213,7 @@ test("a stylesheet served as HTML fails the check", async () => {
     assertFailsOn(
         await check("/not-css/"),
         "/html-instead.css",
-        "served as text/html; charset=utf-8, not CSS",
+        "served as text/html, not CSS",
     );
 });
 
@@ -257,6 +264,12 @@ test("a repeated Content-Type header is read as its last value", async () => {
         "/html-last.css",
         "served as text/html, not CSS",
     );
+});
+
+test("a Content-Type is read as Chrome reads it: the last valid value", async () => {
+    assertFailsOn(await check("/trailing-comma/"), "/trailing-comma.css", "served as text/html, not CSS");
+    assertFailsOn(await check("/invalid-last/"), "/invalid-last.css", "served as text/html, not CSS");
+    assertPasses(await check("/quoted-comma/"));
 });
 
 test("a 304 when Chrome had no cached copy fails the check", async () => {

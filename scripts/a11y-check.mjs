@@ -30,6 +30,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import process from "node:process";
+import { MIMEType } from "node:util";
 
 // Say how to install the packages, rather than failing with a
 // module-resolution stack trace.
@@ -97,6 +98,42 @@ const APPLIED_AS_CSS = new Set([
     "application/x-unknown-content-type",
 ]);
 
+// The type and subtype a Content-Type header names, read as Chrome reads it:
+// a repeated header arrives as one comma-separated list, and the last value
+// that parses as a media type wins (commas inside quotes don't split, and
+// "*/*" doesn't count). With none, it's "", as if there were no header.
+function contentTypeEssence(header) {
+    const values = [];
+    let value = "";
+    let quoted = false;
+    for (let i = 0; i < header.length; i += 1) {
+        const char = header[i];
+        if (quoted && char === "\\" && i + 1 < header.length) {
+            value += char + header[i + 1];
+            i += 1;
+            continue;
+        }
+        if (char === '"') quoted = !quoted;
+        if (char === "," && !quoted) {
+            values.push(value);
+            value = "";
+        } else {
+            value += char;
+        }
+    }
+    values.push(value);
+    let essence = "";
+    for (const candidate of values) {
+        try {
+            const type = new MIMEType(candidate.trim());
+            if (type.essence !== "*/*") essence = type.essence;
+        } catch {
+            // Not a media type, so it's skipped.
+        }
+    }
+    return essence;
+}
+
 // Why a finished stylesheet request didn't load as CSS, or null if it did.
 function stylesheetProblem(request) {
     const response = request.response();
@@ -117,11 +154,8 @@ function stylesheetProblem(request) {
         const revalidating = "if-none-match" in headers || "if-modified-since" in headers;
         return revalidating ? null : "HTTP 304 to a request with no cached copy";
     }
-    // Puppeteer joins a repeated header with commas, and Chrome goes by the
-    // last value.
-    const type = (response.headers()["content-type"] ?? "").split(",").at(-1).trim();
-    const essence = type.split(";")[0].trim().toLowerCase();
-    return APPLIED_AS_CSS.has(essence) ? null : `served as ${type}, not CSS`;
+    const essence = contentTypeEssence(response.headers()["content-type"] ?? "");
+    return APPLIED_AS_CSS.has(essence) ? null : `served as ${essence}, not CSS`;
 }
 
 // Records every stylesheet the page requests, by URL, with why it didn't
