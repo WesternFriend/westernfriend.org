@@ -598,3 +598,20 @@ class RegistrationConfirmationTest(TestCase):
             signing.loads(keys[0], salt=REGISTRATION_SALT),
             user.get_username(),
         )
+
+
+class RegistrationStatusPagesTest(TestCase):
+    """The registration complete and closed pages render with working links."""
+
+    def test_registration_complete_page_links_home(self) -> None:
+        response = self.client.get(reverse("django_registration_complete"))
+
+        self.assertContains(response, "Activate your account")
+        self.assertContains(response, '<a href="/" class="btn btn-outline">')
+
+    def test_registration_closed_page_links_home_and_contact(self) -> None:
+        response = self.client.get(reverse("django_registration_disallowed"))
+
+        self.assertContains(response, "Registration is Closed")
+        self.assertContains(response, '<a href="/contact/" class="link link-primary">')
+        self.assertContains(response, '<a href="/" class="btn btn-outline">')
