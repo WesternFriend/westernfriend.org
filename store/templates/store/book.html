@@ -40,9 +40,9 @@
                         {% csrf_token %}
                         <input type="hidden" name="update" value="False" id="update">
 
-                        <div class="form-control w-24">
+                        <fieldset class="fieldset w-24">
                             <label for="quantity" class="label">
-                                <span class="label-text">Quantity:</span>
+                                Quantity:
                             </label>
                             <input
                                 type="number"
@@ -51,9 +51,9 @@
                                 value="1"
                                 min="1"
                                 required
-                                class="input input-bordered w-full"
+                                class="input w-full"
                             >
-                        </div>
+                        </fieldset>
 
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-cart-plus mr-2" aria-hidden="true"></i>
