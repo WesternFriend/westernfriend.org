@@ -4,6 +4,16 @@
 <html class="h-full" lang="en" data-theme="light">
     <head>
         <meta charset="utf-8" />
+        {# Set the saved theme before stylesheets load or the page can flash light. #}
+        <script>
+            try {
+                const theme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
+                document.documentElement.dataset.theme = theme;
+                document.documentElement.style.colorScheme = theme;
+            } catch (error) {
+                // Browsers that block storage keep the light theme in the HTML.
+            }
+        </script>
         <title>
             {% block title %}
                 {% if page.seo_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %}
@@ -96,7 +106,13 @@
                 outline-color: var(--color-brand-focus-dark);
             }
 
-            /* Insert other critical CSS here */
+            /* Native cross-document transitions keep the old page visible while
+               a same-origin destination loads. Unsupported browsers navigate normally. */
+            @media (prefers-reduced-motion: no-preference) {
+                @view-transition {
+                    navigation: auto;
+                }
+            }
         </style>
 
         <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
@@ -150,6 +166,16 @@
             {# Override this in templates to add extra javascript #}
         {% endblock extra_js %}
 
+        {# Prefetch likely public navigation destinations on hover or pointer down. #}
+        <script type="speculationrules">
+            {
+                "prefetch": [{
+                    "where": { "selector_matches": "nav .website-links a" },
+                    "eagerness": "moderate"
+                }]
+            }
+        </script>
+
         <script src="https://unpkg.com/vue@3.5.28/dist/vue.global.prod.js"
                 integrity="sha384-EyKhbIJoP1t1fKIFRNEfYKy4uy8qxs7UNS4Cab53xyXqCTUB1PCoxeFsD0G/NX9W"
                 crossorigin="anonymous"></script>
@@ -161,20 +187,19 @@
                 const themeToggle = document.getElementById('theme-toggle');
                 const htmlElement = document.documentElement;
 
-                // Set default theme to light if no preference in localStorage
-                const savedTheme = localStorage.getItem('theme') || 'light';
-
-                // Apply the saved theme
-                htmlElement.setAttribute('data-theme', savedTheme);
-
                 // Set toggle state based on current theme
-                themeToggle.checked = savedTheme === 'dark';
+                themeToggle.checked = htmlElement.dataset.theme === 'dark';
 
                 // Listen for toggle changes
                 themeToggle.addEventListener('change', function() {
                     const newTheme = this.checked ? 'dark' : 'light';
-                    htmlElement.setAttribute('data-theme', newTheme);
-                    localStorage.setItem('theme', newTheme);
+                    htmlElement.dataset.theme = newTheme;
+                    htmlElement.style.colorScheme = newTheme;
+                    try {
+                        localStorage.setItem('theme', newTheme);
+                    } catch (error) {
+                        // The toggle still works for this page if storage is blocked.
+                    }
                 });
             });
         </script>
