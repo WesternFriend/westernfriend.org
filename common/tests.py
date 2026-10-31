@@ -1128,6 +1128,18 @@ class CreateAccessibilityStatementCommandTest(TestCase):
         self.assertEqual(WfPage.objects.filter(slug="accessibility").count(), 1)
         self.assertIn("already exists", second)
 
+    def test_refuses_without_a_site_to_attach_the_page_to(self) -> None:
+        from django.core.management.base import CommandError
+
+        from wf_pages.models import WfPage
+
+        Site.objects.all().delete()
+
+        with self.assertRaisesMessage(CommandError, "No Wagtail site is configured"):
+            self._run()
+
+        self.assertFalse(WfPage.objects.filter(slug="accessibility").exists())
+
 
 # The wording's single shared source is new_window_note.txt: the sr-only
 # include and every aria-label suffix render it, and this constant reads it,
