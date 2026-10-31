@@ -89,6 +89,8 @@ const ROUTES = {
     "/any-type-last.css": css("text/css, */*"),
     "/any-type-with-params/": html(page("/any-type-with-params.css")),
     "/any-type-with-params.css": css("text/css, */*; q=1"),
+    "/spaced-any-type/": html(page("/spaced-any-type.css")),
+    "/spaced-any-type.css": css("text/html, */* , foo"),
     "/type-with-comment/": html(page("/type-with-comment.css")),
     "/type-with-comment.css": css("text/html (x)"),
     "/bare-slash-last/": html(page("/bare-slash-last.css")),
@@ -291,7 +293,14 @@ test("a Content-Type is read as Chrome reads it: the last valid value", async ()
     await reads("/invalid-last/", "/invalid-last.css", "text/html, foo", "text/html");
     await reads("/type-with-comment/", "/type-with-comment.css", "text/html (x)", "text/html");
     await reads("/bare-slash-last/", "/bare-slash-last.css", "text/css, text/", "text/");
-    // A bare */* names no type, but with parameters it does.
+    // A bare */* names no type, even with spaces around it, but with
+    // parameters it does.
+    await reads(
+        "/spaced-any-type/",
+        "/spaced-any-type.css",
+        "text/html, */* , foo",
+        "text/html",
+    );
     await reads(
         "/any-type-with-params/",
         "/any-type-with-params.css",

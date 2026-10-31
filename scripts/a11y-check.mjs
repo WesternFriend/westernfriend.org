@@ -97,9 +97,10 @@ const APPLIED_AS_CSS = new Set([
     "application/x-unknown-content-type",
 ]);
 
-// The type a Content-Type header names, read the way Chrome reads it (checked
-// against Chrome on 32 headers): a repeated header arrives as one
-// comma-separated list, and commas inside quotes don't split it. A value that
+// The type a Content-Type header names, read the way Chrome reads it (each
+// case in scripts/a11y-check.test.mjs was checked in Chrome): a repeated
+// header arrives as one comma-separated list, and commas inside quotes don't
+// split it. A value that
 // is just "*/*" names no type. Otherwise its type runs to its first space,
 // tab, ";" or "(", and counts only if it has a "/". The last one that counts
 // wins; with none, it's "", as if there were no header.
