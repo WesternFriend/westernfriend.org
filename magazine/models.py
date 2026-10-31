@@ -22,7 +22,11 @@ from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from common.models import CrawlerPolicySetting, DrupalFields
-from common.renditions import attach_renditions
+from common.renditions import (
+    BODY_IMAGE_RENDITION_SPEC,
+    _prefetch_streamfield_renditions,
+    attach_renditions,
+)
 from core.constants import COMMON_STREAMFIELD_BLOCKS
 from pagination.helpers import get_paginated_items
 
@@ -554,6 +558,9 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
             or self.is_public_access
             or self.is_featured
         )
+
+        if context["user_can_view_full_article"]:
+            _prefetch_streamfield_renditions(self.body, BODY_IMAGE_RENDITION_SPEC)
 
         return context
 
