@@ -7,6 +7,7 @@ from django.utils.cache import patch_cache_control
 
 from common.models import CrawlerPolicySetting
 
+
 class CanonicalHostRedirectMiddleware:
     """Redirect explicitly configured hosts before Django validates the host."""
 
@@ -20,6 +21,7 @@ class CanonicalHostRedirectMiddleware:
                 f"https://{settings.CANONICAL_HOST}{request.get_full_path()}"
             )
         return self.get_response(request)
+
 
 # Paths that serve per-visitor content, matching the Cloudflare cache rule
 PRIVATE_PATH_PREFIXES = (

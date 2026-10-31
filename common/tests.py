@@ -26,7 +26,10 @@ from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from common.apps import CommonConfig, _locale_cache_local, _site_root_paths_local
 from common.forms import DESCRIPTION_HELP_TEXT, RequiredDescriptionImageForm
-from common.middleware import CanonicalHostRedirectMiddleware, PublicCacheControlMiddleware
+from common.middleware import (
+    CanonicalHostRedirectMiddleware,
+    PublicCacheControlMiddleware,
+)
 from common.pages import live_specific_pages
 from common.renditions import attach_renditions
 from common.templatetags.common_form_tags import add_class
