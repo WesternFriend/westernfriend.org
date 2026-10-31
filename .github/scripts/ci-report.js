@@ -39,7 +39,7 @@ const CHECKS = {
   },
   'a11y-checker-tests': {
     job: 'a11y',
-    label: 'Accessibility checker tests',
+    label: 'Accessibility checker (install and tests)',
     fix: 'npm ci --prefix scripts && node --test scripts/a11y-check.test.mjs',
   },
   'a11y-seed': {

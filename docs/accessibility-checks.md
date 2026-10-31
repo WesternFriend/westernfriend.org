@@ -25,14 +25,19 @@ fails CI instead of waiting for a reader to write in. This implements
   before axe runs, because a page missing its styles can pass contrast and
   layout rules the real page fails. A stylesheet fails its page, with its
   URL and the reason, when it returns an error status, fails on the
-  network, is still loading once the page has loaded, or is served as a
-  type Chrome won't apply as CSS (it applies `text/css`, and also a missing
-  or unknown type). Redirects are followed, and a `304` for a copy Chrome
-  already has counts as loaded. None is optional, including the Bootstrap Icons
-  stylesheet from jsDelivr; if one ever needs to be, it should get an
-  explicit exception in `scripts/a11y-check.mjs`, with the reason.
+  network or partway through, is still loading once the page has loaded,
+  or is served as a type Chrome won't apply as CSS. Chrome applies
+  `text/css`, and also a missing Content-Type or the placeholder
+  `application/x-unknown-content-type` (unless the response says
+  `X-Content-Type-Options: nosniff`); with a repeated Content-Type, it goes
+  by the last one. Redirects are followed, and a `304` counts as loaded
+  only when Chrome asked to revalidate a copy it already had. None is
+  optional, including the Bootstrap Icons stylesheet from jsDelivr; if one
+  ever needs to be, it should get an explicit exception in
+  `scripts/a11y-check.mjs`, with the reason.
   `scripts/a11y-check.test.mjs` checks each of these cases against a local
-  test server, and CI runs it as its own check before seeding.
+  test server, and CI installs the checker and runs these as their own
+  check, before seeding.
 
 ## Tool choice (recorded per the issue)
 

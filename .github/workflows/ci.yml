@@ -244,20 +244,20 @@ jobs:
       - name: Build CSS from locked npm dependencies
         run: npm ci --include=dev && npm run build:css
 
-      # The checker's own packages, from scripts/package-lock.json. Only this
+      # The checker's own packages, from scripts/package-lock.json: only this
       # job installs them, so they stay out of the deploy and the test job.
-      - name: Install the accessibility checker
-        run: npm ci --prefix scripts
-
-      # The checker's own tests need no database, so they run before seeding
-      # and report on their own: if the checker can't tell a page that lost
-      # its stylesheet from a styled one, the scan proves nothing.
-      - name: Test the accessibility checker
+      # Its tests need no database, so they run before seeding and report on
+      # their own, install errors included: if the checker can't tell a page
+      # that lost its stylesheet from a styled one, the scan proves nothing.
+      - name: Install and test the accessibility checker
         id: a11y-checker-tests
         continue-on-error: true
         run: |
           set -o pipefail
-          node --test scripts/a11y-check.test.mjs 2>&1 | tee /tmp/a11y-checker-tests.txt
+          {
+            npm ci --prefix scripts &&
+              node --test scripts/a11y-check.test.mjs
+          } 2>&1 | tee /tmp/a11y-checker-tests.txt
 
       # Seeding is its own recorded check, so when it fails the CI report
       # shows the seeding error itself instead of an empty accessibility log.

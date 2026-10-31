@@ -86,9 +86,11 @@ function chromePath() {
     return found;
 }
 
-// The Content-Types Chrome applies a stylesheet under, by their type and
-// subtype: text/css, and also none at all or this placeholder, which Chrome
-// accepts for compatibility.
+// The Content-Types Chrome applies a stylesheet under in a standards-mode
+// page, by their type and subtype: text/css, and also none at all or this
+// placeholder, which Chrome accepts for compatibility (as measured in Chrome;
+// with X-Content-Type-Options: nosniff it aborts those instead, and that
+// abort fails the stylesheet below).
 const APPLIED_AS_CSS = new Set([
     "text/css",
     "",
@@ -98,12 +100,26 @@ const APPLIED_AS_CSS = new Set([
 // Why a finished stylesheet request didn't load as CSS, or null if it did.
 function stylesheetProblem(request) {
     const response = request.response();
-    if (!response) return request.failure()?.errorText ?? "no response";
-    const status = response.status();
-    // Chrome revalidated the copy it already had, and applies that.
-    if (status === 304) return null;
-    if (status < 200 || status >= 300) return `HTTP ${status}`;
-    const type = response.headers()["content-type"] ?? "";
+    const status = response?.status();
+    // An error status says the most, even when Chrome also aborts the request.
+    if (status !== undefined && status !== 304 && (status < 200 || status >= 300)) {
+        return `HTTP ${status}`;
+    }
+    // Checked before the response, because a request can fail after its
+    // headers arrived, as when the body is cut short.
+    const failure = request.failure();
+    if (failure) return failure.errorText;
+    if (!response) return "no response";
+    if (status === 304) {
+        // Only a request revalidating a copy Chrome already has can be
+        // answered with a 304; that copy is what Chrome applies.
+        const headers = request.headers();
+        const revalidating = "if-none-match" in headers || "if-modified-since" in headers;
+        return revalidating ? null : "HTTP 304 to a request with no cached copy";
+    }
+    // Puppeteer joins a repeated header with commas, and Chrome goes by the
+    // last value.
+    const type = (response.headers()["content-type"] ?? "").split(",").at(-1).trim();
     const essence = type.split(";")[0].trim().toLowerCase();
     return APPLIED_AS_CSS.has(essence) ? null : `served as ${type}, not CSS`;
 }

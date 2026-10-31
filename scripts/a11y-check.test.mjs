@@ -68,6 +68,37 @@ const ROUTES = {
     // Chrome applies a stylesheet that has no Content-Type at all.
     "/untyped-stylesheet/": html(page("/untyped.css")),
     "/untyped.css": css(null),
+    "/unknown-type/": html(page("/unknown.css")),
+    "/unknown.css": css("application/x-unknown-content-type"),
+    // A repeated Content-Type: Chrome goes by the last one.
+    "/repeated-type/": html(page("/css-last.css")),
+    "/css-last.css": (request, response) => {
+        response.writeHead(200, ["Content-Type", "text/html", "Content-Type", "text/css"]);
+        response.end(CSS);
+    },
+    "/repeated-type-not-css/": html(page("/html-last.css")),
+    "/html-last.css": (request, response) => {
+        response.writeHead(200, ["Content-Type", "text/css", "Content-Type", "text/html"]);
+        response.end(CSS);
+    },
+    // With nosniff, Chrome won't apply a stylesheet that has no Content-Type.
+    "/nosniff-untyped/": html(page("/nosniff.css")),
+    "/nosniff.css": (request, response) => {
+        response.writeHead(200, { "X-Content-Type-Options": "nosniff" });
+        response.end(CSS);
+    },
+    "/cut-short/": html(page("/cut.css")),
+    "/cut.css": (request, response) => {
+        response.writeHead(200, { "Content-Type": "text/css", "Content-Length": "5000" });
+        response.write(CSS);
+        setTimeout(() => request.socket.destroy(), 100);
+    },
+    // A 304 when Chrome had nothing cached to revalidate.
+    "/unasked-304/": html(page("/stale.css")),
+    "/stale.css": (request, response) => {
+        response.writeHead(304);
+        response.end();
+    },
     "/redirected-stylesheet/": html(page("/moved.css")),
     "/moved.css": redirect("/present.css"),
     "/redirected-to-missing/": html(page("/moved-away.css")),
@@ -125,13 +156,16 @@ after(() => {
 async function check(...paths) {
     const urls = paths.map((path) => base + path);
     try {
-        const { stdout, stderr } = await run(process.execPath, [CHECK, ...urls]);
+        const { stdout, stderr } = await run(process.execPath, [CHECK, ...urls], {
+            timeout: 120000,
+        });
         return { code: 0, stdout, output: stdout + stderr };
     } catch (error) {
+        const stdout = error.stdout ?? "";
         return {
             code: error.code,
-            stdout: error.stdout,
-            output: error.stdout + error.stderr,
+            stdout,
+            output: `${stdout}${error.stderr ?? ""}${error.message}`,
         };
     }
 }
@@ -145,10 +179,16 @@ function assertPasses({ code, stdout, output }, pages = 1) {
     );
 }
 
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// `reason` is the exact text, or a RegExp for one that varies.
 function assertFailsOn({ code, stdout, output }, stylesheet, reason) {
     assert.equal(code, 1, output);
-    assert.ok(
-        stdout.includes(`stylesheet did not load: ${base}${stylesheet} (${reason})`),
+    const why = reason instanceof RegExp ? reason.source : escapeRegExp(reason);
+    const url = escapeRegExp(base + stylesheet);
+    assert.match(
+        stdout,
+        new RegExp(`stylesheet did not load: ${url} \\(${why}\\)`),
         output,
     );
     assert.match(stdout, /^0\/1 page\(s\) scanned/m, output);
@@ -195,13 +235,35 @@ test("a 3xx that Chrome doesn't follow fails the check", async () => {
 });
 
 test("a stylesheet whose connection drops fails the check", async () => {
-    const result = await check("/dropped-connection/");
+    assertFailsOn(await check("/dropped-connection/"), "/dropped.css", /net::ERR_\w+/);
+});
 
-    assert.equal(result.code, 1, result.output);
-    assert.match(
-        result.stdout,
-        /stylesheet did not load: \S+\/dropped\.css \(net::ERR_\w+\)/,
-        result.output,
+test("a stylesheet whose body is cut short fails the check", async () => {
+    assertFailsOn(await check("/cut-short/"), "/cut.css", /net::ERR_\w+/);
+});
+
+test("a stylesheet with no Content-Type fails when nosniff is set", async () => {
+    assertFailsOn(await check("/nosniff-untyped/"), "/nosniff.css", /net::ERR_\w+/);
+});
+
+test("a stylesheet with the unknown-type placeholder counts as loaded", async () => {
+    assertPasses(await check("/unknown-type/"));
+});
+
+test("a repeated Content-Type header is read as its last value", async () => {
+    assertPasses(await check("/repeated-type/"));
+    assertFailsOn(
+        await check("/repeated-type-not-css/"),
+        "/html-last.css",
+        "served as text/html, not CSS",
+    );
+});
+
+test("a 304 when Chrome had no cached copy fails the check", async () => {
+    assertFailsOn(
+        await check("/unasked-304/"),
+        "/stale.css",
+        "HTTP 304 to a request with no cached copy",
     );
 });
 
