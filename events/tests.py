@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from django.http import Http404
 from django.test import RequestFactory, TestCase
@@ -215,7 +216,7 @@ class EventWebsiteLinkRenderTest(TestCase):
             f'<a href="{self.website}" class="btn btn-primary" target="_blank"'
             ' rel="noopener noreferrer">'
             '<i class="bi bi-link me-2" aria-hidden="true"></i>'
-            ' Visit event website <span class="sr-only">(opens in new tab)</span></a>',
+            ' Visit event website <span class="sr-only">(opens in new window)</span></a>',
             html=True,
         )
 
@@ -233,5 +234,13 @@ class EventWebsiteLinkRenderTest(TestCase):
             html=True,
         )
         # A link that stays in this tab must not claim otherwise to a screen
-        # reader — the announcement is conditional, not decorative.
-        self.assertNotContains(response, "(opens in new tab)")
+        # reader — the announcement is conditional, not decorative. Checked on
+        # this link only: the footer's GitHub link carries the same note on
+        # every page.
+        link = re.search(
+            rf'<a href="{re.escape(self.website)}"[^>]*>.*?</a>',
+            response.content.decode(),
+            re.DOTALL,
+        )
+        self.assertIsNotNone(link)
+        self.assertNotIn("(opens in new window)", link.group(0))

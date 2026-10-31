@@ -1,5 +1,7 @@
+import re
 from html.parser import HTMLParser
 from io import BytesIO, StringIO
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
@@ -821,6 +823,181 @@ class FlashMessageRolesTest(TestCase):
             html,
             r'role="status"[^>]*>\s*<i[^>]*>\s*</i>\s*<span>Order placed',
         )
+
+
+# The wording's single shared source is new_window_note.txt: the sr-only
+# include and every aria-label suffix render it, and this constant reads it,
+# so a wording change happens in exactly one place.
+NEW_WINDOW_NOTE = render_to_string("new_window_note.txt").strip()
+# Templates are scanned as SOURCE, not rendered, so a link can announce itself
+# by including either template rather than by carrying the wording literally:
+# the bare note (inside an aria-label) or the sr-only span (everywhere else).
+NEW_WINDOW_INCLUDE = "new_window_note.txt"
+NEW_WINDOW_WRAPPER = "opens_in_new_window.html"
+
+
+# A link that opens a new window. The quotes are optional (target=_blank is
+# valid HTML), but the value has to end there, so target="_blanket" is not one.
+# The name has to start there too: \b would match inside data-target, so the
+# attribute can't follow a letter, digit, underscore or hyphen. It can follow a
+# template tag, as in {% if %}target="_blank".
+NEW_WINDOW_LINK = re.compile(
+    r"<a\b[^>]*?(?<![\w-])target\s*=\s*([\"']?)_blank\1(?![\w-]).*?</a>",
+    re.DOTALL,
+)
+
+
+def includes_template(name: str, source: str) -> bool:
+    # The template has to be included, not just named: a URL or label that
+    # merely mentions the filename does not announce anything.
+    pattern = r"\{%\s*include\s+([\"'])" + re.escape(name) + r"\1"
+    return re.search(pattern, source) is not None
+
+
+class NewWindowLinkPatternTests(TestCase):
+    """Links that open a new window announce it the same way everywhere."""
+
+    @staticmethod
+    def _template_files() -> list[Path]:
+        repo_root = Path(__file__).resolve().parent.parent
+        return [
+            path
+            for path in repo_root.glob("*/templates/**/*.html")
+            if ".venv" not in path.parts and "node_modules" not in path.parts
+        ]
+
+    def _links_opening_a_new_window(self):
+        for path in self._template_files():
+            markup = path.read_text(encoding="utf-8")
+            for match in NEW_WINDOW_LINK.finditer(markup):
+                yield path, match.group(0)
+
+    @staticmethod
+    def _announces_new_window(link: str) -> bool:
+        # An aria-label replaces the link's content for screen readers, so a
+        # link that sets one has to carry the note in the label itself; the
+        # included span would not be read.
+        label = re.search(r"\baria-label\s*=\s*([\"'])(.*?)\1", link, re.DOTALL)
+        if label:
+            text = label.group(2)
+            return NEW_WINDOW_NOTE in text or includes_template(
+                NEW_WINDOW_INCLUDE,
+                text,
+            )
+        return (
+            includes_template(NEW_WINDOW_WRAPPER, link)
+            or includes_template(NEW_WINDOW_INCLUDE, link)
+            or NEW_WINDOW_NOTE in link
+        )
+
+    @staticmethod
+    def _rel_tokens(link: str) -> list[str]:
+        # Only the opening <a> tag holds attributes; searching the whole link
+        # would let link text such as 'rel="noopener"' pass the check.
+        opening_tag = re.match(r"<a\b[^>]*>", link)
+        if not opening_tag:
+            return []
+        # The boundary has to be a real attribute break: \b alone would let
+        # data-rel="noopener" satisfy the check, since the hyphen counts as one.
+        match = re.search(
+            r"(?:^|[\s\"'/])rel\s*=\s*([\"'])(.*?)\1",
+            opening_tag.group(0),
+            re.DOTALL,
+        )
+        return match.group(2).split() if match else []
+
+    def test_every_new_window_link_announces_itself(self) -> None:
+        missing = [
+            str(path)
+            for path, link in self._links_opening_a_new_window()
+            if not self._announces_new_window(link)
+        ]
+
+        self.assertEqual(missing, [], f"Links missing '{NEW_WINDOW_NOTE}': {missing}")
+
+    def test_every_new_window_link_sets_rel_noopener(self) -> None:
+        # rel is a space-separated token list, so "noopener" has to be one of
+        # its tokens; the word merely appearing in the href or link text is
+        # not enough.
+        missing = [
+            str(path)
+            for path, link in self._links_opening_a_new_window()
+            if "noopener" not in self._rel_tokens(link)
+        ]
+
+        self.assertEqual(missing, [], f"Links missing rel=noopener: {missing}")
+
+    def test_rel_is_read_from_the_opening_tag_only(self) -> None:
+        self.assertEqual(
+            self._rel_tokens(
+                '<a target="_blank">(opens in new window) '
+                'Set rel="noopener" on links</a>',
+            ),
+            [],
+        )
+        self.assertEqual(
+            self._rel_tokens(
+                '<a href="/x" target="_blank" rel="noopener noreferrer">x</a>',
+            ),
+            ["noopener", "noreferrer"],
+        )
+
+    def test_the_scan_finds_unquoted_targets_but_not_near_misses(self) -> None:
+        for link in (
+            '<a href="/x" target="_blank">x</a>',
+            "<a href='/x' target='_blank'>x</a>",
+            "<a href=/x target=_blank>x</a>",
+            '<a href="/x" {% if y %}target="_blank"{% endif %}>x</a>',
+        ):
+            with self.subTest(link=link):
+                self.assertIsNotNone(NEW_WINDOW_LINK.search(link))
+        for link in (
+            '<a href="/x" target="_blanket">x</a>',
+            "<a href=/x target=_blank-ish>x</a>",
+            '<a href="/x" target="_self">x</a>',
+            '<a href="/x" data-target="_blank">x</a>',
+        ):
+            with self.subTest(link=link):
+                self.assertIsNone(NEW_WINDOW_LINK.search(link))
+
+    def test_naming_the_template_is_not_including_it(self) -> None:
+        # A URL or label that only mentions the filename announces nothing.
+        self.assertFalse(
+            self._announces_new_window(
+                '<a href="/docs/opens_in_new_window.html" target="_blank" '
+                'rel="noopener">Docs</a>',
+            ),
+        )
+        self.assertFalse(
+            self._announces_new_window(
+                '<a href="/x" target="_blank" rel="noopener" '
+                'aria-label="See new_window_note.txt">x</a>',
+            ),
+        )
+        self.assertTrue(
+            self._announces_new_window(
+                '<a href="/x" target="_blank" rel="noopener">x'
+                '{% include "opens_in_new_window.html" %}</a>',
+            ),
+        )
+        self.assertTrue(
+            self._announces_new_window(
+                '<a href="/x" target="_blank" rel="noopener" '
+                "aria-label=\"Visit {% include 'new_window_note.txt' %}\">x</a>",
+            ),
+        )
+
+    def test_the_included_note_matches_the_constant(self) -> None:
+        # The announcement check accepts the include directive without
+        # rendering it, so this pins the include's wording to the constant.
+        self.assertIn(NEW_WINDOW_NOTE, render_to_string("opens_in_new_window.html"))
+
+    def test_the_check_finds_the_links(self) -> None:
+        # Guards against the pattern above silently matching nothing, which
+        # would make both checks pass for the wrong reason.
+        found = list(self._links_opening_a_new_window())
+
+        self.assertGreaterEqual(len(found), 10)
 
 
 class ElementAncestry(HTMLParser):
