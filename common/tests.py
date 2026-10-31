@@ -1140,6 +1140,51 @@ class CreateAccessibilityStatementCommandTest(TestCase):
 
         self.assertFalse(WfPage.objects.filter(slug="accessibility").exists())
 
+    def _add_other_site(self, hostname: str) -> None:
+        root = Page.objects.get(depth=1)
+        other_home = root.add_child(
+            instance=HomePage(title="Other home", slug="a11y-cmd-other-home"),
+        )
+        Site.objects.create(hostname=hostname, root_page=other_home)
+
+    # Wagtail lists sites by name (here, the hostname), so these two put the
+    # other site first and then last in that order.
+
+    def test_prefers_the_default_site_listed_after_another(self) -> None:
+        from wf_pages.models import WfPage
+
+        # Site.objects.first() alone would pick the other site.
+        self._add_other_site("aaa.example")
+
+        self._run()
+
+        page = WfPage.objects.get(slug="accessibility")
+        self.assertEqual(page.get_parent().id, self.home.id)
+        self.assertFalse(page.live)
+
+    def test_prefers_the_default_site_listed_before_another(self) -> None:
+        from wf_pages.models import WfPage
+
+        # Site.objects.last() alone would pick the other site.
+        self._add_other_site("zzz.example")
+
+        self._run()
+
+        page = WfPage.objects.get(slug="accessibility")
+        self.assertEqual(page.get_parent().id, self.home.id)
+        self.assertFalse(page.live)
+
+    def test_uses_the_only_site_when_none_is_the_default(self) -> None:
+        from wf_pages.models import WfPage
+
+        Site.objects.update(is_default_site=False)
+
+        self._run()
+
+        page = WfPage.objects.get(slug="accessibility")
+        self.assertEqual(page.get_parent().id, self.home.id)
+        self.assertFalse(page.live)
+
 
 # The wording's single shared source is new_window_note.txt: the sr-only
 # include and every aria-label suffix render it, and this constant reads it,
