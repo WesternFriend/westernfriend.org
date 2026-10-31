@@ -18,6 +18,7 @@ from django.utils import timezone
 
 from cart.cart import Cart
 from cart.tests import scaffold_product_index_page
+from core.test_utils import link_targets, links_missing_slash
 from orders.forms import OrderCreateForm
 from orders.views import create_cart_order_items
 from shipping.calculator import get_book_shipping_cost
@@ -155,6 +156,15 @@ class OrderCreateViewTest(TestCase):
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "orders/create.html")
+
+    def test_back_to_cart_link_goes_straight_to_cart(self) -> None:
+        self.add_to_cart(self.product)
+
+        response = self.client.get(reverse("orders:order_create"))
+
+        hrefs = link_targets(response.content.decode())
+        self.assertIn(reverse("cart:detail"), hrefs)
+        self.assertEqual(links_missing_slash(hrefs, "/cart"), [])
 
     def test_get_with_empty_cart_redirects_to_cart(self) -> None:
         response = self.client.get(reverse("orders:order_create"), follow=True)

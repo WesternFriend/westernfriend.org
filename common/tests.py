@@ -42,6 +42,7 @@ from common.templatetags.common_tags import (
     specific_pages,
     visible_breadcrumb_ancestors,
 )
+from core.test_utils import link_targets, links_missing_slash
 from home.models import HomePage
 from store.factories import ProductFactory
 
@@ -1083,3 +1084,22 @@ class TestAttachRenditions(TestCase):
         self.assertFalse(
             any("wagtailimages_rendition" in query["sql"] for query in captured),
         )
+
+
+class ContactLinkTest(TestCase):
+    """Links to the contact page use its own URL, so they need no redirect."""
+
+    def test_footer_links_to_contact_page_url(self) -> None:
+        html = render_to_string("footer.html", request=RequestFactory().get("/"))
+        hrefs = link_targets(html)
+
+        self.assertIn("/contact/", hrefs)
+        self.assertEqual(links_missing_slash(hrefs, "/contact"), [])
+
+    def test_server_error_page_links_to_contact_page_url(self) -> None:
+        # Rendered the way Django's default 500 handler does: no request.
+        hrefs = link_targets(render_to_string("500.html"))
+
+        # The page has two contact links, its own and the footer's: both change.
+        self.assertEqual(hrefs.count("/contact/"), 2)
+        self.assertEqual(links_missing_slash(hrefs, "/contact"), [])
