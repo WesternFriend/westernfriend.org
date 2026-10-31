@@ -70,7 +70,7 @@ const ROUTES = {
     "/untyped.css": css(null),
     "/unknown-type/": html(page("/unknown.css")),
     "/unknown.css": css("application/x-unknown-content-type"),
-    // A repeated Content-Type: Chrome goes by the last one.
+    // A repeated Content-Type: Chrome goes by the last valid one.
     "/repeated-type/": html(page("/css-last.css")),
     "/css-last.css": (request, response) => {
         response.writeHead(200, ["Content-Type", "text/html", "Content-Type", "text/css"]);
@@ -87,6 +87,8 @@ const ROUTES = {
     "/valid-then-invalid.css": css("text/css, foo"),
     "/any-type-last/": html(page("/any-type-last.css")),
     "/any-type-last.css": css("text/css, */*"),
+    "/any-type-with-params/": html(page("/any-type-with-params.css")),
+    "/any-type-with-params.css": css("text/css, */*; q=1"),
     "/type-with-comment/": html(page("/type-with-comment.css")),
     "/type-with-comment.css": css("text/html (x)"),
     "/bare-slash-last/": html(page("/bare-slash-last.css")),
@@ -289,6 +291,13 @@ test("a Content-Type is read as Chrome reads it: the last valid value", async ()
     await reads("/invalid-last/", "/invalid-last.css", "text/html, foo", "text/html");
     await reads("/type-with-comment/", "/type-with-comment.css", "text/html (x)", "text/html");
     await reads("/bare-slash-last/", "/bare-slash-last.css", "text/css, text/", "text/");
+    // A bare */* names no type, but with parameters it does.
+    await reads(
+        "/any-type-with-params/",
+        "/any-type-with-params.css",
+        "text/css, */*; q=1",
+        "*/*",
+    );
     assertPasses(await check("/quoted-comma/"));
     assertPasses(await check("/escaped-quote/"));
     assertPasses(await check("/valid-then-invalid/"));

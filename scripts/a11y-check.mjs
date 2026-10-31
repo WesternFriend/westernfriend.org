@@ -31,7 +31,6 @@ import { readFileSync, existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import process from "node:process";
 
-
 // Say how to install the packages, rather than failing with a
 // module-resolution stack trace.
 let puppeteer;
@@ -99,11 +98,11 @@ const APPLIED_AS_CSS = new Set([
 ]);
 
 // The type a Content-Type header names, read the way Chrome reads it (checked
-// against Chrome on 21 headers): a repeated header arrives as one
-// comma-separated list, and commas inside quotes don't split it. Each value's
-// type runs to its first space, tab, ";" or "(", and counts only if it has a
-// "/" and isn't "*/*". The last one that counts wins; with none, it's "", as
-// if there were no header.
+// against Chrome on 32 headers): a repeated header arrives as one
+// comma-separated list, and commas inside quotes don't split it. A value that
+// is just "*/*" names no type. Otherwise its type runs to its first space,
+// tab, ";" or "(", and counts only if it has a "/". The last one that counts
+// wins; with none, it's "", as if there were no header.
 function contentTypeEssence(header) {
     const values = [];
     let value = "";
@@ -126,8 +125,10 @@ function contentTypeEssence(header) {
     values.push(value);
     let essence = "";
     for (const candidate of values) {
-        const type = candidate.replace(/^[ \t]+/, "").split(/[ \t;(]/)[0];
-        if (type.includes("/") && type !== "*/*") essence = type.toLowerCase();
+        const trimmed = candidate.replace(/^[ \t]+|[ \t]+$/g, "");
+        if (trimmed === "*/*") continue;
+        const type = trimmed.split(/[ \t;(]/)[0];
+        if (type.includes("/")) essence = type.toLowerCase();
     }
     return essence;
 }
