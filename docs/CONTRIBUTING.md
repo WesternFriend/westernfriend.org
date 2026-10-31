@@ -89,6 +89,8 @@ The field values come from the factories in each app's `factories.py`, which tes
 
 ### Tailwind CSS
 
+**Windows prerequisite:** before running `download_daisyui`, enable Windows Developer Mode (Settings → System → Advanced → For developers; on older Windows versions, Settings → Privacy & security → For developers), or use an elevated terminal. The downloader publishes its verified bundle pair through a directory symlink, which requires this permission on Windows. The devcontainer is another option.
+
 The site's stylesheet is compiled from `theme/static_src/src/styles.css` into `theme/static/css/dist/styles.css`. The compiled file is not committed, so build it once after cloning, and again after pulling changes to templates or styles:
 
 ```bash
