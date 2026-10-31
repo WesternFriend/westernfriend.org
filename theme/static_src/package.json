@@ -1,0 +1,14 @@
+{
+  "name": "@westernfriend/theme",
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -i ./src/styles.css -o ../static/css/dist/styles.css --minify",
+    "start": "tailwindcss -i ./src/styles.css -o ../static/css/dist/styles.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "@tailwindcss/typography": "0.5.20",
+    "daisyui": "5.7.50",
+    "tailwindcss": "4.3.3"
+  }
+}

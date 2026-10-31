@@ -58,7 +58,7 @@ This project uses Docker to manage a Postgres database.
 
 1. **Create .env File** (with `DJANGO_DEBUG=true`)
 2. **Run Database Migrations**: `python manage.py migrate`
-3. **Build the CSS**: `python manage.py tailwind build` (see [Tailwind CSS](#tailwind-css))
+3. **Build the CSS** (Node.js 24 and npm 11 required): `npm ci --include=dev` followed by `npm run build:css` (see [Tailwind CSS](#tailwind-css))
 4. **Add Content**: `python manage.py seed_dev_content` (see [Development content](#development-content))
 5. **Run the Server**: `python manage.py runserver` (access from http://localhost:8000)
 
@@ -89,19 +89,25 @@ The field values come from the factories in each app's `factories.py`, which tes
 
 ### Tailwind CSS
 
-The site's stylesheet is compiled from `theme/static_src/src/styles.css` into `theme/static/css/dist/styles.css`. The compiled file is not committed, so build it once after cloning, and again after pulling changes to templates or styles:
+The stylesheet is compiled from `theme/static_src/src/styles.css` into `theme/static/css/dist/styles.css`. Install Node.js 24 (with npm 11), or use the devcontainer, which includes it. From the repository root, run:
 
-```bash
-python manage.py tailwind build
+```sh
+npm ci --include=dev
+npm run build:css
 ```
 
-While editing templates or styles, run the watcher in a separate terminal instead, so the CSS rebuilds as you save:
+While editing templates or styles, run `npm run watch:css` in a separate terminal. CSS compilation runs independently of Django; the theme app supplies the generated stylesheet through Django static files.
 
-```bash
-python manage.py tailwind start
+The root `package.json` declares the theme workspace. Its dependencies are listed in `theme/static_src/package.json`; the single root `package-lock.json` records exact versions and integrity hashes for Tailwind, daisyUI, typography, and their dependencies. Commit both manifests and the lockfile; do not commit `node_modules` or compiled CSS. Deployment uses `npm ci --include=dev` so build tools are installed even when `NODE_ENV=production`.
+
+To upgrade the CSS toolchain, run this from the repository root, build the CSS, and commit the resulting manifest and lockfile changes:
+
+```sh
+npm install --workspace @westernfriend/theme --save-dev --save-exact tailwindcss@4 @tailwindcss/cli@4 @tailwindcss/typography@latest daisyui@5
+npm run build:css
 ```
 
-Neither command needs Node. django-tailwind downloads Tailwind's standalone binary on first use, at the version pinned by `TAILWIND_STANDALONE_BINARY_VERSION` in `core/settings.py`. daisyUI is loaded from the two bundles vendored next to `styles.css` (`daisyui.mjs` and `daisyui-theme.mjs`); to upgrade it, replace both with the files from a newer [daisyUI release](https://github.com/saadeghi/daisyui/releases). The deploy builds the CSS itself (see [deploy.md](deploy.md)).
+The root manifest overrides `postcss-selector-parser` to a patched 6.x release while the typography plugin pins an older vulnerable release. Recheck that override when upgrading typography. Dependabot also proposes grouped npm updates. No versions or hashes need copying into Django settings. See [deploy.md](deploy.md) for deployment setup.
 
 ### Dependency Management
 

@@ -227,11 +227,22 @@ class TestNavigationMenuRendering(TestCase):
             },
         )
 
+    def test_navbar_search_has_a_visible_associated_label(self):
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(self.client.get(reverse("login")).content, "html.parser")
+        control = soup.find("input", id="navbar-search-input")
+        self.assertIsNotNone(control)
+        label = soup.find("label", attrs={"for": control["id"]})
+        self.assertIsNotNone(label)
+        self.assertEqual(label.get_text(strip=True), "Search")
+        self.assertNotIn("sr-only", label.get("class", []))
+
     def test_menu_items_render_as_list_items_without_menu_roles(self) -> None:
         html = self.client.get(reverse("login")).content.decode()
 
         links = html.split(
-            'class="menu menu-horizontal menu-compact bg-black website-links"',
+            'class="menu menu-horizontal menu-sm bg-black website-links"',
             1,
         )[1]
         links = links.split("</ul>\n", 1)[0]

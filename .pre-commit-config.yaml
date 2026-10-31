@@ -1,6 +1,11 @@
-# The daisyUI bundles are vendored verbatim from its releases; leave them as is
-exclude: ^theme/static_src/src/daisyui(-theme)?\.mjs$
 repos:
+  - repo: local
+    hooks:
+      - id: daisyui-removed-classes
+        name: Reject removed daisyUI classes
+        language: pygrep
+        entry: '\b(artboard|artboard-horizontal|artboard-demo|phone-[1-6]|btm-nav(-[a-z]+)?|card-bordered|card-compact|file-input-bordered|input-bordered|input-border|select-bordered|select-border|textarea-bordered|textarea-border|form-control|label-text(-alt)?|mask-square|mask-parallelogram(-[234])?|tabs-bordered|tabs-lifted|tabs-boxed|btn-group|input-group|menu-compact)\b'
+        types_or: [html, python]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -12,14 +17,6 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict
-  # - repo: local
-  #   hooks:
-  #     - id: build-tailwind
-  #       name: Check that the Tailwind CSS builds
-  #       entry: python manage.py tailwind build
-  #       language: system
-  #       files: ^theme/static_src/
-  #       pass_filenames: false
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.21.2
     hooks:
