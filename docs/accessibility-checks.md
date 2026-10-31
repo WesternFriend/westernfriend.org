@@ -21,6 +21,15 @@ fails CI instead of waiting for a reader to write in. This implements
 - **Failure threshold:** any violation axe rates `serious` or `critical`
   fails the run. `moderate` and `minor` violations are printed but do not
   fail, so the check stays strict without crying wolf.
+- **Stylesheets:** every stylesheet a page requests has to load as CSS
+  before axe runs, because a page missing its styles can pass contrast and
+  layout rules the real page fails. A stylesheet that returns an error
+  status, fails on the network, is served as something other than
+  `text/css`, or is still loading once the page has loaded fails that page,
+  with the stylesheet's URL and the reason. None is optional; if one ever
+  needs to be, it should get an explicit exception in
+  `scripts/a11y-check.mjs`, with the reason. `scripts/a11y-check.test.mjs`
+  checks this against a local test server, and CI runs it before the scan.
 
 ## Tool choice (recorded per the issue)
 
@@ -68,6 +77,9 @@ DJANGO_DEBUG=true ./manage.py runserver 8000
 # from a11y_urls is seen rather than swallowed by the $() substitution.
 ./manage.py a11y_urls > /tmp/a11y-urls.txt
 node scripts/a11y-check.mjs $(cat /tmp/a11y-urls.txt)
+
+# The checker's own tests (no server or database needed)
+node --test scripts/a11y-check.test.mjs
 ```
 
 If Chrome is somewhere unusual, point the script at it with

@@ -261,6 +261,9 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
+          # The checker's own tests first: if it can't tell a page that lost
+          # its stylesheet from a styled one, the scan below proves nothing.
+          node --test scripts/a11y-check.test.mjs 2>&1 | tee /tmp/a11y.txt
           uv run --no-sync python manage.py runserver 127.0.0.1:8000 --noreload &
           for _ in $(seq 1 30); do
             curl --silent --fail --output /dev/null http://127.0.0.1:8000/ && break
@@ -272,7 +275,7 @@ jobs:
           # a11y_urls would otherwise be scanned as if it were complete.
           uv run --no-sync python manage.py a11y_urls > /tmp/a11y-urls.txt
           # The browser is the runner's own Chrome, so nothing downloads another.
-          node scripts/a11y-check.mjs $(cat /tmp/a11y-urls.txt) 2>&1 | tee /tmp/a11y.txt
+          node scripts/a11y-check.mjs $(cat /tmp/a11y-urls.txt) 2>&1 | tee -a /tmp/a11y.txt
 
       - name: Write result for report job
         if: always()

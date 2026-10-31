@@ -12,6 +12,11 @@
  * `serious` or `critical`; `moderate` and `minor` issues are reported but do
  * not fail the run, so the check cannot be ignored for crying wolf.
  *
+ * Every stylesheet a page requests has to load as CSS before axe runs: a
+ * page missing its styles can pass contrast and layout rules the real page
+ * fails. A page whose stylesheet doesn't load fails the run, naming the
+ * stylesheet and why. scripts/a11y-check.test.mjs proves it.
+ *
  * Tool choice (issue #1282): axe-core driven by puppeteer-core. Both are
  * pure-JavaScript npm packages - no browser download, no native binaries -
  * and the browser is whatever Chrome the environment already has (CHROME_PATH,
@@ -67,17 +72,66 @@ function chromePath() {
     return found;
 }
 
+// Records every stylesheet the page requests, by URL, with why it didn't
+// load, or null once it has. The network is the measure: Chrome gives a
+// stylesheet that 404s or isn't CSS an empty `sheet`, not a missing one, so
+// the page itself can't tell a failed stylesheet from an empty one.
+function watchStylesheets(page) {
+    const stylesheets = new Map();
+    const settle = (request) => {
+        if (request.resourceType() !== "stylesheet") return;
+        const status = request.response()?.status();
+        if (status >= 300 && status < 400) {
+            // A redirect: the request it leads to is checked instead.
+            stylesheets.delete(request.url());
+        } else if (status === undefined) {
+            stylesheets.set(
+                request.url(),
+                request.failure()?.errorText ?? "no response",
+            );
+        } else if (status < 200 || status >= 300) {
+            stylesheets.set(request.url(), `HTTP ${status}`);
+        } else {
+            // Chrome won't apply a stylesheet served as anything but CSS.
+            const type = request.response().headers()["content-type"] ?? "";
+            stylesheets.set(
+                request.url(),
+                /^text\/css\b/i.test(type)
+                    ? null
+                    : `served as ${type || "no content type"}, not text/css`,
+            );
+        }
+    };
+    page.on("request", (request) => {
+        if (request.resourceType() === "stylesheet") {
+            stylesheets.set(request.url(), "still loading");
+        }
+    });
+    page.on("requestfinished", settle);
+    page.on("requestfailed", settle);
+    return stylesheets;
+}
+
 async function scanPage(browser, url) {
     const page = await browser.newPage();
+    const stylesheets = watchStylesheets(page);
     try {
         const response = await page.goto(url, {
-            waitUntil: "networkidle2",
+            // The load event waits for the stylesheets the page links to load
+            // or fail, so the check below sees how each one ended.
+            waitUntil: ["load", "networkidle2"],
             timeout: 60000,
         });
         if (!response || response.status() >= 400) {
             throw new Error(
                 `HTTP ${response ? response.status() : "no response"}`,
             );
+        }
+        const failed = [...stylesheets]
+            .filter(([, problem]) => problem !== null)
+            .map(([href, problem]) => `${href} (${problem})`);
+        if (failed.length > 0) {
+            throw new Error(`stylesheet did not load: ${failed.join(", ")}`);
         }
         await page.evaluate(AXE_SOURCE);
         const results = await page.evaluate(
