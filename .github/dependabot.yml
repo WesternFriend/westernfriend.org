@@ -25,3 +25,10 @@ updates:
           - "tailwindcss"
           - "@tailwindcss/*"
           - "daisyui"
+  # The accessibility checker's packages (scripts/a11y-check.mjs). An
+  # axe-core update changes what counts as a violation, so review it as a
+  # rule change.
+  - package-ecosystem: "npm"
+    directory: "/scripts"
+    schedule:
+      interval: weekly

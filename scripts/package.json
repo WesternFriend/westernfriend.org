@@ -1,0 +1,13 @@
+{
+  "name": "westernfriend-a11y-check",
+  "private": true,
+  "description": "Packages for scripts/a11y-check.mjs, installed only by the CI job that runs it",
+  "engines": {
+    "node": "24.x",
+    "npm": "11.x"
+  },
+  "dependencies": {
+    "axe-core": "4.10.2",
+    "puppeteer-core": "25.14.0"
+  }
+}
