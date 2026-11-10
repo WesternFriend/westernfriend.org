@@ -25,7 +25,8 @@
 
             <div class="hidden w-full xl:block xl:w-auto" id="navbarCollapse">
                 <div class="flex flex-col xl:flex-row xl:items-center xl:space-x-1">
-                    <ul class="menu menu-horizontal menu-sm bg-black website-links" aria-label="Site navigation links">
+                    {# nav_link.html is black-on-white for dropdown panels; top-level links sit on the black bar, so restyle only direct children here. #}
+                    <ul class="menu menu-horizontal menu-sm bg-black website-links [&>li>a]:text-white [&>li>a:hover]:bg-gray-700" aria-label="Site navigation links">
                         {# include_block renders each <li> without StreamField's wrapper <div>, keeping the list valid #}
                         {% for menu_item in settings.navigation.NavigationMenuSetting.menu_items %}
                             {% include_block menu_item %}
@@ -37,17 +38,17 @@
                             {% if user.is_authenticated %}
                                 <form id="logout-form" method="post" action="{% url 'logout' %}?next={{ request.path }}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none">Log out</button>
+                                    <button type="submit" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus-visible:bg-gray-700 active:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none">Log out</button>
                                 </form>
                             {% else %}
-                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" rel="nofollow">
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus-visible:bg-gray-700 active:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" rel="nofollow">
                                     Login
                                 </a>
                             {% endif %}
                         </li>
                         {% if not user.is_authenticated %}
                             <li class="nav-item">
-                                <a href="{% url 'django_registration_register' %}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" rel="nofollow">
+                                <a href="{% url 'django_registration_register' %}" class="btn btn-ghost btn-sm text-white px-2 py-1 hover:bg-gray-700 focus-visible:bg-gray-700 active:bg-gray-700 focus:ring-2 focus:ring-gray-300 focus:outline-none" rel="nofollow">
                                     Register
                                 </a>
                             </li>

@@ -241,16 +241,40 @@ class TestNavigationMenuRendering(TestCase):
     def test_menu_items_render_as_list_items_without_menu_roles(self) -> None:
         html = self.client.get(reverse("login")).content.decode()
 
-        links = html.split(
-            'class="menu menu-horizontal menu-sm bg-black website-links"',
-            1,
-        )[1]
+        links = html.split('aria-label="Site navigation links">', 1)[1]
         links = links.split("</ul>\n", 1)[0]
         # include_block renders each <li> directly, without StreamField wrapper divs
         self.assertNotIn("<div", links.split("<details>", 1)[0])
         self.assertIn("Quaker Links", links)
         self.assertIn("<summary", links)
         self.assertNotIn('role="menu', html)
+
+    def test_top_level_menu_text_is_light_in_every_theme(self) -> None:
+        """The navbar is black in both themes, so top-level text must not follow the theme."""
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(self.client.get(reverse("login")).content, "html.parser")
+        menu = soup.find("ul", attrs={"aria-label": "Site navigation links"})
+        self.assertIsNotNone(menu)
+
+        # Top-level page and external links reuse the black-on-white dropdown
+        # template, so the list restyles its direct-child links.
+        self.assertIn("[&>li>a]:text-white", menu["class"])
+        # The child combinators only match a link directly inside a direct <li>,
+        # so a wrapper element anywhere in between would leave it black.
+        link = menu.find("a", string=lambda text: text and "Quaker Links" in text)
+        self.assertEqual(link.parent.name, "li")
+        self.assertIs(link.parent.parent, menu)
+
+        # daisyUI's btn-ghost otherwise uses the theme's near-black text color,
+        # and a near-white background when focused or pressed in light mode.
+        summary = menu.find("summary")
+        for css_class in (
+            "text-white",
+            "focus-visible:bg-gray-700",
+            "active:bg-gray-700",
+        ):
+            self.assertIn(css_class, summary["class"])
 
 
 @override_settings(
