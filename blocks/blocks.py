@@ -1,8 +1,9 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.validators import validate_slug
-from django.forms.utils import flatatt
-from django.utils.html import format_html, format_html_join
+from django.utils.html import format_html
 from wagtail import blocks as wagtail_blocks
+from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtailmedia.blocks import AbstractMediaChooserBlock
 
@@ -97,39 +98,127 @@ class HeadingBlock(wagtail_blocks.StructBlock):
         template = "blocks/blocks/heading.html"
 
 
-class MediaBlock(AbstractMediaChooserBlock):
-    def render_basic(self, value, context=None):
+CAPTIONS_NOT_VTT_ERROR = (
+    "Captions must be a WebVTT (.vtt) file. '%(filename)s' is not a .vtt file."
+)
+CAPTIONS_NO_WEBVTT_HEADER_ERROR = (
+    "Captions must be a WebVTT (.vtt) file. '%(filename)s' does not start with WEBVTT."
+)
+
+_UTF8_BOM = b"\xef\xbb\xbf"
+_WEBVTT_SIGNATURE = b"WEBVTT"
+# A space or tab (before a header comment), a line break, or the end of an
+# otherwise empty file.
+_AFTER_WEBVTT_SIGNATURE = (b" ", b"\t", b"\n", b"\r", b"")
+
+
+def starts_with_webvtt_signature(file) -> bool:
+    """Return whether an open binary file starts with the WebVTT signature.
+
+    The WebVTT spec allows a UTF-8 byte order mark, then requires ``WEBVTT``
+    followed by a space, a tab, a line break, or the end of the file. Only
+    those first bytes are read; the cues are not parsed.
+    """
+    head = file.read(len(_UTF8_BOM) + len(_WEBVTT_SIGNATURE) + 1)
+    head = head.removeprefix(_UTF8_BOM)
+    after = head[len(_WEBVTT_SIGNATURE) : len(_WEBVTT_SIGNATURE) + 1]
+    return head.startswith(_WEBVTT_SIGNATURE) and after in _AFTER_WEBVTT_SIGNATURE
+
+
+def validate_webvtt_document(document) -> None:
+    """Reject a captions document that is not a WebVTT (.vtt) file.
+
+    Without this, any document the editor picks is rendered as a caption
+    ``<track>``: a PDF or an image produces a track the browser cannot parse,
+    so the captions silently never appear. The same happens to a file that
+    only has the .vtt extension, such as a renamed SubRip (.srt) file, so the
+    file must also start with the WebVTT signature.
+    """
+    if document.file_extension.lower() != "vtt":
+        raise ValidationError(
+            CAPTIONS_NOT_VTT_ERROR,
+            code="invalid_caption_format",
+            params={"filename": document.filename},
+        )
+    with document.open_file() as file:
+        is_webvtt = starts_with_webvtt_signature(file)
+    if not is_webvtt:
+        raise ValidationError(
+            CAPTIONS_NO_WEBVTT_HEADER_ERROR,
+            code="invalid_caption_format",
+            params={"filename": document.filename},
+        )
+
+
+class MediaChooserBlock(AbstractMediaChooserBlock):
+    """Concrete media chooser used inside :class:`MediaBlock`.
+
+    The player markup is rendered by ``MediaBlock``'s template, not here, so
+    that an optional caption ``<track>`` can sit *inside* the ``<video>`` /
+    ``<audio>`` element where the browser expects it.
+
+    It still returns the media title rather than nothing, because
+    ``MediaChooserBlockComparison`` feeds ``render_basic`` into the revision
+    comparison view: returning an empty string leaves the Media row blank
+    there even when the media has been swapped, while its sibling captions and
+    transcript rows show their change.
+    """
+
+    def render_basic(self, value, context=None) -> str:
         if not value:
             return ""
+        return format_html("{}", value.title)
 
-        if value.type == "video":
-            player_code = """
-            <div>
-                <video width="{1}" height="{2}" controls>
-                    {0}
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            """
-        else:
-            player_code = """
-            <div>
-                <audio controls>
-                    {0}
-                    Your browser does not support the audio element.
-                </audio>
-            </div>
-            """
 
-        return format_html(
-            player_code,
-            format_html_join(
-                "\n",
-                "<source{0}>",
-                [[flatatt(s)] for s in value.sources],
-            ),
-            value.width,
-            value.height,
+class MediaBlock(wagtail_blocks.StructBlock):
+    """Audio or video with an optional caption track and transcript.
+
+    Captions (a WebVTT file) and a text transcript make uploaded media usable
+    by Deaf and hard-of-hearing readers (WCAG 1.2.1, 1.2.2, 1.2.3, 1.2.5).
+    """
+
+    media = MediaChooserBlock()
+    captions = DocumentChooserBlock(
+        required=False,
+        validators=(validate_webvtt_document,),
+        help_text=(
+            "Optional WebVTT (.vtt) caption file, shown on the player. "
+            "Captions for embedded YouTube or Vimeo videos are set with the "
+            "provider, not here."
+        ),
+    )
+    transcript = wagtail_blocks.RichTextBlock(
+        required=False,
+        help_text=(
+            "Optional text transcript, shown beneath the player so the content "
+            "is available without audio."
+        ),
+    )
+
+    class Meta:
+        icon = "media"
+        label = "Media"
+        template = "blocks/blocks/media.html"
+
+    @staticmethod
+    def _upgrade_legacy_value(value):
+        """Wrap a value saved by the old chooser-only ``MediaBlock``.
+
+        Library item bodies had a ``media`` block from migration 0001 to 0021
+        that stored only the media id. Pages saved then may still hold that
+        bare id, which the struct cannot read, so it becomes ``{"media": id}``
+        and captions and transcript take their empty defaults.
+        """
+        if isinstance(value, dict):
+            return value
+        return {"media": value}
+
+    def to_python(self, value):
+        return super().to_python(self._upgrade_legacy_value(value))
+
+    def bulk_to_python(self, values):
+        return super().bulk_to_python(
+            [self._upgrade_legacy_value(value) for value in values],
         )
 
 

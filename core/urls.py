@@ -12,6 +12,7 @@ from accounts.views import (
     CustomPasswordResetView,
     CustomRegistrationView,
 )
+from blocks.views import serve_captions
 from common.views import favicon_ico, llms_txt, robots_txt, sitemap
 from magazine.feeds import MagazineArticleFeed, MagazineIssueFeed
 from search import views as search_views
@@ -47,6 +48,12 @@ urlpatterns = [
     path("orders/", include("orders.urls", namespace="orders")),
     path("payment/", include("payment.urls", namespace="payment")),
     path("paypal/", include("paypal.urls", namespace="paypal")),
+    # Caption files for media blocks, served from this origin (see the view).
+    path(
+        "documents/captions/<int:document_id>/<str:document_filename>",
+        serve_captions,
+        name="serve_captions",
+    ),
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
     path("tags/", include("tags.urls", namespace="tags")),
