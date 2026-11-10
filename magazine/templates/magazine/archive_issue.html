@@ -61,6 +61,12 @@
             </section>
         {% endif %}
 
+        <p class="mb-4">
+            <a href="https://archive.org/download/{{ page.internet_archive_identifier }}/{{ page.internet_archive_identifier }}.pdf">
+                Open the PDF for {{ page.title }} directly from Internet Archive
+            </a>
+        </p>
+
         <section aria-label="Magazine Viewer" class="h-[700px] w-full mb-4">
             <iframe
                 id="archive-pdf-viewer"
@@ -68,7 +74,7 @@
                 width="100%"
                 height="100%"
                 frameborder="0"
-                title="Magazine Issue PDF"
+                title="Internet Archive viewer for {{ page.title }}"
                 webkitallowfullscreen="true"
                 mozallowfullscreen="true"
                 allowfullscreen>
