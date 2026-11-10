@@ -266,9 +266,15 @@ class TestNavigationMenuRendering(TestCase):
         self.assertEqual(link.parent.name, "li")
         self.assertIs(link.parent.parent, menu)
 
-        # daisyUI's btn-ghost otherwise uses the theme's near-black text color.
+        # daisyUI's btn-ghost otherwise uses the theme's near-black text color,
+        # and a near-white background when focused or pressed in light mode.
         summary = menu.find("summary")
-        self.assertIn("text-white", summary["class"])
+        for css_class in (
+            "text-white",
+            "focus-visible:bg-gray-700",
+            "active:bg-gray-700",
+        ):
+            self.assertIn(css_class, summary["class"])
 
 
 @override_settings(
