@@ -22,6 +22,11 @@ const CHECKS = {
     label: 'Django system checks',
     fix: 'uv run python manage.py check --fail-level WARNING',
   },
+  'deploy-check': {
+    job: 'test',
+    label: 'Django deployment checks (production settings)',
+    fix: 'DJANGO_DEBUG=false DJANGO_SECRET_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(50))") EMAIL_HOST=x EMAIL_HOST_USER=x EMAIL_HOST_PASSWORD=x uv run python manage.py check --deploy --fail-level WARNING',
+  },
   migrations: {
     job: 'test',
     label: 'Missing migrations',

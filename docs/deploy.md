@@ -13,6 +13,7 @@ This work-in-progress document outlines the steps necessary to deploy the site.
   - [Set up the pre-deploy job on an existing app](#set-up-the-pre-deploy-job-on-an-existing-app)
   - [Enable the shared cache on an existing app](#enable-the-shared-cache-on-an-existing-app)
   - [Build the CSS during the deploy on an existing app](#build-the-css-during-the-deploy-on-an-existing-app)
+  - [Serve the site over HTTPS behind the proxy](#serve-the-site-over-https-behind-the-proxy)
 
 ## Static Files
 
@@ -100,6 +101,11 @@ Set up the site by following the steps below. The order of steps matters. So, be
      - `EMAIL_USE_SSL` - use implicit SSL instead of TLS (default: False). When set to True, also set `EMAIL_USE_TLS=False`: Django refuses to send email with both enabled, and TLS is on by default
      - `DEFAULT_FROM_EMAIL` - from address when sending mail (default: tech@westernfriend.org)
    - `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ZONE_ID` - `wf-website`, scope run time. When both are set, Wagtail purges published and unpublished pages from Cloudflare's cache. Placeholder values make every purge fail, so Cloudflare keeps serving stale pages. See [edge caching](specifications/edge_caching.md)
+
+   HTTPS overrides. Leave these unset: with `DJANGO_DEBUG` "False", the site already redirects to HTTPS and sends HSTS without them. They exist so the rollout can be adjusted without a code change. See [Serve the site over HTTPS behind the proxy](#serve-the-site-over-https-behind-the-proxy)
+
+   - `DJANGO_SECURE_SSL_REDIRECT` - `wf-website`, scope run time (default: "true"). Any value other than "true" or "1" turns off the redirect from HTTP to HTTPS
+   - `DJANGO_SECURE_HSTS_SECONDS` - `wf-website`, scope run time (default: 3600, one hour). The `max-age` of the `Strict-Transport-Security` header. `0` stops sending the header
 
 6. Edit the App Info with the following settings
    1. Give the app a meaningful name
@@ -242,4 +248,37 @@ This builds the currently deployed standalone code as well as the npm migration.
 
 After the migration deploy succeeds, simplify the live command to the permanent command above. Check the site's stylesheet URL points at Spaces and that the library filters, checkout, and registration forms are styled in light and dark themes.
 
-**Rollback:** restore the previous code and temporary build command together. Keep `DISABLE_COLLECTSTATIC=1` and collect files after compiling CSS.
+**Rolling back:** restore the previous code and temporary build command together. Keep `DISABLE_COLLECTSTATIC=1` and collect files after compiling CSS.
+
+## Serve the site over HTTPS behind the proxy
+
+TLS ends at App Platform's proxy, so the app itself receives plain HTTP. With `DJANGO_DEBUG` "False", Django trusts the proxy's `X-Forwarded-Proto: https` header to know a request was HTTPS, and then:
+
+- redirects plain-HTTP requests to HTTPS (a permanent 301 redirect);
+- marks the session and CSRF cookies `Secure`, so browsers send them only over HTTPS;
+- builds the links in password-reset and account-activation emails with `https://`;
+- sends `Strict-Transport-Security` with a one-hour `max-age`, without `includeSubDomains` or `preload`.
+
+None of this needs a new variable; the defaults apply on the first deploy. With `DJANGO_DEBUG` "True" (local development), nothing changes.
+
+Trusting the header is only safe if the proxy sets it itself and replaces any `X-Forwarded-Proto` a client sends. A DigitalOcean community answer says App Platform does both; its documentation doesn't say either way. If the site ever moves behind a proxy that passes the client's header through, make that proxy overwrite it. Don't remove `SECURE_PROXY_SSL_HEADER` from `core/settings.py` instead: every request would then look like plain HTTP, so while `DJANGO_SECURE_SSL_REDIRECT` is on, every page would redirect to itself. If the setting ever has to go, set `DJANGO_SECURE_SSL_REDIRECT` to "false" first, and expect `http://` links in emails and no HSTS header.
+
+Before deploying, make sure `wf-website` has `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS` set (step 5 of [App](#app)), with `https://` origins. Their defaults now list only `127.0.0.1` and `localhost`, so an app that relied on the default no longer accepts requests for its real domain.
+
+If Cloudflare is in front of the app, its SSL/TLS encryption mode must be **Full** or **Full (strict)**, not **Flexible**. Flexible connects to the app over plain HTTP, so the header says `http` and every request redirects to itself.
+
+1. Deploy the change. No dashboard settings change.
+2. When the deploy finishes, check the redirect and the headers from a terminal:
+
+   ```sh
+   curl -sI http://<domain.TLD>/
+   curl -sI https://<domain.TLD>/
+   ```
+
+   The first should answer `301 Moved Permanently` with `Location: https://<domain.TLD>/`. The second should answer `200` and include `Strict-Transport-Security: max-age=3600`.
+3. Load the login page in a browser and check, in the developer tools, that the `csrftoken` cookie is marked `Secure`. Request a password reset and check that the link in the email starts with `https://`.
+4. Once HTTPS is confirmed everywhere, raise `DJANGO_SECURE_HSTS_SECONDS` on `wf-website` (for example to `31536000`, one year). Raise it only when you're sure: a browser that received a long `max-age` keeps using HTTPS for that long unless it comes back and receives a shorter one, so visitors who don't return can't be released early.
+
+If every page redirects to itself (the browser shows "too many redirects"), the proxy header isn't arriving. Set `DJANGO_SECURE_SSL_REDIRECT` to "false" on `wf-website` and save; the site then serves without the redirect while you find out why. The same applies to any HTTP health check that reaches the app without the header: it would get a redirect instead of a `200`.
+
+**Rolling back:** set `DJANGO_SECURE_SSL_REDIRECT` to "false" to stop the redirect, and `DJANGO_SECURE_HSTS_SECONDS` to `0` to stop sending HSTS. With `0`, Django sends no header at all, so a browser that already saved HSTS keeps using HTTPS until the last `max-age` it received runs out, which is one hour with the default. To release returning visitors sooner, set it to `1` instead: Django then sends `max-age=1` over HTTPS, which replaces the saved value, so it lapses a second later. This only works while the proxy's `X-Forwarded-Proto: https` header is arriving: without it Django treats every request as plain HTTP and sends no HSTS header at all, so restore the header first. Visitors who don't come back keep their saved `max-age`.
