@@ -260,12 +260,11 @@ class TestNavigationMenuRendering(TestCase):
         # Top-level page and external links reuse the black-on-white dropdown
         # template, so the list restyles its direct-child links.
         self.assertIn("[&>li>a]:text-white", menu["class"])
-        self.assertEqual(
-            menu.find("a", string=lambda text: text and "Quaker Links" in text)
-            .find_parent("li")
-            .find_parent("ul"),
-            menu,
-        )
+        # The child combinators only match a link directly inside a direct <li>,
+        # so a wrapper element anywhere in between would leave it black.
+        link = menu.find("a", string=lambda text: text and "Quaker Links" in text)
+        self.assertEqual(link.parent.name, "li")
+        self.assertIs(link.parent.parent, menu)
 
         # daisyUI's btn-ghost otherwise uses the theme's near-black text color.
         summary = menu.find("summary")
