@@ -16,16 +16,12 @@ class MagazineArticleForm(WagtailAdminPageForm):
         return cleaned_data
 
     def _reject_duplicate_authors(self) -> None:
-        formset = self.formsets.get("authors")
-        if formset is None:
-            return
+        formset = self.formsets["authors"]
         seen = set()
         for form in formset.forms:
-            # Rows the editor removed, or left with a field error, don't count.
-            if not form.is_valid() or formset._should_delete_form(form):  # noqa: SLF001
-                continue
-            author = form.cleaned_data.get("author")
-            if author is None:
+            # Rows the editor removed, or left blank or invalid, don't count.
+            author = form.cleaned_data.get("author") if form.is_valid() else None
+            if author is None or formset._should_delete_form(form):  # noqa: SLF001
                 continue
             if author.pk in seen:
                 form.add_error(

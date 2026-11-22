@@ -591,9 +591,12 @@ class MagazineArticleAuthor(Orderable):
         verbose_name = "Magazine Article Author"
         verbose_name_plural = "Magazine Article Authors"
         constraints = [
+            # Deferred to commit: modelcluster saves rows one at a time, so
+            # swapping two authors briefly repeats one.
             models.UniqueConstraint(
                 fields=["article", "author"],
                 name="unique_magazine_article_author",
+                deferrable=models.Deferrable.DEFERRED,
             ),
         ]
 

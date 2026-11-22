@@ -2,7 +2,8 @@
 
 An article could list the same contact as an author more than once, which
 repeated the name on the page and in the feed and inflated publication
-stats. The first entry, by sort order, is kept.
+stats. The first entry, by sort order, is kept, and the affected contacts'
+article counts are recalculated (historical models send no signals).
 
 The constraint is added in its own migration: on PostgreSQL, deleting rows
 and altering the same table in one transaction can fail with "pending
@@ -35,13 +36,38 @@ def dedupe_author_entries(entries):
     return kept
 
 
+def recount_articles(apps, author_ids):
+    """Set each contact's article count to the distinct articles they wrote.
+
+    The same count as ContactPublicationStatistics.update_for_contact, which
+    a migration can't call.
+    """
+    Statistics = apps.get_model("contact", "ContactPublicationStatistics")
+    author_models = [
+        apps.get_model("magazine", "MagazineArticleAuthor"),
+        apps.get_model("magazine", "ArchiveArticleAuthor"),
+    ]
+    for author_id in author_ids:
+        article_count = sum(
+            model.objects.filter(author_id=author_id)
+            .order_by()
+            .values("article_id")
+            .distinct()
+            .count()
+            for model in author_models
+        )
+        Statistics.objects.filter(contact_id=author_id).update(
+            article_count=article_count,
+        )
+
+
 def remove_duplicate_authors(apps, schema_editor):
     MagazineArticleAuthor = apps.get_model("magazine", "MagazineArticleAuthor")
 
-    duplicated = (
+    duplicated = list(
         MagazineArticleAuthor.objects.values("article_id", "author_id")
         .annotate(rows=Count("id"))
-        .filter(rows__gt=1)
+        .filter(rows__gt=1),
     )
     for pair in duplicated:
         rows = MagazineArticleAuthor.objects.filter(
@@ -50,6 +76,8 @@ def remove_duplicate_authors(apps, schema_editor):
         ).order_by(F("sort_order").asc(nulls_last=True), "id")
         keep_id = rows.values_list("id", flat=True).first()
         rows.exclude(id=keep_id).delete()
+
+    recount_articles(apps, {pair["author_id"] for pair in duplicated})
 
     # Revisions store authors as JSON. Without this, publishing an old draft
     # or a scheduled revision would break the new constraint.
@@ -69,6 +97,7 @@ def remove_duplicate_authors(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("wagtailcore", "0096_referenceindex_referenceindex_source_object_and_more"),
+        ("contact", "0011_contactpublicationstatistics"),
         ("magazine", "0041_alter_magazinearticle_body"),
     ]
 

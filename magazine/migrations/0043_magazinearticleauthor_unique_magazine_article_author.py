@@ -12,6 +12,7 @@ class Migration(migrations.Migration):
             constraint=models.UniqueConstraint(
                 fields=("article", "author"),
                 name="unique_magazine_article_author",
+                deferrable=models.Deferrable.DEFERRED,
             ),
         ),
     ]
