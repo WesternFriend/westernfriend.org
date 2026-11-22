@@ -1,0 +1,35 @@
+from wagtail.admin.forms import WagtailAdminPageForm
+
+DUPLICATE_AUTHOR_MESSAGE = "{author} is already an author of this article."
+
+
+class MagazineArticleForm(WagtailAdminPageForm):
+    """Page form that names a repeated author on the row that repeats it.
+
+    The database forbids the same contact twice on one article. modelcluster
+    would catch that too, but only with a generic "duplicate values" message.
+    """
+
+    def clean(self):
+        cleaned_data = super().clean()
+        self._reject_duplicate_authors()
+        return cleaned_data
+
+    def _reject_duplicate_authors(self) -> None:
+        formset = self.formsets.get("authors")
+        if formset is None:
+            return
+        seen = set()
+        for form in formset.forms:
+            # Rows the editor removed, or left with a field error, don't count.
+            if not form.is_valid() or formset._should_delete_form(form):  # noqa: SLF001
+                continue
+            author = form.cleaned_data.get("author")
+            if author is None:
+                continue
+            if author.pk in seen:
+                form.add_error(
+                    "author",
+                    DUPLICATE_AUTHOR_MESSAGE.format(author=author),
+                )
+            seen.add(author.pk)
