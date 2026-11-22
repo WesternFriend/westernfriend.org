@@ -29,6 +29,7 @@ from wagtail.models import Locale, Page, PageViewRestriction, Site
 from common.apps import CommonConfig, _locale_cache_local, _site_root_paths_local
 from common.forms import DESCRIPTION_HELP_TEXT, RequiredDescriptionImageForm
 from common.middleware import (
+    AdminRocketLoaderOptOutMiddleware,
     CanonicalHostRedirectMiddleware,
     PublicCacheControlMiddleware,
 )
@@ -84,6 +85,46 @@ class CanonicalHostRedirectTests(SimpleTestCase):
             headers={"host": "coral-app-qpf8k.ondigitalocean.app"},
         )
         self.assertEqual(response.status_code, 400)
+
+
+class AdminRocketLoaderOptOutTests(SimpleTestCase):
+    def run_middleware(self, path, response):
+        middleware = AdminRocketLoaderOptOutMiddleware(lambda _request: response)
+        return middleware(RequestFactory().get(path))
+
+    def test_marks_admin_scripts_including_those_in_templates(self):
+        html = (
+            '<script src="/static/a.js"></script>'
+            "<template><SCRIPT>new PageChooser('x', {});</SCRIPT></template>"
+        )
+        original = HttpResponse(html)
+        original["Content-Length"] = str(len(original.content))
+        response = self.run_middleware("/admin/pages/1/edit/", original)
+
+        self.assertEqual(
+            response.content.decode(),
+            '<script data-cfasync="false" src="/static/a.js"></script>'
+            "<template><script data-cfasync=\"false\">new PageChooser('x', {});"
+            "</SCRIPT></template>",
+        )
+        self.assertEqual(int(response["Content-Length"]), len(response.content))
+
+    def test_leaves_scripts_that_already_choose(self):
+        html = '<script data-cfasync="true">a()</script><scripts>'
+        response = self.run_middleware("/admin/", HttpResponse(html))
+
+        self.assertEqual(response.content.decode(), html)
+
+    def test_leaves_public_pages_and_non_html_alone(self):
+        html = "<script>a()</script>"
+        public = self.run_middleware("/magazine/", HttpResponse(html))
+        json = self.run_middleware(
+            "/admin/choose-page/",
+            HttpResponse(html, content_type="application/json"),
+        )
+
+        self.assertEqual(public.content.decode(), html)
+        self.assertEqual(json.content.decode(), html)
 
 
 class MockModel:

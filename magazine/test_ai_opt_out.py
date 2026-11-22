@@ -148,6 +148,27 @@ class ArticleAIOptOutTest(TestCase):
         self.assertContains(response, 'name="exclude_from_ai"')
         self.assertContains(response, "Exclude from AI use")
 
+    def test_new_author_rows_get_a_working_chooser_behind_rocket_loader(self):
+        """The blank author row's chooser script must opt out of Rocket Loader.
+
+        Otherwise Cloudflare renames its type, the script never runs when an
+        editor clicks "Add", and the new row's "Choose a page" does nothing.
+        """
+        admin = User.objects.create_superuser(email="admin@example.com", password=None)
+        self.client.force_login(admin)
+
+        response = self.client.get(
+            reverse("wagtailadmin_pages:edit", args=[self.included.id]),
+        )
+        html = response.content.decode()
+        template = html.split('id="id_authors-EMPTY_FORM_TEMPLATE"', 1)[1]
+        template = template.split("</template>", 1)[0]
+
+        self.assertIn(
+            '<script data-cfasync="false">new PageChooser("id_authors-__prefix__-author"',
+            template,
+        )
+
     @patch("common.signal_handlers.PurgeBatch")
     def test_publishing_article_purges_robots_and_llms_txt(self, purge_batch):
         with self.captureOnCommitCallbacks(execute=True):

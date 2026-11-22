@@ -243,6 +243,19 @@ When a change must appear at once, use Cloudflare's *Purge Everything* or
 4. Add two App Platform variables when Cloudflare purging is set up:
    `CLOUDFLARE_API_TOKEN` (encrypted) and `CLOUDFLARE_ZONE_ID`. Leave them
    unset until then; purging stays off without them.
+5. **Rocket Loader stays off in the admin.** Rocket Loader renames each
+   script's type to `<hash>-text/javascript` and runs the scripts itself after
+   page load. Wagtail keeps blank inline panel rows in a `<template>` whose
+   inline `<script>` sets up the row's chooser. Once renamed, that script never
+   runs when an editor clicks "Add", so the new row's "Choose a page" button
+   does nothing. This is how adding a second magazine article author broke.
+   There are two guards:
+   - A Cloudflare Configuration Rule turns Rocket Loader off where the URI path
+     starts with `/admin/`.
+   - `common.middleware.AdminRocketLoaderOptOutMiddleware` adds
+     `data-cfasync="false"`, which Rocket Loader skips, to every `<script>`
+     in admin HTML. It is listed after `GZipMiddleware` so it edits the HTML
+     before compression. This keeps the admin working if the rule is removed.
 
 ---
 

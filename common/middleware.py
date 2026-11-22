@@ -1,3 +1,4 @@
+import re
 from http import HTTPStatus
 
 from django.conf import settings
@@ -109,5 +110,46 @@ class DiscoveryLinkHeaderMiddleware:
                 if name != "llms_txt" or policy.publish_llms_txt
             ]
             response.headers.setdefault("Link", ", ".join(links))
+
+        return response
+
+
+# A <script> opening tag that doesn't already say whether Rocket Loader may touch it
+SCRIPT_TAG_WITHOUT_CFASYNC = re.compile(
+    rb"<script(?=[\s>])(?![^>]*\bdata-cfasync=)",
+    re.IGNORECASE,
+)
+
+
+class AdminRocketLoaderOptOutMiddleware:
+    """Stop Cloudflare Rocket Loader from rewriting Wagtail admin scripts.
+
+    Rocket Loader renames every script's type to "<hash>-text/javascript"
+    and runs them itself after the page loads. Wagtail keeps blank inline
+    panel rows in a <template> with an inline script that sets up each
+    chooser. Once renamed, that script never runs when an editor clicks
+    "Add", so the new row's "Choose a page" button does nothing.
+    Rocket Loader skips any script marked data-cfasync="false". See
+    docs/specifications/edge_caching.md.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        if (
+            request.path.startswith("/admin/")
+            and not response.streaming
+            and not response.has_header("Content-Encoding")
+            and response.get("Content-Type", "").lower().startswith("text/html")
+        ):
+            response.content = SCRIPT_TAG_WITHOUT_CFASYNC.sub(
+                b'<script data-cfasync="false"',
+                response.content,
+            )
+            if response.has_header("Content-Length"):
+                response["Content-Length"] = str(len(response.content))
 
         return response
