@@ -6,13 +6,14 @@ from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase, override_settings, tag
+from django.test import SimpleTestCase, TestCase, override_settings, tag
 from django.urls import reverse
 from wagtail.images import get_image_model
 from wagtail.models import Page, PageViewRestriction, Site
 
 from cli.dev_content.images import get_seed_collection
 from cli.dev_content.seeder import DEV_USERS, SCALES, DevContentSeeder
+from cli.management.commands.a11y_urls import Command as A11yUrlsCommand
 from cli.management.commands.seed_dev_content import delete_content, has_content
 from contact.models import Meeting, Person
 from events.factories import EventFactory
@@ -181,6 +182,40 @@ class SeedDevContentTest(TestCase):
                 )
                 self.assertEqual(response.status_code, 200)
 
+    def test_a11y_urls_covers_every_page_type(self) -> None:
+        """The accessibility check's URL list resolves on a seeded site.
+
+        CI scans exactly these URLs (docs/accessibility-checks.md), so each
+        must come back and each must serve a page.
+        """
+        stdout = StringIO()
+        call_command("a11y_urls", base="", stdout=stdout)
+        urls = stdout.getvalue().split()
+
+        self.assertEqual(len(urls), 9)
+        self.assertIn("/", urls)
+        self.assertIn("/accounts/login/", urls)
+        for url in urls:
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, 200)
+
+    def test_a11y_search_url_returns_results(self) -> None:
+        """The search scan must see result rows, not the empty state.
+
+        The query is a word from a seeded article's title, because a fixed
+        word can be a stopword the search view strips (as "the" was).
+        """
+        stdout = StringIO()
+        call_command("a11y_urls", base="", stdout=stdout)
+        search_url = next(
+            url for url in stdout.getvalue().split() if url.startswith("/search/")
+        )
+
+        response = self.client.get(search_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["paginated_search_results"].page.object_list)
+
 
 class SeedDevContentGuardTest(TestCase):
     def setUp(self) -> None:
@@ -215,3 +250,39 @@ class SeedDevContentGuardTest(TestCase):
     def test_refuses_when_frontend_cache_is_configured(self) -> None:
         with self.assertRaisesMessage(CommandError, "frontend cache"):
             call_command("seed_dev_content", scale="small", stdout=StringIO())
+
+
+class A11yUrlsGuardTest(TestCase):
+    """The URL command fails loudly rather than scanning fewer templates."""
+
+    def test_refuses_when_a_page_type_is_missing(self) -> None:
+        # An unseeded database has no magazine issue (nor anything else);
+        # naming the missing type makes the CI failure self-explanatory.
+        with self.assertRaisesMessage(CommandError, "magazine issue"):
+            call_command("a11y_urls", stdout=StringIO())
+
+
+class A11ySearchQueryTest(SimpleTestCase):
+    """How a11y_urls picks the search word from an article title."""
+
+    def test_skips_short_words(self) -> None:
+        self.assertEqual(A11yUrlsCommand._search_query("The Inner Light"), "inner")
+
+    def test_skips_long_stopwords(self) -> None:
+        # "About" and "their" pass the length check but are search stopwords:
+        # the view would strip them and the scan would see the empty state.
+        self.assertEqual(
+            A11yUrlsCommand._search_query("About Their Silence"),
+            "silence",
+        )
+
+    def test_falls_back_to_a_short_word_that_is_not_a_stopword(self) -> None:
+        self.assertEqual(A11yUrlsCommand._search_query("On Joy"), "joy")
+
+    def test_fails_loudly_when_every_word_is_a_stopword(self) -> None:
+        with self.assertRaisesMessage(CommandError, "Cannot build a search query"):
+            A11yUrlsCommand._search_query("About Them")
+
+    def test_fails_loudly_without_a_usable_word(self) -> None:
+        with self.assertRaisesMessage(CommandError, "Cannot build a search query"):
+            A11yUrlsCommand._search_query("1959: 2026")
