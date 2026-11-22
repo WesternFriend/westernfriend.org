@@ -2,8 +2,8 @@
 
 import importlib
 
-from django.apps import apps as django_apps
 from django.db import IntegrityError, connection, transaction
+from django.db.migrations.loader import MigrationLoader
 from django.test import TestCase
 from django.urls import reverse
 from wagtail.test.utils.form_data import (
@@ -114,6 +114,20 @@ class UniqueConstraintTest(DuplicateAuthorTestCase):
 
 
 class CleanupMigrationTest(DuplicateAuthorTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # The models as migration 0042 sees them. Like a real migration run,
+        # their deletes fire no stats signals, so the recount is the
+        # migration's own.
+        cls.migration_apps = (
+            MigrationLoader(connection)
+            .project_state(
+                ("magazine", "0042_remove_duplicate_magazine_article_authors"),
+            )
+            .apps
+        )
+
     def test_keeps_first_entry_by_sort_order(self):
         self.drop_constraint()
         later = MagazineArticleAuthor.objects.create(
@@ -137,7 +151,7 @@ class CleanupMigrationTest(DuplicateAuthorTestCase):
             sort_order=1,
         )
 
-        cleanup.remove_duplicate_authors(django_apps, None)
+        cleanup.remove_duplicate_authors(self.migration_apps, None)
 
         remaining = set(
             MagazineArticleAuthor.objects.filter(article=self.article).values_list(
@@ -162,7 +176,7 @@ class CleanupMigrationTest(DuplicateAuthorTestCase):
             article_count=3,
         )
 
-        cleanup.remove_duplicate_authors(django_apps, None)
+        cleanup.remove_duplicate_authors(self.migration_apps, None)
 
         stats = ContactPublicationStatistics.objects.get(contact=self.person)
         self.assertEqual(stats.article_count, 1)
@@ -176,7 +190,7 @@ class CleanupMigrationTest(DuplicateAuthorTestCase):
         ]
         revision.save(update_fields=["content"])
 
-        cleanup.remove_duplicate_authors(django_apps, None)
+        cleanup.remove_duplicate_authors(self.migration_apps, None)
 
         revision.refresh_from_db()
         self.assertEqual(
@@ -193,7 +207,7 @@ class CleanupMigrationTest(DuplicateAuthorTestCase):
         revision.content["authors"] = entries
         revision.save(update_fields=["content"])
 
-        cleanup.remove_duplicate_authors(django_apps, None)
+        cleanup.remove_duplicate_authors(self.migration_apps, None)
 
         revision.refresh_from_db()
         self.assertEqual(revision.content["authors"], entries)
