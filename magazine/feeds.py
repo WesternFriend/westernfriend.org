@@ -104,5 +104,6 @@ class MagazineArticleFeed(Feed):
         return _issue_datetime(item.parent_issue)
 
     def item_author_name(self, item: MagazineArticle) -> str | None:
-        names = [str(author.author) for author in item.authors.all()]
-        return ", ".join(names) or None
+        # Keyed by contact, so a contact listed twice is named once, in order.
+        names = {link.author_id: str(link.author) for link in item.authors.all()}
+        return ", ".join(names.values()) or None

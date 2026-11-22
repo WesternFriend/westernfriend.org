@@ -30,6 +30,7 @@ from common.renditions import (
 from core.constants import COMMON_STREAMFIELD_BLOCKS
 from pagination.helpers import get_paginated_items
 
+from .forms import MagazineArticleForm
 from .panels import NestedInlinePanel
 
 MAGAZINE_ARCHIVE_THRESHOLD_DAYS = 180
@@ -496,6 +497,8 @@ class MagazineArticle(DrupalFields, Page):  # type: ignore
         ),
     ]
 
+    base_form_class = MagazineArticleForm
+
     parent_page_types = ["MagazineIssue"]
     subpage_types: list[str] = []
 
@@ -587,6 +590,15 @@ class MagazineArticleAuthor(Orderable):
     class Meta:
         verbose_name = "Magazine Article Author"
         verbose_name_plural = "Magazine Article Authors"
+        constraints = [
+            # Deferred to commit: modelcluster saves rows one at a time, so
+            # swapping two authors briefly repeats one.
+            models.UniqueConstraint(
+                fields=["article", "author"],
+                name="unique_magazine_article_author",
+                deferrable=models.Deferrable.DEFERRED,
+            ),
+        ]
 
 
 class ArchiveArticleAuthor(Orderable):

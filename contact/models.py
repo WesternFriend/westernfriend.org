@@ -88,8 +88,13 @@ class ContactPublicationStatistics(models.Model):
             author=contact,
         ).select_related("article__issue")
 
-        # Count the total number of articles
-        article_count = articles_authored.count() + archive_articles_authored.count()
+        # Count distinct articles, so a contact listed twice on one article
+        # still counts it once. order_by() clears Orderable's default ordering,
+        # which would otherwise add sort_order to the DISTINCT.
+        article_count = sum(
+            links.order_by().values("article_id").distinct().count()
+            for links in (articles_authored, archive_articles_authored)
+        )
 
         # Find the most recent publication date
         recent_article_date = None
