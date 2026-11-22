@@ -96,8 +96,9 @@ class SearchOptimizationTestCase(TestCase):
     # Query count varies (14-20) depending on cache state - this is normal.
     # Django caches content types and other metadata between tests.
     # Maximum acceptable queries including cache overhead, plus one for the
-    # crawler policy that decides whether the Link header advertises llms.txt
-    MAX_SEARCH_QUERIES = 21
+    # crawler policy that decides whether the Link header advertises llms.txt,
+    # plus one for the footer's accessibility statement lookup
+    MAX_SEARCH_QUERIES = 22
 
     def setUp(self) -> None:
         self.client = Client()
@@ -191,7 +192,10 @@ class SearchOptimizationTestCase(TestCase):
         - 21 queries: Fresh database, navigation settings created on first request
 
         This is normal TestCase behavior and doesn't indicate N+1 issues.
-        We verify the query count is reasonable (≤21) rather than exact.
+        These ranges were measured before the footer's accessibility statement
+        lookup, which adds one query.
+        We verify the query count stays at or under MAX_SEARCH_QUERIES rather
+        than exact.
 
         KEY OPTIMIZATION: Parent pages are bulk-prefetched for ALL search results,
         then cached on each page instance. This prevents N+1 queries from {% pageurl %}
