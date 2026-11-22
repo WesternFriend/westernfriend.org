@@ -13,6 +13,7 @@ from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
 
+from blocks.blocks import MediaBlock
 from common.models import DrupalFields
 from core.constants import COMMON_STREAMFIELD_BLOCKS
 from facets.models import Audience, Genre, Medium, TimePeriod, Topic
@@ -42,7 +43,7 @@ class LibraryItem(DrupalFields, Page):  # type: ignore
         help_text="This field indicates when a library item wasn't published on a specific publication date.",
     )
     body = StreamField(
-        COMMON_STREAMFIELD_BLOCKS,
+        [*COMMON_STREAMFIELD_BLOCKS, ("media", MediaBlock())],
         null=True,
         blank=True,
         use_json_field=True,
