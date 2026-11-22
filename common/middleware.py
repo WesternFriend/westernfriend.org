@@ -1,3 +1,4 @@
+import re
 from http import HTTPStatus
 
 from django.conf import settings
@@ -109,5 +110,59 @@ class DiscoveryLinkHeaderMiddleware:
                 if name != "llms_txt" or policy.publish_llms_txt
             ]
             response.headers.setdefault("Link", ", ".join(links))
+
+        return response
+
+
+SCRIPT_START_TAG = re.compile(rb"<script(?=[\s>/])([^>]*)>", re.IGNORECASE)
+
+# A data-cfasync attribute and its value, quoted or not. Attribute values
+# can't hold a bare quote of their own kind, so text such as
+# title="data-cfasync=x" stays inside its quotes and is skipped.
+CFASYNC_ATTRIBUTE = re.compile(
+    rb"""("[^"]*"|'[^']*')|\sdata-cfasync(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?""",
+    re.IGNORECASE,
+)
+
+
+def _opt_script_out_of_rocket_loader(match: re.Match[bytes]) -> bytes:
+    """Replace any data-cfasync value on the tag with "false"."""
+    attributes = CFASYNC_ATTRIBUTE.sub(
+        lambda attr: attr.group(1) or b"",
+        match.group(1),
+    )
+    return b'<script data-cfasync="false"' + attributes + b">"
+
+
+class AdminRocketLoaderOptOutMiddleware:
+    """Stop Cloudflare Rocket Loader from rewriting Wagtail admin scripts.
+
+    Rocket Loader renames every script's type to "<hash>-text/javascript"
+    and runs them itself after the page loads. Wagtail keeps blank inline
+    panel rows in a <template> with an inline script that sets up each
+    chooser. Once renamed, that script never runs when an editor clicks
+    "Add", so the new row's "Choose a page" button does nothing.
+    Rocket Loader skips any script marked data-cfasync="false". See
+    docs/specifications/edge_caching.md.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        if (
+            request.path.startswith("/admin/")
+            and not response.streaming
+            and not response.has_header("Content-Encoding")
+            and response.get("Content-Type", "").lower().startswith("text/html")
+        ):
+            response.content = SCRIPT_START_TAG.sub(
+                _opt_script_out_of_rocket_loader,
+                response.content,
+            )
+            if response.has_header("Content-Length"):
+                response["Content-Length"] = str(len(response.content))
 
         return response

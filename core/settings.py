@@ -281,6 +281,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
     "common.middleware.DiscoveryLinkHeaderMiddleware",
+    # Listed after GZipMiddleware so it edits the HTML before compression
+    "common.middleware.AdminRocketLoaderOptOutMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
