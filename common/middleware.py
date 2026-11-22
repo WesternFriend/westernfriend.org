@@ -114,11 +114,24 @@ class DiscoveryLinkHeaderMiddleware:
         return response
 
 
-# A <script> opening tag that doesn't already say whether Rocket Loader may touch it
-SCRIPT_TAG_WITHOUT_CFASYNC = re.compile(
-    rb"<script(?=[\s>])(?![^>]*\bdata-cfasync=)",
+SCRIPT_START_TAG = re.compile(rb"<script(?=[\s>/])([^>]*)>", re.IGNORECASE)
+
+# A data-cfasync attribute and its value, quoted or not. Attribute values
+# can't hold a bare quote of their own kind, so text such as
+# title="data-cfasync=x" stays inside its quotes and is skipped.
+CFASYNC_ATTRIBUTE = re.compile(
+    rb"""("[^"]*"|'[^']*')|\sdata-cfasync(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?""",
     re.IGNORECASE,
 )
+
+
+def _opt_script_out_of_rocket_loader(match: re.Match[bytes]) -> bytes:
+    """Replace any data-cfasync value on the tag with "false"."""
+    attributes = CFASYNC_ATTRIBUTE.sub(
+        lambda attr: attr.group(1) or b"",
+        match.group(1),
+    )
+    return b'<script data-cfasync="false"' + attributes + b">"
 
 
 class AdminRocketLoaderOptOutMiddleware:
@@ -145,8 +158,8 @@ class AdminRocketLoaderOptOutMiddleware:
             and not response.has_header("Content-Encoding")
             and response.get("Content-Type", "").lower().startswith("text/html")
         ):
-            response.content = SCRIPT_TAG_WITHOUT_CFASYNC.sub(
-                b'<script data-cfasync="false"',
+            response.content = SCRIPT_START_TAG.sub(
+                _opt_script_out_of_rocket_loader,
                 response.content,
             )
             if response.has_header("Content-Length"):

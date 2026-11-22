@@ -109,11 +109,32 @@ class AdminRocketLoaderOptOutTests(SimpleTestCase):
         )
         self.assertEqual(int(response["Content-Length"]), len(response.content))
 
-    def test_leaves_scripts_that_already_choose(self):
-        html = '<script data-cfasync="true">a()</script><scripts>'
+    def test_overrides_any_existing_cfasync_value(self):
+        html = (
+            '<script data-cfasync="true">a()</script>'
+            "<script DATA-CFASYNC=false>b()</script>"
+            "<script data-cfasync>c()</script>"
+            "<scripts>"
+        )
         response = self.run_middleware("/admin/", HttpResponse(html))
 
-        self.assertEqual(response.content.decode(), html)
+        self.assertEqual(
+            response.content.decode(),
+            '<script data-cfasync="false">a()</script>'
+            '<script data-cfasync="false">b()</script>'
+            '<script data-cfasync="false">c()</script>'
+            "<scripts>",
+        )
+
+    def test_ignores_cfasync_text_inside_other_attribute_values(self):
+        html = """<script title='data-cfasync="false"' src="/a.js"></script>"""
+        response = self.run_middleware("/admin/", HttpResponse(html))
+
+        self.assertEqual(
+            response.content.decode(),
+            """<script data-cfasync="false" title='data-cfasync="false"'"""
+            """ src="/a.js"></script>""",
+        )
 
     def test_leaves_public_pages_and_non_html_alone(self):
         html = "<script>a()</script>"
