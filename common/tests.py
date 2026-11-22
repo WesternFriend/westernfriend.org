@@ -114,6 +114,7 @@ class AdminRocketLoaderOptOutTests(SimpleTestCase):
             '<script data-cfasync="true">a()</script>'
             "<script DATA-CFASYNC=false>b()</script>"
             "<script data-cfasync>c()</script>"
+            "<script data-cfasync = 'true'>d()</script>"
             "<scripts>"
         )
         response = self.run_middleware("/admin/", HttpResponse(html))
@@ -123,6 +124,7 @@ class AdminRocketLoaderOptOutTests(SimpleTestCase):
             '<script data-cfasync="false">a()</script>'
             '<script data-cfasync="false">b()</script>'
             '<script data-cfasync="false">c()</script>'
+            '<script data-cfasync="false">d()</script>'
             "<scripts>",
         )
 
