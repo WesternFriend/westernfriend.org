@@ -1,5 +1,6 @@
 import json
 import logging
+from collections.abc import Callable
 from decimal import Decimal, InvalidOperation
 from http import HTTPStatus
 
@@ -15,6 +16,55 @@ from .orders import capture_order, create_order
 
 logger = logging.getLogger(__name__)
 
+_MAX_ORDER_ID = 2**63 - 1
+_MAX_ORDER_ID_DIGITS = len(str(_MAX_ORDER_ID))
+_MAX_PAYPAL_ID_LENGTH = 255
+
+
+def _is_valid_order_id(value: object) -> bool:
+    if isinstance(value, int):
+        return not isinstance(value, bool) and 0 < value <= _MAX_ORDER_ID
+    if not isinstance(value, str) or not value.isascii() or not value.isdecimal():
+        return False
+
+    normalized_value = value.lstrip("0")
+    return bool(normalized_value) and (
+        len(normalized_value) < _MAX_ORDER_ID_DIGITS
+        or (
+            len(normalized_value) == _MAX_ORDER_ID_DIGITS
+            and normalized_value <= str(_MAX_ORDER_ID)
+        )
+    )
+
+
+def _is_valid_paypal_id(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and bool(value.strip())
+        and len(value) <= _MAX_PAYPAL_ID_LENGTH
+    )
+
+
+def _parse_json_request(
+    request,
+    required_fields: dict[str, Callable[[object], bool]],
+) -> dict | JsonResponse:
+    try:
+        body_json = json.loads(request.body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        body_json = None
+
+    if not isinstance(body_json, dict) or any(
+        field not in body_json or not validator(body_json[field])
+        for field, validator in required_fields.items()
+    ):
+        return JsonResponse(
+            {"error": "Invalid request body."},
+            status=HTTPStatus.BAD_REQUEST,
+        )
+
+    return body_json
+
 
 @require_POST
 def create_paypal_order(
@@ -24,10 +74,12 @@ def create_paypal_order(
 
     Return the PayPal response.
     """
-
-    body_json = json.loads(
-        request.body.decode("utf-8"),
+    body_json = _parse_json_request(
+        request,
+        {"wf_order_id": _is_valid_order_id},
     )
+    if isinstance(body_json, JsonResponse):
+        return body_json
 
     try:
         order = Order.objects.get(
@@ -116,8 +168,12 @@ def capture_paypal_order(
     The order is only marked paid when PayPal reports a completed capture
     for the full order total.
     """
-
-    body_json = json.loads(request.body.decode("utf-8"))
+    body_json = _parse_json_request(
+        request,
+        {"paypal_order_id": _is_valid_paypal_id},
+    )
+    if isinstance(body_json, JsonResponse):
+        return body_json
 
     paypal_order_id = body_json["paypal_order_id"]
 
@@ -160,20 +216,20 @@ def capture_paypal_order(
 
     capture = get_completed_capture(paypal_response)
 
+    capture_validation_error = None
     if capture is None:
         logger.error(
             "PayPal capture for order %s did not complete (status %s).",
             order.id,  # type: ignore
             paypal_response.get("status"),
         )
-        return JsonResponse(
+        capture_validation_error = JsonResponse(
             {
                 "error": "Payment was not completed.",
             },
             status=HTTPStatus.UNPROCESSABLE_ENTITY,
         )
-
-    if not capture_matches_order_total(capture, order):
+    elif not capture_matches_order_total(capture, order):
         logger.error(
             "PayPal capture %s for order %s has amount %s, expected %s %s.",
             capture.get("id"),
@@ -182,12 +238,15 @@ def capture_paypal_order(
             order.get_total_cost(),
             DEFAULT_CURRENCY_CODE.value,
         )
-        return JsonResponse(
+        capture_validation_error = JsonResponse(
             {
                 "error": "Payment amount does not match order total.",
             },
             status=HTTPStatus.UNPROCESSABLE_ENTITY,
         )
+
+    if capture_validation_error:
+        return capture_validation_error
 
     order.paypal_transaction_id = capture.get("id", "")
     order.paid = True
@@ -203,10 +262,12 @@ def capture_paypal_order(
 @require_POST
 def link_paypal_subscription(request) -> JsonResponse:
     """Link a PayPal subscription to a WesternFriendSubscription."""
-
-    body_json = json.loads(
-        request.body.decode("utf-8"),
+    body_json = _parse_json_request(
+        request,
+        {"subscription_id": _is_valid_paypal_id},
     )
+    if isinstance(body_json, JsonResponse):
+        return body_json
 
     subscription, _ = Subscription.objects.get_or_create(
         user=request.user,
